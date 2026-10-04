@@ -457,7 +457,8 @@ CREATE TABLE IF NOT EXISTS tab_kits (
   cnv_count     INTEGER,
   dbf_count     INTEGER,
   ingested_at   TEXT,
-  sha256        TEXT
+  sha256        TEXT,
+  parser_fingerprint TEXT              -- the parsing code that read it (semantics.tabkit.parser_fingerprint)
 );
 
 CREATE TABLE IF NOT EXISTS def_variables (     -- what a column is officially called

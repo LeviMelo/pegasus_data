@@ -26,7 +26,10 @@ def _codes_for(catalog: Catalog, prefixes: tuple[str, ...]) -> tuple[frozenset[s
     provenance: str | None = None
     for prefix in prefixes:
         rows = catalog.query(
-            "SELECT code, source_ref FROM code_tables WHERE table_id LIKE ?", (f"{prefix}%",)
+            # A range, not LIKE: SQLite's case-insensitive LIKE cannot use the
+            # (table_id, ...) key, and code_tables holds 12.7M rows.
+            "SELECT code, source_ref FROM code_tables WHERE table_id >= ? AND table_id < ?",
+            (prefix.upper(), prefix.upper() + "􏿿"),
         )
         for row in rows:
             value = str(row["code"]).strip().upper()

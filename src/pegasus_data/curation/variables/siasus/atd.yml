@@ -104,6 +104,9 @@ variables:
       when not informed). Recorded because it determines which machine and shift a
       haemodialysis patient can be treated on.'
     code_system: internal
+    codes:
+      'P': 'Positivo'
+      'N': 'Negativo'
     source: layout_doc
     source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -194,13 +197,18 @@ variables:
 
       '
     code_system: internal
-    source: web
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+      'I': 'Ignorado'
     reasoning: 'A 2014 DATASUS APAC text-layout manual documents the equivalent field,
       there named APA_SEPERI in the Tratamento Dialítico laudo block, verbatim as "Se
       em diálise Peritoneal, houve peritonite diagnosticada no mês vigente? (S-Sim,
       N-Não, I-Ignorado)". ATD_SEPERI is one character, matching that S/N/I domain.
 
       '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) — sources/siasus/Informe_Tecnico_SIASUS_2019_07.pdf, §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 64 ATD_SEPERI CHAR(1) ''Se em Diálise Peritoneal, houve peritonite diagnosticada no mês vigente? (S - Sim, N - Não, I - Ignorado)'''
   ATD_SITINI:
     official_name: Situação no início do tratamento
     translated_name: Setting at start of treatment

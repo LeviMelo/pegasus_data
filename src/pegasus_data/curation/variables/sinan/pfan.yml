@@ -465,8 +465,15 @@ variables:
     translated_name: 'Site of intramuscular injection'
     description: 'Body site of the intramuscular injection in the patient''s history: left or right lower limb, left or right upper limb, or left or right buttock.'
     code_system: 'internal'
+    codes:
+      '1': 'MIE'
+      '2': 'MSE'
+      '3': 'MID'
+      '4': 'MSD'
+      '5': 'Glúteo E'
+      '6': 'Glúteo D'
     source: layout_doc
-    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 54 (Local de aplicação)'
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda/Poliomielite — sources/dic_text/pfa.txt, campo 54 Local de Aplicação (tp_local_aplicacao varchar2(1), SINAN-W CLI_LOCAL): 1 – MIE, 2 – MSE, 3 – MID, 4 – MSD, 5 – Glúteo E, 6 – Glúteo D (abbreviations are the document''s own)'
   CLI_NUCA:
     official_name: Rigidez de nuca
     translated_name: Neck stiffness
@@ -1154,8 +1161,14 @@ variables:
     translated_name: 'Cervical muscle tone at revisit'
     description: 'Muscle tone of the neck musculature at the revisit examination: decreased, absent, normal, or increased.'
     code_system: 'internal'
+    codes:
+      '1': 'Diminuída'
+      '2': 'Ausente'
+      '3': 'Normal'
+      '4': 'Aumentado'
+      '9': 'Ignorado'
     source: layout_doc
-    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 76 (Tônus muscular – musculatura cervical, revisita)'
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda/Poliomielite — sources/dic_text/pfa.txt, campo 76 Tônus Muscular Musculatura Cervical (tp_revisita_cervical varchar2(1), TONR_CER_N): 1 Diminuída, 2 Ausente, 3 Normal, 4 Aumentado, 9 Ignorado'
   TONR_FAC_N:
     official_name: Tônus facial na reavaliação
     translated_name: Tone at reassessment, face

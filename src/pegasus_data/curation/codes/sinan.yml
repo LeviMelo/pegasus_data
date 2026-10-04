@@ -598,7 +598,17 @@ series:
         '600': Critério óbito
         '900': Descartado
         '901': HIV+
-      source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf
+        '120': CDC + CDC/laboratório
+        '123': CDC + CDC/laboratório + Rio de Janeiro/Caracas
+        '130': CDC + Rio de Janeiro/Caracas
+        '140': CDC/laboratório + Rio de Janeiro/Caracas
+        '200': CDC/laboratório
+        '400': CDC excepcional
+        '500': ARC + óbito
+        '601': Critério óbito
+        '902': HIV+
+      source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf; SES-RJ TabNet, Nota Técnica Aids — http://sistemas.saude.rj.gov.br/tabnetbd/Sinan/Nota_Tecnica_aids_relacionado.pdf
+        ("600, 601 - ÓBITO", "901, 902 - HIV+"); the intermediate criteria also in TAB_SINANNET CRITAIDS.CNV
     DEF_DIAGNO:
       codes:
         '1': Sim
@@ -7279,6 +7289,14 @@ series:
         '2': não
         '9': ignorado
       source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
+    CLI_OUTRO:
+      codes:
+        '1': Sim
+        '2': Não
+        '3': Não se aplica
+        '9': Ignorado
+      source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_outro (SINAN-W name CLI_OUTRO): "1
+        sim 2. não 3. não se aplica 9. ignorado"'
     ESCOLMAE:
       codes:
         '0': analfabeto
@@ -7310,6 +7328,14 @@ series:
         '4': natimorto
         '5': descartado
       source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
+    HEPATO:
+      codes:
+        '1': Sim
+        '2': Não
+        '3': Não se aplica
+        '9': Ignorado
+      source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_hepato (SINAN-W name HEPATO): "1 sim
+        2. não 3. não se aplica 9. ignorado"'
     LABC_EVIDE:
       codes:
         '1': sim
@@ -8191,7 +8217,6 @@ series:
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     CS_ESCOL_N:
       codes:
-        '43': Analfabeto
         '1': 1ª a 4ª série incompleta do EF
         '2': 4ª série completa do EF ( antigo 1° grau)
         '3': 5ª à 8ª série incompleta do EF (antigo ginásio ou 1° grau)
@@ -8202,7 +8227,10 @@ series:
         '8': Educação superior completa
         '9': Ignorado
         '10': Não se aplica
-      source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
+        '0': Analfabeto
+      source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf; The violence
+        dictionary's text reads "43 Analfabeto" where every other SINAN NET dictionary and form prints
+        the same scale with "0-Analfabeto" (aids_crianca, antirrabico, dermatoses, lerdort, mental, pfa)
     CS_RACA:
       codes:
         '1': branca

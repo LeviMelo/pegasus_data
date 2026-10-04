@@ -90,3 +90,68 @@ variables:
     source: def
     source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_DIAGPR,
       "CID Principal", CID.CNV.'
+  PAR_INITRA:
+    official_name: 'Data de Início do Tratamento (AAAAMM)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável RADIOTERAPIA (tipo de atendimento 28), campo 001 apa_initrat C(6) ''Data de Inicio do Tratamento AAAAMM'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_ESTAD:
+    official_name: 'Estado do Tumor'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável RADIOTERAPIA (tipo de atendimento 28), apa_estado C(1) ''Estado do Tumor'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_CEPPCN:
+    official_name: 'Código de Endereçamento Postal do logradouro do paciente'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 016 apa_ceppcnte N(8) ''Código de Endereçamento Postal do logradouro do paciente'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_CPFPCN:
+    official_name: 'Número de registro do paciente no Cadastro de Pessoas Físicas (CPF)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 009 apa_cpfpcnte N(11) ''Número de registro do paciente no Cadastro de Pessoas Físicas da Receita Federal (CPF)'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_NASCPC:
+    official_name: 'Data de nascimento do paciente (AAAAMMDD)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 018 apa_datanascim N(8) ''Data de nascimento do paciente (AAAAMMDD)'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_UFNASC:
+    official_name: 'Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011 apa_ufnascpcnte N(2) ''Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_NUM:
+    official_name: 'Número da APAC'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 003 apa_num N(11) ''Número da APAC com 11 dígitos incluindo seqüência e 1 para dígito verificador'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_AREA1:
+    official_name: 'Áreas irradiadas 1'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável RADIOTERAPIA (tipo de atendimento 28), apa_área_1 C(4) ''Áreas irradiadas 1'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_AREA2:
+    official_name: 'Áreas irradiadas 2'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável RADIOTERAPIA (tipo de atendimento 28), apa_área_2 C(4) ''Áreas irradiadas 2'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAR_AREA3:
+    official_name: 'Áreas irradiadas 3'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável RADIOTERAPIA (tipo de atendimento 28), apa_área_3 C(4) ''Áreas irradiadas 3'''
+    notes: 'The legacy PR DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'

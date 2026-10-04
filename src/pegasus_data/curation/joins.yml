@@ -57,8 +57,11 @@ keys:
           this is not a subset of RD but its complement.
       - dataset: SIH.MT
         column: N_AIH
-        rows_per_key: one
+        rows_per_key: many
         note: admissions whose billed procedure changed during the stay; a subset of RD.
+        measured: >
+          measured 2026-10-03: national 1996-01 (published nationally, 1995-01 to
+          1997-05), 4,317,149 rows on 1,040,594 AIHs, 801,542 repeated, up to 82.
 
   CNES:
     what: >
@@ -154,9 +157,10 @@ keys:
         note: chemotherapy
       - dataset: SIA.AR
         column: AP_AUTORIZ
-        rows_per_key: one
+        rows_per_key: many
         measured: >
-          measured 2026-09-30: SP 2023-01, 2,723 rows, 2,723 APACs.
+          measured 2026-09-30: SP 2023-01, 2,723 rows, 2,723 APACs; but 2026-10-03,
+          SP 2010-01, 4,267 rows on 4,121 APACs, 121 repeated.
         note: radiotherapy
       - dataset: SIA.AM
         column: AP_AUTORIZ
@@ -166,11 +170,15 @@ keys:
         note: medication
       - dataset: SIA.AN
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
         note: nephrology
+        measured: >
+          measured 2026-10-03: SP 2010-01, 18,908 rows on 18,849 APACs, 55 repeated.
       - dataset: SIA.AB
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-10-03: SP 2010-01, 968 rows on 653 APACs, 315 repeated.
       - dataset: SIA.ABO
         column: AP_AUTORIZ
         rows_per_key: many

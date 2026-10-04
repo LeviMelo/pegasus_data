@@ -259,5 +259,8 @@ variables:
     translated_name: 'Oral polio vaccine on same day as rotavirus vaccine'
     description: 'Whether the child received oral polio vaccine (VOP) on the same day as the rotavirus vaccine.'
     code_system: 'internal'
-    source: layout_doc
-    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Rotavírus (rev. jan/2015) — sources/dic_text/rotavirus__DIC_DADOS_ROTA_NET_v5.1.txt (DIC_DADOS_ROTA_NET_v5.1.pdf, portalsinan.saude.gov.br), campo 43 (Vacina VOP)'
+    codes:
+      '1': 'Sim'
+      '2': 'Não'
+    source: def
+    source_ref: 'TabWin ROTANet.def (TAB_SINANNET, ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip) line ''Adm Vacina VOP, VOP_VORH, 1, SIM_NAO.CNV''; SIM_NAO.CNV: 1 Sim, 2 Não, 0-9 (any other) Ign/Branco. Also DIC_DADOS_ROTA_NET_v5.1 campo 43'

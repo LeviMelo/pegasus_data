@@ -599,10 +599,11 @@ variables:
     description: Whether the cervical histopathology diagnosed another malignant neoplasm
       outside the named squamous and glandular categories (yes/no).
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
-      "Res_Neo_Outras"; TabWin definition histo_colo.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar,
-      variável "Res_Neopl_Outras" (SIMNAO2.CNV)
+    codes:
+      '1': 'Sim'
+      '0': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def campo Res_Neopl_Outras (R_NEOP_OUT, SIMNAO2.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   CO_RES_TAM:
     official_name: Tamanho do tumor (histopatologia colo) — dimensão 1
     translated_name: Cervical tumour size, first dimension (mm)
@@ -1606,8 +1607,12 @@ variables:
       transformation-zone excision, hysterectomy or total hysterectomy. Distinct from the
       procedure on the requisition, which the NU_PROC_* counts tabulate.'
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
-      "Tipo de procedimento cir"; INCA, Requisição de Exame Histopatológico - Colo do Útero
-      (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
-      p.2 "Tipo de procedimento cirúrgico"; TAB_SISCAN tpproccir.cnv
+    codes:
+      '01': 'Biópsia'
+      '04': 'Conização'
+      '06': 'Exerese da zona de transformação'
+      '07': 'Histerectomia'
+      '08': 'Histerectomia Total'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def campo Tipo Procedimento Cir (TP_PROCCIR, tpproccir.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'tpproccir.CNV lists 01, 04, 06, 07, 08; a code 05 occurs in the DBF kit data and is not in the CNV, so it stays undecoded.'

@@ -538,7 +538,8 @@ variables:
     description: Count of previous stillbirths (nascidos mortos) in the woman's obstetric
       history.
     code_system: none
-    source: inferred
+    source: def
+    source_ref: 'TAB_SISPRENATAL Gestantes.def (GestacaoWeb.dbf), increment-variable line: "IQt nascidos mortos, QT_NSC_MOR". The label does not say ''previous''; the obstetric-history reading is reasoning.'
     reasoning: 'QT_ (quantidade) + NSC (nascidos) + MOR (mortos), mirroring QT_NSC_VIV
       in the same block. Reviewed 2026-09-28: no documentation found (searched the
       TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
@@ -549,7 +550,8 @@ variables:
     translated_name: Live-birth count (obstetric history)
     description: Count of previous live births (nascidos vivos) in the woman's obstetric history.
     code_system: none
-    source: inferred
+    source: def
+    source_ref: 'TAB_SISPRENATAL Gestantes.def (GestacaoWeb.dbf), increment-variable line: "IQt nascidos vivos , QT_NSC_VIV". The label does not say ''previous''; the obstetric-history reading is reasoning.'
     reasoning: 'QT_ (quantidade) + NSC (nascidos) + VIV (vivos), a standard DATASUS
       abbreviation chain. Reviewed 2026-09-28: no documentation found (searched the
       TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty

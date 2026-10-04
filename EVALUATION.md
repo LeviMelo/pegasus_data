@@ -162,3 +162,4 @@ in.
 | 2026-10-03 | [SINAN form dictionaries: page-break truncation, coded fields marked uncoded](docs/evaluation/2026-10-03-sinan-form-dictionaries.md) | live (SINAN.ACBI 2023 BR) and audit (stored decisions against each form's DEF) |
 | 2026-10-03 | [An export older than its native file is an older edition](docs/evaluation/2026-10-03-stale-export-editions.md) | live (SINAN.ACBI 2023, repo and fresh home); catalog count |
 | 2026-10-03 | [SINAN undecoded sweep: every form, 2023, fresh home](docs/evaluation/2026-10-03-sinan-undecoded-sweep.md) | live (57 forms, 5.2M rows, three runs) |
+| 2026-10-04 | [Open questions pass: curation, join grain, linkage evidence, rebuild speed](docs/evaluation/2026-10-04-open-questions-pass.md) | live (joins, SE 2022 link) and audits |

@@ -10,12 +10,13 @@ variables:
   SP_ATOPROF:
     official_name: Procedimento realizado (ato profissional)
     translated_name: Procedure performed
-    description: Code of the procedure performed, from the SUS procedure table.
+    description: 'Code of the procedure referring to the professional act (ato profissional) on the SIH SP record, from the SUS procedure table.'
     code_system: external
     codelists:
     - TPROC
     - TPROC10
-    source: inferred
+    source: layout_doc
+    source_ref: 'IT_SIHSUS_1603 (SIH SP layout), item 13: "SP_ATOPROF char (10) Procedimento referente ao ato profissional." (an SIH SP field, not an SIA one)'
     reasoning: 'Observed at two widths in the sampled values: 398 distinct 8-character
       codes and 400 distinct 10-character ones. TPROC holds 23,151 8-character codes and
       TPROC10 holds 23,136 10-character ones, so the column spans the 1994-era table and
@@ -61,7 +62,9 @@ variables:
     codelists:
     - TPROC
     - TPROC10
-    source: inferred
+    description: 'Code of the principal procedure performed in the AIH, from the SUS procedure table (SIH SP layout).'
+    source: layout_doc
+    source_ref: 'IT_SIHSUS_1603 (SIH SP layout), item 7: "SP_PROCREA char (10) Procedimento principal realizado na AIH." (an SIH SP field, not an SIA one)'
     reasoning: 'Same two-width pattern as SP_ATOPROF: 400 distinct 8-character values
       and 395 distinct 10-character ones in the sample. Bound to both tables for the
       same reason. Reviewed 2026-09-28: no documentation found (searched Informe Técnico

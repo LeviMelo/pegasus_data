@@ -123,22 +123,31 @@ variables:
     translated_name: Toxic agent - lead
     description: 'Flag set to 1 when the chemical product was classified as lead; blank means no or unknown.'
     code_system: internal
+    codes:
+      '1': 'Sim'
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por chumbo)'
+    notes: 'Blank means Não or Ignorado/Branco (the dictionary lists no code for it).'
   INTOX_MERC:
     official_name: 'Intoxicação exógena por mercúrio'
     translated_name: Toxic agent - mercury
     description: 'Flag set to 1 when the chemical product was classified as mercury; blank means no or unknown.'
     code_system: internal
+    codes:
+      '1': 'Sim'
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por mercúrio)'
+    notes: 'Blank means Não or Ignorado/Branco (the dictionary lists no code for it).'
   INTOX_META:
     official_name: 'Intoxicação exógena por metanol'
     translated_name: 'Exogenous poisoning by methanol'
     description: 'Flag set to 1 when the chemical product was classified as methanol; blank means no or unknown.'
     code_system: internal
+    codes:
+      '1': 'Sim'
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por metanol)'
+    notes: 'Blank means Não or Ignorado/Branco (the dictionary lists no code for it).'
   LAVOURA:
     official_name: Se agrotóxico de uso agrícola, qual a cultura / lavoura
     translated_name: Crop treated with the pesticide

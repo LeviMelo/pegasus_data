@@ -563,28 +563,30 @@ variables:
     description: Whether other immunohistochemistry studies, beyond the oestrogen and progesterone
       receptors, were done on the material.
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
-      "Outr_imuno_histoq"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
-      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
-      p.2 "Outros estudos imuno-histoquímicos: Sim, especifique / Não"'
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Outr_imuno_histoq (OUT_IMUN_H, outr_imuno_histoq.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RECEPTOR_HORMONAL_ESTROG:
     official_name: Receptor de estrógeno
     translated_name: Estrogen-receptor (ER) status
     description: 'Oestrogen-receptor result: positive, negative, or not done (NR).'
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
-      "Recep_horm_estrog"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
-      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
-      p.2 "Receptores hormonais: Receptor de estrógeno"'
+    codes:
+      '01': 'Positivo'
+      '02': 'Negativo'
+      '03': 'NR'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Recep_horm_estrog (RECEP_HE, tp_receptor.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RECEPTOR_HORMONAL_PROGES:
     official_name: Receptor de progesterona
     translated_name: Progesterone-receptor (PR) status
     description: 'Progesterone-receptor result: positive, negative, or not done (NR).'
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
-      "Recep_horm_prog."; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
-      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
-      p.2 "Receptores hormonais: Receptor de progesterona"'
+    codes:
+      '01': 'Positivo'
+      '02': 'Negativo'
+      '03': 'NR'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Recep_horm_prog. (RECEP_HP, tp_receptor.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'

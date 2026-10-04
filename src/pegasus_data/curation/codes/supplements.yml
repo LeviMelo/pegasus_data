@@ -1,0 +1,31 @@
+# Codes a form's own dictionary omits, from another official source.
+# scripts/harvest_codes.py merges them into the harvested table of the series:
+# a supplement never replaces a dictionary code, and a conflicting label fails
+# the harvest. Each entry cites its source.
+SINAN:
+  AIDA:
+    CRITERIO:
+      source_ref: 'SES-RJ TabNet, Nota Técnica Aids — http://sistemas.saude.rj.gov.br/tabnetbd/Sinan/Nota_Tecnica_aids_relacionado.pdf
+        ("600, 601 - ÓBITO", "901, 902 - HIV+"); the intermediate criteria also in TAB_SINANNET CRITAIDS.CNV'
+      codes:
+        '120': CDC + CDC/laboratório
+        '123': CDC + CDC/laboratório + Rio de Janeiro/Caracas
+        '130': CDC + Rio de Janeiro/Caracas
+        '140': CDC/laboratório + Rio de Janeiro/Caracas
+        '200': CDC/laboratório
+        '400': CDC excepcional
+        '500': ARC + óbito
+        '601': Critério óbito
+        '902': HIV+
+  SIFC:
+    HEPATO:
+      source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_hepato (SINAN-W name HEPATO): "1 sim 2. não 3. não se aplica 9. ignorado"'
+      codes: {'1': Sim, '2': Não, '3': Não se aplica, '9': Ignorado}
+    CLI_OUTRO:
+      source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_outro (SINAN-W name CLI_OUTRO): "1 sim 2. não 3. não se aplica 9. ignorado"'
+      codes: {'1': Sim, '2': Não, '3': Não se aplica, '9': Ignorado}
+  VIOL:
+    CS_ESCOL_N:
+      source_ref: 'The violence dictionary''s text reads "43 Analfabeto" where every other SINAN NET dictionary and form prints the same scale with "0-Analfabeto" (aids_crianca, antirrabico, dermatoses, lerdort, mental, pfa)'
+      drop: ['43']
+      codes: {'0': Analfabeto}

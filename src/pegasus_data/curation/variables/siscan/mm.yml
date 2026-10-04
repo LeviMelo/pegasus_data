@@ -115,25 +115,39 @@ variables:
   CCONRECOMD:
     official_name: Recomendação de conduta, mama direita
     translated_name: Recommended management, right breast
-    description: 'Management recommended for the right breast (CCONRECOM.CNV): 1 ultrasound
-      complement, 2 mammography in 2 years, 3 mammography in 1 year, 4 radiological control
-      in 6 months, 5 radiological control in 1 year, 6 cyto/histopathology, 7 specific therapy.'
+    description: 'Management recommended for the right breast (TAB_SISMAMA CCONRECOM.CNV): 1 ultrasound
+      complement, 2 mammography in 2 years, 3 radiological control in 6 months, 4 radiological
+      control in 1 year, 5 histopathology, 6 specific therapy, 9 inconsistent information.'
     code_system: internal
-    source: layout_doc
-    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
-      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
-      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
+    codes:
+      '1': 'Complementação com ultra-sonografia'
+      '2': 'Mamografia em 2 anos'
+      '3': 'Controle Radiológico em 6 meses'
+      '4': 'Controle Radiológico em 1 ano'
+      '5': 'Histopatológico'
+      '6': 'Terapêutica específica'
+      '9': 'Informação inconsistente'
+    source: def
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def campo Recomendações (CCONRECOM, CCONRECOM.CNV); ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip; typo "Infomação" corrected'
+    notes: 'Bound by name: MMAMA4.def binds CCONRECOM.CNV to CCONRECOM; the D and E suffixes (right, left breast) are not listed in the .def. The SISMAMA list differs from the SISCAN CSV list for codes 3 and up.'
   CCONRECOME:
     official_name: Recomendação de conduta, mama esquerda
     translated_name: Recommended management, left breast
-    description: 'Management recommended for the left breast (CCONRECOM.CNV): 1 ultrasound
-      complement, 2 mammography in 2 years, 3 mammography in 1 year, 4 radiological control
-      in 6 months, 5 radiological control in 1 year, 6 cyto/histopathology, 7 specific therapy.'
+    description: 'Management recommended for the left breast (TAB_SISMAMA CCONRECOM.CNV): 1 ultrasound
+      complement, 2 mammography in 2 years, 3 radiological control in 6 months, 4 radiological
+      control in 1 year, 5 histopathology, 6 specific therapy, 9 inconsistent information.'
     code_system: internal
-    source: layout_doc
-    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
-      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
-      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
+    codes:
+      '1': 'Complementação com ultra-sonografia'
+      '2': 'Mamografia em 2 anos'
+      '3': 'Controle Radiológico em 6 meses'
+      '4': 'Controle Radiológico em 1 ano'
+      '5': 'Histopatológico'
+      '6': 'Terapêutica específica'
+      '9': 'Informação inconsistente'
+    source: def
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def campo Recomendações (CCONRECOM, CCONRECOM.CNV); ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip; typo "Infomação" corrected'
+    notes: 'Bound by name: MMAMA4.def binds CCONRECOM.CNV to CCONRECOM; the D and E suffixes (right, left breast) are not listed in the .def. The SISMAMA list differs from the SISCAN CSV list for codes 3 and up.'
   CDISARQCID:
     official_name: 'Outros achados: Distorção arquitetural por cirurgia, mama direita'
     translated_name: Architectural distortion from surgery, right breast
@@ -865,11 +879,10 @@ variables:
       all, separating a fully clear result from exams with any benign or suspicious finding.
 
       '
-    code_system: internal
-    source: layout_doc
-    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def (DATASUS TabWin definition), campo Sem Achados
-
-      '
+    code_system: none
+    source: def
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def declares "Sem Achados" (SEMACHADOS) as an incidence (I) measure with no lookup table, so it is a per-exam count, not a code.'
+    notes: 'Treated as not coded on the strength of the .def: an I line is a summed incidence field.'
   ST_ACHADO_BENIGNO:
     official_name: Achado benigno
     translated_name: Benign-finding flag
@@ -878,68 +891,96 @@ variables:
       vascular or typically benign calcifications, intramammary node, surgical distortion,
       implant, oil cyst, gynaecomastia, duct ectasia). Not the same as BI-RADS category 2.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Achado benigno"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_AREA_DENSA:
     official_name: Área densa
     translated_name: Dense-area flag
     description: Whether the mammogram showed a dense area.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Área densa"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_ASSIMETRIA_DIFUSA:
     official_name: Assimetria difusa
     translated_name: Diffuse-asymmetry flag
     description: Whether the mammogram showed a diffuse asymmetry.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Assimetria difusa"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_ASSIMETRIA_FOCAL:
     official_name: Assimetria focal
     translated_name: Focal-asymmetry flag
     description: Whether the mammogram showed a focal asymmetry.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Assimetria focal"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_DISTORCAO_FOCAL:
     official_name: Distorção focal
     translated_name: Focal architectural-distortion flag
     description: Whether the mammogram showed a focal architectural distortion.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Distorção focal"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_TEM_MICROCALCIFICACAO:
     official_name: Microcalcificação
     translated_name: Microcalcification-present flag
     description: Whether the mammogram showed microcalcifications.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Microcalcificação"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   ST_TEM_NODULO:
     official_name: Nódulo_resul
     translated_name: Any-nodule-present flag
     description: Whether the mammogram result showed a nodule.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
-      medida "Nódulo_resul"
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   TEMPOMAMOG:
     official_name: Tempo desde a mamografia anterior
     translated_name: Time since previous mammogram
     description: 'Time since the previous mammogram (TEMPOMAMOGANT.CNV): same year, 1, 2,
       3, 4 or more years, not applicable, no information, inconsistent.'
     code_system: internal
+    codes:
+      '5': 'Não se aplica'
+      '0': 'Mesmo ano'
+      '1': '1 ano'
+      '2': '2 ano'
+      '3': '3 ano'
+      '4': '>= 4 ano'
+      '6': 'Sem informação'
+      '9': 'Informação inconsistente'
     source: def
-    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
-      campo TEMPOMAMOG "Tempo Mamog Ant"
-    notes: MMAMA4.def spells the field TEMPOMAMOGANT; dBase field names stop at 10 characters,
-      so the file column is TEMPOMAMOG.
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def campo Tempo Mamog Ant (TEMPOMAMOGANT, tempomamogant.cnv); ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip'
+    notes: 'MMAMA4.def spells the field TEMPOMAMOGANT; dBase field names stop at 10 characters, so the file column is TEMPOMAMOG. The CNV header reads "Tamanho do Nódulo" (copied from another table) but its entries are time-since-previous-mammography intervals. Labels are as in the CNV.'
   TIPMAMDIAG:
     official_name: Tipo Mamog Diagn
     translated_name: Type of diagnostic mammogram

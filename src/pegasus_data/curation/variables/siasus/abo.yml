@@ -167,9 +167,11 @@ variables:
     description: Whether the patient takes regular physical activity, part of the follow-up
       assessment.
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; ATV_FIS reads atividade física.
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text: sources/apac_layout.txt), bariatric follow-up variable part (laudo 11), APA_ATV_FISICA C(1) ''Pratica Atividade Fisica (S = Sim, N = Não)''. The kit''s SIMNAO2.CNV codes Sim/Não as 0/1; the layout (and ADR-0095 for the sibling ACF fields) gives S/N.'
   AP_CID_C1:
     official_name: CID de comorbidade 1
     translated_name: Comorbidity 1
@@ -291,9 +293,12 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     reasoning: Bound to SIMNAO2; MEDICAM reads medicamentos.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text: sources/apac_layout.txt), bariatric follow-up variable part (laudo 11), APA_MEDICAM C(1) ''Uso de Medicamentos (S = Sim, N = Não)''. The kit''s SIMNAO2.CNV codes Sim/Não as 0/1; the layout (and ADR-0095 for the sibling ACF fields) gives S/N.'
   AP_POLIVIT:
     official_name: Uso de polivitamínico
     translated_name: Taking multivitamins
@@ -303,9 +308,12 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     reasoning: Bound to SIMNAO2; POLIVIT reads polivitamínico.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text: sources/apac_layout.txt), bariatric follow-up variable part (laudo 11), APA_POLIVIT C(1) ''Uso de Polivitaminico (S = Sim, N = Não)''. The kit''s SIMNAO2.CNV codes Sim/Não as 0/1; the layout (and ADR-0095 for the sibling ACF fields) gives S/N.'
   AP_REG_PES:
     official_name: Reganho de peso
     translated_name: Weight regain
@@ -314,9 +322,12 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     reasoning: Bound to SIMNAO2; REG_PES reads reganho de peso.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text: sources/apac_layout.txt), bariatric follow-up variable part (laudo 11), APA_REGANHO C(1) ''Houve requanho de Peso (S = Sim, N = Não)''. The kit''s SIMNAO2.CNV codes Sim/Não as 0/1; the layout (and ADR-0095 for the sibling ACF fields) gives S/N.'
   AP_TPATEND:
     official_name: Tipo de atendimento da APAC
     translated_name: APAC type

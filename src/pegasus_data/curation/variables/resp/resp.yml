@@ -355,27 +355,19 @@ variables:
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
   ETIOLOGIA:
-    official_name: (not documented in any source consulted)
+    official_name: 'Etiologia'
     translated_name: Etiology
-    description: The etiological classification attributed to the case — the cause or origin
-      of the condition. No codelist is bound and no value labels are known, so the codes are
-      returned as filed.
+    description: 'Etiology attributed to the case: Zika virus, STORCH, coinfection (STORCH + Zika), unknown, or ignored.'
     code_system: internal
-    source: inferred
-    reasoning: '"Etiologia" is a specific, unambiguous Portuguese medical term, and
-      RESP''s whole purpose is attributing congenital alterations to a cause (Zika,
-      other STORCH pathogens, etc.), so a field with this exact name plausibly records
-      that attribution. This is a translation-level inference only - the actual set of
-      codes/labels used is not confirmed by any source consulted. Reviewed 2026-09-28:
-      no documentation found (searched DIC_DADOS_RESP.pdf and the RESP.def in
-      tabresp.zip on ftp.datasus.gov.br/dissemin/publicos/RESP; neither lists the
-      column).'
-    notes: Declared width changes across file vintages (1 and 9 characters both observed),
-      consistent with a schema change at some point in the 2015-2024 span. Verify against
-      a same-year DEF/CNV file before using the values, and do not infer what any specific
-      code means. Present in essentially every crawled RESP file but in neither the 2016 online-form
-      dictionary nor the June-2021 dissemination dictionary, so it appears to be a later undocumented
-      addition to the export. The reading rests on the field name alone.
+    codes:
+      '1': Vírus Zika
+      '2': STORCH
+      '3': Coinfecção (STORCH + Zika)
+      '4': Etiologia desconhecida
+      '9': Ignorado
+    source: layout_doc
+    source_ref: 'DIC_DADOS_RESP.pdf (RESP-Microcefalia dissemination dictionary, rev. 09/2021), field ETIOLOGIA Caractere (1): "1- Vírus Zika; 2- STORCH; 3- Coinfecção (STORCH + Zika); 4- Etiologia desconhecida; 9- Ignorado"'
+    notes: 'Declared width changes across file vintages (1 and 9 characters both observed), consistent with a schema change in the 2015-2024 span; verify against a same-year file before using the values. Listed in DIC_DADOS_RESP.pdf (revised 2021) with the five categories in source_ref; an earlier note here that no dictionary lists the column was wrong.'
   EXAME_RS:
     official_name: Resultado de ressonancia magnetica
     translated_name: MRI result

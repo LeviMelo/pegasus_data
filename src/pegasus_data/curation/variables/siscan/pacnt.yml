@@ -145,11 +145,13 @@ variables:
     description: 'Result of the visual inspection of the cervix at collection (form item 11):
       normal, absent (congenital anomaly or surgically removed), altered, or cervix not visualised.'
     code_system: internal
+    codes:
+      '01': 'Normal'
+      '02': 'Ausente (Anomalias Congênitas ou Retirados Cirur)'
+      '03': 'Alterado'
+      '04': 'Colo de Útero Não Visualizado'
     source: layout_doc
-    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
-      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.1 Exame clínico, item 11 "Inspeção do colo"; TAB_SISCAN insp_colo.CNV
-    notes: Declared C(0,0); no observed values captured.
+    source_ref: 'TAB_SISCAN.rar!insp_colo.CNV, Inspeção do colo (not bound in a .def); same four options and order as item 11 of INCA requisition form nº 415; TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_LAUDO_CITOP:
     official_name: Tipo de laudo citopatológico
     translated_name: Type of cytology report
@@ -157,15 +159,16 @@ variables:
       scale: positive for malignancy, suspicious, indeterminate malignancy, benign, no alteration,
       or unsatisfactory.'
     code_system: internal
-    source: inferred
-    reasoning: 'Full-word decomposition (tipo de laudo citopatológico); TP_ type-code prefix.
-      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
-      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
-      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). TAB_SISCAN ships LAUDO_CITOP.CNV
-      (01 positivo para malignidade, 02 suspeito, 03 malignidade indeterminada, 04 benigno,
-      05 sem alteração, 06 insatisfatório) but no .def binds it to this column; description
-      rewritten to that reading, which replaces the earlier collection-method guess.'
-    notes: No observed values or codelist were captured.
+    codes:
+      '01': 'Positivo para malignidade'
+      '02': 'Suspeito de malignidade'
+      '03': 'Malignidade indeterminada'
+      '04': 'Benigno'
+      '05': 'Sem alteração'
+      '06': 'Insatisfatório'
+    source: layout_doc
+    source_ref: 'TAB_SISCAN.rar!LAUDO_CITOP.CNV (not bound in a .def); Nota Tecnica 10 SISCAN, "Laudo Citopatológico - resultado positivo para malignidade, suspeito de malignidade, malignidade indeterminada, benigno, sem alteração ou insatisfatório"; TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'No observed values or codelist were captured. The six categories of Nota Tecnica 10 are the six entries of LAUDO_CITOP.CNV in the same order.'
   TP_LAUDO_HISTOPATOLOGICO:
     official_name: Tipo de laudo histopatológico
     translated_name: Type of histopathology report
@@ -173,11 +176,12 @@ variables:
       LAUDO_HISTOP.CNV scale: malignant neoplastic lesion, suspicious, indeterminate, benign,
       or not informed.'
     code_system: internal
-    source: inferred
-    reasoning: 'Full-word decomposition (tipo de laudo histopatológico); TP_ type-code prefix.
-      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
-      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
-      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). TAB_SISCAN ships LAUDO_HISTOP.CNV
-      (01 lesão neoplásica maligna, 02 suspeita, 03 indeterminada, 04 benigna, 06 não informado)
-      but no .def binds it to this column; description rewritten to that reading.'
-    notes: No observed values or codelist were captured.
+    codes:
+      '01': 'Lesão neoplásica maligna'
+      '02': 'Lesão suspeita'
+      '03': 'Lesão indeterminada'
+      '04': 'Lesão benigna'
+      '06': 'Não informado'
+    source: layout_doc
+    source_ref: 'TAB_SISCAN.rar!LAUDO_HISTOP.CNV (not bound in a .def); Nota Tecnica 14 SISCAN, "Laudo Histopatológico ... Lesão benigna, Lesão indeterminada, Lesão suspeita ou Lesão neoplásica maligna. A categoria não informado corresponde a resultados insatisfatório"; TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'No observed values or codelist were captured. Nota Tecnica 14 names the same four lesion categories plus "não informado" (code 06 in the CNV).'

@@ -875,13 +875,15 @@ def semantics(
             "read of them injects noise into the dictionary.",
         ),
     ] = False,
+    force: Annotated[bool, typer.Option(
+        "--force", help="Re-read kits whose bytes and parsing code are unchanged since their last ingest")] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Ingest TAB kits, parse .DEF/.CNV, build the dictionary. This is P1."""
     pipeline = _pipeline(root)
     try:
         with console.status("ingesting dictionaries…"):
-            result = pipeline.semantics(systems=system, limit=limit, pdfs=pdfs)
+            result = pipeline.semantics(systems=system, limit=limit, pdfs=pdfs, force=force)
         _emit(result.counts, as_json, "semantics")
         for note in result.notes[:10]:
             console.print(f"[yellow]note[/yellow] {note}")
@@ -897,6 +899,8 @@ def schemas(
     all_strata: Annotated[bool, typer.Option("--all", help="Re-read strata that already have a signature")] = False,
     all_files: Annotated[bool, typer.Option("--all-files", help="Read EVERY dbc/dbf header, incrementally (ADR-0081)")] = False,
     workers: Annotated[int, typer.Option("--workers", help="FTP connections for --all-files")] = 8,
+    whole_up_to_gb: Annotated[float, typer.Option(
+        "--whole-up-to-gb", help="Fetch zipped DuckDB exports up to this size whole to describe them")] = 0.0,
     as_json: JsonOpt = False,
 ) -> None:
     """Census every stratum's columns by reading file headers, not payloads.
@@ -919,7 +923,8 @@ def schemas(
             pipeline.close()
         return
     try:
-        result = pipeline.schemas(systems=system, limit=limit, only_missing=not all_strata)
+        result = pipeline.schemas(systems=system, limit=limit, only_missing=not all_strata,
+                                  whole_file_limit=int(whole_up_to_gb * 2**30) or None)
         _emit(result.counts, as_json, "schema census")
         if not as_json:
             from .inventory.schemas import census_summary

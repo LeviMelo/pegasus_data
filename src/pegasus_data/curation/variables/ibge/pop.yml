@@ -8,6 +8,7 @@ asserted_by: pegasus_data
 
 variables:
   COD_MUN:
+    official_name: 'Município'
     translated_name: Municipality code (7-digit)
     description: '7-digit IBGE municipality code, including the verification digit,
       used by newer wide population-estimate tables in place of the 6-digit MUNIC_RES/
@@ -47,6 +48,7 @@ variables:
     source: layout_doc
     source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
   POP:
+    official_name: 'População residente'
     translated_name: Resident population
     description: 'Estimated resident population of the row''s cell — municipality
       (COD_MUN), sex, age (IDADE) and year (ANO) — in the SVS population-estimate files,

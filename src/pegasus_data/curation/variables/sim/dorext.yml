@@ -36,7 +36,8 @@ variables:
     code_system: internal
     codelists:
     - CODINST
-    source: inferred
+    source: layout_doc
+    source_ref: 'Estrutura_SIM_para_CD.pdf (sim_tab/Docs_Tabs_CID10/DOCS), item 55: "CODINST C(14) Código da instalação da geração dos registros."'
     asserted_by: pegasus_data
     reasoning: 'Not documented in [ESTRUTURA-SIM]. The reading comes from decoding the
       observed value shape directly: every value is a fixed pattern of one letter, a
@@ -82,13 +83,10 @@ variables:
   NUMERODO:
     official_name: Número da Declaração de Óbito
     translated_name: Death certificate (DO) serial number
-    description: 'The printed serial number of the physical Declaração de Óbito form,
-      seen only in a single 2021 DOREXT file. An identifier printed on the pre-numbered
-      certificate stock, not a category.
-
-      '
+    description: 'The DO number: an 8-character sequential number per reporting UF and year (per the SIM structure document), unique within that UF and year, not across the country. An identifier, not a category.'
     code_system: none
-    source: inferred
+    source: layout_doc
+    source_ref: 'Estrutura_SIM_para_CD.pdf (sim_tab/Docs_Tabs_CID10/DOCS), item 01: "NUMERODO C(08) Número da DO, seqüencial por UF informante e por ano."'
     asserted_by: pegasus_data
     reasoning: 'Not documented in [ESTRUTURA-SIM] under this name, but the analogous
       birth-certificate field NUMERODN is documented at position 88 ("Número da

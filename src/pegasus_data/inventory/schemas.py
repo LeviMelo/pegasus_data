@@ -25,6 +25,7 @@ import json
 import os
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from ..catalog.store import Catalog, utcnow
 from ..decode.header import (
@@ -210,8 +211,15 @@ def run_census(
     *,
     on_item: Callable[[str], None] | None = None,
     fetch_range: Callable[[str, int, int], bytes] | None = None,
+    fetch_file: Callable[[str], Path] | None = None,
+    whole_file_limit: int = SMALL_DUCK_ZIP_BYTES,
 ) -> SchemaCensus:
-    """Read one header per target, widening the request only when asked to."""
+    """Read one header per target, widening the request only when asked to.
+
+    ``fetch_file`` lands a whole file in the blob store (FTP or mirror) and
+    returns it on disk; a zipped DuckDB database up to ``whole_file_limit`` is
+    then described from that file rather than from memory.
+    """
     census = SchemaCensus()
     archive_cache: dict[str, bytes] = {}
     for target in targets:
@@ -240,14 +248,21 @@ def run_census(
             census.signatures.add(signature)
             census.read += 1
             continue
-        if extension == ".duck.zip" and int(target.get("size") or 0) <= SMALL_DUCK_ZIP_BYTES:
+        size = int(target.get("size") or 0)
+        whole = extension == ".duck.zip" and (
+            size <= SMALL_DUCK_ZIP_BYTES or (fetch_file is not None and size <= whole_file_limit))
+        if whole:
             # Deflate cannot be read by range, and a DuckDB catalog sits deep in
-            # the file, so a zipped database is described only when small
-            # enough to fetch whole (ADR-0083).
+            # the file, so a zipped database is described only when fetched
+            # whole: in memory when small, through the blob store when the
+            # caller allows a larger file (ADR-0083).
             try:
-                data = fetch_prefix(path, int(target.get("size") or 0))
-                census.bytes_fetched += len(data)
-                header, member, _ = _header_in_duckdb_zip(catalog, path, data)
+                if size <= SMALL_DUCK_ZIP_BYTES:
+                    source: bytes | Path = fetch_prefix(path, size)
+                else:
+                    source = fetch_file(path)  # type: ignore[misc]
+                census.bytes_fetched += size
+                header, member, _ = _header_in_duckdb_zip(catalog, path, source)
             except Exception as exc:  # noqa: BLE001 - one bad database is not the census
                 census.unreadable += 1
                 census.errors.append((path, f"{type(exc).__name__}: {exc}"))
@@ -383,13 +398,14 @@ def _header_in_archive(data: bytes) -> TableHeader:
     raise HeaderUnreadable("no DBF, DBC, CSV or Parquet member in the archive")
 
 
-def _header_in_duckdb_zip(catalog: Catalog, path: str, data: bytes) -> tuple[TableHeader, str, int]:
-    """A small zipped DuckDB database, fetched whole: unzip to a temp file, read it."""
+def _header_in_duckdb_zip(catalog: Catalog, path: str, data: bytes | Path) -> tuple[TableHeader, str, int]:
+    """A zipped DuckDB database, fetched whole: unzip to a temp file, read it."""
     import io
     import tempfile
     import zipfile
 
-    with zipfile.ZipFile(io.BytesIO(data)) as zf, tempfile.TemporaryDirectory() as tmp:
+    archive = io.BytesIO(data) if isinstance(data, bytes) else data
+    with zipfile.ZipFile(archive) as zf, tempfile.TemporaryDirectory() as tmp:
         member = next(n for n in zf.namelist() if n.lower().endswith(".duck"))
         local = zf.extract(member, tmp)
         size = os.path.getsize(local)

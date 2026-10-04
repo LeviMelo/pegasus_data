@@ -365,3 +365,9 @@ variables:
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leishmaniose Visceral v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
       campo 33 (Sinais e sintomas – Palidez)
+  DS_TRANS_3:
+    official_name: 'Meio de transporte 3'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Leishmaniose Visceral — sources/dic_text/leishmaniose-visceral__DIC_DADOS_LV_v5.txt, Deslocamento: Meio de transporte 3 (ds_meio_transporte_3 varchar2(30), DS_TRANS_3)'

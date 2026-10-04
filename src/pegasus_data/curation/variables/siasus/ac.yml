@@ -625,6 +625,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'P': 'Positivo'
+      'N': 'Negativo'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -638,6 +641,9 @@ variables:
     translated_name: Anti-HCV (hepatitis C) result
     description: 'Hepatitis C antibody (anti-HCV) result: P = positive, N = negative.'
     code_system: internal
+    codes:
+      'P': 'Positivo'
+      'N': 'Negativo'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -655,6 +661,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'P': 'Positivo'
+      'N': 'Negativo'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -676,6 +685,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -1146,6 +1158,9 @@ variables:
     description: 'Whether the patient is indicated for kidney transplant: S = Sim, N =
       Não. Constant N across all 52 rows of the reference file.'
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -1177,6 +1192,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -1439,6 +1457,9 @@ variables:
     description: 'Whether the patient is indicated for transplant: S = Sim, N = Não.
       Constant N across all 98 rows of the reference file.'
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -1470,6 +1491,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte
@@ -1538,6 +1562,9 @@ variables:
 
       '
     code_system: internal
+    codes:
+      'M': 'Masculino'
+      'F': 'Feminino'
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 019
@@ -2659,3 +2686,38 @@ variables:
       dialysis-unit registration record, the empty SIASUS/199407_200712/Doc and
       SIASUS/APAC directories on ftp.datasus.gov.br, and the 2002 self-extracting
       archive, which holds only DBFs).'
+  APA_CNSPCN:
+    official_name: 'Código CNS paciente'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 078 APA_CNSPC N(15) ''Código CNS paciente'''
+    notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  APA_CNSRSP:
+    official_name: 'Código CNS responsável pelo tratamento'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 079 APA_CNSRES N(15) ''Código CNS responsável pelo tratamento'''
+    notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  APA_CNSDIR:
+    official_name: 'Código CNS diretor do estabelecimento'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 080 APA_CNSDIR N(15) ''Código CNS diretor do estabelecimento'''
+    notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  COB_CGC:
+    official_name: 'CNPJ no caso de cessão de crédito'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campos 058-077 PAP_CGC1..10 N(14) ''CNPJ no caso de cessão de crédito'' (one per procedure line)'
+    notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  COB_NF:
+    official_name: 'Número da Nota Fiscal Cessão'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campos 058-077 PAP_NF1..10 N(6) ''Número da Nota Fiscal Cessão'' (one per procedure line)'
+    notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'

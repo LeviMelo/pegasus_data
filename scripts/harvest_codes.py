@@ -273,7 +273,33 @@ def harvest() -> tuple[dict[str, dict[str, dict[str, dict]]], list[str]]:
     for rel, (system, series) in OTHER_DICTIONARIES.items():
         if (ROOT / rel).exists():
             _read(ROOT / rel, series, out[system])
+    _supplement(out)
     return {k: dict(v) for k, v in out.items()}, unmapped
+
+
+def _supplement(out: dict[str, dict[str, dict[str, dict]]]) -> None:
+    """Merge ``curation/codes/supplements.yml``: codes a dictionary omits, cited.
+
+    A supplement adds codes and never replaces one; a label that disagrees with
+    the dictionary's is a conflict to resolve by hand, so the harvest stops.
+    ``drop`` removes a code the text extraction invented, with its reason.
+    """
+    path = OUT_DIR / "supplements.yml"
+    if not path.exists():
+        return
+    for system, series_map in (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).items():
+        for series, fields in series_map.items():
+            for field, extra in fields.items():
+                entry = out[system][series].setdefault(field, {"codes": {}, "source_ref": ""})
+                for code in extra.get("drop") or ():
+                    # A code the PDF text invented (a glyph read as digits).
+                    entry["codes"].pop(str(code), None)
+                for code, label in (extra.get("codes") or {}).items():
+                    known = entry["codes"].get(str(code))
+                    if known is not None and known != label:
+                        raise SystemExit(f"{system}.{series}.{field} {code}: dictionary {known!r}, supplement {label!r}")
+                    entry["codes"].setdefault(str(code), label)
+                entry["source_ref"] = "; ".join(x for x in (entry["source_ref"], extra["source_ref"]) if x)
 
 
 def main() -> int:

@@ -429,14 +429,15 @@ variables:
       (HPV effect and CIN I), 2 high-grade lesion (CIN II and III), 3 high-grade lesion not
       excluding microinvasion, 4 invasive squamous carcinoma; 0 not classified.'
     code_system: internal
-    source: layout_doc
-    source_ref: TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
-      campo CO_CEL_ESCA "Atipias.Cél.Escam."; INCA, Requisição de Exame Citopatológico - Colo
-      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.2 "Atipias em células escamosas"
-    notes: CColo4.def names the field CO_CEL_ESCA (bound to aticelesc.CNV); dBase field names
-      stop at 10 characters, so the file column is CO_CEL_ESC. Its glandular sibling CO_CEL_GLA
-      is bound to aticelglan.CNV.
+    codes:
+      '0': 'Não Classificados'
+      '1': 'Lesão de baixo grau (HPV e NIC I)'
+      '2': 'Lesão de alto grau (NIC II e NIC III)'
+      '3': 'Lesão alto grau, não podendo excluir microinvasão'
+      '4': 'Carcinoma epidermóide invasor'
+    source: def
+    source_ref: 'TAB_SISCOLO4.zip!CColo4.def campo CO_CEL_ESCA "Atipias.Cél.Escam." (aticelesc.CNV); ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip'
+    notes: 'CColo4.def names the field CO_CEL_ESCA (bound to aticelesc.CNV); dBase field names stop at 10 characters, so the file column is CO_CEL_ESC. Its glandular sibling CO_CEL_GLA is bound to aticelglan.CNV.'
   CO_CEL_GLA:
     official_name: Atipias em células glandulares, neoplasia
     translated_name: Glandular neoplasia

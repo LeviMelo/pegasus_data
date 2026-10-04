@@ -1593,7 +1593,8 @@ variables:
 
       '
     code_system: internal
-    source: inferred
+    source: layout_doc
+    source_ref: 'AidsCriNET.def (TAB_SINANNET): ''Candidose oral,CLI_CANDIA,1,SIM_NAO.CNV''; DIC_DADOS_Aids_crianca_v5.pdf, item 45 ''Candidose oral resistente ao tratamento'' (Critério CDC adaptado, moderate/severe)'
     reasoning: 'Field abbreviation matches "candidíase" with no esophagus/trachea qualifier
       unlike its siblings on the same checklist; the form lists oral candidiasis as its own
       moderate/severe item. Reviewed 2026-09-28: no documentation found (searched the SINAN
@@ -3875,7 +3876,8 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
+    source_ref: 'TAB_SINANNET .def files (AidsNET, AidsCriNET, DRTCancerNET, DRTDermatoseNET, HansNET, TuberculNET, etc.): ''Ano Diagnóstico, DT_DIAG, ANOS.CNV'' (year axis of the date of diagnosis)'
     reasoning: 'DT_ is SINAN''s date prefix and DIAG is the standard abbreviation for diagnóstico
       used elsewhere in this same dictionary (e.g. the field 7 description above); the column
       is declared D(8), a plain date width, with no codelist beyond TabNet''s generic year/month/quarter
@@ -5854,6 +5856,10 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '0': 'Não identificado de duplicidade'
+      '1': 'Não é duplicidade (não listar)'
+      '2': 'Duplicidade (não contar)'
     source: layout_doc
     source_ref: 'DIC_DADOS_NET---Notificacao_Individual_rev.pdf, "Não Listar/Não Contar" (documented
       DBF NDUPLIC_N; NDUPLIC is the equivalent field observed)
@@ -7118,7 +7124,8 @@ variables:
     code_system: internal
     codelists:
     - TIPOUNIDADE
-    source: inferred
+    source: layout_doc
+    source_ref: 'DengueNET.def (TAB_SINANNET): ''Tipo Unid Not, TPUNINOT, 1, tipoUnidade.cnv'''
     reasoning: 'TP_ is the categorical-type prefix and UNINOT abbreviates unidade notificante;
       the bound codelist name TIPOUNIDADE ("tipo de unidade") spells out exactly this reading.
       Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online

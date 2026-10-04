@@ -326,6 +326,9 @@ def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dic
             "CREATE INDEX temp.ix_incoming ON _incoming_dict (system, value_group, field_name, value_raw)"
         )
 
+        # CROSS JOIN fixes the order: the incoming rows drive and each probes
+        # ix_dict_field. Left to itself the planner scanned all 22M dictionary
+        # rows per statement: 168 of a 280 s SINASC rebuild (OQ-24, 2026-10-04).
         join = (
             "d.system IS i.system AND d.value_group IS i.value_group "
             "AND d.field_name IS i.field_name AND d.value_raw = i.value_raw "
@@ -338,7 +341,7 @@ def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dic
             SELECT i.system, COALESCE(i.value_group, i.field_name), i.value_raw,
                    d.value_label, d.source_ref, i.value_label, i.source_ref
               FROM temp._incoming_dict i
-              JOIN dictionary d ON {join}
+             CROSS JOIN dictionary d ON {join}
              WHERE d.value_label IS NOT i.value_label
             """
         ).fetchall()
@@ -348,11 +351,17 @@ def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dic
         conn.execute(
             f"""
             DELETE FROM dictionary WHERE rowid IN (
-                SELECT d.rowid FROM dictionary d JOIN temp._incoming_dict i ON {join}
+                SELECT d.rowid FROM temp._incoming_dict i CROSS JOIN dictionary d ON {join}
                  WHERE i.authority <= CASE d.source
                         WHEN 'manual' THEN 0 WHEN 'cnv' THEN 1 WHEN 'def' THEN 2
                         WHEN 'dbf_lookup' THEN 3 WHEN 'demas_api' THEN 4
                         WHEN 'pdf' THEN 5 WHEN 'inferred' THEN 6 ELSE 99 END
+                   -- An identical row stays: deleting and re-inserting every row a
+                   -- kit already holds churned five indexes on 22M rows (OQ-24).
+                   AND NOT (d.value_label IS i.value_label AND d.source IS i.source
+                            AND d.source_ref IS i.source_ref AND d.confidence IS i.confidence
+                            AND d.valid_to IS i.valid_to AND d.family_id IS i.family_id
+                            AND d.schema_signature_scope IS i.schema_signature_scope)
             )
             """
         )

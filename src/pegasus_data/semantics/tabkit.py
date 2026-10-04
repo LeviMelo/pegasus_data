@@ -25,7 +25,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 import pyarrow as pa
 
@@ -409,6 +409,23 @@ def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> Parse
             kit.warnings.append(f"{name}: def parse failed ({exc})")
 
     return kit
+
+
+def parser_fingerprint() -> str:
+    """A hash of the code that turns a kit into dictionary rows.
+
+    A kit is re-read only when its bytes or this code change: re-reading an
+    unchanged kit deleted and re-inserted about a million rows per system,
+    most of a semantics run (OQ-24, 2026-10-04).
+    """
+    import hashlib
+
+    here = Path(__file__).resolve().parent
+    digest = hashlib.sha256()
+    for name in ("tabkit.py", "cnv_parser.py", "def_parser.py", "dictionary.py",
+                 "../textenc.py", "../decode/dbf.py"):
+        digest.update((here / name).read_bytes())
+    return digest.hexdigest()[:16]
 
 
 # ------------------------------------------------------------------ persistence

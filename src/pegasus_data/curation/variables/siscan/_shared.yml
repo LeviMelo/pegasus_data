@@ -79,11 +79,10 @@ variables:
       standard benign-alteration categories.
 
       '
-    code_system: internal
+    code_system: none
     source: def
-    source_ref: 'TAB_SISCAN.rar!cito_colo.def, campo Alt. ben:Atr. inflam (A_B_ATROF)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def declares "Alt. ben:Atr. inflam" (A_B_ATROF) as an incidence (I) measure with no lookup table, so it is a per-exam count, not a code.'
+    notes: 'Treated as not coded on the strength of the .def: an I line is a summed incidence field.'
   CO_ALT_CEL_INFLAMACAO:
     official_name: Alt.ben.inflamação
     translated_name: Benign changes - inflammation
@@ -269,18 +268,289 @@ variables:
 
       '
     code_system: external
-    source: layout_doc
-    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Escolaridade
+    codes:
+      '0': 'Ignorado/em branco'
+      '1': 'Analfabeto(a)'
+      '2': 'Ensino Fundamental Incompleto'
+      '3': 'Ensino Fundamental Completo'
+      '4': 'Ensino Médio Completo'
+      '5': 'Ensino Superior Completo'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Escolaridade (ESCOLAR, Escolaridade.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   CO_ETNIA:
     official_name: Etnia
     translated_name: Indigenous ethnicity
     description: Code of the patient's indigenous ethnic group, filled when race/colour is
       Indígena (the TAB_SISCAN etnia.cnv table lists 264 groups).
     code_system: external
+    codes:
+      '0001': 'ACONA (WAKONAS, NACONAS, JAKONA, ACORANES)'
+      '0002': 'AIKANA (AIKANA, MAS SAKA,TUBARAO)'
+      '0003': 'AJURU'
+      '0004': 'AKUNSU (AKUNT''SU)'
+      '0005': 'AMANAYE'
+      '0006': 'AMONDAWA'
+      '0007': 'ANAMBE'
+      '0008': 'APARAI (APALAI)'
+      '0009': 'APIAKA (APIACA)'
+      '0010': 'APINAYE (APINAJE/APINAIE/APINAGE)'
+      '0011': 'APURINA (APORINA, IPURINA, IPURINA, IPURINAN)'
+      '0012': 'ARANA (ARACUAI DO VALE DO JEQUITINHONHA)'
+      '0013': 'ARAPASO (ARAPACO)'
+      '0014': 'ARARA DE RONDONIA (KARO, URUCU, URUKU)'
+      '0015': 'ARARA DO ACRE (SHAWANAUA, AMAWAKA)'
+      '0016': 'ARARA DO ARIPUANA (ARARA DO BEIRADAO/ARIPUANA)'
+      '0017': 'ARARA DO PARA (UKARAGMA, UKARAMMA)'
+      '0018': 'ARAWETE (ARAUETE)'
+      '0019': 'ARIKAPU (ARICAPU, ARIKAPO, MASUBI, MAXUBI)'
+      '0020': 'ARIKEM (ARIQUEN, ARIQUEME, ARIKEME)'
+      '0021': 'ARIKOSE (ARICOBE)'
+      '0022': 'ARUA'
+      '0023': 'ARUAK (ARAWAK)'
+      '0024': 'ASHANINKA (KAMPA)'
+      '0025': 'ASURINI DO TOCANTINS (AKUAWA/AKWAWA)'
+      '0026': 'ASURINI DO XINGU (AWAETE)'
+      '0027': 'ATIKUM (ATICUM)'
+      '0028': 'AVA - CANOEIRO'
+      '0029': 'AWETI (AUETI/AUETO)'
+      '0030': 'BAKAIRI (KURA, BACAIRI)'
+      '0031': 'BANAWA YAFI (BANAWA, BANAWA-JAFI)'
+      '0032': 'BANIWA (BANIUA, BANIVA, WALIMANAI, WAKUENAI)'
+      '0033': 'BARA (WAIPINOMAKA)'
+      '0034': 'BARASANA (HANERA)'
+      '0035': 'BARE'
+      '0036': 'BORORO (BOE)'
+      '0037': 'BOTOCUDO (GEREN)'
+      '0038': 'CANOE'
+      '0039': 'CASSUPA'
+      '0040': 'CHAMACOCO'
+      '0041': 'CHIQUITANO (XIQUITANO)'
+      '0042': 'CIKIYANA (SIKIANA)'
+      '0043': 'CINTA LARGA (MATETAMAE)'
+      '0044': 'COLUMBIARA (CORUMBIARA)'
+      '0045': 'DENI'
+      '0046': 'DESANA (DESANA, DESANO, DESSANO, WIRA, UMUKOMASA)'
+      '0047': 'DIAHUI (JAHOI, JAHUI, DIARROI)'
+      '0048': 'ENAWENE-NAWE (SALUMA)'
+      '0049': 'FULNI-O'
+      '0050': 'GALIBI (GALIBI DO OIAPOQUE, KARINHA)'
+      '0051': 'GALIBI MARWORNO (GALIBI DO UACA, ARUA)'
+      '0052': 'GAVIAO DE RONDONIA (DIGUT)'
+      '0053': 'GAVIAO KRIKATEJE'
+      '0054': 'GAVIAO PARKATEJE (PARKATEJE)'
+      '0055': 'GAVIAO PUKOBIE (PUKOBIE, PYKOPJE, GAVIAO DO MARANH'
+      '0056': 'GUAJA (AWA, AVA)'
+      '0057': 'GUAJAJARA (TENETEHARA)'
+      '0058': 'GUARANI KAIOWA (PAI TAVYTERA)'
+      '0059': 'GUARANI M''BYA'
+      '0060': 'GUARANI NANDEVA (AVAKATUETE, CHIRIPA, NHANDEWA, AV'
+      '0061': 'GUATO'
+      '0062': 'HIMARIMA (HIMERIMA)'
+      '0063': 'INGARIKO (INGARICO, AKAWAIO, KAPON)'
+      '0064': 'IRANXE (IRANTXE)'
+      '0065': 'ISSE'
+      '0066': 'JABOTI (JABUTI, KIPIU, YABYTI)'
+      '0067': 'JAMAMADI (YAMAMADI, DJEOROMITXI)'
+      '0068': 'JARAWARA'
+      '0069': 'JIRIPANCO (JERIPANCO, GERIPANCO)'
+      '0070': 'JUMA (YUMA)'
+      '0071': 'JURUNA'
+      '0072': 'JURUTI (YURITI)'
+      '0073': 'KAAPOR (URUBU-KAAPOR, KA''APOR, KAAPORTE)'
+      '0074': 'KADIWEU (CADUVEO, CADIUEU)'
+      '0075': 'KAIABI (CAIABI, KAYABI)'
+      '0076': 'KAIMBE (CAIMBE)'
+      '0077': 'KAINGANG (CAINGANGUE)'
+      '0078': 'KAIXANA (CAIXANA)'
+      '0079': 'KALABASSA (CALABASSA, CALABACAS)'
+      '0080': 'KALANCO'
+      '0081': 'KALAPALO (CALAPALO)'
+      '0082': 'KAMAYURA (CAMAIURA, KAMAIURA)'
+      '0083': 'KAMBA (CAMBA)'
+      '0084': 'KAMBEBA (CAMBEBA, OMAGUA)'
+      '0085': 'KAMBIWA (CAMBIUA)'
+      '0086': 'KAMBIWA PIPIPA (PIPIPA)'
+      '0087': 'KAMPE'
+      '0088': 'KANAMANTI (KANAMATI, CANAMANTI)'
+      '0089': 'KANAMARI (CANAMARI, KANAMARY, TUKUNA)'
+      '0090': 'KANELA APANIEKRA (CANELA)'
+      '0091': 'KANELA RANKOKAMEKRA (CANELA)'
+      '0092': 'KANINDE'
+      '0093': 'KANOE (CANOE)'
+      '0094': 'KANTARURE (CANTARURE)'
+      '0095': 'KAPINAWA (CAPINAUA)'
+      '0096': 'KARAJA (CARAJA)'
+      '0097': 'KARAJA/JAVAE (JAVAE)'
+      '0098': 'KARAJA/XAMBIOA (KARAJA DO NORTE)'
+      '0099': 'KARAPANA (CARAPANA, MUTEAMASA, UKOPINOPONA)'
+      '0100': 'KARAPOTO (CARAPOTO)'
+      '0101': 'KARIPUNA (CARIPUNA)'
+      '0102': 'KARIPUNA DO AMAPA (CARIPUNA)'
+      '0103': 'KARIRI (CARIRI)'
+      '0104': 'KARIRI-XOCO (CARIRI-CHOCO)'
+      '0105': 'KARITIANA (CARITIANA)'
+      '0106': 'KATAWIXI (KATAUIXI,KATAWIN, KATAWISI, CATAUICHI)'
+      '0107': 'KATUENA (CATUENA, KATWENA)'
+      '0108': 'KATUKINA (PEDA DJAPA)'
+      '0109': 'KATUKINA DO ACRE'
+      '0110': 'KAXARARI (CAXARARI)'
+      '0111': 'KAXINAWA (HUNI-KUIN, CASHINAUA, CAXINAUA)'
+      '0112': 'KAXIXO'
+      '0113': 'KAXUYANA (CAXUIANA)'
+      '0114': 'KAYAPO (CAIAPO)'
+      '0115': 'KAYAPO KARARAO (KARARAO)'
+      '0116': 'KAYAPO TXUKAHAMAE (TXUKAHAMAE)'
+      '0117': 'KAYAPO XICRIM (XIKRIN)'
+      '0118': 'KAYUISANA (CAIXANA, CAUIXANA, KAIXANA)'
+      '0119': 'KINIKINAWA (GUAN, KOINUKOEN, KINIKINAO)'
+      '0120': 'KIRIRI'
+      '0121': 'KOCAMA (COCAMA, KOKAMA)'
+      '0122': 'KOKUIREGATEJE'
+      '0123': 'KORUBO'
+      '0124': 'KRAHO (CRAO, KRAO)'
+      '0125': 'KREJE (KRENYE)'
+      '0126': 'KRENAK (BORUN, CRENAQUE)'
+      '0127': 'KRIKATI (KRINKATI)'
+      '0128': 'KUBEO (CUBEO, COBEWA, KUBEWA, PAMIWA, CUBEU)'
+      '0129': 'KUIKURO (KUIKURU, CUICURO)'
+      '0130': 'KUJUBIM (KUYUBI, CUJUBIM)'
+      '0131': 'KULINA PANO (CULINA)'
+      '0132': 'KULINA/MADIHA (CULINA, MADIJA, MADIHA)'
+      '0133': 'KURIPAKO (CURIPACO, CURRIPACO, CORIPACO, WAKUENAI)'
+      '0134': 'KURUAIA (CURUAIA)'
+      '0135': 'KWAZA (COAIA, KOAIA)'
+      '0136': 'MACHINERI (MANCHINERI, MANXINERI)'
+      '0137': 'MACURAP (MAKURAP)'
+      '0138': 'MAKU DOW (DOW)'
+      '0139': 'MAKU HUPDA (HUPDA)'
+      '0140': 'MAKU NADEB (NADEB)'
+      '0141': 'MAKU YUHUPDE (YUHUPDE)'
+      '0142': 'MAKUNA (MACUNA, YEBA-MASA)'
+      '0143': 'MAKUXI (MACUXI, MACHUSI, PEMON)'
+      '0144': 'MARIMAM (MARIMA)'
+      '0145': 'MARUBO'
+      '0146': 'MATIPU'
+      '0147': 'MATIS'
+      '0148': 'MATSE (MAYORUNA)'
+      '0149': 'MAXAKALI (MAXACALI)'
+      '0150': 'MAYA (MAYA)'
+      '0151': 'MAYTAPU'
+      '0152': 'MEHINAKO (MEINAKU, MEINACU)'
+      '0153': 'MEKEN (MEQUEM, MEKHEM, MICHENS)'
+      '0154': 'MENKY (MYKY, MUNKU, MENKI, MYNKY)'
+      '0155': 'MIRANHA (MIRANHA, MIRANA)'
+      '0156': 'MIRITI TAPUIA (MIRITI-TAPUYA, BUIA-TAPUYA)'
+      '0157': 'MUNDURUKU (MUNDURUCU)'
+      '0158': 'MURA'
+      '0159': 'NAHUKWA (NAFUQUA)'
+      '0160': 'NAMBIKWARA DO CAMPO (HALOTESU, KITHAULU, WAKALITES'
+      '0161': 'NAMBIKWARA DO NORTE (NEGAROTE ,MAMAINDE, LATUNDE,'
+      '0162': 'NAMBIKWARA DO SUL (WASUSU ,HAHAINTESU, ALANTESU, W'
+      '0163': 'NARAVUTE (NARUVOTO)'
+      '0164': 'NAWA (NAUA)'
+      '0165': 'NUKINI (NUQUINI, NUKUINI)'
+      '0166': 'OFAIE (OFAYE-XAVANTE)'
+      '0167': 'ORO WIN'
+      '0168': 'PAIAKU (JENIPAPO-KANINDE)'
+      '0169': 'PAKAA NOVA (WARI, PACAAS NOVOS)'
+      '0170': 'PALIKUR (AUKWAYENE, AUKUYENE, PALIKU''ENE)'
+      '0171': 'PANARA (KRENHAKARORE , KRENAKORE, KRENAKARORE)'
+      '0172': 'PANKARARE (PANCARARE)'
+      '0173': 'PANKARARU (PANCARARU)'
+      '0174': 'PANKARARU KALANKO (KALANKO)'
+      '0175': 'PANKARARU KARUAZU (KARUAZU)'
+      '0176': 'PANKARU (PANCARU)'
+      '0177': 'PARAKANA (PARACANA, APITEREWA, AWAETE)'
+      '0178': 'PARECI (PARESI, HALITI)'
+      '0179': 'PARINTINTIN'
+      '0180': 'PATAMONA (KAPON)'
+      '0181': 'PATAXO'
+      '0182': 'PATAXO HA-HA-HAE'
+      '0183': 'PAUMARI (PALMARI)'
+      '0184': 'PAUMELENHO'
+      '0185': 'PIRAHA (MURA PIRAHA)'
+      '0186': 'PIRATUAPUIA (PIRATAPUYA, PIRATAPUYO, PIRATAPUYA,'
+      '0187': 'PITAGUARI'
+      '0188': 'POTIGUARA'
+      '0189': 'POYANAWA (POIANAUA)'
+      '0190': 'RIKBAKTSA (CANOEIROS, ERIGPAKTSA)'
+      '0191': 'SAKURABIAT (MEKENS, SAKIRABIAP, SAKIRABIAR)'
+      '0192': 'SATERE-MAWE (SATERE-MAUE)'
+      '0193': 'SHANENAWA (KATUKINA)'
+      '0194': 'SIRIANO (SIRIA-MASA)'
+      '0195': 'SURIANA'
+      '0196': 'SURUI DE RONDONIA (PAITER)'
+      '0197': 'SURUI DO PARA (AIKEWARA)'
+      '0198': 'SUYA (SUIA/KISEDJE)'
+      '0199': 'TAPAYUNA (BEICO-DE-PAU)'
+      '0200': 'TAPEBA'
+      '0201': 'TAPIRAPE (TAPI''IRAPE)'
+      '0202': 'TAPUIA (TAPUIA-XAVANTE, TAPUIO)'
+      '0203': 'TARIANO (TARIANA, TALIASERI)'
+      '0204': 'TAUREPANG (TAULIPANG, PEMON, AREKUNA, PAGEYN)'
+      '0205': 'TEMBE'
+      '0206': 'TENHARIM'
+      '0207': 'TERENA'
+      '0208': 'TICUNA (TIKUNA, TUKUNA, MAGUTA)'
+      '0209': 'TINGUI BOTO'
+      '0210': 'TIRIYO EWARHUYANA (TIRIYO, TRIO, TARONA, YAWI, PIA'
+      '0211': 'TIRIYO KAH''YANA (TIRIYO, TRIO, TARONA, YAWI, PIANO'
+      '0212': 'TIRIYO TSIKUYANA (TIRIYO, TRIO, TARONA, YAWI, PIAN'
+      '0213': 'TORA'
+      '0214': 'TREMEMBE'
+      '0215': 'TRUKA'
+      '0216': 'TRUMAI'
+      '0217': 'TSOHOM DJAPA (TSUNHUM-DJAPA)'
+      '0218': 'TUKANO (TUCANO, YE''PA-MASA, DASEA)'
+      '0219': 'TUMBALALA'
+      '0220': 'TUNAYANA'
+      '0221': 'TUPARI'
+      '0222': 'TUPINAMBA'
+      '0223': 'TUPINIQUIM'
+      '0224': 'TURIWARA'
+      '0225': 'TUXA'
+      '0226': 'TUYUKA (TUIUCA, DOKAPUARA, UTAPINOMAKAPHONA)'
+      '0227': 'TXIKAO (TXICAO, IKPENG)'
+      '0228': 'UMUTINA (OMOTINA, BARBADOS)'
+      '0229': 'URU-EU-WAU-WAU (URUEU-UAU-UAU, URUPAIN, URUPA)'
+      '0230': 'WAI WAI HIXKARYANA (HIXKARYANA)'
+      '0231': 'WAI WAI KARAFAWYANA (KARAFAWYANA, KARAPAWYANA)'
+      '0232': 'WAI WAI XEREU (XEREU)'
+      '0233': 'WAI WAI KATUENA (KATUENA)'
+      '0234': 'WAI WAI MAWAYANA (MAWAYANA)'
+      '0235': 'WAIAPI (WAYAMPI, OYAMPI, WAYAPY, )'
+      '0236': 'WAIMIRI ATROARI (KINA)'
+      '0237': 'WANANO (UANANO, WANANA)'
+      '0238': 'WAPIXANA (UAPIXANA, VAPIDIANA, WAPISIANA, WAPISHAN'
+      '0239': 'WAREKENA (UAREQUENA, WEREKENA)'
+      '0240': 'WASSU'
+      '0241': 'WAURA (UAURA, WAUJA)'
+      '0242': 'WAYANA (WAIANA, UAIANA)'
+      '0243': 'WITOTO (UITOTO, HUITOTO)'
+      '0244': 'XAKRIABA (XACRIABA)'
+      '0245': 'XAVANTE (A''UWE, AKWE, AWEN, AKWEN)'
+      '0246': 'XERENTE (AKWE, AWEN, AKWEN)'
+      '0247': 'XETA'
+      '0248': 'XIPAIA (SHIPAYA, XIPAYA)'
+      '0249': 'XOKLENG (SHOKLENG, XOCLENG)'
+      '0250': 'XOKO (XOCO, CHOCO)'
+      '0251': 'XUKURU (XUCURU)'
+      '0252': 'XUKURU KARIRI (XUCURU-KARIRI)'
+      '0253': 'YAIPIYANA'
+      '0254': 'YAMINAWA (JAMINAWA, IAMINAWA)'
+      '0255': 'YANOMAMI NINAM (IANOMAMI, IANOAMA, XIRIANA)'
+      '0256': 'YANOMAMI SANUMA (IANOMAMI, IANOAMA, XIRIANA)'
+      '0257': 'YANOMAMI YANOMAM (IANOMAMI, IANOAMA, XIRIANA)'
+      '0258': 'YAWALAPITI (IAUALAPITI)'
+      '0259': 'YAWANAWA (IAUANAUA)'
+      '0260': 'YEKUANA (MAIONGON, YE''KUANA, YEKWANA, MAYONGONG)'
+      '0261': 'YUDJA (JURUNA, YURUNA)'
+      '0262': 'ZO''E (POTURU)'
+      '0263': 'ZORO (PAGEYN)'
+      '0264': 'ZURUAHA (SOROWAHA, SURUWAHA)'
     source: layout_doc
-    source_ref: 'INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
-      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.1 "Raça/cor: Indígena/ Etnia"; TAB_SISCAN etnia.cnv'
+    source_ref: 'TAB_SISCAN.rar!etnia.CNV, lista de etnias indígenas (264 códigos de 4 dígitos; não vinculada em nenhum .def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'Codes observed in the 2013 CSV beyond this list (for example X290, X306, X389, and a 2-digit 02) are not in etnia.CNV and stay undecoded.'
   CO_FAIXA_ETARIA_PACIENTE:
     official_name: Faixa etária
     translated_name: Age bracket
@@ -330,10 +600,11 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
-
-      '
+    codes:
+      '01': 'Mamog. Diagnostica'
+      '02': 'Mamog. Rastreamento'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Ind Clinica (IND_CLIN, INDICLINIC.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   CO_INS_ARTEF_DES:
     official_name: Ins. pres.art.desec.
     translated_name: Unsatisfactory - drying artifact
@@ -774,8 +1045,16 @@ variables:
 
       '
     code_system: external
+    codes:
+      '01': 'Branca'
+      '02': 'Negra'
+      '03': 'Amarela'
+      '04': 'Parda'
+      '05': 'Indígena'
+      '99': 'Sem informação'
     source: layout_doc
-    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Raça/Cor
+    source_ref: 'TAB_SISCAN.rar!Racacor.CNV, Raça e Cor (não vinculada em nenhum .def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The CNV labels code 02 "Negra" (the INCA requisition form says Preta). Unpadded 1 and 3 appear in a handful of 2013 rows and stay undecoded.'
   CO_RECOMENDACAO:
     official_name: Recomendação de conduta
     translated_name: Recommended follow-up action
@@ -1403,8 +1682,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Sexo
+    codes:
+      'M': 'Masculino'
+      'F': 'Feminino'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Sexo (SEXO, Sexo.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'Sexo.CNV lists only M and F; the I seen in 6 rows of the 2013 CSV is not documented and stays undecoded.'
   SG_UF_RESIDENCIA:
     official_name: UF de residência (sigla)
     translated_name: State of residence (abbreviation)
@@ -1435,12 +1718,11 @@ variables:
     description: 'Whether the result was "within normal limits in the material examined":
       no atypia of oncotic interest and no benign change.'
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
-      "Dentro da Normalidade"; INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário
-      nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.2 "Dentro dos limites da normalidade no material examinado? Sim/Não"
-    notes: Declared C(0,0); no observed values captured.
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Dentro da Normalidade (D_NORMALID, simnao.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   ST_MICROCALCIFICACAO:
     official_name: Microcalcificações
     translated_name: Microcalcifications present
@@ -1458,33 +1740,33 @@ variables:
     description: Whether the cervical cytology reported another malignant neoplasm not classified
       under the squamous or glandular categories.
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
-      "Outras neoplasias malignas"; INCA, Requisição de Exame Citopatológico - Colo do Útero
-      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.2 "Outras neoplasias malignas"
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Out.Neoplas.malig (OUT_NEOP_M, simnao.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   ST_REPRESENTATI_ZONA_TRANSFORM:
     official_name: Representatividade da Zona de Transformação
     translated_name: Transformation-zone representativity flag
     description: Whether the transformation zone was represented in the smear, defined as
       metaplastic and/or glandular (endocervical) epithelium being present.
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
-      "Representatividade da Zona de Transformação"
-    notes: Declared C(0,0); no observed values captured.
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Represent. ZT (REPRES_ZT, simnao.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   ST_SCREENING_REALIZADO:
     official_name: Screening pelo citotécnico
     translated_name: Screening done by cytotechnician
     description: Whether the laboratory screening of the slide was done by a cytotechnician
       (as opposed to directly by the pathologist). A lab-process flag, not a clinical finding.
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
-      "Screening pelo citotécnico"; INCA, Requisição de Exame Citopatológico - Colo do Útero
-      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.2 "Screening pelo citotécnico"
-    notes: Declared C(0,0); no observed values captured.
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Screening pelo citotécnico (SCREEN_REA, simnao.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   ST_SINAL_SUGESTIVO_DST:
     official_name: Sinais sugestivos de doenças sexualmente transmissíveis
     translated_name: Sign suggestive of an STD flag
@@ -1492,11 +1774,12 @@ variables:
       during the clinical exam at collection (requisition item 12). A clinical observation,
       not a cytology finding.
     code_system: internal
+    codes:
+      'S': 'Sim'
+      'N': 'Não'
     source: layout_doc
-    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
-      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.1 Exame clínico, item 12 "Sinais sugestivos de doenças sexualmente transmissíveis?"
-    notes: Declared C(0,0); no observed values captured.
+    source_ref: 'TAB_SISCAN.rar!SIMNAO.CNV (S = Sim, N = Não), the Sim/Não lookup the kit binds to the other S/N status columns (for example D_NORMALID, SCREEN_REA in cito_colo.def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISCAN CSV stores this status as S/N; no .def binds this particular column, so the S/N lookup is the kit''s own convention for the same value form.'
   TP_ACHADO_COLPOSCOPICO:
     official_name: Achado colposcópico
     translated_name: Colposcopic finding
@@ -1521,10 +1804,11 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
-
-      '
+    codes:
+      '01': 'Satisfatório'
+      '02': 'Insatisfatório'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Adequabilidade (ADEQ_MATER, CRESADEQ.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); histo_mama.def ADEQ_MATER (same CNV); typo "insatistatório" corrected'
   TP_ATIPIA_CELULAR_ESCAMOS:
     official_name: Atipias em células escamosas
     translated_name: Squamous cell atypia
@@ -1534,10 +1818,13 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
-
-      '
+    codes:
+      '01': 'Lesão de baixo grau(HPV e NIC I)'
+      '02': 'Lesão de alto grau(NIC II e NIC III)'
+      '03': 'Lesão alto grau, não podendo excluir micro-invasão'
+      '04': 'Carcinoma epidermoide invasor'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Atip.cel.escamosas (ATC_ESCAMOS, aticelesc.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_ATIPIA_CELULAR_GLANDUL:
     official_name: Atipias em células glandulares
     translated_name: Glandular cell atypia
@@ -1571,10 +1858,11 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
-
-      '
+    codes:
+      '01': 'Escamosas - possivelmente não neoplasicas (ASC-US)'
+      '02': 'Escamosas - não se pode afastar lesão alto grau(ASC-H)'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Cél.Escamosa.Sign.Indeterm (C_ESCSIG_I, atipindesc.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); histo_colo.def CESC_INDET (same CNV)'
   TP_CEL_GLAND_SIGNIF_INDET:
     official_name: Células glandulares atípicas de significado indeterminado
     translated_name: Glandular cells of undetermined significance
@@ -1583,10 +1871,11 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
-
-      '
+    codes:
+      '01': 'Glandulares-possivelmente não neoplasicas'
+      '02': 'Glandulares-não se pode afastar lesão de alto grau'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Cél.Glandular.Sign.Indeterm (C_GL_SIG_I, atipindgla.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); histo_colo.def CGLA_INDET (same CNV)'
   TP_CEL_ORIG_INF_SIGN_INDE:
     official_name: Células de origem indefinida, de significado indeterminado
     translated_name: Cells of undetermined origin
@@ -1595,10 +1884,11 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
-
-      '
+    codes:
+      '01': 'Indefinida-possivelmente não neoplasicas'
+      '02': 'Indefinida-não se pode afastar lesão de alto grau'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Cel.origem.Indef (C_ORIG_I, atipindind.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); histo_colo.def ORIG_INDEF (same CNV)'
   TP_DESCARGA_PAPILAR:
     official_name: Descarga papilar
     translated_name: Nipple discharge type
@@ -1825,11 +2115,11 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Mama dir pele
-
-      '
+    codes:
+      '01': 'Normal'
+      '02': 'Alterada'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Mama dir pele (MAMA_PELE_D, CRADPELE.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_MAMA_PELE_ESQ:
     official_name: Mama esq pele
     translated_name: Left breast skin appearance
@@ -1839,11 +2129,11 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Mama esq pele
-
-      '
+    codes:
+      '01': 'Normal'
+      '02': 'Alterada'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Mama esq pele (MAMA_PELE_E, CRADPELE.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_MAMOGRAFIA_RASTREAMENT:
     official_name: Tipo Mamo rast
     translated_name: Screening mammogram type
@@ -1853,22 +2143,26 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Tipo Mamo rast
-
-      '
+    codes:
+      '01': 'População alvo'
+      '02': 'População de risco elevado (história familiar)'
+      '03': 'Paciente já tratado de câncer de mama'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Tipo Mamo rast (TP_MAMRAST, TIPMAMRAST.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_MARGEM_CIRURGICA:
     official_name: Margens cirúrgicas
     translated_name: Surgical margin
     description: 'Assessment of the surgical margins on the cervical histopathology: free,
       involved, or impossible to assess.'
     code_system: internal
-    source: layout_doc
-    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
-      "Margens cirúrgicas"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
-      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
-      p.2 "Margens cirúrgicas"
+    codes:
+      '01': 'Livres'
+      '02': 'Comprometidas'
+      '03': 'Impossível de serem avaliadas'
+      '04': 'Livres (Sem Tumor Detectável)'
+      '05': 'Não avaliável'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Margens Cirúrgicas (MARGEM_CIR, CHISMARG.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); histo_colo.def MARGEM_CIR margem.CNV (Livres, Comprometidas, Impossível de serem avaliadas = 1, 2, 3, the same labels as CHISMARG 01-03; the CSV and DBF data write them 2-digit); typo "Comprometedidas" corrected'
   TP_MATERIAL:
     official_name: Material Enviado
     translated_name: Material submitted
@@ -1877,11 +2171,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Material Enviado
-
-      '
+    codes:
+      '01': 'Descarga papilar'
+      '02': 'Punção aspirativa'
+      '03': 'Conteúdo cístico'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Material Enviado (M_ENVIADO, CCLIMATDPC.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_MATER_ENVIA_PROCEDENTE:
     official_name: Proc. Material
     translated_name: Material's procedural origin
@@ -1891,23 +2186,31 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': 'Biópsia incisional'
+      '02': 'Biópsia excisional'
+      '03': 'Biópsia por agulha grossa'
+      '04': 'Biópsia estereotáxica'
+      '05': 'Ressecção segmentar'
+      '06': 'Excisão de ductos principais'
+      '07': 'Mastectomia glandular'
+      '08': 'Ressecção segmentar com esvaziamento axilar'
+      '09': 'Mastectomia simples'
+      '10': 'Mastectomia radical e radical modificada'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Proc. Material (PROC_MAT, CCLIMATPROC.CNV)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Proc. Material (PROC_MAT, CCLIMATPROC.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_MOTIVO_EXAME:
     official_name: Motivo do exame
     translated_name: Reason for the exam (type)
     description: 'Reason for the cervical cytology exam: screening (rastreamento), repeat
       after an ASC-US or low-grade result, or follow-up after colposcopic diagnosis or treatment.'
     code_system: internal
-    source: layout_doc
-    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
-      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
-      p.1 item 1 "Motivo do exame"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
-      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Motivo
-      do exame"; TAB_SISCAN motivo_exame.CNV
-    notes: Declared C(0,0); no observed values captured.
+    codes:
+      '01': 'Rastreamento'
+      '02': 'Repetição (Exame Alterado ASCUS/Baixo Grau)'
+      '03': 'Seguimento'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Motivo do exame (MOT_EXAME, motivo_exame.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_NODULO:
     official_name: Tipo Nódulo
     translated_name: Nodule type
@@ -1929,11 +2232,13 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Nódulo_requis
-
-      '
+    codes:
+      '01': 'Sim, mama direita'
+      '02': 'Sim, mama esquerda'
+      '03': 'Sim, ambas'
+      '04': 'Não'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Nódulo_requis (NODULO_REQ, TP_NODULO_CAROCO_MAMA.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PADRAO_CITOPATOL_AMOST:
     official_name: Padrão citopatológico da amostra
     translated_name: Cytology pattern for discharge/cyst material
@@ -1941,11 +2246,16 @@ variables:
       negative for malignancy, indeterminate malignancy, positive for malignancy, consistent
       with a papillary lesion, or consistent with an inflammatory process.'
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
-      "Result Desc/císt"; INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416)
-      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
-      p.2 "Resultado da descarga papilar / conteúdo cístico: Padrão citopatológico da amostra"'
+    codes:
+      '01': 'Material acelular'
+      '02': 'Negativo para malignidade'
+      '03': 'Padrão citopatológico de malig. indeterminada'
+      '04': 'Positivos para malignidade'
+      '05': 'Consistente com lesão papilar'
+      '06': 'Consistente com processo inflamatório.'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Result Desc/císt (RESULT_DC, CRESDERPAP.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); Nota Tecnica 11 SISCAN, "Result Desc/císt - resultado do padrão citopatológico de material da descarga papilar ou de conteúdo cístico"'
+    notes: 'Matched to RESULT_DC by the Nota Tecnica definition (cytopathological pattern of nipple-discharge or cystic-content material) and by the six-code set observed.'
   TP_PADR_CITO_MALIG_INDET:
     official_name: Malignid Indeterm
     translated_name: Indeterminate-malignancy pattern
@@ -1955,11 +2265,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Malignid Indeterm
-
-      '
+    codes:
+      '01': 'Tumor papilar'
+      '02': 'Tumor filóide'
+      '03': 'Outros'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Malignid Indeterm (MALIG_IND, CRESMALIIN.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PADR_CITO_POSI_MALIG:
     official_name: Positivo malignid
     translated_name: Positive-for-malignancy pattern
@@ -1969,11 +2280,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Positivo malignid
-
-      '
+    codes:
+      '01': 'Carcinoma ductal'
+      '02': 'Carcinoma lobular'
+      '03': 'Outros'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Positivo malignid (POSI_MALIG, CRESPOSMAL.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PADR_CITO_SUSP_MALIG:
     official_name: Suspeito malignid
     translated_name: Suspicious-for-malignancy pattern
@@ -1983,11 +2295,11 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Suspeito malignid
-
-      '
+    codes:
+      '01': 'Lesão epitelial proliferativa com atipias'
+      '02': 'Outros'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Suspeito malignid (SUSP_MALIG, CRESSUSMAL.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PROCEDIMENTO:
     official_name: Tipo de procedimento (mat. enviado)
     translated_name: Cervical specimen procedure type
@@ -1997,11 +2309,14 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': 'Biópsia'
+      '02': 'Exerese da zona de transformação - Ver e tratar'
+      '03': 'Exerese da zona de transformação - Pós-biópsia'
+      '04': 'Conização'
+      '05': 'Outros'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_colo.def, campo Tipo de procedimento (mat. enviado)
-      (TP_PROCED, tpproced.CNV)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def campo Tipo de procedimento (mat. enviado) (TP_PROCED, tpproced.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PROCEDIMENTO_CIRURGICO:
     official_name: Proc. Cirúrgico
     translated_name: Breast surgical procedure type
@@ -2011,10 +2326,19 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': 'Biópsia Incisional'
+      '02': 'Biópsia Excisional'
+      '03': 'Biópsia por Agulha Grossa (Core Biopsy)'
+      '04': 'Biópsia Estereotáxica'
+      '05': 'Ressecção Segmentar'
+      '06': 'Excisão de Ductos Principais'
+      '07': 'Mastectomia Glandular'
+      '08': 'Ressecção Segmentar com Esvaziamento Axilar'
+      '09': 'Mastectomia Simples'
+      '10': 'Mastectomia Radical e Radical Modificada'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Proc. Cirúrgico (PROC_CIR, TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Proc. Cirúrgico (PROC_CIR, TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_PROC_BENI_NEGA_MALI_COMPATI:
     official_name: Proc Ben Neg mal
     translated_name: Benign-negative pattern, compatible diagnosis
@@ -2024,11 +2348,16 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Proc Ben Neg mal
-
-      '
+    codes:
+      '01': 'Mastite'
+      '02': 'Abscesso'
+      '03': 'Fibroadenoma'
+      '04': 'Necrose'
+      '05': 'Condição Fibrocística'
+      '06': 'Lesão epitelial'
+      '07': 'Outras'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Proc Ben Neg mal (PB_NEG_M, CRESBENIG.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RECOMENDACAO_DIREITA:
     official_name: Recomendação - mama direita
     translated_name: Right-breast follow-up recommendation
@@ -2036,20 +2365,34 @@ variables:
       to its BI-RADS category: ultrasound complement, mammography in 2 years or 1 year, radiological
       control in 6 months or 1 year, cyto/histopathology, or specific therapy.'
     code_system: internal
+    codes:
+      '1': 'Complementação com ultrassonografia'
+      '2': 'Mamografia em 2 anos'
+      '3': 'Mamografia em 1 ano'
+      '4': 'Controle radiológico em 6 meses'
+      '5': 'Controle radiológico em 1 ano'
+      '6': 'Cito/Histopatológico'
+      '7': 'Terapêutica específica'
     source: layout_doc
-    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
-      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
-      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
+    source_ref: 'TAB_SISCAN.rar!CCONRECOM.CNV, Recomendações (SISCAN-vintage table, seven categories; not bound in a .def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISMAMA kit (TAB_SISMAMA CCONRECOM.CNV) uses a different list for codes 3 and up, so this table applies to the SISCAN CSV (2013+) only.'
   TP_RECOMENDACAO_ESQUERDA:
     official_name: Recomendação - mama esquerda
     translated_name: Left-breast follow-up recommendation
     description: Management recommended for the left breast in the mammography report, on
       the same list as TP_RECOMENDACAO_DIREITA.
     code_system: internal
+    codes:
+      '1': 'Complementação com ultrassonografia'
+      '2': 'Mamografia em 2 anos'
+      '3': 'Mamografia em 1 ano'
+      '4': 'Controle radiológico em 6 meses'
+      '5': 'Controle radiológico em 1 ano'
+      '6': 'Cito/Histopatológico'
+      '7': 'Terapêutica específica'
     source: layout_doc
-    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
-      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
-      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
+    source_ref: 'TAB_SISCAN.rar!CCONRECOM.CNV, Recomendações (SISCAN-vintage table, seven categories; not bound in a .def); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'The SISMAMA kit (TAB_SISMAMA CCONRECOM.CNV) uses a different list for codes 3 and up, so this table applies to the SISCAN CSV (2013+) only.'
   TP_RESP_ANT_MAMA_EXA_PROF_SAUD:
     official_name: Ex Clin Ant
     translated_name: Prior clinical breast exam
@@ -2058,11 +2401,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Ex Clin Ant
-
-      '
+    codes:
+      '01': 'Sim'
+      '02': 'Não examinadas anteriormente'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Ex Clin Ant (EX_CL_ANT, CANMEXAPR.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
+    notes: 'CANMEXAPR.CNV lists only 01 and 02; code 03 is frequent in the data and is not documented there, so it stays undecoded.'
   TP_RESP_APRES_RISC_ELEV_CANCER:
     official_name: Risco elevado
     translated_name: Elevated breast-cancer risk
@@ -2072,27 +2416,26 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Risco elevado
-
-      '
+    codes:
+      '01': 'Sim'
+      '02': 'Não'
+      '03': 'Não Sabe'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Risco elevado (RISCO_ELEV, RiscoElevado.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RESP_EXAME_PREVENTIVO_REALI:
     official_name: 'Resposta: exame preventivo realizado'
     translated_name: Previous Pap test reported
     description: 'The woman''s answer to requisition item 2, whether she has ever had a Pap
       test: yes, no, or doesn''t know.'
     code_system: internal
-    source: inferred
-    reasoning: 'Full-word decomposition (tipo + responsável + exame preventivo realizado);
-      pairs with TP_MOTIVO_EXAME on the same request-form section. Reviewed 2026-09-28: no
-      documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
-      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
-      the DATASUS FTP DOC folders and the web). Description rewritten: RESP most plausibly
-      abbreviates resposta (answer), matching requisition item 2 "Fez o exame preventivo (Papanicolaou)
-      alguma vez?" (Sim / Não / Não sabe; citoant.CNV); nothing on the form records the collecting
-      professional''s category.'
-    notes: Declared C(0,0); no observed values captured.
+    codes:
+      '01': 'Sim'
+      '02': 'Não'
+      '03': 'Não sabe'
+      '04': 'Sem informação na ficha'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def campo Citologia anterior (CIT_ANTER, CitoAnt.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar); Nota Tecnica 2 SISCAN, "Citologia anterior - informação fornecida pela usuária ... de haver ou não realizado anteriormente um exame citopatológico do colo do útero"'
+    notes: 'Matched to CIT_ANTER by the Nota Tecnica definition (previous cervical cytology reported by the woman) and by identical code set 01-04 in the DBF kit.'
   TP_RESP_FEZ_MAMOGRA_ALGUMA_VEZ:
     official_name: Mamog. Anterior
     translated_name: Ever had a mammogram before
@@ -2101,11 +2444,12 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
-      campo Mamog. Anterior
-
-      '
+    codes:
+      '01': 'Sim'
+      '02': 'Não'
+      '03': 'Não Sabe'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!mamografia.def campo Mamog. Anterior (MAMOG_ANT, RiscoElevado.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RESULTA_PUNCAO_ASPIRATIVA:
     official_name: Resultado PAAF
     translated_name: Fine-needle-aspiration result
@@ -2115,11 +2459,13 @@ variables:
 
       '
     code_system: internal
-    source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
-      campo Resultado PAAF
-
-      '
+    codes:
+      '01': 'Processos Benignos Neg. malinnidade'
+      '02': 'Malignidade Indeterminada compativel'
+      '03': 'Suspeito para malignidade'
+      '04': 'Positivo para malignidade'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Resultado PAAF (RES_PAAF, PRESULPAAF.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_RISCO_ELEVADO:
     official_name: Risco elevado (histopatológico de mama)
     translated_name: Elevated breast-cancer risk (histopathology form)
@@ -2128,12 +2474,12 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': 'Sim'
+      '02': 'Não'
+      '03': 'Não Sabe'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Risco elevado (RISCO_ELEV, RiscoElevado.cnv
-      - same lookup file as the mammography Risco elevado field documented in Nota
-      Tecnica 8)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Risco elevado (RISCO_ELEV, RiscoElevado.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_TAMANHO_LESAO:
     official_name: Tam_lesão_req
     translated_name: Lesion size on requisition
@@ -2143,10 +2489,14 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': '< 2cm'
+      '02': '2 a 5cm'
+      '03': '> 5 a 10cm'
+      '04': '> 10cm'
+      '05': 'Não palpável'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Tam_lesão_req (TAM_LESREQ, CCLITAM.CNV)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Tam_lesão_req (TAM_LESREQ, CCLITAM.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_TAMANHO_TUMOR:
     official_name: Tamanho_tumor
     translated_name: Pathologic tumor size
@@ -2155,10 +2505,14 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': '< 2 cm'
+      '02': '2 a 5 cm'
+      '03': '> 5 cm'
+      '04': 'Não avaliável'
+      '05': 'Não informado'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Tamanho_tumor (TAM_TUMOR, TP_TAMANHO_TUMOR.CNV)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Tamanho_tumor (TAM_TUMOR, TP_TAMANHO_TUMOR.CNV); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'
   TP_ZONA_TRANSF_ADEQUABILIDADE:
     official_name: Adequab Zona de Transformação
     translated_name: Transformation-zone adequacy
@@ -2168,8 +2522,11 @@ variables:
 
       '
     code_system: internal
+    codes:
+      '01': 'Satisf. ZT tipo I'
+      '02': 'Satisf. ZT tipo II - JEC <1 cm do canal'
+      '03': 'Satisf. ZT tipo II - JEC > 1 cm do canal'
+      '04': 'Insatisf. ZT tipo III'
+      '05': 'Insatisf. Colpo. Inadeq.'
     source: def
-    source_ref: 'TAB_SISCAN.rar!histo_colo.def, campo Adequab Zona de Transformação
-      (ADEQ_ZT, adequib_zt.cnv)
-
-      '
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def campo Adequab Zona de Transformação (ADEQ_ZT, adequib_zt.cnv); TAB_SISCAN.rar (ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar)'

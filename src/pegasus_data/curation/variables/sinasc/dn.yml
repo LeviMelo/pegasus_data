@@ -168,11 +168,12 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: '[EVOL-1996-2019] row 58: "RACACORN C 8 — Tipo de raça e cor do nascido:
-      1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2012" https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
-
-      '
+    codes:
+      '1': 'Branca'
+      '2': 'Preta'
+      '3': 'Amarela'
+      '4': 'Parda'
+      '5': 'Indígena'
     vintage_note: 'Present only in DN 2012–2013. The same content lives in RACACOR
       before 2011, in RACACOR_RN in 2011, and from 2011 onward the mother''s race/colour
       is in RACACORMAE. Anyone building a newborn race/colour series has to coalesce
@@ -184,6 +185,8 @@ variables:
       are the same 1–5 set as RACACOR; the binder attached RACA.CNV to RACACOR only.
 
       '
+    source: layout_doc
+    source_ref: 'SINASC - Estrutura (DATASUS/DIAAD, evolução 1996-2019) — local: sources/SINASC_Estrutura.pdf; https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf, row 58: ''RACACORN C 8 — Tipo de raça e cor do nascido: 1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2012'''
   RACACOR_RN:
     official_name: Raça/cor do nascido
     translated_name: Newborn race/colour
@@ -193,11 +196,15 @@ variables:
 
       '
     code_system: internal
-    source: web
-    source_ref: '[EVOL-1996-2019] row 57: "RACACOR_RN C 10 — Tipo de raça e cor do
-      nascido: 1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2011" https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
-
-      '
+    codes:
+      '1': 'Branca'
+      '2': 'Preta'
+      '3': 'Amarela'
+      '4': 'Parda'
+      '5': 'Indígena'
     vintage_note: 'DN 2011 only. Renamed RACACORN from 2012. The "_RN" suffix is recém-nascido.
 
       '
+
+    source: layout_doc
+    source_ref: 'SINASC - Estrutura (DATASUS/DIAAD, evolução 1996-2019) — local: sources/SINASC_Estrutura.pdf; https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf, row 57: ''RACACOR_RN C 10 — Tipo de raça e cor do nascido: 1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2011'''

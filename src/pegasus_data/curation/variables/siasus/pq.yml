@@ -125,3 +125,50 @@ variables:
     source: def
     source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def", field PAQ_DIAGPR,
       display_name "CID Principal", lookup CID.CNV.'
+  PAQ_INITRA:
+    official_name: 'Data de Início do Tratamento (AAAAMM)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29), campo 001 apa_initrat C(6) ''Data de Inicio do Tratamento AAAAMM'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_ESTAD:
+    official_name: 'Estado do Tumor'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29), apa_estado C(1) ''Estado do Tumor'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_CEPPCN:
+    official_name: 'Código de Endereçamento Postal do logradouro do paciente'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 016 apa_ceppcnte N(8) ''Código de Endereçamento Postal do logradouro do paciente'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_CPFPCN:
+    official_name: 'Número de registro do paciente no Cadastro de Pessoas Físicas (CPF)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 009 apa_cpfpcnte N(11) ''Número de registro do paciente no Cadastro de Pessoas Físicas da Receita Federal (CPF)'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_NASCPC:
+    official_name: 'Data de nascimento do paciente (AAAAMMDD)'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 018 apa_datanascim N(8) ''Data de nascimento do paciente (AAAAMMDD)'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_UFNASC:
+    official_name: 'Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade'
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011 apa_ufnascpcnte N(2) ''Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_NUM:
+    official_name: 'Número da APAC'
+    code_system: none
+    source: layout_doc
+    asserted_by: pegasus_data
+    source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 003 apa_num N(11) ''Número da APAC com 11 dígitos incluindo seqüência e 1 para dígito verificador'''
+    notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'

@@ -65,6 +65,7 @@ variables:
 
       '
   DIAG_SEC:
+    official_name: 'Diagnóstico secundário (CID-9)'
     translated_name: Secondary diagnosis (1997 CID-9 predecessor of DIAG_SECUN)
     description: 'Secondary-diagnosis code recorded on this admission in the 1997 RD
       files, using CID-9 rather than CID-10 — the predecessor of the DIAG_SECUN column

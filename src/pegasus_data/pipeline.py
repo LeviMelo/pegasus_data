@@ -20,7 +20,7 @@ import json
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from .acquire.cache import BlobStore
 from .acquire.fetcher import Fetcher
@@ -301,7 +301,10 @@ class Pipeline:
         systems: Sequence[str] | None = None,
         limit: int | None = None,
         pdfs: bool = True,
+        force: bool = False,
     ) -> StageResult:
+        from .semantics.tabkit import parser_fingerprint
+
         kits = find_kits(self.catalog, systems=systems)
         loose = find_loose_dictionaries(self.catalog, systems=systems)
         if limit:
@@ -316,9 +319,15 @@ class Pipeline:
             "code_table_rows": 0,
             "def_variables": 0,
             "superseded_rows": 0,
+            "kits_unchanged": 0,
         }
         notes: list[str] = []
         superseded = 0
+        fingerprint = parser_fingerprint()
+        read_before = {
+            str(r["kit_path"]): (r["sha256"], r["parser_fingerprint"])
+            for r in self.catalog.query("SELECT kit_path, sha256, parser_fingerprint FROM tab_kits")
+        }
 
         fetched = self.fetcher.ensure(kits)
         kit_reports: list[dict[str, object]] = []
@@ -326,6 +335,9 @@ class Pipeline:
             digest = fetched.get(path)
             if not digest:
                 notes.append(f"kit unavailable: {path}")
+                continue
+            if not force and read_before.get(path) == (digest, fingerprint):
+                counts["kits_unchanged"] = int(counts["kits_unchanged"]) + 1  # type: ignore[call-overload]
                 continue
             system = _system_of(path, self.settings.base_path)
             try:
@@ -356,6 +368,8 @@ class Pipeline:
             self.catalog.execute("DELETE FROM dictionary_rules WHERE source_ref LIKE ?", (f"{kit.kit_path}!%",))
             rule_count = persist_rules(self.catalog, rules, system=system)
             counts["kits_ingested"] = int(counts["kits_ingested"]) + 1
+            self.catalog.execute("UPDATE tab_kits SET parser_fingerprint = ? WHERE kit_path = ?",
+                                 (fingerprint, path))
             counts["dictionary_entries"] = int(counts["dictionary_entries"]) + merged["inserted"]
             counts["conflicts"] = int(counts["conflicts"]) + merged["conflicts"]
             counts["rules"] = int(counts["rules"]) + rule_count
@@ -531,7 +545,10 @@ class Pipeline:
                 resolution=f"{counts['kits_ingested']} kits ingested; every member catalogued in archive_members with its role",
                 evidence=json.dumps(kit_reports[:20]),
             )
-        procedure_rows = self.catalog.count("code_tables", "table_id LIKE 'TPROC%' OR table_id LIKE 'EMUSO%'")
+        # Ranges, not LIKE, so the (table_id, ...) key serves them: the LIKE
+        # scanned 12.7M rows, 27 s of every semantics run (OQ-24).
+        procedure_rows = self.catalog.count(
+            "code_tables", "(table_id >= 'TPROC' AND table_id < 'TPROD') OR (table_id >= 'EMUSO' AND table_id < 'EMUSP')")
         if procedure_rows:
             self.catalog.resolve_question(
                 "V5.sigtap_procedure_table",
@@ -863,8 +880,12 @@ class Pipeline:
         limit: int | None = None,
         only_missing: bool = True,
         stratum_ids: Sequence[str] | None = None,
+        whole_file_limit: int | None = None,
     ) -> StageResult:
         """Census every stratum's columns by reading headers, not payloads.
+
+        ``whole_file_limit`` (bytes) lets a zipped DuckDB export up to that size
+        be fetched whole into the blob store to be described (OQ-54).
 
         Complements ``profile`` rather than replacing it. Profiling reads the
         data and can speak about values; this reads a few hundred bytes and can
@@ -939,7 +960,17 @@ class Pipeline:
 
         try:
             with Heartbeat(progress, interval=self.settings.heartbeat_interval):
-                census = run_census(self.catalog, _fetch, targets, on_item=_seen, fetch_range=_fetch_range)
+                def _fetch_file(path: str) -> Path:
+                    result = self.fetcher.fetch_one(path)
+                    if result.error or not result.sha256:
+                        raise RuntimeError(result.error or f"{path}: not fetched")
+                    return self.blobs.path_for(result.sha256)
+
+                census = run_census(
+                    self.catalog, _fetch, targets, on_item=_seen, fetch_range=_fetch_range,
+                    fetch_file=_fetch_file if whole_file_limit else None,
+                    **({"whole_file_limit": whole_file_limit} if whole_file_limit else {}),
+                )
         finally:
             client_cell[0].close()
 
