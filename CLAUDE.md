@@ -154,7 +154,7 @@ Stored aggregates are sums and counts, never finished means.
 - **Replace, never add beside.** When a method misses the goal, redesign it,
   remove what it replaces, and check for dead code (`scripts/codehealth.py`).
   New capability goes in `src/` behind the API and a CLI command, not in
-  `scripts/` or `tools/`.
+  `scripts/`.
 - **Weight (user, 2026-10-03).** Commit in batches, not per increment.
   - An ADR is only for a final decision.
   - A measurement is a few lines, added to an existing evaluation where one
@@ -186,8 +186,8 @@ Stored aggregates are sums and counts, never finished means.
 
 - `src/pegasus_data/` — the package. `curation/` (YAML) and `resources/`
   (the shipped label pack) are data, reviewed like code.
-- `scripts/` — maintainer and live-check scripts. `tools/` — presentation
-  exporters (being folded into the package; ARCHITECTURE §5).
+- `scripts/` — maintainer and live-check scripts. (`tools/` was folded into
+  the package on 2026-10-04: `pegasus-data workbook`, `pegasus-data query --out`.)
 - Gitignored and local: `pegasus_data_home/` (catalog, blob cache, lake),
   `sources/` (2.5 GB of harvested DATASUS documentation), `data/probes/`.
 

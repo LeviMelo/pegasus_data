@@ -285,7 +285,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | query capabilities | `capabilities.py` (aggregate artifacts) and `_query_engine/capabilities.py` (publication coverage) | rename in M3 |
 | a `Catalog` | `api.Catalog` (public facade) and `catalog/store.Catalog` | rename in M3 |
 | re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
-| stock time reducers | refused in `measures.py`, implemented in `tools/export_workbook.py` | M4: into `measures.py` |
+| stock time reducers | ~~refused in `measures.py`, implemented in `tools/export_workbook.py`~~ | **done** (2026-10-04): `_aggregate` reduces a stock over time (OQ-14); the workbook (`workbook.py`, `pegasus-data workbook`) calls it |
 
 Also known, not duplicates:
 - ~~`decode/_native/` compiled into the package with a hardcoded Visual
@@ -338,6 +338,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_aggregate.py`: recipes, `build_aggregate`, `aggregate()`.
 - `measures.py`: the measure algebra (accumulator states).
 - `capabilities.py`: what a client may do with a built aggregate.
+- `workbook.py`: a built aggregate as an Excel workbook, each sheet its own aggregation (`pegasus-data workbook`).
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph.
 - `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).

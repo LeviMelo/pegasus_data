@@ -936,6 +936,23 @@ def schemas(
         pipeline.close()
 
 
+@app.command()
+def workbook(
+    artifact: Annotated[str, typer.Argument(help="A built aggregate artifact, e.g. sih_rd_municipality_month")],
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Workbook path (default: <artifact>.xlsx here)")] = None,
+    root: RootOpt = None,
+) -> None:
+    """Write a built artifact as an Excel workbook: national, monthly, UF,
+    municipality and per-dimension sheets, each its own aggregation."""
+    from .config import load_settings
+    from .workbook import build
+
+    settings = load_settings(root=Path(root) if root else None)
+    target = out or Path(f"{artifact}.xlsx")
+    path = build(artifact, target, settings=settings)
+    console.print(f"{path} ({path.stat().st_size / 1_048_576:.1f} MB)")
+
+
 @app.command(rich_help_panel="PIPELINE")
 def profile(
     root: RootOpt = None,

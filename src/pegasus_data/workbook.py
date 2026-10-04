@@ -1,49 +1,34 @@
-"""Export a built artifact to a presentable Excel workbook.
+"""A built aggregate artifact as a presentable Excel workbook.
 
-Why this exists rather than "download the CSV": a spreadsheet handed to a
-team gets read without the interface's guardrails, so the workbook has to
-carry them itself.
+A spreadsheet handed to a team is read without the interface's guardrails,
+so the workbook carries them itself. Two rules shape it:
 
-Two rules shape everything here.
+- **Every cut is its own aggregation.** A sheet by sex asks the aggregate
+  layer for the sex breakdown, never pivots or re-sums another sheet: `los`
+  (length of stay) is a mean, and summing or averaging means gives a
+  plausible wrong number. Totals are separate calls at the coarser level.
+- **Absence is not zero.** A municipality with no cell was not observed; the
+  cell stays blank and the Leia-me sheet says so.
 
-**Every cut is its own aggregation.** A sheet broken down by sex is computed
-by asking the aggregate layer for the sex breakdown -- never by pivoting or
-re-summing another sheet. This is not fastidiousness: `los` (permanencia
-media) is a MEAN, stored as the pair (los_sum, los_n) and finalised as their
-quotient. Summing a column of means, or averaging them, produces a number
-that looks reasonable and is wrong. Totals rows are likewise separate calls
-at the coarser level, which is the only way a mean's total can be right.
-
-**Absence is not zero.** A municipality with no cell was not observed; it did
-not report zero admissions. Blank cells are left blank, and the Leia-me sheet
-says so, because a reader who sees 0 will average it.
-
-Usage::
-
-    python tools/export_workbook.py                       # SIH, default
-    python tools/export_workbook.py --artifact sim_do_municipality_month
-    python tools/export_workbook.py --out C:\\path\\book.xlsx
+Formerly ``tools/export_workbook.py``, which reached the package through the
+HTTP API and reduced stocks over time itself; both now come from the package.
+Needs the ``excel`` extra (openpyxl).
 """
 
 from __future__ import annotations
 
-import argparse
 import datetime as dt
-import json
-import sys
-import urllib.request
+import functools
 from pathlib import Path
+from typing import Any
 
-import pyarrow as pa
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-
-from pegasus_data._aggregate import aggregate  # noqa: E402
-
-API = "http://127.0.0.1:8000"
+from ._aggregate import aggregate
+from .capabilities import capabilities
+from .geography import municipalities
 
 # ---------------------------------------------------------------- palette
 INK = "1F2933"
@@ -51,11 +36,6 @@ ACCENT = "2F3E9E"
 HEAD_FILL = PatternFill("solid", fgColor="EEF1FA")
 TOTAL_FILL = PatternFill("solid", fgColor="F5F5F5")
 HAIR = Side(style="thin", color="D8DEE9")
-
-
-def api_json(path: str) -> dict:
-    with urllib.request.urlopen(f"{API}{path}", timeout=300) as r:
-        return json.load(r)
 
 
 def number_format(measure: dict) -> str:
@@ -66,90 +46,15 @@ def number_format(measure: dict) -> str:
     return "#,##0" if decimals == 0 else "#,##0." + "0" * decimals
 
 
-def rows_of(table: pa.Table) -> list[dict]:
-    return table.to_pylist()
+def _cut(artifact: str, by: list[str], measures: list[dict], *, settings: Any = None) -> list[dict]:
+    """One cut: its own aggregation, never a pivot of another sheet.
 
-
-def cut(
-    artifact: str,
-    by: list[str],
-    measures: list[dict],
-    time_grain: str = "month",
-) -> list[dict]:
-    """One cut, honouring each measure's rule for collapsing time.
-
-    Flows (no `time_reducer`) are handed straight to the aggregate layer,
-    which finalises them correctly -- a mean like `los` included.
-
-    Stocks are the case that made the first version of this script crash on
-    CNES. Beds are a quantity held AT a moment; summing them across twelve
-    months yields bed-months, so the backend refuses the roll-up outright.
-    The honest answer is to keep time as an axis, let each period finalise on
-    its own, and then reduce those period values by the rule the artifact
-    declares (mean, last or max) -- the same thing the frontend does.
-
-    Flows and stocks therefore travel as two separate aggregations joined on
-    the requested keys, because no single request is legitimate for both.
+    A stock's time is reduced by the aggregate layer itself, by the rule its
+    measure declares (OQ-14), so a sheet without time carries a stock's
+    mean, last or maximum, never its bed-months.
     """
-    flows = [m for m in measures if not m.get("time_reducer")]
-    stocks = [m for m in measures if m.get("time_reducer")]
-    time_on_axis = any(b in ("month", "year", time_grain) for b in by)
-
-    merged: dict[tuple, dict] = {}
-
-    def absorb(rows: list[dict], value_keys: list[str]) -> None:
-        for row in rows:
-            key = tuple(row.get(b) for b in by)
-            slot = merged.setdefault(key, {b: row.get(b) for b in by})
-            for k in value_keys:
-                slot[k] = row.get(k)
-
-    if flows:
-        ids = [m["id"] for m in flows]
-        absorb(rows_of(aggregate(artifact, by=by or None, measures=ids)), ids)
-
-    if stocks:
-        ids = [m["id"] for m in stocks]
-        if time_on_axis:
-            absorb(rows_of(aggregate(artifact, by=by, measures=ids)), ids)
-        else:
-            per_period = rows_of(
-                aggregate(artifact, by=[*by, time_grain], measures=ids)
-            )
-            # `last` is only meaningful in period order, which the aggregate
-            # layer does not promise.
-            per_period.sort(key=lambda r: str(r.get(time_grain) or ""))
-            buckets: dict[tuple, dict[str, list[float]]] = {}
-            for row in per_period:
-                key = tuple(row.get(b) for b in by)
-                slot = buckets.setdefault(key, {i: [] for i in ids})
-                for i in ids:
-                    v = row.get(i)
-                    if v is not None:
-                        slot[i].append(v)
-            reduced = []
-            for key, values in buckets.items():
-                out = dict(zip(by, key))
-                for m in stocks:
-                    series = values[m["id"]]
-                    if not series:
-                        out[m["id"]] = None
-                        continue
-                    rule = m["time_reducer"]
-                    if rule == "mean":
-                        out[m["id"]] = sum(series) / len(series)
-                    elif rule == "last":
-                        out[m["id"]] = series[-1]
-                    elif rule == "max":
-                        out[m["id"]] = max(series)
-                    else:
-                        # An undeclared rule is a contract gap, not a licence
-                        # to sum. Blank is the honest cell.
-                        out[m["id"]] = None
-                reduced.append(out)
-            absorb(reduced, ids)
-
-    return list(merged.values())
+    table = aggregate(artifact, by=by or None, measures=[m["id"] for m in measures], settings=settings)
+    return table.to_pylist()  # type: ignore[union-attr]
 
 
 def headers_for(measures: list[dict], time_on_axis: bool) -> list[str]:
@@ -240,26 +145,23 @@ def write_sheet(
         )
 
 
-def build(artifact: str, out: Path) -> Path:
-    caps = api_json(f"/api/v1/datasets/{artifact}/capabilities")
+def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
+    """Write ``artifact``'s workbook to ``out`` and return the path."""
+    capability = capabilities(artifact, settings=settings)
+    caps = capability.as_dict()
     measures = caps["measures"]
     mids = [m["id"] for m in measures]
 
     # Territory names, indexed by the 6-digit code the artifact stores.
-    membership = api_json("/api/v1/geo/membership")["membership"]
     by6: dict[str, dict] = {}
     uf_name: dict[str, str] = {}
-    for entry in membership.values():
-        by6[entry["code6"]] = entry
-        uf_name[entry["uf"]] = entry["uf_name"]
+    for code6, row in municipalities().items():
+        by6[code6] = {"name": row["name"], "uf": row["uf_sigla"], "macroregion": row["macroregion"]}
+        uf_name[row["uf_sigla"]] = row["uf_name"]
 
-    # Dimension labels, straight from the artifact's own codelists.
-    codelists: dict[str, dict[str, str]] = {}
-    for dim in caps["dimensions"]:
-        payload = api_json(f"/api/v1/artifacts/{artifact}?by={dim['id']}&measures={mids[0]}")
-        codelists[dim["id"]] = {
-            c["code"]: c["label"] for c in (payload.get("codelists") or {}).get(dim["id"], [])
-        }
+    # Dimension labels, from the artifact's own codelists.
+    codelists = {d.id: {lv.code: lv.label for lv in d.levels} for d in capability.dimensions}
+    cut = functools.partial(_cut, settings=settings)
 
     wb = Workbook()
     wb.remove(wb.active)
@@ -361,7 +263,7 @@ def build(artifact: str, out: Path) -> Path:
     gap()
     kv(
         "Gerado por",
-        "PegaSUS — pegasus_data (agregação) + tools/export_workbook.py. "
+        "PegaSUS — pegasus_data (agregação; pegasus-data workbook). "
         "Os valores aqui são os mesmos servidos ao pegasus_view.",
     )
 
@@ -375,7 +277,7 @@ def build(artifact: str, out: Path) -> Path:
             ["Medida", "Valor", "Unidade"],
             [
                 [h, n.get(m["id"]), m["unit"]]
-                for h, m in zip(headers_for(measures, False), measures)
+                for h, m in zip(headers_for(measures, False), measures, strict=True)
             ],
             {2: "#,##0.00"},
             note=f"Brasil · {period['from']} a {period['to']}. Uma agregação nacional única.",
@@ -484,19 +386,4 @@ def build(artifact: str, out: Path) -> Path:
     return out
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--artifact", default="sih_rd_municipality_month")
-    ap.add_argument("--out", default=None)
-    args = ap.parse_args()
-
-    out = Path(args.out) if args.out else Path.home() / "Desktop" / f"{args.artifact}.xlsx"
-    print(f"building {args.artifact} -> {out}")
-    path = build(args.artifact, out)
-    size = path.stat().st_size / 1_048_576
-    print(f"done: {path} ({size:.1f} MB)")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+__all__ = ["build"]

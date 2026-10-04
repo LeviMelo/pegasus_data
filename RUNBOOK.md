@@ -83,6 +83,7 @@ $PD download --system SIHSUS                                   # maintainer: raw
 | the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |
 | re-read unchanged kits | `pegasus-data semantics --system X --force` | otherwise a kit is skipped when its blob and the parser are unchanged (OQ-24) |
 | describe large zipped DuckDB exports | `pegasus-data schemas --system DADOS_ABERTOS --whole-up-to-gb 8` | fetches each export whole into the blob store (FTP or mirror) to read its tables (OQ-54) |
+| an aggregate artifact as an Excel workbook | `pegasus-data workbook sih_rd_municipality_month --out book.xlsx` | each sheet its own aggregation; stocks reduced by their declared rule |
 | the canonical CNAE 2.0 table | `python scripts/build_cnae.py` | seconds; IBGE API responses cached in `sources/ibge_cnae/` (ADR-0087) |
 | the label pack | `labelpack` (`--carry-from <old pack>` when the default, the shipped pack, is not the last good one) | after `semantics`; keeps windows the catalog lacks (ADR-0095) |
 | an aggregate | `aggregate-build <recipe>` | base cuboid under the data home |
