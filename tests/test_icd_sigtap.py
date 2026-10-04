@@ -15,6 +15,7 @@ import zipfile
 import pyarrow as pa
 
 from pegasus_data.catalog.store import CatalogStore
+from pegasus_data.lookups import _check_width, _labels_for
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 from pegasus_data.semantics.icd import (
@@ -29,7 +30,7 @@ from pegasus_data.sources.sigtap import (
     parse_layout,
     read_table,
 )
-from pegasus_data.view import _check_width, _labels_for, render_table
+from pegasus_data.view import render_table
 
 
 class TestTokenRuleInference:

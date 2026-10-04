@@ -140,3 +140,10 @@ Overall, one month went from 6.8 to 5.6 s and the state-year from 21.3 to 16.9 s
 The four-dataset render is identical cell for cell. `cli_query`, `metadata` and `sih_2016` are ok (`data/probes/live/2026-10-04-mypy`).
 
 **`timeline` on RR 2022** (`data/probes/live/2026-10-04-mypy4`) had not passed since 09-30. It needs the stored delivery link for 2021 and 2022: the newborn link's padded period inherits it (ADR-0121). The scenario now links it first. Then it crashed on CIHA, which has never published a Roraima file (26 states in 2022). A partner unpublished at the scope is now named in `not_viable` with DATASUS's own message. Result: 5 notable births; the first carries a delivery admission, birth, neonatal admission and infant death.
+
+**Splits, behaviour unchanged.**
+- `view` (1,888 lines) → `view` 1,284 + `lookups` 635.
+- `retrieve` (1,913) → `retrieve` 1,533 + `_request` 421. `_explore`'s uncached copy of the ontology loader is gone.
+- `cli.py` (2,170) → the `cli/` package: the same 61 commands and parameters, compared by Typer's own command tree.
+
+The four-dataset render is identical cell for cell. Live runs were ok: `metadata`, `cli_query` (14,340 rows, 118 columns), `sih_2016`, `sia_sp_parts` and `timeline` (`data/probes/live/2026-10-04-split`, `…-cli2`). `python -m pegasus_data.cli` needed a `__main__.py`, which the first CLI run found.

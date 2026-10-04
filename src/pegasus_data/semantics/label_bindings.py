@@ -283,9 +283,10 @@ def compile_bindings(
     import pyarrow as pa
     import pyarrow.compute as pc
 
+    from ..lookups import _single_lookup
     from ..retrieve import fetch
     from ..semantics.curation import load_variable_docs
-    from ..view import _bindings, _single_lookup, compose_key
+    from ..view import _bindings, compose_key
 
     counts = {"families": 0, "fields": 0, "measured": 0, "curated": 0, "none": 0, "deferred": 0,
               "files": 0, "failed": 0}

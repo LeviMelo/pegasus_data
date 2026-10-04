@@ -21,7 +21,7 @@ reviewed like code: `curation/` (180 YAML files) and `resources/` (the shipped
 snapshot, 41 MB).
 
 ```text
- entry      cli.py (pegasus-data …)      serve/ (HTTP /api/v1, for ../pegasus_view)
+ entry      cli/ (pegasus-data …)        serve/ (HTTP /api/v1, for ../pegasus_view)
               │                                │
  public API __init__.py: 66 lazily exported names
               │
@@ -331,7 +331,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `api.py`: `Catalog` facade, `describe`, `load`, `scan`, `export`, `open_lake`,
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
+- `_request.py`: what a request asks for, checked before a byte is fetched: the dataset spec, axis refusals, state/month/year cleaning, and the errors `fetch` raises.
 - `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.
+- `lookups.py`: code → label maps, read per vintage, cached per table version, merged in authority order, and applied at exact width (§6.2).
 - `rates.py`: crude and directly age-standardised rates of queried records over POPSVS.
 - `quality.py`: where a field's values cannot be taken at face value, measured from the data: `race_reliability` (ADR-0128).
 - `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127).
@@ -380,7 +382,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `config.py`, `locate.py`: settings and where the data home is.
 - `textenc.py`: codepage detection.
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).
-- `cli.py`: the Typer CLI.
+- `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`; shared options and helpers in `cli/_common.py`.
 
 ### `_query_engine/`
 

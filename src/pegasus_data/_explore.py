@@ -33,6 +33,7 @@ from typing import Any, Literal
 
 import pyarrow as pa
 
+from ._request import _ontology
 from .config import Settings, load_settings
 
 __all__ = ["explore", "Exploration"]
@@ -326,21 +327,6 @@ def explore(
         warnings=warnings,
         total_files=total_files, total_bytes=total_bytes,
     )
-
-
-def _ontology():
-    """The declaration, or ``None`` if it cannot be read.
-
-    ``explore()`` must keep answering from a bare crawl even when the
-    declaration is missing or malformed — a broken YAML file is a curation
-    problem, not a reason the map of the server stops working.
-    """
-    from .ontology import Ontology
-
-    try:
-        return Ontology.load()
-    except Exception:  # noqa: BLE001 - a broken declaration must not blank the map
-        return None
 
 
 def _by_dataset(rows: list[dict[str, Any]], system: str) -> list[dict[str, Any]]:

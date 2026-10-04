@@ -2,7 +2,7 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-10-03.
+`DECISIONS.md`. Last rewritten 2026-10-04.
 
 ## Where the project is
 
@@ -284,8 +284,10 @@ OQ-64), 1990s SIH V-codes.
 - **Speed.** Of a 17-second state-year, rendering is 15 s: label tables
   (6), the pack and reference reads (2.5), decoding (2.7); imports cost ~1.5 s
   per process, pandas included (pyarrow loads it).
-- **Carried:** splitting `cli`, `retrieve` and `view`. (`mypy src/pegasus_data`
-  is clean since 2026-10-04.)
+- **Code health (2026-10-04):** `mypy src/pegasus_data` is clean. `view` is
+  split into `view` and `lookups`, `retrieve` into `retrieve` and `_request`,
+  and `cli` into a package by help panel; the command tree is unchanged
+  (61 commands, same parameters).
 
 ## Waiting on the user
 

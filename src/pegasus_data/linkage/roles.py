@@ -192,7 +192,8 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
     # The code that reads and renders the rows, not only this normaliser: a fix
     # in the lake read (derived inputs, 2026-10-03) must invalidate the tables.
     package = Path(__file__).resolve().parent.parent
-    for source in (Path(__file__), package / "api.py", package / "retrieve.py", package / "view.py",
+    for source in (Path(__file__), package / "api.py", package / "retrieve.py", package / "_request.py",
+                   package / "view.py", package / "lookups.py",
                    package / "_query_engine" / "executor.py", package / "_query_engine" / "filters.py"):
         h.update(source.read_bytes())
     for f in files:

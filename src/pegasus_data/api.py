@@ -406,7 +406,7 @@ def _system_spellings(system: str) -> list[str]:
     asked = str(system or "").strip().upper()
     if not asked:
         return [asked]
-    from .retrieve import _ontology
+    from ._request import _ontology
 
     onto = _ontology()
     node = onto.system_of(asked) if onto is not None else None
@@ -445,7 +445,7 @@ def _resolve_family(store: _Store, system: str, series: str | None, field_name: 
     )
     families = [dict(r) for r in rows]
     if series:
-        from .retrieve import _ontology
+        from ._request import _ontology
 
         onto = _ontology()
         target = onto.resolve(f"{system}.{series}") if onto else None
