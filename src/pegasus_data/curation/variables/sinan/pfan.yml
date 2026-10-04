@@ -64,7 +64,8 @@ variables:
     official_name: 'Hipótese diagnóstica'
     translated_name: Encounter - diagnostic hypothesis
     description: 'Diagnostic hypothesis for the paralysis, coded (CID-10 style, 5 characters) from the table annexed to the dictionary.'
-    code_system: none
+    code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 55 (Hipótese diagnóstica – vide tabela anexa)'
   CLI_AGUDA:

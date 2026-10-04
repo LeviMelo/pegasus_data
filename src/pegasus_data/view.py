@@ -768,6 +768,11 @@ class IcdLabels(dict):  # type: ignore[type-arg]
         if found is not None:
             return found
         code = str(key).strip().upper()
+        if len(code) == 5 and code[3] == "." and code[4].isalnum():
+            # WHO's dotted notation of the same code: SINAN-PFA writes its
+            # differential diagnoses as "G61.0" (CON_DESCAR, ATE_HIPOTE).
+            # Dropping the dot changes the notation, not the code (§6.2).
+            return self.get(code[:3] + code[4], default)
         if len(code) == 4 and code[:3].isalnum() and code[3] != "X":
             category = super().get(code[:3]) or super().get(f"{code[:3]}X")
             if category is not None and code[3] == ".":

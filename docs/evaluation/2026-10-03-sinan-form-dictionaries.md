@@ -61,3 +61,9 @@ Files write a one-digit number both padded and unpadded ("07" and "7"). The unpa
 Both spellings are listed. "0" is in no quadro and stays undecoded.
 
 Culture of CSF reads Nenhum agente 13,182, Streptococos pneumoniae 476 + 11, Neisseria meningitidis 96 + 4.
+
+**Other annex references.** The scan found two kinds:
+- **Local tables.** Most dictionaries point to "Tabela disponibilizada pelo sistema": locality, neighbourhood and facility lists kept by municipal managers and never published.
+- **PFA (polio).** Items 55 and 84 are ICD-10 in dotted notation ("G61.0"), which the ICD lookup now reads as the dotless code. `ATE_HIPOTE` is bound to ICD-10. `LAB_E_D_1` (item 70) stores the list's own text, cut to 30 characters, and stays uncoded.
+
+Live check, PFAN 2023 (620 rows): `CON_DESCAR` reads Síndrome de Guillain-Barré (G61.0) 193, which was "G61.0 (?)" before.
