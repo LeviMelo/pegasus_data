@@ -127,9 +127,9 @@
     "code_trees": {
       "file": "code_trees.parquet",
       "tier": "A",
-      "bytes": 478466,
-      "sha256": "b7c196fd3a894dde9acaac0bb9c2a6a49406fcc5703a096a94875225e4bcc07d",
-      "rows": 26356
+      "bytes": 478462,
+      "sha256": "f0b7c7e41d432d9621f50440976324f2649f374b843f2a463f0b68028a9f389a",
+      "rows": 26359
     },
     "municipality_areas": {
       "file": "municipality_areas.parquet",
@@ -141,8 +141,8 @@
     "proximity": {
       "file": "proximity.parquet",
       "tier": "A",
-      "bytes": 1191073,
-      "sha256": "d8157f01a665cd8f7cc33b0ad5ebf9328374ac67a32362deb9f62ed7eb6482d2",
+      "bytes": 1191243,
+      "sha256": "f55d6623da5077137ca8247922328d4d53c1a22570aecd87271f921d43cb066a",
       "rows": 218271
     },
     "regic_cities": {

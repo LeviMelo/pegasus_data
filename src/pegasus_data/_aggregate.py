@@ -943,6 +943,12 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
         elif measure.kind.name == "moments":
             n, total, squares = columns
             out[n], out[total], out[squares] = valid, filled, pc.multiply(filled, filled)
+        elif measure.kind.name == "logmoments":
+            # a value that is not positive has no logarithm: out of the state, like a blank
+            n, total, squares = columns
+            positive = pc.and_(pc.is_valid(numeric), pc.greater(pc.fill_null(numeric, 0.0), 0.0))
+            logs = pc.if_else(positive, pc.ln(pc.if_else(positive, numeric, 1.0)), 0.0)
+            out[n], out[total], out[squares] = pc.cast(positive, pa.float64()), logs, pc.multiply(logs, logs)
         elif measure.kind.name in ("min", "max"):
             # The fill is the kind's IDENTITY, not zero: a blank lifted to 0.0
             # would drag every minimum to nought and hand every maximum a floor.
@@ -1482,7 +1488,7 @@ def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequenc
 #: How each monoid's merge is spelled as a column aggregate. The mapping is
 #: total because every kind here is a commutative monoid over numbers, which is
 #: exactly why the serve path needs no per-row arithmetic.
-_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "moments": "sum", "ratio": "sum",
+_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "moments": "sum", "logmoments": "sum", "ratio": "sum",
                 "min": "min", "max": "max"}
 
 
@@ -1505,7 +1511,7 @@ def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
         # cannot carry -- an unobserved cell became a crash instead of a null.
         identity = measure.kind.identity()[0]
         return pc.if_else(pc.equal(state[0], identity), None, state[0])
-    if kind in ("mean", "moments"):
+    if kind in ("mean", "moments", "logmoments"):
         n, total = state[0], state[1]
         return pc.if_else(pc.equal(n, 0.0), None, pc.divide(total, pc.if_else(
             pc.equal(n, 0.0), 1.0, n)))

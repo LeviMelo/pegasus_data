@@ -126,7 +126,7 @@ aggregation rules; `semantics/relations.py` typed relations (`label_of`,
 A recipe (`curation/aggregates/*.yml`, 62 of them) is parsed into an
 `AggregateSpec`. `_aggregate.build_aggregate` calls `fetch()` state by state,
 lifts rows into mergeable accumulator states (`measures.py`: COUNT, SUM, MEAN,
-RATIO, MIN, MAX as monoids) and writes a base cuboid; `aggregate()` rolls it up
+MOMENTS, LOGMOMENTS, RATIO, MIN, MAX as monoids) and writes a base cuboid; `aggregate()` rolls it up
 through the geography graph (`geography.py`, compiled from the label pack).
 `capabilities.py` describes a built artifact to a client; `serve/` exposes
 artifacts, capabilities, population, geography memberships and (behind

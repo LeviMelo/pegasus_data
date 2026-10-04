@@ -33,6 +33,7 @@ Refusal is the product. Anyone can sum a column.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -217,6 +218,37 @@ class _Moments(Kind):
 
 
 @dataclass(frozen=True, slots=True)
+class _LogMoments(Kind):
+    """(n, Σ log m, Σ (log m)²) of a positive mark: the sufficient statistics of a log-normal.
+
+    PegaSUS models positive continuous marks (length of stay, cost, birth weight)
+    as log-normal per cell (its ARCHITECTURE §4.4); these three sums are all the
+    likelihood needs, and they merge by addition. A value that is not positive
+    has no logarithm: it is left out of the state, as a blank is, not clipped.
+    `finalize` projects the mean of log m (the log of the geometric mean).
+    """
+
+    def identity(self) -> State:
+        return (0.0, 0.0, 0.0)
+
+    def lift(self, value: Any) -> State:
+        number = _number(value)
+        if number is None or number <= 0:
+            return (0.0, 0.0, 0.0)
+        log = math.log(number)
+        return (1.0, log, log * log)
+
+    def merge(self, left: State, right: State) -> State:
+        return (left[0] + right[0], left[1] + right[1], left[2] + right[2])
+
+    def finalize(self, state: State) -> float | None:
+        return None if state[0] == 0 else state[1] / state[0]
+
+    def formula(self, measure: str) -> str:
+        return f"{measure}_sumlog / {measure}_n"
+
+
+@dataclass(frozen=True, slots=True)
 class _Ratio(Kind):
     """Numerator and denominator kept apart, so rates recombine correctly.
 
@@ -263,11 +295,12 @@ COUNT = _Count(name="count", state_fields=("n",), needs_field=False)
 SUM = _Sum(name="sum", state_fields=("sum",))
 MEAN = _Mean(name="mean", state_fields=("n", "sum"))
 MOMENTS = _Moments(name="moments", state_fields=("n", "sum", "sumsq"))
+LOGMOMENTS = _LogMoments(name="logmoments", state_fields=("n", "sumlog", "sumsqlog"))
 RATIO = _Ratio(name="ratio", state_fields=("num", "den"))
 MIN = _Extreme(name="min", state_fields=("min",))
 MAX = _Extreme(name="max", state_fields=("max",))
 
-_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, MOMENTS, RATIO, MIN, MAX)}
+_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, MOMENTS, LOGMOMENTS, RATIO, MIN, MAX)}
 
 #: Asked for often and impossible to merge exactly. There is no bounded state
 #: and associative operation that yields an exact median of a union from
