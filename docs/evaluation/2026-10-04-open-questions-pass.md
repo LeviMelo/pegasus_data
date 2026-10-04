@@ -109,3 +109,10 @@ These six are now inline codes citing their dimension.
 **Inherited bindings.** The Dados Abertos APAC exports inherit SIASUS's curation (ADR-0095), and now also its system-wide table bindings for fields they bind nothing to themselves. `AN_HIV`, `AN_ACEVAS` and `AN_HBSAG` reach HIV, ACES_VASC and HBSAG.
 
 Recount over every column present in data: 84 coded columns still reach no table, 156 have no official name.
+
+**`base_aih1` fields (OQ-60).** A 100,000-row sample of `stg_aih`, read over HTTP:
+- `CO_IDADE_SIH` is SIH's packed age: unit digit 4 on 94,968 rows, 2 on 2,684, 3 on 2,272, 5 on 76. IDADEDET decodes it ("470" is 70 anos, "311" 11 meses).
+- `NU_IDADE_ANOS` equals the age computed from the dates on 99,018 rows.
+- `CO_DIAG_EXTERNO` is ICD-10 chapter XX on the 9,790 filled rows.
+- `CO_STATUS` is "Aprovada" on all of them.
+- `QT_AIH` is 1 on every row, `QT_INTERNACAO` 0 on 1,986 rows, `QT_OBITO` 1 on 4,363.

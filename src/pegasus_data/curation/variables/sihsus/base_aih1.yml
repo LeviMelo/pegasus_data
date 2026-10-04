@@ -299,18 +299,19 @@ variables:
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 11 SEXO ''Sexo do paciente''.'
   CO_IDADE_SIH:
-    official_name: Unidade de medida da idade
-    translated_name: Age unit
-    description: The age unit of RD*.dbf's COD_IDADE (2 dias, 3 meses, 4 anos, 5 anos
-      acima de 100), carried into this export beside NU_IDADE_ANOS.
+    official_name: 'Idade (unidade e valor)'
+    translated_name: Age, packed with its unit
+    description: 'SIH''s packed age: the unit digit of RD*.dbf''s COD_IDADE (2 days, 3 months,
+      4 years, 5 years above 100) followed by the two-digit IDADE, so 470 is seventy years
+      and 311 eleven months. It is the key RD composes from COD_IDADE and IDADE.'
     code_system: internal
-    notes: 'Not keyed with NU_IDADE_ANOS as SIH''s COD_IDADE is with IDADE (ADR-0095):
-      the export names it "idade em anos", and if it is years rather than SIH''s raw
-      IDADE the pair would read a 5-day-old as "0 dias". Unverified until a sample of
-      the 12 GB base_aih1.duck is read (2026-09-29).'
+    codelist: IDADEDET
     source: layout_doc
-    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
-      Layout dos arquivos RD*.dbf, SEQ 50 COD_IDADE ''Unidade de medida da idade''.'
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf, RD*.dbf SEQ 50 COD_IDADE and IDADE; composition
+      measured on a 100,000-row sample of base_aih1.duck stg_aih (2026-10-04): first digit 4 on
+      94,968, 2 on 2,684, 3 on 2,272, 5 on 76.'
+    notes: 'NU_IDADE_ANOS is the age in completed years computed from the dates (equal on 99,018
+      of 100,000 sampled rows), not SIH''s raw IDADE.'
   NU_IDADE_ANOS:
     official_name: Idade
     translated_name: Age
@@ -915,3 +916,45 @@ variables:
       '99': '~Não definido/ignorado'
     source: layout_doc
     source_ref: 'SIHSUS/base_aih1.duck, the exports own dimension table dim_tipo_estabelecimento (key column CO_TIPO_ESTAB, the fact columns own name), read over HTTP from the mirror 2026-10-04; a 200,000-row sample decodes 100%'
+  CO_DIAG_EXTERNO:
+    official_name: 'Causa externa (CID-10)'
+    translated_name: External cause, ICD-10
+    description: 'ICD-10 code of the external cause of the injury (chapter XX: V, W, X, Y), filled
+      on about 10% of admissions.'
+    code_system: external
+    codelist: ICD10
+    source: inferred
+    reasoning: 'The name reads diagnóstico externo, and every sampled value is a chapter-XX ICD-10
+      code (W199, W999, V299, Y349; 9,790 of 100,000 rows filled, base_aih1 2026-10-04); RD''s
+      CAUSA_EXT is the same concept.'
+  CO_STATUS:
+    official_name: 'Situação da AIH'
+    translated_name: AIH status
+    description: 'Processing status of the AIH, written as text; "Aprovada" on every sampled row.'
+    code_system: none
+    source: inferred
+    reasoning: 'Value measured: "Aprovada" on 100,000 of 100,000 sampled rows (2026-10-04).'
+  QT_AIH:
+    official_name: 'Quantidade de AIH'
+    translated_name: Count of AIHs
+    description: 'A count for aggregation: 1 on every row.'
+    code_system: none
+    source: inferred
+    reasoning: 'Measured: 1 on 100,000 of 100,000 sampled rows (2026-10-04).'
+  QT_INTERNACAO:
+    official_name: 'Quantidade de internações'
+    translated_name: Count of admissions
+    description: 'A count for aggregation: 1 for an admission, 0 for an AIH that does not count as one
+      (a continuation).'
+    code_system: none
+    source: inferred
+    reasoning: 'Measured 1 on 98,014 and 0 on 1,986 of 100,000 sampled rows (2026-10-04); the 0 share
+      matches the continuation AIHs of CO_TIPO_AIH.'
+  QT_OBITO:
+    official_name: 'Quantidade de óbitos'
+    translated_name: Count of deaths
+    description: 'A count for aggregation: 1 when the admission ended in death.'
+    code_system: none
+    source: inferred
+    reasoning: 'Measured 1 on 4,363 of 100,000 sampled rows (2026-10-04), the in-hospital death rate of
+      SIH-RD''s MORTE.'
