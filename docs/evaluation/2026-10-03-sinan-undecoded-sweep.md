@@ -27,3 +27,13 @@
 - ANTR `FIM_ANIMAL` 6 and `PRE_EXPOS`/`POS_EXPOS` 3.
 
 **A false match from the CSV.** Run a's ACGR `UNI_ATENDE` values ("15369", "4294") matched `ID_ESTAB` in the kit's `UNIDINVEST.DBF`, so that column was briefly registered as the key. On the DBC the values are CNES codes ("0015369"): 365,011 of 400,352 rows match `ID_UNIDADE`, and none match `ID_ESTAB`. The stripped zeros had produced a plausible match. The registry now keys UNIDINVEST on `ID_UNIDADE`.
+
+**Other systems.** The default 16-slice sweep (`data/probes/live/sweep_undecoded_systems_2026-10-03.json`, commit fd7ea42, fresh home) against its 2026-09-29 run:
+
+| | 2026-09-29 | 2026-10-03 |
+|---|---|---|
+| undecoded cells | 560,585 | 7,251 |
+
+- **Cleared:** SIH-SP 186,310 → 0, SIA-PA 234,724 → 0, SINASC 16,775 → 55, SIH-RD 45,415 → 0 once `RUBRICA` was reverted.
+- **Left:** the OQ-61 residues (SIA-AQ/AR histology grade, SIA-PS nationality and ethnicity, CNES bank codes and area placeholders, SINAN-HANS 261).
+- **CIHA AC 2023-01** could not be fetched: the FTP data channel is down and the mirror lacks CIHA.

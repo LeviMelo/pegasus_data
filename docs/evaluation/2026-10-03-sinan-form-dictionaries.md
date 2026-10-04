@@ -36,7 +36,9 @@ Examples:
 **The same contradiction in every system.** Stored decisions were scanned for an uncoded column that still decodes ≥95%. Most of the 121 hits are dates, counts and ages bound to tabulation axes, and stay uncoded. 45 are coded and are now `internal`:
 - the 17 ESUSNOTIFICA (Chagas) yes/no flags;
 - 26 SINAN fields, among them the meningitis final codes `CLA_ME_ASS`, `CLA_ME_ETI` and `CLA_SOROGR`;
-- SIH `RUBRICA` and `SP_TP_ATO`.
+- SIH `SP_TP_ATO`.
+
+SIH `RUBRICA` was flipped too, then reverted the same day: the 2016 layout declares it numeric(5) "Zerado", and its zeros read as undecoded in the cross-system sweep.
 
 Live check, MENI 2023 (26,629 rows):
 - `CLA_SOROGR` reads B 219, C 193, Y 21, W135 18.

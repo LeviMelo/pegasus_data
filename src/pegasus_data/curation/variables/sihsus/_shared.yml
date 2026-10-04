@@ -935,7 +935,9 @@ variables:
     translated_name: Budget line
     description: Budget line the spend was booked against. Zeroed from Jan/2008 onward, so
       it measures the file rather than the care.
-    code_system: internal
+    # The 2016 layout declares it numeric(5) "Zerado"; read as a code, its zeros
+    # showed as 4,165 undecoded rows in SIH-RD AC 2023-01 (2026-10-03).
+    code_system: none
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 47'

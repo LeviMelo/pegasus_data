@@ -252,6 +252,15 @@ OQ-64), 1990s SIH V-codes.
 - **Per cell, fresh home, 16 datasets:** undecoded 1.23 M → 0.56 M, with no
   regressions. What remains is mostly values that no source documents
   (EVALUATION, 2026-09-29).
+- **SINAN, every form 2023, fresh home** (5.2 M rows, 57 forms): undecoded
+  cells 14.5 M → 7.2 M → CNAE and CLASSI_FIN fixed since, and errors 3 → 0. The
+  fixes:
+  - native DBC before the lossy Dados_Abertos exports (ADR-0135);
+  - per-form tables never merged, cached or outweighed (ADR-0136);
+  - page-break-complete form dictionaries;
+  - 238 coded fields un-marked as uncoded;
+  - lookups keyed correctly (CNAENET, UNIDINVEST);
+  - canonical CNAE 2.0 (EVALUATION 2026-10-03).
 
 ## Open fronts
 
@@ -259,7 +268,8 @@ OQ-64), 1990s SIH V-codes.
   columns and 48,763 cells, from 52 and 560,585 the same morning): largest SIH-SP
   `SERV_CLA` `000000`; SIA-AQ/AR histology grade and `AQ_TRANTE`; SIA-PS
   nationality and ethnicity; CNES bank codes and placeholders; SINASC
-  `TPDOCRESP` `0`; SINAN-HANS `9`s; SINAN meningitis quadros (OQ-59). Each
+  `TPDOCRESP` `0`; SINAN-HANS `9`s; SINAN `0` in DENG/CHIK conditional fields,
+  AIDA `CRITERIO` 101/601, ANTR `FIM_ANIMAL` 6. Each
   reads `code (?)`. Settled by measurement against other columns of the same
   record: SIH `TPDISEC*`, `SP_DES_*`, `SP_U_AIH`, `GESTOR_TP`/`GESTOR_COD`;
   SIA `TIPPRE`, `UFDIF`/`MNDIF` `9`, `PA_CODOCO`; CNES `TP_PREST` `99`,
