@@ -53,3 +53,9 @@ Agreement is +0.94 bits and a conflict −5.9 bits. It cannot lift a typo pair, 
 **APAC DuckDB exports (OQ-54).** `pegasus-data schemas --system DADOS_ABERTOS --whole-up-to-gb 8` fetched the eight exports whole from the mirror into the blob store and recorded their tables. All eight are now in families.
 - **Mis-parse fixed.** `apac_am.duck.zip` had been parsed as series APAC, state AM. A national medication export was therefore a would-be Amazonas file, and a phantom "APAC layouts" dataset declared in the ontology. A descriptive tail is now read as a state only when no sibling's tail is a type.
 - **A scoped inventory damaged the catalog, now fixed.** `inventory --system DADOS_ABERTOS` rewrote SINAN's strata from the Dados_Abertos exports alone, and the family count fell from 98 to 58 SINAN families. It was restored from the seed copy and is guarded: a scoped run now writes only strata of its own systems.
+
+**Every declared dataset, fresh home (OQ-23).** `scripts/live.py sweep`, artifact `data/probes/live/20261004-003436/sweep.json`:
+- 134 datasets: 116 returned rows.
+- 1 failure: SINAN-CHAG 2025, a file neither the FTP nor the mirror serves.
+- 17 skipped: 10 reference sets with no dated file, 7 over the 25 MB cap.
+- Its "labelled" count reads 0 because the default presentation now merges codes and labels into one column; this is a metric artefact, not a defect.

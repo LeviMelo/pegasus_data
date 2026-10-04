@@ -301,7 +301,9 @@ def s_sweep() -> dict[str, Any]:
                 results[code] = entry
                 continue
             spent_mb += new_mb
-            table = query(code, period=period, geography=geography,
+            # The analysis presentation keeps label companions, which is what
+            # "labelled" counts; the readable default merges them into one column.
+            table = query(code, period=period, geography=geography, present="analysis",
                           max_download=int((per_file_mb + 1) * 2**20))
             labelled = [c for c in table.column_names if c.endswith("_label")]
             entry.update(ok=True, period=period, uf=uf, rows=table.num_rows, columns=table.num_columns,
