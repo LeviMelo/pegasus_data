@@ -2818,7 +2818,7 @@ variables:
       present in every later per-disease SINAN NET dictionary.
 
       '
-    code_system: none
+    code_system: internal
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Shares the identical 2000-2006 CHAG/DENG/LEIV/LEPT/LTAN/MALA series footprint

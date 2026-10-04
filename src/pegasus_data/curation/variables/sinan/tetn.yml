@@ -107,7 +107,7 @@ variables:
       health professionals (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),

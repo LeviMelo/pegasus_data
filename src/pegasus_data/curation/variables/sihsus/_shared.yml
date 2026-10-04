@@ -935,7 +935,7 @@ variables:
     translated_name: Budget line
     description: Budget line the spend was booked against. Zeroed from Jan/2008 onward, so
       it measures the file rather than the care.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 47'
@@ -1280,7 +1280,7 @@ variables:
     description: Classification of the professional act. Zeroed from Jan/2008 onward, so it
       measures the file rather than the care. SP_ATOPROF carries the SIGTAP code that identifies
       it now.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 14'

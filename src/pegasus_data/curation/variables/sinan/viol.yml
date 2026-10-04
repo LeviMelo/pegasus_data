@@ -515,7 +515,7 @@ variables:
       Público) (1 yes, 2 no, 9 unknown). Older (pre-2015) form only.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Variáveis VIVA/SINAN – Violência doméstica, sexual e/ou outras
       violências (MS/SVS) — https://svs.aids.gov.br/bases_vigitel_viva/dic_var/viva_cont/dicionario-de-Variaveis_VIVASINAN.pdf,

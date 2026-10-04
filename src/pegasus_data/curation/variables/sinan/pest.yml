@@ -13,7 +13,7 @@ variables:
       automatically.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 35
@@ -34,7 +34,7 @@ variables:
       were put in place (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 43
@@ -45,7 +45,7 @@ variables:
       2 no, 9 unknown); one of the three criteria for confirming a case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 33
@@ -172,7 +172,7 @@ variables:
       swollen lymph node — the hallmark clinical sign of bubonic plague.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 36 (Sintomatologia específica – ganglionar)
@@ -184,7 +184,7 @@ variables:
       the bubonic and septicemic forms.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 36 (Sintomatologia específica – pulmonar)
@@ -195,7 +195,7 @@ variables:
       or doxycycline).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
       campo 42 (Caso tratado)

@@ -105,7 +105,7 @@ variables:
     translated_name: Occupational exposure - Non-ionizing radiation
     description: Whether the worker was exposed to non-ionizing radiation at work at any
       time during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -128,7 +128,7 @@ variables:
     translated_name: Occupational exposure - Nickel compounds
     description: Whether the worker was exposed to nickel compounds at work at any time
       during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,

@@ -68,7 +68,7 @@ variables:
       or 7.2 million IU, another regimen, or not done.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Gestante com Sífilis — http://portalsinan.saude.gov.br/images/documentos/Agravos/Sifilis-Ges/DIC_DADOS_Gestante_Sifilis_v5.pdf,
       campo 41 (Esquema de tratamento)
@@ -79,7 +79,7 @@ variables:
       or latent.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Gestante com Sífilis — http://portalsinan.saude.gov.br/images/documentos/Agravos/Sifilis-Ges/DIC_DADOS_Gestante_Sifilis_v5.pdf,
       campo 36 (Classificação clínica)

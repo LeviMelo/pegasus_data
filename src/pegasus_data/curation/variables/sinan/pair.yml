@@ -117,7 +117,7 @@ variables:
       in the ears), the symptom most closely tied to PAIR alongside dizziness (TONTURA).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
       (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 51 (Sintomas – Zumbido)

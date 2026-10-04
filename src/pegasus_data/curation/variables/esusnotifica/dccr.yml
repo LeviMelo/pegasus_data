@@ -14,7 +14,7 @@ variables:
       where follow-up actually happens.
 
       '
-    code_system: none
+    code_system: internal
     notes: 'Also used as a de-duplication tiebreaker by the technical area: where duplicate
       notifications exist, the one with AC_NOT filled is the one kept, so this column''s
       completeness is not independent of which rows survived into the published base.
@@ -243,7 +243,7 @@ variables:
       out from this index case. It gates the three family-outcome columns that follow.
 
       '
-    code_system: none
+    code_system: internal
   CARDIOPAT:
     official_name: Comorbidades - Cardiopatia de outra etiologia
     translated_name: Comorbidity — heart disease of other aetiology
@@ -252,7 +252,7 @@ variables:
       a patient flagged here may not be Chagas cardiomyopathy at all.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - FORMA
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
@@ -545,7 +545,7 @@ variables:
     description: 'Whether diabetes was among the comorbidities identified at notification.
 
       '
-    code_system: none
+    code_system: internal
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
   DIAG_FAMIL:
     official_name: Nº de Familiares com história epidemiológica SEM diagnóstico prévio
@@ -752,7 +752,7 @@ variables:
       both hepatically handled.
 
       '
-    code_system: none
+    code_system: internal
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
   HIPERTEN:
     official_name: Comorbidades - Hipertensão
@@ -776,7 +776,7 @@ variables:
       which is a current prescription.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - TRAT_BNZ
   HIST_EPID:
@@ -805,7 +805,7 @@ variables:
       of the detection routes in MO_SUSPEIT.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - REATIVACAO
     notes: '"Sim"/"Nao" as text in C(3). The catalog binds SINAN''s numeric SIM_NAO
@@ -820,7 +820,7 @@ variables:
       recipient, specialised-hospital walk-in and HIV/aids service detection routes.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - MO_SUSPEIT
   ID_ESTRANG:
@@ -937,7 +937,7 @@ variables:
       EIE_IGG and its siblings should be read.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - EIE_IGG
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
@@ -985,7 +985,7 @@ variables:
       during the investigation.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - UF_NOV_AC
     - MUN_NOV_AC
@@ -1042,7 +1042,7 @@ variables:
       matters for Chagas is the reactivation risk.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - REATIVACAO
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
@@ -1153,7 +1153,7 @@ variables:
       MUD_UBS_AC.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - ANT_UF_ESP
     - ANT_MUN
@@ -1208,7 +1208,7 @@ variables:
       this file — so the "other" cases cannot be resolved into actual conditions here.
 
       '
-    code_system: none
+    code_system: internal
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
   PCR:
     official_name: PCR detectável?
@@ -1265,7 +1265,7 @@ variables:
       HIV and NEOPLASIA.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - HIV
     - NEOPLASIA
@@ -1377,7 +1377,7 @@ variables:
       SG_UF/ID_MN_RESI become historical.
 
       '
-    code_system: none
+    code_system: internal
     depends_on:
     - UF_RESI_TF
     - MN_RESI_TF
@@ -1390,7 +1390,7 @@ variables:
       columns.
 
       '
-    code_system: none
+    code_system: internal
   TRAT_NFX:
     official_name: Prescrições atuais - Tratamento específico 2ª linha, Nifurtimox
       (NFX)
@@ -1399,7 +1399,7 @@ variables:
       benznidazole is not tolerated or not available — was prescribed at notification.
 
       '
-    code_system: none
+    code_system: internal
   UF_HOSPESP:
     official_name: Estado Hospital/Serviço Especializado
     translated_name: State of the specialised hospital or service

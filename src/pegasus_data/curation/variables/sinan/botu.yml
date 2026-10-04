@@ -599,7 +599,7 @@ variables:
       ptosis and the bulbar signs.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Paralisia facial)

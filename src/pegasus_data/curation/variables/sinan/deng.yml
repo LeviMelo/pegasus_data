@@ -214,7 +214,7 @@ variables:
       tissue.
 
       '
-    code_system: none
+    code_system: internal
     source: inferred
     reasoning: 'HISTOPA = histopatologia; DENG series with other autopsy-style fields. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   IMUNOH:
@@ -225,7 +225,7 @@ variables:
       (HISTOPA), used in the same fatal/severe-case workup.
 
       '
-    code_system: none
+    code_system: internal
     source: inferred
     reasoning: 'IMUNOH = imuno-histoquímica; sits alongside HISTOPA in the DENG series. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   INSUFICIEN:

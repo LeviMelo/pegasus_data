@@ -166,7 +166,7 @@ variables:
       negative, inconclusive, not performed, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
   IMU_HEP_B:
@@ -189,7 +189,7 @@ variables:
       yes, no, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50
   MASCARA:
@@ -234,14 +234,14 @@ variables:
       checkboxes on the ACBI occupational biological-exposure form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Acidente de Trabalho com Exposição a Material Biológico — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtmb/DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50 (Uso de EPI – Óculos)'
   OUTRO_ARV:
     official_name: 'Conduta no momento do acidente - Outro esquema de ARV'
     translated_name: Other antiretroviral regimen used (flag)
     description: 'Whether an antiretroviral regimen other than the listed AZT+3TC-based schemes was prescribed after the accident.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Acidente de Trabalho com Exposição a Material Biológico — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtmb/DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 55 (Conduta no momento do acidente – Outro esquema de ARV)'
   OUT_ARV_ES:

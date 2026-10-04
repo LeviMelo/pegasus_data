@@ -107,7 +107,7 @@ variables:
     translated_name: Cure-verification stool exam - sample 2
     description: 'Result of cure-verification stool sample 2 after treatment: zero eggs,
       one or more eggs, or not done.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 41 (Resultado da análise de verificação de cura – 2ª amostra)

@@ -37,7 +37,7 @@ variables:
     official_name: 'Agravos associados - Outros'
     translated_name: Other associated disease (flag)
     description: 'Whether a condition other than the listed ones is associated with the pneumoconiosis; if so it is named in OUT_DOE_DE.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Outros)'
   OUT_DOE_DE:

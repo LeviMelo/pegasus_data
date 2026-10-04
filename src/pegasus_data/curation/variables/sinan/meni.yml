@@ -382,7 +382,7 @@ variables:
       as aseptic meningitis (CON_DIAGES = 7).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique
@@ -406,7 +406,7 @@ variables:
       as meningitis of other etiology (CON_DIAGES = 8).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique
@@ -418,7 +418,7 @@ variables:
       disease (CON_DIAGES 1–3).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 53 (Se N. meningitidis,
