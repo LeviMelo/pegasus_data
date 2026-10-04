@@ -59,3 +59,12 @@ Agreement is +0.94 bits and a conflict −5.9 bits. It cannot lift a typo pair, 
 - 1 failure: SINAN-CHAG 2025, a file neither the FTP nor the mirror serves.
 - 17 skipped: 10 reference sets with no dated file, 7 over the 25 MB cap.
 - Its "labelled" count reads 0 because the default presentation now merges codes and labels into one column; this is a metric artefact, not a defect.
+
+**Newborn admissions: congenital anomalies as evidence (OQ-62).** `sih_neonatal_admissions_to_sinasc`, SE 2022, probabilistic. Delivery links re-stored for SE 2021 and 2022: 21,217 and 20,656 pairs.
+
+| | pairs | threshold | upper FDR |
+|---|---|---|---|
+| baseline | 717 | 9.46 bits | 2.01% |
+| with CODANOMAL against the admission's diagnoses, by ICD-10 category | 711 | 9.47 bits | 2.03% |
+
+A shared category is worth +3.1 bits; an anomaly on the admission but none at birth −2.75. The shared category occurs in only 0.29% of true pairs, so the evidence is rarely available. Not adopted.
