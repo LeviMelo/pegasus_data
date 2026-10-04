@@ -1,7 +1,7 @@
 {
   "resource_schema_version": 2,
-  "resource_content_version": "2026-09-29",
-  "built_at": "2026-09-29T23:12:14Z",
+  "resource_content_version": "2026-10-04",
+  "built_at": "2026-10-04T00:25:31Z",
   "source_build_id": "2026-09-28T23:41:36+00:00",
   "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
@@ -10,7 +10,7 @@
     "families": 391,
     "columns": 4593,
     "variables_described": 4624,
-    "bindings": 10658
+    "bindings": 10664
   },
   "budgets": {
     "growth_ratio": 1.25,
@@ -22,9 +22,9 @@
     "geography": {
       "file": "geography.parquet",
       "tier": "A",
-      "bytes": 155254,
+      "bytes": 251832,
       "rows": 74973,
-      "sha256": "4c6b4f2ce58382dba24771e8e165aaa2a1aa9221cfbd807d4c5256765ba89b6d"
+      "sha256": "6f69bba460b3a1f397355ceceac5c652bee1ab21de472c6b7497ee8cb22a6da6"
     },
     "municipalities": {
       "file": "municipalities.parquet",
@@ -36,9 +36,9 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 27940325,
+      "bytes": 29048482,
       "rows": 3654320,
-      "sha256": "264805486a046270df2240db0c7a3235fa0902e9b17855a533a67e1913907ce1"
+      "sha256": "74959b74b30923faa41d7328fddcd65eeacb37edde1ce9204b8c0c7d42cc29ff"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19827724,
-      "rows": 929882,
-      "sha256": "7685558be704b7dba0edbedf9e400d2def38cc8189343f31e26af8bd603c9fe9"
+      "bytes": 19831120,
+      "rows": 929921,
+      "sha256": "48340056e34ca205631e09d759ba26bb278856302f4338e979a886456a6ef712"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

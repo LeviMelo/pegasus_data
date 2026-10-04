@@ -173,6 +173,11 @@ def parse_def_bytes(data: bytes, *, name: str, source_ref: str) -> DefFile:
             continue
         category_arg = parts[2].strip() if len(parts) > 2 and parts[2].strip() else None
         lookup_ref = parts[3].strip() if len(parts) > 3 and parts[3].strip() else None
+        if lookup_ref and PureWindowsPath(lookup_ref).suffix.lower() not in (".cnv", ".dbf"):
+            # Not a lookup: a measure line's decimals ("6", "100" in PCE and
+            # PNI) or a CNES menu heading ("VÍNCULOS"). Read as one, it bound
+            # PCE's egg counts to a codelist named "6" (2026-10-03).
+            lookup_ref = None
         out.variables.append(
             DefVariable(
                 usage=marker,
