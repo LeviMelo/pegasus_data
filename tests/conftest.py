@@ -234,6 +234,8 @@ def built_lake(settings: Settings, catalog: CatalogStore) -> tuple[Settings, Cat
             "SEXO_label": pa.array(["Masculino", "Feminino", "Masculino"]),
             "DIAGSEC1": pa.array(["W199", None, "V878"]),
             "VAL_TOT": pa.array([1234.5, 99.0, 7000.0]),
+            # Provenance a real lake always carries (normalize.PROVENANCE_COLUMNS).
+            "_source_path": pa.array(["/dissemin/publicos/SIHSUS/200801_/Dados/RDAL2001.dbc"] * 3),
         }
     )
     lake.write_batches(

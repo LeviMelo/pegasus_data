@@ -154,7 +154,7 @@ def test_columnar_slice_filters_identifiers_and_validity_before_materialising(tm
         pa.table(
             {
                 "source_code": ["wanted", "wanted", "other"],
-                "target_code": ["current", "old", "irrelevant"],
+                "target_code": ["11222333000181", "11444777000161", "45997418000153"],  # valid CNPJs (ADR-0100)
                 "valid_from": ["202001", "199001", ""],
                 "valid_to": ["", "199912", ""],
                 "source_codelist": ["A", "A", "B"],
@@ -165,4 +165,4 @@ def test_columnar_slice_filters_identifiers_and_validity_before_materialising(tm
     result = crosswalk._crosswalk_slice(
         {"wanted"}, [202401], resource_path=path
     )
-    assert result == {"wanted": [("current", "202001", "", "A")]}
+    assert result == {"wanted": [("11222333000181", "202001", "", "A")]}

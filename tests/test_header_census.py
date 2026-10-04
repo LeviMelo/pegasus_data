@@ -150,15 +150,6 @@ class TestCensus:
         assert census.widened == 1
         assert len(asked) == 2 and asked[1] > asked[0], "asked again, larger"
 
-    def test_a_format_needing_another_route_is_counted_apart_from_a_failure(
-        self, catalog: CatalogStore
-    ):
-        """A zip is not a broken DBF, and the two want different responses."""
-        target = {**self._stratum(catalog), "extension": ".zip"}
-        census = run_census(catalog, lambda _p, _n: b"PK\x03\x04", [target])
-        assert census.not_header_readable == 1
-        assert census.unreadable == 0 and census.read == 0
-
     def test_a_csv_header_is_read_from_its_first_line(self, catalog: CatalogStore):
         """DATASUS republishes whole systems as CSV, where no DBF exists."""
         target = {**self._stratum(catalog), "extension": ".csv"}

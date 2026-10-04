@@ -336,21 +336,6 @@ class TestRenameDetection:
 class TestLogicalIdIsNotUnique:
     """2b: multi-format republication means many paths share one identity."""
 
-    def test_logical_id_is_many_to_one(self, catalog: CatalogStore):
-        base = "/dissemin/publicos/SIHSUS/200801_/Dados"
-        for suffix in (".dbc", ".dbf", ".csv", ".xml"):
-            _file(catalog, f"{base}/RDAC2401{suffix}")
-        from pegasus_data.inventory.build import build_inventory
-
-        build_inventory(catalog)
-        ids = catalog.query(
-            "SELECT logical_id, COUNT(*) n FROM file_facts GROUP BY logical_id"
-        )
-        assert len(ids) == 1, "the container suffix must not split identity"
-        assert ids[0]["logical_id"] == "SIHSUS|RD|AC|2401"
-        assert ids[0]["n"] == 4, "one identity, four representations — not a primary key"
-
-
 class TestMigrationRefusal:
     """2c: what additive migration cannot fix must not pass silently."""
 

@@ -104,6 +104,16 @@ def query(
     )
     resolved = resolved_settings
     retrieval = query_plan.retrieval
+    # No period first: the more specific refusal, and the one that says what
+    # to change (it was masked by the budget's 22 GiB message, 2026-10-04).
+    if not query_plan.spec.period and (
+        retrieval.fetch_years
+        or (retrieval.source_strategy == "fetch" and not retrieval.years)
+    ) and not query_plan.spec.allow_unbounded:
+        raise ValueError(
+            "this query requires source acquisition but period is unbounded; provide "
+            "period=... or explicitly pass allow_unbounded=True after inspecting plan()"
+        )
     # A download budget the caller sees before anything moves (ADR-0076):
     # 1 GiB of NEW compressed bytes by default; cached files cost nothing.
     if max_download is not None and retrieval.download_bytes is not None:
@@ -117,14 +127,6 @@ def query(
                 f"{max_download / 2**30:.2f} GiB. Narrow period or geography, or pass a larger "
                 "max_download (None for no limit) after checking plan(...).explain()"
             )
-    if not query_plan.spec.period and (
-        retrieval.fetch_years
-        or (retrieval.source_strategy == "fetch" and not retrieval.years)
-    ) and not query_plan.spec.allow_unbounded:
-        raise ValueError(
-            "this query requires source acquisition but period is unbounded; provide "
-            "period=... or explicitly pass allow_unbounded=True after inspecting plan()"
-        )
     missing_resources = [
         item for item in query_plan.semantics.resource_requirements if not item.local
     ]

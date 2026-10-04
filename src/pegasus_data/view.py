@@ -958,6 +958,13 @@ def _render_table(
             # ANOMES), and weighing that table against its values warned "no
             # bound table decodes the column" on every SIH and SIM query
             # (2026-09-30). The curation's word is the stronger evidence.
+            if overrides.get(name.upper(), "code") != "code":
+                # But an explicit request that cannot be honoured must say so.
+                message = f"{name}: not a coded column (curation: code_system none), so no label can be produced"
+                if strict:
+                    raise LabelUnavailable(message)
+                report.warnings.append(message)
+                report.unlabelled.append(name)
             columns.append(column)
             names.append(name)
             continue

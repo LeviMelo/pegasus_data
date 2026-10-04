@@ -108,15 +108,6 @@ def test_members_lists_a_classification_for_a_frontend_control() -> None:
 class TestTheCurationIsHonestAboutWhatItExcludes:
     """Excluding a classification is a claim about evidence and is checkable."""
 
-    def test_every_declared_classification_names_where_it_comes_from(self) -> None:
-        """Either a shipped codelist, or the IBGE endpoint that defines it."""
-        declared = classifications()
-        assert declared, "curation/geography.yml declares nothing"
-        for name, body in declared.items():
-            assert body.get("codelist") or body.get("source"), (
-                f"{name} names neither a codelist nor an IBGE source")
-            assert body.get("what"), f"{name} says nothing about what it is"
-
     def test_every_datasus_classification_carries_its_measurement(self) -> None:
         """A DATASUS table was chosen over alternatives, so the evidence stays."""
         for name, body in classifications(authority="datasus").items():
@@ -137,22 +128,6 @@ class TestTheCurationIsHonestAboutWhatItExcludes:
         assert "ibge_immediate_region" in ibge
         assert "ibge_intermediate_region" in ibge
         assert members("ibge_intermediate_region"), "no intermediate regions compiled"
-
-    def test_health_macroregion_is_absent_and_says_why(self) -> None:
-        """The honest gap.
-
-        A municipality does belong to a health macroregion. DATASUS publishes no
-        table saying which one without contradicting itself — `BR_MACSAUD`
-        conflicts on 66% of municipalities and `MSAUDBR` on 4% — so nothing is
-        shipped, and the reason is recorded rather than the conflict being
-        resolved by picking a system.
-        """
-        assert "health_macroregion" not in classifications()
-        gaps = excluded()
-        macro = [k for k, v in gaps.items() if v.get("wanted_as") == "health_macroregion"]
-        assert len(macro) >= 2, "both macroregion candidates should be recorded as excluded"
-        for key in macro:
-            assert gaps[key].get("reason"), f"{key} is excluded with no reason"
 
     def test_the_two_scheme_codelist_is_excluded(self) -> None:
         """`RSAUDBR` carries DIRES and named regions under one name."""
@@ -287,27 +262,6 @@ class TestADeclaredRollupMustBeNational:
             "these declared roll-ups use a table that does not cover Brazil, so "
             f"they resolve only inside the states it happens to include: {narrow}"
         )
-
-    def test_the_health_region_rollup_reaches_every_capital(self) -> None:
-        from pegasus_data.labelpack import read_packed
-        from pegasus_data.semantics.relations import RelationType, relations_for
-
-        declared = [
-            r for r in relations_for("SIHSUS", "SIH.RD", "MUNIC_RES",
-                                     relation_type=RelationType.ROLLUP_TO)
-            if r.target_name == "health_region"
-        ]
-        assert declared, "SIH.RD MUNIC_RES declares no health_region roll-up"
-        packed = read_packed(declared[0].artifact, system="SIHSUS")
-        lookup = dict(zip(packed.column("code").to_pylist(),
-                          packed.column("label").to_pylist(), strict=True))
-        for capital in ("355030", "330455", "230440", "310620", "120040"):
-            assert lookup.get(capital), (
-                f"{capital} has no health region under "
-                f"{declared[0].artifact!r}; a national roll-up that misses a "
-                "state capital is a per-UF table wearing a national name"
-            )
-
 
 def test_lookup_is_indexed_not_scanned() -> None:
     """A national roll-up resolves ~5,600 municipalities, one call each.

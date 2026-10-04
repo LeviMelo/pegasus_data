@@ -109,7 +109,7 @@ def built(settings, tmp_path):
     store = CatalogStore(settings.catalog_path)
     try:
         _seed(store)
-        report = build_label_pack(store, tmp_path / "labels.parquet")
+        report = build_label_pack(store, tmp_path / "labels.parquet", carry_from=tmp_path / "no_previous_pack.parquet")
     finally:
         store.close()
     return report, tmp_path / "labels.parquet"

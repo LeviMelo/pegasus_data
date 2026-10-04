@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence, Set
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
@@ -75,6 +75,8 @@ def choose_representations(
 
     cached = _cached_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
                                      if len(rows_) > 1 for row in rows_])
+    export_families = _export_families(catalog, [str(row.get("family_id") or "") for rows_ in groups.values()
+                                                 if len(rows_) > 1 for row in rows_])
     unreachable = _unreachable_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
                                                if len(rows_) > 1 for row in rows_])
     selected: list[dict[str, Any]] = []
@@ -93,7 +95,7 @@ def choose_representations(
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
-        exports = _exports_behind_native(candidates, unreachable)
+        exports = _exports_behind_native(candidates, unreachable, export_families)
         if exports:
             dropped.extend(str(row.get("path") or "") for row in exports)
             candidates = [row for row in candidates if not any(row is e for e in exports)]
@@ -208,17 +210,47 @@ def _cached_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
 NATIVE_KINDS = frozenset({"dbc", "dbf"})
 
 
-def _exports_behind_native(candidates: Sequence[dict[str, Any]], unreachable: set[str]) -> list[dict[str, Any]]:
+def _exports_behind_native(
+    candidates: Sequence[dict[str, Any]], unreachable: set[str], export_families: Set[str] = frozenset(),
+) -> list[dict[str, Any]]:
     """The exports to drop because a native file of the publication can be fetched.
 
     An export is kept only when every native file has failed on both the FTP
     and the mirror (an open ``fetch`` gap): the mirror holds no
     ``SINAN/DADOS/FINAIS/CHAGBR23.dbc`` (2026-10-03).
+
+    A native-format file in a family that holds XML/CSV/JSON exports IS an
+    export copy: SIH's /SIHSUS/DBF/RDAP1401.dbf (95 fields) is laid out like
+    the /SIHSUS/XML/ exports of 2013-2014, not like the 113-field .dbc, and
+    counting it native made SIH-RD 2014 refuse as a conflict (2026-10-04).
     """
-    natives = [row for row in candidates if _representation_kind(row) in NATIVE_KINDS]
+
+    def is_export(row: Mapping[str, Any]) -> bool:
+        return (_representation_kind(row) not in NATIVE_KINDS
+                or str(row.get("family_id") or "") in export_families)
+
+    natives = [row for row in candidates if not is_export(row)]
     if not any(str(row.get("path") or "") not in unreachable for row in natives):
         return []
-    return [row for row in candidates if _representation_kind(row) not in NATIVE_KINDS]
+    return [row for row in candidates if is_export(row)]
+
+
+def _export_families(catalog: CatalogStore, family_ids: Sequence[str]) -> set[str]:
+    """Which of these families hold XML, CSV or JSON export files anywhere on the tree."""
+    unique = sorted({f for f in family_ids if f})
+    out: set[str] = set()
+    for start in range(0, len(unique), 500):
+        chunk = unique[start:start + 500]
+        marks = ",".join("?" for _ in chunk)
+        try:
+            out |= {str(r["family_id"]) for r in catalog.query(
+                f"SELECT DISTINCT family_id FROM family_files WHERE family_id IN ({marks}) "
+                "AND (lower(path) LIKE '%.xml' OR lower(path) LIKE '%.xml.zip' OR lower(path) LIKE '%.csv' "
+                "OR lower(path) LIKE '%.csv.zip' OR lower(path) LIKE '%.json' OR lower(path) LIKE '%.json.zip')",
+                tuple(chunk))}
+        except Exception:  # noqa: BLE001 - a catalog without families has no export layouts
+            return out
+    return out
 
 
 def _unreachable_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:

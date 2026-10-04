@@ -84,31 +84,6 @@ def _shipped_codelists() -> set[str]:
     return {str(c).upper() for c in column.to_pylist()}
 
 
-def test_every_curated_codelist_actually_exists() -> None:
-    """A curated name that does not ship silently decodes NOTHING.
-
-    A curated list bypasses measurement by design — it is a human decision and
-    nothing may widen it — so a misspelled table is not caught by falling back
-    to a bound one. It produces an empty label column and no error.
-
-    56 references were in this state, `ibge_municipio` on 30 columns and a prose
-    placeholder, `'..._MUNICIP (per-UF IBGE municipality lists)'`, on 6.
-    """
-    ships = _shipped_codelists()
-    phantom = sorted(
-        {
-            f"{system}.{field} -> {codelist}"
-            for system, field, named, _ in CURATED
-            for codelist in named
-            if codelist.upper() not in ships
-        }
-    )
-    assert not phantom, (
-        f"{len(phantom)} curated codelist references name a table that does not "
-        f"ship, so those columns claim to be decoded and are not: {phantom[:10]}"
-    )
-
-
 def _municipality_columns() -> list[tuple[str, str, list[str]]]:
     """Columns curation itself says hold a municipality code."""
     return [

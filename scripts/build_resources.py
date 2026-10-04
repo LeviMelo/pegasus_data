@@ -77,6 +77,7 @@ def build(catalog_path: Path) -> dict[str, object]:
         "rows": sum(rows.values()),
         "sha256": _sha256(seed),
     }
+    register_packaged(entries)
     for entry in entries.values():  # every checksum current, whichever command wrote the file
         path = RESOURCES / str(entry["file"])
         if path.is_file():
@@ -95,6 +96,28 @@ def build(catalog_path: Path) -> dict[str, object]:
     )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return {"seed_rows": rows, "manifest": manifest}
+
+
+def register_packaged(entries: dict[str, dict[str, object]]) -> list[str]:
+    """Add every shipped resource file the manifest does not list yet.
+
+    Tables added by their own builders (ICD-10, SIGTAP, CNAE, banks, ...) were
+    shipped without an entry, so nothing checked their integrity (2026-10-04).
+    """
+    import pyarrow.parquet as pq
+
+    listed = {str(entry["file"]) for entry in entries.values()}
+    added = []
+    for path in sorted(RESOURCES.iterdir()):
+        if path.name == "manifest.json" or path.name in listed or path.suffix not in {".parquet", ".json", ".gz"}:
+            continue
+        entry: dict[str, object] = {"file": path.name, "tier": "A", "bytes": path.stat().st_size,
+                                    "sha256": _sha256(path)}
+        if path.suffix == ".parquet":
+            entry["rows"] = pq.ParquetFile(path).metadata.num_rows
+        entries[path.stem] = entry
+        added.append(path.name)
+    return added
 
 
 def main() -> None:

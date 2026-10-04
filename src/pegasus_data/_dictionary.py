@@ -300,15 +300,19 @@ def build_dictionary(
 _PROVENANCE_NAMES = {
     "_source_path": "Source file path",
     "_blob_sha256": "Source file checksum",
+    "_row": "Row in source file",
     "_ingested_at": "Ingestion timestamp",
     "_schema_signature": "Schema signature",
+    "_record_key": "Record key",
 }
 
 _PROVENANCE_PROSE = {
     "_source_path": "The published DATASUS path this row was read from.",
     "_blob_sha256": "SHA-256 of the downloaded file, so the row can be traced to an exact byte sequence.",
+    "_row": "The record's ordinal in its source file (or archive member), counted before any filter.",
     "_ingested_at": "When this package decoded the file.",
     "_schema_signature": "Identifies which schema generation the row was decoded under.",
+    "_record_key": "MD5 of the record's own fields: the same record has the same key in every publication that carries it.",
 }
 
 

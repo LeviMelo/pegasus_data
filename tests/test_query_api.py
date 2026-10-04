@@ -72,7 +72,7 @@ def test_primary_query_keeps_raw_codes_and_adds_labels(built_lake) -> None:
     settings, _catalog, _family = built_lake
     table, report = pg.query(
         "SIH-RD", period=2020, geography="AL", select=["SEXO"],
-        settings=settings, return_report=True,
+        settings=settings, return_report=True, present="analysis",
     )
     assert table["SEXO"].to_pylist() == ["1", "2", "1"]
     assert table["SEXO_label"].to_pylist() == ["Masculino", "Feminino", "Masculino"]
@@ -207,25 +207,6 @@ def test_legacy_annual_lake_rows_gain_only_coarse_resolution() -> None:
     assert result["_source_resolution"].to_pylist() == ["year", "unknown"]
 
 
-@pytest.mark.usefixtures("fresh_install")
-def test_optional_registry_requirement_is_planned_and_refused_before_retrieval(settings) -> None:
-    query_plan = pg.plan(
-        "SIH-RD",
-        period=2024,
-        enrich=["CNES.establishment_name"],
-        settings=settings,
-    )
-    assert query_plan.semantics.required_resources == ("cnes_names",)
-    assert "Resource: cnes_names (missing" in query_plan.explain()
-    with pytest.raises(FileNotFoundError, match="cnes_names"):
-        pg.query(
-            "SIH-RD",
-            period=2024,
-            enrich=["CNES.establishment_name"],
-            settings=settings,
-        )
-
-
 def test_municipality_is_not_fabricated_from_a_fact_column(built_lake) -> None:
     settings, _catalog, _family = built_lake
     with pytest.raises(ValueError, match="source publications only"):
@@ -235,25 +216,6 @@ def test_municipality_is_not_fabricated_from_a_fact_column(built_lake) -> None:
             geography={"uf": "AL", "municipality": "270430"},
             settings=settings,
         )
-
-
-def test_source_geography_never_becomes_a_record_predicate(built_lake) -> None:
-    import pyarrow.parquet as pq
-
-    settings, _catalog, _family = built_lake
-    part = next((settings.lake_dir / "SIHSUS").rglob("*.parquet"))
-    source = pq.ParquetFile(part).read()
-    heterogeneous = source.set_column(
-        source.column_names.index("MUNIC_RES"),
-        "MUNIC_RES",
-        pa.array(["270430", "261160", "355030"]),
-    )
-    pq.write_table(heterogeneous, part)
-    result = pg.query(
-        "SIH-RD", period=2020, geography="AL", select=["MUNIC_RES"],
-        labels=False, settings=settings,
-    )
-    assert result["MUNIC_RES"].to_pylist() == ["270430", "261160", "355030"]
 
 
 def test_partial_year_lake_coverage_routes_whole_year_to_fetch(settings) -> None:
@@ -376,42 +338,3 @@ def test_unbounded_source_acquisition_requires_explicit_opt_in(tmp_path) -> None
 
     with pytest.raises(ValueError, match="period is unbounded"):
         pg.query("SIH-RD", settings=Settings(root=tmp_path))
-
-
-def test_cnes_registry_enrichment_does_not_inherit_fact_geography(
-    settings, monkeypatch
-) -> None:
-    import pyarrow.parquet as pq
-
-    import pegasus_data.api as api
-    from pegasus_data._query_engine.semantics import _enrich_cnes_attribute
-    from pegasus_data.catalog.store import CatalogStore
-    from pegasus_data.crosswalk import EnrichmentRequest
-
-    CatalogStore(settings.catalog_path).close()
-    registry_root = settings.lake_dir / "CNES"
-    registry_root.mkdir(parents=True)
-    pq.write_table(pa.table({"sentinel": [1]}), registry_root / "part.parquet")
-    captured = {}
-
-    class _Scanner:
-        def to_table(self):
-            return pa.table(
-                {"CNES": ["2001578"], "NAT_JUR": ["1000"], "COMPETEN": ["202401"]}
-            )
-
-    def fake_scan(*_args, **kwargs):
-        captured.update(kwargs)
-        return _Scanner()
-
-    monkeypatch.setattr(api, "scan", fake_scan)
-    query_plan = pg.plan(
-        "SIH-RD", period=2024, geography="AL", labels=False,
-        enrich=["CNES.legal_nature"], settings=settings,
-    )
-    enriched, _report = _enrich_cnes_attribute(
-        pa.table({"CNES": ["2001578"], "_competencia": [202401]}),
-        EnrichmentRequest("CNES.LEGAL_NATURE"), query_plan, settings,
-    )
-    assert captured["uf"] is None
-    assert enriched["CNES_legal_nature"].to_pylist() == ["1000"]

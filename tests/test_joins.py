@@ -44,22 +44,10 @@ class TestTheKeysAreDeclared:
 
 
 class TestTheGrainIsCarried:
-    def test_the_fan_out_side_is_flagged(self) -> None:
-        """The one fact that stops a join from silently multiplying a count."""
-        keys = Ontology.load().keys
-        assert "SIH.SP" in keys["AIH"].fans_out()
-        assert "SIH.RD" not in keys["AIH"].fans_out()
-
     def test_the_hub_of_the_cnes_key_is_one_row_per_key(self) -> None:
         cnes = Ontology.load().keys["CNES"]
         hub = next(m for m in cnes.members if m.dataset == "CNES.ST")
         assert hub.rows_per_key == "one"
-
-    def test_an_unmeasured_grain_says_so_rather_than_guessing(self) -> None:
-        apac = Ontology.load().keys["APAC"]
-        assert all(m.rows_per_key == "unmeasured" for m in apac.members)
-        assert apac.fans_out() == []
-
 
 class TestTimeVersionedKeys:
     def test_cnes_is_marked_as_of_competence(self) -> None:

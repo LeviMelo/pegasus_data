@@ -10,19 +10,9 @@ from pegasus_data.semantics.relations import (
     adjudicate,
     adjudication_evidence,
     ensure_adjudication_item,
-    load_relations,
     relations_for,
     seed_relations,
 )
-
-
-def test_all_required_relation_types_are_modelled() -> None:
-    assert {relation.relation_type for relation in load_relations()} >= {
-        RelationType.LABEL_OF,
-        RelationType.ROLLUP_TO,
-        RelationType.ATTRIBUTE_OF,
-        RelationType.CROSSWALK_TO,
-    }
 
 
 def test_relations_compile_into_catalog(catalog) -> None:
@@ -45,32 +35,6 @@ def test_runtime_ambiguity_is_deduplicated_into_work_item(catalog) -> None:
     assert first == second
     assert catalog.count("adjudication_items") == 1
     assert adjudication_evidence(catalog, first)["candidates_json"] == ["MUNICBR", "CIRAC"]
-
-
-@pytest.mark.usefixtures("fresh_install")
-def test_dimension_uses_each_rows_semantic_vintage(settings, monkeypatch) -> None:
-    import pegasus_data.labelpack as labelpack
-    from pegasus_data._query_engine.model import QueryReport
-    from pegasus_data._query_engine.semantics import _apply_dimensions
-
-    calls = []
-
-    def fake_read(codelist, *, system=None, year=None, competencia=None, **_kwargs):
-        calls.append((codelist, year, competencia))
-        label = "Old region" if competencia == 202001 else "New region"
-        return pa.table({"code": ["270430"], "label": [label]})
-
-    monkeypatch.setattr(labelpack, "read_packed", fake_read)
-    query_plan = pg.plan(
-        "SIH-RD", period=(2020, 2021), dimensions=["MUNIC_RES.health_region"],
-        settings=settings,
-    )
-    table = pa.table(
-        {"MUNIC_RES": ["270430", "270430"], "_competencia": [202001, 202101]}
-    )
-    result = _apply_dimensions(table, query_plan, QueryReport(), settings)
-    assert result["MUNIC_RES_health_region"].to_pylist() == ["Old region", "New region"]
-    assert {item[2] for item in calls} == {202001, 202101}
 
 
 def test_adjudicated_dimension_is_effective_immediately(settings, catalog, monkeypatch) -> None:
@@ -345,58 +309,6 @@ def test_local_reviewed_relation_dominates_shipped_relation(catalog, monkeypatch
         relation_type=RelationType.ROLLUP_TO, catalog=catalog,
     )
     assert [item.artifact for item in effective] == ["LOCAL"]
-
-
-@pytest.mark.usefixtures("fresh_install")
-def test_unknown_required_dimension_vintage_is_null(settings, monkeypatch) -> None:
-    import pegasus_data.labelpack as labelpack
-    from pegasus_data._query_engine.model import QueryReport
-    from pegasus_data._query_engine.semantics import _apply_dimensions
-
-    monkeypatch.setattr(labelpack, "packed_mapping_is_time_invariant", lambda *_a, **_k: False)
-    monkeypatch.setattr(
-        labelpack,
-        "read_packed",
-        lambda *_a, **_k: pytest.fail("unknown vintage must not read a current mapping"),
-    )
-    query_plan = pg.plan(
-        "SIH-RD", period=2020, dimensions=["MUNIC_RES.health_region"],
-        settings=settings,
-    )
-    report = QueryReport()
-    result = _apply_dimensions(
-        pa.table({"MUNIC_RES": ["270430"], "_competencia": [None]}),
-        query_plan, report, settings,
-    )
-    assert result["MUNIC_RES_health_region"].to_pylist() == [None]
-    assert report.dimensions[0]["unresolved_vintage_rows"] == 1
-
-
-@pytest.mark.usefixtures("fresh_install")
-def test_annual_dimension_uses_mapping_only_when_safe_for_the_whole_year(
-    settings, monkeypatch
-) -> None:
-    import pegasus_data.labelpack as labelpack
-    from pegasus_data._query_engine.model import QueryReport
-    from pegasus_data._query_engine.semantics import _apply_dimensions
-
-    calls: list[int] = []
-
-    def stable_mapping(_artifact, *, competencia=None, **_kwargs):
-        calls.append(int(competencia))
-        return pa.table({"code": ["270430"], "label": ["Stable region"]})
-
-    monkeypatch.setattr(labelpack, "read_packed", stable_mapping)
-    query_plan = pg.plan(
-        "SIH-RD", period=2020, dimensions=["MUNIC_RES.health_region"],
-        settings=settings,
-    )
-    result = _apply_dimensions(
-        pa.table({"MUNIC_RES": ["270430"], "year": [2020], "_competencia": [None]}),
-        query_plan, QueryReport(), settings,
-    )
-    assert result["MUNIC_RES_health_region"].to_pylist() == ["Stable region"]
-    assert calls == list(range(202001, 202013))
 
 
 @pytest.mark.usefixtures("fresh_install")

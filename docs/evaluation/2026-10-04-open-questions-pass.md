@@ -147,3 +147,13 @@ The four-dataset render is identical cell for cell. `cli_query`, `metadata` and 
 - `cli.py` (2,170) → the `cli/` package: the same 61 commands and parameters, compared by Typer's own command tree.
 
 The four-dataset render is identical cell for cell. Live runs were ok: `metadata`, `cli_query` (14,340 rows, 118 columns), `sih_2016`, `sia_sp_parts` and `timeline` (`data/probes/live/2026-10-04-split`, `…-cli2`). `python -m pegasus_data.cli` needed a `__main__.py`, which the first CLI run found.
+
+**The old suite, triaged.** A detached run (`data/logs/pytest_2026-10-04.log`) gave 46 failed and 1,723 passed. All 44 non-collection failures also failed on 46e7be2, so none came from this session.
+- **Deleted:** 33 asserted APIs or behaviour that later ADRs replaced (ADR-0084 presentation, ADR-0126/0130 geography, ADR-0075 bundle, OQ-14 stock reducers, OQ-20 grains).
+- **Fixed in the fixtures (3):** valid CNPJs (ADR-0100), a label-pack build without the shipped carry-over, and a lake fixture with `_source_path`.
+- **Real defects, fixed:**
+  - SIH-RD 2014 refused in every state (ADR-0135 amendment).
+  - An explicit label request on a column curated `code_system: none` was silently ignored. It now warns, or raises when strict.
+  - `_row` and `_record_key` had no dictionary description.
+  - Eight shipped parquet tables had no manifest entry or checksum. `build_resources.register_packaged` now adds any file that is missing.
+  - A query with no period was refused by the download budget before the "period is unbounded" message could say what to change.

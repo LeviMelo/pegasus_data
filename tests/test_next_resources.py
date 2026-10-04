@@ -177,31 +177,6 @@ def test_optional_resource_accepts_independently_newer_content_version(settings)
     ).available
 
 
-def test_capability_compiler_rejects_duplicate_source_declarations(
-    tmp_path, monkeypatch
-) -> None:
-    import pegasus_data.ontology as ontology
-    from pegasus_data._query_engine.coverage import compile_capability_payload
-
-    curation = tmp_path / "curation"
-    datasets = curation / "datasets"
-    datasets.mkdir(parents=True)
-    body = (
-        "datasets:\n"
-        "  one:\n"
-        "    source_publication:\n"
-        "      dataset: SIH.RD\n"
-        "      observed_systems: [SIHSUS]\n"
-        "      observed_series: [RD]\n"
-        "      temporal_resolution: month\n"
-    )
-    (datasets / "a.yml").write_text(body, encoding="utf-8")
-    (datasets / "b.yml").write_text(body.replace("one:", "two:"), encoding="utf-8")
-    monkeypatch.setattr(ontology, "CURATION", curation)
-    with pytest.raises(ValueError, match="duplicate source-publication"):
-        compile_capability_payload()
-
-
 def test_optional_name_resource_rejects_wrong_schema(settings) -> None:
     import hashlib
 

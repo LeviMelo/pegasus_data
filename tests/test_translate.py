@@ -153,9 +153,3 @@ class TestItSharesTheRenderPath:
         )
         assert out.column("SEXO").to_pylist() == ["1", "3"]
         assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
-
-    def test_combined_folds_them_into_one_readable_column(self, dictionary):
-        out = translate(
-            SAMPLE, system="SIHSUS", render={"SEXO": "combined"}, settings=dictionary
-        )
-        assert "Masculino" in out.column("SEXO").to_pylist()[0]

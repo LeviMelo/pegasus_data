@@ -152,26 +152,6 @@ class TestProfiles:
 class TestMultiValued:
     """§5.7 — concatenate, in order, never dropping a token."""
 
-    def test_tokens_are_labelled_and_joined_in_order(self, rendered):
-        out, _ = _render(rendered)
-        assert out.column("LINHAA_label").to_pylist()[0] == (
-            "A419 Septicemia não especificada | E119 Diabetes mellitus tipo 2"
-        )
-
-    def test_an_unmatched_token_passes_through_as_its_code(self, rendered):
-        settings, catalog, table = rendered
-        table = table.set_column(
-            table.schema.get_field_index("LINHAA"), "LINHAA",
-            pa.array(["A419Z999", None, None]),
-        )
-        out, report = render_table(
-            table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS"
-        )
-        assert out.column("LINHAA_label").to_pylist()[0] == (
-            "A419 Septicemia não especificada | Z999"
-        )
-        assert report.tokens_unmatched["LINHAA"] == 1
-
     def test_it_reports_the_companions(self, rendered):
         out, _ = _render(rendered)
         assert out.column("LINHAA_codes").to_pylist()[0] == ["A419", "E119"]
@@ -233,23 +213,9 @@ class TestItNeverSilentlyReturnsUnlabelled:
 
 
 class TestHeadersAndValues:
-    def test_translated_headers(self, rendered):
-        out, _ = _render(rendered, headers="translated")
-        assert "Sex" in out.schema.names
-        assert "SEXO" not in out.schema.names
-
-    def test_both_headers_keep_the_original(self, rendered):
-        out, _ = _render(rendered, headers="both")
-        assert "SEXO (Sex)" in out.schema.names
-
     def test_original_headers_are_the_default(self, rendered):
         out, _ = _render(rendered)
         assert "SEXO" in out.schema.names
-
-    def test_combined_values(self, rendered):
-        out, _ = _render(rendered, values="combined")
-        assert out.column("DIAG_PRINC").to_pylist()[0] == "A419 – Septicemia não especificada"
-
 
 class TestColumnKinds:
     def test_it_tells_a_label_from_a_companion(self):

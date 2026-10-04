@@ -22,3 +22,9 @@ The smaller CSV won the byte ranking in 469 SINAN publications.
 - **One failed attempt.** A native the mirror lacks costs one failed attempt before the export is used.
 
 **Evidence.** On the fresh home, `plan()` picks the DBC for ACBI, SIFA and SIH-RD AC 2008-01. With a simulated fetch gap on `ACBIBR23.dbc` it picks the CSV (2,952,960 bytes), and the DBC again once the gap is resolved.
+
+**Amendment (2026-10-04): what counts as an export is decided by layout, not extension.** A `.dbf` belongs to the export side when its family also holds XML, CSV or JSON files anywhere on the tree.
+- **The case.** `/SIHSUS/DBF/` (2013–2014, 95 fields) shares its family with the `/SIHSUS/XML/` exports, not with the 113-field `.dbc`. Counted native, it contradicted the `.dbc` schema, and SIH-RD 2014 refused in every state.
+- **Evidence.**
+  - With the amendment, `plan()` succeeds for every state from 2012 to 2015.
+  - Acre 2014 reads 52,898 rows; its 52,733 type-1 AIHs equal TabNet's count of admissions.

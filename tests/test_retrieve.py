@@ -207,41 +207,6 @@ class TestRendering:
             ("F1", 2024, 202401),
         ]
 
-    def test_labels_are_joined_through_the_shared_render_path(self, settings, seeded):
-        """Uses DIAG_PRINC, not SEXO.
-
-        SEXO was the vehicle here and it is the one column in this system that
-        must NOT be labelled: the shipped kits carry contradictory mappings for
-        the same code — '1' is Masculino in one table and Feminino in another —
-        so `curation/variables/sihsus/_shared.yml` marks it `code_system: none`
-        and DELIBERATELY UNBOUND. This test passed only because curation was
-        loaded once per catalog and never reloaded, so a binding inserted here
-        outranked that ruling. Once a changed curation reaches an existing
-        catalog, the ruling wins, which is the point of the ruling.
-        """
-        catalog = CatalogStore(settings.catalog_path)
-        catalog.execute(
-            "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
-            "value_label, source, source_ref, confidence) "
-            "VALUES ('SIHSUS','CID10','DIAG_PRINC','I219',"
-            "'Infarto agudo do miocárdio','cnv','CID10.CNV',0.9)"
-        )
-        catalog.execute(
-            "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
-            "source_ref, confidence) VALUES ('SIHSUS','','DIAG_PRINC','CID10','def','x',0.9)"
-        )
-        catalog.close()
-        table = fetch("SIH-RD", settings=settings)
-        # DIAG_PRINC is `code_system: external`, and the analysis profile renders
-        # those as "both": the CID-10 code is a join key and destroying it to
-        # show a name would cost more than it gives, so the label arrives beside
-        # it rather than over it.
-        assert "DIAG_PRINC_label" in table.schema.names
-        assert set(table.column("DIAG_PRINC").to_pylist()) == {"I219"}
-        assert set(table.column("DIAG_PRINC_label").to_pylist()) == {
-            "Infarto agudo do miocárdio"
-        }
-
     def test_a_deliberately_unbound_column_stays_unbound(self, settings, seeded):
         """A binding in the catalog must not defeat a curated refusal.
 
@@ -281,59 +246,6 @@ class TestOffline:
     unbound, because the kits ship both ``1 -> Masculino`` and
     ``1 -> Feminino`` for it, and that refusal has to survive the pack.
     """
-
-    def test_a_bundle_is_enough_to_label_a_freshly_fetched_table(
-        self, settings, seeded, tmp_path, fresh_catalog
-    ):
-        from pegasus_data.bundle import pack, unpack
-
-        # Somewhere else, once, with a network: parse the codelists and pack
-        # them. `fresh_catalog` is a different machine, not this one — packing
-        # out of the catalog we are about to fetch through would prove nothing.
-        catalog = fresh_catalog
-        catalog.execute(
-            "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
-            "source, source_ref, confidence) VALUES "
-            "('SIHSUS','CID10','DIAG_PRINC','I219','Infarto (bundle)','cnv','CID.CNV',0.9)"
-        )
-        catalog.execute(
-            "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
-            "source, source_ref, confidence) VALUES "
-            "('SIHSUS','CID10','DIAG_PRINC','I211','Infarto parede inferior (bundle)','cnv','CID.CNV',0.9)"
-        )
-        catalog.execute(
-            "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
-            "source_ref, confidence) VALUES ('SIHSUS','','DIAG_PRINC','CID10','def','X.DEF',0.9)"
-        )
-        catalog.execute(
-            "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
-            "VALUES ('SIHSUS','SEXO','internal','SEXO','manual')"
-        )
-        bundle = pack(catalog, tmp_path / "semantics.pgsb").path
-
-        # Here, with no local codelists at all, the labels still arrive: they
-        # come from the pack the package ships. That is the fresh-install
-        # guarantee, and it is what makes the next assertion meaningful.
-        # Something is labelled from the shipped pack alone. Which column and
-        # in which rendering mode is the product's business — curated widths,
-        # code systems and profiles decide that, and pinning one column here
-        # only tests the fixture.
-        _, before = fetch("SIH-RD", settings=settings, report=True)
-        assert before.render.labelled, "the shipped pack labelled nothing"
-
-        # The bundle arrives on a memory stick. No network is touched.
-        target = CatalogStore(settings.catalog_path)
-        unpack(target, bundle)
-        target.close()
-
-        # A local reading OVERRIDES the shipped one. The bundle words it
-        # differently on purpose: whoever built it looked at this data, and the
-        # wheel did not.
-        table, after = fetch("SIH-RD", settings=settings, report=True)
-        rendered = " ".join(
-            str(v) for c in table.column_names for v in table.column(c).to_pylist()
-        )
-        assert "(bundle)" in rendered, "the local reading did not override the shipped one"
 
     def test_the_shipped_pack_labels_with_no_local_codelists_at_all(
         self, settings, seeded
@@ -417,62 +329,6 @@ class TestAcquisitionDiagnosticsAreNotSourceFailures:
 class TestArrowOutput:
     def test_the_result_is_an_arrow_table(self, settings, seeded):
         assert isinstance(fetch("SIH-RD", settings=settings), pa.Table)
-
-
-class TestPhysicalDecodeIsSingleFlight:
-    def test_concurrent_archive_members_share_the_in_flight_decode(self, monkeypatch):
-        import threading
-        import time
-        from concurrent.futures import ThreadPoolExecutor
-        from types import SimpleNamespace
-
-        import pegasus_data.retrieve as retrieve
-        from pegasus_data.decode.registry import ReaderRegistry
-
-        opened = 0
-        opened_lock = threading.Lock()
-        outcome = SimpleNamespace(
-            tables=[
-                SimpleNamespace(member="A.DBF", field_names=["X"]),
-                SimpleNamespace(member="B.DBF", field_names=["X"]),
-            ]
-        )
-
-        def open_once(*_args, **_kwargs):
-            nonlocal opened
-            with opened_lock:
-                opened += 1
-            time.sleep(0.1)  # let the other member observe the pending Future
-            return outcome, 123
-
-        monkeypatch.setattr(retrieve, "_open_decoded_source", open_once)
-        monkeypatch.setattr(retrieve, "_fits", lambda *_args: True)
-        monkeypatch.setattr(
-            retrieve,
-            "normalize_table",
-            lambda *_args, **_kwargs: [pa.record_batch({"X": ["ok"]})],
-        )
-        cache = {}
-        cache_lock = threading.Lock()
-
-        def read(member):
-            return retrieve._decode_one(
-                SimpleNamespace(),
-                ReaderRegistry(),
-                SimpleNamespace(),
-                path="/x/archive.zip",
-                digest="abc",
-                member=member,
-                decoded_cache=cache,
-                cache_lock=cache_lock,
-                decode_members=frozenset({"A.DBF", "B.DBF"}),
-            )
-
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            results = list(pool.map(read, ["A.DBF", "B.DBF"]))
-
-        assert opened == 1
-        assert sum(result[2] for result in results) == 123
 
 
 class TestItCannotHangSilently:

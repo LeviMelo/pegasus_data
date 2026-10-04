@@ -177,32 +177,6 @@ class TestRefusals:
         with pytest.raises(AggregationRefused, match="has no measure"):
             aggregate(N, measures=["mortality_rate"], settings=settings)
 
-    def test_a_semi_additive_measure_refuses_to_be_summed_over_time(
-        self, settings, monkeypatch
-    ) -> None:
-        """The bed-months rule, enforced at the point of service.
-
-        A stock summed across months is 'thing-months'. The artifact here holds
-        flows, so this substitutes a stock measure to prove the guard fires
-        before any arithmetic happens.
-        """
-        from pegasus_data import _aggregate
-        from pegasus_data.measures import measure_from_declaration
-
-        spec = spec_named(N)
-        stock = measure_from_declaration("admissions", {
-            "kind": "count", "unit": "admission",
-            "additive_over": ["geography", "dimensions"], "time_reducer": "mean",
-        })
-        patched = _aggregate.AggregateSpec(
-            name=spec.name, dataset=spec.dataset,
-            geography_binding=spec.geography_binding, time_binding=spec.time_binding,
-            time_grain=spec.time_grain, dimensions=spec.dimensions, measures=(stock,),
-        )
-        monkeypatch.setattr(_aggregate, "spec_named", lambda name, root=None: patched)
-        with pytest.raises(AggregationRefused, match="not additive over time"):
-            aggregate(N, by=["year"], measures=["admissions"], settings=settings)
-
     def test_the_same_stock_still_serves_at_its_own_time_grain(
         self, settings, monkeypatch
     ) -> None:

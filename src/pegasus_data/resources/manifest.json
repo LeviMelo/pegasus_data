@@ -60,6 +60,62 @@
       "bytes": 19848336,
       "rows": 930372,
       "sha256": "137b2914d87a4906e79311c13fe42b214f6409e7cdbb67ac6eb9a42f07eec70e"
+    },
+    "banks": {
+      "file": "banks.parquet",
+      "tier": "A",
+      "bytes": 8898,
+      "sha256": "6f0c93d2099cfb9c3ecd282803d0dd2bde0b426c84dd50297de7859d40ce92b6",
+      "rows": 464
+    },
+    "bridges": {
+      "file": "bridges.parquet",
+      "tier": "A",
+      "bytes": 63261,
+      "sha256": "4f8bb395f48d564d85780bc67ccd6b554a3d0e2f7453ce894ad8854800b76928",
+      "rows": 7605
+    },
+    "cbo2002": {
+      "file": "cbo2002.parquet",
+      "tier": "A",
+      "bytes": 64205,
+      "sha256": "986270d44564225ebc2d3567356c8c5412034c8c0692ba8a8ab82c68fc811f71",
+      "rows": 3715
+    },
+    "cnae20": {
+      "file": "cnae20.parquet",
+      "tier": "A",
+      "bytes": 53393,
+      "sha256": "61ca0a18580e875213dea7e7b756c239c69889b4bb700e15de1c7faabacb3cce",
+      "rows": 2005
+    },
+    "countries": {
+      "file": "countries.parquet",
+      "tier": "A",
+      "bytes": 3668,
+      "sha256": "d1b53ec10f405f153685e5f530a2ffffcfa9cc4aad36e9a5227a5a5cc60ba3ef",
+      "rows": 289
+    },
+    "icd10": {
+      "file": "icd10.parquet",
+      "tier": "A",
+      "bytes": 235851,
+      "sha256": "27e2419d13c9b51d45496c45434516e2f613fee43401ed84340e4105e6b00c02",
+      "rows": 16308
+    },
+    "municipality_points": {
+      "file": "municipality_points.parquet",
+      "tier": "A",
+      "bytes": 454678,
+      "sha256": "6c90e0fd6b35b2ad534547a483765b4ced6064d68792c52b6c5d19e0897dc096",
+      "rows": 5571
+    },
+    "sigtap": {
+      "file": "sigtap.parquet",
+      "tier": "A",
+      "bytes": 122142,
+      "sha256": "c1475fd47c8351d4d06f8cffd705cf91298bbfdca2b7ad1cc9f8a9014f6935c2",
+      "rows": 6217
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."
