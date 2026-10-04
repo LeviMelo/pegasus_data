@@ -628,9 +628,20 @@ class Catalog:
 
     @contextmanager
     def write(self) -> Iterator[sqlite3.Connection]:
-        """Serialised write transaction."""
+        """Serialised write transaction, holding the write lock from its start.
+
+        A deferred transaction that reads the catalog and then writes cannot
+        wait for the lock: if another process committed after its read, SQLite
+        (WAL) refuses the upgrade at once with "database is locked", whatever
+        the busy timeout. That was OQ-58: ``persist_entries`` reads
+        ``dictionary`` before writing it, and ``bindings`` commits continually
+        (reproduced 2026-10-03, failure in 0.02 s). ``BEGIN IMMEDIATE`` waits
+        for the lock first.
+        """
         with self._lock:
             self._write_depth = getattr(self, "_write_depth", 0) + 1
+            if self._write_depth == 1 and not self.read_only and not self.conn.in_transaction:
+                self.conn.execute("BEGIN IMMEDIATE")
             try:
                 yield self.conn
                 if self._write_depth == 1:

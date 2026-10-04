@@ -12,6 +12,7 @@ is wrong. Run it against a FRESH home (CLAUDE.md §5):
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import warnings
@@ -41,11 +42,23 @@ SLICES = [
 ]
 
 
+def _slices() -> list[tuple[str, str, str | None]]:
+    """``PEGASUS_SWEEP_SLICES="SINAN-ACBI:2023,SIH-RD:2023-01:AC"`` replaces the default list."""
+    given = os.environ.get("PEGASUS_SWEEP_SLICES", "").strip()
+    if not given:
+        return SLICES
+    out = []
+    for item in given.split(","):
+        dataset, period, *geo = item.strip().split(":")
+        out.append((dataset, period, geo[0] if geo else None))
+    return out
+
+
 def main() -> int:
     out_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/probes/live/sweep_undecoded.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     results = []
-    for dataset, period, geo in SLICES:
+    for dataset, period, geo in _slices():
         entry: dict[str, object] = {"dataset": dataset, "period": period, "geography": geo}
         started = time.time()
         try:
