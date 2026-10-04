@@ -988,16 +988,6 @@ datasets:
   # These bind files that are not tables of rows. Leaving their unit blank made
   # them read as undocumented; saying so explicitly is the accurate answer, and
   # it keeps them out of any count of data a researcher could analyse.
-  DADOS_ABERTOS.APAC:
-    system: DADOS_ABERTOS
-    series: APAC
-    asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as DADOS_ABERTOS.APAC
-    what_one_row_is: not applicable — this is APAC record-layout documentation, not a table of records
-    unit_of_analysis: none (not a dataset)
-    gotchas:
-      - Describes the SIA APAC family's layout. The APAC data itself is under SIA.
   SIASUS.IMPBORL:
     system: SIASUS
     series: IMPBORL

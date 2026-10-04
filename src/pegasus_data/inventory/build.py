@@ -30,6 +30,27 @@ from .systems import (
 )
 
 
+def _descriptive_tails(parsed_by_path: dict[str, ParsedName], by_directory: dict[str, list[str]]) -> None:
+    """Undo a state reading of a descriptive tail when a sibling shows it is a type."""
+    for paths in by_directory.values():
+        uf_read = [p for p in paths if parsed_by_path[p].grammar == "descriptive_uf"]
+        if not uf_read:
+            continue
+        prefixes = {str(parsed_by_path[p].series_prefix) for p in uf_read}
+        typed = any(
+            parsed_by_path[p].grammar == "descriptive"
+            and any(str(parsed_by_path[p].series_prefix).startswith(prefix + "_") for prefix in prefixes)
+            for p in paths
+        )
+        if not typed:
+            continue
+        for p in uf_read:
+            parsed = parsed_by_path[p]
+            parsed.series_prefix = f"{parsed.series_prefix}_{parsed.geo_code}"
+            parsed.geo_code = None
+            parsed.grammar = "descriptive"
+
+
 def build_inventory(
     catalog: Catalog, *, base_path: str = "/dissemin/publicos", systems: Sequence[str] | None = None
 ) -> dict[str, int]:
@@ -42,8 +63,13 @@ def build_inventory(
     clauses = ["gone_at IS NULL"]
     params: list[object] = []
     if systems:
-        clauses.append("(" + " OR ".join("path LIKE ?" for _ in systems) + ")")
-        params = [f"{base_path}/{s}/%" for s in systems]
+        # A system's files are also those filed elsewhere under its name
+        # (SINAN's exports live in Dados_Abertos/), so a scoped run sees every
+        # member of the strata it rewrites.
+        clauses.append("(" + " OR ".join("path LIKE ?" for _ in systems)
+                       + " OR path IN (SELECT path FROM file_facts WHERE system IN ("
+                       + ",".join("?" * len(systems)) + ")))")
+        params = [f"{base_path}/{s}/%" for s in systems] + [s.upper() for s in systems]
     where = "WHERE " + " AND ".join(clauses)
     rows = catalog.query(f"SELECT path, directory, filename FROM files {where}", params)
 
@@ -53,6 +79,12 @@ def build_inventory(
         parsed = parse_filename(row["filename"])
         parsed_by_path[row["path"]] = parsed
         by_directory[row["directory"]].append(row["path"])
+
+    # ---- a descriptive tail is a state only if no sibling's tail is a type.
+    # `apac_am.duck.zip` sits beside apac_abo, apac_acf, apac_amp and apac_atd:
+    # its "am" is the APAC type (medication), not Amazonas, and reading it as a
+    # state filed the national medication export as Amazonas (2026-10-04).
+    _descriptive_tails(parsed_by_path, by_directory)
 
     # ---- per-directory convention (§5.2: never decide the date format per file)
     conventions: dict[str, str] = {}
@@ -175,6 +207,12 @@ def build_inventory(
         if f[10] == "data"
     ]
     strata = build_strata(strata_rows)
+    if systems:
+        # Only strata of the systems in scope are rewritten. A DADOS_ABERTOS run
+        # rebuilt SINAN's strata from the exports alone, replaced their members
+        # and nulled 702 schema signatures (2026-10-04).
+        scope = {s.upper() for s in systems}
+        strata = [s for s in strata if str(s.system).upper() in scope]
     # Strata are derived from file facts, so a re-inventory that changes a year
     # produces new stratum ids and orphans the old ones. Leaving them behind is
     # not harmless: a stratum dated 1901 by the bug this replaced kept dragging

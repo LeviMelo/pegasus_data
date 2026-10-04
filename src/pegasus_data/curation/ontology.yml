@@ -363,7 +363,7 @@ datasets:
     what_it_is: >
       One authorisation for a specialised-component medicine, the route by which
       high-cost drugs are dispensed.
-    observed_as: [AM]
+    observed_as: [AM, APAC_AM]
 
   SIA.AMP:
     system: SIA
@@ -1092,18 +1092,6 @@ datasets:
     confidence: low
 
   # ------------------------------------------------- republication and residue
-
-  DADOS_ABERTOS.APAC:
-    system: DADOS_ABERTOS
-    official_name: Layouts APAC
-    translated_name: APAC record layouts
-    what_it_is: >
-      The generic APAC record layouts published in the open-data tree, covering
-      the SIA APAC family as a group rather than one dataset. Documentation, not
-      microdata.
-    kind: reference
-    observed_as: [APAC]
-    confidence: medium
 
   SIASUS.IMPBORL:
     system: SIA
