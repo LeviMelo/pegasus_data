@@ -76,3 +76,14 @@ A shared category is worth +3.1 bits; an anomaly on the admission but none at bi
 Both were fixed at the source and cleaned once (3,342,637 rows deleted), then the catalog was vacuumed: 18.9 → 12.0 GiB in 469 s.
 
 **Maternal age as delivery evidence (OQ-63).** SINASC `IDADEMAE` equals the age from `DTNASCMAE` on 28,520 of 28,521 SE 2022 births, so it carries no independent evidence.
+
+**Where delivery recall is lost (OQ-63).** SE 2022, exact key = mother's birth date + hospital + birth day inside the stay:
+
+| | births |
+|---|---|
+| all births | 28,524 |
+| linked on the exact key | 20,559 |
+| unlinked, no unlinked obstetric admission at that hospital that day | 5,377 |
+| unlinked, a single remaining candidate, mother's birth date one digit off | 24 (23 agree on residence) |
+
+The typo ceiling is about 0.1% of births; the gap is births with no SUS admission.
