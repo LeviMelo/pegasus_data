@@ -14,7 +14,7 @@ What share of the deaths and births that happened was registered? Three sources,
   walk whose step variance and whose dependence on the ill-defined-cause share are estimated on the published
   years and scored on a held-out tail.
 
-SINASC births are compared with the census instead (the population account's ``registration_completeness``).
+SINASC births are compared with the census instead (``registration_completeness``, from the population account's cohorts).
 """
 
 from __future__ import annotations
@@ -219,8 +219,8 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
     base = Path(root) / "lake" / "modelled" / "registration_completeness"
     acct_dir = base / sorted(p.name for p in base.iterdir())[-1]
     acct = pq.read_table(acct_dir / "estimates.parquet").to_pylist()
-    independent = {(r["uf"], y): r["completeness"] for r in acct for y in range(*(int(v) for v in r["period"].split("-")))
-                   if r["system"] == "SINASC"}
+    independent = {(r["uf"], y): r["completeness"] for r in acct if r["system"] == "SINASC"
+                   for y in range(int(r["period"][:4]), int(r["period"][5:]) + 1)}        # the years the cohort was born in
     rows, calibration = [], {}
     for system in ("SIM", "SINASC"):
         S = series(system)
@@ -247,17 +247,21 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
                 p = min(p, 1.0)
                 hi = min(p + 1.2816 * sdp, 1.0)
                 if system == "SINASC" and independent.get((u, y)) is not None:
-                    hi = min(max(hi, independent[(u, y)]), 1.0)        # the census-based estimate is higher by 4-8 points
+                    hi = min(max(hi, independent[(u, y)]), 1.0)        # the census-based estimate where it is higher
                 rows.append({"system": system, "uf": u, "year": y, "completeness": p,
                              "completeness_lo": max(p - 1.2816 * sdp, 0.0), "completeness_hi": hi,
                              "basis": basis, "horizon": h, "published_ratio": published_ratio,
                              "ill_defined_share": ill.get((u, y)) if system == "SIM" else None,
                              "census_based_estimate": independent.get((u, y)) if system == "SINASC" else None})
+    gap = {name: [r["census_based_estimate"] - r["completeness"] for r in rows if r["system"] == "SINASC"
+                  and r["census_based_estimate"] is not None and sel(r["year"])]
+           for name, sel in (("2000-2011", lambda y: y <= 2011), ("2012-2021", lambda y: y > 2011))}
+    gap_note = "; ".join(f"{k}: {np.mean(v) * 100:+.1f} points (SD {np.std(v) * 100:.1f}, n={len(v)})" for k, v in gap.items() if v)
     table = pa.Table.from_pylist(rows)
     manifest = ModelledManifest(
         product="system_completeness", version=version,
         model="published Ministry/IBGE ratio (IDB 2012 A.17, A.18) to 2011, then a logit drift (SIM) or persistence "
-              "(SINASC) with an interval calibrated by rolling-origin on the published years; completeness.py v1",
+              "(SINASC) with an interval calibrated by rolling-origin on the published years; completeness.py v2",
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
         inputs={"published ratio": "tabnet.datasus.gov.br/cgi/idb2012/a17b.htm, a1801b.htm (IBGE and MS/SVS)",
                 "ill-defined share": "SIM municipality × year × cause aggregate", "census-based SINASC": acct_dir.parent.name + "/" + acct_dir.name},
@@ -268,8 +272,8 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
                "Before 2010 the South, Southeast, MS and DF are assumed 100% by the Ministry, not measured: basis 'published_assumed_complete'.",
                "The interval is 80%. Its calibration holds to a horizon of three years (rolling origin); beyond 2014 it is an extrapolation "
                "checked only against independent estimates (see the evaluation entry).",
-               "SINASC: where the population account's census-based estimate exists it is higher than the published ratio by 4 points "
-               "(2000-2011) to 5-8 points (2012-2021) and the upper bound is raised to it; the published ratio rests on IBGE projections.",
+               "SINASC: where a census-based estimate exists (the 0-4 and 5-9 cohorts of the 2010 and 2022 censuses, registration_completeness) "
+               "the upper bound is raised to it if it is higher; census-based minus the completeness above (published to 2011), mean over state-years: " + gap_note + ".",
                "No municipal completeness: the Ministry's municipal factors were not found, and a state-level association does not carry to municipalities.",
                f"Calibration: {json.dumps(calibration)}"])
     settings = SimpleNamespace(lake_dir=Path(root) / "lake")

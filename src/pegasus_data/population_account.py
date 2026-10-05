@@ -950,3 +950,69 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
                "`comparable_area` rows for 2000-2010."])
     out = write_modelled(table, manifest, settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
     return {"population_account": str(out), "rows": table.num_rows, "widened": cal.widened}
+
+
+def birth_registration(inp: Inputs) -> list[dict[str, Any]]:
+    """SINASC completeness by state from the cohorts a census counted: the vital account's children against the census.
+
+    A child aged 0-4 (or 5-9) at a closing census was born inside the period, so the vital account (registered births,
+    registered deaths) holds exactly that cohort, and the closing (coverage-corrected) census counts it. Their ratio per
+    state is the share of births the account saw, net of the census coverage assumed and of the cohort's net migration
+    (which is small for children and not separated). Above 1 means the census counted fewer children than were registered
+    (a census undercount the coverage assumed did not remove), not registration. The 5-9 cohort carries five more years of
+    migration than the 0-4 one."""
+    rows: list[dict[str, Any]] = []
+    blocks = [("2010", "reconciled 2000 and 2010", inp.path_a[-1], inp.close_a, inp.places.unit_uf, 2005, 2000),
+              ("2022", "reconciled 2010 and PES 2022", inp.path_b[-1], inp.close_b,
+               np.array([int(str(m[0])[:2]) for m in inp.places.entity_members]), 2017, 2012)]
+    for census, basis, vital, close, state, y04, y59 in blocks:
+        v, c = to_bands(vital), to_bands(close)
+        for g, y0 in ((0, y04), (1, y59)):
+            for u in sorted(set(int(s) for s in state)):
+                sel = state == u
+                ratio = float(v[sel, :, g].sum() / c[sel, :, g].sum())
+                rows.append({"uf": u, "system": "SINASC", "period": f"{y0}-{y0 + 4}", "census_basis": basis,
+                             "cohort": f"{BAND_LABELS[g]} at the {census} census", "completeness": ratio})
+    return rows
+
+
+def build_registration_completeness(root: str | Path, population_root: str | Path, events_dir: str | Path, *, version: str,
+                                    validation: str, log=print) -> dict[str, Any]:
+    """Write the ``registration_completeness`` modelled product from ``birth_registration``.
+
+    The 80% interval is the account's 2% census term (``NATIONAL_SD``) joined with the spread between the 0-4 and the 5-9
+    cohort of the same census and state (sd of their difference over sqrt 2), which measures what a single cohort's ratio
+    carries beyond registration: coverage by age and migration. It is wider than needed where the two cohorts truly
+    differ in registration."""
+    from types import SimpleNamespace
+
+    import pyarrow as pa
+
+    from . import __version__
+    from .modelled import ModelledManifest, write_modelled
+
+    inp = assemble(root, population_root, events_dir, log)
+    rows = birth_registration(inp)
+    by = {(r["uf"], r["cohort"]): r["completeness"] for r in rows}
+    diffs = [v - by[(u, c.replace("0-4", "5-9"))] for (u, c), v in by.items() if c.startswith("0-4")]
+    pair_sd = float(np.std(diffs) / np.sqrt(2)) if diffs else 0.0
+    sd = float(np.hypot(NATIONAL_SD, pair_sd))
+    for r in rows:
+        r["completeness_lo"], r["completeness_hi"] = r["completeness"] - 1.2816 * sd, r["completeness"] + 1.2816 * sd
+    manifest = ModelledManifest(
+        product="registration_completeness", version=version,
+        model="vital account's cohorts aged 0-4 and 5-9 at the closing census against the coverage-corrected census, by state; "
+              "population_account.py v2",
+        estimates={"completeness": ["completeness_lo", "completeness_hi"]},
+        inputs={"CENSO 2010, 2022 (raw)": "SIDRA tables 1378, 9514", "SIM.DO deaths and SINASC births 2000-2023": f"pegasus_data {__version__}",
+                "PES 2022 net-error margins": "IBGE liv102110 (sources/pes.py)", "population_account": "population-account-2 (same inputs)"},
+        validation=validation,
+        notes=["Net of the census coverage assumed for the period's censuses: with other coverage, other completeness.",
+               "A value above 1 is not registration: the census counted fewer children than the registered births imply.",
+               "`period` is the years the cohort was born in (the census date is 1 August; a 0-4 cohort at the 2010 census was born "
+               "2005-08 to 2010-07). Births of 2010-2011 and of 2022 are in no cohort. The state's net child migration is not separated.",
+               f"Interval: 80%, sd {sd:.4f} = hypot({NATIONAL_SD}, {pair_sd:.4f}), the second the cohort-pair spread (see birth_registration).",
+               "SIM (deaths) completeness is not estimated here (see system_completeness)."])
+    table = pa.Table.from_pylist(rows)
+    out = write_modelled(table, manifest, settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
+    return {"path": str(out), "rows": len(rows), "sd": sd, "pair_sd": pair_sd}
