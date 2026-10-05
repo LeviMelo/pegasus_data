@@ -292,6 +292,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   386 shape failures in a 5,000 sample); SIH writes CID-9 as 6-digit numerics
   (426 of 1,590 distinct `DIAG_PRINC`). CID-9 and CID-10 code spaces share no
   code (F §3d, §3f).
+- **`SIHSUS/2010/XML/` holds 324 empty files** (`RD*.xml`, 0 bytes, listed since 2014). They share their logical ids with the 2010 DBCs in `200801_/Dados/`, and the mirror does not carry them. They are placeholders, not publications (2026-10-04).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all
   1,556,824 records, 2026-10-04):
   - 212,706 records have B34.2 as underlying cause, and none has a U07 code there;

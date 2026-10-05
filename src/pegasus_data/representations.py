@@ -95,6 +95,16 @@ def choose_representations(
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
+        # A zero-byte file is a placeholder, not an alternative, when the same publication has a
+        # non-empty one: SIHSUS/2010/XML holds 324 empty RD*.xml beside 200801_/Dados's DBCs,
+        # and ranking by bytes on the wire chose the empty file every time (PegaSUS, 2026-10-04).
+        empty = [row for row in candidates if row.get("size") == 0]
+        if empty and len(empty) < len(candidates):
+            dropped.extend(str(row.get("path") or "") for row in empty)
+            candidates = [row for row in candidates if row.get("size") != 0]
+            if len(candidates) == 1:
+                selected.extend(candidates)
+                continue
         exports = _exports_behind_native(candidates, unreachable, export_families)
         if exports:
             dropped.extend(str(row.get("path") or "") for row in exports)

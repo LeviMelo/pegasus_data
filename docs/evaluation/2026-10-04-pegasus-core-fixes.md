@@ -48,3 +48,11 @@ No recipe uses the kind yet; a mark aggregate is the next step.
   - the declared spelling is kept (only the linkage cross-check compares upper-case);
   - SIM-DO, SIH-RD, SINAN-DENG and CIHA declare `IDADE_anos`.
 - **Result:** the strata now read `IDADE_anos` for SIH, SIM and SINAN.
+
+## 5. Zero-byte placeholders chosen over the real files
+
+- **The defect:** `SIHSUS/2010/XML/` holds 324 `RD*.xml` files of **0 bytes**, listed since 2014. They share their logical ids (`SIHSUS|RD|BA|201003`) with the DBCs in `200801_/Dados/`. `choose_representations` ranks by bytes on the wire, so it chose the empty file every time.
+  - SIH-RD 2010 failed with 146 of 324 sources not contributing.
+  - The empty XML is on no reachable route (the mirror returns 404), while every DBC probed is mirrored (206).
+- **The fix:** a zero-size candidate is dropped when its publication has a non-empty one. A lone empty file still surfaces as empty.
+- **Result:** SIH-RD 2010 counts 11,228,060 admissions, plus 129,905 unallocated. The FTP data channel was still filtered on DATASUS's side (`curl -v`: login and CWD answer, PASV ports time out), so the files came from the mirror.
