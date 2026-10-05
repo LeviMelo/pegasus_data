@@ -50,7 +50,7 @@ of them (3572: 120M; 1552: 40M; 9606: 27M; 200: 13M; 2093: 13M; 616: 11M). The c
 The 2010 Total differs by 18 households between tables 3154 (57,324,185) and 1436/3218 (57,324,167). The 2022 sewer category "rede geral, rede
 pluvial ou fossa ligada à rede" (46290) is not comparable and stays out of the series.
 
-**Fetched at the time of writing.** {FETCHED}
+**Fetched at the time of writing.** At 04:50: 32 tables in the store (1,078 request parts, 39.4M rows counting overlaps, 105 MB Parquet) from the curated groups housing_sanitation (13 tables, 6.9M rows), education (8 tables, 7.0M rows; table 10062 stopped by an IncompleteRead at 18 of 59 requests and is resumed) and the population series; income_labour and demography run next, then the remaining groups. The scan covered all 9,336 tables (4,448 list N6, 271,798 categories). Table 9860 (6.06 billion values) is skipped by size, 3572 (120M) likewise.
 
 **Defects found by running it, and fixed.** The fact store kept the same observation twice when two selections overlapped
 (Total cells fetched by a field and by a census series): reads now keep the latest. A classification with no Total made the registry load
