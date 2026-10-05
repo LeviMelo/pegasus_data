@@ -37,3 +37,5 @@ unlabelled (the curated `codes:` tables, rung 1). On a fresh root the shipped se
 curated tables, so a fresh install still reads SIM `RACACOR` 1 `Bra`, 3 `Amar`, 5 `Indig` from the pack and nothing in the polluted
 set; SINASC `RACACOR` 5 is now unlabelled instead of `Preta`. Regenerating the seed (`scripts/build_resources.py`) closes that; it
 was not done here because it would export the catalog's other uncommitted curation along with it.
+
+**Seed regenerated (later the same day, after `curate`, once the curation tree held no uncommitted variable files).** In a fresh root (a temp dir holding only the seed's catalog), `translate` gives SIM `RACACOR` and SINASC `RACACOR`/`RACACORMAE` 1-5 as Branca, Preta, Amarela, Parda, Indígena; in the polluted set 0, 6, 9, 01 stay unlabelled (None) and 1, 3, 4, 5 keep their labels.
