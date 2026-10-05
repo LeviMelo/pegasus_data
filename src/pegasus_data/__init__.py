@@ -37,6 +37,7 @@ _EXPORTS: dict[str, str] = {
     "describe": ".api",
     "load_population": ".api",
     "load_field": ".fields",
+    "field_rate": ".fields",
     "Sidra": ".sidra",
     "age_standardised_rates": ".rates",
     "race_reliability": ".quality",

@@ -22,7 +22,7 @@ from typing import Any
 
 import pyarrow as pa
 
-__all__ = ["build_fields", "declared_fields", "load_field"]
+__all__ = ["build_fields", "declared_fields", "field_rate", "load_field"]
 
 
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -52,8 +52,14 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     """Read each declared field from its source and write it to ``<lake>/fields/<name>/``."""
     report: dict[str, Any] = {}
     sidra = None
-    for name, spec in declared_fields().items():
+    declared = declared_fields()
+    chosen_cnes = {n: sp for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)}
+    if chosen_cnes:
+        report.update(_build_cnes(settings, chosen_cnes, years))
+    for name, spec in declared.items():
         if names and name not in names:
+            continue
+        if spec.get("source") == "cnes":
             continue
         if spec.get("source") == "inmet":
             report[name] = _build_climate(settings, name, years)
@@ -204,6 +210,84 @@ def _build_inep(settings: Any, name: str, spec: dict[str, Any], years: list[int]
         total = table.filter(pc.equal(table.column("margin"), "total"))
         written[str(year)] = {"rows": n, "enrolments": pc.sum(total.column("value")).as_py()}
     return written
+
+
+def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
+    """The CNES supply fields (``sources.cnes``): every selected field of a December from one pass over its files.
+
+    Rows exist for every IBGE municipality (the current 5,570). One in the year's ST register carries its value, a
+    true 0 included (``ok``); one that has no establishment in the register is a null with ``no_cnes_record``.
+    Codes the register holds that are not an IBGE municipality are *unallocated*: summed and reported per field.
+    """
+    import pyarrow.parquet as pq
+
+    from .geography import municipalities
+    from .sources import cnes
+
+    cache = Path(settings.root) / "registries" / "CNES"
+    universe = municipalities()
+    code7 = {c6: row["code7"] for c6, row in universe.items()}
+    wanted = sorted({y for sp in specs.values() for y in _years(sp["years"]) if not years or y in years})
+    report: dict[str, Any] = {name: {"years": {}} for name in specs}
+    for year in wanted:
+        tables = cnes.year_tables(year, cache)
+        in_register = cnes.register(tables)
+        for name, spec in specs.items():
+            if year not in _years(spec["years"]):
+                continue
+            found = cnes.values(spec, tables)
+            keys = sorted(code7)
+            n = len(keys)
+            value = [found.get(k, 0.0) if k in in_register else None for k in keys]
+            table = pa.table({
+                "municipality": pa.array(keys, pa.string()),
+                "municipality7": pa.array([code7[k] for k in keys], pa.string()),
+                "value": pa.array(value, pa.float64()),
+                "status": pa.array(["ok" if k in in_register else "no_cnes_record" for k in keys], pa.string()),
+                "unit": pa.array([str(spec["unit"])] * n, pa.string()),
+                "source": pa.array([f"CNES-{'ST' if spec['family'] == 'facilities' else {'beds': 'LT', 'equipment': 'EQ', 'teams': 'EP', 'professionals': 'PF'}[spec['family']]} {year}-12"] * n, pa.string()),
+            })
+            target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+            target.mkdir(parents=True, exist_ok=True)
+            pq.write_table(table, target / "part.parquet", compression="zstd")
+            unallocated = {k: v for k, v in found.items() if k not in code7}
+            report[name]["years"][str(year)] = {
+                "total": sum(v for k, v in found.items() if k in code7), "unallocated": sum(unallocated.values()),
+                "unallocated_codes": dict(sorted(unallocated.items(), key=lambda kv: -kv[1])[:5]),
+                "no_cnes_record": n - sum(1 for k in keys if k in in_register)}
+    return report
+
+
+def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
+    """A sum field over the resident population: (municipality, year, numerator, population, rate per ``per``).
+
+    The population is the municipal total of ``population-account-2`` (reference date 1 August), summed over sex
+    and age; a ratio of sums, so any group of municipalities lifts it by summing numerator and population. A
+    population-account place that merges municipalities (a post-2010 creation inside its parent's area) has no
+    separate figure: its members are left without a rate and counted in ``rate_missing`` below, not given a share.
+    """
+    import pyarrow.compute as pc
+
+    from .config import load_settings
+    from .modelled import read_modelled
+
+    settings = settings or load_settings()
+    field = load_field(name, years=years, settings=settings).filter(pc.field("status") == "ok")
+    wanted = sorted(set(field.column("year").to_pylist()))
+    account, _ = read_modelled("population_account", "population-account-2", settings=settings)
+    account = account.filter(pc.and_(pc.equal(account.column("place_kind"), "municipality"), pc.is_in(account.column("year"), value_set=pa.array(wanted, account.column("year").type))))
+    total = account.group_by(["place", "year"]).aggregate([("population", "sum")])
+    single = pc.invert(pc.match_substring(total.column("place"), "+"))
+    total = total.filter(single)
+    population = {(p[:6], int(y)): v for p, y, v in zip(total.column("place").to_pylist(), total.column("year").to_pylist(),
+                                                      total.column("population_sum").to_pylist(), strict=True)}
+    municipality = field.column("municipality").to_pylist()
+    year = [int(y) for y in field.column("year").to_pylist()]
+    numerator = field.column("value").to_pylist()
+    denominator = [population.get((m, y)) for m, y in zip(municipality, year, strict=True)]
+    rate = [None if d is None or n is None or d <= 0 else n / d * per for n, d in zip(numerator, denominator, strict=True)]
+    return pa.table({"municipality": municipality, "year": year, "numerator": numerator, "population": denominator,
+                     "rate": rate, "per": [per] * len(rate)})
 
 
 def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
