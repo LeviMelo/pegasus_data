@@ -86,7 +86,7 @@ No recipe uses the kind yet; a mark aggregate is the next step.
 - it resumes with HTTP Range from the bytes already received (MIDR answers 206);
 - it checks the length against Content-Length.
 
-**SINASC `SEXO`:** the national files (DNBR2021) write M/F/I (layout 2019), and the state files (DNAC2021) write 1/2/0. The codelist held only the numerals, so national reads lost newborn sex. Both are now decoded. (An earlier version of this entry said the shipped label pack needed a rebuild; it does not. Inline `codes:` are read from the shipped YAML at translate time and the pack is distilled from the catalog's `dictionary`, which holds no inline rows. `translate()` in a fresh home labelled M/F/I and 1/2/0 alike, and a national-file read is still to be repeated: one read of DNBR2021 (2,677,101 rows) returned 1/2/0, not M/F/I, so DATA_SOURCES' statement that the national files write letters is unconfirmed.)
+**SINASC `SEXO`** (corrected the same day): the first reading, that national files write M/F/I and state files 1/2/0, is not supported by any file read. DNBR2020-2022 and DNSE2021 all write 1/2/0 (counts in DATA_SOURCES). The 2019 layout lists M/F/I, so both codings stay decoded. No label-pack rebuild is needed for it: inline `codes:` are read from the shipped YAML at translate time, and a fresh home labelled both codings.
 
 ## 9. A refused representation ended the read
 

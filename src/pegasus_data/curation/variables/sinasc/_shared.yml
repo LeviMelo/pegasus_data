@@ -1194,11 +1194,8 @@ variables:
     official_name: Sexo do recém nascido
     translated_name: Sex of the newborn
     description: >
-      Sex of the newborn. Two codings coexist, by publication (measured 2026-10-04).
-      The national files (DNBR<year>) write LETTERS M, F, I (layout 2019); the state files
-      (DN<UF><year>) write numerals 1, 2, 0 (older layout, TabNet SEXO.CNV), in the same years
-      (DNBR2021 M/F/I, DNAC2021 1/2/0). Both are decoded; pooling with SIM or SIH still
-      needs the system.
+      Sex of the newborn. The layout lists letters; every file read (DNBR2020-2022, DNSE2021) writes numerals (measured 2026-10-04).
+      Both codings are decoded (1/2/0 and M/F/I); pooling with SIM or SIH still needs the system.
     code_system: internal
     codes: {"1": "Masculino", "2": "Feminino", "0": "Ignorado", "M": "Masculino", "F": "Feminino", "I": "Ignorado"}
     source: layout_doc
