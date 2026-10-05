@@ -25,7 +25,8 @@ import numpy as np
 
 from .population_account import BANDS, Places, load_census
 
-YEARS = np.arange(2000, 2024)
+YEARS = np.arange(2000, 2031)
+NY = len(YEARS)
 #: log-share spread classes: the member's census population at its anchor.
 MEMBER_CUTS = (2_000, 5_000, 20_000)
 Z = {0.8: 1.2816, 0.95: 1.96}
@@ -33,23 +34,15 @@ Z = {0.8: 1.2816, 0.95: 1.96}
 
 # ------------------------------------------------------------------------------------- member inputs
 
-def member_inputs(root: str | Path, events_dir: str | Path, places: Places) -> dict[str, np.ndarray]:
-    """Per municipality (``places.municipalities`` order): registered births by residence 2000-2023, the raw census by sex
+def member_inputs(root: str | Path, places: Places) -> dict[str, np.ndarray]:
+    """Per municipality (``places.municipalities`` order): the raw census by sex
     and single age 2010 and 2022 (a zero row where the municipality did not exist yet), the census-2000 total (NaN where
     it did not exist) and the Contagem-2007 total (NaN where absent)."""
     import duckdb
     import pyarrow.parquet as pq
 
     ms = places.municipalities
-    key = {int(str(m)[:6]): i for i, m in enumerate(ms)}
-    births = np.zeros((len(ms), len(YEARS)))
-    for k, y in enumerate(YEARS):
-        t = pq.read_table(Path(events_dir) / f"births_{y}.parquet", columns=["CODMUNRES", "events"])
-        for c, e in zip(t["CODMUNRES"].to_pylist(), t["events"].to_pylist(), strict=True):
-            i = key.get(int(c[:6])) if c and c[:6].isdigit() else None
-            if i is not None:
-                births[i, k] += e
-    out = {"births": births, "c10": load_census(root, 2010, places, "member"), "c22": load_census(root, 2022, places, "member")}
+    out = {"c10": load_census(root, 2010, places, "member"), "c22": load_census(root, 2022, places, "member")}
     d = pq.read_table(Path(root) / "lake" / "population" / "CENSO" / "censo_2000.parquet").to_pandas()
     tot = d.groupby("municipality").population.sum(min_count=1)
     out["t00"] = np.array([tot.get(m, np.nan) for m in ms], dtype=float)
@@ -468,17 +461,13 @@ RACE_LEVELS = ("total", *RACES)
 BANDS101 = np.minimum(np.arange(AGES) // 5, 16)
 
 
-def account_arrays(inp, cal) -> dict:
-    """The account's single-age paths and the log offsets of its band intervals, for the three blocks (comparable areas
-    2000-2010, municipalities 2010-2022, the projection of 2023), as ``(24 years…)`` concatenations are cut per area."""
-    from .population_account import LEVELS, distribute_residual, interval, predict, to_bands
+def account_arrays(inp, cal, fc: dict) -> dict:
+    """The account's single-age paths and the log offsets of its band intervals, for the three blocks: comparable areas
+    2000-2010, municipalities 2010-2022 and the forecast ``fc`` (``population_forecast.forecast_account``, 2023-2030)."""
+    from .population_account import LEVELS, distribute_residual, interval, to_bands
 
     Xa = distribute_residual(inp.path_a, inp.close_a)
     Xb = distribute_residual(inp.path_b, inp.close_b)
-    h = float(inp.P22.T)
-    proj = predict(inp.P22, cal, h)[2]
-    vb = to_bands(inp.vit22)
-    X23 = np.maximum(inp.vit22 * np.divide(proj, vb, out=np.ones_like(proj), where=vb > 0)[..., BANDS], 0)
     off = {}
     for name, P, X, T in (("A", inp.A, Xa, 10), ("B", inp.B, Xb, 12)):
         bands = np.stack([to_bands(x) for x in X])
@@ -486,11 +475,9 @@ def account_arrays(inp, cal) -> dict:
         for lv in LEVELS:
             lo, hi = zip(*(interval(P, cal, bands[k], float(k), lv, total=False, timing=k / T) for k in range(T + 1)), strict=True)
             off[name, lv] = (c - np.array(lo), np.array(hi) - c)
-    c = np.log(np.maximum(proj, 1e-9))
     for lv in LEVELS:
-        lo, hi = interval(inp.P22, cal, proj, h, lv, total=False)
-        off["P", lv] = ((c - lo)[None], (hi - c)[None])
-    return {"Xa": Xa, "Xb": Xb, "X23": X23, "off": off, "levels": LEVELS}
+        off["P", lv] = fc["off"][lv]
+    return {"Xa": Xa, "Xb": Xb, "Xf": fc["X"], "off": off, "levels": LEVELS}
 
 
 def group_shares(places: Places, mi: dict, split_cal: dict) -> dict[int, dict]:
@@ -527,7 +514,7 @@ def group_shares(places: Places, mi: dict, split_cal: dict) -> dict[int, dict]:
     return out
 
 
-def tensor_tables(inp, cal, mi: dict, split_cal: dict, shape_cal: dict, ctx: dict, race_cal: dict, old: dict, *, chunk: int = 120,
+def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict, ctx: dict, race_cal: dict, old: dict, *, chunk: int = 120,
                   only: tuple[int, ...] | None = None, log=print):
     """Yield the product as pyarrow tables of ``chunk`` municipalities: municipality × year × sex × age (0..100) × race
     (total and five), with the 80% and 95% interval of each cell and the basis of the year."""
@@ -537,13 +524,13 @@ def tensor_tables(inp, cal, mi: dict, split_cal: dict, shape_cal: dict, ctx: dic
 
     places = inp.places
     ms = np.array(places.municipalities)
-    acc = account_arrays(inp, cal)
+    acc = account_arrays(inp, cal, fc)
     groups = group_shares(places, mi, split_cal)
     shapes = state_shapes(old, ctx["state"], ctx["states"])
-    fshape = np.stack([shape_at(shapes, float(y)) for y in YEARS])                    # (24, S, 2, 21)
-    k = np.arange(24)
+    fshape = np.stack([shape_at(shapes, float(y)) for y in YEARS])                    # (NY, S, 2, 21)
+    k = np.arange(NY)
     ft = np.where(k < 10, (k / 10) * (1 - k / 10), np.where(k == 10, 0.0, np.where(k < 22, ((k - 10) / 12) * (1 - (k - 10) / 12),
-                                                                                    np.where(k == 22, 0.0, 0.1))))
+                                                                                    np.minimum((k - 22) / 10, 1.0))))
     zq = split_cal["zq"]
     rho_back = {2010: ctx["rho"][2010], 2022: ctx["rho"][2022]}
     a2 = np.array([0.0, race_cal["bridge"][0], race_cal["back"][0], race_cal["fwd"][0]])
@@ -561,32 +548,32 @@ def tensor_tables(inp, cal, mi: dict, split_cal: dict, shape_cal: dict, ctx: dic
             pi.append(softmax(z).astype(np.float32))
             fr.append(f)
             kd.append(kk)
-        pi, fr, kd = np.stack(pi), np.stack(fr), np.stack(kd)                            # (24, n, 2, 101, 5), (24, 101)
+        pi, fr, kd = np.stack(pi), np.stack(fr), np.stack(kd)                            # (NY, n, 2, 101, 5), (NY, 101)
         A2, B2 = a2[kd], b2[kd]
         for c0 in range(0, len(idx), chunk):
             sel = idx[c0:c0 + chunk]
             n = len(sel)
-            out = {key: np.zeros((n, 24, 2, AGES, 6), dtype=np.float32) for key in ("pop", "lo", "hi", "lo95", "hi95")}
-            basis = np.zeros((n, 24), dtype=np.int8)
+            out = {key: np.zeros((n, NY, 2, AGES, 6), dtype=np.float32) for key in ("pop", "lo", "hi", "lo95", "hi95")}
+            basis = np.zeros((n, NY), dtype=np.int8)
             for j, i in enumerate(sel):
                 m = ms[i]
                 u, e = places.unit_of[m], places.entity_of[m]
-                Xarea = np.concatenate([acc["Xa"][:10, u], acc["Xb"][:, e], acc["X23"][e][None]])             # (24, 2, 81)
+                Xarea = np.concatenate([acc["Xa"][:10, u], acc["Xb"][:, e], acc["Xf"][:, e]])             # (NY, 2, 81)
                 offs = {lv: tuple(np.concatenate([acc["off"]["A", lv][s][:10, u], acc["off"]["B", lv][s][:, e],
                                                   acc["off"]["P", lv][s][:, e]]) for s in (0, 1)) for lv in LEVELS}
                 g = groups.get(u)
                 if g is None:
-                    sh, sg, ai = np.ones((24, 2, 17)), np.zeros(24), None
+                    sh, sg, ai = np.ones((NY, 2, 17)), np.zeros(NY), None
                 else:
                     mem = g["members"].index(i)
                     sh, sg, ai = g["S"][:, mem], g["sig"][:, mem], g["anchor"]
                 Xm = Xarea * sh[:, :, BANDS]
-                sdsplit = ((1 - sh) * sg[:, None, None])[..., BANDS]                                          # (24, 2, 81)
+                sdsplit = ((1 - sh) * sg[:, None, None])[..., BANDS]                                          # (NY, 2, 81)
                 fs = fshape[:, ctx["k_state"][i]]
                 X80 = Xm[..., 80]
-                X = np.concatenate([Xm[..., :80], X80[..., None] * fs], -1)                                    # (24, 2, 101)
+                X = np.concatenate([Xm[..., :80], X80[..., None] * fs], -1)                                    # (NY, 2, 101)
                 sdsplit = np.concatenate([sdsplit[..., :80], np.repeat(sdsplit[..., 80:81], OLD, -1)], -1)
-                bs = X[..., :80].reshape(24, 2, 16, 5).sum(-1)
+                bs = X[..., :80].reshape(NY, 2, 16, 5).sum(-1)
                 p = X[..., :80] / np.maximum(np.repeat(bs, 5, -1), 1e-9)
                 uy = (1 - p) / np.maximum(p * np.repeat(bs, 5, -1), 1e-9)
                 po = fs
@@ -595,10 +582,10 @@ def tensor_tables(inp, cal, mi: dict, split_cal: dict, shape_cal: dict, ctx: dic
                                          np.minimum((shape_cal["old"][0] + shape_cal["old"][1] * uo) * (4 * ft)[:, None, None], MAX_VAR)], -1)
                 npool = np.cumsum(np.pad(X, ((0, 0), (0, 0), (3, 2))), -1)
                 npool = npool[..., 5:AGES + 5] - npool[..., 0:AGES]
-                pr = pi[:, c0 + j]                                                                                    # (24, 2, 101, 5)
+                pr = pi[:, c0 + j]                                                                                    # (NY, 2, 101, 5)
                 ur = (1 - pr) / np.maximum(pr * npool[..., None], 1e-9)
                 var_r = np.minimum((A2[:, None, :, None] + B2[:, None, :, None] * ur) * fr[:, None, :, None], MAX_VAR)
-                pop = np.concatenate([X[..., None], X[..., None] * pr], -1)                                      # (24, 2, 101, 6)
+                pop = np.concatenate([X[..., None], X[..., None] * pr], -1)                                      # (NY, 2, 101, 6)
                 out["pop"][j] = pop
                 for lv, nm in zip(LEVELS, ("", "95"), strict=True):
                     zl = Z[lv]
@@ -607,20 +594,20 @@ def tensor_tables(inp, cal, mi: dict, split_cal: dict, shape_cal: dict, ctx: dic
                     ex = np.concatenate([extra[..., None], extra[..., None] + zl**2 * var_r], -1)
                     out["lo" + nm][j] = pop * np.exp(-np.sqrt(lo_b[..., None] ** 2 + ex))
                     out["hi" + nm][j] = pop * np.exp(np.sqrt(hi_b[..., None] ** 2 + ex))
-                b = np.full(24, 1, dtype=np.int8)                                                               # intercensal
+                b = np.full(NY, 1, dtype=np.int8)                                                               # intercensal
                 b[cens] = 0
-                b[23] = 3
+                b[23:] = 3
                 if ai is not None:
                     b[:ai] = 2
                     b[ai] = 0
                 basis[j] = b
-            size = n * 24 * 2 * AGES * 6
+            size = n * NY * 2 * AGES * 6
             rep = lambda v, r, t_=1: np.tile(np.repeat(v, r), t_)      # noqa: E731
             cols = {
-                "municipality": pa.array(np.repeat(ms[sel].astype(np.int32), 24 * 2 * AGES * 6)),
+                "municipality": pa.array(np.repeat(ms[sel].astype(np.int32), NY * 2 * AGES * 6)),
                 "year": pa.array(rep(YEARS.astype(np.int16), 2 * AGES * 6, n)),
-                "sex": pa.array(rep(np.array([1, 2], np.int8), AGES * 6, n * 24)),
-                "age": pa.array(rep(np.arange(AGES, dtype=np.int16), 6, n * 24 * 2)),
+                "sex": pa.array(rep(np.array([1, 2], np.int8), AGES * 6, n * NY)),
+                "age": pa.array(rep(np.arange(AGES, dtype=np.int16), 6, n * NY * 2)),
                 "race": pa.DictionaryArray.from_arrays(pa.array(np.tile(np.arange(6, dtype=np.int8), size // 6)),
                                                        pa.array(RACE_LEVELS)),
                 "population": pa.array(out["pop"].ravel()), "population_lo": pa.array(out["lo"].ravel()),
@@ -642,13 +629,16 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
     from . import __version__
     from .modelled import ModelledManifest, write_modelled
     from .population_account import assemble, fit_calibration, widen_to_nominal
+    from .population_forecast import EVENT_SD_PER_YEAR, forecast_account
 
     inp = assemble(root, population_root, events_dir, log)
     places = inp.places
     log("calibration of the account's bands")
     cal = widen_to_nominal(fit_calibration([inp.A, inp.B]), [inp.A, inp.B])
+    log("forecast")
+    fc = forecast_account(inp, cal, events_dir)
     log("members, split error, race, ages")
-    mi = member_inputs(root, events_dir, places)
+    mi = member_inputs(root, places)
     split_cal = calibrate_split(places, mi)
     ctx = race_context(load_race(root, places), places)
     race_cal = calibrate_race(ctx)
@@ -657,7 +647,7 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
     par = split_cal["params"]
     manifest = ModelledManifest(
         product="population_account", version=version,
-        model="population_account.py v2 (the vital cohort-component account, migration regression, calibrated band intervals) "
+        model="population_account.py v2 (the vital cohort-component account, migration regression, calibrated band intervals) and population_forecast.py (births and deaths from their trends) "
               "refined by population_tensor.py: municipal split by the 2007 Contagem and the 2010-2022 growth differential, single "
               "years of age from the account's own path (80+ by the state's census shape), race by cohort composition between "
               "the censuses with a state reclassification rate",
@@ -672,7 +662,7 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
                "of a census, are in the total).",
                "`basis`: `census` (a census year, a count of that municipality), `intercensal` (between two censuses that both count "
                "the municipality), `backcast` (before the earliest census or Contagem that counts the municipality itself: the "
-               "area it belongs to is estimated and the municipality is its split), `forecast` (2023, after the last census).",
+               "area it belongs to is estimated and the municipality is its split), `forecast` (2023-2030, after the last census).",
                "Totals by band equal population-account-2's: single ages 0-79 are the account's own path, 80+ is split into 80-99 and "
                "100+ by the state's census shape (linear in time between censuses, held after 2022); an area's municipalities add "
                "to the area.",
@@ -682,6 +672,11 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
                + ", ".join(f"{p[0]:.4f}" for p in par) + "; k per year " + ", ".join(f"{p[1]:.4f}" for p in par)
                + f" (classes of the member's population: <{MEMBER_CUTS[0]}, <{MEMBER_CUTS[1]}, <{MEMBER_CUTS[2]}, above); quantiles of "
                f"its standardized errors {split_cal['zq'][0.8]:.2f} (80%) and {split_cal['zq'][0.95]:.2f} (95%).",
+               "Forecast (2023-2030): the vital account from the PES-corrected 2022 census with the SINASC and SIM events to 2023 and "
+               "projected births and deaths after (national death rate by sex and band and births per woman 15-44, log-linear over ten "
+               "non-COVID years; each municipality's level from the three reference years), moved by the migration regression at "
+               f"the horizon; interval: the account's at the horizon plus {EVENT_SD_PER_YEAR} per year (the measured spread of the "
+               "event projection). Pseudo-forecasts from 2000 and 2010 in the evaluation entry.",
                "Single-age intervals: the band's interval of the account, in quadrature with the share of the age inside its band "
                f"(a², b² = {shape_cal['young'][0]:.4f}, {shape_cal['young'][1]:.3f} for 0-79; {shape_cal['old'][0]:.4f}, "
                f"{shape_cal['old'][1]:.3f} for 80+, times the bridge factor of the year).",
@@ -694,6 +689,6 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
                "A municipality with no people at a census takes its area's composition there. 2000 race is the IBGE sample, spread "
                "flat inside its age bands."])
     log("writing")
-    tables = tensor_tables(inp, cal, mi, split_cal, shape_cal, ctx, race_cal, old, only=only, log=log)
+    tables = tensor_tables(inp, cal, fc, mi, split_cal, shape_cal, ctx, race_cal, old, only=only, log=log)
     out = write_modelled(tables, manifest, settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
     return {"path": str(out), "split_cal": split_cal["params"].tolist(), "race_cal": race_cal, "shape_cal": shape_cal}

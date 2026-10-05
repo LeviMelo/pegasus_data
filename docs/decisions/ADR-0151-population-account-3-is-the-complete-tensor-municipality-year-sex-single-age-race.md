@@ -1,6 +1,6 @@
 ## ADR-0151: population-account-3 is the complete tensor, municipality × year × sex × single age × race
 
-**Date:** 2026-10-05. **Status:** active (stage 1 of 3: municipalities, ages, race; the forecast past 2023 and the backcast before 2000 are not in this version). **Extends** ADR-0148 (the band totals are unchanged). **Request:** the author's verdict that `population-account-2` had basic gaps (11 municipalities missing, no municipal level before 2010, five-year bands, no race).
+**Date:** 2026-10-05. **Status:** active (stage 1 of 3, `population-account-3`: municipalities, ages, race; stage 2, `population-account-4`, adds the forecast to 2030; the backcast before 2000 is not built). **Extends** ADR-0148 (the band totals are unchanged). **Request:** the author's verdict that `population-account-2` had basic gaps (11 municipalities missing, no municipal level before 2010, five-year bands, no race).
 
 **Context.** `population-account-2` was place × sex × five-year band, with comparable areas before 2010 and composite entities for the five municipalities created after 2010 (a `+`-joined label that no municipal lookup finds: the 15 municipalities of those entities had no row). Race is not fixed: the Parda share rose from 38.5% (2000) to 45.3% (2022).
 
@@ -10,9 +10,11 @@
 3. **Race** by cohort composition: log shares are linear in time along each birth cohort between censuses (2000 sample by band, 2010 and 2022 universe by single age), a cohort born after a census is moved back from the next by the state's per-year *reclassification rate* of the previous decade, and after 2022 forward by the state's drift. Identification: a state's cohort composition change is reclassification, differential migration and mortality together; the model assigns it all to reclassification (small beside it at the state level) and carries the municipal deviation as spread. Rates are capped at 0.08 a year (the Asian count of 2010 was 2.1M, of 2022 0.85M: an instrument change, not a trend). Shares are smoothed over ±2 ages with a Dirichlet prior from the state.
 4. **Intervals.** The band's interval of ADR-0148 in quadrature with the split's, the single age's share inside its band (a² + b²·u, u the multinomial term; scaled by the bridge factor of the year) and the race share's (same form, one parameter pair each for bridge, back and forward paths); all measured out of sample (evaluation entry).
 
+5. **Forecast (stage 2, version `population-account-4`, a version is never overwritten).** Births and deaths are projected from their national trends and the account is moved by the migration regression at the horizon, to 2030, with the account's interval at the horizon plus 0.003 a year for the projection of events; validated by pseudo-forecasts from 2000 and 2010 (evaluation entry): calibrated to eight years from both bases and twelve from 2010.
+
 **Not decided / not calibrated.**
 - Race shares at the census years are smoothed, not the raw census cell; the race interval at a census is the account's own.
 - The five post-2010 creations are anchored on 2022 alone with a constant share (births did not help); their 2000-2010 backcast is 12-22 years from the anchor, beyond the pairs' reach in the other direction, and a fast grower (Mojuí dos Campos) is probably under-covered.
 - Single-age intervals inside a band are calibrated on the end of a period and bridged; ages above 80 are the state's shape, not the municipality's.
-- The forecast beyond 2023 and the backcast before 2000 (stages 2 and 3).
+- The backcast before 2000 (stage 3); the forecast's 100-500k municipalities (80% coverage 0.64 at twelve years from 2010) and its single-age and race spreads (ten- and twelve-year hold-outs scaled by horizon).
 - `fields.py` and `sus_dependent.py` are pinned to `population-account-2` (band-level intervals).
