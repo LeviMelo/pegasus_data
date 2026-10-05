@@ -1,6 +1,6 @@
 ## ADR-0151: population-account-3 is the complete tensor, municipality × year × sex × single age × race
 
-**Date:** 2026-10-05. **Status:** active (stage 1 of 3, `population-account-3`: municipalities, ages, race; stage 2, `population-account-4`, adds the forecast to 2030; the backcast before 2000 is not built). **Extends** ADR-0148 (the band totals are unchanged). **Request:** the author's verdict that `population-account-2` had basic gaps (11 municipalities missing, no municipal level before 2010, five-year bands, no race).
+**Date:** 2026-10-05. **Status:** active (stage 1 of 3, `population-account-3`: municipalities, ages, race; stage 2, `population-account-4`, adds the forecast to 2030; stage 3, `population-account-5`, adds 1991-1999). **Extends** ADR-0148 (the band totals are unchanged). **Request:** the author's verdict that `population-account-2` had basic gaps (11 municipalities missing, no municipal level before 2010, five-year bands, no race).
 
 **Context.** `population-account-2` was place × sex × five-year band, with comparable areas before 2010 and composite entities for the five municipalities created after 2010 (a `+`-joined label that no municipal lookup finds: the 15 municipalities of those entities had no row). Race is not fixed: the Parda share rose from 38.5% (2000) to 45.3% (2022).
 
@@ -12,9 +12,11 @@
 
 5. **Forecast (stage 2, version `population-account-4`, a version is never overwritten).** Births and deaths are projected from their national trends and the account is moved by the migration regression at the horizon, to 2030, with the account's interval at the horizon plus 0.003 a year for the projection of events; validated by pseudo-forecasts from 2000 and 2010 (evaluation entry): calibrated to eight years from both bases and twelve from 2010.
 
+6. **Backcast (stage 3, version `population-account-5` = `-4` plus 1991-1999, `race = total` only).** Units are the comparable areas 1991-2010 (about a thousand municipalities were created in the decade). The vital account is run **backward** from the coverage-corrected Census 2000 with SIM deaths only (no birth: SINASC starts in 1994, incomplete) and settled on the Census 1991 (SIDRA 200, five-year groups), the departure carried along each cohort; 1991 coverage is the 2000 census's by state × sex × band carried back (an assumption). Intervals are the cross-period spread of ADR-0148 times 1.2 with the bridge between the two censuses; a municipality created after 1991 is split from the 2000 estimate and the Contagem 1996 where every member was counted. Hold-out on the Contagem 1996 (never used by the area estimate): median area error 0.028 after the national rescale, 80% / 95% coverage 0.83 / 0.94 (evaluation entry, Backcast). Basis is `backcast` (`census` for 1991 where the municipality is its own area). The level at 1996 is 5.0% above the Contagem's raw count and not validated; race is not estimated (the 1991 race by municipality is a total, by age only for states); before 1991 is not built.
+
 **Not decided / not calibrated.**
 - Race shares at the census years are smoothed, not the raw census cell; the race interval at a census is the account's own.
 - The five post-2010 creations are anchored on 2022 alone with a constant share (births did not help); their 2000-2010 backcast is 12-22 years from the anchor, beyond the pairs' reach in the other direction, and a fast grower (Mojuí dos Campos) is probably under-covered.
 - Single-age intervals inside a band are calibrated on the end of a period and bridged; ages above 80 are the state's shape, not the municipality's.
-- The backcast before 2000 (stage 3); the forecast's 100-500k municipalities (80% coverage 0.64 at twelve years from 2010) and its single-age and race spreads (ten- and twelve-year hold-outs scaled by horizon).
+- The 1990s' level (coverage of the 1991 census), 1991 race, and anything before 1991; the forecast's 100-500k municipalities (80% coverage 0.64 at twelve years from 2010) and its single-age and race spreads (ten- and twelve-year hold-outs scaled by horizon).
 - `fields.py` and `sus_dependent.py` are pinned to `population-account-2` (band-level intervals).

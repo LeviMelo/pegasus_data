@@ -609,6 +609,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   sequentially; gzip on disk is 14 times smaller. A body can be gzip without `Content-Encoding` (ADR-0127): it is read by its magic bytes.
 - **Numbers** use `.` for decimals and no thousands separator. Marks: `-` zero, `..` not applicable, `...` not
   available, `X` withheld. Table 1552 (Census 2000) answers `...` for the 58 municipalities created after 2000.
+- **An id the catalog does not list answers HTTP 500** on `/metadados`, `/periodos` and `/variaveis` (404 on the bare id, "Tabela inválida" on the old API): table 306, once taken for a limit, is not a table (2026-10-05). The Contagem 1996 (research CM, 21 tables) has its sex × age tables at 472 (single age) and 475 (groups to 70+; 4,974 municipalities, 156,658,740 people in the groups); 305 is by head of household. The 1991 Census race: municipal only as a total (136, 5,565 municipalities), by age and sex for N1-N3 only (140).
+- **SIM before 1996** is `SIM.DOR` (1979-1995, per state, corrected base; `IDADE_anos` exists; `SIM.DO` starts in 1996) and SINASC from 1994 (`SINASC.DN`: 2.57M births in 1994, 2.87M in 1995). Until 1998 both write the city of Rio de Janeiro as 3345xxx (50,000 deaths a year; 330455 itself 700-1,500), from 1999 as 330455.
 - **Projections** (research XE, 5 tables) are state level only and stop at the 2018 revision; the estimates (XF, table 6579) are
   municipal totals only, without 2007 or the census years. Neither carries municipal age and sex: POPSVS does.
 - **The same Total differs between tables of one census**: 2010 households are 57,324,185 in table 3154 and 57,324,167 in

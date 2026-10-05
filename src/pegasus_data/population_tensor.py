@@ -514,6 +514,25 @@ def group_shares(places: Places, mi: dict, split_cal: dict) -> dict[int, dict]:
     return out
 
 
+def age_cells(Xarea: np.ndarray, sh: np.ndarray, sg: np.ndarray, fs: np.ndarray, ft: np.ndarray, shape_cal: dict):
+    """One municipality's years: the area's bands (Y, 2, 81) times the member's band shares ``sh`` (Y, 2, 17) with sd ``sg``
+    (Y,), to single ages 0..100 (Y, 2, 101) (80+ split by the state's shape ``fs`` (Y, 2, 21)); also the split's sd per age and the
+    log-variance of the age's share inside its band, times the year's bridge factor ``ft`` (Y,)."""
+    Xm = Xarea * sh[:, :, BANDS]
+    sdsplit = ((1 - sh) * sg[:, None, None])[..., BANDS]                                              # (Y, 2, 81)
+    X80 = Xm[..., 80]
+    X = np.concatenate([Xm[..., :80], X80[..., None] * fs], -1)
+    sdsplit = np.concatenate([sdsplit[..., :80], np.repeat(sdsplit[..., 80:81], OLD, -1)], -1)
+    bs = X[..., :80].reshape(len(X), 2, 16, 5).sum(-1)
+    p = X[..., :80] / np.maximum(np.repeat(bs, 5, -1), 1e-9)
+    uy = (1 - p) / np.maximum(p * np.repeat(bs, 5, -1), 1e-9)
+    po = fs
+    uo = (1 - po) / np.maximum(po * X80[..., None], 1e-9)
+    var_sh = np.concatenate([np.minimum((shape_cal["young"][0] + shape_cal["young"][1] * uy) * ft[:, None, None], MAX_VAR),
+                             np.minimum((shape_cal["old"][0] + shape_cal["old"][1] * uo) * (4 * ft)[:, None, None], MAX_VAR)], -1)
+    return X, sdsplit, var_sh
+
+
 def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict, ctx: dict, race_cal: dict, old: dict, *, chunk: int = 120,
                   only: tuple[int, ...] | None = None, log=print):
     """Yield the product as pyarrow tables of ``chunk`` municipalities: municipality × year × sex × age (0..100) × race
@@ -567,19 +586,8 @@ def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict
                 else:
                     mem = g["members"].index(i)
                     sh, sg, ai = g["S"][:, mem], g["sig"][:, mem], g["anchor"]
-                Xm = Xarea * sh[:, :, BANDS]
-                sdsplit = ((1 - sh) * sg[:, None, None])[..., BANDS]                                          # (NY, 2, 81)
                 fs = fshape[:, ctx["k_state"][i]]
-                X80 = Xm[..., 80]
-                X = np.concatenate([Xm[..., :80], X80[..., None] * fs], -1)                                    # (NY, 2, 101)
-                sdsplit = np.concatenate([sdsplit[..., :80], np.repeat(sdsplit[..., 80:81], OLD, -1)], -1)
-                bs = X[..., :80].reshape(NY, 2, 16, 5).sum(-1)
-                p = X[..., :80] / np.maximum(np.repeat(bs, 5, -1), 1e-9)
-                uy = (1 - p) / np.maximum(p * np.repeat(bs, 5, -1), 1e-9)
-                po = fs
-                uo = (1 - po) / np.maximum(po * X80[..., None], 1e-9)
-                var_sh = np.concatenate([np.minimum((shape_cal["young"][0] + shape_cal["young"][1] * uy) * ft[:, None, None], MAX_VAR),
-                                         np.minimum((shape_cal["old"][0] + shape_cal["old"][1] * uo) * (4 * ft)[:, None, None], MAX_VAR)], -1)
+                X, sdsplit, var_sh = age_cells(Xarea, sh, sg, fs, ft, shape_cal)
                 npool = np.cumsum(np.pad(X, ((0, 0), (0, 0), (3, 2))), -1)
                 npool = npool[..., 5:AGES + 5] - npool[..., 0:AGES]
                 pr = pi[:, c0 + j]                                                                                    # (NY, 2, 101, 5)

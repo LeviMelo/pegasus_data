@@ -196,9 +196,14 @@ def collect_events(root: str | Path, years: range | list[int], events_dir: str |
             log(f"{name} {y}: {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
 
 
+#: SIM and SINASC of 1991-1998 write the city of Rio de Janeiro as 3345xxx (its administrative regions; about 50,000 deaths a
+#: year, and 330455 itself only 700-1,500), and from 1999 as 330455 (49,979 deaths).
+LEGACY_CODES = {"3345": 330455}
+
+
 def _place(codes: list[str | None], keys: np.ndarray, targets: np.ndarray) -> np.ndarray:
     """Index of each residence code's first six digits among the sorted municipality ``keys`` (-1: not a current municipality)."""
-    c6 = np.array([int(c[:6]) if c and c[:6].isdigit() else -1 for c in codes])
+    c6 = np.array([LEGACY_CODES.get(c[:4], int(c[:6])) if c and c[:6].isdigit() else -1 for c in codes])
     pos = np.clip(np.searchsorted(keys, c6), 0, len(keys) - 1)
     return np.where(keys[pos] == c6, targets[pos], -1)
 
@@ -253,6 +258,9 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
         tot = known.sum((1, 2))
         share = np.divide(known, tot[:, None, None], out=np.full((n, 2, A), 1 / (2 * A)), where=tot[:, None, None] > 0)
         deaths[k] += unk[:, None, None] * share
+        if not (Path(events_dir) / f"births_{y}.parquet").exists():      # before SINASC (1994): no births, said so
+            report[str(y)] = rep | {"births_total": None}
+            continue
         t = pq.read_table(Path(events_dir) / f"births_{y}.parquet")
         i = _place(t["CODMUNRES"].to_pylist(), keys, targets)
         sx = np.array([sex_code.get((s or "").strip().upper(), -1) for s in t["SEXO"].to_pylist()])
