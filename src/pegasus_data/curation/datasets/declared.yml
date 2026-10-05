@@ -442,6 +442,28 @@ datasets:
   SIA.AQ:
     system: SIA
     series: AQ
+    event_types:
+      - name: chemotherapy_authorisation
+        kind: authorisation
+        grain: one APAC, the authorisation of a chemotherapy treatment period (up to three monthly rows)
+        classifiers:
+          - {column: AP_CIDPRI, role: primary, structure: ICD10}
+          - {column: AP_PRIPAL, role: alternative, structure: SIGTAP}
+        status:
+          column: AP_TPAPAC
+          values: ["1", "3"]
+          evidence: >-
+            AP_TPAPAC is 1 on the first monthly row of an APAC, 2 on the rows of its later months and
+            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on AQ AC 2019-2023, SP 2023-01 and DF 2015: every
+            APAC with a row of type 1 has it on its earliest competence, where the month of AP_DTINIC
+            equals AP_CMP (AQ AC 2023: 2,921 of 2,921); an APAC without one began in an earlier file
+            (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
+        consolidation:
+          key: [AP_AUTORIZ]
+        note: >-
+          Counts authorisations, not patients or new treatments: a regimen is a chain of APACs, and AQ_CONTTR
+          (continuity, S/N) marks the chain's later links but would need a second status column.
+          Tumour site is AP_CIDPRI (C and D codes); AQ_CID10 is empty in the 74-column files.
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for a chemotherapy regimen, usually covering a month of treatment
     unit_of_analysis: authorisation
@@ -456,6 +478,24 @@ datasets:
   SIA.AR:
     system: SIA
     series: AR
+    event_types:
+      - name: radiotherapy_authorisation
+        kind: authorisation
+        grain: one APAC, the authorisation of a radiotherapy course
+        classifiers:
+          - {column: AP_CIDPRI, role: primary, structure: ICD10}
+          - {column: AP_PRIPAL, role: alternative, structure: SIGTAP}
+        status:
+          column: AP_TPAPAC
+          values: ["1", "3"]
+          evidence: >-
+            AP_TPAPAC is 1 on the first monthly row of an APAC, 2 on the rows of its later months and
+            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on AR AC 2023 (all 421 rows type 3) and DF 2015 (type 1 849, type 2 814): every
+            APAC with a row of type 1 has it on its earliest competence, where the month of AP_DTINIC
+            equals AP_CMP (AQ AC 2023: 2,921 of 2,921); an APAC without one began in an earlier file
+            (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
+        consolidation:
+          key: [AP_AUTORIZ]
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for a radiotherapy course
     unit_of_analysis: authorisation
@@ -493,6 +533,27 @@ datasets:
   SIA.ATD:
     system: SIA
     series: ATD
+    event_types:
+      - name: dialysis_authorisation
+        kind: authorisation
+        grain: one APAC, the authorisation of a period of dialysis treatment
+        classifiers:
+          - {column: AP_CIDCAS, role: primary, structure: ICD10}
+          - {column: AP_PRIPAL, role: alternative, structure: SIGTAP}
+        status:
+          column: AP_TPAPAC
+          values: ["1", "3"]
+          evidence: >-
+            AP_TPAPAC is 1 on the first monthly row of an APAC, 2 on the rows of its later months and
+            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on ATD AC 2015, 2019 (type 3: 19 rows) and 2023: every
+            APAC with a row of type 1 has it on its earliest competence, where the month of AP_DTINIC
+            equals AP_CMP (AQ AC 2023: 2,921 of 2,921); an APAC without one began in an earlier file
+            (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
+        consolidation:
+          key: [AP_AUTORIZ]
+        note: >-
+          The renal diagnosis is in AP_CIDCAS: AP_CIDPRI and AP_CIDSEC are 0000 on every row read (2015, 2019, 2023).
+          Counts treatment periods; prevalence is distinct AP_CNSPCN.
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for ongoing dialysis, covering a period of treatment
     unit_of_analysis: authorisation
@@ -521,6 +582,24 @@ datasets:
   SIA.AN:
     system: SIA
     series: AN
+    event_types:
+      - name: nephrology_authorisation
+        kind: authorisation
+        grain: one APAC, the authorisation of pre-dialysis nephrology care (files exist for 2008-2014)
+        classifiers:
+          - {column: AP_CIDPRI, role: primary, structure: ICD10}
+          - {column: AP_PRIPAL, role: alternative, structure: SIGTAP}
+        status:
+          column: AP_TPAPAC
+          values: ["1", "3"]
+          evidence: >-
+            AP_TPAPAC is 1 on the first monthly row of an APAC, 2 on the rows of its later months and
+            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on AN AC 2012 and 2013: every
+            APAC with a row of type 1 has it on its earliest competence, where the month of AP_DTINIC
+            equals AP_CMP (AQ AC 2023: 2,921 of 2,921); an APAC without one began in an earlier file
+            (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
+        consolidation:
+          key: [AP_AUTORIZ]
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for nephrology care short of dialysis
     unit_of_analysis: authorisation

@@ -1,0 +1,713 @@
+dataset: SIASUS-AQ
+record: authorisation
+columns:
+  AP_ALTA:
+    role: authorisation.discharge
+    kind: category
+    model: mark
+    name: Indicador de Alta
+    codelists:
+    - ALTA
+    years:
+    - 2008
+    - 2026
+  AP_APACANT:
+    role: authorisation.previous_number
+    kind: identifier
+    model: link_only
+    note: Previous APAC number; all zeros in every row read
+    name: Numero APAC Anterior
+    years:
+    - 2008
+    - 2026
+  AP_AUTORIZ:
+    role: authorisation.number
+    kind: identifier
+    model: link_only
+    note: 'APAC number: the key of an authorisation across its monthly rows'
+    name: Numero da APAC
+    years:
+    - 2008
+    - 2026
+  AP_CATEND:
+    role: authorisation.admission_character
+    kind: category
+    model: mark
+    name: Carater do Atendimento
+    codelists:
+    - CARAT_AT
+    years:
+    - 2008
+    - 2026
+  AP_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: CEP do endereco do paciente
+    years:
+    - 2008
+    - 2026
+  AP_CIDCAS:
+    role: authorisation.associated_cause
+    kind: code_tree
+    model: mark
+    note: 0000 when none
+    name: CID Causas Associadas
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AP_CIDPRI:
+    role: authorisation.diagnosis
+    kind: code_tree
+    model: event_type
+    name: CID Principal
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AP_CIDSEC:
+    role: authorisation.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    note: 0000 when none
+    name: CID Secundario
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AP_CMP:
+    role: authorisation.competence
+    kind: date
+    model: when
+    note: YYYYMM of the care month this row bills; an APAC has one row per competence
+    name: Data de Atendimento ao paciente / Competencia
+    years:
+    - 2008
+    - 2026
+  AP_CNPJCPF:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 2008
+    - 2026
+  AP_CNPJMNT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    name: CNPJ da Mantenedora do estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2008
+    - 2026
+  AP_CNSPCN:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    note: 'Pseudonymised national health card number (15 non-digit characters); stable across months and years (AQ AC: 203
+      of 882 patients of 2019 recur in 2023); the person key for cohorts. Passed through unmodified'
+    name: Numero do CNS do paciente
+    years:
+    - 2008
+    - 2026
+  AP_CODEMI:
+    role: authorisation.issuer
+    kind: category
+    model: mark
+    name: Codigo do Orgao emissor
+    years:
+    - 2008
+    - 2026
+  AP_CODUNI:
+    role: authorisation.facility
+    kind: institution
+    model: institution
+    name: Codigo do Estabelecimento no CNES
+    codelists:
+    - CADGERBR
+    years:
+    - 2008
+    - 2026
+  AP_COIDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    note: Unit of AP_NUIDADE; use IDADE_anos
+    name: Codigo da Idade do paciente
+    codelists:
+    - IDADEDET
+    years:
+    - 2008
+    - 2026
+  AP_CONDIC:
+    role: authorisation.management_condition
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestao
+    codelists:
+    - TPGEST_C
+    - TP_GESTAO
+    years:
+    - 2008
+    - 2026
+  AP_DTAUT:
+    role: authorisation.authorised
+    kind: date
+    model: when
+    name: Data da Autorizacao
+    years:
+    - 2008
+    - 2026
+  AP_DTFIM:
+    role: authorisation.end
+    kind: date
+    model: when
+    name: Data de FIM validade
+    years:
+    - 2008
+    - 2026
+  AP_DTINIC:
+    role: authorisation.start
+    kind: date
+    model: when
+    note: Start of the APAC validity; its month is the competence of the first row
+    name: Data de INICIO validade
+    years:
+    - 2008
+    - 2026
+  AP_DTOCOR:
+    role: authorisation.exit_date
+    kind: date
+    model: when
+    name: Data de Ocorrencia
+    years:
+    - 2008
+    - 2026
+  AP_DTSOLIC:
+    role: authorisation.requested
+    kind: date
+    model: when
+    name: Data da Solicitacao
+    years:
+    - 2008
+    - 2026
+  AP_ENCERR:
+    role: authorisation.closure
+    kind: category
+    model: mark
+    name: Indicador de Encerramento
+    codelists:
+    - ENCERRAM
+    years:
+    - 2008
+    - 2026
+  AP_ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia do paciente
+    codelists:
+    - ETNIA
+    years:
+    - 2008
+    - 2026
+  AP_GESTAO:
+    role: authorisation.management_municipality
+    kind: place
+    model: mark
+    name: Codigo da UF+Municipio de Gestao
+    codelists:
+    - BR_MUNICGESTOR
+    - MUNICBR
+    years:
+    - 2008
+    - 2026
+  AP_MNDIF:
+    role: authorisation.municipality_mismatch_flag
+    kind: category
+    model: excluded
+    note: 'Constant 1 on every row read: not the mismatch flag its name says; left undecoded'
+    name: Municipio de residencia diferente do estabelecimento
+    years:
+    - 2008
+    - 2026
+  AP_MN_IND:
+    role: facility.maintained_or_individual
+    kind: category
+    model: mark
+    name: Estabelecimento Mantido / Individual
+    codelists:
+    - MANT_IND
+    years:
+    - 2008
+    - 2026
+  AP_MOTSAI:
+    role: authorisation.exit_reason
+    kind: category
+    model: mark
+    name: Motivo de Saida e Permanencia
+    codelists:
+    - MOTSAIPE
+    years:
+    - 2008
+    - 2026
+  AP_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    note: Brasilia residents carry administrative-region codes 53xxxx in some years (AP_MUNPCN_municipio maps them, 2008-2021);
+      the pegasus gateway maps any 53xxxx to 530010
+    name: UF+Municipio de Residencia do paciente
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2008
+    - 2026
+  AP_MVM:
+    role: authorisation.processing_month
+    kind: date
+    model: when
+    note: YYYYMM of the file the row was processed in
+    name: Data de Processamento / Movimento
+    years:
+    - 2008
+    - 2026
+  AP_NATJUR:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Codigo da Natureza Juridica
+    codelists:
+    - NATJUR
+    - NATJURC
+    years:
+    - 2011
+    - 2026
+  AP_NUIDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    note: Value in the unit given by AP_COIDADE; IDADE_anos is the age stratum
+    name: Numero da Idade
+    years:
+    - 2008
+    - 2026
+  AP_OBITO:
+    role: authorisation.death
+    kind: category
+    model: mark
+    name: Indicador de Obito
+    codelists:
+    - OBITO
+    years:
+    - 2008
+    - 2026
+  AP_PERMAN:
+    role: authorisation.continuation
+    kind: category
+    model: mark
+    name: Indicador de Permanencia
+    codelists:
+    - PERMANEN
+    years:
+    - 2008
+    - 2026
+  AP_PRIPAL:
+    role: authorisation.procedure
+    kind: code_tree
+    model: event_type
+    note: SIGTAP, ten digits
+    name: Procedimento Principal da APAC
+    codelists:
+    - SIGTAP
+    years:
+    - 2008
+    - 2026
+  AP_RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raca/Cor do paciente
+    codelists:
+    - RACA_COR
+    years:
+    - 2008
+    - 2026
+  AP_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 2008
+    - 2026
+  AP_TIPPRE:
+    role: facility.provider_type
+    kind: category
+    model: mark
+    name: Tipo de Prestador
+    codelists:
+    - ESFERA
+    - ESFERA_C
+    - TIPOPRES
+    years:
+    - 2008
+    - 2026
+  AP_TPAPAC:
+    role: authorisation.apac_type
+    kind: category
+    model: event_type
+    note: 1 first row of an APAC, 2 later months, 3 single-row APAC; the event type's status
+    name: Tipo de APAC
+    codelists:
+    - TP_APAC
+    years:
+    - 2008
+    - 2026
+  AP_TPATEN:
+    role: authorisation.care_type
+    kind: category
+    model: mark
+    name: Tipo de Atendimento de APAC
+    codelists:
+    - TP_ATEND
+    years:
+    - 2008
+    - 2026
+  AP_TPUPS:
+    role: facility.type
+    kind: category
+    model: mark
+    name: Tipo de Estabelecimento
+    codelists:
+    - TP_ESTAB
+    years:
+    - 2008
+    - 2026
+  AP_TRANSF:
+    role: authorisation.transfer
+    kind: category
+    model: mark
+    name: Indicador de Transferencia
+    codelists:
+    - TRANSFER
+    years:
+    - 2008
+    - 2026
+  AP_UFDIF:
+    role: authorisation.state_mismatch
+    kind: category
+    model: mark
+    note: 1 when the patient lives in another state than the facility; matches the state comparison exactly
+    name: UF de residencia diferente da UF do estabelecimento
+    codelists:
+    - INVASAO
+    years:
+    - 2008
+    - 2026
+  AP_UFMUN:
+    role: authorisation.facility_municipality
+    kind: place
+    model: where
+    name: UF+Municipio do Estabelecimento
+    codelists:
+    - AC_MUNICIP
+    years:
+    - 2008
+    - 2026
+  AP_UFNACIO:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Codigo da Nacionalidade do paciente
+    codelists:
+    - UFNACIO
+    years:
+    - 2008
+    - 2026
+  AP_UNISOL:
+    role: authorisation.requesting_facility
+    kind: institution
+    model: institution
+    name: Codigo CNES do Estabelecimento Solicitante
+    codelists:
+    - CADGERBR
+    years:
+    - 2008
+    - 2026
+  AP_VL_AP:
+    role: authorisation.approved_value
+    kind: number
+    model: mark
+    name: Valor Total da APAC Aprovado
+    years:
+    - 2008
+    - 2026
+  AQ_CID10:
+    role: authorisation.tumour_topography
+    kind: code_tree
+    model: mark
+    name: CID 10 – Topografia
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AQ_CIDINI1:
+    role: authorisation.cidini1
+    kind: code_tree
+    model: mark
+    name: CID 1º Tratamento anterior
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AQ_CIDINI2:
+    role: authorisation.cidini2
+    kind: code_tree
+    model: mark
+    name: CID 2º Tratamento anterior
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AQ_CIDINI3:
+    role: authorisation.cidini3
+    kind: code_tree
+    model: mark
+    name: CID 3º Tratamento anterior
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2008
+    - 2026
+  AQ_CONTTR:
+    role: authorisation.treatment_continuity
+    kind: category
+    model: mark
+    name: Continuidade do tratamento (S = Sim; N = Não)
+    codelists:
+    - CONT_TRAT
+    years:
+    - 2008
+    - 2026
+  AQ_DTIDEN:
+    role: authorisation.pathology_date
+    kind: date
+    model: when
+    name: Data da identificação patológica do caso (AAAAMMDD)
+    years:
+    - 2008
+    - 2026
+  AQ_DTINI1:
+    role: authorisation.dtini1
+    kind: date
+    model: when
+    name: Data de início (AAAAMMDD) 1º tratamento anterior
+    years:
+    - 2008
+    - 2026
+  AQ_DTINI2:
+    role: authorisation.dtini2
+    kind: date
+    model: when
+    name: Data de início (AAAAMMDD) 2º tratamento anterior
+    years:
+    - 2008
+    - 2026
+  AQ_DTINI3:
+    role: authorisation.dtini3
+    kind: date
+    model: when
+    name: Data de início (AAAAMMDD) 3º tratamento anterior
+    years:
+    - 2008
+    - 2026
+  AQ_DTINTR:
+    role: authorisation.treatment_start
+    kind: date
+    model: when
+    name: Data de INÍCIO do tratamento solicitado (AAAAMMDD)
+    years:
+    - 2008
+    - 2026
+  AQ_ESQU_P1:
+    role: authorisation.regimen_p1
+    kind: category
+    model: dimension
+    name: ESQUEMA (Sigla ou abrev.) - 5 primeiras posições
+    years:
+    - 2008
+    - 2026
+  AQ_ESQU_P2:
+    role: authorisation.regimen_p2
+    kind: category
+    model: dimension
+    name: ESQUEMA (Sigla ou abrev.) - 10 últimas posições
+    years:
+    - 2008
+    - 2026
+  AQ_ESTADI:
+    role: authorisation.tumour_stage
+    kind: category
+    model: mark
+    name: Estádio - UICC (0; 1; 2; 3; 4)
+    codelists:
+    - ESTADIO
+    years:
+    - 2008
+    - 2026
+  AQ_GRAHIS:
+    role: authorisation.histologic_grade
+    kind: category
+    model: mark
+    name: Grau Histopatológico
+    codelists:
+    - GRAU_HIS
+    years:
+    - 2008
+    - 2026
+  AQ_LINFIN:
+    role: authorisation.lymph_nodes_invaded
+    kind: category
+    model: mark
+    name: Linfonodos regionais invadidos (S = Sim; N = Não; 3 = Não Avaliáveis)
+    codelists:
+    - LINF_INV
+    years:
+    - 2008
+    - 2026
+  AQ_MED01:
+    role: authorisation.drug_01
+    kind: category
+    model: mark
+    name: Medicamento 1 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED02:
+    role: authorisation.drug_02
+    kind: category
+    model: mark
+    name: Medicamento 2 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED03:
+    role: authorisation.drug_03
+    kind: category
+    model: mark
+    name: Medicamento 3 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED04:
+    role: authorisation.drug_04
+    kind: category
+    model: mark
+    name: Medicamento 4 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED05:
+    role: authorisation.drug_05
+    kind: category
+    model: mark
+    name: Medicamento 5 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED06:
+    role: authorisation.drug_06
+    kind: category
+    model: mark
+    name: Medicamento 6 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED07:
+    role: authorisation.drug_07
+    kind: category
+    model: mark
+    name: Medicamento 7 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED08:
+    role: authorisation.drug_08
+    kind: category
+    model: mark
+    name: Medicamento 8 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED09:
+    role: authorisation.drug_09
+    kind: category
+    model: mark
+    name: Medicamento 9 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_MED10:
+    role: authorisation.drug_10
+    kind: category
+    model: mark
+    name: Medicamento 10 do esquema quimioterápico
+    years:
+    - 2021
+    - 2026
+  AQ_TOTMAU:
+    role: authorisation.months_authorised
+    kind: number
+    model: mark
+    name: Total de MESES Autorizados
+    years:
+    - 2008
+    - 2026
+  AQ_TOTMPL:
+    role: authorisation.months_planned
+    kind: number
+    model: mark
+    name: Total de MESES Planejados
+    years:
+    - 2008
+    - 2026
+  AQ_TRANTE:
+    role: authorisation.previous_treatment
+    kind: category
+    model: mark
+    name: Tratamentos anteriores (S = Sim; N = Não)
+    codelists:
+    - TRA_ANTE
+    years:
+    - 2008
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years from AP_NUIDADE and AP_COIDADE (ADR-0070)
+    name: Idade em anos
+    years:
+    - 2008
+    - 2026

@@ -373,6 +373,41 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   one-to-one to the patient block. `AP_CEPPCN` in the modern schema holds 2,484
   distinct full CEPs over 5,670 rows.
 
+### 1.11 SIA APAC families (2026-10-05)
+
+- **Where and what.** `SIASUS/200801_/Dados/<FAM><UF><YY><MM>.dbc`, one file per state and month, all with the same
+  45-column `AP_*` block (competence `AP_CMP`, processing `AP_MVM`, APAC number `AP_AUTORIZ`, main procedure `AP_PRIPAL`
+  (SIGTAP, 10 digits), CNES `AP_CODUNI`, CIDs `AP_CIDPRI`/`AP_CIDSEC`/`AP_CIDCAS`, patient sex, race, residence
+  `AP_MUNPCN`, age `AP_NUIDADE` + unit `AP_COIDADE`, pseudonymous `AP_CNSPCN`) plus the family's own clinical block.
+  Rows per file are in bytes 4-7 of the DBC header (uncompressed), so an 8-byte ranged read of the mirror counts a file
+  without downloading it: 41,832 files, 0 failures, and the counts equal the rows `query()` returns (AQ DF 2023 60,620).
+- **Families** (files, years, rows over all years, rows in 2023, columns of the newest schema):
+  AQ chemotherapy (5,979, 2008-, 62.1 M, 4.32 M, 74), AR radiotherapy (5,465, 2008-, 4.07 M, 0.15 M, 74), AN pre-dialysis
+  nephrology (2,145, **2008-2014**, 6.53 M, 60), ATD dialysis (3,884, 2014-, 16.5 M, 1.49 M, 65), ACF vascular access
+  (3,768, 2014-, 0.41 M, 56), AM specialised medicines (5,957, 2008-, 387.8 M, 29.75 M, 51), AD various (6,019, 2008-,
+  60.9 M, 3.62 M, 46), AB bariatric surgery (635, 2008-2025, 0.23 M, 58) and ABO follow-up (1,607, 2014-, 0.55 M, 78),
+  AMP (891, 2016-, 0.20 M, 65). PS (4,394, 2012-, 170 M) and SAD (1,088, 2012-2018, 3.5 M) are person-level but not APAC.
+  The 2001-2007 `AC` (self-extracting `.exe`) is the old dialysis APAC (§1.10).
+- **A row is an APAC-month, not an APAC.** An APAC (`AP_AUTORIZ`) lasts up to three months and has one row per competence
+  (no duplicate `(AP_AUTORIZ, AP_CMP)` in any slice read). `AP_TPAPAC` is 1 on the first row, 2 on later months, 3 on a
+  single-row APAC; for type 1 the month of `AP_DTINIC` equals `AP_CMP` (AQ AC 2023: 2,921 of 2,921). AQ AC 2023: 8,417
+  rows, 3,287 APACs, 2,921 type-1 rows; the other 366 began in the previous year's files. AR 2023, ACF 2023 and most AD rows (7,946 of 8,585 in AC 2023) are type 3.
+- **The patient key.** `AP_CNSPCN` is 15 non-digit characters, the same pseudonym in every file read: stable across months
+  and years (AQ AC: 203 of the 882 patients of 2019 recur in 2023) and across families (AR AC 2023: 280 of 413 patients are
+  also in AQ; ATD and AM: 384 of 679). One APAC has one pseudonym; in AQ AC 2023 1,360 patients hold 3,287 APACs (491 hold one, 310 two, 211 three, 198 four). It is the person key
+  for cohorts within SIA APAC (its link to SIH or SIM was not tested). `AP_APACANT` (previous APAC number) is all zeros.
+- **Age** has no birth date: `AP_NUIDADE` with the unit `AP_COIDADE` (2 days, 3 months, 4 years, 5 = 100 + value; units
+  2, 3, 4 and 5 occur), decoded to `IDADE_anos` as in SIH. AQ SP 2023-01: unit 4 ages 1-99, unit 5 values 00-07.
+- **`AP_MNDIF` is constant `1`** on every row of every family read (AQ SP 2023-01: 80,069 of 80,069, patient outside the
+  facility's municipality in 40,935), so it is not a municipality mismatch flag and is left undecoded. `AP_UFDIF` equals
+  the state comparison exactly.
+- **Brasília.** `AP_MUNPCN` holds administrative-region codes 530020-530180 in some years (AQ DF: 2008 308 of 20,086;
+  2012 17,892 of 26,173; 2018 425; 2021 91; 2022 and 2023 none) and `AP_UFMUN` holds 530180 for a second unit in AQ 2017
+  and AN 2008-2014. Derived `AP_MUNPCN_municipio` maps the residence in 2008-2021.
+- **Where the diagnosis is.** AQ, AR, AN: `AP_CIDPRI` (tumour site C/D codes; N18x for AN). ATD and ACF: `AP_CIDPRI` and
+  `AP_CIDSEC` are `0000` on every ATD row read (2015, 2019, 2023; ACF 2023 `AP_CIDPRI` likewise); the renal CID is in `AP_CIDCAS` (N180 in 2015, N188 in 2019 and 2023, `0000` on 10-41% of rows). ABO has
+  no `AP_CIDPRI`. `AQ_CID10` is empty in the 74-column files.
+
 ## 2. TabNet: `.CNV`, `.DEF` and the TAB kits
 
 ### 2.1 `.CNV` grammar (2026-08-18, F §1 V3)

@@ -66,7 +66,8 @@ class EventType:
         }
 
 
-KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case"})
+KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case",
+                   "authorisation"})
 
 
 @lru_cache(maxsize=1)
@@ -103,7 +104,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
     if status and not status.get("evidence") and not spec.get("evidence"):
         raise ValueError(f"{where}: {key}.{name}: a status rule needs its evidence")
     return EventType(
-        dataset=key, system=str(body.get("system") or "").upper(), series=str(body.get("series") or "").upper(),
+        dataset=key, system=_canonical_system(str(body.get("system") or "")), series=str(body.get("series") or "").upper(),
         name=name, kind=kind, grain=spec.get("grain") or body.get("what_one_row_is"), classifiers=classifiers,
         status_column=str(status["column"]).upper() if status.get("column") else None,
         status_values=tuple(str(v) for v in status.get("values") or ()),
@@ -112,6 +113,15 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
     )
+
+
+def _canonical_system(name: str) -> str:
+    """The system as the catalog files it: the ontology's ``SIA`` is crawled as ``SIASUS``, so a
+    dataset declared as ``SIA.AQ`` has the same key as a request for ``SIASUS.AQ``."""
+    from .._request import SYSTEM_ALIASES, _load_aliases
+
+    _load_aliases()
+    return SYSTEM_ALIASES.get(name.upper(), name.upper())
 
 
 def _key(dataset: str) -> str:

@@ -584,16 +584,17 @@ variables:
       home municipality for this care.
 
       '
-    codelists:
-    - INVASAO
-    - SIMNAO
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Value encoding is not consistent across APAC sub-layouts in the same document:
+    notes: 'NOT DECODED. The value is "1" on every row of every APAC file read (AQ SP 2023-01 80,069 of
+      80,069, with the patient outside the establishment municipality in 40,935 of them; AQ DF 2015, AR DF 2015,
+      AQ AC 2019-2023, AR, AN, ATD, ACF, AD, AM, ABO AC likewise, no exception), so it is not the mismatch flag
+      its name says, and its INVASAO label "Sim (houve invasao)" was wrong on half the rows (2026-10-05).
+      AP_UFDIF matches the state comparison exactly (AQ SP 2023-01, 80,069 of 80,069). Layout note follows. Value encoding is not consistent across APAC sub-layouts in the same document:
       0/1 (same/different) in the Laudos Diversos (AD) layout, but N/S (nao/sim) in Nefrologia
       (AN), Quimioterapia (AQ), Radioterapia (AR) and other laudo types. Declared width also
       drifts between C(1) and C(2) across sub-layouts.
@@ -648,6 +649,20 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
+    derived:
+    - name: AP_MUNPCN_municipio
+      from: [AP_MUNPCN]
+      remap: {"530020": "530010", "530030": "530010", "530040": "530010", "530050": "530010", "530060": "530010", "530070": "530010", "530080": "530010", "530090": "530010", "530100": "530010", "530110": "530010", "530120": "530010", "530130": "530010", "530135": "530010", "530140": "530010", "530150": "530010", "530160": "530010", "530170": "530010", "530180": "530010"}
+      valid: {from: 200801, to: 202112}
+      rule: Brasília is the Federal District's only municipality (530010). In APAC files the patient's
+        residence is written with an administrative-region code (530020 to 530180, 530135) in some
+        years, which no municipality list holds. Measured on DF files by processing year (rows with such
+        a code; AQ unless noted) - 2008 308 of 20,086; 2012 17,892 of 26,173; 2016 13,880 of 23,633;
+        2018 425 of 37,919; 2019 961 of 46,896; 2020 248 of 44,185; 2021 91 of 44,606; 2022 and 2023 none;
+        AR 2017 276 of 775, none in 2009, 2018, 2023; AN 2013 8,013 of 14,736. This column maps those codes
+        to 530010 inside the window (YYYYMM) and leaves every other code as written; AP_MUNPCN itself is
+        never changed. The facility column AP_UFMUN also holds 530180 for a second Brasília unit in AQ 2017
+        and AN 2008-2014 (AN 2010 3,213 of 13,266) and is not remapped.
   AP_MVM:
     official_name: Data de Processamento / Movimento
     translated_name: Processing (movimento) month
@@ -698,6 +713,18 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
+    depends_on:
+    - AP_COIDADE
+    derived:
+    - name: IDADE_anos
+      from:
+      - AP_NUIDADE
+      - AP_COIDADE
+      encoding: sih
+      rule: fractional years (ADR-0070), the SIH unit table (AP_COIDADE 2 days, 3 months, 4 years, 5 = 100 + value,
+        0 ignored). Measured on AQ SP 2023-01 (80,069 rows) and AC, DF files of AQ, AR, AN, ATD, AD, AM (units 2, 3, 4
+        and 5 occur; unit 4 ages run 1 to 99, unit 5 values 00 to 07, that is 100 to 107). The APAC carries no
+        date of birth, so the units are not checked against dates as SIH's are.
   AP_OBITO:
     official_name: Indicador de Obito
     translated_name: Death indicator
