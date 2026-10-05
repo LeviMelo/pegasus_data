@@ -197,7 +197,7 @@ def municipality_areas() -> pa.Table:
 
 #: dataset -> (event type, origin column, destination column, what the flow is). SIH-RD reads the
 #: residence through ``MUNIC_RES_municipio``, which gives Brasilia's 2008-2017 administrative-region
-#: codes (530020 ... 530180) back to the one municipality, 530010 (DATA_SOURCES; OQ-71).
+#: codes (530020 ... 530180) back to the one municipality, 530010 (DATA_SOURCES).
 FLOWS = {
     "SIH-RD": ("hospitalisation", "MUNIC_RES_municipio", "MUNIC_MOV", "residence -> hospital municipality"),
     "CIHA": ("hospitalisation", "MUNIC_RES", "MUNIC_MOV", "residence -> hospital municipality"),

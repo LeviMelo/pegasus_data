@@ -725,6 +725,19 @@ variables:
     code_system: external
     source: web
     source_ref: '[PCDAS] "Código do município do estabelecimento: UF + MUNIC"'
+    derived:
+    - name: CODUFMUN_municipio
+      from: [CODUFMUN]
+      remap: {"530020": "530010", "530030": "530010", "530040": "530010", "530050": "530010", "530060": "530010", "530070": "530010", "530080": "530010", "530090": "530010", "530100": "530010", "530110": "530010", "530120": "530010", "530130": "530010", "530135": "530010", "530140": "530010", "530150": "530010", "530160": "530010", "530170": "530010", "530180": "530010"}
+      valid: {from: 200508, to: 201712}
+      rule: Brasília is the Federal District's only municipality (530010). In CNES-ST files from the first
+        (2005-08) to 2017-12 the establishments of Brasília are written with an administrative-region code
+        (530020 to 530180, 530135), which no municipality list holds; January 2018 and later write 530010.
+        Measured on DF files, rows with such a code (of all rows) - 2005-08 1,305 of 3,256; 2007-01 1,587 of
+        4,085; 2010-01 2,511 of 5,583; 2014-01 2,812 of 5,850; 2016-06 2,540 of 5,259; 2017-06 1,022 of 1,742;
+        2017-11 1,358 of 2,522; 2017-12 1 of 2,589; 2018-01, 2020-01, 2022-01 none. This column maps those codes
+        to 530010 inside the window and leaves every other code, and every code outside it, as written.
+        CODUFMUN itself is never changed. Measured on CNES-ST only.
   COD_CEP:
     official_name: Código de Endereçamento Postal (CEP)
     translated_name: Postal code (CEP) of the establishment's address

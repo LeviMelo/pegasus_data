@@ -678,6 +678,21 @@ variables:
       which carry no patient identity - check PA_DOCORIG before treating this as a true residence.
       The substitution on BPA-C-originated rows is stated in the layout itself, so it is a
       documented behaviour rather than an observed anomaly.
+    derived:
+    - name: PA_MUNPCN_municipio
+      from: [PA_MUNPCN]
+      remap: {"530020": "530010", "530030": "530010", "530040": "530010", "530050": "530010", "530060": "530010", "530070": "530010", "530080": "530010", "530090": "530010", "530100": "530010", "530110": "530010", "530120": "530010", "530130": "530010", "530135": "530010", "530140": "530010", "530150": "530010", "530160": "530010", "530170": "530010", "530180": "530010"}
+      valid: {from: 200808}
+      rule: Brasília is the Federal District's only municipality (530010). From the 2008-08 file on, rows
+        for Brasília are written with an administrative-region code (530020 to 530180, 530135), which no
+        municipality list holds. Measured on DF files, rows with such a code (of all rows) - 2008-07 0 of
+        113,624; 2008-08 19 of 116,709; 2008-12 844 of 101,031; 2009-01 569 of 113,806; 2010-01 4,192 of
+        127,264; 2012-01 25,074 of 139,546; 2016-01 49,267 of 182,852; 2018-01 25,569 of 183,132; 2022-01
+        29,636 of 505,316; 2024-01 27,384 of 580,404; 2026-06 26,598 of 531,506. The codes never stopped,
+        so the window is open; it is judged by the file's competence. This column maps those codes to 530010
+        inside the window and leaves every other code as written; PA_MUNPCN itself is never changed. The
+        pre-2008 layout has no PA_MUNPCN column. On BPA-C rows PA_MUNPCN is the establishment's municipality
+        (see its notes), so the mapped value is the place of care there.
   PA_MVM:
     official_name: Data de Processamento / Movimento
     translated_name: Processing (movimento) month
