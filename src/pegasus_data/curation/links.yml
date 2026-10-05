@@ -97,6 +97,33 @@ links:
         - [[deceased.residence, mother.residence], [deceased.sex, baby.sex], [death.maternal_age, mother.age]]
       target_fdr: 0.01
 
+  sim_women_deaths_to_sinasc_mothers:
+    description: >
+      Deaths of women aged 15-49 to the birth records on which they are the
+      mother, the source of an adult reference for race (RACACORMAE, her own
+      declaration). One birth record stands for each mother (her birth date and
+      residence), the latest, so her race is the declaration closest to her
+      death. A woman who never gave birth in the births' years has no partner:
+      the linked share is the share of women who were mothers and kept their
+      residence, a selected population (ADR-0149). Chance agreement of a birth
+      date within a municipality grows with its number of mothers: the control
+      is read per municipality size, not only overall (docs/evaluation/2026-10-05-race-bridge-adult.md).
+    person: [deceased, mother]   # the same person on each side (linkage/entities.py)
+    left:
+      dataset: SIM-DO
+      where: >
+        "deceased.sex" = 'F' AND "deceased.age_years" BETWEEN 15 AND 49
+    right:
+      dataset: SINASC-DN
+      group: [mother.birth_date, mother.residence]
+      latest: birth.date
+    passes:
+      - name: birth date, residence
+        keys: [[deceased.birth_date, mother.birth_date], [deceased.residence, mother.residence]]
+    control: {role: deceased.birth_date, shift_days: 7}
+    validate:
+      - {name: death on or after the latest birth, sql: "l.\"death.date\" >= r.\"birth.date\""}
+
   sinasc_births_to_delivery_admission:
     description: >
       A birth to the mother's delivery admission. In a delivery AIH the patient

@@ -62,6 +62,9 @@ RECORDED = (*RACES, "Ignorado")
 CODE = {"1": 0, "2": 1, "3": 2, "4": 3, "5": 4}
 UNKNOWN = 5
 AGE_BANDS = ("0-6 d", "7-27 d", "28-364 d")
+#: Age bands (years) of the women 15-49 product; the model is the same, the bands are the population's.
+WOMEN_AGE_BANDS = ("15-24 y", "25-34 y", "35-49 y")
+WOMEN_AGE_EDGES = (25, 35)
 UF_CODES = (11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53)
 #: Pseudo-count that smooths a municipality's racial shares toward its state's.
 KAPPA = 20.0
@@ -80,6 +83,28 @@ def age_band(days: np.ndarray) -> np.ndarray:
     """Age at death in days to the band index 0 (0-6 d), 1 (7-27 d), 2 (28-364 d)."""
     d = np.asarray(days)
     return np.where(d < 7, 0, np.where(d < 28, 1, 2)).astype(np.int8)
+
+
+def age_band_years(years: np.ndarray) -> np.ndarray:
+    """Age in years to the women product's band index 0 (15-24), 1 (25-34), 2 (35-49)."""
+    return np.searchsorted(np.asarray(WOMEN_AGE_EDGES), np.asarray(years), side="right").astype(np.int8)
+
+
+@dataclass(frozen=True)
+class Population:
+    """What a confusion product is about: the stored link that gives the reference, the age bands, the table's name."""
+
+    product: str
+    version: str
+    age_bands: tuple[str, ...]
+    age_column: str                    # column of ``deaths`` holding age (days for infants, years for women)
+    band: Any                          # age column -> band index
+    link: str
+
+
+INFANT = Population("race_confusion_infant", MODEL_VERSION, AGE_BANDS, "age_days", age_band, "sim_infant_deaths_to_sinasc")
+WOMEN = Population("race_confusion_women", "race-confusion-women-1", WOMEN_AGE_BANDS, "age_years", age_band_years,
+                   "sim_women_deaths_to_sinasc_mothers")
 
 
 @dataclass(frozen=True)
@@ -133,6 +158,12 @@ class Pairs:
     age: np.ndarray     # 0..2
     z: np.ndarray       # (n, 5) standardised composition
     w: np.ndarray       # weights, mean 1
+    n_age: int = 3      # number of age bands (the population's)
+    #: Share of false links in each pair's class, and the recorded-class distribution of an unrelated pair, by state
+    #: (27, 6). A false pair's declared race is unrelated to the recorded one, so a pair's recorded class has
+    #: probability (1 - phi) C(k | j) + phi r(k): the contamination measured by the link's negative control.
+    phi: np.ndarray | None = None
+    r_state: np.ndarray | None = None
 
 
 def uf_index(uf_codes: np.ndarray) -> np.ndarray:
@@ -145,17 +176,22 @@ def region_of_uf() -> np.ndarray:
     return np.array([c // 10 - 1 for c in UF_CODES], dtype=np.int8)
 
 
-def link_weights(uf: np.ndarray, age: np.ndarray, recorded: np.ndarray, year: np.ndarray, linked: np.ndarray) -> np.ndarray:
-    """Inverse probability of being linked, from all infant deaths (linked or not).
+def link_weights(uf: np.ndarray, age: np.ndarray, recorded: np.ndarray, year: np.ndarray, linked: np.ndarray,
+                 extra: np.ndarray | None = None, n_age: int = 3) -> np.ndarray:
+    """Inverse probability of being linked, from all deaths of the population (linked or not).
 
     The probability is a logistic regression on state, age band, recorded race, age band × recorded
-    race and year, so weights depend only on what every death carries.
+    race and year (a one-hot per year when there are several), plus ``extra`` columns (the women
+    product adds the municipality's size class), so weights depend only on what every death carries.
     """
     from sklearn.linear_model import LogisticRegression  # noqa: PLC0415 - fitting-time dependency
 
-    cols = [np.eye(len(UF_CODES))[uf], np.eye(3)[age], np.eye(6)[recorded],
-            (np.eye(3)[age][:, :, None] * np.eye(6)[recorded][:, None, :]).reshape(len(uf), -1),
-            (year == year.max())[:, None].astype(float)]
+    years = np.unique(year)
+    cols = [np.eye(len(UF_CODES))[uf], np.eye(n_age)[age], np.eye(6)[recorded],
+            (np.eye(n_age)[age][:, :, None] * np.eye(6)[recorded][:, None, :]).reshape(len(uf), -1),
+            (year == year.max())[:, None].astype(float) if len(years) <= 2 else (year[:, None] == years[None, 1:]).astype(float)]
+    if extra is not None:
+        cols.append(np.asarray(extra, dtype=float))
     x = np.hstack(cols)
     p = LogisticRegression(C=1.0, max_iter=2000).fit(x, linked).predict_proba(x)[:, 1]
     return np.where(linked, 1.0 / p, 0.0)
@@ -189,8 +225,8 @@ def _effects(raw: dict[str, Any], scales: dict[str, float], reg_of_uf: np.ndarra
             "beta": raw["beta"] * scales["beta"], "age": raw["age"] * scales["age"]}
 
 
-def _raw_shapes(nz: int) -> dict[str, tuple[int, ...]]:
-    return {"alpha": (6, 5), "region": (6, 5, 5), "state": (6, len(UF_CODES), 5), "beta": (6, nz, 5), "age": (6, 2, 5)}
+def _raw_shapes(nz: int, n_age: int = 3) -> dict[str, tuple[int, ...]]:
+    return {"alpha": (6, 5), "region": (6, 5, 5), "state": (6, len(UF_CODES), 5), "beta": (6, nz, 5), "age": (6, n_age - 1, 5)}
 
 
 def _data(pairs: Pairs):
@@ -199,13 +235,16 @@ def _data(pairs: Pairs):
     declared class (static slices) and the arrays, which makes the likelihood a few small matrix products."""
     import jax.numpy as jnp  # noqa: PLC0415
 
-    key = np.column_stack([pairs.j, pairs.uf, pairs.age, pairs.z])
+    phi = np.zeros(len(pairs.j)) if pairs.phi is None else np.asarray(pairs.phi)
+    key = np.column_stack([pairs.j, pairs.uf, pairs.age, phi, pairs.z])
     uniq, inv = np.unique(key, axis=0, return_inverse=True)
     counts = np.zeros((len(uniq), 6))
     np.add.at(counts, (inv.ravel(), pairs.k), pairs.w)
     bounds = np.searchsorted(uniq[:, 0], np.arange(7))
+    r_state = np.full((len(UF_CODES), 6), 1 / 6) if pairs.r_state is None else np.asarray(pairs.r_state)
     return {"blocks": [(int(bounds[j]), int(bounds[j + 1])) for j in range(6)], "uf": jnp.asarray(uniq[:, 1].astype(int)),
-            "age": jnp.asarray(uniq[:, 2].astype(int)), "z": jnp.asarray(uniq[:, 3:]), "counts": jnp.asarray(counts)}
+            "age": jnp.asarray(uniq[:, 2].astype(int)), "phi": jnp.asarray(uniq[:, 3]), "r": jnp.asarray(r_state[uniq[:, 1].astype(int)]),
+            "z": jnp.asarray(uniq[:, 4:]), "counts": jnp.asarray(counts)}
 
 
 def _log_lik(par, data, reg_of_uf):
@@ -220,8 +259,9 @@ def _log_lik(par, data, reg_of_uf):
         eta = par["alpha"][j] + par["region"][j][reg[uf]] + par["state"][j][uf] + z @ par["beta"][j]
         eta = eta + jnp.where((age > 0)[:, None], par["age"][j][jnp.maximum(age - 1, 0)], 0.0)
         full = jnp.concatenate([jnp.zeros((hi - lo, 1)), eta], axis=1)
-        logp = full - jnp.log(jnp.sum(jnp.exp(full), axis=1, keepdims=True))
-        total = total + jnp.sum(data["counts"][lo:hi] * logp)
+        p = jnp.exp(full - jnp.log(jnp.sum(jnp.exp(full), axis=1, keepdims=True)))
+        phi = data["phi"][lo:hi, None]
+        total = total + jnp.sum(data["counts"][lo:hi] * jnp.log((1 - phi) * p + phi * data["r"][lo:hi]))
     return total
 
 
@@ -234,7 +274,7 @@ def map_fit(pairs: Pairs, scales: dict[str, float], *, maxiter: int = 400) -> di
 
     reg = region_of_uf()
     data = _data(pairs)
-    raw0 = {n: jnp.zeros(s) for n, s in _raw_shapes(pairs.z.shape[1]).items()}
+    raw0 = {n: jnp.zeros(s) for n, s in _raw_shapes(pairs.z.shape[1], pairs.n_age).items()}
     flat0, unravel = ravel_pytree(raw0)
 
     def objective(f):
@@ -252,8 +292,10 @@ def mean_log_loss(par: dict[str, np.ndarray], pairs: Pairs) -> float:
     eta = _logits(par, pairs.j, pairs.uf, region_of_uf(), pairs.age, pairs.z, np)
     full = np.concatenate([np.zeros((len(pairs.j), 1)), eta], axis=1)
     full -= full.max(1, keepdims=True)
-    logp = full - np.log(np.exp(full).sum(1, keepdims=True))
-    return float(-np.average(logp[np.arange(len(pairs.j)), pairs.k], weights=pairs.w))
+    p = np.exp(full - np.log(np.exp(full).sum(1, keepdims=True)))
+    if pairs.phi is not None and pairs.r_state is not None:
+        p = (1 - pairs.phi[:, None]) * p + pairs.phi[:, None] * pairs.r_state[pairs.uf]
+    return float(-np.average(np.log(p[np.arange(len(pairs.j)), pairs.k]), weights=pairs.w))
 
 
 def select_scales(train: Pairs, test: Pairs, grid: dict[str, tuple[float, ...]] | None = None) -> tuple[dict[str, float], list[dict]]:
@@ -277,7 +319,7 @@ def _numpyro_model(pairs: Pairs, reg_of_uf: np.ndarray, scales: dict[str, float]
     import numpyro.distributions as dist  # noqa: PLC0415
 
     raw = {n: numpyro.sample(n, dist.Normal(0.0, 1.0).expand(list(s)).to_event(len(s)))
-           for n, s in _raw_shapes(pairs.z.shape[1]).items()}
+           for n, s in _raw_shapes(pairs.z.shape[1], pairs.n_age).items()}
     par = _effects(raw, scales, reg_of_uf, jnp)
     numpyro.factor("lik", _log_lik(par, _data(pairs), reg_of_uf))
     for n, v in par.items():
@@ -294,20 +336,24 @@ class Fit:
     n_pairs: int
     diagnostics: dict[str, Any]
     version: str = MODEL_VERSION
+    age_bands: tuple[str, ...] = AGE_BANDS
 
     def save(self, path: Path) -> None:
         np.savez_compressed(path, z_mean=self.z_mean, z_sd=self.z_sd, n_pairs=self.n_pairs,
-                            diagnostics=json.dumps(self.diagnostics), version=self.version, **self.draws)
+                            diagnostics=json.dumps(self.diagnostics), version=self.version,
+                            age_bands=np.array(self.age_bands), **self.draws)
 
     @classmethod
     def load(cls, path: Path) -> Fit:
         f = np.load(path, allow_pickle=False)
         draws = {k: f[k] for k in ("alpha", "region", "state", "beta", "age")}
-        return cls(draws, f["z_mean"], f["z_sd"], int(f["n_pairs"]), json.loads(str(f["diagnostics"])), str(f["version"]))
+        bands = tuple(str(b) for b in f["age_bands"]) if "age_bands" in f.files else AGE_BANDS
+        return cls(draws, f["z_mean"], f["z_sd"], int(f["n_pairs"]), json.loads(str(f["diagnostics"])), str(f["version"]), bands)
 
 
 def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.ndarray, num_warmup: int = 300,
-        num_samples: int = 400, num_chains: int = 2, keep: int = 200, seed: int = 0) -> Fit:
+        num_samples: int = 400, num_chains: int = 2, keep: int = 200, seed: int = 0,
+        age_bands: tuple[str, ...] = AGE_BANDS, version: str = MODEL_VERSION) -> Fit:
     """NUTS posterior of the confusion model for the prior scales ``scales`` (requires the ``modelled`` extra).
 
     The scales are fixed (``select_scales``), so the posterior is log-concave and well conditioned; the
@@ -350,7 +396,7 @@ def fit(pairs: Pairs, scales: dict[str, float], *, z_mean: np.ndarray, z_sd: np.
     diag = {"max_rhat": rhat, "min_ess": ess, "divergences": int(np.sum(np.asarray(extra["diverging"]))),
             "mean_leapfrog_steps": float(np.mean(np.asarray(extra["num_steps"]))), "num_warmup": num_warmup,
             "num_samples": num_samples, "num_chains": num_chains, "kept_draws": int(len(take)), "scales": scales}
-    return Fit(draws, np.asarray(z_mean), np.asarray(z_sd), int(len(pairs.j)), diag)
+    return Fit(draws, np.asarray(z_mean), np.asarray(z_sd), int(len(pairs.j)), diag, version, age_bands)
 
 def confusion(model: Fit, uf: np.ndarray, age: np.ndarray, z: np.ndarray, draws: slice | np.ndarray | None = None) -> np.ndarray:
     """C draws for each row: array (S, n, 6 declared, 6 recorded); ``uf`` indexes ``UF_CODES``, ``z`` is standardised."""
@@ -396,8 +442,9 @@ def expected_matrix(model: Fit, comp: Composition, mun: np.ndarray, births: np.n
     uf = uf_index(np.asarray(mun) // 10000)
     z = comp.z(np.asarray(mun))
     s_n = (model.draws["alpha"] if draws is None else model.draws["alpha"][draws]).shape[0]
-    out = np.zeros((s_n, len(UF_CODES), 3, 6, 6))
-    for a in range(3):
+    n_age = len(model.age_bands)
+    out = np.zeros((s_n, len(UF_CODES), n_age, 6, 6))
+    for a in range(n_age):
         for lo in range(0, len(mun), chunk):
             sl = slice(lo, lo + chunk)
             c = confusion(model, uf[sl], np.full(len(uf[sl]), a), z[sl], draws)      # (S, n, j, k)
@@ -466,9 +513,6 @@ def reclassify(a_mat: np.ndarray, deaths: np.ndarray, births: np.ndarray, *, tau
 
 # --------------------------------------------------------------------------------------- the product
 
-PRODUCT = "race_confusion_infant"
-
-
 def summarise(model: Fit, comp: Composition, mun: np.ndarray, births: np.ndarray) -> pa.Table:
     """The shipped table: C(k | j) per state and age band, births-weighted over the state's municipalities.
 
@@ -483,35 +527,28 @@ def summarise(model: Fit, comp: Composition, mun: np.ndarray, births: np.ndarray
     for u in range(len(UF_CODES) + 1):
         num = a.sum(1) if u == len(UF_CODES) else a[:, u]                             # (S, 3, k, j)
         den = b_state.sum(0) if u == len(UF_CODES) else b_state[u]                    # (j,)
-        for ai in range(3):
+        for ai in range(len(model.age_bands)):
             c = num[:, ai] / np.maximum(den, 1.0)[None, None, :]                      # (S, k, j)
             for j in range(6):
                 if den[j] <= 0:
                     continue
                 for k in range(6):
                     x = c[:, k, j]
-                    for name, val in zip(cols, (0 if u == len(UF_CODES) else UF_CODES[u], AGE_BANDS[ai], DECLARED[j], RECORDED[k],
+                    for name, val in zip(cols, (0 if u == len(UF_CODES) else UF_CODES[u], model.age_bands[ai], DECLARED[j], RECORDED[k],
                                                 float(x.mean()), float(np.quantile(x, 0.05)), float(np.quantile(x, 0.95))), strict=True):
                         cols[name].append(val)
     return pa.table(cols)
 
 
-def build_infant(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, settings: Any,
-                 validation: str, version: str = MODEL_VERSION, seed: int = 0) -> Path:
-    """Fit the infant race confusion model on the stored links and write it to the modelled tier.
-
-    ``deaths``: every SIM infant death of the fitted years, columns ``year``, ``uf`` (code), ``age_days``,
-    ``recorded`` (RACACOR code or null), ``mun`` (CODMUNRES), ``linked`` (bool) and ``declared``
-    (the linked SINASC RACACOR code, null if unlinked or blank). ``births``: SINASC births by
-    (``mun``, ``race``, ``n``) that define the municipal composition. ``reference_births`` the same for
-    the year the table is expressed on. Needs the ``modelled`` extra.
-    """
-    from .modelled import ModelledManifest, write_modelled  # noqa: PLC0415
-
-    comp = composition(births)
+def prepare(deaths: pa.Table, comp: Composition, population: Population = INFANT) -> tuple[np.ndarray, np.ndarray, Any]:
+    """Arrays of a deaths table (see ``build``): the year, the linked mask and ``pairs(mask)``, the weighted ``Pairs``
+    of the deaths in a mask (weights are per year, inverse linkage probability, mean 1 among the linked)."""
     year = np.asarray(deaths["year"].to_numpy(zero_copy_only=False))
     uf = uf_index(np.asarray(deaths["uf"].to_numpy(zero_copy_only=False)))
-    age = age_band(np.asarray(deaths["age_days"].to_numpy(zero_copy_only=False)))
+    age = population.band(np.asarray(deaths[population.age_column].to_numpy(zero_copy_only=False)))
+    n_age = len(population.age_bands)
+    stratum = (np.eye(int(deaths["stratum"].to_numpy().max()) + 1)[deaths["stratum"].to_numpy()]
+               if "stratum" in deaths.column_names else None)
     rec = encode_race(deaths["recorded"].to_pylist())
     dec = encode_race(deaths["declared"].to_pylist())
     linked = np.asarray(deaths["linked"].to_numpy(zero_copy_only=False), dtype=bool)
@@ -519,22 +556,55 @@ def build_infant(deaths: pa.Table, births: pa.Table, reference_births: pa.Table,
     w = np.zeros(len(year))
     for y in np.unique(year):
         s = year == y
-        wy = link_weights(uf[s], age[s], rec[s], year[s], linked[s])
+        wy = link_weights(uf[s], age[s], rec[s], year[s], linked[s], None if stratum is None else stratum[s], n_age)
         w[s] = wy / wy[linked[s]].mean()
 
-    def pairs(mask):
-        return Pairs(dec[mask], rec[mask], uf[mask], age[mask], z[mask], w[mask])
+    phi = np.asarray(deaths["phi"].to_numpy(zero_copy_only=False), dtype=float) if "phi" in deaths.column_names else None
+    r_state = None
+    if phi is not None:
+        r_state = np.zeros((len(UF_CODES), 6))
+        np.add.at(r_state, (uf, rec), 1.0)
+        r_state = (r_state + 0.5) / (r_state + 0.5).sum(1, keepdims=True)
 
+    def pairs(mask):
+        return Pairs(dec[mask], rec[mask], uf[mask], age[mask], z[mask], w[mask], n_age,
+                     None if phi is None else phi[mask], r_state)
+
+    return year, linked, pairs
+
+
+def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, settings: Any,
+          validation: str, population: Population = INFANT, seed: int = 0, notes: tuple[str, ...] = (),
+          scales: dict[str, float] | None = None) -> Path:
+    """Fit a race confusion model on the stored links and write it to the modelled tier.
+
+    ``deaths``: every SIM death of the population in the fitted years, columns ``year``, ``uf`` (code),
+    the population's age column (``age_days`` or ``age_years``), ``recorded`` (RACACOR code or null),
+    ``mun`` (CODMUNRES), ``linked`` (bool), ``declared`` (the linked reference race code, null if
+    unlinked or blank), optionally ``stratum`` (int: a class of the link's reliability that also
+    drives linkability, entered in the linkage weights) and ``phi`` (the share of false links in the
+    death's stratum, measured by the link's negative control; see ``Pairs.phi``). ``births``: SINASC births by
+    (``mun``, ``race``, ``n``) that define the municipal composition. ``reference_births`` the same for
+    the year the table is expressed on. Needs the ``modelled`` extra.
+    """
+    from .modelled import ModelledManifest, write_modelled  # noqa: PLC0415
+
+    comp = composition(births)
+    year, linked, pairs = prepare(deaths, comp, population)
     years = sorted(np.unique(year))
-    tables = []
-    for a, b in ([(years[0], years[1]), (years[1], years[0])] if len(years) > 1 else [(years[0], years[0])]):
-        _, t = select_scales(pairs(linked & (year == a)), pairs(linked & (year == b)))
-        tables.append(t)
-    mean_table = [{**{n: r[n] for n in SCALE_NAMES}, "held_out_log_loss": float(np.mean([t[i]["held_out_log_loss"] for t in tables]))}
-                  for i, r in enumerate(tables[0])]
-    best = min(mean_table, key=lambda r: r["held_out_log_loss"])
-    scales = {n: best[n] for n in SCALE_NAMES}
-    model = fit(pairs(linked), scales, z_mean=comp.mean, z_sd=comp.sd, seed=seed)
+    mean_table: list[dict] = []
+    if scales is None:
+        # train on one year, score the other, both ways (the first and last years of a longer span)
+        tables = []
+        for a, b in ([(years[0], years[-1]), (years[-1], years[0])] if len(years) > 1 else [(years[0], years[0])]):
+            _, t = select_scales(pairs(linked & (year == a)), pairs(linked & (year == b)))
+            tables.append(t)
+        mean_table = [{**{n: r[n] for n in SCALE_NAMES}, "held_out_log_loss": float(np.mean([t[i]["held_out_log_loss"] for t in tables]))}
+                      for i, r in enumerate(tables[0])]
+        best = min(mean_table, key=lambda r: r["held_out_log_loss"])
+        scales = {n: best[n] for n in SCALE_NAMES}
+    model = fit(pairs(linked), scales, z_mean=comp.mean, z_sd=comp.sd, seed=seed, age_bands=population.age_bands,
+                version=population.version)
 
     ref = reference_births
     rmun = np.array([int(m) for m in ref["mun"].to_pylist()])
@@ -548,13 +618,14 @@ def build_infant(deaths: pa.Table, births: pa.Table, reference_births: pa.Table,
     keep = np.isin(muns // 10000, UF_CODES)
     table = summarise(model, comp, muns[keep], mat[keep])
     manifest = ModelledManifest(
-        product=PRODUCT, version=version, model=__doc__.split("\n")[0], estimates={"p": ["p_lo", "p_hi"]},
-        inputs={"link:sim_infant_deaths_to_sinasc": "stored probabilistic links, see lake/links",
+        product=population.product, version=population.version, model=__doc__.split("\n")[0], estimates={"p": ["p_lo", "p_hi"]},
+        inputs={f"link:{population.link}": "stored links, see lake/links",
                 "SIM.DO": f"RACACOR, CODMUNRES, DTNASC, DTOBITO; years {years}", "SINASC-DN": "RACACOR, CODMUNRES (declared race, composition)"},
         validation=validation,
         notes=[f"{model.n_pairs} linked pairs weighted by inverse linkage probability; scales {scales}; diagnostics {model.diagnostics}",
                "p is C(recorded | declared) averaged over the state's municipalities by their births; draws.npz holds the parameter draws",
-               "declared race is the mother's declaration at birth (SINASC); the Census self-declaration is assumed the same quantity"])
+               "declared race is the reference declaration of the linked SINASC record; the Census self-declaration is assumed the same quantity",
+               *notes])
     target = write_modelled(table, manifest, settings=settings)
     model.save(target / "draws.npz")
     (target / "scales_table.json").write_text(json.dumps(mean_table, indent=1), encoding="utf-8")

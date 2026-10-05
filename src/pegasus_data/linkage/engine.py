@@ -56,6 +56,7 @@ class Side:
     where: str = ""
     explode_days: tuple[str, str, str] | None = None  # (start role, end role, new role)
     group: tuple[str, ...] = ()                       # one record per group (a delivery)
+    latest: str = ""                                  # the group's record with the latest value of this role stands for it
     pad_years: tuple[int, int] = (0, 0)               # years read before and after the left period
 
 
@@ -93,6 +94,7 @@ def _side(body: dict[str, Any]) -> Side:
         where=str(body.get("where") or ""),
         explode_days=tuple(explode) if explode else None,  # type: ignore[arg-type]
         group=tuple(body.get("group") or ()),
+        latest=str(body.get("latest") or ""),
         pad_years=tuple(int(x) for x in body.get("pad_years") or (0, 0)),  # type: ignore[arg-type]
     )
 
@@ -166,6 +168,8 @@ def _roles_needed(spec: LinkSpec, side: str) -> list[str]:
         names.discard(s.explode_days[2])
         names.update(s.explode_days[:2])
     names.update(s.group)
+    if s.latest:
+        names.add(s.latest)
     declared = dataset_roles(s.dataset).roles
     for text in (s.where, *(v.sql or "" for v in spec.validations)):
         names.update(r for r in declared if f'"{r}"' in text)
@@ -242,10 +246,11 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
         base = f"SELECT *, _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS _id FROM {name}_raw {where}"
     if side.group:
         # One record stands for its group (the live births of one delivery):
-        # the smallest id, with the group's size kept for validation.
+        # the smallest id (or the latest by ``side.latest``), with the group's size kept for validation.
         keys = ", ".join(_q(g) for g in side.group)
+        order = f"{_q(side.latest)} DESC NULLS LAST, _id" if side.latest else "_id"
         base = (f"SELECT * EXCLUDE (_n), _n AS _group_size FROM (SELECT *, count(*) OVER (PARTITION BY {keys}) AS _n, "
-                f"row_number() OVER (PARTITION BY {keys} ORDER BY _id) AS _k FROM ({base})) WHERE _k = 1")
+                f"row_number() OVER (PARTITION BY {keys} ORDER BY {order}) AS _k FROM ({base})) WHERE _k = 1")
     if side.explode_days:
         start, end, new = side.explode_days
         base = (f"SELECT *, CAST(unnest(generate_series(CAST({_q(start)} AS TIMESTAMP), CAST({_q(end)} AS TIMESTAMP), "
