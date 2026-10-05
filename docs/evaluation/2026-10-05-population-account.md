@@ -50,3 +50,18 @@ Median half-width of the 10–90% interval is 11.7% of the municipal total. What
 - Between two censuses the draws are closed onto both and their spread multiplied by sin(πk): the median half-width of a municipal total is 0 at the censuses, 3.1% a year after 2010, 12.1% in 2016 (the hold-out's 11.7%) and 3.2% a year before 2022. The tapered interior is **not** validated; only its middle matches the hold-out's width.
 - A first build (v1, without the shared factor, with a 2023 row, no anchor at the opening census) was deleted: its intervals were the 60% ones.
 - `registration_completeness` (SINASC by state and half-period) runs 0.85 to 1.10, median 0.995; above 1 means the census counted fewer children than were registered, not registration.
+
+## Interval check on a second period (2000 to 2010)
+
+The `SHARED_SD` terms were estimated on the 2010 to 2022 residuals they were scored on. `holdout_2010.py` (artifacts `holdout_2010_rec.log`, `holdout_2010_raw.log`; 2026-10-05, core data home, 5,559 entities, 100 draws) applies the same terms unchanged to 2000 to 2010: the 2000 census opens the account with 2000-2010 SIM/SINASC, scored against the 2010 census. There is no census before 2000 in the pipeline, so nothing about 2010 can be trained away honestly except its *location*: the fit's means, state/micro-region/municipal deviations and births shortfalls are zeroed (persistence 0), leaving the vital projection (10% death shortfall), the spreads the 2000-2010 fit gave the migration hierarchy (variances only, a leak of scale), census noise and `SHARED_SD`. Truth: the 2010 census at IBGE-reconciled coverage (the account's `reconciled_coverage`; the 2000 start scaled likewise), and the raw census as a sensitivity.
+
+| 10-90% coverage (nominal 0.80) | reconciled | raw |
+|---|---|---|
+| municipal total | **0.690** | 0.703 |
+| N / NE / SE / S / CO | 0.54 / 0.69 / 0.80 / 0.64 / 0.55 | 0.57 / 0.72 / 0.81 / 0.63 / 0.56 |
+| 2.5-97.5% (nominal 0.95) | 0.845 | 0.845 |
+
+Median half-width of the 10-90% interval 11.8% (the 2022 hold-out's 11.7%). Median absolute error of the municipal total, account / vital projection: 0.077 / 0.076 reconciled, 0.074 / 0.073 raw; by region (reconciled) N 0.104, NE 0.081, SE 0.057, S 0.087, CO 0.103 (vital within 0.004 everywhere). National total 194.52M against 194.75M (vital 194.38M).
+
+Reading: the widening does not transfer in full. On a different period the 10-90% intervals cover 0.69-0.70, not the 0.79 of the in-sample fit or 0.81 of leave-one-region-out; only the Southeast (0.80) holds, the North and Center-West fall further (0.54-0.57 against 0.65-0.67), and the South, 0.80 in 2022, drops to 0.64. Two causes are confounded and not separated here: the intervals were sized for a trained account whose median error was 0.057, and this untrained one has 0.074-0.077 (it adds nothing to the vital projection, as nothing it learned is carried); and the period-specific shared error (the 2000 and 2010 censuses' coverage differing by place) is not the 2010-2022 one. The product's interval should be read as roughly 70% coverage out of sample, not 80%.
+
