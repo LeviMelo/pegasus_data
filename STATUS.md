@@ -179,7 +179,6 @@ OQ-64), 1990s SIH V-codes.
     the municipality each station stands in (1961–2025, 912 stations).
   - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
     type and human damages.
-- **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
 - **SIDRA** (`pegasus_data.sidra`, `pegasus-data sidra`, ADR-0142):
   - a registry of IBGE's tables built from its own metadata (`sidra scan`; `search`, `show`, `survey`, `rank`);
   - a planner under the measured limits and a long fact store with provenance; the curated compendium (97 tables) priced and fetched by group (`sidra curated`);
@@ -187,6 +186,7 @@ OQ-64), 1990s SIH V-codes.
     `population_race_sex_ageband`, and sewer, water and waste coverage 2000, 2010, 2022;
   - not built: SIDRA tables at state level as context fields (PNS, PNAD Contínua; `fields.yml` is municipal), and the
     sample-based 2010 labour cube (table 3572, 120M values) which `sidra curated` skips by size.
+- **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
 - **Renamed columns:** five confirmed by values are curated (OQ-57
   narrowed).
 
@@ -308,7 +308,7 @@ OQ-64), 1990s SIH V-codes.
 | 4 aggregation | **Done** (ADR-0138): national SIM 2010–2023, municipality × year × 18 ages × sex × ICD category: 10,974,296 cells, 18,878,605 deaths, 14/14 years = TabNet; 655 s and 11.4 GB peak (from 1,205 s and 15.1 GB). |
 | 5 code structures | **Done** except OQ-69: ICD10/SIGTAP/CBO2002/CNAE20 trees; CID-BR-10, ICD-10 lists 2 and 4, avoidable causes, ICSAP. Not served: the SIH morbidity list (no ICD mapping found), GBD (licence: the author's call), ICD-9 → ICD-10. |
 | 6 graphs | **Done** (ADR-0138): contiguity by border km, population distance, REGIC 2018 links and cities, areas, care flows (sum exactly to events). Travel time: later. |
-| 7 modelled tier | **Declared** (ADR-0139, `modelled.py`). Sources: ANS beneficiaries 2021–2025 (= ANS TabNet) and INEP enrolment margins 2021–2024 are fields. TSE needs a TSE–IBGE crosswalk; CadÚnico and RAIS are not started. Models: `race_confusion_infant` (ADR-0143) and the population account (`population_account.py`, ADR-0145; hold-out median error 0.057 against 0.079 vital-only, 10–90% coverage 0.79). |
+| 7 modelled tier | **Declared** (ADR-0139, `modelled.py`). Sources: ANS beneficiaries 2021–2025 (= ANS TabNet) and INEP enrolment margins 2021–2024 are fields. TSE needs a TSE–IBGE crosswalk; CadÚnico and RAIS are not started. Models: `race_confusion_infant` (ADR-0143) and the population account (`population_account.py`, ADR-0145; hold-out median error 0.057 against 0.079 vital-only, 10–90% coverage 0.79); `population_without_private_coverage` (2021–2022) and `system_completeness` (SIM, SINASC by UF, 2000–2023) (ADR-0146). |
 
 ## Waiting on the user
 

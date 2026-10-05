@@ -640,3 +640,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `TAB_SIA.zip!DBF/INE_EQUIPE_<UF>.dbf` and `INE_EQUIPE_BR.dbf` (107,438
   teams) map `CHAVE` (the 10-digit INE) to `DS_REGRA` (the team's name).
   `TAB_CNES.zip!DBF/EQUIPE.dbf` holds the 64 team TYPES.
+
+### Completeness and private coverage (measured 2026-10-05)
+
+- IDB 2012 (tabnet.datasus.gov.br/cgi/idb2012/): A.17 `a17b.htm` (SINASC) and A.18 `a1801b.htm` (SIM), `a1802b.htm` (infant deaths): registered/estimated events by UF, 2000-2011, estimate = municipal events corrected by the 2008 Busca Ativa factors (Legal Amazon, Northeast); South, Southeast, MS and DF read 100.0 to 2009 (assumed); IBGE's base changes in 2010. The SIM consolidation `tabnet.datasus.gov.br/cgi/sim/Consolida_Sim_2011.pdf` gives 96.1% for 2011 where IDB gives 94.2%. RIPSA DEM.4.01/DEM.4.02 describe the indicators (SINASC municipal coverage from 2015 by capture-recapture); the municipal series was not located.
+- ANS open data (dadosabertos.ans.gov.br/FTP/PDA/): `informacoes_consolidadas_de_beneficiarios-024` has monthly folders from 2021-05; `taxa_de_cobertura_de_planos_de_saude-047` and `dados_de_beneficiarios_por_regiao_geografica` hold the current year only; `beneficiarios_identificados_sus_abi` identifies plan holders found in SUS reimbursement. Older series: ANS TabNet (now anstabnet-ds.ans.gov.br), not retrieved. The `ans_beneficiaries` field stores the coverage label with a replacement character ("M?dico-hospitalar").
+- www.ibge.gov.br answers 403 to curl with a browser user agent; ftp.ibge.gov.br answers. IBGE's sub-registro estimates are of civil registration, not of SIM or SINASC.
