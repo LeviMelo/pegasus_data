@@ -5,12 +5,17 @@ IBGE's SIDRA serves both censuses at municipal level by sex and single year of a
 - 2022: table 9514 (variable 93; sex 2 [4 men, 5 women]; age 287; age declaration 286 at its
   total 113635);
 - 2010: table 1378, the universe (variable 93; situation 1 and household condition 455 at their
-  total 0; sex 2 [4, 5]; age 287).
+  total 0; sex 2 [4, 5]; age 287);
+- 2000: table 1552 (variable 93; situation 1 and age declaration 286 at their total 0; sex 2 with its own ids
+  [92956, 92957]; age 287). It is served on the current list of 5,570 municipalities, and the 58 created after
+  2000 have no value (SIDRA's ``...``, "not available"): those cells are kept as nulls, never zeros.
 
 Ages are the classification's single-year categories ("Menos de 1 ano" = 0, "n ano(s)",
-"100 anos ou mais" = 100); its groups and its sub-year months are not ages and are left out. The
-series lands in ``lake/population/CENSO/`` in POPSVS's schema, so ``load_population(series="CENSO")``
-serves it, and every municipality's total is checked against the table's own total.
+"100 anos ou mais" = 100); its groups and its sub-year months are not ages and are left out.
+SIDRA's symbols are read as IBGE defines them: ``-`` is an absolute zero; ``...`` (not available), ``..`` (not
+applicable) and ``X`` (withheld) are no value. The series lands in ``lake/population/CENSO/`` in POPSVS's
+schema, so ``load_population(series="CENSO")`` serves it, and every municipality's total is checked against
+the table's own total.
 """
 
 from __future__ import annotations
@@ -29,8 +34,10 @@ import pyarrow.parquet as pq
 
 BASE = "https://servicodados.ibge.gov.br/api/v3/agregados"
 TABLES = {
-    2022: {"table": 9514, "fixed": "286[113635]"},
-    2010: {"table": 1378, "fixed": "1[0]|455[0]"},
+    2022: {"table": 9514, "fixed": "286[113635]", "sex": {"4": "1", "5": "2"}, "totals": ("6794", "100362")},
+    2010: {"table": 1378, "fixed": "1[0]|455[0]", "sex": {"4": "1", "5": "2"}, "totals": ("0", "0")},
+    # 2000 by single age: table 1552 (2000 and 2010), whose sex categories have their own ids
+    2000: {"table": 1552, "fixed": "1[0]|286[0]", "sex": {"92956": "1", "92957": "2"}, "totals": ("0", "0")},
 }
 UA = {"User-Agent": "Mozilla/5.0 (pegasus-data)"}
 #: SIDRA answers at most this many values per request (localities × categories × periods).
@@ -74,19 +81,39 @@ def ages(table: int) -> dict[str, int]:
     return out
 
 
-def _answer(table: int, year: int, uf: int, ids: list[str], fixed: str) -> list[Any]:
+def _answer(table: int, year: int, uf: int, ids: list[str], fixed: str, sexes: list[str]) -> list[Any]:
     """One state's answer for a set of ages. The chunk is planned under SIDRA's value limit; a
     request it still refuses with a server error is split in half and retried (a safety net, not
     the plan: Minas Gerais at 853 × 2 × 34 = 58,004 values was refused, 2026-10-04)."""
     url = (f"{BASE}/{table}/periodos/{year}/variaveis/93?localidades=N6[N3[{uf}]]"
-           f"&classificacao=2[4,5]|287[{','.join(ids)}]|{fixed}")
+           f"&classificacao=2[{','.join(sexes)}]|287[{','.join(ids)}]|{fixed}")
     try:
         return _get(url, attempts=2)
     except urllib.error.HTTPError as exc:
         if exc.code < 500 or len(ids) == 1:
             raise
         half = len(ids) // 2
-        return _answer(table, year, uf, ids[:half], fixed) + _answer(table, year, uf, ids[half:], fixed)
+        return _answer(table, year, uf, ids[:half], fixed, sexes) + _answer(table, year, uf, ids[half:], fixed, sexes)
+
+
+#: SIDRA's symbols for a value that is not a number (IBGE's tabulation convention). ``-`` is an
+#: absolute zero, a count of nobody; every other symbol is *no value*, and no value is not zero.
+SIDRA_ZERO = "-"
+SIDRA_NO_VALUE = {"...": "not available", "..": "not applicable", "X": "withheld to protect a respondent",
+                  "": "empty", None: "absent"}
+
+
+def _value(raw: str | None, symbols: dict[str, int]) -> int | None:
+    """One SIDRA cell as a count: digits are the count, ``-`` is zero, any other symbol is a recorded gap (None)."""
+    if raw is not None and raw.strip().isdigit():
+        return int(raw)
+    if raw == SIDRA_ZERO:
+        return 0
+    key = "None" if raw is None else raw
+    symbols[key] = symbols.get(key, 0) + 1
+    if raw not in SIDRA_NO_VALUE:
+        raise ValueError(f"SIDRA returned a value this builder does not know how to read: {raw!r}")
+    return None
 
 
 def _municipalities_per_uf() -> dict[int, int]:
@@ -109,20 +136,20 @@ def build_census(population_dir: Path, years: list[int] | None = None, log=print
         table = spec["table"]
         age_of = ages(table)
         ids = list(age_of)
-        rows: list[tuple[int, str, int, int]] = []
+        rows: list[tuple[int, str, int, int | None]] = []
+        symbols: dict[str, int] = {}
         municipalities = _municipalities_per_uf()
         for uf in sorted(municipalities):
             # the chunk is planned from SIDRA's 50,000-value limit: municipalities × 2 sexes × ages
             step = max(1, SIDRA_VALUE_LIMIT // (municipalities[uf] * 2))
             for i in range(0, len(ids), step):
-                for result in _answer(table, year, uf, ids[i:i + step], spec["fixed"]):
+                for result in _answer(table, year, uf, ids[i:i + step], spec["fixed"], list(spec["sex"])):
                     for res in result["resultados"]:
                         cls = {c["id"]: next(iter(c["categoria"])) for c in res["classificacoes"]}
-                        sex = {"4": "1", "5": "2"}[cls["2"]]
+                        sex = spec["sex"][cls["2"]]
                         age = age_of[cls["287"]]
                         for s in res["series"]:
-                            value = s["serie"].get(str(year))
-                            n = int(value) if value not in (None, "", "-", "...", "X") else 0
+                            n = _value(s["serie"].get(str(year)), symbols)
                             rows.append((int(s["localidade"]["id"]), sex, age, n))
             log(f"CENSO {year} UF {uf}: {len(rows)} cells so far")
         tab = pa.table({"municipality": pa.array([r[0] for r in rows], pa.int64()),
@@ -133,20 +160,27 @@ def build_census(population_dir: Path, years: list[int] | None = None, log=print
                         "_source_path": pa.array([f"sidra:{table}"] * len(rows), pa.string())})
         # the check: every municipality's sum over sex and age against the table's own total
         totals = _get(f"{BASE}/{table}/periodos/{year}/variaveis/93?localidades=N6[all]"
-                      f"&classificacao=2[{'6794' if year == 2022 else '0'}]|287[{'100362' if year == 2022 else '0'}]"
+                      f"&classificacao=2[{spec['totals'][0]}]|287[{spec['totals'][1]}]"
                       f"|{spec['fixed']}")
-        published = {int(s["localidade"]["id"]): int(s["serie"][str(year)])
-                     for s in totals[0]["resultados"][0]["series"]}
+        gaps: dict[int, str] = {}
+        published: dict[int, int] = {}
+        for s in totals[0]["resultados"][0]["series"]:
+            value = _value(s["serie"].get(str(year)), {})
+            if value is None:
+                gaps[int(s["localidade"]["id"])] = s["serie"].get(str(year)) or "absent"
+            else:
+                published[int(s["localidade"]["id"])] = value
         import pyarrow.compute as pc
 
-        ours = tab.group_by("municipality").aggregate([("population", "sum")])
-        mism = [(m, int(v), published.get(m)) for m, v in zip(ours["municipality"].to_pylist(),
-                                                               ours["population_sum"].to_pylist(), strict=True)
-                if published.get(m) != v]
+        ours = tab.group_by("municipality").aggregate([("population", "sum")])    # a null cell is skipped
+        sums = dict(zip(ours["municipality"].to_pylist(), ours["population_sum"].to_pylist(), strict=True))
+        mism = [(m, v, published.get(m)) for m, v in sums.items() if m in published and published[m] != v]
+        no_value = sorted({int(m) for m in pc.filter(tab["municipality"], pc.is_null(tab["population"])).to_pylist()})
         pq.write_table(tab, out_dir / f"censo_{year}.parquet", compression="zstd")
         report[year] = {"cells": tab.num_rows, "municipalities": len(published),
                         "population": int(pc.sum(tab["population"]).as_py()),
                         "published_total": sum(published.values()), "mismatched_municipalities": len(mism),
-                        "examples": mism[:5]}
+                        "examples": mism[:5], "symbols": symbols, "totals_without_value": len(gaps),
+                        "municipalities_with_no_value": len(no_value), "no_value_examples": no_value[:10]}
         log(f"CENSO {year}: {report[year]}")
     return report

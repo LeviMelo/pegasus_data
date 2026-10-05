@@ -507,6 +507,29 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   per-state parts**; other years hold the national table alone. Reading every
   member double-counts (fixed in the population build).
 
+- **The Census series and how complete each census was** (2026-10-05).
+  - **Raw counts** (`CENSO`, SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022; `sources/census.py`):
+    169,799,170, 190,755,799 and 203,080,756 people. SIDRA writes `-` for an absolute zero and `...` (not available) for the
+    58 municipalities created after 2000, which table 1552 lists with no value; those cells are kept as nulls.
+  - **2022 enumerated vs imputed:** 195,101,203 enumerated plus 7,979,553 imputed (occupied households without an interview;
+    PES report Table 1, by state: São Paulo 7.7%, Rio de Janeiro 4.2%).
+  - **PES 2022** (`sources/pes.py`; IBGE, *Pesquisa de Pós-Enumeração do Censo Demográfico 2022*,
+    https://biblioteca.ibge.gov.br/visualizacao/livros/liv102110.pdf, read 2026-10-05). Dual-system estimation on 4,795 tracts,
+    applied to the enumerated count only. Net error 8.3% (omission 12.2%, wrongful inclusion 3.3%); the net error is
+    `(N − C) / N`, so the corrected population is `C / (1 − ε)`. By age and sex 3.3% (women 75–79) to 11.2% (women 20–24);
+    by state 3.8% (PB) to 15.5% (RJ); by municipality size 3.9% (<14,000) to 13.2% (>1 million). Only the margins are published.
+    The age-sex margins give 211.96M, the state margins 213.39M and the size margins 213.02M (the report's 8.3% on 195.10M gives
+    212.76M); the three do not reconcile exactly, and the rates are published to one decimal.
+  - **POPSVS 2022 is IBGE's *Projeções Revisão 2024*** (IBGE notes liv102111 and liv102112, relayed 2026-10-05): a demographic
+    reconciliation of 2000, 2010 and 2022 with the PES, not an observation. Its 2000 (174.70M) and 2010 (194.75M) are 3.0% and
+    2.2% above the raw counts (ages 0–9: 5.3% and 7.4%); at 60 and over it sits 0.25M below the raw 2022 census because IBGE
+    carries 2010 forward there. It rests on the same births and deaths as a vital-registration account, so it is no
+    independent check of one.
+  - **Births test, 2022** (relayed): the raw census at ages 0–4 is 12.705M against about 13.73M surviving registered births
+    (92.5%); PES-corrected it is within 1.1% of them.
+  - **The same test in 2010** (`population_account`, births 2005–09 against the census at 0–4): the census matches the registered
+    births to within about 1% (the fitted discrepancy is −0.2% ± 0.6%), so the 2010 census did not show the child undercount of 2022.
+
 ### 6.2 Localidades API (audit headed 2026-08-23, committed 2026-08-27; IBGE-L §2–§3)
 
 - `servicodados.ibge.gov.br/api/v1/localidades` is current and the only

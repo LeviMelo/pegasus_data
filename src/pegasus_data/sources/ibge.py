@@ -108,9 +108,9 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
     ),
     "CENSO": PopulationSeries(
         name="CENSO",
-        authority="IBGE Census (SIDRA tables 1378 for 2010, 9514 for 2022)",
+        authority="IBGE Census (SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022)",
         directory="",
-        year_min=2010,
+        year_min=2000,
         year_max=2022,
         stratifications=["municipality", "year", "sex", "age"],
         age_standardizable=True,

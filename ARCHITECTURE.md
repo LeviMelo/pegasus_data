@@ -473,6 +473,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `modelled.py`: the modelled tier (ADR-0139): products under lake/modelled/, typed, versioned, with uncertainty and validation evidence.
 - `semantics/code_structures.py`: `code_trees.parquet` and `code_lists.parquet` (`scripts/build_code_structures.py`), served as data.
 - `semantics/event_types.py`: the `event_types:` of `curation/datasets/*.yml`; counts events by their status and consolidation.
+- `population_account.py`: the cohort-component population account by municipality × sex × single age, 2000 onward (modelled tier): vital events from SIM/SINASC, registration completeness, a hierarchical net-migration profile and the censuses' own error estimated on one intercensal period and forecast into the next with draws for intervals; products `population_account` and `registration_completeness`.
 - `modelled_race.py`: the race misclassification product `race_confusion_infant` (ADR-0143): C(recorded in SIM | declared at birth) from the stored SIM–SINASC infant links, a multinomial logit by state, region, municipal composition and age band; `reclassify` turns SIM deaths by recorded race into deaths by declared race. Fitting needs the `modelled` extra (jax, numpyro).
 - `semantics/bindings.py`: field→codelist bindings (the candidates).
 - `semantics/label_bindings.py`: the ONE label decision (`decide`, ADR-0082) and the compiled bindings per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
@@ -496,7 +497,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `sources/tabnet.py`: TabNet over HTTP. Its current territorial tables
   (health macroregion, current health regions) feed the geography pack, and
   `tabulate` asks TabNet for a published table to check a figure against.
-- `sources/census.py`: the Census (2010, 2022) by municipality × sex × single age from SIDRA, as the population series `CENSO`, each request planned under SIDRA's value limit (DATA_SOURCES) and checked against the table's own municipal totals.
+- `sources/census.py`: the Census (2000, 2010, 2022) by municipality × sex × single age from SIDRA, as the population series `CENSO`, each request planned under SIDRA's value limit (DATA_SOURCES) and checked against the table's own municipal totals; SIDRA's `...`/`..`/`X` cells are recorded gaps (nulls, counted), `-` is zero.
+- `sources/pes.py`: IBGE's 2022 post-enumeration survey as published rates (net error by age × sex, state, size class) and `corrected_census`, the enumerated census raked onto those margins (modelled; the margins are IBGE's, the cells an estimate).
 - `sources/s2id.py`: S2iD disaster events from MIDR's open data (bare CKAN download route) for the `disasters` field.
 - `sources/inmet.py`: INMET stations (readings from the Zenodo mirror, positions from INMET's API first) placed by spatial join in the municipality containing them; station-month sums, counts and extremes for the `climate` field.
 - `sources/ipea_amc.py`: minimum comparable areas from IPEA's geobr (Ehrl 2017),
