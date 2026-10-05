@@ -39,6 +39,8 @@ sending a user elsewhere to decode a diagnosis is the opposite of the point.
 from __future__ import annotations
 
 import re
+import sqlite3
+import tempfile
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -240,15 +242,20 @@ def build_label_pack(
             for r in catalog.query("SELECT DISTINCT codelist FROM field_codelists")
         }
 
-    # (codelist, code) -> {system: label}, so a code every system labels the
-    # same way can be stored once.
-    per_code: dict[tuple[str, str, tuple[str, str]], dict[str, str]] = {}
-    #: Which systems carry each codelist at all. Needed to tell "every system
-    #: agrees" from "only one system has this code", which are not the same
-    #: claim and only the first is safe to store as system-agnostic.
-    carriers: dict[str, set[str]] = {}
     crosswalk: set[tuple[str, str, str, str, str, str, str, float]] = set()
-    widths: dict[tuple[str, str], int | None] = {}
+
+    # The accumulation (a label per codelist, code, window and system, so a code every
+    # system labels the same way can be stored once) lives in a scratch SQLite file, not in
+    # Python dicts: 22M dictionary rows as dict-of-dict-of-tuple were 10+ GB private and
+    # drove the machine to paging (2026-10-05). Rows are normalised one at a time and
+    # appended; every later step is a sorted stream over the scratch file.
+    scratch = tempfile.TemporaryDirectory(prefix="pegasus_labelpack_")
+    work = sqlite3.connect(Path(scratch.name) / "work.sqlite")
+    work.execute("PRAGMA cache_size=-262144")
+    work.execute("PRAGMA synchronous=OFF")
+    work.execute("PRAGMA journal_mode=OFF")
+    work.execute("CREATE TABLE rows (grp TEXT, code TEXT, vf TEXT, vt TEXT, sys TEXT, label TEXT, kit TEXT)")
+    pending: list[tuple[str, str, str, str, str, str, str]] = []
 
     # Two TabNet kits can file different tables under one name (SINASC RACACOR: the
     # pre-1996 kit codes 1 Amarela, 2 Branca, 5 Preta; the current one 1 Branca, 2 Preta).
@@ -263,14 +270,15 @@ def build_label_pack(
         for r in catalog.query("SELECT DISTINCT system, field_name FROM dictionary_conflicts")
     }
     kit_rows: dict[tuple[str, str], dict[str, int]] = {}
-    origin: dict[tuple[str, str, tuple[str, str], str], str] = {}
 
-    # Streamed: the dictionary is 22M rows, and a list of them is the whole memory budget.
+    # Streamed in table (insertion) order, so a later claim for the same key wins as it
+    # always did; unbound codelists are skipped in SQL, not after 22M rows of Python.
     for row in catalog.conn.execute(
         "SELECT system, value_group, value_raw, value_label, valid_from, valid_to,"
         " source_ref, confidence"
-        " FROM dictionary"
+        " FROM dictionary NOT INDEXED"
         " WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
+        + (" AND upper(value_group) IN (SELECT upper(codelist) FROM field_codelists)" if bound is not None else "")
     ):
         group = str(row["value_group"]).upper()
         if bound is not None and group not in bound:
@@ -312,29 +320,50 @@ def build_label_pack(
         # keeps windows apart — and a fallback that cannot express that cannot
         # honour the same contract.
         window = (_window_key(row["valid_from"]), _window_key(row["valid_to"]))
-        per_code.setdefault((group, code, window), {})[str(row["system"] or "")] = label
-        if (str(row["system"] or ""), group) in contradicted:
-            kit = str(row["source_ref"] or "").rsplit(":", 1)[0]
-            kit_rows.setdefault((str(row["system"] or ""), group), {}).setdefault(kit, 0)
-            kit_rows[(str(row["system"] or ""), group)][kit] += 1
-            origin[(group, code, window, str(row["system"] or ""))] = kit
-        carriers.setdefault(group, set()).add(str(row["system"] or ""))
-        widths.setdefault((group, code), len(code) or None)
+        sys_name = str(row["system"] or "")
+        kit = str(row["source_ref"] or "").rsplit(":", 1)[0]
+        pending.append((group, code, window[0], window[1], sys_name, label, kit))
+        if len(pending) >= 50_000:
+            work.executemany("INSERT INTO rows VALUES (?,?,?,?,?,?,?)", pending)
+            pending.clear()
+        if (sys_name, group) in contradicted:
+            kit_rows.setdefault((sys_name, group), {}).setdefault(kit, 0)
+            kit_rows[(sys_name, group)][kit] += 1
+    work.executemany("INSERT INTO rows VALUES (?,?,?,?,?,?,?)", pending)
+    pending.clear()
+
+    # One label per (codelist, code, window, system): the last claim read. SQLite takes the
+    # bare columns of an aggregate from the row holding MAX(rowid), so label and kit are that
+    # claim's. The kit of the surviving claim is what the incoherence check below reads.
+    work.execute(
+        "CREATE TABLE dedup AS SELECT grp, code, vf, vt, sys, label, kit, MAX(rowid) AS seq"
+        " FROM rows GROUP BY grp, code, vf, vt, sys"
+    )
+    work.execute("DROP TABLE rows")
+
+    #: Which systems carry each codelist at all. Needed to tell "every system
+    #: agrees" from "only one system has this code", which are not the same
+    #: claim and only the first is safe to store as system-agnostic.
+    carriers: dict[str, set[str]] = {}
+    for grp, sys_name in work.execute("SELECT DISTINCT grp, sys FROM dedup"):
+        carriers.setdefault(grp, set()).add(sys_name)
 
     primary = {key: max(kits, key=lambda k: kits[k]) for key, kits in kit_rows.items() if len(kits) > 1}
     dropped: dict[tuple[str, str], int] = {}
-    for (group, code, window, sys_name), kit in origin.items():
-        if (sys_name, group) in primary and kit != primary[(sys_name, group)]:
-            by_system = per_code.get((group, code, window), {})
-            if by_system.pop(sys_name, None) is not None:
-                dropped[(sys_name, group)] = dropped.get((sys_name, group), 0) + 1
-            if not by_system:
-                per_code.pop((group, code, window), None)
+    for (sys_name, group), kit in primary.items():
+        removed = work.execute(
+            "DELETE FROM dedup WHERE sys = ? AND grp = ? AND kit <> ?", (sys_name, group, kit)
+        ).rowcount
+        if removed:
+            dropped[(sys_name, group)] = removed
     report.incoherent_dropped = sorted((s_, g_, n_) for (s_, g_), n_ in dropped.items())
 
     # Collapse: a code every system agrees on becomes one row with system NULL.
+    work.execute("CREATE TABLE flat (sys TEXT, grp TEXT, vf TEXT, vt TEXT, code TEXT, label TEXT)")
     flat: list[tuple[str | None, str, str, str, str, str]] = []
-    for (group, code, window), by_system in per_code.items():
+
+    def _collapse(key: tuple[str, str, str, str], by_system: dict[str, str]) -> None:
+        group, code, valid_from, valid_to = key
         distinct = set(by_system.values())
         # `system = NULL` means EVERY system reads this code this way. That is
         # only true when every system carrying the codelist actually has the
@@ -344,22 +373,53 @@ def build_label_pack(
         unanimous = len(distinct) == 1 and set(by_system) >= carriers.get(group, set())
         if unanimous:
             report.shared_across_systems += len(by_system) - 1
-            flat.append((None, group, code, next(iter(distinct)), *window))
+            flat.append((None, group, valid_from, valid_to, code, next(iter(distinct))))
         else:
             for sys_name, sys_label in by_system.items():
-                flat.append((sys_name or None, group, code, sys_label, *window))
+                flat.append((sys_name or None, group, valid_from, valid_to, code, sys_label))
+        if len(flat) >= 50_000:
+            work.executemany("INSERT INTO flat VALUES (?,?,?,?,?,?)", flat)
+            flat.clear()
+
+    current: tuple[str, str, str, str] | None = None
+    members: dict[str, str] = {}
+    for grp, code, valid_from, valid_to, sys_name, label in work.execute(
+        "SELECT grp, code, vf, vt, sys, label FROM dedup ORDER BY grp, code, vf, vt"
+    ):
+        key = (grp, code, valid_from, valid_to)
+        if key != current:
+            if current is not None:
+                _collapse(current, members)
+            current, members = key, {}
+        members[sys_name] = label
+    if current is not None:
+        _collapse(current, members)
+    work.executemany("INSERT INTO flat VALUES (?,?,?,?,?,?)", flat)
+    flat.clear()
+    work.execute("DROP TABLE dedup")
 
     # Merge consecutive numeric codes that share a label into one run.
     # Keyed by window too: two vintages of one codelist are two run sets, and
     # merging them would recreate the contradiction the warehouse avoids.
-    buckets: dict[tuple[str | None, str, str, str], list[tuple[str, str]]] = {}
-    for flat_system, group, code, label, valid_from, valid_to in flat:
-        buckets.setdefault((flat_system, group, valid_from, valid_to), []).append((code, label))
+    def _buckets():  # noqa: ANN202
+        bucket: tuple[str | None, str, str, str] | None = None
+        pairs: list[tuple[str, str]] = []
+        for flat_system, group, valid_from, valid_to, code, label in work.execute(
+            "SELECT sys, grp, vf, vt, code, label FROM flat ORDER BY sys, grp, vf, vt, code"
+        ):
+            if (flat_system, group, valid_from, valid_to) != bucket:
+                if bucket is not None:
+                    yield bucket, pairs
+                bucket, pairs = (flat_system, group, valid_from, valid_to), []
+            pairs.append((code, label))
+        if bucket is not None:
+            yield bucket, pairs
 
     sys_c, grp_c, lo_c, hi_c, lab_c, w_c = [], [], [], [], [], []
     vf_c: list[str] = []
     vt_c: list[str] = []
     per_table: dict[str, int] = {}
+    chunks: list[pa.Table] = []
 
     def _emit(
         system: str | None,
@@ -385,9 +445,33 @@ def build_label_pack(
         vf_c.append(valid_from)
         vt_c.append(valid_to)
         per_table[group] = per_table.get(group, 0) + 1
+        if len(sys_c) >= 200_000:
+            _flush_runs()
 
-    for (system, group, valid_from, valid_to), pairs in buckets.items():
-        pairs.sort()
+    def _flush_runs() -> None:
+        """Arrow-encode the pending runs and drop the Python strings: millions of runs held as
+        eight lists of str objects were the pack build's second memory peak."""
+        if not sys_c:
+            return
+        chunks.append(pa.table(
+            {
+                "system": pa.array(sys_c, pa.string()),
+                "codelist": pa.array(grp_c, pa.string()),
+                "code_lo": pa.array(lo_c, pa.string()),
+                "code_hi": pa.array(hi_c, pa.string()),
+                "label": pa.array(lab_c, pa.string()),
+                "code_width": pa.array(w_c, pa.int32()),
+                # Empty string, not null: a window that is open at one end is a
+                # fact, and Parquet statistics on a dictionary-encoded string are
+                # what let the reader skip row groups by window.
+                "valid_from": pa.array(vf_c, pa.string()),
+                "valid_to": pa.array(vt_c, pa.string()),
+            }
+        ))
+        for column in (sys_c, grp_c, lo_c, hi_c, lab_c, w_c, vf_c, vt_c):
+            column.clear()
+
+    for (system, group, valid_from, valid_to), pairs in _buckets():
         lo = hi = ""
         run_label: str | None = None
         for code, text in pairs:
@@ -401,21 +485,11 @@ def build_label_pack(
         if run_label is not None:
             _emit(system, group, lo, hi, run_label, valid_from, valid_to)
 
-    table = pa.table(
-        {
-            "system": pa.array(sys_c, pa.string()),
-            "codelist": pa.array(grp_c, pa.string()),
-            "code_lo": pa.array(lo_c, pa.string()),
-            "code_hi": pa.array(hi_c, pa.string()),
-            "label": pa.array(lab_c, pa.string()),
-            "code_width": pa.array(w_c, pa.int32()),
-            # Empty string, not null: a window that is open at one end is a
-            # fact, and Parquet statistics on a dictionary-encoded string are
-            # what let the reader skip row groups by window.
-            "valid_from": pa.array(vf_c, pa.string()),
-            "valid_to": pa.array(vt_c, pa.string()),
-        }
-    )
+    _flush_runs()
+    work.close()
+    scratch.cleanup()
+    table = pa.concat_tables(chunks)
+    chunks.clear()
     prior_path = Path(carry_from) if carry_from else Path(__file__).parent / "resources" / PACK_NAME
     if prior_path.exists():
         prior = pq.read_table(prior_path)
@@ -423,16 +497,16 @@ def build_label_pack(
         # still read from the 1992-2007 kits, but its CURRENT window came from
         # a source the catalog no longer holds, and keying on the name alone
         # dropped discharge code 12 from every current admission.
-        def windows(t: pa.Table) -> list[tuple[str, str, str]]:
-            return list(zip(
-                t.column("codelist").to_pylist(), t.column("valid_from").to_pylist(),
-                t.column("valid_to").to_pylist(), strict=True,
-            ))
-
-        have = set(windows(table))
-        keep_prior = pa.array([w not in have for w in windows(prior)], pa.bool_())
-        carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
         import pyarrow.compute as pc
+
+        def window_keys(t: pa.Table) -> pa.Array:
+            return pc.binary_join_element_wise(
+                t["codelist"].combine_chunks(), t["valid_from"].combine_chunks(),
+                t["valid_to"].combine_chunks(), "\x00")
+
+        have_keys = pc.unique(window_keys(table))
+        keep_prior = pc.invert(pc.is_in(window_keys(prior), value_set=have_keys))
+        carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
 
         from .identifiers import LABEL_PREFIX
 
