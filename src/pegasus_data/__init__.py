@@ -58,6 +58,10 @@ _EXPORTS: dict[str, str] = {
     "municipality_areas": ".proximity",
     "regic_cities": ".proximity",
     "care_flows": ".proximity",
+    "care_flow_profile": ".careflow",
+    "care_flow_catchments": ".careflow",
+    "care_flow_communities": ".careflow",
+    "compare_flow_regions": ".careflow",
     "code_structures": ".semantics.code_structures",
     "Exploration": "._explore",
     "translate": "._translate",
@@ -157,6 +161,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         load_population,
         load_reference,
     )
+    from .careflow import care_flow_catchments, care_flow_communities, care_flow_profile, compare_flow_regions
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology

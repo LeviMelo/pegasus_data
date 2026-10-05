@@ -270,9 +270,14 @@ def graph_cmd(
                                              "regic_health_high, or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN)")],
     period: Annotated[str | None, typer.Option("--period", help="Care flows: the years counted")] = None,
     geo: Annotated[str, typer.Option("--geo", help="Care flows: the publications read")] = "BR",
-    by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC")] = None,
+    by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC or COMPLEX")] = None,
     level: Annotated[str | None, typer.Option("--level", help="Care flows: the classifier's tree level, e.g. chapter")] = None,
-    out: Annotated[Path | None, typer.Option("--out", help="Write the edge list as .csv or .parquet")] = None,
+    to: Annotated[str, typer.Option("--to", help="Care flows: end at the 'municipality' or at the 'establishment' (CNES)")] = "municipality",
+    derive: Annotated[str | None, typer.Option("--derive", help="Care flows: profile (self-sufficiency), catchments (dominant flow), "
+                                                                "communities (Leiden) or regions (communities against health regions)")] = None,
+    resolution: Annotated[float, typer.Option("--resolution", help="Communities: Leiden resolution (larger = more communities)")] = 1.0,
+    against: Annotated[str, typer.Option("--against", help="Regions: the classification compared with")] = "health_region_current",
+    out: Annotated[Path | None, typer.Option("--out", help="Write the edge list (or derived table) as .csv or .parquet")] = None,
     root: RootOpt = None,
 ) -> None:
     """A proximity graph between municipalities, as an edge list (from, to, weight, kind, vintage)."""
@@ -281,8 +286,28 @@ def graph_cmd(
     if kind.upper() in FLOWS:
         if period is None:
             raise typer.BadParameter("care flows need --period")
-        table = care_flows(kind, period=period, geography=geo, by=by, level=level,
+        table = care_flows(kind, period=period, geography=geo, by=by, level=level, destination=to,
                            settings=_settings(root))
+        if derive:
+            from .. import careflow
+
+            if derive == "profile":
+                table = careflow.care_flow_profile(table)
+            elif derive == "catchments":
+                table = careflow.care_flow_catchments(table)
+            elif derive in ("communities", "regions"):
+                communities = careflow.care_flow_communities(table, resolution=resolution)
+                if derive == "regions":
+                    result = careflow.compare_flow_regions(table, communities, against=against)
+                    _emit({"summary": result["summary"], "regions": result["regions"].num_rows}, False,
+                          f"graph {kind} regions vs {against}")
+                    table = result["regions"]
+                    if out is None:
+                        return
+                else:
+                    table = communities
+            else:
+                raise typer.BadParameter("--derive is profile, catchments, communities or regions")
     else:
         table = proximity_graph(kind)
     if out is not None:
@@ -290,9 +315,12 @@ def graph_cmd(
         import pyarrow.parquet as pq
 
         (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
-        console.print(f"wrote {out} ({table.num_rows:,} edges)")
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        meta = {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()}
+        if "events" in meta:
+            console.print(f"events {int(meta['events']):,}; unplaced {meta['unplaced']}; unresolved {meta['unresolved']}")
         return
-    _emit({"edges": table.num_rows, "metadata": {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()},
+    _emit({"rows": table.num_rows, "metadata": {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()},
            "first": table.slice(0, 5).to_pylist()}, False, f"graph {kind}")
 
 

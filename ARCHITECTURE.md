@@ -319,7 +319,7 @@ question they answer; the overlap is §5's first rows.
 | attach more to it | `enrichment`, `memberships` | `EnrichmentRequest`, `MembershipSet`, `Membership` |
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | what each column states, and what a row counts as | `roles` (entity.property, value kind, model role per column), `event_types`, `count_events` (status and consolidation applied) | |
-| how places relate | `proximity_graph` (contiguity by border km, population-weighted distance, REGIC 2018 links), `municipality_areas`, `regic_cities`, `care_flows` (residence → place of care, birth or death, as events) | |
+| how places relate | `proximity_graph` (contiguity by border km, population-weighted distance, REGIC 2018 links), `municipality_areas`, `regic_cities`, `care_flows` (residence → place of care, birth or death, as events), `care_flow_profile`, `care_flow_catchments`, `care_flow_communities`, `compare_flow_regions` (what a flow graph says about places, derived on request, ADR-0144) | |
 | how much two fields share | `field_overlap` (shared events over the smaller field) | |
 | how codes are organised | `code_structures`, `code_structure` (trees as parent tables: ICD10, SIGTAP, CBO2002, CNAE20; lists as memberships: CID-BR-10, ICD-10 lists 2 and 4, avoidable causes, ICSAP) | |
 | aggregate it | `aggregate` (a classifier rolls up its code tree: `by=["CAUSABAS@category"]`; results carry `data_version`), `build_aggregate` (counts a recipe's declared `event_type`; national files read whole) | `AggregateSpec`, `AggregateReport` |
@@ -471,7 +471,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
 - `semantics/column_roles.py`: `curation/roles/<dataset>.yml`, a role for every column, validated against the linkage roles.
-- `proximity.py`: proximity graphs as edge lists (`proximity.parquet`, `municipality_areas.parquet`, `regic_cities.parquet`, built from IBGE's 2022 mesh, Census tracts and REGIC 2018) and care flows counted from records.
+- `proximity.py`: proximity graphs as edge lists (`proximity.parquet`, `municipality_areas.parquet`, `regic_cities.parquet`, built from IBGE's 2022 mesh, Census tracts and REGIC 2018) and care flows counted from records; `care_flows` is the one flow mechanism (per year, `share`, municipality or CNES destination, every event accounted for, ADR-0144).
+- `careflow.py`: what a care-flow graph says about places, derived from the `care_flows` table and never stored: self-sufficiency and import share, nodal catchments, Leiden flow communities (`network` extra) and their comparison with the official health regions (`pegasus-data graph --derive`, ADR-0144).
 - `modelled.py`: the modelled tier (ADR-0139): products under lake/modelled/, typed, versioned, with uncertainty and validation evidence.
 - `semantics/code_structures.py`: `code_trees.parquet` and `code_lists.parquet` (`scripts/build_code_structures.py`), served as data.
 - `semantics/event_types.py`: the `event_types:` of `curation/datasets/*.yml`; counts events by their status and consolidation.

@@ -16,8 +16,12 @@ Every graph is ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes:
   care, weighted by their order (1 the strongest, 3 the weakest). Shipped.
   ``regic_cities()`` maps every municipality to its REGIC city and level.
 * ``care_flow`` (:func:`care_flows`): residence -> place of care, birth or
-  death, counted from the records as events of their declared type, per year;
-  computed on request, since it depends on what the lake holds.
+  death, counted from the records as events of their declared type, per year,
+  with ``share`` (the part of the origin's events going to ``to``); to the
+  hospital's municipality or, with ``destination="establishment"``, to its
+  CNES. Computed on request, since it depends on what the lake holds. Its
+  derived products (self-sufficiency, catchments, flow communities, the
+  comparison with official health regions) are in ``careflow.py``.
 
 Areas (km², the mesh in SIRGAS 2000 / Brazil Polyconic) are served by
 :func:`municipality_areas`. New municipalities: a code the 2022 mesh lacks
@@ -191,70 +195,123 @@ def municipality_areas() -> pa.Table:
     return _pack(AREAS_PACK_NAME)
 
 
-#: dataset -> (event type, origin column, destination column, what the flow is)
+#: dataset -> (event type, origin column, destination column, what the flow is). SIH-RD reads the
+#: residence through ``MUNIC_RES_municipio``, which gives Brasilia's 2008-2017 administrative-region
+#: codes (530020 ... 530180) back to the one municipality, 530010 (DATA_SOURCES; OQ-71).
 FLOWS = {
-    "SIH-RD": ("hospitalisation", "MUNIC_RES", "MUNIC_MOV", "residence -> hospital municipality"),
+    "SIH-RD": ("hospitalisation", "MUNIC_RES_municipio", "MUNIC_MOV", "residence -> hospital municipality"),
     "CIHA": ("hospitalisation", "MUNIC_RES", "MUNIC_MOV", "residence -> hospital municipality"),
     "SINASC-DN": ("birth", "CODMUNRES", "CODMUNNASC", "mother's residence -> place of birth"),
     "SIM-DO": ("death", "CODMUNRES", "CODMUNOCOR", "residence -> place of death"),
 }
+#: dataset -> the column naming the establishment: the institution variant of the same graph
+#: (``destination="establishment"``), for the institution lattice.
+FACILITIES = {"SIH-RD": "CNES", "SINASC-DN": "CODESTAB"}
 
 
 def care_flows(dataset: str, *, period: object, geography: object = "BR", by: str | None = None,
-               level: str | None = None, **query_kwargs: Any) -> pa.Table:
-    """Events moving from residence to where they happened, per year (and per ``by``).
+               level: str | None = None, destination: str = "municipality", **query_kwargs: Any) -> pa.Table:
+    """The care-flow graph: events moving from residence to where they happened, per year.
 
-    ``by`` names a classifier and ``level`` a level of its code structure
-    (``by="DIAG_PRINC", level="chapter"``), for flows per specialty or chapter.
-    Every event is counted once: the flows of a year sum to that year's events,
-    and an event whose origin or destination is blank is reported, not dropped
-    silently (``unplaced`` in the table's metadata).
+    One edge per (``from``, ``to``, ``vintage`` = the year [, ``by``]): ``weight`` is the events,
+    ``share`` the part of the origin's events in the same year (and ``by`` group) that went to
+    ``to``, ``kind`` ``care_flow:<dataset>``. Municipalities are IBGE's 7-digit codes, as in the
+    other graphs. ``by`` names a classifier and ``level`` a level of its code structure
+    (``by="DIAG_PRINC", level="chapter"``, or ``by="COMPLEX"``).
+
+    ``destination="establishment"`` ends the edges at the facility (SIH ``CNES``) instead of its
+    municipality: the institution graph, whose ``to`` is the CNES code.
+
+    Every event is accounted for. The table's metadata carries the events counted (``events``),
+    those whose origin or destination is blank (``unplaced``) and those whose municipality code is
+    none of IBGE's (``unresolved``), with the codes per year in ``accounting``; the edges sum to
+    ``events - unplaced - unresolved``. ``geography`` selects publications (SIH files are by the
+    hospital's state), so a state gives the flows into its hospitals, not out of its residents.
     """
+    import json
+
     from ._aggregate import _tree_pushforward
     from ._query_engine.executor import query
+    from ._query_engine.model import _period
+    from .geography import municipalities
     from .semantics.event_types import event_type, events_of
 
     key = dataset.upper()
     if key not in FLOWS:
         raise KeyError(f"no flow declared for {dataset!r}; declared: {sorted(FLOWS)}")
-    name, origin, destination, _what = FLOWS[key]
+    if destination not in ("municipality", "establishment"):
+        raise ValueError("destination is 'municipality' or 'establishment'")
+    name, origin, to_column, _what = FLOWS[key]
+    if destination == "establishment":
+        if key not in FACILITIES:
+            raise KeyError(f"{dataset} declares no establishment column; declared: {sorted(FACILITIES)}")
+        to_column = FACILITIES[key]
     event = event_type(dataset, name)
-    columns = {origin, destination, *(c for c in (event.status_column, *event.consolidation_key) if c),
+    columns = {origin, to_column, *(c for c in (event.status_column, *event.consolidation_key) if c),
                *([by] if by else [])}
-    from ._query_engine.model import _period
-
     span = _period(period)
     if span is None:
         raise ValueError("care flows are counted per year: pass a period")
-    pieces = []
+    code7 = {c6: row["code7"] for c6, row in municipalities().items()}
+    known7 = frozenset(code7.values())
+
+    def trimmed(values: pa.ChunkedArray) -> pa.Array:
+        text = pc.utf8_trim_whitespace(pc.cast(values, pa.string()))
+        return pc.if_else(pc.fill_null(pc.equal(text, ""), True), pa.scalar(None, pa.string()), text)
+
+    def municipal(text: pa.Array) -> pa.Array:
+        """6-digit DATASUS (or 7-digit IBGE) codes to IBGE's 7 digits; none for a code that is no municipality."""
+        uniques = pc.unique(text).drop_null()
+        resolved = pa.array([code7.get(u) or (u if u in known7 else None) for u in uniques.to_pylist()], pa.string())
+        return pc.take(resolved, pc.index_in(text, value_set=uniques))
+
+    pieces, accounting, events_total, unplaced_total, unresolved_total = [], {}, 0, 0, 0
     for year in span.years:
         part = events_of(query(dataset, period=str(year), geography=geography, select=sorted(columns),
                                present="codes", **query_kwargs), event)
-        pieces.append(part.append_column("__year", pa.array([str(year)] * part.num_rows, pa.string())))
-    table = pa.concat_tables(pieces, promote_options="default")
-    years = table.column("__year")
-    o = pc.utf8_trim_whitespace(pc.cast(table.column(origin), pa.string()))
-    d = pc.utf8_trim_whitespace(pc.cast(table.column(destination), pa.string()))
-    placed = pc.and_(pc.and_(pc.is_valid(o), pc.is_valid(d)), pc.and_(pc.not_equal(o, ""), pc.not_equal(d, "")))
-    unplaced = table.num_rows - (pc.sum(placed).as_py() or 0)
-    parts = {"from": pc.filter(o, placed), "to": pc.filter(d, placed), "vintage": pc.filter(years, placed)}
-    if by:
-        codes = pc.filter(pc.cast(table.column(by), pa.string()), placed)
-        if level:
-            from .semantics.event_types import load_event_types
+        raw_o, raw_d = trimmed(part.column(origin)), trimmed(part.column(to_column))
+        o = municipal(raw_o)
+        d = municipal(raw_d) if destination == "municipality" else raw_d
+        placed = pc.and_(pc.is_valid(raw_o), pc.is_valid(raw_d))
+        usable = pc.and_(pc.is_valid(o), pc.is_valid(d))
+        unresolved = pc.and_(placed, pc.invert(usable))
+        n_unplaced, n_unresolved = part.num_rows - (pc.sum(placed).as_py() or 0), pc.sum(unresolved).as_py() or 0
+        lost = pc.filter(pc.if_else(pc.is_valid(o), raw_d, raw_o), unresolved)
+        accounting[str(year)] = {"events": part.num_rows, "unplaced": n_unplaced, "unresolved": n_unresolved,
+                                 "unresolved_codes": {c["values"]: c["counts"] for c in
+                                                      sorted(pc.value_counts(lost).to_pylist(), key=lambda c: -c["counts"])[:30]}}
+        events_total, unplaced_total, unresolved_total = (events_total + part.num_rows, unplaced_total + n_unplaced,
+                                                          unresolved_total + n_unresolved)
+        parts = {"from": pc.filter(o, usable), "to": pc.filter(d, usable)}
+        if by:
+            values = pc.filter(pc.cast(part.column(by), pa.string()), usable)
+            if level:
+                from .semantics.event_types import load_event_types
 
-            structure = next((c.structure for e in load_event_types().get(_flow_key(dataset), ())
-                              for c in e.classifiers if c.column == by and c.structure), None)
-            if structure is None:
-                raise KeyError(f"{by} has no declared code structure to roll up to {level!r}")
-            mapping = _tree_pushforward(structure, level, tuple(pc.unique(codes).drop_null().to_pylist()))
-            keys = pa.array(list(mapping), pa.string())
-            codes = pc.take(pa.array(list(mapping.values()), pa.string()), pc.index_in(codes, value_set=keys))
-        parts[by] = codes
-    flows = pa.table(parts).group_by(list(parts)).aggregate([([], "count_all")]).rename_columns(
-        [*parts, "weight"])
-    flows = flows.append_column("kind", pa.array([f"care_flow:{key}"] * flows.num_rows, pa.string()))
-    return flows.replace_schema_metadata({b"events": str(table.num_rows).encode(), b"unplaced": str(unplaced).encode()})
+                structure = next((c.structure for e in load_event_types().get(_flow_key(dataset), ())
+                                  for c in e.classifiers if c.column == by and c.structure), None)
+                if structure is None:
+                    raise KeyError(f"{by} has no declared code structure to roll up to {level!r}")
+                mapping = _tree_pushforward(structure, level, tuple(pc.unique(values).drop_null().to_pylist()))
+                values = pc.take(pa.array(list(mapping.values()), pa.string()),
+                                 pc.index_in(values, value_set=pa.array(list(mapping), pa.string())))
+            parts[by] = values
+        counted = pa.table(parts).group_by(list(parts)).aggregate([([], "count_all")]).rename_columns([*parts, "weight"])
+        pieces.append(counted.append_column("vintage", pa.array([year] * counted.num_rows, pa.int32())))
+        del part
+    flows = pa.concat_tables(pieces, promote_options="default")
+    import duckdb
+
+    # share: the origin's events of the year (and group) going to `to`; a window, since a null group is a group.
+    cut = ", ".join(['"vintage"', '"from"', *([f'"{by}"'] if by else [])])
+    flows = duckdb.sql(f'SELECT *, weight / sum(weight) OVER (PARTITION BY {cut}) AS share FROM flows '
+                       'ORDER BY vintage, "from", weight DESC, "to"').to_arrow_table()
+    kind = f"care_flow:{key}" + (":establishment" if destination == "establishment" else "")
+    flows = flows.append_column("kind", pa.array([kind] * flows.num_rows, pa.string()))
+    flows = flows.select(["from", "to", "weight", "kind", "vintage", "share", *([by] if by else [])])
+    return flows.replace_schema_metadata({
+        b"events": str(events_total).encode(), b"unplaced": str(unplaced_total).encode(),
+        b"unresolved": str(unresolved_total).encode(), b"accounting": json.dumps(accounting, ensure_ascii=False).encode()})
 
 
 def _flow_key(dataset: str) -> str:
