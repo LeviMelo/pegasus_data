@@ -36,7 +36,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import psutil
+
 from ._worker import read_frame, write_frame
+from .admission import admitted
 from .base import logical_source_id
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -150,6 +153,21 @@ class _Worker:
             )
         return self.proc
 
+    def recycle_if_bloated(self, limit: int = 1536 * 1024**2) -> None:
+        """End an idle worker that kept more than ``limit`` bytes after its job.
+
+        Allocators keep freed memory, and a persistent worker that once decoded
+        a wide payload would otherwise hold it for as long as the process lives
+        (a restart costs about a second of imports)."""
+        proc = self.proc
+        if proc is None:
+            return
+        try:
+            if psutil.Process(proc.pid).memory_info().rss > limit:
+                self.kill()
+        except psutil.Error:
+            pass
+
     def kill(self) -> None:
         """End the process. The whole point: this actually stops the work."""
         proc, self.proc = self.proc, None
@@ -215,15 +233,21 @@ class DecoderPool:
         try:
             with worker.lock:
                 try:
-                    return self._run(
-                        worker,
-                        blob_path,
-                        logical_path,
-                        columns,
-                        members,
-                        row_limit,
-                        timeout,
-                    )
+                    # Admission is machine-wide (decode/admission.py) and is
+                    # waited for BEFORE the deadline starts: queueing behind
+                    # other processes is not the decoder being slow.
+                    with admitted(logical_path):
+                        outcome = self._run(
+                            worker,
+                            blob_path,
+                            logical_path,
+                            columns,
+                            members,
+                            row_limit,
+                            timeout,
+                        )
+                        worker.recycle_if_bloated()
+                    return outcome
                 except BaseException:
                     # A failed or incomplete framed reply is not recoverable.
                     # Even an ordinary error reply leaves protocol state whose

@@ -301,7 +301,10 @@ def explode(data: bytes, outcap: int) -> bytes:
     rc = lib.pegasus_explode(data, len(data), out, outcap, ctypes.byref(outlen))
     if rc != 0:
         raise DbcError(_ERRORS.get(rc, f"explode failed with code {rc}"))
-    return bytes(out[: outlen.value])
+    # NOT ``bytes(out[:n])``: slicing a ctypes array builds a Python list of n ints
+    # (8 bytes each), so a 150 MB inflated DBF cost 1.5 GB and a 2 GB one 16 GB
+    # (measured 2026-10-05: the 6-9 GB decode workers).
+    return ctypes.string_at(out, outlen.value)
 
 
 # -------------------------------------------------------------- the container
@@ -340,6 +343,54 @@ def dbc_to_dbf_bytes(data: bytes) -> bytes:
 
 
 def dbc_file_to_dbf(src: str | Path, dst: str | Path) -> None:
-    """File-level convenience with the same guarantees."""
-    payload = Path(src).read_bytes()
-    Path(dst).write_bytes(dbc_to_dbf_bytes(payload))
+    """File-level convenience with the same guarantees, without holding the DBF in RAM.
+
+    The native engine inflates straight into a memory-mapped destination file: the only
+    resident copies are the compressed stream and the pages the OS is writing back, which it
+    can reclaim under pressure. (It used to build the inflated DBF three or four times over
+    as Python objects: about ten times its size in RAM per decode worker.)
+    """
+    lib = _load_native()
+    if lib is None:
+        payload = Path(src).read_bytes()
+        Path(dst).write_bytes(dbc_to_dbf_bytes(payload))
+        return
+    import mmap
+
+    with open(src, "rb") as fh:
+        prefix = fh.read(12)
+        if len(prefix) < 12:
+            raise DbcError("shorter than a DBF header prefix — not a .dbc")
+        n_records, header_len, record_len = struct.unpack_from("<IHH", prefix, 4)
+        size = os.fstat(fh.fileno()).st_size
+        if header_len < 32 or header_len > size:
+            raise DbcError("stored header length is impossible — not a .dbc")
+        fh.seek(0)
+        header = bytearray(fh.read(header_len))
+        fh.seek(header_len + 4)  # skip the 4-byte CRC after the header
+        stream = fh.read()
+    expected = n_records * max(record_len, 1)
+    body_cap = expected + 1  # records + optional 0x1A EOF
+    header[header_len - 1] = 0x0D  # see dbc_to_dbf_bytes
+    with open(dst, "w+b") as out:
+        out.truncate(header_len + body_cap)
+        view = mmap.mmap(out.fileno(), header_len + body_cap)
+        try:
+            buffer = (ctypes.c_ubyte * body_cap).from_buffer(view, header_len)
+            outlen = ctypes.c_size_t(0)
+            try:
+                rc = lib.pegasus_explode(stream, len(stream), buffer, body_cap, ctypes.byref(outlen))
+            finally:
+                del buffer  # release the exported buffer before the map can close
+            if rc != 0:
+                raise DbcError(_ERRORS.get(rc, f"explode failed with code {rc}"))
+            if outlen.value < expected:
+                raise DbcError(
+                    f"stream inflated to {outlen.value} bytes; the header promises "
+                    f"{n_records} records of {record_len} — truncated input"
+                )
+            view[:header_len] = bytes(header)
+            view.flush()
+        finally:
+            view.close()
+        out.truncate(header_len + outlen.value)

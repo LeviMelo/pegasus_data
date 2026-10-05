@@ -53,6 +53,9 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
   the working directory.
 - To act as a fresh user, set `PEGASUS_DATA_HOME` to an empty directory
   outside the repository.
+- Decoding is admitted machine-wide (`decode/admission.py`): `PEGASUS_DECODE_SLOTS`
+  (default 4 on 32 GB), `PEGASUS_MIN_FREE_GB` (default max(4, 15% of RAM)),
+  `PEGASUS_ADMISSION_WAIT` (seconds, 1800). A decode that waits is queued, not hung.
 
 ## 4. Getting data
 
