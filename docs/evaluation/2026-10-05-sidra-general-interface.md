@@ -50,9 +50,18 @@ of them (3572: 120M; 1552: 40M; 9606: 27M; 200: 13M; 2093: 13M; 616: 11M). The c
 The 2010 Total differs by 18 households between tables 3154 (57,324,185) and 1436/3218 (57,324,167). The 2022 sewer category "rede geral, rede
 pluvial ou fossa ligada à rede" (46290) is not comparable and stays out of the series.
 
-**Fetched at the time of writing.** At 04:50: 32 tables in the store (1,078 request parts, 39.4M rows counting overlaps, 105 MB Parquet) from the curated groups housing_sanitation (13 tables, 6.9M rows), education (8 tables, 7.0M rows; table 10062 stopped by an IncompleteRead at 18 of 59 requests and is resumed) and the population series; income_labour and demography run next, then the remaining groups. The scan covered all 9,336 tables (4,448 list N6, 271,798 categories). Table 9860 (6.06 billion values) is skipped by size, 3572 (120M) likewise.
+**Fetched at the time of writing.** At 04:50: 32 tables in the store (1,078 request parts, 39.4M rows counting overlaps, 105 MB Parquet) from the curated groups housing_sanitation (13 tables, 6.9M rows), education (8 tables, 7.0M rows; table 10062 stopped by an IncompleteRead at 18 of 59 requests and was resumed, see the ingestion state below) and the population series; income_labour and demography run next, then the remaining groups. The scan covered all 9,336 tables (4,448 list N6, 271,798 categories). Table 9860 (6.06 billion values) is skipped by size, 3572 (120M) likewise.
 
 **Defects found by running it, and fixed.** The fact store kept the same observation twice when two selections overlapped
 (Total cells fetched by a field and by a census series): reads now keep the latest. A classification with no Total made the registry load
 fail on its implicit category 0. A metadata request hung for 300 s: metadata now waits 60 s. The first planner cut equal pieces (372 requests for
 a cube that needs 235); it now fills each request (281).
+
+## Ingestion state of the fetch chains (2026-10-05 09:30)
+
+Chains `phaseb.sh` (done 06:45), `phasec.sh` (running: household_assets 7 tables and disability 4 tables done, fertility started 09:27; indigenous_quilombola, economy, pnsb_sanitation_services, civil_registry, civil_society, economy_sectors follow) and `phased.sh` (waits for phasec; its education re-run is now only cache hits). **Not finished**, so this is a snapshot, not the final count. Store at 09:29 (footer sums, `data/probes/sidra_count.py`/`.json`): 67 tables, 3,290 request parts, 117.1M rows counting overlaps, 351 MB Parquet; largest 3425 (16.8M rows), 2111 (13.9M), 9606 (12.0M), 616 (11.3M).
+- **By group (rows returned, 0 shortfalls in every fetched table):** housing_sanitation 11 of 13 tables fetched in the run (6.93M rows; 1436 stopped by an IncompleteRead and fetched on a later run, 9860 skipped for size), education 7 of 8 (6.98M; 10062 below), income_labour 15 of 16 (32.7M; 3572 skipped: 119.9M values), demography 9 of 13 (7.25M; 200, 1552, 2093, 9606 skipped by the 8M ceiling and already stored by the series fetches), household_assets 7 (6.47M), disability 4 (32.4M).
+- **Failures:** two IncompleteRead on large bodies (tables 1436 and 10062); no other error and no shortfall. 1436 was fetched on a later pass. **10062** was re-run alone with `sidra curated --table 10062 --fetch` through the resumable fetch: 46 of its 59 requests were already stored, 13 fetched (380,322 rows), 59 of 59 present, 2,105,460 rows = the planned values, 0 shortfalls.
+- Skipped by `--max-values` on purpose: 9860 (6.06 billion values), 3572 (119.9M), and in the demography pass four cubes stored earlier.
+- **`sidra check`**: axes clean (every curated category matches IBGE's name); six compendium tables list IBGE variables the compendium does not mention (21: 40, 3606: 6, 3612: 4, 5938: 39, 6916: 22, 6917: 22), a curation note, not a data fault.
+- To fill when phasec and phased print ALL DONE: the last groups' rows and the final store count.
