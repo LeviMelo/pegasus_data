@@ -76,7 +76,7 @@ def build_sus_dependent(root: str | Path, *, version: str, validation: str, draw
 
     settings = SimpleNamespace(lake_dir=Path(root) / "lake")
     base = Path(root) / "lake" / "modelled" / "population_account"
-    folder = base / sorted(p.name for p in base.iterdir())[-1]
+    folder = base / "population-account-2"        # band-level intervals; version 3 is single-age (ADR-0151)
     pm = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     years = [2021, 2022, 2023, 2024, 2025]
     pop = pq.read_table(folder / "estimates.parquet", filters=[("year", "in", years), ("place_kind", "=", "municipality")]).to_pandas()

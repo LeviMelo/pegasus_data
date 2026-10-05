@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -50,8 +51,17 @@ def _root(settings: Any) -> Path:
     return Path(settings.lake_dir) / "modelled"
 
 
-def write_modelled(table: pa.Table, manifest: ModelledManifest, *, settings: Any) -> Path:
-    """Write one version of a modelled product, refusing anything that would pass for observed data."""
+def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManifest, *, settings: Any) -> Path:
+    """Write one version of a modelled product, refusing anything that would pass for observed data.
+
+    ``table`` may be an iterator of tables with one schema (a product too large to hold at once): they are written as the
+    row groups of one file, and the estimate columns are checked against the first."""
+    if not isinstance(table, pa.Table):
+        chunks = iter(table)
+        first = next(chunks)
+        table, rest = first, chunks
+    else:
+        rest = None
     if not _NAME.match(manifest.product):
         raise ValueError(f"a product name is lower snake_case: {manifest.product!r}")
     if manifest.product.upper() in OFFICIAL_SERIES or manifest.product.upper().split("_")[0] in OFFICIAL_SERIES:
@@ -71,8 +81,11 @@ def write_modelled(table: pa.Table, manifest: ModelledManifest, *, settings: Any
         raise FileExistsError(f"{manifest.product} {manifest.version} exists; a version is never overwritten")
     target.mkdir(parents=True)
     meta = {b"tier": b"modelled", b"product": manifest.product.encode(), b"version": manifest.version.encode()}
-    pq.write_table(table.replace_schema_metadata({**(table.schema.metadata or {}), **meta}),
-                   target / "estimates.parquet", compression="zstd")
+    schema = table.schema.with_metadata({**(table.schema.metadata or {}), **meta})
+    with pq.ParquetWriter(target / "estimates.parquet", schema, compression="zstd") as writer:
+        writer.write_table(table.replace_schema_metadata(schema.metadata))
+        for chunk in rest or ():
+            writer.write_table(chunk.replace_schema_metadata(schema.metadata))
     (target / "manifest.json").write_text(json.dumps(asdict(manifest), indent=2, ensure_ascii=False) + "\n",
                                           encoding="utf-8")
     return target

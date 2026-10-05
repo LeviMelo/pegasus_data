@@ -20,7 +20,9 @@ vital account cannot say, and the model has two parts:
 Every cell carries an interval whose spread was measured out of sample and grows with the horizon. A municipality created
 after 2000 is estimated inside its *comparable area* (IPEA's AMC, extended to the five post-2010 creations by their
 parents). The first version of the account (Gibbs-sampled hierarchical migration profiles) is kept as the product version
-``population-account-1`` and no longer has code (git history, ADR-0145).
+``population-account-1`` and no longer has code (git history, ADR-0145). This module is the account at five-year bands;
+``population_tensor.py`` refines it to municipalities, single years of age and race and writes the product
+(``population-account-3``, ADR-0151).
 """
 
 from __future__ import annotations
@@ -144,8 +146,11 @@ def load_census(root: str | Path, year: int, places: Places, by: str = "unit") -
     import pegasus_data as pg
 
     t = pg.load_population(series="CENSO", years=[year], by=("municipality", "year", "sex", "age"), root=root)
-    n = places.n_units if by == "unit" else places.n_entities
-    index = places.unit_of if by == "unit" else places.entity_of
+    if by == "member":                    # every current municipality on its own: a gap stays a gap
+        n, index = len(places.municipalities), {m: i for i, m in enumerate(places.municipalities)}
+    else:
+        n = places.n_units if by == "unit" else places.n_entities
+        index = places.unit_of if by == "unit" else places.entity_of
     out = np.zeros((n, 2, A))
     seen = np.zeros(n, dtype=bool)
     for m, s, a, p in zip(t["municipality"].to_pylist(), t["sex"].to_pylist(), t["age"].to_pylist(),
@@ -741,6 +746,7 @@ class Inputs:
     close_b: np.ndarray          # the PES-corrected 2022 census, (entities, 2, A)
     start22: np.ndarray          # the PES-corrected 2022 census (the projection's opening)
     m_rate: np.ndarray           # national death rates used for the lag (2000)
+    vit22: np.ndarray            # the vital account one step from the PES-corrected 2022 census, (entities, 2, A) single ages
 
 
 def assemble(root: str | Path, population_root: str | Path, events_dir: str | Path, log=print) -> Inputs:
@@ -798,7 +804,7 @@ def assemble(root: str | Path, population_root: str | Path, events_dir: str | Pa
     vit22 = run_account(c22t, ev1["deaths"][12:], ev1["births"][12:], 1)
     P22 = make_period("2022+", 1, ent_state, ent_micro, c22t.sum((1, 2)), to_bands(vit22), None, lag_p, np.arange(E), urb, lg,
                       places.entity_members)
-    return Inputs(places, A_, B_, P22, np.array(path_a), c10ur, np.array(path_b), c22t, c22t, m00)
+    return Inputs(places, A_, B_, P22, np.array(path_a), c10ur, np.array(path_b), c22t, c22t, m00, vit22)
 
 
 # ------------------------------------------------------------------------------------------ the product
@@ -852,104 +858,6 @@ def widen_to_nominal(cal: Calibration, Ps: list[Period], tol: float = 0.0) -> Ca
     widened = [f"{BAND_LABELS[g]} x{scale[g]:.2f}" for g in range(17) if scale[g] > 1.0]
     return Calibration(cal.b, cal.s_total, cal.gm, cal.q_total, cal.coef, cal.s_band * scale[None, :], cal.q_band, widened,
                        cal.periods)
-
-
-def _table(centre, lo, hi, lo95, hi95, labels, kind, years, period, basis, after):
-    """Rows of one block: ``centre`` etc. are (T+1, entities, 2, 17); ``after`` the years since the closing census."""
-    import pyarrow as pa
-
-    T, E = centre.shape[:2]
-    idx = np.indices((T, E, 2, 17))
-    n = T * E * 34
-    flat = lambda x: np.asarray(x, dtype=np.float64).ravel()      # noqa: E731
-    take = lambda values, i: pa.array(list(values)).take(pa.array(i.ravel()))      # noqa: E731
-    same = lambda v: pa.array([v]).take(pa.array(np.zeros(n, dtype=np.int32)))      # noqa: E731
-    return pa.table({
-        "place": take(labels, idx[1]), "place_kind": same(kind), "year": take(years, idx[0]).cast(pa.int64()),
-        "sex": pa.array((idx[2].ravel() + 1).astype(np.int64)), "age_band": take(BAND_LABELS, idx[3]),
-        "population": flat(centre), "population_lo": flat(lo), "population_hi": flat(hi),
-        "population_lo95": flat(lo95), "population_hi95": flat(hi95), "period": same(period), "basis": same(basis),
-        "years_after_census": pa.array(np.asarray(after, dtype=np.float64)[idx[0].ravel()], from_pandas=True)})
-
-
-def build_account(root: str | Path, population_root: str | Path, events_dir: str | Path, *, version: str, validation: str,
-                  log=print) -> dict[str, Any]:
-    """Write the ``population_account`` modelled product (municipality or comparable area × sex × five-year band × year).
-
-    Between censuses (2000-2010 on comparable areas, 2010-2022 on municipalities) the vital account from the
-    opening census, reconciled by IBGE, carries the closing census's departure along its cohorts (``distribute_residual``);
-    the closing census of the second period is the PES-corrected 2022 count. After 2022 the vital account is moved by the
-    regression of the previous decade's net migration (``predict``) for as many years as SIM and SINASC cover. The
-    interval of a cell is ``interval`` at the horizon, calibrated on the two periods (``fit_calibration``, then
-    ``widen_to_nominal``)."""
-    from types import SimpleNamespace
-
-    import pyarrow as pa
-
-    from . import __version__
-    from .modelled import ModelledManifest, write_modelled
-
-    inp = assemble(root, population_root, events_dir, log)
-    log("calibration")
-    cal = widen_to_nominal(fit_calibration([inp.A, inp.B]), [inp.A, inp.B])
-    tables = []
-
-    def interior(P: Period, path: np.ndarray, closing: np.ndarray, labels, kind, years, period):
-        bands = np.stack([to_bands(x) for x in distribute_residual(path, closing)])
-        T = len(path) - 1
-        got = {}
-        for lv in LEVELS:
-            lo, hi = zip(*(interval(P, cal, bands[k], float(k), lv, total=False, timing=k / T) for k in range(T + 1)), strict=True)
-            got[lv] = (np.exp(np.array(lo)), np.exp(np.array(hi)))
-        tables.append(_table(bands, *got[LEVELS[0]], *got[LEVELS[1]], labels, kind, years, period, "intercensal",
-                             np.full(T + 1, np.nan)))
-
-    log("interior: comparable areas 2000-2010")
-    interior(inp.A, inp.path_a, inp.close_a, inp.places.unit_labels, "comparable_area", range(2000, 2011), "2000-2010")
-    log("interior: municipalities 2010-2022")
-    labels = ["+".join(str(m) for m in mem) for mem in inp.places.entity_members]
-    interior(inp.B, inp.path_b, inp.close_b, labels, "municipality", range(2010, 2023), "2010-2022")
-    log("projection")
-    h = float(inp.P22.T)
-    proj = predict(inp.P22, cal, h)[2]
-    lo, hi = (np.exp(x) for x in interval(inp.P22, cal, proj, h, LEVELS[0], total=False))
-    lo95, hi95 = (np.exp(x) for x in interval(inp.P22, cal, proj, h, LEVELS[1], total=False))
-    tables.append(_table(proj[None], lo[None], hi[None], lo95[None], hi95[None], labels, "municipality", [2022 + int(h)],
-                         f"2022-{2022 + int(h)}", "projection", [h]))
-    table = pa.concat_tables(tables)
-    inputs = {"CENSO 2000, 2010, 2022 (raw)": "SIDRA tables 1552, 1378, 9514",
-              "SIM.DO deaths and SINASC births 2000-2023": f"pegasus_data {__version__}",
-              "PES 2022 net-error margins": "IBGE liv102110 (sources/pes.py)",
-              "POPSVS 2000 and 2010 (modelled; coverage prior)": "RIPSA/MoH = IBGE Projeções Revisão 2024",
-              "census population by sex and age group 1991, 2000, 2010 (previous decades' migration)": "SIDRA table 200",
-              "urban share, GDP per head (regressors)": "SIDRA tables 202, 5938",
-              "comparable areas 1991-2010 and 2000-2010": "IPEA geobr AMC + the five post-2010 creations by their parents"}
-    manifest = ModelledManifest(
-        product="population_account", version=version,
-        model="vital cohort-component account (SIM, SINASC) from the opening census; between censuses the closing census's "
-              "departure is carried along the cohorts; after the last census the account is moved by a regression of the "
-              "previous decade's cohort net migration (area, state, micro-region, urban share, GDP per head); "
-              "population_account.py v2",
-        estimates={"population": ["population_lo", "population_hi", "population_lo95", "population_hi95"]}, inputs=inputs,
-        validation=validation,
-        notes=["Reference date 1 August of `year` (the census date). `population_lo`/`hi` are an 80% interval, `lo95`/`hi95` 95%.",
-               "`basis` is `intercensal` (anchored at the censuses on both sides) or `projection` (after 2022: a forecast, "
-               "`years_after_census` years ahead; its interval grows with the square root of the horizon, checked against "
-               "the 2007 Contagem at 6.7 years and the censuses at 10-12).",
-               "Population is the TRUE population: censuses are brought to coverage by the 2022 PES (published margins, "
-               "raked) and, for 2000 and 2010, by IBGE's reconciliation (a sensitivity assumption, itself made with the PES).",
-               "Every interval contains a 2% national term (how complete the base census was); at a census year the interval is "
-               "that term alone.",
-               f"Interior intervals use the bridge of the closing deviation's spread, scaled by the timing variance {TIMING_VARIANCE:g} "
-               "(evaluation entry 2026-10-05-population-account-v2).",
-               "Band intervals are calibrated on the two intercensal periods: the spread of each size x band is the larger of the "
-               "two periods'. Bands the periods disagreed about were then widened until each period's 80% and 95% intervals "
-               "covered at least their nominal share (in-sample): " + (", ".join(cal.widened) or "none") + ".",
-               "Cells with fewer than 20 people were not scored; their intervals are the size-class spreads and are not validated.",
-               "Rows are municipalities, except `+`-joined groups inside a comparable area touched by a post-2010 creation, and "
-               "`comparable_area` rows for 2000-2010."])
-    out = write_modelled(table, manifest, settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
-    return {"population_account": str(out), "rows": table.num_rows, "widened": cal.widened}
 
 
 def birth_registration(inp: Inputs) -> list[dict[str, Any]]:
