@@ -648,15 +648,20 @@ def completeness_decay(mu_kappa: np.ndarray, mode: str) -> np.ndarray:
 
 
 def forecast(trained: Trained, c_start: np.ndarray, deaths: np.ndarray, births: np.ndarray, steps: int,
-             entity_unit: np.ndarray, *, rho=(1.0, 1.0, 1.0, 1.0), completeness: str = "decay", chunk: int = 400,
+             entity_unit: np.ndarray, *, rho=None, completeness: str = "decay", chunk: int = 400,
              draws: int | None = None, seed: int = 0, noise: bool = True, innovation: bool = True,
+             shared: tuple | None = None, entity_state: np.ndarray | None = None, keep: tuple[int, ...] | None = None,
              log=print) -> dict[str, np.ndarray]:
     """Project the next period from its opening census, one draw of the parameters at a time.
 
     ``c_start`` is (E,2,A) at the entities; an entity takes its unit's parameters. ``rho`` = (national mean of the
-    migration profile, state, micro-region, municipal deviations) is how much of what was estimated persists.
-    Returns, per step, the draws of each entity's 5-year-band populations and their total (with the observation
-    noise of a census added if ``noise``)."""
+    migration profile, state, micro-region, municipal deviations) is how much of what was estimated persists
+    (default ``PERSISTENCE``).
+    ``shared`` = ``SHARED_SD`` multiplies every age of an entity by a draw of what the parameters do not carry: a national,
+    a state (``entity_state``) and a municipal factor (mean one). ``keep`` lists the steps to return (default all; the
+    arrays are float32). Returns, per step, the draws of each entity's 5-year-band populations and their total (with the
+    observation noise of a census added if ``noise``)."""
+    rho = PERSISTENCE if rho is None else rho
     J = trained.phi.shape[1]
     E = c_start.shape[0]
     f = trained.fit
@@ -666,8 +671,19 @@ def forecast(trained: Trained, c_start: np.ndarray, deaths: np.ndarray, births: 
     r = completeness_decay(f.mu[:S, 2 * J:2 * J + 2], completeness)              # (S,)
     lam0 = trained.diagnostics.get("lam0", DEATH_SHORTFALL)
     bands = np.minimum(np.arange(A) // 5, 16)
-    out_total = np.zeros((steps + 1, S, E))
-    out_bands = np.zeros((steps + 1, S, E, 2, 17))
+    kept = list(range(steps + 1)) if keep is None else list(keep)
+    slot = {k: i for i, k in enumerate(kept)}
+    out_total = np.zeros((len(kept), S, E), dtype=np.float32)
+    out_bands = np.zeros((len(kept), S, E, 2, 17), dtype=np.float32)
+    factor = np.ones((S, E))
+    if shared is not None:
+        s_nat, s_state, s_ent = shared
+        size = np.digitize(c_start.sum((1, 2)), SIZE_CUTS)
+        sidx = np.unique(entity_state, return_inverse=True)[1]
+        logf = (rng.standard_normal((S, 1)) * s_nat + rng.standard_normal((S, sidx.max() + 1))[:, sidx] * s_state
+                + rng.standard_normal((S, E)) * np.asarray(s_ent)[size][None])
+        var = s_nat**2 + s_state**2 + np.asarray(s_ent)[size] ** 2
+        factor = np.exp(logf - var[None] / 2)
     for lo in range(0, E, chunk):
         sl = slice(lo, min(E, lo + chunk))
         n = sl.stop - sl.start
@@ -676,13 +692,16 @@ def forecast(trained: Trained, c_start: np.ndarray, deaths: np.ndarray, births: 
         N = np.broadcast_to(c_start[sl], (S, n, 2, A)).copy()
 
         def record(k_out, N, sl=sl, n=n):
+            if k_out not in slot:
+                return
+            N = N * factor[:, sl, None, None]
             if noise:                                  # what a census of this population would have counted
                 tau = rng.standard_normal((S, n, 1, 1)) * trained.tau
                 N = np.maximum(N * (1 + tau) + rng.standard_normal(N.shape) * np.sqrt(
                     trained.s1 * np.maximum(N, 1) + trained.s2 * N**2), 0)
-            out_total[k_out, :, sl] = N.sum((2, 3))
+            out_total[slot[k_out], :, sl] = N.sum((2, 3))
             for g in range(17):
-                out_bands[k_out, :, sl, :, g] = N[..., bands == g].sum(-1)
+                out_bands[slot[k_out], :, sl, :, g] = N[..., bands == g].sum(-1)
 
         record(0, N)
         for k in range(steps):
@@ -755,6 +774,15 @@ def pes_coverage(raw_entity: np.ndarray, entity_state: np.ndarray) -> np.ndarray
 #: a regularity of places.
 PERSISTENCE = (0.0, 0.7, 0.45, 0.3)
 
+#: What the parameter draws leave out of the 2010-2022 hold-out's interval, as multiplicative errors shared by all of a
+#: place's ages: (national, state, municipal by size class below 5k / 5-20k / 20-100k / 100-500k / over 500k), log scale.
+#: The national term is the order of the 2010 census's undercount as IBGE reconciles it (2.2%), the coverage of the base
+#: census being unknown; the state and municipal terms are the spread of the hold-out's residuals about the draws
+#: (method of moments, robust within states), estimated on the PES-corrected 2022 census. Checked by leaving out one of
+#: the five regions at a time: pooled 10-90% coverage 0.81 (docs/evaluation/2026-10-05-population-account.md).
+SHARED_SD = (0.02, 0.046, (0.058, 0.053, 0.042, 0.030, 0.020))
+SIZE_CUTS = (5_000, 20_000, 100_000, 500_000)
+
 
 def _quantiles(draws: np.ndarray, level: float = 0.8):
     """Mean and central interval over the draws axis of a (T+1, S, E, 2, 17) path."""
@@ -762,27 +790,32 @@ def _quantiles(draws: np.ndarray, level: float = 0.8):
     return draws.mean(1), lo, hi
 
 
-def _bridge(path: np.ndarray, target: np.ndarray) -> np.ndarray:
-    """Close a projected path (T+1, S, E, 2, 17) onto the census that ends it: the mean path is moved by the
-    share of the gap that has elapsed, and the spread of the draws narrows to nothing at the census."""
+def _bridge(path: np.ndarray, start: np.ndarray, target: np.ndarray) -> np.ndarray:
+    """Close a projected path (T+1, S, E, 2, 17) onto the two censuses that bound it: the mean path is moved onto the
+    opening census at the start and by the share of the gap that has elapsed to the closing one, and the spread of
+    the draws is multiplied by sin(πk), nothing at either census and as projected in the middle."""
     T = path.shape[0] - 1
     mean = path.mean(1, keepdims=True)
     k = (np.arange(T + 1) / T).reshape(-1, 1, 1, 1, 1)
-    out = mean + k * (target[None, None] - mean[-1:]) + (1 - k) * (path - mean)
+    out = (mean + (1 - k) * (start[None, None] - mean[:1]) + k * (target[None, None] - mean[-1:])
+           + np.sin(np.pi * k) * (path - mean))
     return np.maximum(out, 0)
 
 
 def build_account(root: str | Path, population_root: str | Path, events_dir: str | Path, *, version: str,
-                  validation: str, sweeps: int = 800, draws: int = 100, seed: int = 0, log=print) -> dict[str, Any]:
-    """Fit the two intercensal periods and extend one year, then write the ``population_account`` and
-    ``registration_completeness`` modelled products.
+                  validation: str, sweeps: int = 800, draws: int = 100, seed: int = 0, cache_dir: str | Path | None = None,
+                  log=print) -> dict[str, Any]:
+    """Fit the two intercensal periods, then write the ``population_account`` and ``registration_completeness``
+    modelled products. ``cache_dir`` keeps each period's fitted parameters (a fit takes about 12 minutes).
 
     The censuses are brought to the true population before anything is fitted: 2022 by IBGE's PES (published
     margins, raked onto cells), 2000 and 2010 by IBGE's own reconciliation (POPSVS / raw), the latter two being a
     sensitivity assumption (the reconciliation used the 2022 PES). Net migration is therefore learned net of
     coverage. Rows: municipalities (or, inside a unit touched by a post-2010 creation, the group of them) 2010-2023,
     and comparable areas 2000-2010; ages in five-year bands; the point estimate is the mean of the draws and the
-    interval their 10th-90th percentiles."""
+    interval their 10th-90th percentiles, widened by ``SHARED_SD`` (what the 2010-2022 hold-out showed the draws leave out).
+    There is no row after the last census: the hold-out validates a forecast twelve years ahead, not one year."""
+    import pickle
     from types import SimpleNamespace
 
     import pyarrow as pa
@@ -810,20 +843,21 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
     ev0 = load_events(events_dir, list(range(2000, 2011)), places, "unit")
     ev1u = load_events(events_dir, list(range(2010, 2023)), places, "unit")
     ev1e = load_events(events_dir, list(range(2010, 2023)), places, "entity")
-    ev2e = load_events(events_dir, [2022, 2023], places, "entity")
-    tables: list[dict[str, Any]] = []
+    tables: list[Any] = []
     completeness: list[dict[str, Any]] = []
 
     def rows(path_b, kind, place_of, years, period, basis):
         mean, lo, hi = _quantiles(path_b)
-        for k, y in enumerate(years):
-            for e in range(path_b.shape[2]):
-                for s in range(2):
-                    for g in range(17):
-                        tables.append({"place": place_of(e), "place_kind": kind, "year": y, "sex": s + 1,
-                                       "age_band": BAND_LABELS[g], "population": float(mean[k, e, s, g]),
-                                       "population_lo": float(lo[k, e, s, g]), "population_hi": float(hi[k, e, s, g]),
-                                       "period": period, "basis": basis})
+        T, E = mean.shape[:2]
+        labels = np.array([place_of(e) for e in range(E)])
+        idx = np.indices((T, E, 2, 17))
+        flat = lambda x: x.astype(np.float64).ravel()      # noqa: E731
+        n = T * E * 34
+        tables.append(pa.table({
+            "place": labels[idx[1].ravel()], "place_kind": np.full(n, kind), "year": np.asarray(list(years))[idx[0].ravel()],
+            "sex": (idx[2].ravel() + 1).astype(np.int64), "age_band": np.array(BAND_LABELS)[idx[3].ravel()],
+            "population": flat(mean), "population_lo": flat(lo), "population_hi": flat(hi),
+            "period": np.full(n, period), "basis": np.full(n, basis)}))
 
     def births_completeness(fit: Trained, period: str, years):
         J = fit.phi.shape[1]
@@ -839,28 +873,35 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
                                      "completeness": float(est.mean()), "completeness_lo": float(np.percentile(est, 10)),
                                      "completeness_hi": float(np.percentile(est, 90))})
 
+    def fitted(tag, fn):
+        f = Path(cache_dir) / f"trained_{version}_{tag}.pkl" if cache_dir else None
+        if f is not None and f.exists():
+            return pickle.loads(f.read_bytes())
+        out = fn()
+        if f is not None:
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(pickle.dumps(out))
+        return out
+
     log("period A: 2000-2010 (comparable areas)")
-    a = train(c00u * g00, c10u * g10u, ev0["deaths"], ev0["births"], places, steps=10, sweeps=sweeps, burn=sweeps // 4,
-              thin=max(1, (sweeps - sweeps // 4) // 150), seed=seed, log=log)
+    a = fitted("A", lambda: train(c00u * g00, c10u * g10u, ev0["deaths"], ev0["births"], places, steps=10, sweeps=sweeps,
+                                  burn=sweeps // 4, thin=max(1, (sweeps - sweeps // 4) // 150), seed=seed, log=log))
     pa_ = forecast(a, c00u * g00, ev0["deaths"], ev0["births"], 10, np.arange(places.n_units), rho=(1, 1, 1, 1),
-                   draws=draws, noise=False, innovation=False, completeness="same", log=log)["bands"]
-    pa_ = _bridge(pa_, to_bands(c10u * g10u))
+                   draws=draws, innovation=False, completeness="same", shared=SHARED_SD, entity_state=places.unit_uf,
+                   log=log)["bands"]
+    pa_ = _bridge(pa_, to_bands(c00u * g00), to_bands(c10u * g10u))
     rows(pa_, "comparable_area", lambda e: places.unit_labels[e], range(2000, 2011), "2000-2010", "intercensal")
     births_completeness(a, "reconciled 2000 and 2010", range(2000, 2010))
     log("period B: 2010-2022 (municipalities)")
-    b = train(c10u * g10u, c22u_true, ev1u["deaths"], ev1u["births"], places, steps=12, sweeps=sweeps, burn=sweeps // 4,
-              thin=max(1, (sweeps - sweeps // 4) // 150), seed=seed + 1, log=log)
+    b = fitted("B", lambda: train(c10u * g10u, c22u_true, ev1u["deaths"], ev1u["births"], places, steps=12, sweeps=sweeps,
+                                  burn=sweeps // 4, thin=max(1, (sweeps - sweeps // 4) // 150), seed=seed + 1, log=log))
     pb = forecast(b, c10e * g10e, ev1e["deaths"], ev1e["births"], 12, places.entity_unit, rho=(1, 1, 1, 1), draws=draws,
-                  noise=False, innovation=False, completeness="same", log=log)["bands"]
-    pb = _bridge(pb, truth22_b)
+                  innovation=False, completeness="same", shared=SHARED_SD, entity_state=ent_state, log=log)["bands"]
+    pb = _bridge(pb, to_bands(c10e * g10e), truth22_b)
     members = places.entity_members
     rows(pb, "municipality", lambda e: "+".join(str(m) for m in members[e]), range(2010, 2023), "2010-2022", "intercensal")
     births_completeness(b, "reconciled 2010 and PES 2022", range(2010, 2022))
-    log("extension: 2022-2023")
-    ext = forecast(b, c22e_true, ev2e["deaths"], ev2e["births"], 1, places.entity_unit, rho=PERSISTENCE, draws=draws,
-                   noise=False, innovation=True, completeness="decay", seed=seed + 2, log=log)["bands"]
-    rows(ext[1:], "municipality", lambda e: "+".join(str(m) for m in members[e]), [2023], "2022-2023", "extension")
-    table = pa.Table.from_pylist(tables)
+    table = pa.concat_tables(tables)
     settings = SimpleNamespace(lake_dir=Path(root) / "lake")
     from . import __version__
 
@@ -877,13 +918,15 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
               "national + state + micro-region + municipal effects) and births-registration shortfalls; "
               "population_account.py v1",
         estimates={"population": ["population_lo", "population_hi"]}, inputs=inputs, validation=validation,
-        notes=["Reference date 1 August of `year` (the census date). Interval: 10th-90th percentile of the draws.",
+        notes=["Reference date 1 August of `year` (the census date). Interval: 10th-90th percentile of the draws of the parameters, "
+               "of a census-quality count's own noise and of the shared place-level error `SHARED_SD`.",
                "Population is the TRUE population: censuses are brought to coverage by the 2022 PES (published margins, "
                "raked) and, for 2000 and 2010, by IBGE's reconciliation (a sensitivity assumption, itself made with the PES).",
                "Death registration is not estimated: a 10% shortfall is assumed for 2000-2010 (it cannot be told from net "
                "migration at old ages) and closes after.",
-               "Intercensal rows are anchored to the census that ends them, so their interval narrows to nothing there; the "
-               "2023 row (extension) carries the next period's uncertainty.",
+               "Intercensal rows are anchored to both censuses, so their interval narrows to nothing there (the spread is scaled by sin(πk)). The "
+               "interval's calibration was measured only on a 12-year forecast without the closing census (the hold-out); "
+               "the interior of an anchored period is narrower by construction and is not separately validated.",
                "Rows are municipalities, except `+`-joined groups inside a comparable area touched by a post-2010 creation, and "
                "`comparable_area` rows for 2000-2010."])
     out = write_modelled(table, manifest, settings=settings)
