@@ -346,7 +346,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `lookups.py`: code → label maps, read per vintage, cached per table version, merged in authority order, and applied at exact width (§6.2).
 - `rates.py`: crude and directly age-standardised rates of queried records over POPSVS.
 - `quality.py`: where a field's values cannot be taken at face value, measured from the data: `race_reliability` (ADR-0128).
-- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read through `sidra/` into `<lake>/fields/` (ADR-0127, ADR-0142). Also INMET climate, S2iD disasters, ANS plan beneficiaries (`sources/ans.py`) and INEP enrolment margins (`sources/inep.py`); every file source downloads through `sources.fetch_url` (browser agent, retries).
+- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read through `sidra/` into `<lake>/fields/` (ADR-0127, ADR-0142); an entry with `series:` is a measure of a stitched census series. Also INMET climate, S2iD disasters, ANS plan beneficiaries (`sources/ans.py`) and INEP enrolment margins (`sources/inep.py`); every file source downloads through `sources.fetch_url` (browser agent, retries).
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
@@ -496,7 +496,7 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `sidra/planner.py`: a `Selection` checked against the registry and cut into requests under the measured limits (values, ID-list text, URL length).
 - `sidra/store.py`: the long fact store: one Parquet part per request under `<lake>/sidra/facts/`, with IBGE's markers as `status` and provenance in each part's footer.
 - `sidra/session.py`: `Sidra`, the registry, the client and the store behind one object: `describe`, `selection`, `plan`, `fetch`, `slice`, `labelled`.
-- `sidra/series.py`: series stitched across tables and vintages (`curation/sidra/series.yml`, `axes.yml`): canonical axes, both claims kept where sources overlap, checks against each table's own totals.
+- `sidra/series.py`: series stitched across tables and vintages (`curation/sidra/series.yml`, `axes.yml`): canonical axes, both claims kept where sources overlap, checks against each table's own totals, a declared `comparability` and `gaps` (`--report`), and `series_values`, the one door by which a series becomes a context field (census series 2000/2010/2022: sanitation, literacy, race, urban population, income bands).
 - `sidra/lineage.py`: roll-ups to IPEA's minimum comparable areas across municipal creations; non-counts refused.
 - `sidra/population.py`: the Census as the population series `CENSO`, a projection of the stitched series `population_age_sex`.
 - `sidra/survey.py`: what SIDRA offers, scored for health inference (`pegasus-data sidra survey`, `rank`).

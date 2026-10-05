@@ -21,7 +21,7 @@ import pyarrow.compute as pc
 
 from .session import Sidra
 
-__all__ = ["axis_map", "build_series", "check_axes", "declared_series", "fetch_series", "validate_series"]
+__all__ = ["axis_map", "build_series", "check_axes", "declared_series", "fetch_series", "series_report", "series_values", "validate_series"]
 
 
 def _curation(name: str) -> dict[str, Any]:
@@ -117,6 +117,23 @@ def fetch_series(sidra: Sidra, name: str, log=print, only: list[str] | None = No
     return reports
 
 
+def _sum_over(table: pa.Table, keys: list[str]) -> pa.Table:
+    """Sum ``value`` over the rows that share ``keys``. A part with no figure makes the sum missing (never the sum of
+    what was left): its status is that of the first missing part. Every other column is constant within a group."""
+    others = [c for c in table.column_names if c not in keys and c not in ("value", "status")]
+    work = table.append_column("_miss", pc.is_null(table.column("value")))
+    work = work.append_column("_why", pc.if_else(pc.is_null(table.column("value")), table.column("status"), pa.scalar(None, pa.string())))
+    grouped = work.group_by(keys, use_threads=False).aggregate(
+        [("value", "sum"), ("_miss", "any"), ("_why", "min"), *[(c, "min") for c in others]])
+    value = pc.if_else(grouped.column("_miss_any"), pa.scalar(None, pa.float64()), grouped.column("value_sum"))
+    status = pc.if_else(grouped.column("_miss_any"), grouped.column("_why_min"),
+                        pc.if_else(pc.equal(grouped.column("value_sum"), 0.0), pa.scalar("zero"), pa.scalar("value")))
+    out = {k: grouped.column(k) for k in keys}
+    out.update({c: grouped.column(f"{c}_min") for c in others})
+    out.update(value=value, status=status)
+    return pa.table(out).select([c for c in table.column_names if c in out])
+
+
 def build_series(sidra: Sidra, name: str, only: list[str] | None = None) -> pa.Table:
     """The series as one long table: locality, level, period, canonical axes, measure (numerator or denominator,
     where a series has both), value, status, unit, source, role, priority, selected. Built from stored facts only."""
@@ -142,17 +159,24 @@ def build_series(sidra: Sidra, name: str, only: list[str] | None = None) -> pa.T
                     unit=pa.array([unit] * n, pa.string()), source=pa.array([source["id"]] * n, pa.string()),
                     table=pa.array([table] * n, pa.int32()), variable=pa.array([variable] * n, pa.int32()),
                     role=pa.array([source.get("role")] * n, pa.string()), priority=pa.array([int(source.get("priority", 1))] * n, pa.int32()))
-        parts.append(pa.table(cols))
+        part = pa.table(cols)
+        many_to_one = any(len(set(m.values())) < len(m) for _, m in dims.values())          # e.g. five income classes -> one band
+        if source.get("sum") or many_to_one:
+            part = _sum_over(part, ["locality", "level", "period", *axes_all])
+        parts.append(part)
     out = pa.concat_tables(parts, promote_options="permissive")
     if len(sources) == 1:                                      # nothing to arbitrate between: no claim competes
         return out.append_column("selected", pa.array([True] * out.num_rows, pa.bool_()))
-    keys = ["locality", "level", "period", "measure", *axes_all]
     # a claim with no figure never outranks one with a figure: rank by priority, with the unvalued ones last
     rank = pc.if_else(pc.is_valid(out.column("value")), out.column("priority"), pc.add(out.column("priority"), 1000))
     ranked = out.append_column("_row", pa.array(range(out.num_rows), pa.int64())).append_column("_rank", rank)
-    best = ranked.group_by(keys, use_threads=False).aggregate([("_rank", "min")])
-    joined = ranked.join(best, keys=keys, join_type="left outer", use_threads=False)
+    for axis in axes_all:                      # a join never matches null keys: a measure without that axis (a total) is keyed by ""
+        ranked = ranked.append_column(f"_k_{axis}", pc.fill_null(ranked.column(axis), ""))
+    joint = ["locality", "level", "period", "measure", *[f"_k_{a}" for a in axes_all]]
+    best = ranked.group_by(joint, use_threads=False).aggregate([("_rank", "min")])
+    joined = ranked.join(best, keys=joint, join_type="left outer", use_threads=False)
     joined = joined.append_column("selected", pc.equal(joined.column("_rank"), joined.column("_rank_min"))).sort_by("_row")
+    joined = joined.drop_columns([f"_k_{a}" for a in axes_all])
     return joined.drop_columns(["_row", "_rank", "_rank_min"])
 
 
@@ -203,3 +227,42 @@ def check_axes(sidra: Sidra) -> list[dict[str, str]]:
                     if code not in patterns or not patterns[code].search(name):
                         problems.append({"axis": axis, "classification": str(class_id), "category": str(cat), "maps_to": str(code), "ibge_name": name})
     return problems
+
+
+def series_values(sidra: Sidra, name: str, measure: str = "value", where: dict[str, list[str]] | None = None) -> pa.Table:
+    """One number per place and period from a series, for a field: the ``selected`` claim of ``measure``, restricted to
+    the categories in ``where`` (axis -> canonical codes) and summed over them. A series with axes needs ``where``:
+    which categories to take is the caller's statement, never a default."""
+    table = build_series(sidra, name)
+    table = table.filter(pc.and_(table.column("selected"), pc.equal(table.column("measure"), measure)))
+    if table.num_rows == 0:
+        raise LookupError(f"series {name!r} has no measure {measure!r}")
+    axes = [a for a in declared_axes() if a in table.column_names and pc.any(pc.is_valid(table.column(a))).as_py()]
+    if axes and not where:
+        raise ValueError(f"series {name!r} carries {axes}: name the categories wanted (`where`)")
+    for axis, codes in (where or {}).items():
+        table = table.filter(pc.is_in(table.column(axis), pa.array([str(c) for c in codes], pa.string())))
+        if table.num_rows == 0:
+            raise LookupError(f"series {name!r}: no rows for {axis} in {codes}")
+    table = table.drop_columns([a for a in declared_axes() if a in table.column_names])
+    keys = ["locality", "level", "period"]
+    return _sum_over(table, keys).select(["locality", "period", "value", "status", "unit", "table", "variable"])
+
+
+def series_report(sidra: Sidra, name: str) -> dict[str, Any]:
+    """What a series declares (comparability, gaps) and what it holds: per period and measure, the places with a
+    figure and the places without one, by IBGE's reason. A gap is counted here, never discovered downstream."""
+    spec = declared_series()[name]
+    table = build_series(sidra, name)
+    table = table.filter(table.column("selected"))
+    coverage = []
+    pairs = sorted({(r["period"], r["measure"]) for r in table.select(["period", "measure"]).to_pylist()})
+    for period, measure in pairs:
+        part = table.filter(pc.and_(pc.equal(table.column("period"), period), pc.equal(table.column("measure"), measure)))
+        missing = part.filter(pc.is_null(part.column("value")))
+        reasons: dict[str, int] = {}
+        for status in missing.column("status").to_pylist():
+            reasons[status] = reasons.get(status, 0) + 1
+        coverage.append({"period": period, "measure": measure, "rows": part.num_rows, "with_value": part.num_rows - missing.num_rows,
+                         "missing": reasons, "total": pc.sum(part.column("value")).as_py()})
+    return {"series": name, "comparability": spec.get("comparability"), "gaps": spec.get("gaps"), "coverage": coverage}

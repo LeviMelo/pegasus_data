@@ -78,3 +78,17 @@ was refused, halved and returned all its rows.
 
 **Would overturn it.** IBGE publishing the tables in bulk (files) or changing the limits; or a table family whose
 answers do not fit one value per category combination.
+
+**Amendment 2026-10-05: series feed the context fields.** Decision 8 (`fields.yml` is read through the interface,
+`load_field` unchanged) is extended, not changed:
+- A field may be declared with `series:` (`measure: numerator | denominator`, `where:` the categories of an axis to
+  sum). `fields._build_series_field` writes the series' `selected` claim in the same lake layout, so
+  `gateway.context_field` needs no change. Only sums are stored; a share is a numerator field over a denominator field.
+- A series declares its `comparability` (strict or close, and why) and its `gaps`; `sidra series NAME --report` prints
+  them with the places holding a figure per census. A concept that changed meaning is a second series, never silently
+  mixed (literacy 10+ and 15+).
+- A source may `sum` its picked categories, and an axis map may send several categories to one band (income in
+  minimum wages): a part without a figure makes the sum missing.
+- Existing field names keep their meaning; where the comparable definition is narrower or broader than the 2022
+  field (`households_sewer_network`, `households_water_network`) the comparable one is a new field with the suffix
+  `_comparable`. Evidence: EVALUATION 2026-10-05 "Census series across 2000, 2010 and 2022".

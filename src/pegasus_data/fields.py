@@ -9,6 +9,10 @@ and year. Only totals are stored; a rate is computed at use over POPSVS.
 IBGE's markers become a status: ``-`` is a true zero, while ``..`` (not
 applicable), ``...`` (not available) and ``X`` (suppressed) are null with
 their reason.
+
+A field declared with ``series:`` is one measure of a series stitched across the censuses
+(``curation/sidra/series.yml``): the same concept in 2000, 2010 and 2022 where IBGE's tables allow it, with the
+series' own statement of comparability and gaps. A share is a numerator field over a denominator field.
 """
 
 from __future__ import annotations
@@ -64,8 +68,49 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
                 from .sidra import Sidra
 
                 sidra = Sidra(settings=settings)
-            report[name] = _build_sidra(settings, sidra, name, spec, years)
+            build = _build_series_field if spec.get("series") else _build_sidra
+            report[name] = build(settings, sidra, name, spec, years)
     return report
+
+
+def _build_series_field(settings: Any, sidra: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
+    """One measure of a stitched series as a place × year field.
+
+    ``measure`` is the series' ``numerator``/``denominator``/``value``; ``where`` names the categories of an axis the
+    field takes and sums (``{income_band: [le_half, none]}``). The claim the series ``selected`` is the one kept; a
+    figure that is missing for a municipality stays a null with IBGE's reason.
+    """
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .sidra.series import series_values
+
+    wanted = [y for y in _years(spec["years"]) if not years or y in years]
+    values = series_values(sidra, spec["series"], spec.get("measure", "value"), spec.get("where"))
+    written = 0
+    statuses: dict[str, int] = {}
+    for year in wanted:
+        part = values.filter(pc.equal(values.column("period"), str(year)))
+        if part.num_rows == 0:
+            continue
+        code7 = part.column("locality").to_pylist()
+        n = len(code7)
+        source = [f"IBGE agregados {t} v{v} (series {spec['series']})" for t, v in zip(part.column("table").to_pylist(), part.column("variable").to_pylist(), strict=True)]
+        table = pa.table({
+            "municipality": pa.array([c[:6] for c in code7], pa.string()),
+            "municipality7": pa.array(code7, pa.string()),
+            "value": part.column("value"),
+            "status": part.column("status"),
+            "unit": pa.array([str(spec["unit"])] * n, pa.string()),
+            "source": pa.array(source, pa.string()),
+        })
+        for state in part.column("status").to_pylist():
+            statuses[state] = statuses.get(state, 0) + 1
+        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table, target / "part.parquet", compression="zstd")
+        written += n
+    return {"years": len(wanted), "rows": written, "statuses": statuses}
 
 
 def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:

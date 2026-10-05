@@ -2,6 +2,9 @@
 # periods, the axes it carries (`dims`: canonical axis -> the classification that carries it; categories come
 # from axes.yml) and `picks` for any other classification; a classification named by neither is IBGE's Total.
 # Where two sources claim a cell, both rows are kept and the lower `priority` is `selected`.
+# `sum: true` adds a source's picked categories into one figure (a part without a figure makes the sum missing).
+# A series states its `comparability` (level strict | close | broken, and why) and its `gaps`; `sidra series NAME
+# --report` prints both with the places that have a figure in each census.
 
 series:
   population_total:
@@ -55,6 +58,8 @@ series:
       "Rede geral ou pluvial" (72110). The 2022 category "Rede geral, rede pluvial ou fossa ligada à rede" (46290) adds
       septic tanks connected to the network, which the earlier categories name separately: it is not comparable and is
       the `households_sewer_network` field, 2022 only.
+    comparability: {level: strict, note: "same concept in three censuses (households with a sewer or storm network connection); the 2000 universe is permanent private households, the 2022 one the occupied ones"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
     sources:
       - {id: n_2000, table: 1437, variable: 96, periods: [2000], picks: {11558: [92855]}, measure: numerator, role: census, priority: 1}
       - {id: d_2000, table: 1437, variable: 96, periods: [2000], measure: denominator, role: census, priority: 1}
@@ -69,6 +74,8 @@ series:
       água", "Rede geral", 92853). 2022 asks the main supply ("Principal forma de abastecimento de água", "Rede geral de
       distribuição", 31471): close, not identical. The 2022 field `households_water_network` (connected and using it as the
       main supply, 72144) is a different, narrower category.
+    comparability: {level: close, note: "2000 and 2010 ask the form of supply, 2022 the main form: a household with a network connection and another main source counts in the first two and not in the third"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
     sources:
       - {id: n_2000, table: 1436, variable: 96, periods: [2000], picks: {61: [92853]}, measure: numerator, role: census, priority: 1}
       - {id: d_2000, table: 1436, variable: 96, periods: [2000], measure: denominator, role: census, priority: 1}
@@ -81,6 +88,8 @@ series:
     what: >
       Households whose waste is collected: the same classification (67) and category (2520, "Coletado") in the
       three censuses.
+    comparability: {level: strict, note: "same classification and category in 2000, 2010 and 2022"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
     sources:
       - {id: n_2000, table: 1439, variable: 96, periods: [2000], picks: {67: [2520]}, measure: numerator, role: census, priority: 1}
       - {id: d_2000, table: 1439, variable: 96, periods: [2000], measure: denominator, role: census, priority: 1}
@@ -88,3 +97,107 @@ series:
       - {id: d_2010, table: 3218, variable: 96, periods: [2010], measure: denominator, role: census, priority: 1}
       - {id: n_2022, table: 6892, variable: 381, periods: [2022], picks: {67: [2520]}, measure: numerator, role: census, priority: 1}
       - {id: d_2022, table: 6892, variable: 381, periods: [2022], measure: denominator, role: census, priority: 1}
+
+  households_without_bathroom:
+    what: >
+      Households with neither bathroom nor toilet: 2000 and 2022 "Não tinham banheiro nem sanitário" (92861, in the
+      sewage classification 11558), 2010 "Não tinham banheiro ou sanitário" (10963, in classification 299). The same
+      question in three wordings.
+    comparability: {level: strict, note: "the same condition asked the same way; 2022 counts occupied households, 2000 and 2010 permanent private ones"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
+    sources:
+      - {id: n_2000, table: 1437, variable: 96, periods: [2000], picks: {11558: [92861]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2000, table: 1437, variable: 96, periods: [2000], measure: denominator, role: census, priority: 1}
+      - {id: n_2010, table: 3154, variable: 96, periods: [2010], picks: {299: [10963]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2010, table: 3154, variable: 96, periods: [2010], measure: denominator, role: census, priority: 1}
+      - {id: n_2022, table: 6805, variable: 381, periods: [2022], picks: {11558: [92861]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2022, table: 6805, variable: 381, periods: [2022], measure: denominator, role: census, priority: 1}
+
+  households_total:
+    what: "Households in the censuses (permanent private households in 2000 and 2010, occupied ones in 2022), the universe of the sanitation series."
+    comparability: {level: close, note: "2022 names the occupied households explicitly; 2000 and 2010 count permanent private households that answered"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
+    sources:
+      - {id: census_2000, table: 1437, variable: 96, periods: [2000], role: census, priority: 1}
+      - {id: census_2010, table: 3154, variable: 96, periods: [2010], role: census, priority: 1}
+      - {id: census_2022, table: 6805, variable: 381, periods: [2022], role: census, priority: 1}
+
+  # Literacy. The censuses ask different universes: 10 years or more (2000, 2010) and 15 or more (2022; the 2010
+  # preliminary tables also give 15+). 15+ is computed for 2000 from the 15-19 and 20+ groups; 2010 15+ is the
+  # universe table 3149 (preliminary results). The 10+ series stops in 2010: 2022 publishes no 10+ literacy. The two
+  # are never mixed: a field takes one of them.
+  literacy_15plus:
+    what: >
+      People aged 15 or more and those who can read and write a simple note. 2000: table 2987, the 15-19 and 20+ age
+      groups added (sample). 2010: table 3149 (universe, preliminary results). 2022: table 9542 (universe).
+    comparability: {level: close, note: "the same question; 2000 is the sample expanded, 2010 the preliminary universe, 2022 the universe (the evaluation compares table 3149 with the final table 1699)"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there); 2010 is preliminary-results data"
+    sources:
+      - {id: n_2000, table: 2987, variable: 1645, periods: [2000], picks: {58: [1143, 109062]}, sum: true, measure: numerator, role: census_sample, priority: 1}
+      - {id: d_2000, table: 2987, variable: 140, periods: [2000], picks: {58: [1143, 109062]}, sum: true, measure: denominator, role: census_sample, priority: 1}
+      - {id: n_2010, table: 3149, variable: 2376, periods: [2010], measure: numerator, role: census_preliminary, priority: 1}
+      - {id: d_2010, table: 3149, variable: 950, periods: [2010], measure: denominator, role: census_preliminary, priority: 1}
+      - {id: n_2022, table: 9542, variable: 950, periods: [2022], picks: {59: [1023]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2022, table: 9542, variable: 950, periods: [2022], measure: denominator, role: census, priority: 1}
+
+  literacy_10plus:
+    what: >
+      People aged 10 or more and those who can read and write a simple note, 2000 (table 2987) and 2010 (table 1699,
+      final; table 3149, the preliminary universe, is kept as a second claim). Census 2022 publishes no 10+ literacy.
+    comparability: {level: strict, note: "same universe and question in 2000 and 2010"}
+    gaps: "2022 absent by design (use literacy_15plus); municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
+    sources:
+      - {id: n_2000, table: 2987, variable: 1645, periods: [2000], measure: numerator, role: census_sample, priority: 1}
+      - {id: d_2000, table: 2987, variable: 140, periods: [2000], measure: denominator, role: census_sample, priority: 1}
+      - {id: n_2010, table: 1699, variable: 1645, periods: [2010], measure: numerator, role: census, priority: 1}
+      - {id: d_2010, table: 1699, variable: 140, periods: [2010], measure: denominator, role: census, priority: 1}
+      - {id: n_2010_prelim, table: 3149, variable: 1645, periods: [2010], measure: numerator, role: census_preliminary, priority: 2}
+      - {id: d_2010_prelim, table: 3149, variable: 140, periods: [2010], measure: denominator, role: census_preliminary, priority: 2}
+
+  # Urban population: IBGE's own classification of each census (urban perimeter as delimited then).
+  population_urban:
+    what: >
+      Residents in urban situation (table 202 for 2000 and 2010, table 9923 for 2022) over the resident population of
+      the same table.
+    comparability: {level: close, note: "'urban' is the municipality's legal urban perimeter at each census, so its definition moves between censuses (2022 follows the 2022 delimitation): comparable as IBGE's classification, not as a fixed urban area"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
+    sources:
+      - {id: n_2000_2010, table: 202, variable: 93, periods: [2000, 2010], picks: {1: [1]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2000_2010, table: 202, variable: 93, periods: [2000, 2010], measure: denominator, role: census, priority: 1}
+      - {id: n_2022, table: 9923, variable: 93, periods: [2022], picks: {1: [1]}, measure: numerator, role: census, priority: 1}
+      - {id: d_2022, table: 9923, variable: 93, periods: [2022], measure: denominator, role: census, priority: 1}
+
+  # Self-declared race/colour totals of the municipality. 2000 exists only in the sample (table 2093); 2010 and 2022 are
+  # the universe (table 9605). The 2010 sample is kept as a second claim. The universe tables list five races: people
+  # with no declared race are in the Total only, and the sample tables add "Sem declaração".
+  population_race:
+    what: >
+      Resident population by self-declared race/colour (white, black, Asian, brown, indigenous, and undeclared where
+      the table lists it) against the table's own Total.
+    comparability: {level: close, note: "the same question and categories; 2000 comes from the sample (expanded, rounded) and counts 'Sem declaração', 2010 and 2022 from the universe, where undeclared people are only in the Total"}
+    gaps: "municipalities created after a census have no figure in it (no row, or IBGE's `...`: `--report` counts what is there)"
+    sources:
+      - {id: n_2000, table: 2093, variable: 93, periods: [2000], dims: {race_color: 86}, measure: numerator, role: census_sample, priority: 1}
+      - {id: d_2000, table: 2093, variable: 93, periods: [2000], measure: denominator, role: census_sample, priority: 1}
+      - {id: n_2010_sample, table: 2093, variable: 93, periods: [2010], dims: {race_color: 86}, measure: numerator, role: census_sample, priority: 2}
+      - {id: d_2010_sample, table: 2093, variable: 93, periods: [2010], measure: denominator, role: census_sample, priority: 2}
+      - {id: n_2010_2022, table: 9605, variable: 93, periods: [2010, 2022], dims: {race_color: 86}, measure: numerator, role: census, priority: 1}
+      - {id: d_2010_2022, table: 9605, variable: 93, periods: [2010, 2022], measure: denominator, role: census, priority: 1}
+
+  # Persons by per-capita income in the minimum wage of the census year: the unit is the minimum wage (R$151 in 2000,
+  # R$510 in 2010, R$1,212 in 2022), so nothing is deflated and a share is read within its year.
+  persons_income_band:
+    what: >
+      Persons by monthly per-capita income in the census year's minimum wages, in the bands every census can form: up
+      to 1/2, 1/2-1, 1-2, 2-3, 3-5, more than 5, and no income. 2000: table 2975 (family per capita, residents of
+      private households); 2010: table 3578 and 2022: table 10296 (household per capita, residents excluding
+      pensioners, domestic workers and their relatives).
+    comparability: {level: close, note: "income in minimum wages of the year, never in reais; 2000 uses the family's per-capita income, 2010 and 2022 the household's, and the 2010 and 2022 universes exclude pensioners and domestic workers; 2000 and 2010 are the sample, 2022 the universe"}
+    gaps: "bands finer than the six are not comparable (2000 stops at 'more than 5'); mean income in reais is not offered: it needs a deflator, and a mean is not stored"
+    sources:
+      - {id: n_2000, table: 2975, variable: 134, periods: [2000], dims: {income_band: 177}, measure: numerator, role: census_sample, priority: 1}
+      - {id: d_2000, table: 2975, variable: 134, periods: [2000], measure: denominator, role: census_sample, priority: 1}
+      - {id: n_2010, table: 3578, variable: 2035, periods: [2010], dims: {income_band: 386}, measure: numerator, role: census_sample, priority: 1}
+      - {id: d_2010, table: 3578, variable: 2035, periods: [2010], measure: denominator, role: census_sample, priority: 1}
+      - {id: n_2022, table: 10296, variable: 13604, periods: [2022], dims: {income_band: 386}, measure: numerator, role: census, priority: 1}
+      - {id: d_2022, table: 10296, variable: 13604, periods: [2022], measure: denominator, role: census, priority: 1}

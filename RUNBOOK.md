@@ -155,6 +155,7 @@ $PD sidra fetch 9606 -v 93 -p 2022 -c 86=all -c 2=all -c 287=all   # into <lake>
 $PD sidra facts 9606 -p 2022 --out f.parquet # read back with labels, units and Total flags joined on
 $PD sidra curated --group housing_sanitation [--fetch]   # the author's compendium: its cost first, then fetch
 $PD sidra series population_age_sex --fetch --validate   # stitched series (curation/sidra/series.yml); cells checked against totals
+$PD sidra series literacy_15plus --report              # its comparability, gaps and the places with a figure per census; fields: `$PD fields --name persons_15_plus`
 $PD sidra check                              # compendium and axis maps against IBGE's names
 $PD sidra rebuild 9606                       # re-derive a table's parts from the cached responses, no request
 ```

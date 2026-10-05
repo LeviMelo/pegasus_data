@@ -79,3 +79,36 @@ axes:
         2503: '80+'
         3244: '70+'            # the 2010 sample publishes 70 and over, not 70-79 and 80+ (those cells are `...`)
         0: total
+
+  # Per-capita income in the minimum wages of the census year. Bands every census can form; where a census cuts finer
+  # (2010: 1/8, 1/8-1/4, 1/4-1/2) or coarser the categories are summed into the common band. 2000 is classification 177
+  # (family per capita), 2010 and 2022 classification 386 (household per capita).
+  income_band:
+    names: {le_half: '^(Até 1/(2|4|8)\b|Mais de 1/8 a 1/4|Mais de 1/4 a 1/2)', half_1: '^Mais de 1/2 a 1 ', '1_2': '^Mais de 1 a 2 ',
+            '2_3': '^Mais de 2 a 3 ', '3_5': '^Mais de 3 a 5 ', gt_5: '^Mais de (5|10|15|20)( |$)', none: '^Sem rendimento', total: '^Total$'}
+    classifications:
+      177:
+        108867: le_half
+        108868: half_1
+        108869: '1_2'
+        3193: '2_3'
+        3194: '3_5'
+        108870: gt_5
+        3197: none
+        0: total
+      386:
+        12009: le_half
+        12010: le_half
+        9681: le_half
+        9682: le_half
+        9683: half_1
+        9684: '1_2'
+        9685: '2_3'
+        9686: '3_5'
+        9687: gt_5
+        9688: gt_5
+        9689: gt_5
+        9690: gt_5
+        9691: gt_5
+        9692: none
+        9680: total

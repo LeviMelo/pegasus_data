@@ -46,15 +46,19 @@ fields:
     what: Gross value added of agriculture and livestock.
     years: 2002-2023
 
-  # Census 2022 (Censo Demográfico). One year; the numerator and its
-  # denominator are separate fields so a share is computed at use.
+  # Census context, 2000 / 2010 / 2022 (Censo Demográfico). A field with `series:` is one measure of a series
+  # stitched across the censuses (curation/sidra/series.yml, which states each series' comparability and gaps;
+  # `pegasus-data sidra series NAME --report`). A numerator and its denominator are separate fields, so a share is
+  # computed at use; the sums are stored, the ratio never. A municipality created after a census has no figure in
+  # it (IBGE's `...`), and the status says so.
 
   households:
-    table: 6805
-    variable: 381
+    series: households_total
     unit: households
-    what: Occupied permanent private households (domicílios particulares permanentes ocupados), Census 2022.
-    years: 2022
+    what: >
+      Households of the census: permanent private households in 2000 and 2010, occupied permanent private households
+      in 2022 (the denominator of the household fields below).
+    years: 2000, 2010, 2022
 
   households_sewer_network:
     table: 6805
@@ -64,16 +68,25 @@ fields:
     what: >
       Occupied households whose sewage goes to the general or storm network,
       or to a septic tank connected to it (rede geral, rede pluvial ou fossa
-      ligada à rede). Over `households`.
+      ligada à rede). Over `households`. Census 2022 only: the broader 2022 category has
+      no counterpart in 2000 and 2010 (use `households_sewer_network_comparable`).
     years: 2022
 
-  households_without_bathroom:
-    table: 6805
-    variable: 381
-    classification: {11558: 92861}
+  households_sewer_network_comparable:
+    series: households_sewer_network
+    measure: numerator
     unit: households
-    what: Occupied households with neither bathroom nor toilet. Over `households`.
-    years: 2022
+    what: >
+      Households whose sewage goes to the general sewer or storm network, in the wording the three censuses share
+      (2022 without the septic tanks connected to the network). Over `households`.
+    years: 2000, 2010, 2022
+
+  households_without_bathroom:
+    series: households_without_bathroom
+    measure: numerator
+    unit: households
+    what: Households with neither bathroom nor toilet. Over `households`.
+    years: 2000, 2010, 2022
 
   households_water_network:
     table: 6803
@@ -82,71 +95,157 @@ fields:
     unit: households
     what: >
       Occupied households connected to the general water network and using it
-      as the main supply. Over `households`.
+      as the main supply. Over `households`. Census 2022 only (use `households_water_network_comparable`
+      across censuses).
     years: 2022
+
+  households_water_network_comparable:
+    series: households_water_network
+    measure: numerator
+    unit: households
+    what: >
+      Households supplied by the general water network: the form of supply in 2000 and 2010, the main supply in
+      2022 (close, not identical; see the series). Over `households`.
+    years: 2000, 2010, 2022
 
   households_waste_collected:
-    table: 6892
-    variable: 381
-    classification: {67: 2520}
+    series: households_waste_collected
+    measure: numerator
     unit: households
-    what: Occupied households whose waste is collected (at the door or by skip). Over `households`.
-    years: 2022
+    what: Households whose waste is collected (at the door or by skip). Over `households`.
+    years: 2000, 2010, 2022
 
   persons_15_plus:
-    table: 9542
-    variable: 950
+    series: literacy_15plus
+    measure: denominator
     unit: persons
-    what: Persons aged 15 or more, Census 2022.
-    years: 2022
+    what: >
+      Persons aged 15 or more (2000: the 15-19 and 20+ groups added; 2010: preliminary universe table; 2022: universe).
+    years: 2000, 2010, 2022
 
   persons_15_plus_literate:
-    table: 9542
-    variable: 950
-    classification: {59: 1023}
+    series: literacy_15plus
+    measure: numerator
     unit: persons
     what: Persons aged 15 or more who can read and write a simple note. Over `persons_15_plus`.
-    years: 2022
+    years: 2000, 2010, 2022
+
+  persons_10_plus:
+    series: literacy_10plus
+    measure: denominator
+    unit: persons
+    what: Persons aged 10 or more, Census 2000 and 2010 (the 2022 census publishes no 10+ literacy).
+    years: 2000, 2010
+
+  persons_10_plus_literate:
+    series: literacy_10plus
+    measure: numerator
+    unit: persons
+    what: Persons aged 10 or more who can read and write a simple note. Over `persons_10_plus`.
+    years: 2000, 2010
+
+  population_resident_census:
+    series: population_urban
+    measure: denominator
+    unit: persons
+    what: Resident population of the census (table 202 for 2000 and 2010, 9923 for 2022), the denominator of `population_urban`.
+    years: 2000, 2010, 2022
+
+  population_urban:
+    series: population_urban
+    measure: numerator
+    unit: persons
+    what: >
+      Residents in IBGE's urban situation at each census (its legal urban perimeter of the time: the definition moves
+      between censuses). Over `population_resident_census`.
+    years: 2000, 2010, 2022
+
+  population_race_universe:
+    series: population_race
+    measure: denominator
+    unit: persons
+    what: >
+      Resident population of the race/colour tables (the table's own Total, which includes people with no declared
+      race): the denominator of the race fields. 2000 is the sample.
+    years: 2000, 2010, 2022
 
   population_white:
-    table: 9605
-    variable: 93
-    classification: {86: 2776}
+    series: population_race
+    measure: numerator
+    where: {race_color: [white]}
     unit: persons
-    what: Resident population declared white (branca), Census 2010 and 2022. Over POPSVS or the census total.
-    years: 2010, 2022
+    what: Resident population declared white (branca), Census 2000 (sample), 2010 and 2022. Over `population_race_universe`.
+    years: 2000, 2010, 2022
 
   population_black:
-    table: 9605
-    variable: 93
-    classification: {86: 2777}
+    series: population_race
+    measure: numerator
+    where: {race_color: [black]}
     unit: persons
-    what: Resident population declared black (preta), Census 2010 and 2022.
-    years: 2010, 2022
+    what: Resident population declared black (preta), Census 2000 (sample), 2010 and 2022.
+    years: 2000, 2010, 2022
 
   population_asian:
-    table: 9605
-    variable: 93
-    classification: {86: 2778}
+    series: population_race
+    measure: numerator
+    where: {race_color: [asian]}
     unit: persons
-    what: Resident population declared of Asian origin (amarela), Census 2010 and 2022.
-    years: 2010, 2022
+    what: Resident population declared of Asian origin (amarela), Census 2000 (sample), 2010 and 2022.
+    years: 2000, 2010, 2022
 
   population_brown:
-    table: 9605
-    variable: 93
-    classification: {86: 2779}
+    series: population_race
+    measure: numerator
+    where: {race_color: [brown]}
     unit: persons
-    what: Resident population declared brown (parda), Census 2010 and 2022.
-    years: 2010, 2022
+    what: Resident population declared brown (parda), Census 2000 (sample), 2010 and 2022.
+    years: 2000, 2010, 2022
 
   population_indigenous:
-    table: 9605
-    variable: 93
-    classification: {86: 2780}
+    series: population_race
+    measure: numerator
+    where: {race_color: [indigenous]}
     unit: persons
-    what: Resident population declared indigenous (indígena), Census 2010 and 2022.
-    years: 2010, 2022
+    what: Resident population declared indigenous (indígena), Census 2000 (sample), 2010 and 2022.
+    years: 2000, 2010, 2022
+
+  # Income in the minimum wages of the census year (R$151, R$510, R$1,212): a share is read within its year, never
+  # compared in reais. persons_low_income / persons_income_universe is the share of people with a per-capita income
+  # of up to half a minimum wage or none; 2000 is the family's per-capita income, 2010 and 2022 the household's.
+  persons_income_universe:
+    series: persons_income_band
+    measure: denominator
+    unit: persons
+    what: >
+      Persons in the per-capita income tables (residents of private households; in 2010 and 2022 excluding pensioners,
+      domestic workers and their relatives), the denominator of the income fields.
+    years: 2000, 2010, 2022
+
+  persons_low_income:
+    series: persons_income_band
+    measure: numerator
+    where: {income_band: [le_half, none]}
+    unit: persons
+    what: >
+      Persons with a per-capita income of up to half a minimum wage of the census year, or none (the sum of the
+      two lowest bands of `persons_income_band`). Over `persons_income_universe`.
+    years: 2000, 2010, 2022
+
+  persons_no_income:
+    series: persons_income_band
+    measure: numerator
+    where: {income_band: [none]}
+    unit: persons
+    what: Persons with no income (the 'sem rendimento' band), included in `persons_low_income`. Over `persons_income_universe`.
+    years: 2000, 2010, 2022
+
+  persons_income_over_2_sm:
+    series: persons_income_band
+    measure: numerator
+    where: {income_band: ['2_3', '3_5', gt_5]}
+    unit: persons
+    what: Persons with a per-capita income of more than two minimum wages of the census year. Over `persons_income_universe`.
+    years: 2000, 2010, 2022
 
   # Weather, measured where a station stands (sources/inmet.py): one row per
   # station and month, in the municipality whose IBGE boundary contains the

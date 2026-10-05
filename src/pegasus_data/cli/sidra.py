@@ -197,9 +197,10 @@ def check(root: RootOpt = None, as_json: JsonOpt = False) -> None:
 def series(name: Annotated[str | None, typer.Argument(help="A stitched series (curation/sidra/series.yml); omit to list")] = None,
            fetch_: Annotated[bool, typer.Option("--fetch", help="Fetch the series' sources first (resumable)")] = False,
            validate: Annotated[bool, typer.Option("--validate", help="Check its cells against the tables' own totals")] = False,
+           report: Annotated[bool, typer.Option("--report", help="Its comparability and gaps, and the places with a figure per census")] = False,
            out: Annotated[Path | None, typer.Option("--out")] = None, root: RootOpt = None, as_json: JsonOpt = False) -> None:
     """A stitched series from the stored facts; where sources overlap both claims are kept, one `selected`."""
-    from ..sidra.series import build_series, declared_series, fetch_series, validate_series
+    from ..sidra.series import build_series, declared_series, fetch_series, series_report, validate_series
 
     if name is None:
         _emit([{"series": k, "what": " ".join(v.get("what", "").split())[:110]} for k, v in declared_series().items()], as_json, "series")
@@ -209,6 +210,9 @@ def series(name: Annotated[str | None, typer.Argument(help="A stitched series (c
         _emit(fetch_series(s, name, log=console.print), as_json, "fetched")
     if validate:
         _emit(validate_series(s, name), as_json, "cells against the tables' own totals")
+        return
+    if report:
+        _emit(series_report(s, name), as_json, f"series {name}")
         return
     table_ = build_series(s, name)
     if out is None:
