@@ -142,6 +142,7 @@ where` says which won):
 ```text
 <home>/_catalog/catalog.sqlite   the catalog (catalog/schema.sql, catalog/store.py)
 <home>/blobs/sha256/..           downloaded files, content-addressed
+                                 (every blob named by snapshot_versions is kept, ADR-0141)
 <home>/lake/<sys>/<family>/schema_signature=/uf=/year=/   the Parquet lake
 <home>/lake/reference/           version-scoped code tables (persist/reference.py)
 <home>/lake/population/ …        IBGE series
@@ -152,8 +153,11 @@ where` says which won):
 `strata`, `schemas`, `families`, `family_files`, `schema_presence`), what
 things mean (`field_codelists`, `variable_docs`, `dataset_docs`,
 `dictionary`, `code_tables`, `semantic_relations`, `open_questions`), and
-local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
-`adjudication_items`). 47 tables.
+local state (`blobs`, `fetches`, `snapshot_versions`, `lake_partitions`,
+`build_outcomes`, `adjudication_items`). 48 tables.
+`snapshot_versions` is the kept history of the files DATASUS rewrites in place
+(`snapshot.py`, ADR-0141): one row per (path, content, server mtime), never
+deleted, not in the seed.
 
 **The shipped snapshot** (`resources/`, in the wheel; 61.0 MiB on 2026-10-04 after the code structures and proximity graphs, from 56.6 MB; budget 64 MiB):
 
@@ -380,6 +384,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_resources.py`: resource status, validation, `ensure`, `build`.
 - `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`.
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
+- `snapshot.py`: `pegasus-data snapshot`, the versions of preliminary and current-year files (declared in `curation/snapshots.yml`) kept as they change; `versions()` and `digests_as_of()` behind `query(as_of=)` (ADR-0141).
 - `pipeline.py`: `Pipeline`, the build stages.
 - `build.py`: the stages that write data (lake, population, DEMAS).
 - `progress.py`: deadlines and heartbeat.

@@ -6,6 +6,7 @@ import json
 import warnings
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -87,7 +88,11 @@ def query(
     return_report: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
+    as_of: str | date | datetime | None = None,
 ) -> pa.Table | tuple[pa.Table, QueryReport]:
+    """Run a query. ``as_of`` reads each source file as the snapshot history
+    kept it on that date (``pegasus-data snapshot``, ADR-0141): the lake and the
+    network are not used, and a file with no version by then is a gap."""
     from ..presentation import resolve as resolve_presentation
 
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
@@ -116,7 +121,7 @@ def query(
         )
     # A download budget the caller sees before anything moves (ADR-0076):
     # 1 GiB of NEW compressed bytes by default; cached files cost nothing.
-    if max_download is not None and retrieval.download_bytes is not None:
+    if as_of is None and max_download is not None and retrieval.download_bytes is not None:
         new = retrieval.download_bytes - (retrieval.cached_bytes or 0)
         if new > max_download:
             from ..retrieve import DownloadBudgetExceeded
@@ -183,7 +188,9 @@ def query(
     derived: bool | list[str] = labels or list(query_plan.spec.select or [])
     tables: list[pa.Table] = []
     source_reports: list[Any] = []
-    if retrieval.lake_years or (retrieval.source_strategy == "lake" and not retrieval.years):
+    if as_of is None and (
+        retrieval.lake_years or (retrieval.source_strategy == "lake" and not retrieval.years)
+    ):
         from ..api import Catalog as PublicCatalog
         from ..api import load
 
@@ -211,7 +218,9 @@ def query(
         finally:
             cat.close()
     fetch_years: tuple[int, ...] | tuple[None, ...] = retrieval.fetch_years
-    if retrieval.source_strategy == "fetch" and not retrieval.years:
+    if as_of is not None:
+        fetch_years = tuple(sorted({*retrieval.fetch_years, *retrieval.lake_years}))  # type: ignore[arg-type]
+    if (retrieval.source_strategy == "fetch" or as_of is not None) and not retrieval.years:
         fetch_years = (None,)
     if fetch_years:
         from ..retrieve import fetch
@@ -238,6 +247,7 @@ def query(
                 # table is the caller's explicit choice.
                 allow_partial=allow_partial,
                 max_bytes=None,  # the budget is max_download, checked above on NEW bytes
+                as_of=as_of,
                 settings=resolved,
                 report=True,
             )

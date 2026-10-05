@@ -268,6 +268,27 @@ CREATE TABLE IF NOT EXISTS fetches (         -- append-only fetch history
 CREATE INDEX IF NOT EXISTS ix_fetches_path ON fetches (source_path);
 CREATE INDEX IF NOT EXISTS ix_fetches_sha ON fetches (sha256);
 
+-- What a file was, each time it changed (`pegasus-data snapshot`, ADR-0141). The
+-- bytes are the blob store's; this is the named, kept history of the declared
+-- series: DATASUS rewrites preliminary and current-year files in place, and only
+-- the versions seen on the way survive. `modified` is the server's last write of
+-- that version; `first_observed_at` is when a snapshot first saw it and
+-- `last_observed_at` the latest run that still saw it current. Rows are never
+-- deleted, and `BlobStore.prune_verified` keeps every blob named here.
+CREATE TABLE IF NOT EXISTS snapshot_versions (
+  path              TEXT NOT NULL,
+  sha256            TEXT NOT NULL,
+  modified          TEXT NOT NULL DEFAULT '',
+  size              INTEGER,
+  first_observed_at TEXT NOT NULL,
+  last_observed_at  TEXT NOT NULL,
+  observations      INTEGER NOT NULL DEFAULT 1,
+  run_id            TEXT,
+  serving_method    TEXT,
+  PRIMARY KEY (path, sha256, modified)
+);
+CREATE INDEX IF NOT EXISTS ix_snapshot_versions_sha ON snapshot_versions (sha256);
+
 -- ------------------------------------------------------- L3 decode outcomes
 
 CREATE TABLE IF NOT EXISTS decode_attempts (

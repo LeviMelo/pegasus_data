@@ -305,7 +305,12 @@ class BlobStore:
             (covered if verified else uncovered).update(sources)
         covered -= uncovered
         by_blob: dict[str, set[str]] = {}
+        # A snapshot version is the only copy of a state DATASUS has since
+        # overwritten (ADR-0141): it is never pruned, whatever the lake holds.
+        kept_versions = {str(r["sha256"]) for r in self.catalog.query("SELECT DISTINCT sha256 FROM snapshot_versions")}
         for row in self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches"):
+            if str(row["sha256"]) in kept_versions:
+                continue
             by_blob.setdefault(str(row["sha256"]), set()).add(str(row["source_path"]))
         out = {"blobs": 0, "bytes": 0, "kept": 0}
         for digest, sources in by_blob.items():

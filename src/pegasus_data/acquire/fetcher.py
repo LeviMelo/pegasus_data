@@ -123,9 +123,13 @@ class Fetcher:
         stall_timeout: float = DEFAULT_STALL_TIMEOUT,
         heartbeat_interval: float = DEFAULT_HEARTBEAT,
         refresh: str = "catalog",
+        mirror: bool = True,
     ) -> None:
         self.catalog = catalog
         self.blobs = blobs
+        #: ``False`` makes the DATASUS server the only source. A snapshot
+        #: records what DATASUS held at a moment, and the mirror can lag it.
+        self.use_mirror = mirror
         if refresh not in REFRESH_POLICIES:
             raise ValueError(
                 f"unknown refresh policy {refresh!r}; choose one of "
@@ -566,7 +570,7 @@ class Fetcher:
     def _from_mirror(self, path: str, staged, expected_size: int | None) -> tuple[int, str, str] | None:
         """The mirror's copy of ``path`` when, and only when, it has the size
         the DATASUS listing gives; streamed and hashed like an FTP transfer."""
-        if expected_size is None:
+        if expected_size is None or not self.use_mirror:
             return None
         from ..discovery.https_client import HttpsClient
 

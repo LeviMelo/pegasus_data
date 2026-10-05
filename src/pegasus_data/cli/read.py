@@ -703,6 +703,10 @@ def query_cmd(
     allow_partial: Annotated[
         bool, typer.Option("--allow-partial", help="Accept a short table when a source file will not download or open")
     ] = False,
+    as_of: Annotated[
+        str | None,
+        typer.Option("--as-of", help="Read each file as `pegasus-data snapshot` kept it on this date (2026-09-30); no network"),
+    ] = None,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
@@ -732,7 +736,7 @@ def query_cmd(
             table, report = run_query(
                 dataset, period=span, geography=geography, select=select, present="analysis",
                 allow_unbounded=allow_unbounded, allow_partial=allow_partial, settings=settings,
-                return_report=True,
+                return_report=True, as_of=as_of,
             )
     except (DatasetUnknown, NothingPublished, ValueError, FileNotFoundError) as exc:
         console.print(f"[red]{exc}[/red]")

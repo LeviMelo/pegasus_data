@@ -42,6 +42,7 @@ from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from contextlib import AbstractContextManager
 from dataclasses import dataclass, field, replace
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -278,6 +279,7 @@ def fetch(
     on_progress: Callable[[str, int, int], None] | None = None,
     report: bool = False,
     _only_paths: Sequence[str] | None = None,
+    as_of: str | date | datetime | None = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -305,6 +307,11 @@ def fetch(
     ``dictionary=True`` also returns a :class:`DataDictionary` — one row per
     column, with what it means, which reference table decoded it and the
     evidence rung behind that.
+
+    ``as_of`` reads the kept snapshot version each file had on that date
+    (``pegasus-data snapshot``, ADR-0141) and touches no network; a file with
+    no version by then is an acquisition failure, so a short table is refused
+    unless the caller accepts it.
 
     Returns the table alone; each of ``report=True`` and ``dictionary=True``
     appends to a tuple, in that order — so ``(table, report)``,
@@ -367,6 +374,7 @@ def fetch(
             on_missing_column=on_missing_column,
             max_bytes=max_bytes,
             only_paths=_only_paths,
+            as_of=as_of,
         )
         refused: set[str] = set()
         while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
@@ -401,6 +409,7 @@ def fetch(
                 max_bytes=max_bytes,
                 only_paths=_only_paths,
                 exclude_paths=frozenset(refused),
+                as_of=as_of,
             )
         if refused:
             fetch_report.warnings.append(
@@ -1113,6 +1122,7 @@ def _acquire(
     *,
     report: FetchReport,
     on_progress: Callable[[str, int, int], None] | None,
+    as_of: str | date | datetime | None = None,
 ) -> dict[str, str]:
     """Make sure every selected file is in the blob store. Returns path -> digest.
 
@@ -1123,6 +1133,14 @@ def _acquire(
     server should never see.
     """
     paths = list(dict.fromkeys(str(item["path"]) for _, _, item in selected))
+    if as_of is not None:
+        from .snapshot import digests_as_of
+
+        digests, absent = digests_as_of(pipeline.catalog, paths, as_of)
+        report.cache_hits = len(digests)
+        for path in absent:
+            report.acquisition_failures.append((path, f"no snapshot version on or before {as_of}"))
+        return digests
     if on_progress:
         on_progress("downloading", 0, len(paths))
     digests = pipeline.fetcher.ensure(paths)
@@ -1164,6 +1182,7 @@ def _read_families(
     max_bytes: int | None = None,
     only_paths: Sequence[str] | None = None,
     exclude_paths: frozenset[str] = frozenset(),
+    as_of: str | date | datetime | None = None,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1229,7 +1248,7 @@ def _read_families(
     if not selected:
         return pa.table({}), report
 
-    digests = _acquire(pipeline, selected, report=report, on_progress=on_progress)
+    digests = _acquire(pipeline, selected, report=report, on_progress=on_progress, as_of=as_of)
     selected_members: dict[str, set[str]] = {}
     for _family_id, _plan, item in selected:
         digest = digests.get(str(item["path"]))

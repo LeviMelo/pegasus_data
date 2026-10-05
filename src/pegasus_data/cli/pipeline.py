@@ -736,3 +736,38 @@ def run_everything(
         console.print(f"[green]✓[/green] build: {_fmt(result.counts)}")
     finally:
         pipeline.close()
+
+
+@app.command(rich_help_panel="PIPELINE")
+def snapshot(
+    root: RootOpt = None,
+    only: Annotated[list[str] | None, typer.Option("--only", help="Declared series to run (curation/snapshots.yml); default all")] = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="List and report what would be fetched, fetch nothing")] = False,
+    max_gb: Annotated[float, typer.Option("--max-gb", help="Refuse a run that would fetch more new GiB than this")] = 5.0,
+    versions: Annotated[str | None, typer.Option("--versions", help="List the kept versions of paths containing this text, and fetch nothing")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Keep the preliminary and current-year files DATASUS rewrites in place.
+
+    Lists the declared series again, fetches only files whose listed size or
+    modification time changed since their last kept version, and stores each
+    version beside the others (ADR-0141). Nothing is deleted. Schedule it daily
+    (RUNBOOK §8). Read a past state with query(..., as_of="2026-09-30").
+    """
+    from .. import snapshot as snap
+
+    settings = _settings(root)
+    if versions is not None:
+        _emit(snap.versions(versions, settings=settings), as_json, "versions")
+        return
+    try:
+        report = snap.snapshot(
+            settings, only=only, dry_run=dry_run, max_bytes=int(max_gb * 2**30),
+            on_progress=lambda message: console.print(message),
+        )
+    except snap.SnapshotRefused as exc:
+        console.print(f"[red]refused:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    _emit(report.as_dict(), as_json, "snapshot")
+    if report.errors or report.listing_failures:
+        raise typer.Exit(code=1)

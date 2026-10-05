@@ -1,0 +1,51 @@
+# Series whose files DATASUS rewrites in place, kept as versions by
+# `pegasus-data snapshot` (ADR-0141). Preliminary and current-year files are
+# overwritten under the same name (SIA +26% at its first rewrite, SIM
+# preliminary -4%, a DENG final losing 47% of its rows; PegaSUS
+# docs/evaluation/2026-10-05-surveillance-lags.md), and a version that is not
+# fetched while it is current is gone.
+#
+# directories : relative to the server's base path; each is listed again on
+#               every run (one listing per directory, no per-file request)
+# pattern     : filenames kept (regex, case-insensitive); groups `uf`, `yy`,
+#               `mm` let `ufs` and `months` narrow the set
+# ufs         : keep these states only
+# months      : keep competences within this many months of today
+#
+# The state lists are a disk budget, not a claim: a revision law is learned
+# from a few states, and SIA-PA alone is 14.7 GB for 14 competences nationally.
+# Widen a list here, in review, when a measurement needs it.
+
+snapshots:
+
+  sinan_prelim:
+    what: SINAN preliminary notifications of the current year (DENG, CHIK, ZIKA, LEPT and the 13 diseases published only as PRELIM)
+    directories: [SINAN/DADOS/PRELIM]
+
+  sim_prelim:
+    what: SIM preliminary death files, by residence and fetal/infant/maternal
+    directories: [SIM/PRELIM/DORES, SIM/PRELIM/DOFET]
+
+  sinasc_prelim:
+    what: SINASC preliminary birth files by residence
+    directories: [SINASC/PRELIM/DNRES]
+
+  sih_rd:
+    what: SIH-RD, rewritten monthly over a rolling window of about 12 competences
+    directories: [SIHSUS/200801_/Dados]
+    pattern: '^RD(?P<uf>[A-Z]{2})(?P<yy>\d{2})(?P<mm>\d{2})\.dbc$'
+    ufs: [AC, AP, RR, SE]
+    months: 14
+
+  sia_pa:
+    what: SIA-PA, rewritten over a rolling window (+26% at the first rewrite)
+    directories: [SIASUS/200801_/Dados]
+    pattern: '^PA(?P<uf>[A-Z]{2})(?P<yy>\d{2})(?P<mm>\d{2})[a-z]?\.dbc$'
+    ufs: [AC, AP, RR]
+    months: 14
+
+  cnes_st:
+    what: CNES-ST, one new file per state and competence, not rewritten
+    directories: [CNES/200508_/Dados/ST]
+    pattern: '^ST(?P<uf>[A-Z]{2})(?P<yy>\d{2})(?P<mm>\d{2})\.dbc$'
+    months: 14

@@ -114,6 +114,36 @@ outward action and needs the user's explicit go-ahead (CLAUDE.md §4). CI
 (`.github/workflows/checks.yml`) triggers on pushes to `main`, but the branch
 is `master`, so pushes currently run no CI (STATUS).
 
+## 8. Snapshots of files DATASUS rewrites (ADR-0141)
+
+```bash
+$PD snapshot --dry-run                 # observe, report what would be fetched (files, bytes), fetch nothing
+$PD snapshot [--only sinan_prelim ...] # fetch what changed since each file's last kept version
+$PD snapshot --versions DENGBR26       # the kept versions of matching paths (mtime, size, sha256, observed)
+$PD query SINAN.ZIKA --period 2026 --as-of 2026-09-30   # the files as they were kept on that date
+```
+
+- Declared series and their disk budget: `curation/snapshots.yml` (SINAN/SIM/SINASC preliminary in full;
+  SIH-RD, SIA-PA, CNES-ST of the last 14 competences, SIH and SIA for a few states). The first run on a
+  home fetches the whole declared set; a run after that fetches only what changed, and the report gives
+  `bytes_downloaded`, `versions_kept` and `store_bytes`.
+- It refuses to start under 4 GiB free RAM, if it would leave under 10 GiB of disk, or above `--max-gb`.
+- Versions are never pruned (`prune` skips their blobs). One run holds one FTP connection.
+- While the FTP data channel is down (ADR-0122) it observes by `MDTM`/`SIZE` and takes bytes from the
+  mirror only when the mirror's size and original mtime equal DATASUS's.
+
+**Daily schedule** (not created yet: the session that built this could not register a task; run the first line once, as the user; current user, no admin rights; the task runs `scripts/snapshot_task.cmd <data home> <log>`):
+
+```bat
+schtasks /Create /TN PegasusSnapshotDaily /SC DAILY /ST 04:00 /F /TR "C:\Users\Galaxy\LEVI\projects\pegasus_data\scripts\snapshot_task.cmd C:\Users\Galaxy\pegasus_core_data C:\Users\Galaxy\pegasus_core_snapshot.log"
+schtasks /Query /TN PegasusSnapshotDaily /V /FO LIST
+schtasks /Run /TN PegasusSnapshotDaily     # once, by hand
+schtasks /Delete /TN PegasusSnapshotDaily /F
+```
+
+The log is `C:\Users\Galaxy\pegasus_core_snapshot.log`: per run a date line, the JSON report and an `exit=` line
+(0 fine, 1 errors or failed listings, 2 refused).
+
 ## Record linkage (ADR-0107 to ADR-0112)
 
 | task | command |
