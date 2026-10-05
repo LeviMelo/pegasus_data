@@ -115,7 +115,11 @@ def _ignored(labels: pa.Array | None) -> pa.Array | None:
 
 
 def _normalise(role: Role, table: pa.Table) -> pa.Array:
-    raw = _strings(table.column(role.column))
+    source = table.column(role.column)
+    if role.type in ("date", "month") and (pa.types.is_date(source.type) or pa.types.is_timestamp(source.type)):
+        days = pc.cast(source, pa.date32())     # typed at normalisation (SINAN): nothing to parse
+        return pc.cast(pc.floor_temporal(days, unit="month"), pa.date32()) if role.type == "month" else days
+    raw = _strings(source)
     label_name = f"{role.column}_label"
     labels = table.column(label_name) if label_name in table.column_names else None
     if role.type == "month":

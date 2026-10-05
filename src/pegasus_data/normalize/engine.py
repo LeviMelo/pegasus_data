@@ -230,6 +230,24 @@ def build_plan(
         )
     }
 
+    # A column no profile describes (the seed ships none; only a maintainer's catalog has them)
+    # still has its container's own declaration: a DBF 'D' field is a date, whatever the profile.
+    # SINAN's DBCs declare 'D' on every date column, 213 names in 96 of its 98 families, and no
+    # other system declares any; before this they arrived as YYYYMMDD text in a fresh home.
+    header_dates = [
+        r["field_name"]
+        for r in catalog.query(
+            """
+            SELECT DISTINCT field_name FROM schema_header_facts
+             WHERE schema_signature = ? AND type_code = 'D'
+            """,
+            (signature,),
+        )
+    ]
+    for name in header_dates:
+        if name not in profiles:
+            plan.fields[name] = FieldPlan(name=name, physical_type="D", width=8)
+
     for name, profile in profiles.items():
         ledger = ledger_rows.get(name)
         semantic = (ledger["semantic_type"] if ledger else None) or profile["semantic_type"] or "unknown"

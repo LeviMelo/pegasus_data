@@ -1124,8 +1124,13 @@ variables:
     translated_name: Race/colour of the newborn
     description: 'Colour or race of the NEWBORN as recorded on the declaration: branca, preta,
       amarela, parda, indígena. Parda is 4 here and 03 in SIH''s RACA_COR, so the two never
-      pool directly.'
+      pool directly. Measured 2026-10-04 on SINASC 2020–2022: where both are known the newborn''s
+      RACACOR equals the mother''s RACACORMAE in 50,078 of 50,078 linked records, so the field
+      carries the mother''s declaration. TabNet''s RACACOR.CNV abbreviates three labels (Bra,
+      Amar) and the older NASC_ANT kit codes 5 as Preta; the layout''s own table is written out
+      here instead.'
     code_system: internal
+    codes: {"1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo RACACOR'

@@ -1724,8 +1724,15 @@ variables:
   RACACOR:
     official_name: Raça Cor
     translated_name: Race/colour
+    description: >
+      Race/colour of the deceased as declared: 1 Branca, 2 Preta, 3 Amarela, 4 Parda,
+      5 Indígena. The layout lists no code for ignored; a blank is missing. TabNet's own
+      RACACOR.CNV abbreviates three of these (Bra, Amar, Indig) to fit its display column,
+      which is why the table is written out here rather than read from the kit.
     code_system: internal
+    codes: {"1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena"}
     source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt, campo 11 "Raça Cor | RACACOR | Caracter 1 | 1 – Branca; 2 – Preta; 3 – Amarela; 4 – Parda; 5 – Indígena"'
   REGISTRO:
     official_name: Registro
     translated_name: Death registration number

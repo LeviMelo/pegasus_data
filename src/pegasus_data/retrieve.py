@@ -368,6 +368,44 @@ def fetch(
             max_bytes=max_bytes,
             only_paths=_only_paths,
         )
+        refused: set[str] = set()
+        while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
+            # A representation its family's schema refused (SINAN dengue 2010 and 2013: the
+            # Dados_Abertos CSV, chosen as the cheapest, does not carry the family's columns)
+            # must not end the read when the publication has another representation: read again
+            # without it, so the next one answers. A publication has up to four (CSV, JSON, XML,
+            # DBC; ZIKA 2017 refuses the first two), so this repeats until a read has nothing
+            # new to refuse or nothing left to try.
+            # Only a refusal whose publication has another representation is set aside; one
+            # with none stays in the read and in the report, so it can never drop out silently.
+            fresh = _refused_with_alternative(
+                pipeline.catalog,
+                set(fetch_report.schema_mismatch) - refused,
+                fetch_report.representations_deduplicated,
+            )
+            if not fresh:
+                break
+            refused |= fresh
+            retry_report = FetchReport(system=system, series=series_name, years_requested=want_years)
+            table, fetch_report = _read_families(
+                pipeline,
+                families,
+                report=retry_report,
+                ufs=want_ufs,
+                years=want_years,
+                months=want_months,
+                max_files=max_files,
+                on_progress=on_progress,
+                columns=columns,
+                on_missing_column=on_missing_column,
+                max_bytes=max_bytes,
+                only_paths=_only_paths,
+                exclude_paths=frozenset(refused),
+            )
+        if refused:
+            fetch_report.warnings.append(
+                f"{len(refused)} representation(s) refused for schema; read again from another: "
+                + ", ".join(sorted(refused)[:3]))
         if table.num_rows == 0:
             empty = (
                 fetch_report.files_read > 0
@@ -831,6 +869,24 @@ def _keep_columns(
     return frozenset(keep)
 
 
+def _refused_with_alternative(
+    catalog: CatalogStore, refused: set[str], alternatives: Sequence[str]
+) -> set[str]:
+    """The refused paths whose logical publication also has a dropped representation."""
+    paths = [*refused, *alternatives]
+    if not refused or not alternatives:
+        return set()
+    marks = ",".join("?" for _ in paths)
+    logical = {
+        str(r["path"]): str(r["logical_id"] or r["path"])
+        for r in catalog.query(
+            f"SELECT path, logical_id FROM file_facts WHERE path IN ({marks})", tuple(paths)
+        )
+    }
+    spare = {logical.get(p, p) for p in alternatives}
+    return {p for p in refused if logical.get(p, p) in spare}
+
+
 def _select_files(
     catalog: CatalogStore,
     families: Sequence[Mapping[str, Any]],
@@ -845,6 +901,7 @@ def _select_files(
     municipalities: MunicipalityIndex,
     cache: DictionaryCache,
     max_bytes: int | None = None,
+    exclude_paths: frozenset[str] = frozenset(),
 ) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
     """Decide WHICH files answer this request, and refuse the ones that cannot.
 
@@ -888,6 +945,7 @@ def _select_files(
             if (uf_set is None or (row["geo_code"] or "") in uf_set)
             and (year_set is None or row["year"] in year_set)
             and (month_set is None or _month_of(row["normalized_date"]) in month_set)
+            and str(row["path"]) not in exclude_paths
         ]
         from .representations import choose_representations
 
@@ -1105,6 +1163,7 @@ def _read_families(
     on_missing_column: str = "raise",
     max_bytes: int | None = None,
     only_paths: Sequence[str] | None = None,
+    exclude_paths: frozenset[str] = frozenset(),
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1132,6 +1191,7 @@ def _read_families(
         municipalities=municipalities,
         cache=cache,
         max_bytes=max_bytes,
+        exclude_paths=exclude_paths,
     )
     if only_paths:
         # Internal: the binding compile reads exactly its sampled file, not every

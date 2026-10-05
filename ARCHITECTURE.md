@@ -437,6 +437,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 ### `normalize/`
 
 - `normalize/engine.py`: vectorised normalisation driven by the ledger.
+  A column no profile describes still takes its container's declaration: a DBF `D` field is typed as a date (SINAN, 96 of 98 families).
 - `normalize/geo.py`: 6- vs 7-digit municipality codes.
 - `normalize/time.py`: competência and epidemiological weeks.
 - `normalize/types.py`: type coercion.

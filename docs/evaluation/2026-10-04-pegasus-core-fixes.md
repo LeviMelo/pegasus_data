@@ -86,4 +86,48 @@ No recipe uses the kind yet; a mark aggregate is the next step.
 - it resumes with HTTP Range from the bytes already received (MIDR answers 206);
 - it checks the length against Content-Length.
 
-**SINASC `SEXO`:** the national files (DNBR2021) write M/F/I (layout 2019), and the state files (DNAC2021) write 1/2/0. The codelist held only the numerals, so national reads lost newborn sex. Both are now decoded. The shipped label pack needs a rebuild to carry them.
+**SINASC `SEXO`:** the national files (DNBR2021) write M/F/I (layout 2019), and the state files (DNAC2021) write 1/2/0. The codelist held only the numerals, so national reads lost newborn sex. Both are now decoded. (An earlier version of this entry said the shipped label pack needed a rebuild; it does not. Inline `codes:` are read from the shipped YAML at translate time and the pack is distilled from the catalog's `dictionary`, which holds no inline rows. `translate()` in a fresh home labelled M/F/I and 1/2/0 alike, and a national-file read is still to be repeated: one read of DNBR2021 (2,677,101 rows) returned 1/2/0, not M/F/I, so DATA_SOURCES' statement that the national files write letters is unconfirmed.)
+
+## 9. A refused representation ended the read
+
+**The defect:** SINAN dengue 2010 and 2013 returned `NothingPublished`. The cheapest representation (the `Dados_Abertos` CSV) was chosen, its family's schema refused it, and no other was tried.
+
+**The fix** (`retrieve.fetch`): when a read has refusals and dropped alternatives, it repeats without the refused paths, so the next representation answers. A publication has up to four (CSV, JSON, XML, DBC), and ZIKA 2017 refuses two, so the repeat continues while there is a new refusal that has an alternative. A refusal with none stays in the read and in the report.
+
+**Result:** dengue 2013, 1,455,118 rows; dengue 2010, 1,004,314; ZIKA 2017, 31,754 (CSV and XML refused); CHIK 2016, 310,746.
+
+## 10. SINAN dates typed from the DBF header
+
+**The defect:** SINAN dates arrived as text (`YYYYMMDD` from the DBCs, ISO text from the CSVs). The seed carries no profile or ledger, so nothing in a fresh home typed them.
+
+**The fix** (`normalize.engine.build_plan`): a column with no profile takes its container's declaration, and the engine already types a DBF `D` field. The header declares `D` on 213 names in 96 of the 98 SINAN families, and on no other system. `parse_date_array` also reads ISO text and passes a typed date through; the aggregate time axis and the linkage roles accept a typed date.
+
+**Counted before and after** (the old behaviour reproduced by dropping the declaration, same files, date columns only, non-null counts per column):
+
+| series, year | rows | date columns | non-null before = after |
+|---|---|---|---|
+| LEPT 2002 / 2019 / 2023 | 12,091 / 18,186 / 20,888 | 11 / 26 / 26 | 75,882 / 161,900 / 182,678 |
+| CHAG 2005 / 2015 | 6,726 / 4,225 | 5 / 18 | 26,076 / 23,765 |
+| ESQU 2012 / 2022 | 8,367 / 2,883 | 14 / 14 | 60,831 / 20,143 |
+| ZIKA 2022 | 35,804 | 6 | 176,378 |
+| CHIK 2022 | 274,331 | 16 | 1,451,062 |
+| DENG 2006 / 2010 / 2011 / 2014 | 411,022 / 1,004,314 / 739,375 / 543,918 | 17 / 11 / 11 / 16 | 2,511,882 / 5,308,263 / 3,892,369 / 2,902,548 |
+
+Every column became `date32`, and no column lost a value (no value failed to parse). Not typed: HANT 1999-2006 declares its dates `N8` (`YYYYMMDD`, `0` for blank; 82 rows in 2003) and a few date-named fields are `C`. A stored link keyed on the old text values would need its record keys rebuilt: `_record_key` hashes the typed value.
+
+## 11. RACACOR labels
+
+**The defects** (found by PegaSUS's race-bridge measurement):
+- `translate(system="SIM")` labelled `Bra`, `Amar`, `Indig`: TabNet's own `RACACOR.CNV` abbreviates them.
+- SINASC's `RACACOR` pool held a hybrid: the current kit (`NASC_NOV_TAB`) codes 1 Branca, 2 Preta, 3 Amarela, 4 Parda; the older kit (`NASC_ANT_TAB`) codes 1 Amarela, 2 Branca, 3 Indígena, 4 Parda, 5 Preta. `dictionary_conflicts` records the disagreement, the dictionary resolves it code by code, and the codes only the older kit defines survived (5 read "Preta", 6-8 "Ignorado", 0 "Zero").
+- The measured pick of a codelist needs half the DISTINCT observed codes decoded, so a column with six extra codes (0, 6, 9, 01, 03, 04) lost all labels in SIM.
+
+**The fix:**
+- both layouts' tables are written as `codes:` in the curation (rung 1 of the label decision, ADR-0079), immune to which codes are observed;
+- `labelpack` packs only the majority kit of a codelist whose kits contradict each other; the shipped pack is rebuilt in a later slot (the rebuild streams the 22M-row dictionary), so until then `labels.parquet` still carries the hybrid and the abbreviated labels, and only the curated tables above are immune
+- SIH `RACA_COR` and SINAN `CS_RACA` need no change.
+
+**Checked** with `translate`, clean codes (1-5, blank) and polluted (0, 6, 9, 01, 03, 04 added), SIM, SINASC `RACACOR` and `RACACORMAE`, SIHSUS `RACA_COR`, SINAN `CS_RACA`: SIM and SINASC give Branca, Preta, Amarela, Parda, Indígena in both, the extra codes stay unlabelled; SIHSUS gives 01 Branca, 02 Preta, 03 Parda, 04 Amarela, 05 Indígena, 99 Sem informação in both; SINAN gives 1-5 and 9 in both.
+
+`translate` labels a column only when the system's curation knows its name (here `RACACOR`, `RACACORMAE`, `RACA_COR`, `CS_RACA`): by design, because the same code means different things in different columns and systems.
+

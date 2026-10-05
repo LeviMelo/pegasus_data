@@ -152,6 +152,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - IEXO 2023 has 66 columns against 80–82;
   - SIFA 2023 holds Python bytes reprs as values (`b'2',b'A539'`);
   - the exports are dated 2026-01-29, while PRELIM DBCs are republished later.
+- **SINAN dates** (2026-10-04): the DBCs declare type `D` on 1,077 date fields (213 names) in 96 of 98 families, written `YYYYMMDD`; the `Dados_Abertos` CSVs write the same dates as ISO text. HANT 1999–2006 declares its dates `N8` (`YYYYMMDD`, `0` for blank), and a few fields named like dates are `C` (`DT_DOSE_*`, `CON_DT_OBI`).
 - **`.duck`**: DuckDB databases; the storage version is at offset 8 after the
   `DUCK` magic (LE uint64), and DuckDB refuses a newer version (F §1 V6).
 - **`.rar`**: `TAB_SISCAN.rar` is RAR5 (ARCH §22.1b).
@@ -300,6 +301,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   code (F §3d, §3f).
 - **`SIHSUS/2010/XML/` holds 324 empty files** (`RD*.xml`, 0 bytes, listed since 2014). They share their logical ids with the 2010 DBCs in `200801_/Dados/`, and the mirror does not carry them. They are placeholders, not publications (2026-10-04).
 - **SINASC's `SEXO` has two codings in the same years.** The national files (`DNBR2021`) write M/F/I; the state files (`DNAC2021`) write 1/2/0 (2026-10-04).
+- **SINASC's newborn `RACACOR` is the mother's declaration** (measured 2026-10-04, SINASC 2020-2022 linked to SIM infant deaths): where both are known, `RACACOR` equals `RACACORMAE` in 50,078 of 50,078 records. Codes 1 Branca, 2 Preta, 3 Amarela, 4 Parda, 5 Indígena in both SIM and SINASC (layouts); TabNet's `RACACOR.CNV` abbreviates them (`Bra`, `Amar`, `Indig`), and SINASC's pre-1996 kit files a different table under the same name (1 Amarela, 2 Branca, 3 Indígena, 5 Preta).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all
   1,556,824 records, 2026-10-04):
   - 212,706 records have B34.2 as underlying cause, and none has a U07 code there;

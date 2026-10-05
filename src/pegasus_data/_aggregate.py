@@ -878,7 +878,11 @@ def _competencia_column(
         month = pc.utf8_lpad(month, 2, padding="0")
         joined = pc.binary_join_element_wise(year, month, "")
     else:
-        joined = pc.utf8_trim_whitespace(pc.cast(table.column(present[0]), pa.string()))
+        column = table.column(present[0])
+        if encoding == "date" and (pa.types.is_date(column.type) or pa.types.is_timestamp(column.type)):
+            # a column already typed as a date (SINAN's, from its DBF header) has no layout to guess
+            return pc.strftime(column, format="%Y%m")
+        joined = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
         if encoding == "date":
             layout = _date_layout(
                 joined.slice(0, min(_LAYOUT_SAMPLE, len(joined))).to_pylist())

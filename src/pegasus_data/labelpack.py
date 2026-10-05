@@ -113,6 +113,9 @@ class LabelPackReport:
     largest: list[tuple[str, int]] = field(default_factory=list)
     #: Codelists the catalog no longer holds, kept from the previous pack.
     carried_forward: list[str] = field(default_factory=list)
+    #: Rows left out because their kit contradicts the kit that holds most of
+    #: the codelist (two codifications under one name), as (system, codelist, rows).
+    incoherent_dropped: list[tuple[str, str, int]] = field(default_factory=list)
 
     @property
     def counts(self) -> dict[str, Any]:
@@ -247,7 +250,23 @@ def build_label_pack(
     crosswalk: set[tuple[str, str, str, str, str, str, str, float]] = set()
     widths: dict[tuple[str, str], int | None] = {}
 
-    for row in catalog.query(
+    # Two TabNet kits can file different tables under one name (SINASC RACACOR: the
+    # pre-1996 kit codes 1 Amarela, 2 Branca, 5 Preta; the current one 1 Branca, 2 Preta).
+    # The dictionary resolves such a clash code by code and keeps recording the loss in
+    # `dictionary_conflicts`, but the codes only the older kit defines survive beside the
+    # newer kit's, a hybrid no source published (SINASC RACACOR 5 read "Preta"). Where a
+    # codelist has rows from more than one kit and its kits are known to contradict each
+    # other, only the kit holding most of it is packed: an unlabelled code is visible,
+    # a label from a different codification is not.
+    contradicted = {
+        (str(r["system"] or ""), str(r["field_name"]).upper())
+        for r in catalog.query("SELECT DISTINCT system, field_name FROM dictionary_conflicts")
+    }
+    kit_rows: dict[tuple[str, str], dict[str, int]] = {}
+    origin: dict[tuple[str, str, tuple[str, str], str], str] = {}
+
+    # Streamed: the dictionary is 22M rows, and a list of them is the whole memory budget.
+    for row in catalog.conn.execute(
         "SELECT system, value_group, value_raw, value_label, valid_from, valid_to,"
         " source_ref, confidence"
         " FROM dictionary"
@@ -294,8 +313,24 @@ def build_label_pack(
         # honour the same contract.
         window = (_window_key(row["valid_from"]), _window_key(row["valid_to"]))
         per_code.setdefault((group, code, window), {})[str(row["system"] or "")] = label
+        if (str(row["system"] or ""), group) in contradicted:
+            kit = str(row["source_ref"] or "").rsplit(":", 1)[0]
+            kit_rows.setdefault((str(row["system"] or ""), group), {}).setdefault(kit, 0)
+            kit_rows[(str(row["system"] or ""), group)][kit] += 1
+            origin[(group, code, window, str(row["system"] or ""))] = kit
         carriers.setdefault(group, set()).add(str(row["system"] or ""))
         widths.setdefault((group, code), len(code) or None)
+
+    primary = {key: max(kits, key=lambda k: kits[k]) for key, kits in kit_rows.items() if len(kits) > 1}
+    dropped: dict[tuple[str, str], int] = {}
+    for (group, code, window, sys_name), kit in origin.items():
+        if (sys_name, group) in primary and kit != primary[(sys_name, group)]:
+            by_system = per_code.get((group, code, window), {})
+            if by_system.pop(sys_name, None) is not None:
+                dropped[(sys_name, group)] = dropped.get((sys_name, group), 0) + 1
+            if not by_system:
+                per_code.pop((group, code, window), None)
+    report.incoherent_dropped = sorted((s_, g_, n_) for (s_, g_), n_ in dropped.items())
 
     # Collapse: a code every system agrees on becomes one row with system NULL.
     flat: list[tuple[str | None, str, str, str, str, str]] = []

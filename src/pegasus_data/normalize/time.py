@@ -131,12 +131,18 @@ def parse_date_array(array: pa.Array, *, order: str = "YYYYMMDD", sentinels: tup
     Sentinels are nulled *only* when the caller names them — which the engine
     takes from the ledger, per field. There is no global sentinel rule here (§13).
     """
+    if pa.types.is_date(array.type) or pa.types.is_timestamp(array.type):
+        return array.cast(pa.date32())      # already a date: a typed source needs no parsing
     if array.type != pa.string():
         array = array.cast(pa.string())
     cleaned = pc.utf8_trim_whitespace(array)
     if sentinels:
         mask = pc.is_in(cleaned, value_set=pa.array(list(sentinels), type=pa.string()))
         cleaned = pc.if_else(pc.fill_null(mask, False), pa.scalar(None, pa.string()), cleaned)
+    # The open-data CSVs write the same dates as ISO text (2014-03-02, optionally with a time):
+    # one date, two spellings across representations of one publication.
+    cleaned = pc.replace_substring_regex(
+        cleaned, r"^(\d{4})-(\d{2})-(\d{2})(?:[ T].*)?$", r"\1\2\3")
     valid = pc.fill_null(pc.match_substring_regex(cleaned, r"^\d{8}$"), False)
     cleaned = pc.if_else(valid, cleaned, pa.scalar(None, pa.string()))
     if order == "DDMMYYYY":
