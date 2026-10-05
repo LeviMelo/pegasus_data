@@ -57,6 +57,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.
+- **SIDRA's limits** (API v3 `agregados`, measured on table 9514 on 2026-10-04 with `sources/census.py`). The census builder plans its chunks by rule 1 and selects by state, so rules 2 and 3 never apply to it.
+  1. **At most ~50,000 values per request.** A value is localities × selected categories × variables × periods; a classification fixed at its total does not count.
+     - Pass: 49,474, 49,600 and 49,800 values.
+     - Fail with HTTP 500: 50,310, 50,400 and 51,180 values.
+  2. **The ID lists must stay short.** Explicit `localidades` and `classificacao` lists fail with HTTP 500 once their text passes about 4.1 KB, whatever the value count: 500 municipalities × 2 sexes × 10 ages fails, 500 × 2 × 8 passes. A long unrelated parameter does not count. State selectors (`N6[N3[uf]]`, `N6[all]`) avoid the problem.
+  3. **IBGE's firewall rejects URLs of about 8 KB with an HTML page and HTTP 200.** A 200 status therefore does not mean data.
 - **TabNet's web side is another first-party source over HTTP.**
   `http://tabnet.datasus.gov.br/cgi/territorio/<table>.cnv` serves the
   current territorial tables its tabulations use, and `tabcgi.exe?<def>`
@@ -293,6 +299,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (426 of 1,590 distinct `DIAG_PRINC`). CID-9 and CID-10 code spaces share no
   code (F §3d, §3f).
 - **`SIHSUS/2010/XML/` holds 324 empty files** (`RD*.xml`, 0 bytes, listed since 2014). They share their logical ids with the 2010 DBCs in `200801_/Dados/`, and the mirror does not carry them. They are placeholders, not publications (2026-10-04).
+- **SINASC's `SEXO` has two codings in the same years.** The national files (`DNBR2021`) write M/F/I; the state files (`DNAC2021`) write 1/2/0 (2026-10-04).
 - **COVID-19 in SIM is `CAUSABAS` B34.2, not U07.1** (measured on SIM-DO 2020, all
   1,556,824 records, 2026-10-04):
   - 212,706 records have B34.2 as underlying cause, and none has a U07 code there;

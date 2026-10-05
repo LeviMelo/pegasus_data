@@ -56,3 +56,34 @@ No recipe uses the kind yet; a mark aggregate is the next step.
   - The empty XML is on no reachable route (the mirror returns 404), while every DBC probed is mirrored (206).
 - **The fix:** a zero-size candidate is dropped when its publication has a non-empty one. A lone empty file still surfaces as empty.
 - **Result:** SIH-RD 2010 counts 11,228,060 admissions, plus 129,905 unallocated. The FTP data channel was still filtered on DATASUS's side (`curl -v`: login and CWD answer, PASV ports time out), so the files came from the mirror.
+
+## 6. The Census as a population series (`CENSO`)
+
+**Source:** `sources/census.py`, SIDRA tables 1378 (2010) and 9514 (2022), by municipality × sex × single age (0–100+). Built into PegaSUS's root with `pegasus-data population --series CENSO`.
+
+**Result:** every municipality's sum equals the table's own total.
+
+| census | persons | municipalities | mismatched |
+|---|---|---|---|
+| 2010 | 190,755,799 | 5,565 | 0 |
+| 2022 | 203,080,756 | 5,570 | 0 |
+
+**SIDRA's limits were measured** (DATA_SOURCES). The builder plans each request under 50,000 values by state.
+
+## 7. A record's identity depended on the columns read
+
+**The defect:** `record_keys` hashed the batch it was given, so a projected read gave every record a different `_record_key`. Three selections of SINASC 2022 gave three keys for its first record. A link built in a lake-less home could not be joined back to its records: 0 of 26,055 pairs matched.
+
+**The fix:** a batch missing any of its family's columns carries no content key, so identity falls back to `_blob_sha256:_row`, which every projection of the file shares. Lake builds read full records and keep the content key.
+- **The trap that remains:** a read of *all* columns gets the content key. A cohort joined to a link built from a projection must therefore also read with a column list.
+
+**Result:** the infant-death links were rebuilt: 2021 has 26,008 pairs, 2022 has 26,055.
+
+## 8. Downloads resume; SINASC sex has two codings
+
+**`sources.fetch_url`:**
+- it retries `http.client.IncompleteRead`, which is not an `OSError` and was never retried;
+- it resumes with HTTP Range from the bytes already received (MIDR answers 206);
+- it checks the length against Content-Length.
+
+**SINASC `SEXO`:** the national files (DNBR2021) write M/F/I (layout 2019), and the state files (DNAC2021) write 1/2/0. The codelist held only the numerals, so national reads lost newborn sex. Both are now decoded. The shipped label pack needs a rebuild to carry them.

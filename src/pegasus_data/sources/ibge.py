@@ -106,6 +106,19 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
         age_standardizable=False,
         notes="legacy series; superseded by POPTCU for overlapping years",
     ),
+    "CENSO": PopulationSeries(
+        name="CENSO",
+        authority="IBGE Census (SIDRA tables 1378 for 2010, 9514 for 2022)",
+        directory="",
+        year_min=2010,
+        year_max=2022,
+        stratifications=["municipality", "year", "sex", "age"],
+        age_standardizable=True,
+        notes=(
+            "the enumerated population by municipality, sex and single year of age (0..100+); "
+            "built from SIDRA by `pegasus-data population --series CENSO`, not from the FTP"
+        ),
+    ),
     "projpop": PopulationSeries(
         name="projpop",
         authority="IBGE population projections",

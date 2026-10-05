@@ -1188,11 +1188,14 @@ variables:
   SEXO:
     official_name: Sexo do recém nascido
     translated_name: Sex of the newborn
-    description: Sex of the newborn, coded M, F or I for ignored — LETTERS here, where SIM
-      and SIH use numerals. Pooling SINASC with either without recoding silently drops every
-      row.
+    description: >
+      Sex of the newborn. Two codings coexist, by publication (measured 2026-10-04).
+      The national files (DNBR<year>) write LETTERS M, F, I (layout 2019); the state files
+      (DN<UF><year>) write numerals 1, 2, 0 (older layout, TabNet SEXO.CNV), in the same years
+      (DNBR2021 M/F/I, DNAC2021 1/2/0). Both are decoded; pooling with SIM or SIH still
+      needs the system.
     code_system: internal
-    codes: {"1": "Masculino", "2": "Feminino", "0": "Ignorado"}
+    codes: {"1": "Masculino", "2": "Feminino", "0": "Ignorado", "M": "Masculino", "F": "Feminino", "I": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo SEXO'

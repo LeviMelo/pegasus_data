@@ -571,6 +571,12 @@ class Builder:
             if spec is None:
                 notes.append(f"unknown series: {name}")
                 continue
+            if name == "CENSO":
+                # the census comes from SIDRA, not from the FTP tree
+                from .sources.census import build_census
+
+                counts[name] = build_census(self.settings.population_dir)
+                continue
             rows = self.catalog.query(
                 "SELECT path FROM files WHERE path LIKE ? AND gone_at IS NULL ORDER BY path",
                 (f"%/{spec.directory}/%",),

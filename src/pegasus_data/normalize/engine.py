@@ -339,7 +339,7 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
 
 def add_provenance(
     batch: pa.RecordBatch, *, source_path: str, blob_sha256: str, schema_signature: str,
-    first_row: int = 0,
+    first_row: int = 0, complete: bool = True,
 ) -> pa.RecordBatch:
     n = batch.num_rows
     stamp = utcnow()
@@ -364,7 +364,11 @@ def add_provenance(
         "_row": pa.array(range(first_row, first_row + n), type=pa.int64()),
         "_ingested_at": _constant(stamp),
         "_schema_signature": _constant(schema_signature),
-        "_record_key": record_keys(batch),
+        # a content key over a projection is not the record's key: the same record read with other
+        # columns got another key, and links stored in a lake-less home could not be joined back to
+        # their records (PegaSUS, 2026-10-04). A projected batch carries none; identity then falls
+        # back to _blob_sha256:_row, which every projection of the file shares.
+        "_record_key": record_keys(batch) if complete else pa.nulls(n, pa.string()),
     }
     return pa.RecordBatch.from_arrays(
         list(batch.columns) + list(extra.values()),
@@ -382,6 +386,7 @@ def normalize_table(
     """Stream a decoded table through the plan, batch by batch."""
     first_row = 0
     for batch in table.batches():
+        complete = not plan.columns or set(plan.columns) <= set(batch.schema.names)
         out = normalize_batch(batch, plan)
         if with_provenance:
             out = add_provenance(
@@ -390,6 +395,7 @@ def normalize_table(
                 blob_sha256=blob_sha256,
                 schema_signature=plan.schema_signature,
                 first_row=first_row,
+                complete=complete,
             )
         first_row += batch.num_rows
         yield out
