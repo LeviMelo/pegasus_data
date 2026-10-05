@@ -464,10 +464,18 @@ BANDS101 = np.minimum(np.arange(AGES) // 5, 16)
 def account_arrays(inp, cal, fc: dict) -> dict:
     """The account's single-age paths and the log offsets of its band intervals, for the three blocks: comparable areas
     2000-2010, municipalities 2010-2022 and the forecast ``fc`` (``population_forecast.forecast_account``, 2023-2030)."""
-    from .population_account import LEVELS, distribute_residual, interval, to_bands
+    from .population_account import (
+        LEVELS,
+        distribute_residual,
+        interval,
+        migration_schedule,
+        schedule_rates,
+        to_bands,
+    )
 
-    Xa = distribute_residual(inp.path_a, inp.close_a)
-    Xb = distribute_residual(inp.path_b, inp.close_b)
+    sched = migration_schedule(inp)
+    Xa = distribute_residual(inp.path_a, inp.close_a, schedule_rates(sched, inp.close_a.sum((1, 2))))
+    Xb = distribute_residual(inp.path_b, inp.close_b, schedule_rates(sched, inp.close_b.sum((1, 2))))
     off = {}
     for name, P, X, T in (("A", inp.A, Xa, 10), ("B", inp.B, Xb, 12)):
         bands = np.stack([to_bands(x) for x in X])

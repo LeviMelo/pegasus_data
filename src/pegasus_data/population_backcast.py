@@ -110,16 +110,24 @@ def split_bands(bands: np.ndarray, like: np.ndarray) -> np.ndarray:
     return bands[..., BANDS] * share
 
 
-def settle(path: np.ndarray, opening: np.ndarray) -> np.ndarray:
-    """Carry the departure of the 1991 census ``opening`` from the backward path along the cohorts, evenly through the
-    period (zero at 2000, all of it at 1991). The cohort aged ``a`` in 1991 is aged ``a+k`` k years later; the 80+ stays
-    80+. A cell that would go negative is set to zero."""
+def settle(path: np.ndarray, opening: np.ndarray, rates: np.ndarray | None = None) -> np.ndarray:
+    """Carry the departure of the 1991 census ``opening`` from the backward path along the cohorts (zero at 2000, all of it
+    at 1991). The cohort aged ``a`` in 1991 is aged ``a+k`` k years later; the 80+ stays 80+. With ``rates`` (n, 2, A; the
+    migration schedule of ``population_account.fit_schedule``) the cohort's migration of each year is the schedule's rate
+    at its age times its size, and what the schedule leaves is spread evenly; without, all of it is even. A cell that would
+    go negative is set to zero."""
     R = opening - path[0]
     out = path.copy()
     for a in range(A):
+        P = np.zeros((SPAN + 1,) + R.shape[:2])
+        if rates is not None and a < A - 1:
+            for j in range(SPAN):
+                x = min(a + j, A - 1)
+                P[j + 1] = P[j] + rates[..., x] * path[j][..., x]
+        rest = -R[..., a] - P[SPAN]                       # the cohort's migration over the period is -R, as the path is anchored at 2000
         for k in range(SPAN):
             pos = min(a + k, A - 1)
-            out[k][..., pos] += (1 - k / SPAN) * R[..., a]
+            out[k][..., pos] += R[..., a] + P[k] + (k / SPAN) * rest
     return np.maximum(out, 0)
 
 
@@ -148,6 +156,14 @@ class Pre:
         self.c96 = load_contagem(root, self.members)
         self.size = self.c00r.sum((1, 2))
 
+    rates: np.ndarray | None = None          # the migration schedule of each area, (n, 2, A); None: even
+
+    def use_schedule(self, schedule: np.ndarray) -> None:
+        """Settle the 1991 census with ``population_account.fit_schedule``'s age schedule (by the area's 2000 size class)."""
+        from .population_account import schedule_rates
+
+        self.rates = schedule_rates(schedule, self.size)
+
     def period(self) -> Period:
         """A ``Period`` carrying only what ``interval`` reads (size classes, region, horizon)."""
         n = self.n_areas
@@ -160,7 +176,7 @@ class Pre:
         back = backward_path(self.c00r, self.deaths)
         open_ = split_bands(self.c91, back[0])
         fwd = forward_path(open_, self.deaths)
-        return back, fwd, settle(back, open_), open_
+        return back, fwd, settle(back, open_, self.rates), open_
 
 
 def area_matrix(values: np.ndarray, area_of: dict[int, int], members: list[int], n_areas: int) -> tuple[np.ndarray, np.ndarray]:
@@ -323,9 +339,11 @@ def backcast_tables(pre: Pre, cal, S: dict[int, dict], shape_cal: dict, ctx: dic
         log(f"municipalities {c0}-{c0 + n}")
 
 
-def write_product(root: str | Path, *, source: str, version: str, validation: str, tables, notes: list[str]) -> dict:
+def write_product(root: str | Path, *, source: str, version: str, validation: str, tables, notes: list[str],
+                  tail=None, model_note: str = "") -> dict:
     """Write ``version`` of ``population_account``: the backcast ``tables`` (1991-1999), then every row group of the version
-    ``source`` (2000-2030) unchanged. A version is never overwritten."""
+    ``source`` (2000-2030) unchanged, or ``tail`` (tables of the same schema: the rebuilt 2000-2030) when given, with
+    ``source``'s manifest as the base and ``model_note`` appended to its model. A version is never overwritten."""
     import json
 
     import pyarrow.parquet as pq
@@ -342,6 +360,9 @@ def write_product(root: str | Path, *, source: str, version: str, validation: st
     def chain():
         yield first
         yield from tables
+        if tail is not None:
+            yield from tail
+            return
         for g in range(src.num_row_groups):
             yield src.read_row_group(g)
 
@@ -349,7 +370,7 @@ def write_product(root: str | Path, *, source: str, version: str, validation: st
         product="population_account", version=version,
         model=old["model"] + "; extended back to 1991 by population_backcast.py: the vital account run backward from the "
                              "coverage-corrected Census 2000 with SIM deaths of 1991-1999 and settled on the Census 1991 "
-                             "(comparable areas 1991-2010), the municipal split anchored on the 2000 estimate and the Contagem 1996",
+                             "(comparable areas 1991-2010), the municipal split anchored on the 2000 estimate and the Contagem 1996" + model_note,
         estimates=old["estimates"], inputs={**old["inputs"], "Census 1991 by five-year group": "SIDRA table 200",
                                             "Contagem 1996 by five-year group (split anchor, hold-out of the area estimate)": "SIDRA table 475",
                                             "SIM 1991-1995 (corrected base)": "SIM.DOR", "SIM 1996-1999": "SIM.DO"},

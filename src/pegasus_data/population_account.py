@@ -11,7 +11,7 @@ the deaths at age a leave the cohort aged a at the step's start, half the cohort
 vital account cannot say, and the model has two parts:
 
 * **inside an intercensal period** the closing census is known: its departure from the vital account is the period's
-  net migration (net of coverage), carried along each cohort evenly through the period (``distribute_residual``);
+  net migration (net of coverage), carried along each cohort through the period by an age schedule of migration (``distribute_residual``);
 * **after the last census** it is forecast by a regression of the departure on the *previous decade's* cohort net
   migration (the area's own rate shrunk toward the state and micro-region, urban share, GDP per head); the national
   total stays the vital account's. The regression and its intervals were fitted on one intercensal period and scored on
@@ -817,23 +817,73 @@ def assemble(root: str | Path, population_root: str | Path, events_dir: str | Pa
 
 # ------------------------------------------------------------------------------------------ the product
 
-def distribute_residual(path: np.ndarray, closing: np.ndarray) -> np.ndarray:
-    """Carry the closing census's departure from a vital account along the cohorts, evenly through the period.
+#: Smoothness of the migration schedule (weight of the second differences against the cohort residuals).
+SCHEDULE_SMOOTH = 30.0
+
+
+def fit_schedule(periods: list[tuple[np.ndarray, np.ndarray, int]], smooth: float = SCHEDULE_SMOOTH) -> np.ndarray:
+    """The age schedule of the net migration (and coverage) that the censuses leave unexplained: ``w[sex, size class, age]``,
+    a yearly rate by age at the start of the year (0..79; 80+ is 0), the same for every place of a size class.
+
+    ``periods`` are ``(vital path, closing census, steps)`` triples (the paths are (steps+1, n, 2, A)). The cohort that
+    ends a period at age ``a`` has the residual ``closing - vital`` there; it is the sum of the yearly rates over the ages
+    the cohort had along the way, ``r(a) = sum_{x = max(0, a-steps)}^{a-1} w(x)``, solved with a second-difference penalty
+    (signed: a loss at 15-27, a gain after). Pooled per size class (``SIZE_CUTS`` of the closing population) and averaged
+    over the periods. In every decade of 1991-2022 the residual sits at ages 15-27 (small places lose 2-4% of a cohort a
+    year at 18-22): it is not spread evenly through the years."""
+    out = np.zeros((2, len(SIZE_CUTS) + 1, A))
+    for path, close, steps in periods:
+        cls = np.digitize(close.sum((1, 2)), SIZE_CUTS)
+        M = np.zeros((A - 2, A - 1))
+        for a in range(1, A - 1):
+            M[a - 1, max(0, a - steps):a] = 1.0
+        D = np.diff(np.eye(A - 1), 2, axis=0)
+        R = close - path[-1]
+        for sx in (0, 1):
+            for c in range(len(SIZE_CUTS) + 1):
+                m = cls == c
+                if not m.any():
+                    continue
+                r = R[m][:, sx, 1:A - 1].sum(0) / np.maximum(path[-1][m][:, sx, 1:A - 1].sum(0), 1.0)
+                w = np.linalg.lstsq(np.vstack([M, np.sqrt(smooth) * D]), np.concatenate([r, np.zeros(len(D))]), rcond=None)[0]
+                out[sx, c, :A - 1] += w / len(periods)
+    return out
+
+
+def migration_schedule(inp: Inputs) -> np.ndarray:
+    """``fit_schedule`` on the two intercensal periods of ``inp`` (2000-2010 and 2010-2022)."""
+    return fit_schedule([(inp.path_a, inp.close_a, 10), (inp.path_b, inp.close_b, 12)])
+
+
+def schedule_rates(schedule: np.ndarray, size: np.ndarray) -> np.ndarray:
+    """The schedule of each place, (n, 2, A), from the place's size class."""
+    return schedule[:, np.digitize(size, SIZE_CUTS)].transpose(1, 0, 2)
+
+
+def distribute_residual(path: np.ndarray, closing: np.ndarray, rates: np.ndarray | None = None) -> np.ndarray:
+    """Carry the closing census's departure from a vital account along the cohorts through the period.
 
     ``path`` (T+1, n, 2, A) is the vital account from the opening census and ``closing`` the census that ends the
-    period. The residual of each age at the end is the net migration (and coverage) of the cohort that reached it; it is
-    given to that cohort in equal parts from the opening census (or from its birth) to the end, so the path leaves the
-    opening census untouched and arrives exactly on the closing one. The residual of the open 80+ stays at 80+. A cell
-    that would go negative is set to zero."""
+    period. The residual of each age at the end is the net migration (and coverage) of the cohort that reached it. With
+    ``rates`` (n, 2, A; ``schedule_rates``) the cohort receives, each year, the schedule's rate at its age times its size;
+    what the schedule does not explain is given evenly through the period (from the opening census, or from birth), so
+    the path leaves the opening census untouched and arrives exactly on the closing one. Without ``rates`` all of it is
+    given evenly. The residual of the open 80+ stays at 80+ and is even. A cell that would go negative is set to zero."""
     T = path.shape[0] - 1
     R = closing - path[-1]
     out = path.copy()
     for a_end in range(A):
         k0 = max(0, T - a_end)
+        P = np.zeros((T + 1,) + R.shape[:2])
+        if rates is not None and a_end < A - 1:
+            for j in range(k0, T):
+                x = a_end - (T - j)
+                P[j + 1] = P[j] + rates[..., x] * path[j][..., x]
+        rest = R[..., a_end] - P[T]
         for k in range(k0, T + 1):
             share = k / T if k0 == 0 else (k - k0 + 1) / (T - k0 + 1)
             pos = A - 1 if a_end == A - 1 else min(a_end - (T - k), A - 1)
-            out[k][..., pos] += share * R[..., a_end]
+            out[k][..., pos] += P[k] + share * rest
     return np.maximum(out, 0)
 
 
