@@ -49,9 +49,10 @@ the output runs are Arrow-encoded in 200k-run chunks. Equality: SINASC+SIM+SIHSU
 an identical pack (sorted compare of all columns), peak RSS 4.7 GB -> 1.5 GB, 369 -> 495 s. Full catalog: 27 min, RSS
 1.95 GB when last sampled (12 min in), completed. Against the shipped pack: 4,219,910 -> 4,207,326 rows. SINASC
 RACACOR loses the hybrid codes (5 "Preta", 6-8 "Ignorado": 8 -> 6 rows; `translate` of 5 is now null); SISCAN RACACOR loses
-09 and a header fragment. The same minority-kit rule also removes 12,733 rows, mostly SIH `CIDX*` duplicates with an empty
-window and 3,174 codes with no remaining label (UNISAUMG 432, UNISAUBA 241, BR_REGMETR 199 ...): a coverage cost of the rule,
-for the owner of that rule to judge. 149 rows are new (SISPRENATAL CBO_02, CIHA TP_FINAN, EVODENG). The pack, the
+09 and a header fragment. **Corrected the same day:** the minority-kit rule also removed 12,733 runs and left 2,920 codes without a label (UNISAUMG, UNISAUBA,
+BR_REGMETR ...) for no reason: it was wrong, not a coverage cost, and the 149 "new" rows were an artefact of it. The rule was
+replaced and the pack rebuilt; only SINASC RACACOR 5 and 6-8 differ from the pack before it
+([label-pack-kit-rule](2026-10-05-label-pack-kit-rule.md)). The pack, the
 manifest checksum and `translate()` were updated; the seed was not regenerated.
 
 `scripts/profile_hotpaths.py {query|stream|narrow}` measures a national `query` (peak process-tree RSS), the per-UF

@@ -124,7 +124,7 @@ Every column became `date32`, and no column lost a value (no value failed to par
 
 **The fix:**
 - both layouts' tables are written as `codes:` in the curation (rung 1 of the label decision, ADR-0079), immune to which codes are observed;
-- `labelpack` packs only the majority kit of a codelist whose kits contradict each other; the shipped pack is rebuilt in a later slot (the rebuild streams the 22M-row dictionary), so until then `labels.parquet` still carries the hybrid and the abbreviated labels, and only the curated tables above are immune
+- `labelpack` packs only the majority kit of a codelist whose kits contradict each other (**replaced 2026-10-05**: that rule dropped 12,733 valid runs; it now applies only to a recoded small codebook inside one system and window, see [label-pack-kit-rule](2026-10-05-label-pack-kit-rule.md)); the shipped pack is rebuilt in a later slot (the rebuild streams the 22M-row dictionary), so until then `labels.parquet` still carries the hybrid and the abbreviated labels, and only the curated tables above are immune
 - SIH `RACA_COR` and SINAN `CS_RACA` need no change.
 
 **Checked** with `translate`, clean codes (1-5, blank) and polluted (0, 6, 9, 01, 03, 04 added), SIM, SINASC `RACACOR` and `RACACORMAE`, SIHSUS `RACA_COR`, SINAN `CS_RACA`: SIM and SINASC give Branca, Preta, Amarela, Parda, Indígena in both, the extra codes stay unlabelled; SIHSUS gives 01 Branca, 02 Preta, 03 Parda, 04 Amarela, 05 Indígena, 99 Sem informação in both; SINAN gives 1-5 and 9 in both.

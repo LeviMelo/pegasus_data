@@ -38,9 +38,11 @@ sending a user elsewhere to decode a diagnosis is the opposite of the point.
 
 from __future__ import annotations
 
+import difflib
 import re
 import sqlite3
 import tempfile
+import unicodedata
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -207,6 +209,98 @@ def _unescape_accents(label: str) -> str:
     return _ESCAPED_ACCENT.sub("", label)
 
 
+#: A codelist with more codes than this, or with codes wider than this, is an entity
+#: register (establishments, municipalities, teams, occupations), not a codebook. A
+#: register identifies an entity by its code, so two kits that name a code differently
+#: are renaming it, not recoding it, and a code only the older kit lists is still that
+#: entity. A codebook's codes are a digit or two (RACACOR 1-5, ANO 00-99).
+CODEBOOK_MAX_CODES = 128
+CODEBOOK_MAX_WIDTH = 3
+
+
+def _meaning_tokens(label: str) -> list[str]:
+    """Lower-case, accent-free alphanumeric tokens: what is left of a label once case,
+    accents, punctuation and spacing are taken out."""
+    text = unicodedata.normalize("NFKD", label)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch)).casefold()
+    return re.findall(r"[0-9a-z]+", text)
+
+
+#: Labels that name no category: the residue a kit files under a code it has nothing
+#: specific to say about (``Ign`` over the years it does not cover, ``Outros``). A
+#: residue does not contradict a specific category, and it is not evidence that its kit
+#: holds more of a codelist.
+_CATCH_ALL = frozenset({
+    "ign", "ignorado", "ignorada", "ignbranco", "ignoradoembranco", "embranco", "branco",
+    "naoinformado", "naoinformada", "seminformacao", "desconhecido", "desconhecida",
+    "outro", "outra", "outros", "outras",
+})
+
+
+def _is_catch_all(label: object) -> bool:
+    return "".join(_meaning_tokens(str(label or ""))) in _CATCH_ALL
+
+
+def _same_meaning(a: str, b: str) -> bool:
+    """Do two claims for one code differ only in wording?
+
+    Case, accents, punctuation, a TabWin order mark, an abbreviation (``Bra`` for
+    ``Branca``, ``< 7d`` for ``< 7 dias``), an extra qualifier, a plural and a catch-all
+    (``Ign``, ``Outros``) all leave the meaning alone. Different words (``Amarela`` /
+    ``Branca``) or different numbers (``Ate 10 anos`` / ``Ate 11 anos``) do not. When in
+    doubt the answer is "same", which keeps both claims and drops nothing.
+    """
+    tokens_a, tokens_b = _meaning_tokens(a), _meaning_tokens(b)
+    if not tokens_a or not tokens_b:
+        return False
+    joined_a, joined_b = "".join(tokens_a), "".join(tokens_b)
+    if joined_a in _CATCH_ALL or joined_b in _CATCH_ALL:
+        return True
+    if joined_a.startswith(joined_b) or joined_b.startswith(joined_a):
+        return True
+    set_a, set_b = set(tokens_a), set(tokens_b)
+    if set_a <= set_b or set_b <= set_a:
+        return True
+    if {t for t in tokens_a if any(ch.isdigit() for ch in t)} != {t for t in tokens_b if any(ch.isdigit() for ch in t)}:
+        return False
+    return difflib.SequenceMatcher(None, joined_a, joined_b).ratio() >= 0.8
+
+
+def _kit_of(source_ref: object) -> str:
+    """The file a dictionary claim was read from: its provenance without the line."""
+    return str(source_ref or "").rsplit(":", 1)[0]
+
+
+def _recoded_kit_pairs(catalog: CatalogStore) -> dict[tuple[str, str], list[tuple[str, str]]]:
+    """Per (system, codelist), the pairs of kits that give the SAME codes different meanings.
+
+    `dictionary_conflicts` holds every pair of claims for one code of one codelist in
+    one system and window that disagree. Most disagree in wording only (see
+    ``_same_meaning``). Two kits RECODE a codelist when, of the codes they disagree on,
+    most disagree in meaning: SINASC's 1994-95 kit reads RACACOR 1 as Amarela, 2
+    Branca, 3 Indigena, the 1996 kit 1 Branca, 2 Preta, 3 Amarela. A pair that only
+    renames (a clinic's name in two years, an accent, an abbreviation) is not a recoding.
+    """
+    sem: dict[tuple[str, str, str, str], set[str]] = {}
+    word: dict[tuple[str, str, str, str], set[str]] = {}
+    for row in catalog.conn.execute(
+        "SELECT system, field_name, value_raw, claim_a, source_a, claim_b, source_b FROM dictionary_conflicts"
+    ):
+        kit_a, kit_b = _kit_of(row["source_a"]), _kit_of(row["source_b"])
+        if kit_a == kit_b:
+            continue
+        a = strip_label_prefix(_unescape_accents(str(row["claim_a"] or ""))) or ""
+        b = strip_label_prefix(_unescape_accents(str(row["claim_b"] or ""))) or ""
+        key = (str(row["system"] or ""), str(row["field_name"]).upper(), *sorted((kit_a, kit_b)))
+        (word if _same_meaning(a, b) else sem).setdefault(key, set()).add(str(row["value_raw"]))
+    recoded: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    for (sys_name, group, kit_a, kit_b), codes in sem.items():
+        # A code that one reading calls the same and another calls different is different.
+        if len(codes) > len(word.get((sys_name, group, kit_a, kit_b), set()) - codes):
+            recoded.setdefault((sys_name, group), []).append((kit_a, kit_b))
+    return recoded
+
+
 def build_label_pack(
     catalog: CatalogStore,
     out: str | Path,
@@ -261,15 +355,14 @@ def build_label_pack(
     # pre-1996 kit codes 1 Amarela, 2 Branca, 5 Preta; the current one 1 Branca, 2 Preta).
     # The dictionary resolves such a clash code by code and keeps recording the loss in
     # `dictionary_conflicts`, but the codes only the older kit defines survive beside the
-    # newer kit's, a hybrid no source published (SINASC RACACOR 5 read "Preta"). Where a
-    # codelist has rows from more than one kit and its kits are known to contradict each
-    # other, only the kit holding most of it is packed: an unlabelled code is visible,
-    # a label from a different codification is not.
-    contradicted = {
-        (str(r["system"] or ""), str(r["field_name"]).upper())
-        for r in catalog.query("SELECT DISTINCT system, field_name FROM dictionary_conflicts")
-    }
-    kit_rows: dict[tuple[str, str], dict[str, int]] = {}
+    # newer kit's, a hybrid no source published (SINASC RACACOR 5 read "Preta"). Where two
+    # kits RECODE a small codebook (`_recoded_kit_pairs`) and both still hold rows in the
+    # same system and validity window, only the kit holding more of that window is packed:
+    # an unlabelled code is visible, a label from a different codification is not.
+    # Nothing else is dropped: a renamed entity, a code one kit alone defines, another
+    # window and another system all keep their labels (the first version of this rule
+    # packed one kit per codelist and cost 12,733 runs, 2026-10-05).
+    recoded = _recoded_kit_pairs(catalog)
 
     # Streamed in table (insertion) order, so a later claim for the same key wins as it
     # always did; unbound codelists are skipped in SQL, not after 22M rows of Python.
@@ -321,14 +414,11 @@ def build_label_pack(
         # honour the same contract.
         window = (_window_key(row["valid_from"]), _window_key(row["valid_to"]))
         sys_name = str(row["system"] or "")
-        kit = str(row["source_ref"] or "").rsplit(":", 1)[0]
+        kit = _kit_of(row["source_ref"])
         pending.append((group, code, window[0], window[1], sys_name, label, kit))
         if len(pending) >= 50_000:
             work.executemany("INSERT INTO rows VALUES (?,?,?,?,?,?,?)", pending)
             pending.clear()
-        if (sys_name, group) in contradicted:
-            kit_rows.setdefault((sys_name, group), {}).setdefault(kit, 0)
-            kit_rows[(sys_name, group)][kit] += 1
     work.executemany("INSERT INTO rows VALUES (?,?,?,?,?,?,?)", pending)
     pending.clear()
 
@@ -348,14 +438,34 @@ def build_label_pack(
     for grp, sys_name in work.execute("SELECT DISTINCT grp, sys FROM dedup"):
         carriers.setdefault(grp, set()).add(sys_name)
 
-    primary = {key: max(kits, key=lambda k: kits[k]) for key, kits in kit_rows.items() if len(kits) > 1}
+    work.create_function("catch_all", 1, _is_catch_all, deterministic=True)
     dropped: dict[tuple[str, str], int] = {}
-    for (sys_name, group), kit in primary.items():
-        removed = work.execute(
-            "DELETE FROM dedup WHERE sys = ? AND grp = ? AND kit <> ?", (sys_name, group, kit)
-        ).rowcount
-        if removed:
-            dropped[(sys_name, group)] = removed
+    for (sys_name, group), pairs in recoded.items():
+        windows: dict[tuple[str, str], dict[str, int]] = {}
+        widest: dict[tuple[str, str], int] = {}
+        for valid_from, valid_to, kit, n_rows, width in work.execute(
+            "SELECT vf, vt, kit, SUM(NOT catch_all(label)), MAX(LENGTH(code)) FROM dedup"
+            " WHERE sys = ? AND grp = ? GROUP BY vf, vt, kit",
+            (sys_name, group),
+        ):
+            windows.setdefault((valid_from, valid_to), {})[kit] = n_rows
+            widest[(valid_from, valid_to)] = max(widest.get((valid_from, valid_to), 0), width)
+        for (valid_from, valid_to), kits in windows.items():
+            is_codebook = sum(kits.values()) <= CODEBOOK_MAX_CODES and widest[(valid_from, valid_to)] <= CODEBOOK_MAX_WIDTH
+            if len(kits) < 2 or not is_codebook:
+                continue
+            gone: set[str] = set()
+            for kit_a, kit_b in pairs:
+                alive = kit_a in kits and kit_b in kits and kit_a not in gone and kit_b not in gone
+                # No majority is no basis to choose: both stay.
+                if alive and kits[kit_a] != kits[kit_b]:
+                    gone.add(min((kit_a, kit_b), key=lambda k: kits[k]))
+            for kit in gone:
+                removed = work.execute(
+                    "DELETE FROM dedup WHERE sys = ? AND grp = ? AND vf = ? AND vt = ? AND kit = ?",
+                    (sys_name, group, valid_from, valid_to, kit),
+                ).rowcount
+                dropped[(sys_name, group)] = dropped.get((sys_name, group), 0) + removed
     report.incoherent_dropped = sorted((s_, g_, n_) for (s_, g_), n_ in dropped.items())
 
     # Collapse: a code every system agrees on becomes one row with system NULL.
