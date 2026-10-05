@@ -778,6 +778,16 @@ variables:
       hospital activity must use MUNIC_MOV.
 
       '
+    derived:
+    - name: MUNIC_RES_municipio
+      from: [MUNIC_RES]
+      remap: {"530020": "530010", "530030": "530010", "530040": "530010", "530050": "530010", "530060": "530010", "530070": "530010", "530080": "530010", "530090": "530010", "530100": "530010", "530110": "530010", "530120": "530010", "530130": "530010", "530135": "530010", "530140": "530010", "530150": "530010", "530160": "530010", "530170": "530010", "530180": "530010"}
+      valid: {from: 200801, to: 201712}
+      rule: Brasília is the Federal District's only municipality (530010). In the files read from 2008-01
+        to 2017-12 its residents are written with their administrative-region code (530020 to 530180,
+        and 530135), which no municipality list holds; January 2018 and later write 530010. This column
+        maps those codes to 530010 inside the window and leaves every other code, and every code outside
+        it, as written (before 2008-01 is unmeasured). MUNIC_RES itself is never changed. Measured on DF files, DATA_SOURCES.
   NACIONAL:
     official_name: Código da nacionalidade do paciente
     translated_name: Patient nationality

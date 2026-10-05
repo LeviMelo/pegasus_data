@@ -131,3 +131,10 @@ Every column became `date32`, and no column lost a value (no value failed to par
 
 `translate` labels a column only when the system's curation knows its name (here `RACACOR`, `RACACORMAE`, `RACA_COR`, `CS_RACA`): by design, because the same code means different things in different columns and systems.
 
+## 12. Brasília in SIH-RD before 2018
+
+**The defect:** `MUNIC_RES` holds the Federal District's administrative-region codes (530020 to 530180, 530135) until 2017-12, so Brasília had 11,297 admissions in 2017 against TabNet's 152,622.
+
+**The fix:** the existing `derived` recipe mechanism gained a `remap` kind (`view._remapped`), declared on `MUNIC_RES` as `MUNIC_RES_municipio` with the window 2008-01 to 2017-12. It judges the window by the file's competence, leaves the raw column and every code outside the window as written, and warns when a year alone cannot settle it.
+
+**Checked** on DF files: 2017 holds 11,025 rows 530010 plus 140,876 region codes, 151,901 after mapping against TabNet's 152,622 (the other 721 are in other states' files); December 2017 still has the region codes, January 2018, 2019 and 2022 none. The mapping function was exercised on both sides of the window (2007-12, 2008-01, 2017-12, 2018-01). A translate() read of the derived column was queued behind other work and is not yet checked.

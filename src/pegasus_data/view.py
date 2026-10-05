@@ -1196,6 +1196,31 @@ def _render_table(
     return rendered_table, report
 
 
+def _remapped(codes: object, recipe: Mapping[str, Any], *, year: int | None, competencia: int | None,
+              report: RenderReport) -> pa.Array:
+    """``codes`` through the recipe's ``remap`` where its ``valid`` window (YYYYMM) holds.
+
+    The window is judged by the file's competence; a year alone decides only when the whole
+    year is inside or outside it. Where it cannot be settled the code stays as written and
+    the report says so: an unremapped code is visibly the source's own, a guess is not.
+    """
+    table = {str(k): str(v) for k, v in dict(recipe["remap"]).items()}
+    window = recipe.get("valid") or {}
+    lo, hi = int(window.get("from") or 0), int(window.get("to") or 999912)
+    applies = None
+    if competencia is not None:
+        applies = lo <= int(competencia) <= hi
+    elif year is not None:
+        first, last = int(year) * 100 + 1, int(year) * 100 + 12
+        applies = True if lo <= first and last <= hi else False if last < lo or first > hi else None
+    if applies is None:
+        report.warnings.append(
+            f"{recipe.get('name')}: the window {lo}-{hi} cuts the year read, so the codes stand as written")
+    if not applies:
+        return _per_distinct(codes, lambda v: str(v).strip() or None)
+    return _per_distinct(codes, lambda v: table.get(str(v).strip(), str(v).strip()) or None)
+
+
 def _apply_derived(
     rendered: pa.Table,
     source: pa.Table,
@@ -1243,6 +1268,19 @@ def _apply_derived(
                 continue
             bridge = recipe.get("bridge")
             codes_in = source.column(inputs[0])
+            if recipe.get("remap"):
+                # A code the source wrote for a thing the canonical list names otherwise,
+                # inside a declared window (SIH-RD before 2018 writes the Federal District's
+                # administrative regions where Brasília is 530010). The raw column is untouched;
+                # outside the window, or where the window is not settled, the code stands.
+                rendered_codes = _remapped(codes_in, recipe, year=year, competencia=competencia, report=report)
+                derived_column = None if as_code else _labelled_codes(
+                    lake, str(recipe.get("to") or "MUNICBR"), rendered_codes)
+                if derived_column is None:
+                    derived_column = rendered_codes
+                rendered = rendered.append_column(column_name, derived_column)
+                report.derived_added.append(column_name)
+                continue
             if bridge:
                 # Across the 2008 change of classification: an old SIA/SIH
                 # procedure becomes the SIGTAP procedure that replaced it, when
