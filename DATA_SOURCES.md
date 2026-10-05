@@ -57,7 +57,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.
-- **SIDRA's limits** (API v3 `agregados`, measured on table 9514 on 2026-10-04 with `sources/census.py`). The census builder plans its chunks by rule 1 and selects by state, so rules 2 and 3 never apply to it.
+- **SIDRA's limits** (API v3 `agregados`, measured on table 9514 on 2026-10-04; the planner in `sidra/planner.py` applies them, §6.4).
   1. **At most ~50,000 values per request.** A value is localities × selected categories × variables × periods; a classification fixed at its total does not count.
      - Pass: 49,474, 49,600 and 49,800 values.
      - Fail with HTTP 500: 50,310, 50,400 and 51,180 values.
@@ -554,6 +554,30 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - IBGE `/api/v3/malhas` returns gzip **without** `Content-Encoding`; the body
   starts `1f 8b` (ARCH §14.16, 2026-08-29). The built meshes have 5,570
   polygons.
+
+### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
+
+- **The catalog.** `GET /agregados` (1.95 MB) lists 9,336 tables of 70 researches; `?nivel=N6` selects 4,448 and
+  `?nivel=N3` 6,269. A table's `/metadados` gives its variables with units, its classifications with every category
+  (`nivel` 0 is the Total), its frequency, first and last period and territorial levels (median 5 KB, 0.7 s).
+- **`N6` does not mean every municipality.** Sampled tables: PNS, PeNSE and PNAD Contínua list the 27 capitals at N6;
+  the Census, MUNIC, PNSB, GDP and the CEMPRE list 5,507 to 5,570 (the lattice of their year); Registro Civil 1,506 to 5,570.
+  The table's own `/localidades/N6` is the count that matters.
+- **Category ids are global.** Over the tables scanned, a (classification, category) pair has one name everywhere (0
+  conflicts in 20,855 pairs over 6,095 tables), so crosswalks are keyed by classification.
+- **A classification can have no Total** (392 of 15,233). Leaving it out of `classificacao` is answered with category id
+  `0` and an empty name (table 307).
+- **A classification left out is its Total; `[all]` includes the Total**; the response holds one `resultados` entry per
+  category combination, each with a `series` of localities, and states the classifications in its own order.
+- **Selectors.** `N6[N3[27]]`, `N6[N3[11,12]]`, `N6[N2[2]]`, `N3[all]`, `N1[all]` work; two selectors joined by `|` fail with HTTP 500.
+- **Cost.** About 125 bytes of JSON a value; 48,000 values in 5 to 9 s (median 5.6 s for 4 MB), about 8,000 values a second
+  sequentially; gzip on disk is 14 times smaller. A body can be gzip without `Content-Encoding` (ADR-0127): it is read by its magic bytes.
+- **Numbers** use `.` for decimals and no thousands separator. Marks: `-` zero, `..` not applicable, `...` not
+  available, `X` withheld. Table 1552 (Census 2000) answers `...` for the 58 municipalities created after 2000.
+- **Projections** (research XE, 5 tables) are state level only and stop at the 2018 revision; the estimates (XF, table 6579) are
+  municipal totals only, without 2007 or the census years. Neither carries municipal age and sex: POPSVS does.
+- **The same Total differs between tables of one census**: 2010 households are 57,324,185 in table 3154 and 57,324,167 in
+  tables 1436 and 3218 (18 apart).
 
 ## 7. CNES
 

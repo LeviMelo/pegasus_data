@@ -2,8 +2,8 @@
 
 A field is a property of a place and a year that is not a health event: GDP,
 the weight of the public sector, agriculture. They are declared in
-``curation/fields.yml`` by IBGE's own table and variable, read from IBGE's
-aggregates API, and kept in ``<lake>/fields/<name>/`` one row per municipality
+``curation/fields.yml`` by IBGE's own table and variable, read through the
+general SIDRA interface (`pegasus_data.sidra`), and kept in ``<lake>/fields/<name>/`` one row per municipality
 and year. Only totals are stored; a rate is computed at use over POPSVS.
 
 IBGE's markers become a status: ``-`` is a true zero, while ``..`` (not
@@ -13,16 +13,10 @@ their reason.
 
 from __future__ import annotations
 
-import json
-import urllib.request
 from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
-
-API = "https://servicodados.ibge.gov.br/api/v3/agregados/{table}/periodos/{period}/variaveis/{variable}?localidades=N6[all]"
-_MARKERS = {"-": ("0", "zero"), "..": (None, "not_applicable"), "...": (None, "not_available"),
-            "X": (None, "suppressed")}
 
 __all__ = ["build_fields", "declared_fields", "load_field"]
 
@@ -45,81 +39,78 @@ def _years(text: str) -> list[int]:
 
 
 def _classification(spec: dict[str, Any]) -> str:
-    """IBGE's ``classificacao`` parameter: ``59[1023]|2[6794]``; omitted ones are its Total."""
+    """IBGE's ``classificacao`` parameter as the source string: ``59[1023]|2[6794]``; omitted ones are its Total."""
     chosen = spec.get("classification") or {}
     return "|".join(f"{k}[{v}]" for k, v in chosen.items())
 
 
-def _fetch(table: int, variable: int, year: int, classification: str = "",
-           timeout: float = 180.0) -> list[dict[str, Any]]:
-    url = API.format(table=table, period=year, variable=variable)
-    if classification:
-        url += f"&classificacao={classification}"
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        body = response.read()
-    if body[:2] == bytes((0x1F, 0x8B)):
-        # IBGE sends gzip without Content-Encoding, as its meshes endpoint does
-        # (DATA_SOURCES §6.3).
-        import gzip
-
-        body = gzip.decompress(body)
-    data = json.loads(body.decode("utf-8"))
-    if not data:
-        return []
-    return data[0]["resultados"][0]["series"]
-
-
 def build_fields(settings: Any, names: list[str] | None = None, years: list[int] | None = None) -> dict[str, Any]:
-    """Read each declared field from IBGE and write it to ``<lake>/fields/<name>/``."""
-    import pyarrow.parquet as pq
-
+    """Read each declared field from its source and write it to ``<lake>/fields/<name>/``."""
     report: dict[str, Any] = {}
+    sidra = None
     for name, spec in declared_fields().items():
         if names and name not in names:
             continue
         if spec.get("source") == "inmet":
             report[name] = _build_climate(settings, name, years)
-            continue
-        if spec.get("source") == "s2id":
+        elif spec.get("source") == "s2id":
             report[name] = _build_disasters(settings, name, years)
-            continue
-        if spec.get("source") == "ans":
+        elif spec.get("source") == "ans":
             report[name] = _build_ans(settings, name, spec, years)
-            continue
-        if spec.get("source") == "inep":
+        elif spec.get("source") == "inep":
             report[name] = _build_inep(settings, name, spec, years)
-            continue
-        wanted = [y for y in _years(spec["years"]) if not years or y in years]
-        written = 0
-        statuses: dict[str, int] = {}
-        for year in wanted:
-            chosen = _classification(spec)
-            series = _fetch(int(spec["table"]), int(spec["variable"]), year, chosen)
-            code7, values, status = [], [], []
-            for item in series:
-                raw = str(item["serie"].get(str(year), "")).strip()
-                value, state = _MARKERS.get(raw, (raw, "value"))
-                code7.append(item["localidade"]["id"])
-                values.append(float(value) if value else None)
-                status.append(state)
-                statuses[state] = statuses.get(state, 0) + 1
-            if not code7:
-                continue
-            table = pa.table({
-                "municipality": pa.array([c[:6] for c in code7], pa.string()),
-                "municipality7": pa.array(code7, pa.string()),
-                "value": pa.array(values, pa.float64()),
-                "status": pa.array(status, pa.string()),
-                "unit": pa.array([str(spec["unit"])] * len(code7), pa.string()),
-                "source": pa.array([f"IBGE agregados {spec['table']} v{spec['variable']}"
-                                    + (f" c{chosen}" if chosen else "")] * len(code7), pa.string()),
-            })
-            target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-            target.mkdir(parents=True, exist_ok=True)
-            pq.write_table(table, target / "part.parquet", compression="zstd")
-            written += table.num_rows
-        report[name] = {"years": len(wanted), "rows": written, "statuses": statuses}
+        else:
+            if sidra is None:
+                from .sidra import Sidra
+
+                sidra = Sidra(settings=settings)
+            report[name] = _build_sidra(settings, sidra, name, spec, years)
     return report
+
+
+def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
+    """An IBGE aggregate (table, variable, one category of some classifications) as a place × year field.
+
+    The request is planned, fetched and cached by `pegasus_data.sidra`; this keeps the municipality, the
+    value and IBGE's marker as a status (``-`` a true zero; ``..``, ``...`` and ``X`` null with their reason).
+    """
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    wanted = [y for y in _years(spec["years"]) if not years or y in years]
+    chosen = _classification(spec)
+    selection = sidra.selection(
+        int(spec["table"]), variables=[int(spec["variable"])], periods=[str(y) for y in wanted],
+        classifications={int(k): [int(v)] for k, v in (spec.get("classification") or {}).items()})
+    report = sidra.fetch(selection, log=lambda _m: None)
+    if report["shortfalls"]:                      # a request that returned fewer cells than it asked for: never a quiet gap
+        raise RuntimeError(f"field {name!r}: SIDRA returned fewer values than planned: {report['shortfalls'][:2]}")
+    facts = sidra.slice(int(spec["table"]), variables=[int(spec["variable"])], periods=selection.periods,
+                        picks={int(k): [int(v)] for k, v in (spec.get("classification") or {}).items()})
+    source = f"IBGE agregados {spec['table']} v{spec['variable']}" + (f" c{chosen}" if chosen else "")
+    written = 0
+    statuses: dict[str, int] = {}
+    for year in wanted:
+        part = facts.filter(pc.equal(facts.column("period"), str(year)))
+        if part.num_rows == 0:
+            continue
+        code7 = part.column("locality").to_pylist()
+        n = len(code7)
+        table = pa.table({
+            "municipality": pa.array([c[:6] for c in code7], pa.string()),
+            "municipality7": pa.array(code7, pa.string()),
+            "value": part.column("value"),
+            "status": part.column("status"),
+            "unit": pa.array([str(spec["unit"])] * n, pa.string()),
+            "source": pa.array([source] * n, pa.string()),
+        })
+        for state in part.column("status").to_pylist():
+            statuses[state] = statuses.get(state, 0) + 1
+        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table, target / "part.parquet", compression="zstd")
+        written += n
+    return {"years": len(wanted), "rows": written, "statuses": statuses}
 
 
 def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:

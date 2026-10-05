@@ -1,0 +1,29 @@
+# Topics that make an IBGE table useful for health inference (sidra/survey.py). A table matches a topic when
+# any word (accents and case ignored) occurs in its name, subject, variables or classifications. Weight is how
+# much a match moves the reading order; it decides nothing, a table enters PegaSUS only by being declared.
+
+topics:
+  health_services:
+    weight: 3
+    words: [saude, hospital, leito, estabelecimentos de saude, vacina, plano de saude, atendimento medico, medico, consulta, internacao]
+  health_conditions:
+    weight: 3
+    words: [doenca, hipertensao, diabetes, tabagismo, fumante, obesidade, atividade fisica, alcool, deficiencia, morbidade, acidente, violencia, saude mental, depressao]
+  mortality_births:
+    weight: 3
+    words: [obitos, mortalidade, nascidos vivos, nascimentos, fecundidade, esperanca de vida, gravidez, filhos tidos]
+  sanitation_environment:
+    weight: 2
+    words: [saneamento, esgoto, abastecimento de agua, agua canalizada, lixo, residuo, coleta, esgotamento]
+  deprivation:
+    weight: 2
+    words: [rendimento, renda, pobreza, extrema pobreza, desocupacao, ocupacao, trabalho, vulnerab, programa social, gini, salario]
+  education:
+    weight: 1.5
+    words: [alfabetizacao, instrucao, escolaridade, frequencia escolar, analfabet, anos de estudo]
+  housing:
+    weight: 1.5
+    words: [domicilio, moradia, banheiro, densidade, aglomerado subnormal, favela, energia eletrica, internet]
+  demography:
+    weight: 1.5
+    words: [populacao residente, idade, cor ou raca, indigena, quilombola, migra, idoso, razao de dependencia]

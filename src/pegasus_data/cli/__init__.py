@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import sys
 
-from . import audit, pipeline, read, setup  # noqa: F401 - each registers its commands
+from . import audit, pipeline, read, setup, sidra  # noqa: F401 - each registers its commands
 from ._common import (
     app,
     console,

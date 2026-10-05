@@ -173,12 +173,20 @@ OQ-64), 1990s SIH V-codes.
   "Municipality points").
 - **Fields** (`load_field`):
   - IBGE GDP and value added (ADR-0127);
-  - Census sanitation, literacy and population by race, for 2010 and 2022.
+  - Census sanitation, literacy and population by race, for 2010 and 2022
+    (all fifteen IBGE fields are read through `pegasus_data.sidra`, ADR-0142).
   - `climate`: INMET station-month precipitation and temperature, placed in
     the municipality each station stands in (1961–2025, 912 stations).
   - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
     type and human damages.
 - **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
+- **SIDRA** (`pegasus_data.sidra`, `pegasus-data sidra`, ADR-0142):
+  - a registry of IBGE's tables built from its own metadata (`sidra scan`; `search`, `show`, `survey`, `rank`);
+  - a planner under the measured limits and a long fact store with provenance; the curated compendium (97 tables) priced and fetched by group (`sidra curated`);
+  - series across censuses with both claims kept: `population_total`, `population_age_sex` (`CENSO`), `population_race_sex_age`,
+    `population_race_sex_ageband`, and sewer, water and waste coverage 2000, 2010, 2022;
+  - not built: SIDRA tables at state level as context fields (PNS, PNAD Contínua; `fields.yml` is municipal), and the
+    sample-based 2010 labour cube (table 3572, 120M values) which `sidra curated` skips by size.
 - **Renamed columns:** five confirmed by values are curated (OQ-57
   narrowed).
 

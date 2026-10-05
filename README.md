@@ -198,6 +198,9 @@ age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardise
   added; Census sanitation, literacy and population by race), INMET climate
   by station-month and S2iD disaster events, built
   with `pegasus-data fields --name gdp --years 2010-2021`.
+- **SIDRA**, IBGE's whole aggregates catalog (9,336 tables), through one interface: `pegasus-data sidra search esgoto --level N6`,
+  `sidra show 6805`, `sidra fetch 6805 -p 2022 -c 11558=all`, then `Sidra().labelled(6805)` for the facts with labels and
+  IBGE's marks as a status. Series across censuses (`Sidra().series("population_age_sex")`) keep both claims where tables overlap (ADR-0142).
 - **Quality flags** say which values not to take at face value. SIH race
   code 04 is a default or a swapped code in some hospitals (ADR-0128).
 

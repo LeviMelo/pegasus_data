@@ -1,0 +1,671 @@
+# The author's curated SIDRA compendium (SIDRA_COMPENDIUM.md, 97 tables), as an overlay on the registry.
+# IBGE's metadata is the truth about a table (names, units, periods, categories); this file says only
+# which tables PegaSUS wants (tier), how they group, and per variable whether it is kept by default
+# (`keep`) and what kind of quantity it is: c count, m monetary, p percent/share, md mean or median,
+# r rate or index, o other. Kind is what refuses a sum of means. `categories` names a policy per classification where
+# the full cube is not wanted (all, total, non_total, level:N); the default is every category. `pegasus-data sidra check` reports where
+# this file and IBGE's metadata disagree (variables IBGE no longer lists, tables with no municipal level).
+
+tables:
+  1685:
+    tier: T1_CORE
+    group: economy
+    variables:
+      - {id: 706, kind: c, keep: true}
+      - {id: 367, kind: c, keep: true}
+      - {id: 707, kind: c, keep: true}
+      - {id: 708, kind: c, keep: true}
+      - {id: 5944, kind: c, keep: true}
+      - {id: 662, kind: m, keep: true}
+      - {id: 1606, kind: m, keep: true}
+      - {id: 10143, kind: m, keep: true}
+  9509:
+    tier: T1_CORE
+    group: economy
+    variables:
+      - {id: 706, kind: c, keep: true}
+      - {id: 367, kind: c, keep: true}
+      - {id: 707, kind: c, keep: true}
+      - {id: 708, kind: c, keep: true}
+      - {id: 5944, kind: c, keep: true}
+      - {id: 662, kind: m, keep: true}
+      - {id: 1606, kind: m, keep: true}
+      - {id: 10143, kind: m, keep: true}
+  21:
+    tier: T1_CORE
+    group: economy
+    variables:
+      - {id: 37, kind: m, keep: true}
+      - {id: 543, kind: m, keep: true}
+      - {id: 513, kind: m, keep: true}
+      - {id: 517, kind: m, keep: true}
+      - {id: 521, kind: m, keep: true}
+      - {id: 525, kind: m, keep: true}
+  5938:
+    tier: T1_CORE
+    group: economy
+    variables:
+      - {id: 37, kind: m, keep: true}
+      - {id: 543, kind: m, keep: true}
+      - {id: 513, kind: m, keep: true}
+      - {id: 517, kind: m, keep: true}
+      - {id: 525, kind: m, keep: true}
+      - {id: 6575, kind: m, keep: true}
+      - {id: 6574, kind: p, keep: false}
+  6579:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 9324, kind: c, keep: true}
+  4714:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 6318, kind: o, keep: true}
+      - {id: 614, kind: o, keep: true}
+  9515:
+    tier: T2_CONTEXT
+    group: demography
+    variables:
+      - {id: 10612, kind: r, keep: true}
+      - {id: 10613, kind: md, keep: true}
+      - {id: 8845, kind: o, keep: true}
+  136:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  9605:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  9606:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  2093:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  200:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  1552:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  9514:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  10211:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  202:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  9923:
+    tier: T1_CORE
+    group: demography
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  10141:
+    tier: T1_CORE
+    group: education
+    variables:
+      - {id: 1643, kind: c, keep: true}
+      - {id: 10270, kind: p, keep: false}
+  10142:
+    tier: T1_CORE
+    group: education
+    variables:
+      - {id: 1643, kind: c, keep: true}
+      - {id: 10270, kind: p, keep: false}
+  1554:
+    tier: T1_CORE
+    group: education
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+  3547:
+    tier: T1_CORE
+    group: education
+    variables:
+      - {id: 1643, kind: c, keep: true}
+      - {id: 1001643, kind: p, keep: false}
+  9543:
+    tier: T1_CORE
+    group: education
+    variables:
+      - {id: 2513, kind: p, keep: false}
+  10062:
+    tier: T2_CONTEXT
+    group: education
+    variables:
+      - {id: 13285, kind: md, keep: true}
+  1699:
+    tier: T2_CONTEXT
+    group: education
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+      - {id: 1645, kind: c, keep: true}
+      - {id: 1001645, kind: p, keep: false}
+      - {id: 1646, kind: p, keep: false}
+  2987:
+    tier: T2_CONTEXT
+    group: education
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+      - {id: 1645, kind: c, keep: true}
+      - {id: 1001645, kind: p, keep: false}
+      - {id: 1646, kind: p, keep: false}
+  1436:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+      - {id: 137, kind: c, keep: true}
+      - {id: 1000137, kind: p, keep: false}
+  1437:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+      - {id: 137, kind: c, keep: true}
+      - {id: 1000137, kind: p, keep: false}
+  1439:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+      - {id: 137, kind: c, keep: true}
+      - {id: 1000137, kind: p, keep: false}
+  2065:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  3154:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  6326:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  6803:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  6804:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  6805:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  6806:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  6892:
+    tier: T1_CORE
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  3218:
+    tier: T2_CONTEXT
+    group: housing_sanitation
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  9860:
+    tier: T2_CONTEXT
+    group: housing_sanitation
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+      - {id: 7088, kind: c, keep: true}
+      - {id: 1007088, kind: p, keep: false}
+      - {id: 382, kind: c, keep: true}
+      - {id: 1000382, kind: p, keep: false}
+      - {id: 8691, kind: c, keep: true}
+      - {id: 1008691, kind: p, keep: false}
+  206:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  3155:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  9931:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  9933:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  3156:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 2619, kind: c, keep: true}
+      - {id: 1002619, kind: p, keep: false}
+  9935:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  9936:
+    tier: T2_CONTEXT
+    group: household_assets
+    variables:
+      - {id: 381, kind: c, keep: true}
+      - {id: 1000381, kind: p, keep: false}
+  10295:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 13604, kind: c, keep: true}
+      - {id: 1013604, kind: p, keep: false}
+      - {id: 13431, kind: m, keep: true}
+      - {id: 13534, kind: md, keep: true}
+  10296:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 13604, kind: c, keep: true}
+      - {id: 1013604, kind: p, keep: false}
+  2035:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 884, kind: c, keep: true}
+      - {id: 847, kind: m, keep: true}
+      - {id: 878, kind: m, keep: true}
+      - {id: 848, kind: md, keep: true}
+      - {id: 879, kind: md, keep: true}
+  2426:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 884, kind: c, keep: true}
+      - {id: 1000884, kind: p, keep: false}
+      - {id: 878, kind: m, keep: true}
+      - {id: 879, kind: md, keep: true}
+  3563:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+      - {id: 2010, kind: m, keep: true}
+      - {id: 2011, kind: md, keep: true}
+  3571:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 96, kind: c, keep: true}
+      - {id: 1000096, kind: p, keep: false}
+  3578:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 2035, kind: c, keep: true}
+      - {id: 1002035, kind: p, keep: false}
+      - {id: 2012, kind: m, keep: true}
+      - {id: 2013, kind: md, keep: true}
+  3572:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+  616:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+  9517:
+    tier: T1_CORE
+    group: income_labour
+    variables:
+      - {id: 1641, kind: c, keep: true}
+      - {id: 1001641, kind: p, keep: false}
+  10280:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 13535, kind: c, keep: true}
+      - {id: 1013535, kind: p, keep: false}
+      - {id: 13536, kind: m, keep: true}
+      - {id: 13537, kind: md, keep: true}
+  3579:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 140, kind: c, keep: true}
+      - {id: 1000140, kind: p, keep: false}
+  10289:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 13424, kind: m, keep: true}
+      - {id: 13536, kind: m, keep: true}
+      - {id: 13537, kind: md, keep: true}
+  10292:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 4090, kind: c, keep: true}
+      - {id: 1004090, kind: p, keep: false}
+      - {id: 13600, kind: p, keep: false}
+  10300:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 13432, kind: c, keep: true}
+      - {id: 1013432, kind: p, keep: false}
+  10381:
+    tier: T2_CONTEXT
+    group: income_labour
+    variables:
+      - {id: 696, kind: c, keep: true}
+      - {id: 1000696, kind: p, keep: false}
+      - {id: 13423, kind: p, keep: false}
+  1495:
+    tier: T2_CONTEXT
+    group: disability
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  2111:
+    tier: T2_CONTEXT
+    group: disability
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  3425:
+    tier: T2_CONTEXT
+    group: disability
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  3426:
+    tier: T2_CONTEXT
+    group: disability
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+  10075:
+    tier: T2_CONTEXT
+    group: fertility
+    variables:
+      - {id: 13314, kind: c, keep: true}
+      - {id: 1013314, kind: p, keep: false}
+  10076:
+    tier: T2_CONTEXT
+    group: fertility
+    variables:
+      - {id: 13314, kind: c, keep: true}
+      - {id: 1013314, kind: p, keep: false}
+  10077:
+    tier: T2_CONTEXT
+    group: fertility
+    variables:
+      - {id: 13314, kind: c, keep: true}
+      - {id: 1013314, kind: p, keep: false}
+  2573:
+    tier: T2_CONTEXT
+    group: fertility
+    variables:
+      - {id: 1349, kind: c, keep: true}
+      - {id: 1001349, kind: p, keep: false}
+  10089:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+      - {id: 4709, kind: c, keep: true}
+      - {id: 1004709, kind: p, keep: false}
+      - {id: 4728, kind: p, keep: false}
+  8176:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 4709, kind: c, keep: true}
+      - {id: 1004709, kind: p, keep: false}
+  9578:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 4709, kind: c, keep: true}
+      - {id: 1004709, kind: p, keep: false}
+      - {id: 93, kind: c, keep: true}
+      - {id: 4728, kind: p, keep: false}
+  9718:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 350, kind: c, keep: true}
+      - {id: 1000350, kind: p, keep: false}
+      - {id: 93, kind: c, keep: true}
+      - {id: 1000093, kind: p, keep: false}
+      - {id: 4727, kind: p, keep: false}
+  9723:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 6559, kind: c, keep: true}
+      - {id: 7079, kind: c, keep: true}
+      - {id: 7080, kind: p, keep: false}
+  9764:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 576, kind: c, keep: true}
+      - {id: 1000576, kind: p, keep: false}
+      - {id: 1432, kind: c, keep: true}
+      - {id: 1001432, kind: p, keep: false}
+      - {id: 8824, kind: p, keep: false}
+  9765:
+    tier: T2_CONTEXT
+    group: indigenous_quilombola
+    variables:
+      - {id: 6559, kind: c, keep: true}
+      - {id: 1006559, kind: p, keep: false}
+      - {id: 7079, kind: c, keep: true}
+      - {id: 1007079, kind: p, keep: false}
+      - {id: 7080, kind: p, keep: false}
+  6450:
+    tier: T3_OPTIONAL
+    group: economy_sectors
+    variables:
+      - {id: 706, kind: c, keep: true}
+      - {id: 1000706, kind: p, keep: false}
+      - {id: 707, kind: c, keep: true}
+      - {id: 1000707, kind: p, keep: false}
+      - {id: 708, kind: c, keep: true}
+      - {id: 1000708, kind: p, keep: false}
+      - {id: 662, kind: m, keep: true}
+      - {id: 1000662, kind: p, keep: false}
+  9528:
+    tier: T3_OPTIONAL
+    group: economy_sectors
+    variables:
+      - {id: 706, kind: c, keep: true}
+      - {id: 1000706, kind: p, keep: false}
+      - {id: 707, kind: c, keep: true}
+      - {id: 1000707, kind: p, keep: false}
+      - {id: 708, kind: c, keep: true}
+      - {id: 1000708, kind: p, keep: false}
+      - {id: 662, kind: m, keep: true}
+      - {id: 1000662, kind: p, keep: false}
+  1238:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2613, kind: c, keep: true}
+      - {id: 1002613, kind: p, keep: false}
+  1241:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2594, kind: c, keep: true}
+      - {id: 1002594, kind: p, keep: false}
+  1242:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2594, kind: c, keep: true}
+      - {id: 1002594, kind: p, keep: false}
+  1365:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 722, kind: c, keep: true}
+      - {id: 339, kind: c, keep: true}
+      - {id: 340, kind: c, keep: true}
+      - {id: 341, kind: c, keep: true}
+  7460:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2598, kind: c, keep: true}
+  7461:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2601, kind: c, keep: true}
+  7483:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 10656, kind: c, keep: true}
+      - {id: 10757, kind: o, keep: true}
+  7500:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 10485, kind: c, keep: true}
+      - {id: 724, kind: o, keep: true}
+  354:
+    tier: T3_OPTIONAL
+    group: pnsb_sanitation_services
+    variables:
+      - {id: 2597, kind: c, keep: true}
+      - {id: 1002597, kind: p, keep: false}
+  3606:
+    tier: T4_LOW_PRIORITY
+    group: civil_society
+    variables:
+      - {id: 2122, kind: c, keep: true}
+      - {id: 2123, kind: c, keep: true}
+      - {id: 1543, kind: c, keep: true}
+      - {id: 2124, kind: m, keep: true}
+      - {id: 1545, kind: m, keep: true}
+      - {id: 2125, kind: m, keep: true}
+      - {id: 1548, kind: m, keep: true}
+  3612:
+    tier: T4_LOW_PRIORITY
+    group: civil_society
+  6916:
+    tier: T4_LOW_PRIORITY
+    group: civil_society
+  6917:
+    tier: T4_LOW_PRIORITY
+    group: civil_society
+  197:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    variables:
+      - {id: 218, kind: c, keep: true}
+      - {id: 1000218, kind: p, keep: false}
+  2609:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    categories: {232: total, 240: 'level:1'}      # births by registration year, mother's age group and sex; the year of birth is left at its Total
+    variables:
+      - {id: 217, kind: c, keep: true}
+      - {id: 1000217, kind: p, keep: false}
+  2683:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    categories: {9832: total, 1836: total, 257: total}   # deaths by sex and age; marital status, nature and place of occurrence at their Totals
+    variables:
+      - {id: 343, kind: c, keep: true}
+      - {id: 1000343, kind: p, keep: false}
+  367:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    variables:
+      - {id: 224, kind: c, keep: true}
+      - {id: 1000224, kind: p, keep: false}
+  368:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    variables:
+      - {id: 224, kind: c, keep: true}
+      - {id: 1000224, kind: p, keep: false}
+  704:
+    tier: T4_LOW_PRIORITY
+    group: civil_registry
+    variables:
+      - {id: 218, kind: c, keep: true}
+      - {id: 1000218, kind: p, keep: false}

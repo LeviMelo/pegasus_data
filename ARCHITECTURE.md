@@ -147,6 +147,8 @@ where` says which won):
 <home>/lake/reference/           version-scoped code tables (persist/reference.py)
 <home>/lake/population/ …        IBGE series
 <home>/aggregates/ …             built aggregate artifacts
+<home>/registries/sidra/         the SIDRA registry (registry.sqlite) and every IBGE response kept as received (http/)
+<home>/lake/sidra/facts/table=<id>/   SIDRA observations, long, one Parquet part per request (ADR-0142)
 ```
 
 **The catalog** holds what the tree contains (`files`, `file_facts`,
@@ -344,7 +346,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `lookups.py`: code → label maps, read per vintage, cached per table version, merged in authority order, and applied at exact width (§6.2).
 - `rates.py`: crude and directly age-standardised rates of queried records over POPSVS.
 - `quality.py`: where a field's values cannot be taken at face value, measured from the data: `race_reliability` (ADR-0128).
-- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127). Also INMET climate, S2iD disasters, ANS plan beneficiaries (`sources/ans.py`) and INEP enrolment margins (`sources/inep.py`); every file source downloads through `sources.fetch_url` (browser agent, retries).
+- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read through `sidra/` into `<lake>/fields/` (ADR-0127, ADR-0142). Also INMET climate, S2iD disasters, ANS plan beneficiaries (`sources/ans.py`) and INEP enrolment margins (`sources/inep.py`); every file source downloads through `sources.fetch_url` (browser agent, retries).
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
@@ -391,7 +393,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `config.py`, `locate.py`: settings and where the data home is.
 - `textenc.py`: codepage detection.
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).
-- `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`; shared options and helpers in `cli/_common.py`.
+- `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`, `cli/sidra.py` (`pegasus-data sidra`); shared options and helpers in `cli/_common.py`.
 
 ### `_query_engine/`
 
@@ -483,6 +485,20 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `semantics/reference.py`: reference-table helpers.
 - `semantics/icd.py`: CID-9/CID-10 structure.
 - `semantics/gaps.py`: what is not known.
+
+### `sidra/`
+
+The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every request to the server is made in `sidra/client.py` and nowhere else.
+
+- `sidra/client.py`: the one HTTP door: paced and sequential, browser User-Agent, gzip by magic bytes, the firewall's HTML-with-200 refused, every response kept on disk with its URL, size, SHA-256 and time.
+- `sidra/registry.py`: the metadata registry in SQLite (tables, variables with units and kind, classifications, categories with Total flags, periods, locality counts), built from `/agregados` and `/metadados`; the curated compendium (`curation/sidra/compendium.yml`) as an overlay.
+- `sidra/planner.py`: a `Selection` checked against the registry and cut into requests under the measured limits (values, ID-list text, URL length).
+- `sidra/store.py`: the long fact store: one Parquet part per request under `<lake>/sidra/facts/`, with IBGE's markers as `status` and provenance in each part's footer.
+- `sidra/session.py`: `Sidra`, the registry, the client and the store behind one object: `describe`, `selection`, `plan`, `fetch`, `slice`, `labelled`.
+- `sidra/series.py`: series stitched across tables and vintages (`curation/sidra/series.yml`, `axes.yml`): canonical axes, both claims kept where sources overlap, checks against each table's own totals.
+- `sidra/lineage.py`: roll-ups to IPEA's minimum comparable areas across municipal creations; non-counts refused.
+- `sidra/population.py`: the Census as the population series `CENSO`, a projection of the stitched series `population_age_sex`.
+- `sidra/survey.py`: what SIDRA offers, scored for health inference (`pegasus-data sidra survey`, `rank`).
 
 ### `serve/`
 

@@ -3,6 +3,9 @@
 # flows and stocks). Read from IBGE's aggregates API
 # (https://servicodados.ibge.gov.br/api/v3/agregados), at municipality level.
 #
+# The IBGE entries are read through the general SIDRA interface (pegasus_data.sidra, ADR-0142): any table of
+# `pegasus-data sidra search --level N6` that covers the municipalities (check its count: PNS lists only the capitals) can be declared here.
+#
 # Each entry names IBGE's own table and variable, as its metadata
 # (`/agregados/<table>/metadados`) states them, and the unit. `classification`
 # picks one category of a classification ({classification id: category id});

@@ -1,0 +1,81 @@
+# What a category means, in one vocabulary, where IBGE's tables name the same thing with different ids.
+# Category ids are global: the same (classification, category) has the same name in every table that
+# carries it (measured over the registry's tables, no exception), so a map is keyed by classification.
+# `names` are the patterns IBGE's own category names must match; `pegasus-data sidra check` fails a map entry
+# whose registry name does not, so a wrong id cannot sit here unnoticed.
+
+axes:
+  sex:
+    names: {male: '^Hom(em|ens)$', female: '^Mulher(es)?$', total: '^Total$'}
+    classifications:
+      2:
+        4: male
+        5: female
+        92956: male        # table 1552 (Census 2000/2010 by age) names its own sex categories
+        92957: female
+        6794: total
+        0: total
+
+  race_color:
+    names: {white: '^Branca$', black: '^Preta$', asian: '^Amarela$', brown: '^Parda$', indigenous: '^Ind[ií]gena$',
+            undeclared: '^Sem declara', total: '^Total$'}
+    classifications:
+      86:
+        2776: white
+        2777: black
+        2778: asian
+        2779: brown
+        2780: indigenous
+        2781: undeclared    # 1991, 2000 and 2010 tables only; the 2022 comparability tables drop it
+        95251: total
+        0: total
+
+  urban_rural:
+    names: {urban: '^Urbana$', rural: '^Rural$', total: '^Total$'}
+    classifications:
+      1:
+        1: urban
+        2: rural
+        6795: total
+        0: total
+
+  education_level:
+    names: {no_primary_complete: '^Sem instru', primary_complete: '^Fundamental completo', secondary_complete: '^M[eé]dio completo',
+            higher_complete: '^Superior completo', undetermined: '^N[aã]o determinado', total: '^Total$'}
+    classifications:
+      1568:
+        9493: no_primary_complete
+        9494: primary_complete
+        9495: secondary_complete
+        99713: higher_complete
+        11626: undetermined
+        0: total
+        120704: total
+
+  # Single years of age are read from the category names, not mapped by id: see series.axis_map.
+  age:
+    rule: single_year_age
+
+  # Table 2093 (Census 2000 and 2010 sample, race x sex x age groups) publishes 5-year groups to 29 and
+  # 10-year groups after; the bands are IBGE's own, kept as they are (no re-binning here).
+  age_band:
+    names: {'0-4': '^0 a 4 anos$', '5-9': '^5 a 9 anos$', '10-14': '^10 a 14 anos$', '15-19': '^15 a 19 anos$',
+            '20-24': '^20 a 24 anos$', '25-29': '^25 a 29 anos$', '30-39': '^30 a 39 anos$', '40-49': '^40 a 49 anos$',
+            '50-59': '^50 a 59 anos$', '60-69': '^60 a 69 anos$', '70-79': '^70 a 79 anos$', '80+': '^80 anos ou mais$', '70+': '^70 anos ou mais$',
+            total: '^Total$'}
+    classifications:
+      58:
+        1140: '0-4'
+        1141: '5-9'
+        1142: '10-14'
+        1143: '15-19'
+        1144: '20-24'
+        1145: '25-29'
+        3299: '30-39'
+        3300: '40-49'
+        3301: '50-59'
+        3520: '60-69'
+        95252: '70-79'
+        2503: '80+'
+        3244: '70+'            # the 2010 sample publishes 70 and over, not 70-79 and 80+ (those cells are `...`)
+        0: total

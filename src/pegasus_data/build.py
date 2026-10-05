@@ -573,9 +573,10 @@ class Builder:
                 continue
             if name == "CENSO":
                 # the census comes from SIDRA, not from the FTP tree
-                from .sources.census import build_census
+                from .sidra import Sidra
+                from .sidra.population import build_census
 
-                counts[name] = build_census(self.settings.population_dir)
+                counts[name] = build_census(Sidra(settings=self.settings), self.settings.population_dir)
                 continue
             rows = self.catalog.query(
                 "SELECT path FROM files WHERE path LIKE ? AND gone_at IS NULL ORDER BY path",

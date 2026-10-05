@@ -144,6 +144,26 @@ schtasks /Delete /TN PegasusSnapshotDaily /F
 The log is `C:\Users\Galaxy\pegasus_core_snapshot.log`: per run a date line, the JSON report and an `exit=` line
 (0 fine, 1 errors or failed listings, 2 refused).
 
+## 9. IBGE SIDRA (ADR-0142)
+
+```bash
+$PD sidra scan [--all]                       # registry from IBGE's metadata: curated and municipal tables first, resumable, about 1 table a second
+$PD sidra search esgoto --level N6           # find tables; then: sidra show 6805 [-c 11558]   sidra survey   sidra rank
+$PD sidra plan 9606 -v 93 -p 2022 -c 86=all -c 2=all -c 287=all    # the requests under SIDRA's limits; nothing is fetched
+$PD sidra fetch 9606 -v 93 -p 2022 -c 86=all -c 2=all -c 287=all   # into <lake>/sidra/facts/; resumable
+$PD sidra facts 9606 -p 2022 --out f.parquet # read back with labels, units and Total flags joined on
+$PD sidra curated --group housing_sanitation [--fetch]   # the author's compendium: its cost first, then fetch
+$PD sidra series population_age_sex --fetch --validate   # stitched series (curation/sidra/series.yml); cells checked against totals
+$PD sidra check                              # compendium and axis maps against IBGE's names
+$PD sidra rebuild 9606                       # re-derive a table's parts from the cached responses, no request
+```
+
+- Every response is kept under `<root>/registries/sidra/http/` (gzip, with URL, size, SHA-256, time); the
+  facts are derived from it. A request is one Parquet part; a stopped fetch resumes at the next missing part.
+- The server is shared: one process, one request at a time, 0.3 s apart. A change to the planner changes the
+  URLs, so a re-run after it fetches again; the facts of the old plan stay valid and duplicates are dropped on read.
+- Measured throughput: about 8,000 values a second at 48,000 values a request (EVALUATION 2026-10-05).
+
 ## Record linkage (ADR-0107 to ADR-0112)
 
 | task | command |

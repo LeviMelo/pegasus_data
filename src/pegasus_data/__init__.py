@@ -37,6 +37,7 @@ _EXPORTS: dict[str, str] = {
     "describe": ".api",
     "load_population": ".api",
     "load_field": ".fields",
+    "Sidra": ".sidra",
     "age_standardised_rates": ".rates",
     "race_reliability": ".quality",
     "load_reference": ".api",
@@ -175,6 +176,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
 def __getattr__(name: str) -> Any:
     """Resolve an export on first use, then cache it in this module's globals.
 
+    from .sidra import Sidra
     The implementation modules are PRIVATE — ``_explore``, ``_translate``,
     ``_info`` — and that is not a style choice. A module named ``explore.py``
     exporting a function named ``explore`` collide as attributes of this
