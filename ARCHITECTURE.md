@@ -514,7 +514,6 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `sources/tabnet.py`: TabNet over HTTP. Its current territorial tables
   (health macroregion, current health regions) feed the geography pack, and
   `tabulate` asks TabNet for a published table to check a figure against.
-- `sources/census.py`: the Census (2000, 2010, 2022) by municipality × sex × single age from SIDRA, as the population series `CENSO`, each request planned under SIDRA's value limit (DATA_SOURCES) and checked against the table's own municipal totals; SIDRA's `...`/`..`/`X` cells are recorded gaps (nulls, counted), `-` is zero.
 - `sources/pes.py`: IBGE's 2022 post-enumeration survey as published rates (net error by age × sex, state, size class) and `corrected_census`, the enumerated census raked onto those margins (modelled; the margins are IBGE's, the cells an estimate).
 - `sources/s2id.py`: S2iD disaster events from MIDR's open data (bare CKAN download route) for the `disasters` field.
 - `sources/inmet.py`: INMET stations (readings from the Zenodo mirror, positions from INMET's API first) placed by spatial join in the municipality containing them; station-month sums, counts and extremes for the `climate` field.

@@ -71,7 +71,7 @@ was refused, halved and returned all its rows.
 - *The catalog SQLite.* Its schema is changing under other work, and the registry is derived and rebuildable.
 
 **Consequences.**
-- `sources/census.py` has nothing the interface lacks and is removed once its other editor has committed;
+- `sources/census.py` is removed (2026-10-05): the interface had nothing to add to it and its values were reproduced cell for cell;
   `build.py` already calls `sidra.population.build_census`.
 - A change to the planner changes request URLs, so a re-run after it fetches again; stored facts stay valid.
 - The cache holds each response as received: about 4 KB (gzip) per thousand values; the facts take about 2 MB per million rows.

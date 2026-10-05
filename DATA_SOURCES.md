@@ -508,7 +508,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   member double-counts (fixed in the population build).
 
 - **The Census series and how complete each census was** (2026-10-05).
-  - **Raw counts** (`CENSO`, SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022; `sources/census.py`):
+  - **Raw counts** (`CENSO`, SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022; `sidra/population.py`):
     169,799,170, 190,755,799 and 203,080,756 people. SIDRA writes `-` for an absolute zero and `...` (not available) for the
     58 municipalities created after 2000, which table 1552 lists with no value; those cells are kept as nulls.
   - **2022 enumerated vs imputed:** 195,101,203 enumerated plus 7,979,553 imputed (occupied households without an interview;
