@@ -1,6 +1,6 @@
 ## ADR-0145: the population account is a modelled product whose intervals were measured on a hold-out
 
-**Date:** 2026-10-05. **Status:** active. **Request:** PegaSUS P8 (population by municipality × sex × age with intervals), ADR-0139 (modelled tier).
+**Date:** 2026-10-05. **Status:** active; partly superseded by ADR-0148 (product, method, intervals). **Request:** PegaSUS P8 (population by municipality × sex × age with intervals), ADR-0139 (modelled tier).
 
 **Context.** The Census is a count with its own error: the 2022 Census was 8.3% short by IBGE's post-enumeration survey, 2010 and 2000 about 2 to 3% by IBGE's reconciliation. POPSVS is that reconciliation, not an observation, and rests on the same births and deaths a vital account uses (docs/evaluation/2026-10-05-census-coverage.md in PegaSUS). Municipal population by single age between censuses is observed nowhere.
 
