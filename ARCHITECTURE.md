@@ -473,6 +473,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `modelled.py`: the modelled tier (ADR-0139): products under lake/modelled/, typed, versioned, with uncertainty and validation evidence.
 - `semantics/code_structures.py`: `code_trees.parquet` and `code_lists.parquet` (`scripts/build_code_structures.py`), served as data.
 - `semantics/event_types.py`: the `event_types:` of `curation/datasets/*.yml`; counts events by their status and consolidation.
+- `modelled_race.py`: the race misclassification product `race_confusion_infant` (ADR-0143): C(recorded in SIM | declared at birth) from the stored SIM–SINASC infant links, a multinomial logit by state, region, municipal composition and age band; `reclassify` turns SIM deaths by recorded race into deaths by declared race. Fitting needs the `modelled` extra (jax, numpyro).
 - `semantics/bindings.py`: field→codelist bindings (the candidates).
 - `semantics/label_bindings.py`: the ONE label decision (`decide`, ADR-0082) and the compiled bindings per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
 - `semantics/coverage.py`: whether every field of every family is described and decodes (`pegasus-data meaning`, ADR-0085).
