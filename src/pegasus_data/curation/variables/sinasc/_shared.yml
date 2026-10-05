@@ -416,6 +416,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo DTCADASTRO'
+    derived:
+    - name: DTCADASTRO_date
+      from: [DTCADASTRO]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTDECLARAC:
     official_name: Data do preenchimento da declaração
     translated_name: Date the birth declaration was filled in
@@ -430,6 +435,11 @@ variables:
       | Data do preenchimento da declaração"
 
       '
+    derived:
+    - name: DTDECLARAC_date
+      from: [DTDECLARAC]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTNASC:
     official_name: Data do nascimento
     translated_name: Date of birth
@@ -439,6 +449,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo DTNASC'
+    derived:
+    - name: DTNASC_date
+      from: [DTNASC]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTNASCMAE:
     official_name: Data de nascimento da mãe
     translated_name: Mother's date of birth
@@ -456,6 +471,11 @@ variables:
       field, so the two can disagree; neither is authoritative over the other.
 
       '
+    derived:
+    - name: DTNASCMAE_date
+      from: [DTNASCMAE]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTRECEBIM:
     official_name: Data do último recebimento do lote
     translated_name: Batch receipt date
@@ -465,6 +485,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo DTRECEBIM'
+    derived:
+    - name: DTRECEBIM_date
+      from: [DTRECEBIM]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTRECORIGA:
     official_name: Data de recebimento original calculada
     translated_name: Original receipt date (derived)
@@ -494,6 +519,11 @@ variables:
       estimates, and the disagreement is not random with respect to prenatal care access.
 
       '
+    derived:
+    - name: DTULTMENST_date
+      from: [DTULTMENST]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   ESCMAE:
     official_name: Escolaridade da mãe (DN antiga)
     translated_name: Mother's education (legacy bands)

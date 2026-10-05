@@ -466,12 +466,22 @@ variables:
     description: Date of admission, stored as AAAAMMDD.
     code_system: none
     source: layout_doc
+    derived:
+    - name: DT_INTER_date
+      from: [DT_INTER]
+      date: YYYYMMDD
+      rule: the 8-digit text YYYYMMDD as a date, beside the raw column; a value that is not a calendar date is null here only
   DT_SAIDA:
     official_name: Data de saída
     translated_name: Discharge date
     description: Date of discharge, stored as AAAAMMDD.
     code_system: none
     source: layout_doc
+    derived:
+    - name: DT_SAIDA_date
+      from: [DT_SAIDA]
+      date: YYYYMMDD
+      rule: the 8-digit text YYYYMMDD as a date, beside the raw column; a value that is not a calendar date is null here only
   ESPEC:
     official_name: Especialidade do Leito
     translated_name: Bed speciality
@@ -806,6 +816,11 @@ variables:
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 10'
+    derived:
+    - name: NASC_date
+      from: [NASC]
+      date: YYYYMMDD
+      rule: the 8-digit text YYYYMMDD as a date, beside the raw column; a value that is not a calendar date is null here only
   NATUREZA:
     official_name: Natureza jurídica do hospital
     translated_name: Establishment legal nature (legacy)

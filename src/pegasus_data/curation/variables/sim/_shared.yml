@@ -568,6 +568,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTATESTADO'
+    derived:
+    - name: DTATESTADO_date
+      from: [DTATESTADO]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTCADASTRO:
     official_name: Data do cadastro
     translated_name: Registration date
@@ -577,6 +582,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTCADASTRO'
+    derived:
+    - name: DTCADASTRO_date
+      from: [DTCADASTRO]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTCADINF:
     official_name: Data do cadastro da investigação de óbito infantil
     translated_name: Infant investigation date
@@ -586,6 +596,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTCADINF'
+    derived:
+    - name: DTCADINF_date
+      from: [DTCADINF]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTCADINV:
     official_name: Data do cadastro de investigação
     translated_name: Investigation registration date
@@ -594,6 +609,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTCADINV'
+    derived:
+    - name: DTCADINV_date
+      from: [DTCADINV]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTCONCASO:
     official_name: Data de conclusão do caso
     translated_name: Case conclusion date
@@ -602,6 +622,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTCONCASO'
+    derived:
+    - name: DTCONCASO_date
+      from: [DTCONCASO]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTCONINV:
     official_name: Data da conclusão da investigação
     translated_name: Investigation conclusion date
@@ -611,6 +636,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTCONINV'
+    derived:
+    - name: DTCONINV_date
+      from: [DTCONINV]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTINVESTIG:
     official_name: Data da investigação
     translated_name: Investigation date
@@ -619,11 +649,21 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTINVESTIG'
+    derived:
+    - name: DTINVESTIG_date
+      from: [DTINVESTIG]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTNASC:
     official_name: Data de nascimento
     translated_name: Date of birth
     code_system: none
     source: layout_doc
+    derived:
+    - name: DTNASC_date
+      from: [DTNASC]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTOBITO:
     official_name: Data do Óbito
     translated_name: Date of death
@@ -634,6 +674,11 @@ variables:
       silently produces valid-looking wrong dates for every day <= 12.
 
       '
+    derived:
+    - name: DTOBITO_date
+      from: [DTOBITO]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTRECEBIM:
     official_name: Data do recebimento
     translated_name: Receipt date
@@ -642,6 +687,11 @@ variables:
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo DTRECEBIM'
+    derived:
+    - name: DTRECEBIM_date
+      from: [DTRECEBIM]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTRECORIG:
     official_name: Data do recebimento original
     translated_name: Original receipt date
@@ -674,6 +724,11 @@ variables:
       Data do recebimento original. (Data no padrão ddmmaaaa) | 2011 (C 10)"
 
       '
+    derived:
+    - name: DTRECORIGA_date
+      from: [DTRECORIGA]
+      date: DDMMYYYY
+      rule: the 8-digit text DDMMYYYY as a date, beside the raw column; a value that is not a calendar date is null here only
   DTREGCART:
     official_name: Data do registro do cartório
     translated_name: Civil registry filing date

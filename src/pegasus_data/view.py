@@ -1268,6 +1268,19 @@ def _apply_derived(
                 continue
             bridge = recipe.get("bridge")
             codes_in = source.column(inputs[0])
+            if recipe.get("date"):
+                # A date the source writes as 8-digit text (DDMMYYYY in SIM and SINASC), as a
+                # date beside the raw column. A value that is not a calendar date is null here
+                # and still there in the raw column.
+                from .normalize.time import parse_date_array
+
+                order = str(recipe["date"])
+                if order not in ("YYYYMMDD", "DDMMYYYY"):
+                    report.warnings.append(f"{column_name}: unknown date order {order!r}")
+                    continue
+                rendered = rendered.append_column(column_name, parse_date_array(codes_in, order=order))
+                report.derived_added.append(column_name)
+                continue
             if recipe.get("remap"):
                 # A code the source wrote for a thing the canonical list names otherwise,
                 # inside a declared window (SIH-RD before 2018 writes the Federal District's
