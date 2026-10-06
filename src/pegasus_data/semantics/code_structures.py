@@ -4,7 +4,7 @@ Built by ``scripts/build_code_structures.py`` into the shipped resources
 ``code_trees.parquet`` (ICD10, SIGTAP, CBO2002, CNAE20: code, label, level,
 parent, validity) and ``code_lists.parquet`` (the Ministry's concept lists:
 CID-BR-10, the ICD-10 tabulation lists 2 and 4, avoidable causes 0-4 and
-5-74, ICSAP; list, item, code), and ``code_attributes.parquet`` (each ICD-10
+5-74, ICSAP, SIM's typed "pouco uteis" garbage codes; list, item, code), and ``code_attributes.parquet`` (each ICD-10
 code's attributes in the DATASUS release: dagger/asterisk role, sex
 restriction, cause-of-death fields; `code_attributes`). A model takes the shape from here (DESIGN
 §3.4): a tree's effects nest along ``parent``, a list's are carried by every

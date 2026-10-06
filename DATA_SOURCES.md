@@ -549,6 +549,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - SIGTAP's `tb_cid` has no age field, and its `TP_SEXO` is not the restriction (C53 is "I").
   - The TabWin kit's SIM lists (ASTERISC, CBPOUCOUTEIS with garbage-code types, IMPROVAVEISSTRIVIAIS,
     TRIVIAL_32) are in the lake as reference tables.
+  - CBPOUCOUTEIS ("Pco Uteis detalhada" in the DO .DEF) types 3,094 codes Tp 1–Tp 5 (1,899 / 164 / 19 / 623 / 389).
+    The kit defines no type: Tp 5 holds the R codes, Tp 4 the unspecified ones. It is served as the code list
+    `SIM-POUCO-UTEIS`, item = the type as written (3,090 codes in the tree).
 
 ## 4. SIGTAP (2026-08-19, F §3d)
 

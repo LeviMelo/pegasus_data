@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -61,6 +62,9 @@ LISTS = {
     "AVOIDABLE-5-74": ("CID10-EVIT5A74", "Avoidable causes of death, ages 5-74 (Malta et al.)"),
     "ICSAP-GROUPS": ("SENSIVEISATB03", "Primary-care-sensitive conditions, groups (Portaria SAS/MS 221/2008)"),
     "ICSAP-CONDITIONS": ("SENSIVEISATB01", "Primary-care-sensitive conditions (Portaria SAS/MS 221/2008)"),
+    # the item is the type as the kit writes it ("Tp 1".."Tp 5"); the kit names the list "Pco Uteis detalhada" and
+    # defines no type, so the types are served as written and not interpreted
+    "SIM-POUCO-UTEIS": ("CBPOUCOUTEIS", "Causas basicas pouco uteis, by type (SIM TabWin kit, CBPoucoUteis.cnv)"),
 }
 
 
@@ -276,7 +280,7 @@ def nchs_edits() -> dict[str, dict]:
     valid as underlying cause. Each limitation is absolute (the combination is impossible) or conditional (highly
     improbable); the absolute ones are the limits explicit in ICD-10 itself (the manual's §C.1). Keyed by code without
     the dot; a 3-character code covers its subcategories."""
-    import re
+
     lines = NCHS_EDITS.read_text(encoding="utf-8").splitlines()
     start = next(i for i, ln in enumerate(lines) if ln.startswith("Table G. Age/Cause"))
     end = next(i for i, ln in enumerate(lines) if ln.startswith("Table H."))
@@ -316,7 +320,7 @@ def cdc_matrix() -> tuple[list[tuple[str, str, int]], dict[str, dict[int, str]]]
     """The NCHS matrix's ``IF <condition> THEN <variable>=<value>;`` statements, in order, as Python conditions on
     DEATH (the 3-character code), CDEATH (the 4-character code, blank-padded) and C4 (the 4th character as a
     number, −1 when absent: SAS's missing compares below every number), and its value labels."""
-    import re
+
 
     text = CDC_MATRIX.read_text(encoding="utf-8")
     for q in "‘’′″“”":
@@ -366,6 +370,11 @@ def lists() -> list[dict]:
         icd = set(pq.read_table(RESOURCES / "icd10.parquet").column("code").to_pylist())
         for code, item in zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True):
             code = str(code).strip().upper().replace(".", "")
+            if name == "SIM-POUCO-UTEIS":
+                m = re.match(r"Tp\s*(\d)", str(item))
+                if m is None:
+                    raise SystemExit(f"{codelist}: a label without its type: {item!r}")
+                item = f"Tp {m.group(1)}"
             if code in icd and not (len(code) == 4 and code.endswith("X")):
                 out.append({"list": name, "item": str(item).strip(), "code": code})
     return out

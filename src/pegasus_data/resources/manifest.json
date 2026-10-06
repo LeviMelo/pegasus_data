@@ -120,9 +120,9 @@
     "code_lists": {
       "file": "code_lists.parquet",
       "tier": "A",
-      "bytes": 144500,
-      "sha256": "76a8272e337d59ae9d76764b1cb10de566df44a5d5256a954df68af1f8dfea26",
-      "rows": 65306
+      "bytes": 150325,
+      "sha256": "d267b65e4957092e6aeff1bf26b6e44263d3743f0c92ab57144bb522b8bd74d6",
+      "rows": 68396
     },
     "code_trees": {
       "file": "code_trees.parquet",
