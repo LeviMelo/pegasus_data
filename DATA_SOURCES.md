@@ -550,6 +550,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - The FTP host answered curl (unlike www.cdc.gov), at about 80 KB/s.
   - It is served as `code_bridge("ICD9-ICD10")`: for each ICD-9 code, the ICD-10 categories its deaths fell in, and
     their shares. The shares are US 1996's, not Brazil's.
+  - Against SIM: in DORRS95 (RS, 1995; 65,039 deaths, CAUSABAS 4 characters), 99.45 % of the underlying causes are
+    a bridge code or its category. The unmatched are led by 0091 (159 deaths), 0861 (29) and 5089 (25). The ICD-9
+    era's DO files also carry a `CRITICA` field.
 - **No age table in the DATASUS publications.**
   - The SIM dictionary (`sources/dicdo.txt`) lists the system's own record critiques ("Óbito com restrição de
     idade", "CID Implausíveis", "Causas Asterisco"). Neither the rules behind them nor the per-record flags are
