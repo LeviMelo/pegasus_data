@@ -557,6 +557,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   holds DBF, CSV and XML; read 2026-10-06, POPBR95).
   - Columns: `MUNIC_RES` (6 digits), `ANO`, `SEXO` (1, 2), `SITUACAO` (3 in 1995), `FXETARIA` (single ages 0–4,
     then five-year bands to 80+, and `I000`, age ignored) and `POPULACAO`.
+  - Every year carries sex and age (POPBR80, 95, 05, 12 checked; 22 to 34 age codes by year; 3,991 municipalities in
+    1980, 4,974 in 1995). The series table (`sources/ibge.py`) had recorded it as totals only; corrected.
   - The age–sex denominators the ICD-9 era of SIM (1979–1995) needs; the population account starts in 1991, as
     totals. Not yet a source of `population()`.
 - **No age table in the DATASUS publications.**

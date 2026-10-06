@@ -102,9 +102,14 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
         directory="IBGE/POP",
         year_min=1980,
         year_max=2012,
-        stratifications=["municipality", "year"],
-        age_standardizable=False,
-        notes="legacy series; superseded by POPTCU for overlapping years",
+        stratifications=["municipality", "year", "sex", "age"],
+        age_standardizable=True,
+        notes=(
+            "legacy series by municipality, sex and age band (FXETARIA; 22 to 34 codes depending on the year, an "
+            "ignored-age row I000), measured 2026-10-06 on POPBR80, 95, 05, 12 (totals 119.0, 155.8, 184.2, 194.0 M); "
+            "until then recorded here as totals only. The age-sex denominators of SIM's ICD-9 era; superseded "
+            "by POPSVS from 2000"
+        ),
     ),
     "CENSO": PopulationSeries(
         name="CENSO",
