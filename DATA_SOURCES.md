@@ -518,6 +518,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - A category without subcategories appears as a subcategory row with a blank fourth character.
   - Counts: 12,451 subcategory rows (300 `*`, 78 `+`; 758 `F`, 116 `M`; 1,291 `N`) and 2,045 categories. Served
     as `code_attributes()`.
+  - Subcategories of W00–Y34 name their place of occurrence after their last " - " ("residência", "rua e
+    estrada" … "local não especificado"). X59, Y06 and Y07 do not: their 4th character is something else
+    ("causando fratura", the perpetrator).
+- **The NCHS External Cause of Injury Mortality Matrix for ICD-10** (`cdc.gov/nchs/injury/ice/matrix10_sas.htm`,
+  November 2002, terrorism codes 2003; a US federal publication).
+  - Its SAS statements assign mechanism (20 classes), intent (5), the motor-vehicle person (6) and adverse
+    effects.
+  - On 2026-10-06 `curl` got 403 from the CDC edge (Akamai), with and without a browser User-Agent. A browser
+    read the page, and its text is kept as `sources/cdc_matrix10_sas.txt`.
 
 ## 4. SIGTAP (2026-08-19, F §3d)
 

@@ -312,6 +312,7 @@ OQ-64), 1990s SIH V-codes.
 
 **The ICD ontology** (PegaSUS handoff `docs/handoffs/2026-10-06-race-and-icd-ontology.md` in pegasus_project, part B):
 - **Item 1 (attributes per code) built from the DATASUS 2008 release:** `code_attributes()` (14,233 codes: dual role, sex, CAUSAOBITO, underlying-cause eligibility per the release's own rule, references, merged codes).
+- **Item 6 (external-cause axes) built:** mechanism, intent, motor-vehicle person and adverse effect by the NCHS matrix (its published statements parsed and run in order), and the place of occurrence of W00–Y34 as the release's own descriptions name it (X59, Y06 and Y07 found not to carry a place).
 - **Not done:** a later DATASUS release (only V2008 is harvested; the harvested page is a frame stub with no version, and `CID10CSV.ZIP` answered 404 on 2026-08-19, `sources/hdr_CID10CSV.ZIP.txt`), age plausibility, ICD-9, ICD-O, the further lists, the external-cause axes and the relation graph.
 
 ## Waiting on the user

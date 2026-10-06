@@ -18,7 +18,11 @@ A tree is a parent table, a list a membership table:
   used for that sex only), ``unlikely_cause_of_death`` (CAUSAOBITO = N: "pouca probabilidade de causar
   óbito"), ``underlying_cause`` (false for the codes the release says must not code a cause of death: the
   manifestation codes and chapters XIX and XXI), ``refer`` (the code in the other classification, as written)
-  and ``merged`` (retired codes now part of this one, as written).
+  and ``merged`` (retired codes now part of this one, as written). For chapter XX, the external-cause axes:
+  ``mechanism``, ``intent``, ``motor_vehicle_person`` and ``adverse_effect`` from the NCHS External Cause of
+  Injury Mortality Matrix for ICD-10 (``sources/cdc_matrix10_sas.txt``, its SAS statements parsed and run in
+  their published order), and ``place`` (the place of occurrence of W00-Y34, Y06 and Y07 apart) as the DATASUS
+  release's own descriptions name it.
 * ``resources/code_lists.parquet``: list, item, code. The Ministry's concept
   lists as its TabWin kits ship them (ADR-0134): the CID-BR mortality list,
   the ICD-10 tabulation lists 2 and 4, avoidable causes of death (0-4, 5-74)
@@ -42,6 +46,7 @@ import pyarrow.parquet as pq
 ROOT = Path(__file__).resolve().parent.parent
 RESOURCES = ROOT / "src" / "pegasus_data" / "resources"
 CID_ZIP = ROOT / "sources" / "cid10csv_v2008.zip"
+CDC_MATRIX = ROOT / "sources" / "cdc_matrix10_sas.txt"
 
 #: list name -> (label-pack codelist, what it is)
 LISTS = {
@@ -183,7 +188,89 @@ def icd10_attributes() -> list[dict]:
             out[cat]["sex"] = next(iter(sexes))
     for row in out.values():
         row["underlying_cause"] = row["dual"] != "manifestation" and row["chapter"] not in ("XIX", "XXI")
+    # the external-cause axes (chapter XX)
+    ext_codes = [c for c in out if "V01" <= c[:3] <= "Y98"]
+    ext = external_causes(ext_codes)
+    for c in ext_codes:
+        out[c].update(ext.get(c, {}))
+    cats_of: dict[str, list[str]] = {}
+    for c in ext_codes:
+        if len(c) == 4:
+            cats_of.setdefault(c[:3], []).append(c)
+    for cat, subs_ in cats_of.items():
+        if cat in out:
+            for k in ("mechanism", "intent", "motor_vehicle_person", "adverse_effect"):
+                vals = {out[c].get(k) for c in subs_}
+                out[cat][k] = vals.pop() if len(vals) == 1 else None
+    # the place of occurrence (the 4th character of W00-Y34) as the release's own descriptions name it after their
+    # last " - ": each digit's label is the one most W00-Y34 subcategories carry, and a subcategory gets a place only
+    # when its description ends with its digit's label (X59.0 reads "causing fracture", Y06 and Y07 name the
+    # perpetrator: not places)
+    import collections
+
+    seen: dict[str, collections.Counter] = {}
+    for r in subs:
+        code = r["SUBCAT"].strip().upper()
+        if len(code) == 4 and "W00" <= code[:3] <= "Y34":
+            seen.setdefault(code[3], collections.Counter())[r["DESCRICAO"].rsplit(" - ", 1)[-1].strip()] += 1
+    canon = {d: c.most_common(1)[0][0] for d, c in seen.items()}
+    off = []
+    for r in subs:
+        code = r["SUBCAT"].strip().upper()
+        if len(code) == 4 and "W00" <= code[:3] <= "Y34":
+            if r["DESCRICAO"].rsplit(" - ", 1)[-1].strip() == canon[code[3]]:
+                out[code]["place"] = canon[code[3]]
+            else:
+                off.append(code)
+    PLACE_EXCEPTIONS[:] = sorted({c[:3] for c in off})
     return sorted(out.values(), key=lambda r: r["code"])
+
+
+#: W00-Y34 categories whose 4th character is not a place (filled by `icd10_attributes`, printed by the build)
+PLACE_EXCEPTIONS: list[str] = []
+
+
+def cdc_matrix() -> tuple[list[tuple[str, str, int]], dict[str, dict[int, str]]]:
+    """The NCHS matrix's ``IF <condition> THEN <variable>=<value>;`` statements, in order, as Python conditions on
+    DEATH (the 3-character code), CDEATH (the 4-character code, blank-padded) and C4 (the 4th character as a
+    number, −1 when absent: SAS's missing compares below every number), and its value labels."""
+    import re
+
+    text = CDC_MATRIX.read_text(encoding="utf-8")
+    for q in "‘’′″“”":
+        text = text.replace(q, "'")
+    body = text[text.index("data matrix;"):text.index("PROC FORMAT;")]
+    rules = []
+    for cond, var, val in re.findall(r"IF\s+(.*?)\s+THEN\s+(\w+)\s*=\s*(\d+)\s*;", body, flags=re.S):
+        cond = re.sub(r"\bAND\b", " and ", cond)
+        cond = re.sub(r"\bOR\b", " or ", cond)
+        cond = re.sub(r"\bIN\s*\(", " in (", cond)
+        cond = re.sub(r"(?<![<>!=])=(?!=)", "==", cond)
+        rules.append((" ".join(cond.split()), var, int(val)))
+    labels: dict[str, dict[int, str]] = {}
+    fmt = text[text.index("PROC FORMAT;"):text.index("PROC FREQ;")]
+    for name, block in re.findall(r"VALUE\s+(\w+)\s+(.*?);", fmt, flags=re.S):
+        labels[name] = {int(k): v.strip() for k, v in re.findall(r"(\d+)\s*=\s*'([^']*)'", block)}
+    return rules, labels
+
+
+def external_causes(codes: list[str]) -> dict[str, dict]:
+    """Mechanism, intent, motor-vehicle person and adverse effect of each code by the NCHS matrix (``cdc_matrix``).
+    A category with subcategories takes a value only where all of them agree."""
+    rules, labels = cdc_matrix()
+    compiled = [(compile(c, "<matrix>", "eval"), var, val) for c, var, val in rules]
+    names = {"CAUSE": ("mechanism", labels["CAUSEM"]), "INJS": ("intent", labels["INJSM"]),
+             "MVTPER": ("motor_vehicle_person", labels["MVPM"]), "ADV": ("adverse_effect", {1: True})}
+    out = {}
+    for code in codes:
+        env = {"DEATH": code[:3], "CDEATH": code.ljust(4), "C4": int(code[3]) if len(code) == 4 and code[3].isdigit() else -1}
+        got: dict[str, object] = {}
+        for expr, var, val in compiled:
+            if eval(expr, {"__builtins__": {}}, env):   # noqa: S307 - the published statements, parsed above
+                got[var] = val
+        if got:
+            out[code] = {names[v][0]: names[v][1][k] for v, k in got.items()}
+    return out
 
 
 def lists() -> list[dict]:
@@ -235,6 +322,10 @@ def main() -> int:
         "unlikely_cause_of_death": [a["unlikely_cause_of_death"] for a in attrs],
         "underlying_cause": [a["underlying_cause"] for a in attrs],
         "refer": [a["refer"] for a in attrs], "merged": [a["merged"] for a in attrs],
+        "mechanism": [a.get("mechanism") for a in attrs], "intent": [a.get("intent") for a in attrs],
+        "motor_vehicle_person": [a.get("motor_vehicle_person") for a in attrs],
+        "adverse_effect": pa.array([a.get("adverse_effect") for a in attrs], pa.bool_()),
+        "place": [a.get("place") for a in attrs],
     }), RESOURCES / "code_attributes.parquet", compression="zstd")
     members = lists()
     pq.write_table(pa.table({k: [m[k] for m in members] for k in ("list", "item", "code")}),
@@ -250,7 +341,10 @@ def main() -> int:
     print(f"code_attributes.parquet: {len(attrs)} ICD-10 codes; manifestation {sum(a['dual'] == 'manifestation' for a in attrs)}, "
           f"etiology {sum(a['dual'] == 'etiology' for a in attrs)}, sex-restricted {sum(a['sex'] is not None for a in attrs)}, "
           f"unlikely cause of death {sum(a['unlikely_cause_of_death'] for a in attrs)}, "
-          f"not an underlying cause {sum(not a['underlying_cause'] for a in attrs)}")
+          f"not an underlying cause {sum(not a['underlying_cause'] for a in attrs)}; with a mechanism "
+          f"{sum(a.get('mechanism') is not None for a in attrs)}, an intent {sum(a.get('intent') is not None for a in attrs)}, "
+          f"a place {sum(a.get('place') is not None for a in attrs)}; W00-Y34 categories whose 4th character is not a place: "
+          f"{PLACE_EXCEPTIONS}")
     return 0
 
 
