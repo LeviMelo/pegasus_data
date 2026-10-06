@@ -12,6 +12,13 @@ A tree is a parent table, a list a membership table:
   - CBO2002: major group > principal subgroup > subgroup > family > occupation,
     by prefix; the kit's codes outside the current CBO are not nodes.
   - CNAE20: class > subclass, by prefix.
+* ``resources/code_attributes.parquet``: structure, code, level, release, the per-code attributes of the
+  DATASUS CID-10 release (``sources/cid10csv_v2008.zip``, its fields as ``sources/ds_descrcsv.htm`` defines them):
+  ``dual`` (the dagger/asterisk role: etiology ``+``, manifestation ``*``), ``sex`` (F or M: the code may be
+  used for that sex only), ``unlikely_cause_of_death`` (CAUSAOBITO = N: "pouca probabilidade de causar
+  óbito"), ``underlying_cause`` (false for the codes the release says must not code a cause of death: the
+  manifestation codes and chapters XIX and XXI), ``refer`` (the code in the other classification, as written)
+  and ``merged`` (retired codes now part of this one, as written).
 * ``resources/code_lists.parquet``: list, item, code. The Ministry's concept
   lists as its TabWin kits ship them (ADR-0134): the CID-BR mortality list,
   the ICD-10 tabulation lists 2 and 4, avoidable causes of death (0-4, 5-74)
@@ -134,6 +141,51 @@ def by_prefix(name: str, levels: list[tuple[str, int]], skip: set[str] = frozens
     return rows
 
 
+def icd10_attributes() -> list[dict]:
+    """The DATASUS release's attributes of every ICD-10 category and subcategory (ARCHITECTURE §3.3 of PegaSUS; its
+    handoff part B). A subcategory row of a category without subcategories ("A01 ", the fourth character blank)
+    is that category's own row, and carries its sex and cause-of-death fields."""
+    with zipfile.ZipFile(CID_ZIP) as zf:
+        chapters = _csv(zf, "CID-10-CAPITULOS.CSV")
+        cats = _csv(zf, "CID-10-CATEGORIAS.CSV")
+        subs = _csv(zf, "CID-10-SUBCATEGORIAS.CSV")
+    chap = [(c["DESCRABREV"].split(".", 1)[0].strip(), c["CATINIC"].strip(), c["CATFIM"].strip()) for c in chapters]
+
+    def chapter_of(code: str) -> str | None:
+        return next((r for r, a, b in chap if _within(code, a, b)), None)
+
+    dual = {"+": "etiology", "*": "manifestation", "": None}
+    out: dict[str, dict] = {}
+    for level, rows, key in (("category", cats, "CAT"), ("subcategory", subs, "SUBCAT")):
+        for r in rows:
+            code = r[key].strip().upper()
+            if not code:
+                continue
+            role = dual[r["CLASSIF"].strip()]
+            ch = chapter_of(code)
+            row = out.setdefault(code, {"code": code, "level": "category" if len(code) == 3 else level, "chapter": ch,
+                                        "dual": None, "sex": None, "unlikely_cause_of_death": False,
+                                        "refer": None, "merged": None})
+            row["dual"] = row["dual"] or role
+            if "RESTRSEXO" in r:
+                row["sex"] = r["RESTRSEXO"].strip() or None
+                row["unlikely_cause_of_death"] = r["CAUSAOBITO"].strip() == "N"
+            row["refer"] = r["REFER"].strip() or row["refer"]
+            row["merged"] = r["EXCLUIDOS"].strip() or row["merged"]
+    # a category is the union of its subcategories: one whose subcategories all carry the same sex restriction
+    # carries it too (the release writes the restriction on subcategories only: O80 had none, O80.0-O80.9 F)
+    by_cat: dict[str, set] = {}
+    for code, row in out.items():
+        if len(code) == 4:
+            by_cat.setdefault(code[:3], set()).add(row["sex"])
+    for cat, sexes in by_cat.items():
+        if cat in out and out[cat]["sex"] is None and len(sexes) == 1 and None not in sexes:
+            out[cat]["sex"] = next(iter(sexes))
+    for row in out.values():
+        row["underlying_cause"] = row["dual"] != "manifestation" and row["chapter"] not in ("XIX", "XXI")
+    return sorted(out.values(), key=lambda r: r["code"])
+
+
 def lists() -> list[dict]:
     from pegasus_data.labelpack import read_packed
 
@@ -175,6 +227,15 @@ def main() -> int:
     if dangling:
         raise SystemExit(f"{len(dangling)} nodes name a parent that is not a node, e.g. {dangling[:5]}")
     pq.write_table(table, RESOURCES / "code_trees.parquet", compression="zstd")
+    attrs = icd10_attributes()
+    pq.write_table(pa.table({
+        "structure": ["ICD10"] * len(attrs), "code": [a["code"] for a in attrs], "level": [a["level"] for a in attrs],
+        "chapter": [a["chapter"] for a in attrs], "release": ["CID-10 DATASUS V2008"] * len(attrs),
+        "dual": [a["dual"] for a in attrs], "sex": [a["sex"] for a in attrs],
+        "unlikely_cause_of_death": [a["unlikely_cause_of_death"] for a in attrs],
+        "underlying_cause": [a["underlying_cause"] for a in attrs],
+        "refer": [a["refer"] for a in attrs], "merged": [a["merged"] for a in attrs],
+    }), RESOURCES / "code_attributes.parquet", compression="zstd")
     members = lists()
     pq.write_table(pa.table({k: [m[k] for m in members] for k in ("list", "item", "code")}),
                    RESOURCES / "code_lists.parquet", compression="zstd")
@@ -186,6 +247,10 @@ def main() -> int:
     for r in orphans.slice(0, 10).to_pylist():
         print("   orphan", r["structure"], r["code"], r["level"])
     print(f"code_lists.parquet: {per_list}")
+    print(f"code_attributes.parquet: {len(attrs)} ICD-10 codes; manifestation {sum(a['dual'] == 'manifestation' for a in attrs)}, "
+          f"etiology {sum(a['dual'] == 'etiology' for a in attrs)}, sex-restricted {sum(a['sex'] is not None for a in attrs)}, "
+          f"unlikely cause of death {sum(a['unlikely_cause_of_death'] for a in attrs)}, "
+          f"not an underlying cause {sum(not a['underlying_cause'] for a in attrs)}")
     return 0
 
 

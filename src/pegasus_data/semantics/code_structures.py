@@ -4,7 +4,9 @@ Built by ``scripts/build_code_structures.py`` into the shipped resources
 ``code_trees.parquet`` (ICD10, SIGTAP, CBO2002, CNAE20: code, label, level,
 parent, validity) and ``code_lists.parquet`` (the Ministry's concept lists:
 CID-BR-10, the ICD-10 tabulation lists 2 and 4, avoidable causes 0-4 and
-5-74, ICSAP; list, item, code). A model takes the shape from here (DESIGN
+5-74, ICSAP; list, item, code), and ``code_attributes.parquet`` (each ICD-10
+code's attributes in the DATASUS release: dagger/asterisk role, sex
+restriction, cause-of-death fields; `code_attributes`). A model takes the shape from here (DESIGN
 §3.4): a tree's effects nest along ``parent``, a list's are carried by every
 member code.
 """
@@ -55,3 +57,15 @@ def code_structure(name: str) -> pa.Table:
         return part.drop_columns(["list"])
     known = [s["name"] for s in code_structures()]
     raise KeyError(f"no code structure {name!r}; served: {known}")
+
+
+def code_attributes(structure: str = "ICD10") -> pa.Table:
+    """Each code's attributes as its source defines them: for ICD10, the DATASUS CID-10 release V2008
+    (``sources/ds_descrcsv.htm``): ``dual`` (etiology +, manifestation *), ``sex`` (F or M only),
+    ``unlikely_cause_of_death`` (CAUSAOBITO = N), ``underlying_cause`` (false for manifestation codes and chapters
+    XIX and XXI, which the release says must not code a cause of death), ``refer`` and ``merged`` as written."""
+    table = _table("code_attributes")
+    part = table.filter(pc.equal(table.column("structure"), structure.upper()))
+    if not part.num_rows:
+        raise KeyError(f"no code attributes for {structure!r}; served: {sorted(set(table.column('structure').to_pylist()))}")
+    return part.drop_columns(["structure"])

@@ -54,6 +54,7 @@ _EXPORTS: dict[str, str] = {
     "event_types": ".semantics.event_types",
     "count_events": ".semantics.event_types",
     "code_structure": ".semantics.code_structures",
+    "code_attributes": ".semantics.code_structures",
     "field_overlap": ".semantics.event_types",
     "proximity_graph": ".proximity",
     "municipality_areas": ".proximity",
@@ -174,7 +175,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         NothingPublished,
         PublishedEmpty,
     )
-    from .semantics.code_structures import code_structure, code_structures
+    from .semantics.code_structures import code_attributes, code_structure, code_structures
     from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types, field_overlap
     from .sidra import Sidra

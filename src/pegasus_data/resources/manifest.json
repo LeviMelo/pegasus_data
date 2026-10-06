@@ -151,6 +151,13 @@
       "bytes": 102090,
       "sha256": "184407ecb643b93ba4c8609d4fc285a63fc1e71fa56dc33a222b784b39166276",
       "rows": 5570
+    },
+    "code_attributes": {
+      "file": "code_attributes.parquet",
+      "tier": "A",
+      "bytes": 53173,
+      "sha256": "96600da9c0665e9ab5f3e9285e7dd8a95e8d1393491fb87b5badf082a987dff8",
+      "rows": 14233
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

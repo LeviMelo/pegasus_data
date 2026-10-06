@@ -506,6 +506,18 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `Dados_Abertos/SINAN/` names agravos in Portuguese (`ACBI` is
   `Acidente_tbr_mat_biologico`). SISCAN's notes are at
   `tabnet.datasus.gov.br/cgi/SISCAN/doc/` (`docs/history/RESUME.md`).
+- **The DATASUS CID-10 release in CSV** (`sources/cid10csv_v2008.zip`, its fields defined in
+  `sources/ds_descrcsv.htm`; read 2026-10-06):
+  - Category and subcategory rows carry `CLASSIF` (blank, `+` etiology, `*` manifestation), `REFER` (the code in
+    the other dual classification, *not always filled*) and `EXCLUIDOS` (retired codes now part of this one).
+  - Only subcategory rows carry `RESTRSEXO` (`F` or `M`: the code may be used for that sex only) and
+    `CAUSAOBITO`.
+  - `CAUSAOBITO = N` means "pouca probabilidade de causar óbito" (unlikely to cause death). It does *not* mark
+    the codes barred as an underlying cause: the release says separately that manifestation (asterisk)
+    codes and chapters XIX and XXI must not code a cause of death.
+  - A category without subcategories appears as a subcategory row with a blank fourth character.
+  - Counts: 12,451 subcategory rows (300 `*`, 78 `+`; 758 `F`, 116 `M`; 1,291 `N`) and 2,045 categories. Served
+    as `code_attributes()`.
 
 ## 4. SIGTAP (2026-08-19, F §3d)
 
