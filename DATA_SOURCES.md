@@ -553,6 +553,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - Against SIM: in DORRS95 (RS, 1995; 65,039 deaths, CAUSABAS 4 characters), 99.45 % of the underlying causes are
     a bridge code or its category. The unmatched are led by 0091 (159 deaths), 0861 (29) and 5089 (25). The ICD-9
     era's DO files also carry a `CRITICA` field.
+- **DATASUS's population estimates 1980–2012** (`/dissemin/publicos/IBGE/POP/POPBRyy.zip`, 2.4–8.8 MB a year; each zip
+  holds DBF, CSV and XML; read 2026-10-06, POPBR95).
+  - Columns: `MUNIC_RES` (6 digits), `ANO`, `SEXO` (1, 2), `SITUACAO` (3 in 1995), `FXETARIA` (single ages 0–4,
+    then five-year bands to 80+, and `I000`, age ignored) and `POPULACAO`.
+  - The age–sex denominators the ICD-9 era of SIM (1979–1995) needs; the population account starts in 1991, as
+    totals. Not yet a source of `population()`.
 - **No age table in the DATASUS publications.**
   - The SIM dictionary (`sources/dicdo.txt`) lists the system's own record critiques ("Óbito com restrição de
     idade", "CID Implausíveis", "Causas Asterisco"). Neither the rules behind them nor the per-record flags are
