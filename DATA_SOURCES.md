@@ -516,6 +516,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     the codes barred as an underlying cause: the release says separately that manifestation (asterisk)
     codes and chapters XIX and XXI must not code a cause of death.
   - A category without subcategories appears as a subcategory row with a blank fourth character.
+  - Groups nest ("um grupo pode conter outros grupos"): 11 groups contain others (C00-C97 ⊃ C00-C75 ⊃ C51-C58;
+    V01-X59 ⊃ V01-V99 ⊃ V40-V49 and W00-X59; M00-M25 etc.; T20-T32; Y40-Y84), 63 groups sit inside one. The tree
+    hangs a group on the smallest group enclosing it and a category on the smallest group containing it; before
+    2026-10-06 every category hung on the outermost group (C53 under C00-C97, not C51-C58).
   - Counts: 12,451 subcategory rows (300 `*`, 78 `+`; 758 `F`, 116 `M`; 1,291 `N`) and 2,045 categories. Served
     as `code_attributes()`.
   - Subcategories of W00–Y34 name their place of occurrence after their last " - " ("residência", "rua e

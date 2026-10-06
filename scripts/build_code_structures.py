@@ -79,19 +79,33 @@ def icd10() -> list[dict]:
         roman = c["DESCRABREV"].split(".", 1)[0].strip()
         chap.append((roman, c["CATINIC"].strip(), c["CATFIM"].strip()))
         rows.append({"code": roman, "label": c["DESCRICAO"].strip(), "level": "chapter", "parent": None})
+    # groups nest (the release: "um grupo pode conter outros grupos"; C00-C97 > C00-C75 > C51-C58, V01-X59 > V01-V99 >
+    # V40-V49, 11 nesting groups): a group's parent is the smallest group enclosing it, else its chapter, and a
+    # category's the smallest group containing it. Until 2026-10-06 every category hung on the outermost group, so
+    # all malignant neoplasms were one group and all accidents another
+    spans = [(g["CATINIC"].strip(), g["CATFIM"].strip(), g["DESCRICAO"].strip()) for g in groups]
     grp = []
-    for g in groups:
-        lo, hi = g["CATINIC"].strip(), g["CATFIM"].strip()
-        parent = next((r for r, a, b in chap if a <= lo and hi <= b), None)
+
+    def width(lo: str, hi: str) -> tuple:
+        return (ord(hi[0]) - ord(lo[0]), int(hi[1:]) - int(lo[1:]))
+
+    for lo, hi, label in spans:
+        enclosing = [(x, y) for x, y, _ in spans if (x, y) != (lo, hi) and x <= lo and hi <= y]
+        if enclosing:
+            x, y = min(enclosing, key=lambda xy: width(*xy))
+            parent = f"{x}-{y}"
+        else:
+            parent = next((r for r, a, b in chap if a <= lo and hi <= b), None)
         code = f"{lo}-{hi}"
         grp.append((code, lo, hi))
-        rows.append({"code": code, "label": g["DESCRICAO"].strip(), "level": "group", "parent": parent})
+        rows.append({"code": code, "label": label, "level": "group", "parent": parent})
+    innermost = sorted(grp, key=lambda g: width(g[1], g[2]))
     for r in icd:
         code, level = str(r["code"]), str(r["level"])
         if code.endswith("X") and len(code) == 4:
             continue  # SIM's filler spelling of a category, not a node
         if level == "category":
-            parent = next((g for g, a, b in grp if _within(code, a, b)), None)
+            parent = next((g for g, a, b in innermost if _within(code, a, b)), None)
             if parent is None:
                 parent = next((ch for ch, a, b in chap if _within(code, a, b)), None)
         else:
@@ -108,7 +122,7 @@ def icd10() -> list[dict]:
         if r["level"] == "subcategory" and cat not in present:
             if cat not in WHO_UPDATE_CATEGORIES:
                 raise SystemExit(f"ICD-10 subcategory {r['code']} names category {cat}, which no source defines")
-            parent = next((g for g, a, b in grp if _within(cat, a, b)), None) or \
+            parent = next((g for g, a, b in innermost if _within(cat, a, b)), None) or \
                 next((ch for ch, a, b in chap if _within(cat, a, b)), None)
             rows.append({"code": cat, "label": WHO_UPDATE_CATEGORIES[cat], "level": "category", "parent": parent,
                          "valid_from": 202001})

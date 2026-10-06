@@ -127,8 +127,8 @@
     "code_trees": {
       "file": "code_trees.parquet",
       "tier": "A",
-      "bytes": 478462,
-      "sha256": "f0b7c7e41d432d9621f50440976324f2649f374b843f2a463f0b68028a9f389a",
+      "bytes": 478986,
+      "sha256": "d77317d60fedbbc6f9240f2ebff3beec106f02808489273c85b281c6f679fdb6",
       "rows": 26359
     },
     "municipality_areas": {
