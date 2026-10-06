@@ -1,0 +1,13 @@
+## ADR-0152: A superseded kit carries its era, so same-named codelists of two eras do not collide
+
+**Date:** 2026-10-05. **Status:** active. **Amends:** ADR-0037 (windowed label pack), ADR-0095 (kits are read by column).
+
+**Context.** The SIM CID9 and CID10 TabNet kits, and SINASC's `ANT`/`1994_1995` and `NOV`/`1996_` kits, hold same-named `.CNV` files whose codes differ (CIRCOBITO/TIPOVIOL: 1 homicide vs 1 accident; LOCOCOR: 2 street vs 2 other health establishment; RACACOR 1 Amarela vs Branca). `kit_validity` read a window only from a `YYYYMM-YYYYMM` filename, and these kits carry their era in the directory, so both kits wrote the dictionary key `(system, codelist, code, valid_from NULL)`; the later ingest replaced the earlier at equal authority and the pack served the 1979-95 codes for every year. Measured: EVALUATION 2026-10-05 (sim-code-eras).
+
+**Decision.** `tabkit._KIT_ERAS` names the era of a superseded kit by directory marker (SIM `CID9/TAB` 197901-199512; SINASC `ANT/TAB` and `1994_1995` 199401-199512). The current kit stays unwindowed (it is the current vintage, ADR-0037), so both eras survive in the dictionary and the pack's year resolution picks between them. The era binds a codelist only where a current source holds the same name for the same system (`dictionary.settle_era_windows`, recomputed after every semantics run): the 1994-95 SINASC kit also ships the current geography (`BR_MUNICIP`, `BR_REGSAUD`, the state `*_MUNICIP` lists) that no current SINASC kit carries, and bounding those to 1994-95 cost every later year its municipality labels and split the lists all systems share into per-system copies (first rebuild, 2026-10-05: 30,861 shared runs gone at 2015). Bounded: SIM 36 codebooks, SINASC 15; open: the geography, the ICD-9 lists and the other names only the old kit has. A new era split of a system is one line in that table, found by comparing same-named `.CNV` files across the system's kits; not a curation row per code.
+
+**Alternatives.** Curating the new codes per field (a second copy of what the kit says, with the old copy still wrong for old years). Keying codelists by kit (breaks the join to the `.DEF` binding, which names the file, not the kit).
+
+**Not decided.** Where the schema, not the year, picks the coding (SIM `DOFET96` and `DOFET98` carry the old TIPOVIOL beside 1996-98 files that carry the new CIRCOBITO): a year window cannot separate them (OPEN_QUESTIONS).
+
+**What would reverse it.** A kit publisher that stamps the era in the file name (the `YYYYMM-YYYYMM` rule then covers it, and the table entry is redundant), or the dictionary keying a codelist by kit.

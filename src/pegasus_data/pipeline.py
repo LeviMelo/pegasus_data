@@ -66,6 +66,7 @@ from .semantics.dictionary import (
     persist_bindings,
     persist_entries,
     persist_rules,
+    settle_era_windows,
     supersede_source,
 )
 from .semantics.ledger import build_ledger, persist_ledger
@@ -432,6 +433,11 @@ class Pipeline:
             merged = persist_entries(self.catalog, loose_entries)
             counts["dictionary_entries"] = int(counts["dictionary_entries"]) + merged["inserted"]
             counts["conflicts"] = int(counts["conflicts"]) + merged["conflicts"]
+
+        # After every source is in: an era kit's codelist keeps its era only where a
+        # current source shares its name (ADR-0152).
+        era = settle_era_windows(self.catalog)
+        counts["era_rows_bounded"], counts["era_rows_released"] = era["bounded"], era["released"]
 
         counts["loose_cnv_parsed"] = loose_cnvs
         counts["loose_def_parsed"] = loose_defs

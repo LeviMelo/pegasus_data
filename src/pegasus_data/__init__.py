@@ -177,12 +177,12 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .semantics.code_structures import code_structure, code_structures
     from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types, field_overlap
+    from .sidra import Sidra
 
 
 def __getattr__(name: str) -> Any:
     """Resolve an export on first use, then cache it in this module's globals.
 
-    from .sidra import Sidra
     The implementation modules are PRIVATE — ``_explore``, ``_translate``,
     ``_info`` — and that is not a style choice. A module named ``explore.py``
     exporting a function named ``explore`` collide as attributes of this

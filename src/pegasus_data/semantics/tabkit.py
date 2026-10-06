@@ -175,6 +175,22 @@ class KitMember:
 #: covers 1992-01 to 1997-12, while a bare ``TAB_SIH.zip`` is the current one.
 _KIT_PERIOD = re.compile(r"(\d{6})\s*[-_]\s*(\d{6})")
 
+#: Kits whose directory names an ERA instead of a competência window. The
+#: current kit stays unwindowed (it is "the current vintage", ``labelpack``);
+#: only the superseded one is bounded, so both survive in the dictionary.
+#: Left unwindowed, SIM's CID9 kit and CID10 kit both wrote ``LOCOCOR`` and
+#: ``TIPOVIOL`` at the same key, the one ingested later erased the other, and
+#: every SIM death since 1996 was labelled with the 1979-95 codes: CIRCOBITO 1
+#: "Homicídio" (it is accident), LOCOCOR 2 "Via pública" (it is another health
+#: establishment). The dates are those of the data under each directory
+#: (``Obito_1979_95_CID-09.DEF``; SIM/CID9 holds 1979-1995, SINASC "até 1995"
+#: holds 1994-1995; checked against the catalog's file list, 2026-10-05).
+_KIT_ERAS: dict[str, tuple[str, str]] = {
+    "/SIM/CID9/TAB/": ("197901", "199512"),
+    "/SINASC/ANT/TAB/": ("199401", "199512"),
+    "/SINASC/1994_1995/": ("199401", "199512"),
+}
+
 
 def kit_validity(kit_path: str) -> tuple[str | None, str | None]:
     """The period a kit's mappings apply to, read from its filename.
@@ -194,9 +210,12 @@ def kit_validity(kit_path: str) -> tuple[str | None, str | None]:
     # mappings "current" — the one thing they are certainly not.
     name = PurePosixPath(kit_path).name
     match = _KIT_PERIOD.search(name) or _KIT_PERIOD.search(str(kit_path))
-    if not match:
-        return None, None
-    return match.group(1), match.group(2)
+    if match:
+        return match.group(1), match.group(2)
+    for marker, window in _KIT_ERAS.items():
+        if marker in str(kit_path):
+            return window
+    return None, None
 
 
 @dataclass(slots=True)

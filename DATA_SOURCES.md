@@ -54,6 +54,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - **Still so on 2026-10-04** (143 probes since, none with data). From the
     same machine, `ftp.ibge.gov.br` lists over passive mode, which rules
     out the client side.
+  - **Reopened by 2026-10-05 17:16 UTC.** The last failed probe was at 17:01;
+    every probe since has connected in 0.1 s (230 failed, then 39 open).
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.
@@ -690,3 +692,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **Keys.** EQ `TIPEQUIP` (one character) + `CODEQUIP` (two) is the kit's code without its leading zero (CT is '111'); LT `QT_EXIST` = `QT_SUS` + `QT_NSUS` (off by 17 in 2008, exact in 2015 and 2023); `VINC_SUS` is only 0 or 1; EP `DT_DESAT` 900001 means "not deactivated" and every team in a December file carries it; the team id is `IDEQUIPE`. Labels: `TAB_CNES.zip` (127 MB, `200508_/Auxiliar/`) members `CNV/TP_ESTAB.CNV`, `Esp_leit.CNV`, `Equip_Tp.cnv`, `DBF/EQUIPE.dbf`.
 - **The team typology changes in 2020.** December 2019 teams are types 02, 01, 06, 04, 03, 45; December 2020 are 70 (ESF), 71 (ESB), 72, 76 (EAP). ESF-type teams go from 43.6 k to 49.0 k across the change.
 - **Physicians in PF** carry CBO 2231xx (the original 2002 codes, flagged "not in the current CBO 2002" by the label pack) as well as 225xxx. Distinct `CNS_PROF` physicians summed over municipalities are 805,369 in 2023, above the profession's own count (about 570,000, CFM): a CNS is not one per person, and a person can work in several municipalities.
+
+### SIM codes changed in 1996 under the same names (measured 2026-10-05)
+
+The SIM kits `CID9/TAB/OBITOS_CID9_TAB.zip` (1997 files) and `CID10/TAB/OBITOS_CID10_TAB.zip` (2024) carry **same-named `.CNV` files with different codes**. Checked against the layout `sim2025.txt` (CGIAE/DASNT/SVS, 07/2025) and against the records (cause of death by code, RJ 1990 and 1995, Acre 1996 and 2000):
+
+| Field | 1979-95 (`TIPOVIOL`, `LOCOCOR`) | 1996 on (`CIRCOBITO`, `LOCOCOR`) |
+|---|---|---|
+| violent death | 1 homicide, 2 suicide, 3 accident, 4 other, 0/9 ignored | **1 accident, 2 suicide, 3 homicide**, 4 other, 9 ignored |
+| place | 1 hospital, **2 street**, 3 home, 4 other | 1 hospital, **2 other health establishment, 4 street**, 3 home, 5 other, 6 indigenous village, 9 ignored |
+
+The 1996 `.DEF` binds `CIRCOBITO` to `TIPOVIOL.CNV`, which in that kit is the new coding. The schema, not the year, decides in 1996-98: `DOFET96` and `DOFET98` still carry `TIPOVIOL` with the old codes, `DOFET97`, `DOFET99` and `DORES` 1996 on carry `CIRCOBITO` with the new ones. `SINASC` kits split the same way (`ANT` 1994-95, `NOV` 1996 on; `RACACOR` 1 is Amarela before 1996, Branca after).
+- **Extent.** 35 same-named codelists differ between the two eras of the kits (SIM 21, SINASC 14), 19 of them in meaning (SIM TIPOVIOL/CIRCOBITO, LOCOCOR, ESTCIV 5, GRAVIDEZ, INSTRUC, SEMANAS, PARTO, IDADEMAE, NUMFILH; SINASC RACACOR, GESTACAO, PRENATAL, GRAVIDEZ, INSTRUC, PARTO, PAISES), the rest an age band the 1979-95 kit leaves "Ign" or a spelling. EVALUATION 2026-10-05 (SIM code eras).

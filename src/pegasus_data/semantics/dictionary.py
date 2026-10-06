@@ -266,6 +266,64 @@ def supersede_source(catalog: CatalogStore, prefixes: Sequence[str]) -> int:
     return removed
 
 
+def settle_era_windows(catalog: CatalogStore) -> dict[str, int]:
+    """Bound a superseded kit's codelist to its era only where a current one shares its name.
+
+    An era kit (``tabkit._KIT_ERAS``: SIM/CID9, SINASC/ANT) is windowed so that its
+    ``LOCOCOR`` and the current kit's ``LOCOCOR`` both survive (ADR-0152). Windowing
+    the WHOLE kit went further than the collision: the 1994-95 SINASC kit ships the
+    current geography (``BR_MUNICIP``, ``BR_REGSAUD`` …, 25,732 rows each) and no current
+    SINASC kit carries those names, so bounding them to 1994-95 left every later year
+    without municipality labels and split the lists every system shared into one copy
+    per system (2026-10-05: 30,861 shared runs lost at 2015). So, per (system, codelist):
+    when a current source holds the name unwindowed, the era kit's rows keep the era;
+    when none does, they apply to every year, as they did before the era was read.
+
+    Recomputed from the whole dictionary each run, so it holds whichever source
+    arrives first and settles both ways when DATASUS adds or drops a codelist.
+    """
+    from .tabkit import kit_validity
+
+    settled = {"bounded": 0, "released": 0}
+    era_kits = [
+        (str(r["kit_path"]), kit_validity(str(r["kit_path"])))
+        for r in catalog.query("SELECT kit_path FROM tab_kits")
+    ]
+    era_kits = [(kit, window) for kit, window in era_kits if window[0] and _is_era_kit(kit)]
+    for kit, (valid_from, valid_to) in era_kits:
+        prefix = f"{kit}!"
+        groups = [
+            (r["system"], str(r["value_group"]))
+            for r in catalog.query(
+                "SELECT DISTINCT system, value_group FROM dictionary"
+                " WHERE source_ref >= ? AND source_ref < ? AND value_group IS NOT NULL",
+                (prefix, prefix + "\U0010ffff"),
+            )
+        ]
+        for system, group in groups:
+            current = catalog.query(
+                "SELECT 1 FROM dictionary WHERE system IS ? AND value_group = ?"
+                " AND valid_from IS NULL AND valid_to IS NULL"
+                " AND NOT (source_ref >= ? AND source_ref < ?) LIMIT 1",
+                (system, group, prefix, prefix + "\U0010ffff"),
+            )
+            window = (valid_from, valid_to) if current else (None, None)
+            cursor = catalog.execute(
+                "UPDATE dictionary SET valid_from = ?, valid_to = ?"
+                " WHERE system IS ? AND value_group = ? AND source_ref >= ? AND source_ref < ?"
+                " AND (valid_from IS NOT ? OR valid_to IS NOT ?)",
+                (*window, system, group, prefix, prefix + "\U0010ffff", *window),
+            )
+            settled["bounded" if current else "released"] += cursor.rowcount or 0
+    return settled
+
+
+def _is_era_kit(kit_path: str) -> bool:
+    from .tabkit import _KIT_ERAS
+
+    return any(marker in kit_path for marker in _KIT_ERAS)
+
+
 def persist_entries(catalog: CatalogStore, entries: Sequence[DictionaryEntry]) -> dict[str, int]:
     """Insert entries, recording genuine conflicts instead of resolving silently.
 

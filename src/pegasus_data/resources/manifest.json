@@ -1,7 +1,7 @@
 {
   "resource_schema_version": 2,
-  "resource_content_version": "2026-10-05",
-  "built_at": "2026-10-05T11:00:07Z",
+  "resource_content_version": "2026-10-06",
+  "built_at": "2026-10-06T03:11:31Z",
   "source_build_id": "2026-09-28T23:41:36+00:00",
   "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
@@ -10,7 +10,7 @@
     "families": 399,
     "columns": 4593,
     "variables_described": 4662,
-    "bindings": 10762
+    "bindings": 10764
   },
   "budgets": {
     "growth_ratio": 1.25,
@@ -36,9 +36,9 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 29358521,
+      "bytes": 29493870,
       "rows": 4219908,
-      "sha256": "7d6f99d7f1b759652e9672307cb4ad3ed0a2472ddd8b5881e1b92f542511f507"
+      "sha256": "22760a59e180ebb1d5dcf3d0426a209e80652672d8129ebc86b78a735e28b645"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19867372,
-      "rows": 930487,
-      "sha256": "f6d9794a269d8b830eeaf74cae866b160bb2a53664e27eb3fd4795987f312e12"
+      "bytes": 19864356,
+      "rows": 930489,
+      "sha256": "bdc7f64afcacd0f5ce5c5ba9ca9150ab4dd88bb9fe7899604f1788a43255baf6"
     },
     "banks": {
       "file": "banks.parquet",
