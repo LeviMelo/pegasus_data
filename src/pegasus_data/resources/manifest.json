@@ -152,6 +152,13 @@
       "sha256": "184407ecb643b93ba4c8609d4fc285a63fc1e71fa56dc33a222b784b39166276",
       "rows": 5570
     },
+    "code_bridges": {
+      "file": "code_bridges.parquet",
+      "tier": "A",
+      "bytes": 149145,
+      "sha256": "b277f460002d31e973924c5f431ef91bc236d3c390c8b034c9038d680515b00b",
+      "rows": 30873
+    },
     "code_attributes": {
       "file": "code_attributes.parquet",
       "tier": "A",

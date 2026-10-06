@@ -380,6 +380,36 @@ def lists() -> list[dict]:
     return out
 
 
+NCHS_BRIDGE = ROOT / "sources" / "nchs_comparability" / "ICD9_ICD10_comparability_public_use_ASCII.ZIP"
+
+
+def icd9_bridge() -> list[dict]:
+    """The ICD-9 -> ICD-10 bridge of the NCHS comparability study (US deaths of 1996 double-coded, ICD-9 and ICD-10;
+    Anderson et al. 2001, NVSR 49(2); the public-use file's layout in its documentation): for every ICD-9 underlying
+    cause, the deaths whose ICD-10 underlying cause fell in each ICD-10 category, and that category's share. Records
+    the study excludes (flag "Y" at position 441, blank ICD-10 code) are left out. ICD-9 external causes are written
+    as SIM writes them, without the E (SIM's 3-digit 880 is E880)."""
+    counts: dict[tuple[str, str], int] = {}
+    with zipfile.ZipFile(NCHS_BRIDGE) as zf:
+        name = next(n for n in zf.namelist() if n.upper().endswith(".DAT"))
+        with zf.open(name) as fh:
+            for raw in fh:
+                line = raw.decode("latin-1")
+                if line[440:441] == "Y" or not line[443:447].strip():
+                    continue
+                icd9 = line[141:145].strip().upper()
+                icd10 = line[443:447].strip().upper()
+                if icd9.startswith("E"):
+                    icd9 = icd9[1:]
+                key = (icd9, icd10[:3])
+                counts[key] = counts.get(key, 0) + 1
+    totals: dict[str, int] = {}
+    for (icd9, _), n in counts.items():
+        totals[icd9] = totals.get(icd9, 0) + n
+    return [{"bridge": "ICD9-ICD10 NCHS 1996", "from_code": icd9, "to_category": icd10, "deaths": n,
+             "share": n / totals[icd9]} for (icd9, icd10), n in sorted(counts.items())]
+
+
 def main() -> int:
     trees = {
         "ICD10": icd10(),
@@ -423,6 +453,12 @@ def main() -> int:
         "nchs_age_to": pa.array([a["nchs_age_to"] for a in attrs], pa.float64()),
         "nchs_age_edit": [a["nchs_age_edit"] for a in attrs],
     }), RESOURCES / "code_attributes.parquet", compression="zstd")
+    if NCHS_BRIDGE.exists():
+        bridge = icd9_bridge()
+        pq.write_table(pa.table({k: [r[k] for r in bridge] for k in ("bridge", "from_code", "to_category", "deaths", "share")}),
+                       RESOURCES / "code_bridges.parquet", compression="zstd")
+        print(f"code_bridges.parquet: {len(bridge)} ICD-9 -> ICD-10 cells, {len({r['from_code'] for r in bridge})} ICD-9 codes, "
+              f"{sum(r['deaths'] for r in bridge)} deaths")
     members = lists()
     pq.write_table(pa.table({k: [m[k] for m in members] for k in ("list", "item", "code")}),
                    RESOURCES / "code_lists.parquet", compression="zstd")

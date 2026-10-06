@@ -59,6 +59,19 @@ def code_structure(name: str) -> pa.Table:
     raise KeyError(f"no code structure {name!r}; served: {known}")
 
 
+def code_bridge(name: str = "ICD9-ICD10") -> pa.Table:
+    """A bridge between two classifications, from a double-coding study: for each source code, the deaths whose code
+    in the target fell in each target category, and that category's share (``from_code``, ``to_category``, ``deaths``,
+    ``share``). ICD9-ICD10: NCHS's comparability study, US deaths of 1996 coded both ways; ICD-9 external causes are
+    written without the E, as SIM writes them. A study's shares are its population's: a bridge for counts, with
+    the study's uncertainty, not a code's meaning."""
+    table = _table("code_bridges")
+    part = table.filter(pc.starts_with(table.column("bridge"), name.upper()))
+    if not part.num_rows:
+        raise KeyError(f"no code bridge {name!r}; served: {sorted(set(table.column('bridge').to_pylist()))}")
+    return part
+
+
 def code_attributes(structure: str = "ICD10") -> pa.Table:
     """Each code's attributes as its source defines them: for ICD10, the DATASUS CID-10 release V2008
     (``sources/ds_descrcsv.htm``): ``dual`` (etiology +, manifestation *), ``sex`` (F or M only),

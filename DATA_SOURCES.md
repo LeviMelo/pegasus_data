@@ -542,6 +542,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     28 days belong to chapter XVI.
   - Against the release's RESTRSEXO, there is no contradiction. 885 codes agree. Only RESTRSEXO restricts 117
     (O08, O80–O84, Z32–Z39, N51, N74, N77); only NCHS restricts Q97 and Q98.
+- **The NCHS ICD-9/ICD-10 comparability study** (`ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/Comparability/icd9_icd10/`,
+  2004; the report is Anderson et al. 2001, NVSR 49(2); `sources/nchs_comparability/`). The US deaths of 1996 were
+  coded in both ICD-9 and ICD-10.
+  - The public-use file holds 2,318,212 records, 720 characters each. The ICD-9 underlying cause is at positions
+    142–145 and the ICD-10 one at 444–447. 21,290 records carry "Y" at 441 and no ICD-10 code; the study excludes them.
+  - The FTP host answered curl (unlike www.cdc.gov), at about 80 KB/s.
+  - It is served as `code_bridge("ICD9-ICD10")`: for each ICD-9 code, the ICD-10 categories its deaths fell in, and
+    their shares. The shares are US 1996's, not Brazil's.
 - **No age table in the DATASUS publications.**
   - The SIM dictionary (`sources/dicdo.txt`) lists the system's own record critiques ("Óbito com restrição de
     idade", "CID Implausíveis", "Causas Asterisco"). Neither the rules behind them nor the per-record flags are
