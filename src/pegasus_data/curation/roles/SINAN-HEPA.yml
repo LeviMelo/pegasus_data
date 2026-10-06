@@ -1,0 +1,795 @@
+dataset: SINAN-HEPA
+record: notification
+columns:
+  ACUPUNTURA:
+    role: notification.acupuntura
+    kind: category
+    model: mark
+    review: draft
+    name: Acupuntura
+    years:
+    - 2007
+    - 2023
+  AGHBE:
+    role: notification.aghbe
+    kind: category
+    model: mark
+    review: draft
+    name: HBeAg
+    years:
+    - 2007
+    - 2023
+  AGHBS:
+    role: notification.aghbs
+    kind: category
+    model: mark
+    review: draft
+    name: HBsAg
+    years:
+    - 2007
+    - 2023
+  AGUA_ALIME:
+    role: notification.agua_alime
+    kind: category
+    model: mark
+    review: draft
+    name: Exposição a água e/ou alimento contaminado
+    years:
+    - 2007
+    - 2023
+  ANTIHAVIGM:
+    role: notification.antihavigm
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HAV IgM
+    years:
+    - 2007
+    - 2023
+  ANTIHBCIGM:
+    role: notification.antihbcigm
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HBc IgM
+    years:
+    - 2007
+    - 2023
+  ANTIHBE:
+    role: notification.antihbe
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HBe
+    years:
+    - 2007
+    - 2023
+  ANTIHBS:
+    role: notification.antihbs
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HBs
+    years:
+    - 2007
+    - 2023
+  ANTIHCV:
+    role: notification.antihcv
+    kind: category
+    model: mark
+    review: draft
+    name: Resultados sorológicos/virológicos - Anti-HCV
+    years:
+    - 2007
+    - 2023
+  ANTIHDV:
+    role: notification.antihdv
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HDV
+    years:
+    - 2007
+    - 2023
+  ANTIHDVIGM:
+    role: notification.antihdvigm
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HDV IgM
+    years:
+    - 2007
+    - 2023
+  ANTIHEVIGM:
+    role: notification.antihevigm
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HEV IgM
+    years:
+    - 2007
+    - 2023
+  BANCOSANGU:
+    role: notification.bancosangu
+    kind: category
+    model: mark
+    review: draft
+    name: Local de detecção
+    years:
+    - 2007
+    - 2023
+  CIRURGICO:
+    role: notification.cirurgico
+    kind: category
+    model: mark
+    review: draft
+    name: Procedimento cirúrgico
+    years:
+    - 2007
+    - 2023
+  CLASSI_FIN:
+    role: notification.classi_fin
+    kind: category
+    model: mark
+    review: draft
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2023
+  COLETAMARC:
+    role: notification.coletamarc
+    kind: number
+    model: mark
+    review: draft
+    name: Data da coleta da sorologia
+    years:
+    - 2007
+    - 2023
+  CO_MUN_EX2:
+    role: notification.co_mun_ex2
+    kind: place
+    model: mark
+    review: draft
+    name: Local/Município da exposição - Município 2
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2023
+  CO_MUN_EX3:
+    role: notification.co_mun_ex3
+    kind: place
+    model: mark
+    review: draft
+    name: Local/Município da exposição - Município 3
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2023
+  CO_MUN_EXP:
+    role: notification.co_mun_exp
+    kind: place
+    model: mark
+    review: draft
+    name: Local/Município da exposição - Município 1
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2023
+  CO_UF_EX2:
+    role: notification.co_uf_ex2
+    kind: place
+    model: mark
+    review: draft
+    name: UF da segunda exposição
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2023
+  CO_UF_EX3:
+    role: notification.co_uf_ex3
+    kind: place
+    model: mark
+    review: draft
+    name: UF da terceira exposição
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2023
+  CO_UF_EXP:
+    role: notification.co_uf_exp
+    kind: place
+    model: mark
+    review: draft
+    name: UF da exposição
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2023
+  CS_ESCOL_N:
+    role: notification.cs_escol_n
+    kind: category
+    model: mark
+    review: draft
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2023
+  CS_GESTANT:
+    role: notification.cs_gestant
+    kind: category
+    model: mark
+    review: draft
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2023
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2023
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2023
+  DENTARIO:
+    role: notification.dentario
+    kind: category
+    model: mark
+    review: draft
+    name: Tratamento dentário
+    years:
+    - 2007
+    - 2023
+  DOMICILI:
+    role: notification.domicili
+    kind: category
+    model: mark
+    review: draft
+    name: Contato domiciliar
+    years:
+    - 2007
+    - 2023
+  DSFONTE:
+    role: notification.dsfonte
+    kind: number
+    model: mark
+    review: draft
+    name: Provável fonte/mecanismo de infecção - Outros (especificar)
+    years:
+    - 2007
+    - 2023
+  DT_ACIDENT:
+    role: notification.dt_acident
+    kind: date
+    model: mark
+    review: draft
+    name: Data do acidente ou transfusão ou transplante
+    years:
+    - 2007
+    - 2023
+  DT_COLETA:
+    role: notification.dt_coleta
+    kind: date
+    model: mark
+    review: draft
+    name: Data da coleta
+    years:
+    - 2007
+    - 2023
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: when
+    name: Data do Diagnóstico
+    years:
+    - 2007
+    - 2023
+  DT_ENCERRA:
+    role: notification.dt_encerra
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2023
+  DT_INVEST:
+    role: notification.dt_invest
+    kind: date
+    model: mark
+    review: draft
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2023
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2023
+  FONTE:
+    role: notification.fonte
+    kind: category
+    model: mark
+    review: draft
+    name: 'Fonte/Mecanismo de Infecção
+
+      '
+    codelists:
+    - HEPFONTENET
+    years:
+    - 2007
+    - 2023
+  FORMA:
+    role: notification.forma
+    kind: category
+    model: mark
+    review: draft
+    name: Forma clínica
+    years:
+    - 2007
+    - 2023
+  GEN_VHC:
+    role: notification.gen_vhc
+    kind: category
+    model: mark
+    review: draft
+    name: Genótipo do HCV
+    years:
+    - 2007
+    - 2023
+  HAV:
+    role: notification.hav
+    kind: number
+    model: mark
+    review: draft
+    name: Sorologia para hepatite A (Anti-HAV)
+    years:
+    - 2007
+    - 2023
+  HBC_TOTAL:
+    role: notification.hbc_total
+    kind: category
+    model: mark
+    review: draft
+    name: Anti-HBc total
+    years:
+    - 2007
+    - 2023
+  HBV:
+    role: notification.hbv
+    kind: number
+    model: mark
+    review: draft
+    name: Marcador de hepatite B
+    years:
+    - 2007
+    - 2023
+  HCV:
+    role: notification.hcv
+    kind: number
+    model: mark
+    review: draft
+    name: Hepatite C
+    years:
+    - 2007
+    - 2023
+  HDV:
+    role: notification.hdv
+    kind: number
+    model: mark
+    review: draft
+    name: Vírus da Hepatite D
+    years:
+    - 2007
+    - 2023
+  HEMODIALIS:
+    role: notification.hemodialis
+    kind: category
+    model: mark
+    review: draft
+    name: Hemodiálise
+    years:
+    - 2007
+    - 2023
+  HEPATITA:
+    role: notification.hepatita
+    kind: category
+    model: mark
+    review: draft
+    name: Vacinação contra hepatite A
+    years:
+    - 2007
+    - 2023
+  HEPATITB:
+    role: notification.hepatitb
+    kind: category
+    model: mark
+    review: draft
+    name: Vacinação contra hepatite B
+    years:
+    - 2007
+    - 2023
+  HEPATITE_N:
+    role: notification.hepatite_n
+    kind: category
+    model: mark
+    review: draft
+    name: Suspeita de
+    years:
+    - 2007
+    - 2023
+  HEV:
+    role: notification.hev
+    kind: number
+    model: mark
+    review: draft
+    name: Marcador de hepatite E
+    years:
+    - 2007
+    - 2023
+  HIV:
+    role: notification.hiv
+    kind: category
+    model: mark
+    review: draft
+    name: HIV
+    years:
+    - 2007
+    - 2023
+  ID_AGRAVO:
+    role: notification.id_agravo
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2023
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2023
+  ID_MUNICIP:
+    role: notification.id_municip
+    kind: place
+    model: mark
+    review: draft
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2023
+  ID_OCUPA_N:
+    role: notification.id_ocupa_n
+    kind: code_tree
+    model: mark
+    review: draft
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2023
+  ID_PAIS:
+    role: notification.id_pais
+    kind: place
+    model: mark
+    review: draft
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2023
+  ID_REGIONA:
+    role: notification.id_regiona
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2023
+  ID_RG_RESI:
+    role: notification.id_rg_resi
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2023
+  INAL_CRACK:
+    role: notification.inal_crack
+    kind: category
+    model: mark
+    review: draft
+    name: Uso de drogas inaladas
+    years:
+    - 2007
+    - 2023
+  INJETAVEIS:
+    role: notification.injetaveis
+    kind: category
+    model: mark
+    review: draft
+    name: Uso de drogas injetáveis
+    years:
+    - 2007
+    - 2023
+  INSTITUCIO:
+    role: notification.institucio
+    kind: category
+    model: mark
+    review: draft
+    name: Institucionalizado em
+    years:
+    - 2007
+    - 2023
+  MATBIOLOGI:
+    role: notification.matbiologi
+    kind: category
+    model: mark
+    review: draft
+    name: Exposição a acidente com material biológico
+    years:
+    - 2007
+    - 2023
+  MEDICAMENT:
+    role: notification.medicament
+    kind: category
+    model: mark
+    review: draft
+    name: Medicamentos Injetáveis
+    years:
+    - 2007
+    - 2023
+  NU_ANO:
+    role: notification.nu_ano
+    kind: number
+    model: mark
+    review: draft
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2023
+  NU_IDADE_N:
+    role: notification.nu_idade_n
+    kind: number
+    model: mark
+    review: draft
+    name: Idade
+    years:
+    - 2007
+    - 2023
+  OCUPACIO:
+    role: notification.ocupacio
+    kind: category
+    model: mark
+    review: draft
+    name: Exposição ocupacional
+    years:
+    - 2007
+    - 2023
+  OUTRAS:
+    role: notification.outras
+    kind: category
+    model: mark
+    review: draft
+    name: Drogas - Outras
+    years:
+    - 2007
+    - 2023
+  OUTRA_DST:
+    role: notification.outra_dst
+    kind: category
+    model: mark
+    review: draft
+    name: Outra DST
+    years:
+    - 2007
+    - 2023
+  RES_HBSAG:
+    role: notification.res_hbsag
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado do HBsAg
+    years:
+    - 2007
+    - 2023
+  RE_ANTIHBC:
+    role: notification.re_antihbc
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado da sorologia do banco de sangue ou CTA - Anti-HBc total
+    years:
+    - 2007
+    - 2023
+  RE_ANTIHCV:
+    role: notification.re_antihcv
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado da sorologia do banco de sangue ou CTA - Anti-HCV
+    years:
+    - 2007
+    - 2023
+  SEM_DIAG:
+    role: notification.sem_diag
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica do Diagnóstico
+    years:
+    - 2007
+    - 2023
+  SEM_NOT:
+    role: notification.sem_not
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2023
+  SEXUAL:
+    role: notification.sexual
+    kind: category
+    model: mark
+    review: draft
+    name: Exposição sexual
+    years:
+    - 2007
+    - 2023
+  SG_UF:
+    role: notification.sg_uf
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2023
+  SG_UF_NOT:
+    role: notification.sg_uf_not
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2023
+  TATU_PIER:
+    role: notification.tatu_pier
+    kind: category
+    model: mark
+    review: draft
+    name: Tatuagem ou piercing
+    years:
+    - 2007
+    - 2023
+  TP_NOT:
+    role: notification.tp_not
+    kind: category
+    model: mark
+    review: draft
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2023
+  TP_SOROHCV:
+    role: notification.tp_sorohcv
+    kind: category
+    model: mark
+    review: draft
+    name: Sorologia para hepatite C
+    years:
+    - 2007
+    - 2023
+  TRANSFUSAO:
+    role: notification.transfusao
+    kind: category
+    model: mark
+    review: draft
+    name: Transfusão de sangue
+    years:
+    - 2007
+    - 2023
+  TRANSPLA:
+    role: notification.transpla
+    kind: category
+    model: mark
+    review: draft
+    name: Transplante
+    years:
+    - 2007
+    - 2023
+  TRESMAIS:
+    role: notification.tresmais
+    kind: category
+    model: mark
+    review: draft
+    name: Três ou mais parceiros sexuais
+    years:
+    - 2007
+    - 2023
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

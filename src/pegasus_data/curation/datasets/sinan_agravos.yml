@@ -280,6 +280,10 @@ datasets:
         including discarded, in 74 of 103 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_HEPA:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: HEPA
     official_name: Hepatites virais
@@ -319,6 +323,10 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LEIV:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: LEIV
     official_name: Leishmaniose visceral
@@ -374,6 +382,10 @@ datasets:
         (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LTAN:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: LTAN
     official_name: Leishmaniose tegumentar americana
@@ -624,6 +636,10 @@ datasets:
   # something else: SDTA counts outbreaks, HIVG counts pregnancies, and HIVE
   # follows an exposed child rather than recording a case.
   SINAN_AIDA:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: AIDA
     asserted_by: pegasus_data

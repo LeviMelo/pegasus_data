@@ -1,0 +1,1141 @@
+dataset: SINAN-LTAN
+record: notification
+columns:
+  ANO_NASC:
+    role: notification.ano_nasc
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    years:
+    - 2000
+    - 2024
+  ANT_DT_INV:
+    role: notification.ant_dt_inv
+    kind: number
+    model: mark
+    review: draft
+    name: Data da investigação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CLAS_FORMA:
+    role: notification.clas_forma
+    kind: category
+    model: mark
+    review: draft
+    name: Forma Clínica
+    years:
+    - 2000
+    - 2025
+  CLAS_TIPO_:
+    role: notification.clas_tipo_
+    kind: number
+    model: mark
+    review: draft
+    name: Classificação do tipo clínico
+    years:
+    - 2000
+    - 2006
+  CLA_TIPO_N:
+    role: notification.cla_tipo_n
+    kind: category
+    model: mark
+    review: draft
+    name: Tipo de entrada
+    years:
+    - 2007
+    - 2025
+  CLI_CICATR:
+    role: notification.cli_cicatr
+    kind: category
+    model: mark
+    review: draft
+    name: Presença de cicatrizes cutâneas
+    years:
+    - 2000
+    - 2025
+  CLI_CO_HIV:
+    role: notification.cli_co_hiv
+    kind: category
+    model: mark
+    review: draft
+    name: Coinfecção com HIV
+    years:
+    - 2007
+    - 2025
+  CLI_CUTANE:
+    role: notification.cli_cutane
+    kind: category
+    model: mark
+    review: draft
+    name: Presença de lesão Cutânea
+    years:
+    - 2000
+    - 2025
+  CLI_CUT_DI:
+    role: notification.cli_cut_di
+    kind: number
+    model: mark
+    review: draft
+    name: Lesão cutânea - descrição
+    years:
+    - 2000
+    - 2006
+  CLI_MUCOSA:
+    role: notification.cli_mucosa
+    kind: category
+    model: mark
+    review: draft
+    name: Presença de lesão mucosa
+    years:
+    - 2000
+    - 2025
+  COMUNINF:
+    role: notification.comuninf
+    kind: place
+    model: mark
+    review: draft
+    name: Município Provável da Fonte de Infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2025
+  CON_AUTO_M:
+    role: notification.con_auto_m
+    kind: number
+    model: mark
+    review: draft
+    name: Condição de autoctonia no município
+    years:
+    - 2000
+    - 2006
+  CON_AUTO_U:
+    role: notification.con_auto_u
+    kind: number
+    model: mark
+    review: draft
+    name: Caso autóctone da UF
+    years:
+    - 2000
+    - 2006
+  CON_CLASSI:
+    role: notification.con_classi
+    kind: category
+    model: mark
+    review: draft
+    name: Classificação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_CLASS_:
+    role: notification.con_class_
+    kind: category
+    model: mark
+    review: draft
+    name: Classificação epidemiológica
+    years:
+    - 2007
+    - 2025
+  CON_CRITER:
+    role: notification.con_criter
+    kind: category
+    model: mark
+    review: draft
+    name: Critério de confirmação
+    years:
+    - 2000
+    - 2006
+  CON_DOENCA:
+    role: notification.con_doenca
+    kind: number
+    model: mark
+    review: draft
+    name: Doença (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_DT_ENC:
+    role: notification.con_dt_enc
+    kind: number
+    model: mark
+    review: draft
+    name: Data de encerramento (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_DT_OBI:
+    role: notification.con_dt_obi
+    kind: number
+    model: mark
+    review: draft
+    name: Data do óbito (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_EVOLUC:
+    role: notification.con_evoluc
+    kind: number
+    model: mark
+    review: draft
+    name: Evolução (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_IMPORT:
+    role: notification.con_import
+    kind: number
+    model: mark
+    review: draft
+    name: Caso importado
+    years:
+    - 2000
+    - 2006
+  CON_MUNICI:
+    role: notification.con_munici
+    kind: place
+    model: mark
+    review: draft
+    name: Município provável de infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNIC_BR7
+    years:
+    - 2000
+    - 2006
+  CON_PAIS:
+    role: notification.con_pais
+    kind: number
+    model: mark
+    review: draft
+    name: País de contágio
+    years:
+    - 2000
+    - 2006
+  CON_UF:
+    role: notification.con_uf
+    kind: number
+    model: mark
+    review: draft
+    name: UF de contágio
+    years:
+    - 2000
+    - 2006
+  COPAISINF:
+    role: notification.copaisinf
+    kind: place
+    model: mark
+    review: draft
+    name: País Provável da Fonte de Infecção
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2025
+  COUFINF:
+    role: notification.coufinf
+    kind: place
+    model: mark
+    review: draft
+    name: UF Provável da Fonte de Infecção
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    years:
+    - 2007
+    - 2025
+  CO_UF_DES1:
+    role: notification.co_uf_des1
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – UF 1
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  CO_UF_DES2:
+    role: notification.co_uf_des2
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – UF 2
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  CO_UF_DES3:
+    role: notification.co_uf_des3
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – UF 3
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  CRITERIO:
+    role: notification.criterio
+    kind: category
+    model: mark
+    review: draft
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2025
+  CS_ESCOLAR:
+    role: notification.cs_escolar
+    kind: category
+    model: mark
+    review: draft
+    name: Escolaridade
+    years:
+    - 2000
+    - 2006
+  CS_ESCOL_N:
+    role: notification.cs_escol_n
+    kind: category
+    model: mark
+    review: draft
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2025
+  CS_FLXRET:
+    role: notification.cs_flxret
+    kind: category
+    model: mark
+    review: draft
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2025
+  CS_GESTANT:
+    role: notification.cs_gestant
+    kind: category
+    model: mark
+    review: draft
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2025
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2000
+    - 2025
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2000
+    - 2025
+  DOENCA_TRA:
+    role: notification.doenca_tra
+    kind: category
+    model: mark
+    review: draft
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2025
+  DT_DESC1:
+    role: notification.dt_desc1
+    kind: date
+    model: mark
+    review: draft
+    name: Deslocamento – Data 1
+    years:
+    - 2007
+    - 2025
+  DT_DESC2:
+    role: notification.dt_desc2
+    kind: date
+    model: mark
+    review: draft
+    name: Deslocamento – Data 2
+    years:
+    - 2007
+    - 2025
+  DT_DESC3:
+    role: notification.dt_desc3
+    kind: date
+    model: mark
+    review: draft
+    name: Deslocamento – Data 3
+    years:
+    - 2007
+    - 2025
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: when
+    name: Data do Diagnóstico
+    years:
+    - 2000
+    - 2025
+  DT_DIGITA:
+    role: notification.dt_digita
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2025
+  DT_ENCERRA:
+    role: notification.dt_encerra
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2025
+  DT_INIC_TR:
+    role: notification.dt_inic_tr
+    kind: date
+    model: mark
+    review: draft
+    name: Data do início do tratamento
+    years:
+    - 2000
+    - 2025
+  DT_INVEST:
+    role: notification.dt_invest
+    kind: date
+    model: mark
+    review: draft
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2025
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2000
+    - 2025
+  DT_OBITO:
+    role: notification.dt_obito
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2025
+  DT_TRANSDM:
+    role: notification.dt_transdm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2025
+  DT_TRANSRM:
+    role: notification.dt_transrm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2025
+  DT_TRANSRS:
+    role: notification.dt_transrs
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2025
+  DT_TRANSSE:
+    role: notification.dt_transse
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2025
+  DT_TRANSSM:
+    role: notification.dt_transsm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2025
+  DT_TRANSUS:
+    role: notification.dt_transus
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2025
+  ENTO_ANIMA:
+    role: notification.ento_anima
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação entomológica - presença de animais
+    years:
+    - 2000
+    - 2006
+  ENTO_CAO:
+    role: notification.ento_cao
+    kind: number
+    model: mark
+    review: draft
+    name: Presença de cão no local de investigação entomológica
+    years:
+    - 2000
+    - 2006
+  ENTO_CAPTU:
+    role: notification.ento_captu
+    kind: number
+    model: mark
+    review: draft
+    name: Captura entomológica
+    years:
+    - 2000
+    - 2006
+  ENTO_EQUIN:
+    role: notification.ento_equin
+    kind: number
+    model: mark
+    review: draft
+    name: Presença de equinos
+    years:
+    - 2000
+    - 2006
+  ENTO_EXIST:
+    role: notification.ento_exist
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação entomológica - existência de vetor
+    years:
+    - 2000
+    - 2006
+  ENTO_EXI_1:
+    role: notification.ento_exi_1
+    kind: number
+    model: mark
+    review: draft
+    name: Pesquisa entomológica - item 1
+    years:
+    - 2000
+    - 2006
+  ENTO_EXI_2:
+    role: notification.ento_exi_2
+    kind: number
+    model: mark
+    review: draft
+    name: Exame entomológico 2
+    years:
+    - 2000
+    - 2006
+  ENTO_EXI_3:
+    role: notification.ento_exi_3
+    kind: number
+    model: mark
+    review: draft
+    name: Existência de [item 3] no peridomicílio
+    years:
+    - 2000
+    - 2006
+  ENTO_EXI_4:
+    role: notification.ento_exi_4
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação entomológica - existência (categoria 4)
+    years:
+    - 2000
+    - 2006
+  ENTO_EXTRA:
+    role: notification.ento_extra
+    kind: number
+    model: mark
+    review: draft
+    name: Vetor encontrado em ambiente extradomiciliar
+    years:
+    - 2000
+    - 2006
+  ENTO_FLEBO:
+    role: notification.ento_flebo
+    kind: number
+    model: mark
+    review: draft
+    name: Flebotomíneos capturados
+    years:
+    - 2000
+    - 2006
+  ENTO_INSET:
+    role: notification.ento_inset
+    kind: number
+    model: mark
+    review: draft
+    name: Presença de insetos vetores
+    years:
+    - 2000
+    - 2006
+  ENTO_INTRA:
+    role: notification.ento_intra
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação entomológica - vetor intradomiciliar
+    years:
+    - 2000
+    - 2006
+  ENTO_LOCAL:
+    role: notification.ento_local
+    kind: number
+    model: mark
+    review: draft
+    name: Local da pesquisa entomológica
+    years:
+    - 2000
+    - 2006
+  ENTO_OUTRO:
+    role: notification.ento_outro
+    kind: number
+    model: mark
+    review: draft
+    name: Outro vetor capturado
+    years:
+    - 2000
+    - 2006
+  ENTO_PERID:
+    role: notification.ento_perid
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação peridomiciliar
+    years:
+    - 2000
+    - 2006
+  ENTO_PROXI:
+    role: notification.ento_proxi
+    kind: number
+    model: mark
+    review: draft
+    name: Investigação entomológica - vetor próximo ao domicílio
+    years:
+    - 2000
+    - 2006
+  ENTO_TRANS:
+    role: notification.ento_trans
+    kind: number
+    model: mark
+    review: draft
+    name: Classificação da transmissão
+    years:
+    - 2000
+    - 2006
+  EVOLUCAO:
+    role: notification.evolucao
+    kind: category
+    model: mark
+    review: draft
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2025
+  FLXRECEBI:
+    role: notification.flxrecebi
+    kind: category
+    model: mark
+    review: draft
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2025
+  ID_AGRAVO:
+    role: notification.id_agravo
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2025
+  ID_DG_NOT:
+    role: notification.id_dg_not
+    kind: number
+    model: mark
+    review: draft
+    name: Identificador de notificação (bloco Dados Gerais)
+    years:
+    - 2000
+    - 2006
+  ID_EV_NOT:
+    role: notification.id_ev_not
+    kind: number
+    model: mark
+    review: draft
+    name: Identificador de notificação (bloco Evolução/Notificação)
+    years:
+    - 2000
+    - 2006
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2025
+  ID_MUNICIP:
+    role: notification.id_municip
+    kind: place
+    model: mark
+    review: draft
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2025
+  ID_OCUPACA:
+    role: notification.id_ocupaca
+    kind: number
+    model: mark
+    review: draft
+    name: Ocupação do paciente
+    years:
+    - 2000
+    - 2006
+  ID_OCUPA_N:
+    role: notification.id_ocupa_n
+    kind: code_tree
+    model: mark
+    review: draft
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2025
+  ID_PAIS:
+    role: notification.id_pais
+    kind: place
+    model: mark
+    review: draft
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2000
+    - 2025
+  ID_REGIONA:
+    role: notification.id_regiona
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2000
+    - 2025
+  ID_RG_RESI:
+    role: notification.id_rg_resi
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2025
+  ID_UNIDADE:
+    role: notification.id_unidade
+    kind: institution
+    model: institution
+    review: draft
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2000
+    - 2025
+  LAB_HISTOP:
+    role: notification.lab_histop
+    kind: category
+    model: mark
+    review: draft
+    name: Histopatologia
+    years:
+    - 2000
+    - 2025
+  LAB_IRM:
+    role: notification.lab_irm
+    kind: category
+    model: mark
+    review: draft
+    name: IRM (Intradermorreação de Montenegro)
+    years:
+    - 2000
+    - 2025
+  LAB_PARASI:
+    role: notification.lab_parasi
+    kind: category
+    model: mark
+    review: draft
+    name: Parasitológico Direto
+    years:
+    - 2000
+    - 2025
+  MIGRADO_W:
+    role: notification.migrado_w
+    kind: category
+    model: mark
+    review: draft
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2025
+  MUN_DES1:
+    role: notification.mun_des1
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – Município 1
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2025
+  MUN_DES2:
+    role: notification.mun_des2
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – Município 2
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2025
+  MUN_DES3:
+    role: notification.mun_des3
+    kind: place
+    model: mark
+    review: draft
+    name: Deslocamento – Município 3
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2025
+  NDUPLIC_N:
+    role: notification.nduplic_n
+    kind: category
+    model: mark
+    review: draft
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2025
+  NU_ANO:
+    role: notification.nu_ano
+    kind: number
+    model: mark
+    review: draft
+    name: Ano da notificação
+    years:
+    - 2000
+    - 2025
+  NU_IDADE:
+    role: notification.nu_idade
+    kind: number
+    model: mark
+    review: draft
+    name: Idade
+    years:
+    - 2000
+    - 2006
+  NU_IDADE_N:
+    role: notification.nu_idade_n
+    kind: number
+    model: mark
+    review: draft
+    name: Idade
+    years:
+    - 2007
+    - 2025
+  NU_LOTE_H:
+    role: notification.nu_lote_h
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2007
+    - 2025
+  NU_LOTE_I:
+    role: notification.nu_lote_i
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2007
+    - 2025
+  NU_LOTE_V:
+    role: notification.nu_lote_v
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2007
+    - 2025
+  PA_DES1:
+    role: notification.pa_des1
+    kind: category
+    model: mark
+    review: draft
+    name: Deslocamento – País 1
+    years:
+    - 2007
+    - 2025
+  PA_DES2:
+    role: notification.pa_des2
+    kind: category
+    model: mark
+    review: draft
+    name: Deslocamento – País 2
+    years:
+    - 2007
+    - 2025
+  PA_DES3:
+    role: notification.pa_des3
+    kind: category
+    model: mark
+    review: draft
+    name: Deslocamento – País 3
+    years:
+    - 2007
+    - 2025
+  SEM_DIAG:
+    role: notification.sem_diag
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica do Diagnóstico
+    years:
+    - 2007
+    - 2025
+  SEM_NOT:
+    role: notification.sem_not
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2000
+    - 2025
+  SEM_PRI:
+    role: notification.sem_pri
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2000
+    - 2006
+  SG_UF:
+    role: notification.sg_uf
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2025
+  SG_UF_NOT:
+    role: notification.sg_uf_not
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2025
+  TPAUTOCTO:
+    role: notification.tpautocto
+    kind: category
+    model: mark
+    review: draft
+    name: Caso é Autóctone da Residência?
+    codelists:
+    - AUTOCTONE
+    years:
+    - 2007
+    - 2025
+  TP_NOT:
+    role: notification.tp_not
+    kind: category
+    model: mark
+    review: draft
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2025
+  TRA_AMPOLA:
+    role: notification.tra_ampola
+    kind: number
+    model: mark
+    review: draft
+    name: Número de ampolas
+    years:
+    - 2000
+    - 2025
+  TRA_DOSE:
+    role: notification.tra_dose
+    kind: category
+    model: mark
+    review: draft
+    name: Dose prescrita
+    years:
+    - 2000
+    - 2025
+  TRA_DROGA_:
+    role: notification.tra_droga_
+    kind: category
+    model: mark
+    review: draft
+    name: Droga utilizada na falência do tratamento inicial
+    years:
+    - 2000
+    - 2025
+  TRA_OUTRA_:
+    role: notification.tra_outra_
+    kind: number
+    model: mark
+    review: draft
+    name: Tratamento com outra droga
+    years:
+    - 2000
+    - 2006
+  TRA_OUTR_N:
+    role: notification.tra_outr_n
+    kind: category
+    model: mark
+    review: draft
+    name: Outro medicamento utilizado
+    years:
+    - 2007
+    - 2025
+  TRA_PESO:
+    role: notification.tra_peso
+    kind: number
+    model: mark
+    review: draft
+    name: Peso
+    years:
+    - 2000
+    - 2025
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

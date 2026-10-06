@@ -38,7 +38,8 @@ DATASETS = {
     "SIH-RD": ("SIHSUS", "RD", "rd", "SIHSUS_RD", "admission"),
     "CIHA": ("CIHA", "CIHA", "ciha", "CIHA", "admission"),
     **{f"SINAN-{s}": ("SINAN", s, s.lower(), "SINAN", "notification")
-       for s in ("DENG", "CHIK", "ZIKA", "TUBE", "HANS", "SIFC", "SIFG", "SIFA", "VIOL", "MENI", "LEPT", "IEXO")},
+       for s in ("DENG", "CHIK", "ZIKA", "TUBE", "HANS", "SIFC", "SIFG", "SIFA", "VIOL", "MENI", "LEPT", "IEXO",
+                 "AIDA", "HEPA", "LTAN", "LEIV")},
 }
 
 TREES = re.compile(r"^(ICD10|CID10.*|CID9.*|S_CID|SIGTAP|TPROC.*|PROC.*|CBO.*|OCUPA.*|CNAE.*|CID.*)$", re.I)

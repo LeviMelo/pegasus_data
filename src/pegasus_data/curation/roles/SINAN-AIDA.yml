@@ -1,0 +1,898 @@
+dataset: SINAN-AIDA
+record: notification
+columns:
+  ANTDTTRANS:
+    role: notification.antdttrans
+    kind: number
+    model: mark
+    review: draft
+    name: Data da transfusão/acidente
+    years:
+    - 2007
+    - 2024
+  ANTMUNTRAN:
+    role: notification.antmuntran
+    kind: place
+    model: mark
+    review: draft
+    name: Município onde foi realizada a transfusão/acidente
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2024
+  ANTRELSE_N:
+    role: notification.antrelse_n
+    kind: category
+    model: mark
+    review: draft
+    name: '33. Sexual
+
+      '
+    codelists:
+    - ANTRELN
+    years:
+    - 2007
+    - 2024
+  ANTTRANS_M:
+    role: notification.anttrans_m
+    kind: category
+    model: mark
+    review: draft
+    name: '34. Sanguínea — Transfusão Sanguínea
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANTUFTRANS:
+    role: notification.antuftrans
+    kind: category
+    model: mark
+    review: draft
+    name: UF da transfusão/acidente
+    years:
+    - 2007
+    - 2024
+  ANT_ACIDEN:
+    role: notification.ant_aciden
+    kind: category
+    model: mark
+    review: draft
+    name: Acidente com material biológico com posterior soroconversão até 6 meses
+    years:
+    - 2007
+    - 2024
+  ANT_ANEMIA:
+    role: notification.ant_anemia
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Anemia e/ou Linfopenia e/ou Trombocitopenia (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_ASTERI:
+    role: notification.ant_asteri
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Astenia ≥1 Mês (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CANCER:
+    role: notification.ant_cancer
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC Adaptado — Câncer Cervical Invasivo
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CANDID:
+    role: notification.ant_candid
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Candidose Oral ou Leucoplasia Pilosa (5 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CAQUEX:
+    role: notification.ant_caquex
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Caquexia ou Perda de Peso >10% (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CHAGAS:
+    role: notification.ant_chagas
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Reativação de Doença de Chagas
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CITO:
+    role: notification.ant_cito
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Citomegalovirose (Exceto Fígado, Baço ou Linfonodos)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CONTAG:
+    role: notification.ant_contag
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Contagem de Linfócitos T CD4+ <350 cel/mm3
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANT_CRIPTO:
+    role: notification.ant_cripto
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Criptococose (Extra-Pulmonar)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_CRIP_1:
+    role: notification.ant_crip_1
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Criptosporidiose Intestinal Crônica >1 Mês
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_DERMAT:
+    role: notification.ant_dermat
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Dermatite Persistente (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_DIARRE:
+    role: notification.ant_diarre
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Diarréia ≥1 Mês (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_DISFUN:
+    role: notification.ant_disfun
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Disfunção do Sistema Nervoso Central (5 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_DROGA:
+    role: notification.ant_droga
+    kind: category
+    model: mark
+    review: draft
+    name: 'Provável modo de transmissão – sanguínea: uso de droga injetável'
+    years:
+    - 2007
+    - 2024
+  ANT_ESOF_N:
+    role: notification.ant_esof_n
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Candidose de Esôfago
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANT_FEBRE:
+    role: notification.ant_febre
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Febre ≥38ºC por ≥1 Mês (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_HEMOLF:
+    role: notification.ant_hemolf
+    kind: category
+    model: mark
+    review: draft
+    name: '34. Sanguínea — Tratamento/Hemotransfusão para Hemofilia
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANT_HERPES:
+    role: notification.ant_herpes
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Herpes Zoster em Indivíduo ≤60 Anos (5 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_HISTO:
+    role: notification.ant_histo
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Histoplasmose Disseminada
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_H_SIMP:
+    role: notification.ant_h_simp
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Herpes Simples Mucocutâneo >1 Mês
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_INVEST:
+    role: notification.ant_invest
+    kind: category
+    model: mark
+    review: draft
+    name: Após investigação, a transfusão/acidente com material biológico foi confirmada como via de transmissão
+    years:
+    - 2007
+    - 2024
+  ANT_ISOPOR:
+    role: notification.ant_isopor
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Isosporidiose Intestinal Crônica >1 Mês
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_LEUCO:
+    role: notification.ant_leuco
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Leucoencefalopatia Multifocal Progressiva
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_LINFO:
+    role: notification.ant_linfo
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Linfadenopatia ≥1cm (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_LINFOM:
+    role: notification.ant_linfom
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Linfoma Não Hodgkin e Outros Linfomas
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_LINFO_:
+    role: notification.ant_linfo_
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Linfoma Primário de Cérebro
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANT_MICRO:
+    role: notification.ant_micro
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Micobacteriose Disseminada (Exceto TB e Hanseníase)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_PNEUMO:
+    role: notification.ant_pneumo
+    kind: category
+    model: mark
+    review: draft
+    name: Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)
+    years:
+    - 2007
+    - 2024
+  ANT_PULMON:
+    role: notification.ant_pulmon
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Tuberculose Pulmonar Cavitária ou Não Especificada (5 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_PULM_N:
+    role: notification.ant_pulm_n
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Candidose de Traquéia, Brônquio ou Pulmão
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_REL_CA:
+    role: notification.ant_rel_ca
+    kind: category
+    model: mark
+    review: draft
+    name: 'Categoria de Exposição (Campo Interno)
+
+      '
+    codelists:
+    - CATHIERN
+    - CLASCATN
+    years:
+    - 2007
+    - 2024
+  ANT_SALMO:
+    role: notification.ant_salmo
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Salmonelose (Septicemia Recorrente Não-Tifóide)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_SARCOM:
+    role: notification.ant_sarcom
+    kind: category
+    model: mark
+    review: draft
+    name: '41. Critério Rio de Janeiro/Caracas — Sarcoma de Kaposi (10 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_TOSSE:
+    role: notification.ant_tosse
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Tosse Persistente ou Qualquer Pneumonia (2 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_TOXO:
+    role: notification.ant_toxo
+    kind: category
+    model: mark
+    review: draft
+    name: '42. Critério CDC — Toxoplasmose Cerebral
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  ANT_TRASMI:
+    role: notification.ant_trasmi
+    kind: category
+    model: mark
+    review: draft
+    name: '32. Transmissão Vertical
+
+      '
+    years:
+    - 2007
+    - 2024
+  ANT_TUBERC:
+    role: notification.ant_tuberc
+    kind: category
+    model: mark
+    review: draft
+    name: '41. RJ/Caracas — Tuberculose Disseminada/Extrapulmonar/Não Cavitária (10 pts)
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2024
+  CRITERIO:
+    role: notification.criterio
+    kind: category
+    model: mark
+    review: draft
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2024
+  CS_ESCOL_N:
+    role: notification.cs_escol_n
+    kind: category
+    model: mark
+    review: draft
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2024
+  CS_GESTANT:
+    role: notification.cs_gestant
+    kind: category
+    model: mark
+    review: draft
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2024
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2024
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2024
+  DEF_DIAGNO:
+    role: notification.def_diagno
+    kind: category
+    model: mark
+    review: draft
+    name: Critério óbito
+    years:
+    - 2007
+    - 2024
+  DTTRIAGEM:
+    role: notification.dttriagem
+    kind: date
+    model: mark
+    review: draft
+    name: Data da coleta (Teste de triagem)
+    years:
+    - 2007
+    - 2024
+  DT_CONFIRM:
+    role: notification.dt_confirm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de coleta (Teste confirmatório)
+    years:
+    - 2007
+    - 2024
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: when
+    name: Data do Diagnóstico
+    years:
+    - 2007
+    - 2024
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2024
+  DT_OBITO:
+    role: notification.dt_obito
+    kind: date
+    model: mark
+    review: draft
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2024
+  DT_RAPIDO:
+    role: notification.dt_rapido
+    kind: date
+    model: mark
+    review: draft
+    name: Data da coleta dos exames (Teste rápido)
+    years:
+    - 2007
+    - 2024
+  EVOLUCAO:
+    role: notification.evolucao
+    kind: category
+    model: mark
+    review: draft
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2024
+  ID_AGRAVO:
+    role: notification.id_agravo
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2024
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2024
+  ID_MUNICIP:
+    role: notification.id_municip
+    kind: place
+    model: mark
+    review: draft
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2024
+  ID_OCUPA_N:
+    role: notification.id_ocupa_n
+    kind: code_tree
+    model: mark
+    review: draft
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2024
+  ID_PAIS:
+    role: notification.id_pais
+    kind: place
+    model: mark
+    review: draft
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2024
+  ID_REGIONA:
+    role: notification.id_regiona
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2024
+  ID_RG_RESI:
+    role: notification.id_rg_resi
+    kind: place
+    model: mark
+    review: draft
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2024
+  LAB_CONFIR:
+    role: notification.lab_confir
+    kind: category
+    model: mark
+    review: draft
+    name: Evidência laboratorial de infecção pelo HIV (Teste confirmatório)
+    years:
+    - 2007
+    - 2024
+  LAB_TRIAGE:
+    role: notification.lab_triage
+    kind: category
+    model: mark
+    review: draft
+    name: Evidência laboratorial de infecção pelo HIV (Teste de triagem)
+    years:
+    - 2007
+    - 2024
+  NU_ANO:
+    role: notification.nu_ano
+    kind: number
+    model: mark
+    review: draft
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2024
+  NU_IDADE_N:
+    role: notification.nu_idade_n
+    kind: number
+    model: mark
+    review: draft
+    name: Idade
+    years:
+    - 2007
+    - 2024
+  ORIGEM:
+    role: notification.origem
+    kind: number
+    model: mark
+    review: draft
+    name: Origem do registro
+    years:
+    - 2007
+    - 2024
+  SEM_DIAG:
+    role: notification.sem_diag
+    kind: number
+    model: mark
+    review: draft
+    name: Semana Epidemiológica do Diagnóstico
+    years:
+    - 2007
+    - 2024
+  SG_UF:
+    role: notification.sg_uf
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2024
+  SG_UF_NOT:
+    role: notification.sg_uf_not
+    kind: place
+    model: mark
+    review: draft
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2024
+  TPRAPIDO1:
+    role: notification.tprapido1
+    kind: category
+    model: mark
+    review: draft
+    name: Teste rápido 1
+    years:
+    - 2007
+    - 2024
+  TPRAPIDO2:
+    role: notification.tprapido2
+    kind: category
+    model: mark
+    review: draft
+    name: Teste rápido 2
+    years:
+    - 2007
+    - 2024
+  TPRAPIDO3:
+    role: notification.tprapido3
+    kind: category
+    model: mark
+    review: draft
+    name: Teste rápido 3
+    years:
+    - 2007
+    - 2024
+  TP_NOT:
+    role: notification.tp_not
+    kind: category
+    model: mark
+    review: draft
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2024
+  TRA_MUNICI:
+    role: notification.tra_munici
+    kind: place
+    model: mark
+    review: draft
+    name: Município onde se realiza o tratamento
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2024
+  TRA_UF:
+    role: notification.tra_uf
+    kind: place
+    model: mark
+    review: draft
+    name: UF onde se realiza o tratamento
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2024
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).
