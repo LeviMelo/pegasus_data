@@ -63,7 +63,10 @@ def code_attributes(structure: str = "ICD10") -> pa.Table:
     """Each code's attributes as its source defines them: for ICD10, the DATASUS CID-10 release V2008
     (``sources/ds_descrcsv.htm``): ``dual`` (etiology +, manifestation *), ``sex`` (F or M only),
     ``unlikely_cause_of_death`` (CAUSAOBITO = N), ``underlying_cause`` (false for manifestation codes and chapters
-    XIX and XXI, which the release says must not code a cause of death), ``refer`` and ``merged`` as written."""
+    XIX and XXI, which the release says must not code a cause of death), ``refer`` and ``merged`` as written; the
+    external-cause axes (``mechanism``, ``intent``, ``motor_vehicle_person``, ``adverse_effect``, ``place``); and NCHS
+    Part 11 Table G's consistency edits: ``nchs_sex``, ``nchs_age_from``/``nchs_age_to`` (years, upper bound
+    exclusive), each with its kind ``nchs_sex_edit``/``nchs_age_edit`` (absolute or conditional), and ``nchs_edit``."""
     table = _table("code_attributes")
     part = table.filter(pc.equal(table.column("structure"), structure.upper()))
     if not part.num_rows:

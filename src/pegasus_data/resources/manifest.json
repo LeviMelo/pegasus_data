@@ -155,8 +155,8 @@
     "code_attributes": {
       "file": "code_attributes.parquet",
       "tier": "A",
-      "bytes": 55825,
-      "sha256": "a8b5f033089d8f624b9e53e0547717837bf27272fa9f35bc25d95a2bc8761df6",
+      "bytes": 59674,
+      "sha256": "dcbb27f21e9d96258822ec6a9d4f885bc361ab3ab1811241d4cfb69c7a23ae01",
       "rows": 14233
     }
   },

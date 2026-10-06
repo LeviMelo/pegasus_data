@@ -22,7 +22,11 @@ A tree is a parent table, a list a membership table:
   ``mechanism``, ``intent``, ``motor_vehicle_person`` and ``adverse_effect`` from the NCHS External Cause of
   Injury Mortality Matrix for ICD-10 (``sources/cdc_matrix10_sas.txt``, its SAS statements parsed and run in
   their published order), and ``place`` (the place of occurrence of W00-Y34, Y06 and Y07 apart) as the DATASUS
-  release's own descriptions name it.
+  release's own descriptions name it. The age and sex consistency edits of NCHS Instruction Manual Part 11 (2023),
+  Table G (``sources/nchs_pt11_2023.txt``, read from ``cdc.gov/nchs/data/dvs/2023_PT11_A.pdf``): ``nchs_sex`` (the sex
+  the code is limited to) and ``nchs_age_from``/``nchs_age_to`` (the ages in years, the upper bound exclusive), each
+  with its kind ``nchs_sex_edit``/``nchs_age_edit`` (absolute: impossible; conditional: highly improbable), from the
+  table's own edit codes (``nchs_edit``). A second source beside ``sex``, both kept.
 * ``resources/code_lists.parquet``: list, item, code. The Ministry's concept
   lists as its TabWin kits ship them (ADR-0134): the CID-BR mortality list,
   the ICD-10 tabulation lists 2 and 4, avoidable causes of death (0-4, 5-74)
@@ -202,6 +206,18 @@ def icd10_attributes() -> list[dict]:
             out[cat]["sex"] = next(iter(sexes))
     for row in out.values():
         row["underlying_cause"] = row["dual"] != "manifestation" and row["chapter"] not in ("XIX", "XXI")
+    # the age and sex consistency edits of NCHS (Table G): a subcategory takes its own entry, else its category's; a
+    # category takes its own, else the one all its subcategories share (a second source beside RESTRSEXO, both kept)
+    edits = nchs_edits()
+    blank = {"nchs_edit": None, "nchs_sex": None, "nchs_sex_edit": None, "nchs_age_from": None, "nchs_age_to": None,
+             "nchs_age_edit": None}
+    for code, row in out.items():
+        row.update(edits.get(code) or (edits.get(code[:3]) if len(code) == 4 else None) or blank)
+    for cat in by_cat:
+        if cat in out and cat not in edits:
+            seen = {tuple(out[s][k] for k in blank) for s in out if len(s) == 4 and s[:3] == cat}
+            if len(seen) == 1:
+                out[cat].update(dict(zip(blank, next(iter(seen)), strict=True)))
     # the external-cause axes (chapter XX)
     ext_codes = [c for c in out if "V01" <= c[:3] <= "Y98"]
     ext = external_causes(ext_codes)
@@ -242,6 +258,58 @@ def icd10_attributes() -> list[dict]:
 
 #: W00-Y34 categories whose 4th character is not a place (filled by `icd10_attributes`, printed by the build)
 PLACE_EXCEPTIONS: list[str] = []
+
+NCHS_EDITS = ROOT / "sources" / "nchs_pt11_2023.txt"
+# Table G's edit codes, as its own legend defines what each code is "limited to": (sex allowed, age from, age to), ages in
+# years (28 days = 28/365.25), the upper bound exclusive
+_D28 = 28 / 365.25
+NCHS_LIMITS = {2: (None, 0, 1), 3: (None, _D28, None), 4: (None, 1, None), 5: (None, 2, None), 6: (None, 5, None),
+               7: (None, 20, None), 9: (None, 65, None), 10: ("M", 0, None), 11: ("F", 0, None), 13: ("F", _D28, None),
+               14: ("F", 10, 55), 17: (None, 0, 18), 18: ("F", 10, None), 19: ("M", 10, None), 20: (None, 10, None),
+               21: ("F", 1, None), 22: ("F", 0, 1), 23: (None, 55, None), 24: (None, 30, None), 25: (None, 0, 20),
+               26: ("F", 0, 55), 27: (None, 0, 15)}
+EDIT_KIND = {"0": "conditional", "1": "absolute", "2": None}
+
+
+def nchs_edits() -> dict[str, dict]:
+    """NCHS Instruction Manual Part 11 (2023), Table G: the age/cause and sex/cause consistency edits for ICD-10 codes
+    valid as underlying cause. Each limitation is absolute (the combination is impossible) or conditional (highly
+    improbable); the absolute ones are the limits explicit in ICD-10 itself (the manual's §C.1). Keyed by code without
+    the dot; a 3-character code covers its subcategories."""
+    import re
+    lines = NCHS_EDITS.read_text(encoding="utf-8").splitlines()
+    start = next(i for i, ln in enumerate(lines) if ln.startswith("Table G. Age/Cause"))
+    end = next(i for i, ln in enumerate(lines) if ln.startswith("Table H."))
+    head = re.compile(r"^\*?[A-Z]\d{2}(?:\.\d)?\s")
+    skip = ("Table G", "Underlying and", "0 - Cond", "1 - Abs", "2 - Not", "ICD-10 code", "=== PAGE", "Both Underlying")
+    rows, buf = [], ""
+    for ln in lines[start:end]:
+        ln = ln.strip()
+        if ln.startswith(("list of edit codes", "1 Edit codes may be useful")):
+            break                                                       # the legend after the last row
+        if not ln or ln.startswith(skip) or re.fullmatch(r"\d+", ln):
+            continue
+        if head.match(ln):
+            if buf:
+                rows.append(buf)
+            buf = ln
+        else:
+            buf += " " + ln
+    rows.append(buf)
+    row = re.compile(r"^\*?(?P<code>[A-Z]\d{2}(?:\.\d)?)\s+(?P<age>.*?)\s+(?P<af>[012])\s+(?P<sex>No|Male|Female)\s+"
+                     r"(?P<sf>[012])\s+(?P<ec>\d+)$")
+    out = {}
+    for r in rows:
+        m = row.match(r)
+        if m is None:
+            raise ValueError(f"NCHS Table G row not understood: {r!r}")
+        ec = int(m["ec"])
+        sex, lo, hi = NCHS_LIMITS[ec]
+        out[m["code"].replace(".", "")] = {
+            "nchs_edit": ec, "nchs_sex": sex, "nchs_sex_edit": EDIT_KIND[m["sf"]] if sex else None,
+            "nchs_age_from": lo, "nchs_age_to": hi,
+            "nchs_age_edit": EDIT_KIND[m["af"]] if (lo or hi) else None}
+    return out
 
 
 def cdc_matrix() -> tuple[list[tuple[str, str, int]], dict[str, dict[int, str]]]:
@@ -340,6 +408,11 @@ def main() -> int:
         "motor_vehicle_person": [a.get("motor_vehicle_person") for a in attrs],
         "adverse_effect": pa.array([a.get("adverse_effect") for a in attrs], pa.bool_()),
         "place": [a.get("place") for a in attrs],
+        "nchs_edit": pa.array([a["nchs_edit"] for a in attrs], pa.int8()),
+        "nchs_sex": [a["nchs_sex"] for a in attrs], "nchs_sex_edit": [a["nchs_sex_edit"] for a in attrs],
+        "nchs_age_from": pa.array([a["nchs_age_from"] for a in attrs], pa.float64()),
+        "nchs_age_to": pa.array([a["nchs_age_to"] for a in attrs], pa.float64()),
+        "nchs_age_edit": [a["nchs_age_edit"] for a in attrs],
     }), RESOURCES / "code_attributes.parquet", compression="zstd")
     members = lists()
     pq.write_table(pa.table({k: [m[k] for m in members] for k in ("list", "item", "code")}),

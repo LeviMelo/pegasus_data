@@ -531,6 +531,24 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     effects.
   - On 2026-10-06 `curl` got 403 from the CDC edge (Akamai), with and without a browser User-Agent. A browser
     read the page, and its text is kept as `sources/cdc_matrix10_sas.txt`.
+- **NCHS Instruction Manual Part 11, Computer Edits for Mortality Data (2023)** (`cdc.gov/nchs/data/dvs/2023_PT11_A.pdf`;
+  `sources/nchs_pt11_2023.pdf` and its text). Read 2026-10-06: curl got 403 from the CDC edge again, and the
+  PDF came through the web fetcher.
+  - Table G gives the age/cause and sex/cause edits for codes valid as underlying cause: 607 entries. Each is
+    *absolute* (impossible; the limits explicit in ICD-10) or *conditional* (highly improbable). Its legend
+    defines each edit code's allowed set (14 = female, 10–54 years). Served as the `nchs_*` columns of
+    `code_attributes()`.
+  - Some absolute age edits are coding rules rather than biology: sepsis (A40, A41) and diabetes (E10–E14) under
+    28 days belong to chapter XVI.
+  - Against the release's RESTRSEXO, there is no contradiction. 885 codes agree. Only RESTRSEXO restricts 117
+    (O08, O80–O84, Z32–Z39, N51, N74, N77); only NCHS restricts Q97 and Q98.
+- **No age table in the DATASUS publications.**
+  - The SIM dictionary (`sources/dicdo.txt`) lists the system's own record critiques ("Óbito com restrição de
+    idade", "CID Implausíveis", "Causas Asterisco"). Neither the rules behind them nor the per-record flags are
+    published: the 2023 DO file has 87 fields, none of them a critique.
+  - SIGTAP's `tb_cid` has no age field, and its `TP_SEXO` is not the restriction (C53 is "I").
+  - The TabWin kit's SIM lists (ASTERISC, CBPOUCOUTEIS with garbage-code types, IMPROVAVEISSTRIVIAIS,
+    TRIVIAL_32) are in the lake as reference tables.
 
 ## 4. SIGTAP (2026-08-19, F §3d)
 
