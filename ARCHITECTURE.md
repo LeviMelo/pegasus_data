@@ -144,7 +144,7 @@ where` says which won):
 <home>/blobs/sha256/..           downloaded files, content-addressed
                                  (every blob named by snapshot_versions is kept, ADR-0141)
 <home>/lake/<sys>/<family>/schema_signature=/uf=/year=/   the Parquet lake
-<home>/lake/reference/           version-scoped code tables (persist/reference.py)
+<home>/lake/reference/           version-scoped code tables (persist/reference.py); `_stamps.json`: each system's dictionary fingerprint, a stale system rewritten on read
 <home>/lake/population/ …        IBGE series
 <home>/aggregates/ …             built aggregate artifacts
 <home>/registries/sidra/         the SIDRA registry (registry.sqlite) and every IBGE response kept as received (http/)

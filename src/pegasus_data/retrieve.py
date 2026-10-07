@@ -626,7 +626,7 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     ``.DEF`` long before this, and this only writes them down in the shape the
     join wants. It is a one-time cost, and skipped entirely once they exist.
     """
-    from .persist.reference import systems_with_tables, write_reference_tables
+    from .persist.reference import stale_systems, systems_with_tables, write_reference_tables
 
     # Bindings and curation arrive with the seed catalog (ADR-0067). Curation is
     # re-applied below when the shipped YAML has changed since the catalog was
@@ -651,7 +651,9 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     # requests happened to arrive in.
     wanted_system = str(report.system or "").upper()
     present = systems_with_tables(lake_root)
-    if present and (not wanted_system or wanted_system in present):
+    if present and (not wanted_system or wanted_system in present) and not (
+            wanted_system and pipeline.catalog.count("dictionary")
+            and stale_systems(pipeline.catalog, lake_root, [wanted_system])):
         return
     if not pipeline.catalog.count("dictionary"):
         # No local dictionary. The shipped label pack answers instead, via

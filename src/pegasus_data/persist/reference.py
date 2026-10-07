@@ -284,12 +284,63 @@ def write_reference_tables(
             root=root,
             lake_root=Path(lake_root),
         )
+    # Each system's lookups carry the fingerprint of the dictionary they were written from (`stale_systems`).
+    _write_stamps(catalog, root, systems or sorted({str(t.system) for t in written}))
     # The render path caches its lookups for the life of the process; tables
     # were just (re)written underneath it. See lookups.clear_lookup_caches.
     from ..lookups import clear_lookup_caches
 
     clear_lookup_caches()
     return written
+
+
+STAMPS = "_stamps.json"
+
+
+_FINGERPRINTS: dict[tuple, str] = {}
+
+
+def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
+    """What a system's lookups are written from: its dictionary rows (count and the lengths of their codes and labels)
+    and the curation (curated codelists are inline). A lookup written from another fingerprint is stale. Computed once
+    per process for a catalog file's state (its modification time): a check on every read cost 27 s a call."""
+    import hashlib
+
+    from ..config import curation_root
+    from ..semantics.curation import curation_fingerprint
+
+    path = getattr(catalog, "path", None) or getattr(catalog, "db_path", None)
+    state = (str(path), Path(path).stat().st_mtime_ns if path and Path(path).exists() else None, system)
+    if state[1] is not None and state in _FINGERPRINTS:
+        return _FINGERPRINTS[state]
+    row = catalog.query("SELECT count(*) AS n, coalesce(sum(length(value_label)), 0) AS l, "
+                        "coalesce(sum(length(value_raw)), 0) AS r FROM dictionary WHERE system = ?", (system,))[0]
+    text = f"{row['n']}|{row['l']}|{row['r']}|{curation_fingerprint(curation_root())}"
+    out = hashlib.sha256(text.encode()).hexdigest()[:16]
+    if state[1] is not None:
+        _FINGERPRINTS[state] = out
+    return out
+
+
+def _write_stamps(catalog: CatalogStore, root: Path, systems: Sequence[str]) -> None:
+    import json
+
+    path = root / STAMPS
+    stamps = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    for system in systems:
+        stamps[str(system).upper()] = dictionary_fingerprint(catalog, str(system).upper())
+    path.write_text(json.dumps(stamps, indent=1, sort_keys=True), encoding="utf-8")
+
+
+def stale_systems(catalog: CatalogStore, lake_root: str | Path, systems: Sequence[str]) -> list[str]:
+    """The systems among ``systems`` whose lookups were written from another dictionary than the catalog holds now (or
+    carry no stamp). The lookups were written once and never again: SINAN's labels kept the codelist's match
+    expression ("Ign/Branco ,9 ,09,99,") for weeks after the dictionary was corrected (2026-10-07)."""
+    import json
+
+    path = Path(lake_root) / "reference" / STAMPS
+    stamps = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    return [s for s in (str(x).upper() for x in systems) if stamps.get(s) != dictionary_fingerprint(catalog, s)]
 
 
 def flag_mixed_width_tables(catalog: CatalogStore, tables: Sequence[ReferenceTable]) -> int:

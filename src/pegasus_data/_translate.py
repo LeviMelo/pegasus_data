@@ -164,7 +164,7 @@ def translate(
         # A fresh catalog is the seed: bindings and curation are already in it
         # (ADR-0067); labels come from the shipped pack when there is no dictionary.
         if store.count("dictionary"):
-            _ensure_reference(store, resolved)
+            _ensure_reference(store, resolved, str(system).upper())
         family_id = _family_for(store, system, series, table.column_names)
         from .persist.decisions import borrowed_label_policy
 
@@ -187,13 +187,18 @@ def translate(
         store.close()
 
 
-def _ensure_reference(store, settings: Settings) -> None:
-    """Materialise the Parquet lookups the join needs, once."""
-    from .persist.reference import available_tables, write_reference_tables
+def _ensure_reference(store, settings: Settings, system: str) -> None:
+    """Materialise the Parquet lookups the join needs, and rewrite a system's when they are stale."""
+    from .persist.reference import available_tables, stale_systems, write_reference_tables
 
-    if available_tables(settings.lake_dir):
+    if not available_tables(settings.lake_dir):
+        write_reference_tables(store, settings.lake_dir, compression=settings.compression)
         return
-    write_reference_tables(store, settings.lake_dir, compression=settings.compression)
+    from .semantics.curation import system_spellings
+
+    stale = stale_systems(store, settings.lake_dir, system_spellings(system))     # the system asked about, only
+    if stale:           # lookups written from an older dictionary: rewritten, never served stale
+        write_reference_tables(store, settings.lake_dir, compression=settings.compression, systems=stale)
 
 
 def _family_for(store, system: str, series: str | None, columns: Sequence[str]) -> str | None:
