@@ -31,6 +31,8 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
 #: The properties a population account carries, the only admissible strata.
 STRATA = frozenset({"age", "birth_date", "sex", "race", "residence"})
 _ROLE = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
+#: Properties whose numbers are codes, not quantities: their sums and logs mean nothing (ADR-0154).
+NOT_MEASURES = frozenset({"age_coded", "year", "birth_year", "epi_week", "onset_week", "time"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,6 +50,10 @@ class ColumnRole:
     note: str | None = None
     #: Made by the query (IDADE_anos, ADR-0070), not filed by DATASUS.
     derived: bool = False
+    #: For a `number`: whether its values are a measurement (a quantity whose sums and logs mean something). Not for a
+    #: packed or coded number (an age with its unit, a clock time, a year, a week): `NOT_MEASURES` by property, or the
+    #: column's own `measure: false`.
+    measure: bool | None = None
 
     @property
     def entity(self) -> str:
@@ -61,7 +67,8 @@ class ColumnRole:
         return {"dataset": self.dataset, "column": self.column, "role": self.role, "entity": self.entity,
                 "property": self.property, "kind": self.kind, "model": self.model, "also": list(self.also),
                 "name": self.name, "codelists": list(self.codelists), "first_year": self.years[0],
-                "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note}
+                "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
+                "measure": self.measure}
 
 
 def roles_dir() -> Path:
@@ -115,10 +122,15 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         if not _ROLE.match(extra):
             raise bad(f"also {extra!r} is not <entity>.<property>")
     years = tuple(spec.get("years") or (None, None))
+    measure = None
+    if kind == "number":
+        measure = bool(spec["measure"]) if "measure" in spec else prop not in NOT_MEASURES
+    elif "measure" in spec:
+        raise bad("`measure` is declared for numbers only")
     return ColumnRole(dataset, column, role, kind, model, also, spec.get("name"),
                       tuple(str(c) for c in spec.get("codelists") or ()),
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
-                      spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")))
+                      spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

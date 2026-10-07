@@ -511,6 +511,7 @@ columns:
     - 2026
   IDADE:
     role: patient.age
+    measure: false
     kind: number
     model: mark
     note: Value packs a unit given by COD_IDADE; IDADE_anos is the age stratum.
