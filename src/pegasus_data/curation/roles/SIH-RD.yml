@@ -375,6 +375,8 @@ columns:
     - 1998
     - 2026
   DIAR_ACOM:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.companion_days
     kind: number
     model: mark
@@ -383,6 +385,8 @@ columns:
     - 2005
     - 2026
   DIAS_PERM:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.length_of_stay
     kind: number
     model: mark
@@ -650,6 +654,8 @@ columns:
     - 2011
     - 2026
   NUM_FILHOS:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: patient.children_count
     kind: number
     model: mark
@@ -697,6 +703,8 @@ columns:
     - 2006
     - 2026
   QT_DIARIAS:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.billed_days
     kind: number
     model: mark
@@ -782,6 +790,8 @@ columns:
     - 2011
     - 2026
   TOT_PT_SP:
+    measure: false
+    # IT_SIHSUS_1603 (field 57): "Zerado", filed as zero in every record
     role: admission.professional_points
     kind: number
     model: mark
@@ -891,6 +901,8 @@ columns:
     - 1992
     - 2026
   US_ORTP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_orthotics
     kind: number
     model: mark
@@ -900,6 +912,8 @@ columns:
     - 1992
     - 1997
   US_RN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_newborn
     kind: number
     model: mark
@@ -909,6 +923,8 @@ columns:
     - 1994
     - 1997
   US_SADT:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_sadt
     kind: number
     model: mark
@@ -918,6 +934,8 @@ columns:
     - 1992
     - 1997
   US_SANGUE:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_blood
     kind: number
     model: mark
@@ -927,6 +945,8 @@ columns:
     - 1992
     - 1997
   US_SH:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_hospital_services
     kind: number
     model: mark
@@ -936,6 +956,8 @@ columns:
     - 1992
     - 1997
   US_SP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_professional_services
     kind: number
     model: mark
@@ -945,6 +967,8 @@ columns:
     - 1992
     - 1997
   US_TOT:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.usd_total
     kind: number
     model: mark
@@ -954,6 +978,8 @@ columns:
     - 1992
     - 2026
   UTI_INT_AL:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.intermediate_days_discharge
     kind: number
     model: mark
@@ -962,6 +988,8 @@ columns:
     - 2000
     - 2026
   UTI_INT_AN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.intermediate_days_previous
     kind: number
     model: mark
@@ -970,6 +998,8 @@ columns:
     - 2000
     - 2026
   UTI_INT_IN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.intermediate_days_start
     kind: number
     model: mark
@@ -978,6 +1008,8 @@ columns:
     - 2000
     - 2026
   UTI_INT_TO:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.intermediate_days
     kind: number
     model: mark
@@ -986,6 +1018,8 @@ columns:
     - 2000
     - 2026
   UTI_MES_AL:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.icu_days_discharge
     kind: number
     model: mark
@@ -994,6 +1028,8 @@ columns:
     - 1999
     - 2026
   UTI_MES_AN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.icu_days_previous
     kind: number
     model: mark
@@ -1002,6 +1038,8 @@ columns:
     - 1999
     - 2026
   UTI_MES_IN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.icu_days_start
     kind: number
     model: mark
@@ -1010,6 +1048,8 @@ columns:
     - 1999
     - 2026
   UTI_MES_TO:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.icu_days_month
     kind: number
     model: mark
@@ -1018,6 +1058,8 @@ columns:
     - 2000
     - 2026
   UTI_TOTAL:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.icu_days
     kind: number
     model: mark
@@ -1026,6 +1068,8 @@ columns:
     - 1992
     - 1999
   VAL_ACOMP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_companion
     kind: number
     model: mark
@@ -1034,6 +1078,8 @@ columns:
     - 2005
     - 2026
   VAL_OBSANG:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_blood_observation
     kind: number
     model: mark
@@ -1042,6 +1088,8 @@ columns:
     - 2000
     - 2026
   VAL_ORTP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_orthotics
     kind: number
     model: mark
@@ -1050,6 +1098,8 @@ columns:
     - 1992
     - 2026
   VAL_PED1AC:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_paediatric_companion
     kind: number
     model: mark
@@ -1058,6 +1108,8 @@ columns:
     - 2000
     - 2026
   VAL_RN:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_newborn
     kind: number
     model: mark
@@ -1066,6 +1118,8 @@ columns:
     - 1994
     - 2026
   VAL_SADT:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_sadt
     kind: number
     model: mark
@@ -1074,6 +1128,8 @@ columns:
     - 1992
     - 2026
   VAL_SADTSR:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_sadt_unregistered
     kind: number
     model: mark
@@ -1082,6 +1138,8 @@ columns:
     - 1998
     - 2026
   VAL_SANGUE:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_blood
     kind: number
     model: mark
@@ -1090,6 +1148,8 @@ columns:
     - 1992
     - 2026
   VAL_SH:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_hospital_services
     kind: number
     model: mark
@@ -1098,6 +1158,8 @@ columns:
     - 1992
     - 2026
   VAL_SH_FED:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_hospital_services_federal
     kind: number
     model: mark
@@ -1106,6 +1168,8 @@ columns:
     - 2011
     - 2026
   VAL_SH_GES:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_hospital_services_manager
     kind: number
     model: mark
@@ -1114,6 +1178,8 @@ columns:
     - 2011
     - 2026
   VAL_SP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_professional_services
     kind: number
     model: mark
@@ -1122,6 +1188,8 @@ columns:
     - 1992
     - 2026
   VAL_SP_FED:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_professional_services_federal
     kind: number
     model: mark
@@ -1130,6 +1198,8 @@ columns:
     - 2011
     - 2026
   VAL_SP_GES:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_professional_services_manager
     kind: number
     model: mark
@@ -1138,6 +1208,8 @@ columns:
     - 2011
     - 2026
   VAL_TOT:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_total
     kind: number
     model: mark
@@ -1146,6 +1218,8 @@ columns:
     - 1992
     - 2026
   VAL_TRANSP:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_transport
     kind: number
     model: mark
@@ -1154,6 +1228,8 @@ columns:
     - 1998
     - 2026
   VAL_UCI:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_intermediate_unit
     kind: number
     model: mark
@@ -1162,6 +1238,8 @@ columns:
     - 2013
     - 2026
   VAL_UTI:
+    missing: []
+    # IT_SIHSUS_1603: numeric, and the layout names no code for "not recorded"
     role: admission.value_icu
     kind: number
     model: mark

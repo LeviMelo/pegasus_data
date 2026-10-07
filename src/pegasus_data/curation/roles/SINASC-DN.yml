@@ -2,6 +2,8 @@ dataset: SINASC-DN
 record: birth
 columns:
   APGAR1:
+    domain: [0, 10]
+    # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
     role: birth.apgar1
     kind: number
     model: mark
@@ -10,6 +12,8 @@ columns:
     - 1994
     - 2026
   APGAR5:
+    domain: [0, 10]
+    # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
     role: birth.apgar5
     kind: number
     model: mark

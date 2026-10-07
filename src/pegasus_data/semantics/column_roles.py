@@ -54,6 +54,10 @@ class ColumnRole:
     #: packed or coded number (an age with its unit, a clock time, a year, a week): `NOT_MEASURES` by property, or the
     #: column's own `measure: false`.
     measure: bool | None = None
+    #: For a measurement: the codes that mean "not recorded" (an empty tuple: the source names none, so every value is
+    #: one; None: not yet declared, and the measurement is not to be modelled), and its documented domain [lo, hi].
+    missing: tuple[str, ...] | None = None
+    domain: tuple[float, float] | None = None
 
     @property
     def entity(self) -> str:
@@ -68,7 +72,8 @@ class ColumnRole:
                 "property": self.property, "kind": self.kind, "model": self.model, "also": list(self.also),
                 "name": self.name, "codelists": list(self.codelists), "first_year": self.years[0],
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
-                "measure": self.measure}
+                "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
+                "domain": None if self.domain is None else list(self.domain)}
 
 
 def roles_dir() -> Path:
@@ -127,10 +132,16 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         measure = bool(spec["measure"]) if "measure" in spec else prop not in NOT_MEASURES
     elif "measure" in spec:
         raise bad("`measure` is declared for numbers only")
+    missing = tuple(str(v) for v in spec["missing"]) if "missing" in spec else None
+    dom = spec.get("domain")
+    if dom is not None and (len(dom) != 2 or float(dom[0]) > float(dom[1])):
+        raise bad(f"domain {dom!r} is not [lo, hi]")
+    domain = (float(dom[0]), float(dom[1])) if dom is not None else None
     return ColumnRole(dataset, column, role, kind, model, also, spec.get("name"),
                       tuple(str(c) for c in spec.get("codelists") or ()),
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
-                      spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure)
+                      spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure, missing,
+                      domain)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
