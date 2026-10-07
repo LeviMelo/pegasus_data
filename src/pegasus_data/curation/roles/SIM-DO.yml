@@ -545,6 +545,8 @@ columns:
     - 2026
   LINHAA:
     role: death.certificate_line_a
+    also:
+    - death.causes
     kind: code_tree
     model: mark
     name: Linha A da declaração de óbito

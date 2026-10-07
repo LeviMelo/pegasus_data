@@ -70,6 +70,7 @@ datasets:
       death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde", "outro estab de saúde"], home: ["domicílio"], street: ["via pública"], "indigenous village": ["aldeia indígena", "aldeia indigena"], other: [outros, outro]}}
       death.kind: {column: TIPOBITO, type: label}
       death.cause: {column: CAUSABAS, type: code}
+      death.causes: {column: LINHAA, also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}   # every cause the certificate mentions
       death.birth_weight: {column: PESO, type: integer}
       death.maternal_age: {column: IDADEMAE, type: integer}
       death.pregnancy: {column: OBITOGRAV, type: label}
