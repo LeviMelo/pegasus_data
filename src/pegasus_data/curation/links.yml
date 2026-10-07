@@ -14,6 +14,10 @@
 #   validate       held-out checks on the linked pairs: two roles that should
 #                  agree (optionally within `tolerance`), or an `sql` condition
 #                  over l.* and r.*
+#   same_event     required: true when the two records are one event (a death
+#                  in hospital: its admission and its certificate), false when
+#                  they are two events of one person (a birth, then a death);
+#                  counts of the two sides share events only when true
 #
 # The first three reproduce omnisus's deterministic study (EVALUATION
 # 2026-09-30) so both projects can be checked against each other.
@@ -24,6 +28,7 @@ links:
       Admissions that ended in death (SIH-RD MORTE = 1) to the death certificate.
       The shared event is the day: the discharge date is the death date.
     person: [patient, deceased]   # the same person on each side (linkage/entities.py)
+    same_event: true   # one death, recorded by the admission that ended in it and by its certificate
     left: {dataset: SIH-RD, where: "\"admission.death\" = '1'"}
     right: {dataset: SIM-DO}
     passes:
@@ -59,6 +64,7 @@ links:
       their birth record. Both files are organised by residence, so almost every
       such death should have a birth: the linked share approximates sensitivity.
     person: [deceased, baby]   # the same person on each side (linkage/entities.py)
+    same_event: false   # a death and the birth before it: two events of one person
     left:
       dataset: SIM-DO
       where: >
@@ -109,6 +115,7 @@ links:
       date within a municipality grows with its number of mothers: the control
       is read per municipality size, not only overall (docs/evaluation/2026-10-05-race-bridge-adult.md).
     person: [deceased, mother]   # the same person on each side (linkage/entities.py)
+    same_event: false   # a woman's death and her earlier births
     left:
       dataset: SIM-DO
       where: >
@@ -131,6 +138,7 @@ links:
       inside the admission. The live births of one mother, one day, one hospital
       are one delivery (twins link once).
     person: [mother, patient]   # the same person on each side (linkage/entities.py)
+    same_event: true   # one delivery, recorded by the birth and by the admission it fell in
     left:
       dataset: SINASC-DN
       group: [mother.birth_date, birth.facility, birth.date]
@@ -171,6 +179,7 @@ links:
       to maternal deaths, so a death outside hospital or without an SUS
       admission stays unlinked.
     person: [deceased, patient]   # the same person on each side (linkage/entities.py)
+    same_event: true   # one death, recorded by its certificate and the admission that ended in it
     left: {dataset: SIM-DO, where: "\"death.cause\" LIKE 'O%' AND \"deceased.sex\" = 'F'"}
     right: {dataset: SIH-RD, where: "\"patient.sex\" = 'F'"}
     passes:
@@ -201,6 +210,7 @@ links:
       their birth record: the baby's birth date and sex, the mother's residence,
       and usually the hospital of birth.
     person: [patient, baby]   # the same person on each side (linkage/entities.py)
+    same_event: false   # a birth and a later admission of the baby
     left: {dataset: SIH-RD, where: "\"patient.age_years\" < 0.0767 AND \"admission.start\" - \"patient.birth_date\" <= 28"}
     right: {dataset: SINASC-DN, pad_years: [1, 0]}   # born in late December, admitted in January (ADR-0121)
     passes:
@@ -248,6 +258,7 @@ links:
       the death certificate: the private-sector twin of sih_deaths_to_sim, so
       together they cover deaths in every hospital that reports.
     person: [patient, deceased]   # the same person on each side (linkage/entities.py)
+    same_event: true   # one death, as sih_deaths_to_sim
     left: {dataset: CIHA, where: "\"admission.death\" = '1' AND \"admission.modality\" = '02'"}
     right: {dataset: SIM-DO}
     passes:
@@ -278,6 +289,7 @@ links:
       A birth to the mother's delivery admission in a non-SUS hospital (CIHA): the
       private-sector twin of sinasc_births_to_delivery_admission.
     person: [mother, patient]   # the same person on each side (linkage/entities.py)
+    same_event: true   # one delivery, as sinasc_births_to_delivery_admission
     left:
       dataset: SINASC-DN
       group: [mother.birth_date, birth.facility, birth.date]
@@ -312,6 +324,7 @@ links:
       age. The certificate's own cause (dengue, A90-A97) is held out as the
       check.
     person: [case, deceased]
+    same_event: false   # the notification counts the illness; the death is its outcome
     left: {dataset: SINAN-DENG, where: "\"case.outcome\" = '2'"}
     right: {dataset: SIM-DO}
     passes:

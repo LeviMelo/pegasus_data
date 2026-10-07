@@ -85,6 +85,9 @@ class LinkSpec:
     control_role: str
     control_shift_days: int
     validations: tuple[Validation, ...]
+    #: whether the two sides record one event (a death in hospital: the admission and the certificate) or two events of
+    #: one person (a birth, then an infant death); a count of each side shares events only in the first case
+    same_event: bool = False
 
 
 def _side(body: dict[str, Any]) -> Side:
@@ -147,6 +150,7 @@ def load_links() -> dict[str, LinkSpec]:
         out[name] = LinkSpec(
             name, str(body.get("description", "")).strip(), _side(body["left"]), _side(body["right"]),
             passes, str(control["role"]), int(control.get("shift_days", 7)), validations,
+            bool(body["same_event"]),
         )
     return out
 
