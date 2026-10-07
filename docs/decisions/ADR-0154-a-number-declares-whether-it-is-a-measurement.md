@@ -29,3 +29,10 @@ SINASC-DN's and SIM-DO's from 2022. The labels read are the year's values and ev
 codelists (catalog and curated) of a width the year shows: a code DATASUS defines may be absent from one year
 (PARIDADE 9, KOTELCHUCK 6). "Not classified" for null, ignored or absent inputs counts as not recorded
 (KOTELCHUCK 6/9, TPROBSON 11).
+
+**Addendum: measurements' domains (2026-10-07).** A measurement with no declared `missing` takes as its `domain` the
+range its TabNet band `.CNV` labels as values (the band calls everything outside it "Ign"), with `missing: []`
+(`propose_missing.py`, the numbers pass): SINASC-DN's PESO, SEMAGESTAC, IDADEMAE, IDADEPAI, QTDGESTANT, QTDPARTNOR,
+QTDPARTCES; SIM-DO's PESO, IDADEMAE, SEMAGESTAC, DIFDATA, NUDIASOBCO, NUDIASOBIN. A band that excludes a value the
+files hold as one stays undeclared with both claims written beside it: SIM's QTDFILVIVO/QTDFILMORT (`00` labelled
+Ignorado, a real zero) and SINASC's CONSPRENAT (a band borrowed from gestational weeks).

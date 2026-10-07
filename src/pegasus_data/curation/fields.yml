@@ -301,6 +301,19 @@ fields:
       other), status (registered or federally recognised), and deaths,
       injured, sick, homeless, displaced, missing and affected as reported.
     years: 1991-2025
+    # The ICD-10 external causes that record a person harmed by events of these typologies, by the ICD-10 titles:
+    # X30 exposure to excessive natural heat, X31 to excessive natural cold, X36 victim of avalanche, landslide and
+    # other earth movements, X37 of cataclysmic storm, X38 of flood; X00-X09 exposure to smoke, fire and flames (every
+    # fire: a forest fire is one of its causes, not the only one). A death or admission coded here is the person-level
+    # trace of a registered event; PegaSUS reads the correspondence to ask whether an excess of those codes was also a
+    # registered disaster (corroboration).
+    icd10:
+      X00-X09: [Incêndio Florestal]
+      X30: [Onda de Calor e Baixa Umidade]
+      X31: [Onda de Frio]
+      X36: [Movimento de Massa, Rompimento/Colapso de barragens, Erosão]
+      X37: [Vendavais e Ciclones, Tornado, Granizo, Chuvas Intensas]
+      X38: [Inundações, Enxurradas, Alagamentos, Chuvas Intensas]
 
   # Supplementary-health plan links (sources/ans.py), December of each year:
   # the observed input to a SUS-dependent population (a modelled product,

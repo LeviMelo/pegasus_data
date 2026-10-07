@@ -2,6 +2,8 @@ dataset: SINASC-DN
 record: birth
 columns:
   APGAR1:
+    missing: []
+    # proposed (2022): its declared domain; outside it 2110 of 2532406 values in 2022 (99: 2110)
     domain: [0, 10]
     # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
     role: birth.apgar1
@@ -12,6 +14,8 @@ columns:
     - 1994
     - 2026
   APGAR5:
+    missing: []
+    # proposed (2022): its declared domain; outside it 1572 of 2532548 values in 2022 (99: 1572)
     domain: [0, 10]
     # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
     role: birth.apgar5
@@ -166,6 +170,9 @@ columns:
     - 2013
     - 2026
   CONSPRENAT:
+    # undeclared (2026-10-07): its only band is SEMADUM.CNV, borrowed from gestational weeks (variables/sinasc), whose
+    # range [1, 50] would drop the 15,649 births of 2022 with no prenatal visit (00), a value; 99 (11,107) has no
+    # documented meaning. Neither source settles the domain.
     role: pregnancy.prenatal_visits
     kind: number
     model: mark
@@ -410,6 +417,9 @@ columns:
     - 2026
     note: Clock time packed as HHMM.
   IDADEMAE:
+    missing: []
+    domain: [1, 65]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 22 of 2561896 values in 2022 (99: 22)
     role: mother.age
     kind: number
     model: stratum
@@ -418,6 +428,9 @@ columns:
     - 1994
     - 2026
   IDADEPAI:
+    missing: []
+    domain: [10, 99]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 1 of 893880 values in 2022 (09: 1)
     role: father.age
     kind: number
     model: mark
@@ -532,6 +545,9 @@ columns:
     - 1994
     - 2026
   PESO:
+    missing: []
+    domain: [1, 8999]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 2561525 values in 2022 (none)
     role: birth.weight
     kind: number
     model: mark
@@ -567,6 +583,9 @@ columns:
     - 1996
     - 2026
   QTDGESTANT:
+    missing: []
+    domain: [0, 30]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 52 of 2518073 values in 2022 (99: 33, 33: 5, 36: 2, 39: 2)
     role: pregnancy.previous_pregnancies
     kind: number
     model: mark
@@ -575,6 +594,9 @@ columns:
     - 2010
     - 2026
   QTDPARTCES:
+    missing: []
+    domain: [0, 30]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 67 of 2495535 values in 2022 (99: 52, 33: 4, 32: 3, 41: 2)
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
@@ -583,6 +605,9 @@ columns:
     - 2010
     - 2026
   QTDPARTNOR:
+    missing: []
+    domain: [0, 30]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 99 of 2503528 values in 2022 (99: 40, 39: 11, 38: 7, 36: 6)
     role: pregnancy.previous_vaginal_births
     kind: number
     model: mark
@@ -628,6 +653,9 @@ columns:
     - 2011
     note: Newborn race in the 2011 files only; coalesce with RACACOR and RACACORN.
   SEMAGESTAC:
+    missing: []
+    domain: [1, 50]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 2539168 values in 2022 (none)
     role: birth.gestation_weeks
     kind: number
     model: mark

@@ -427,6 +427,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   kits: 044 Camboja and Laos, 073 Eire and Irlanda, 081 Falkland and
   Malvinas. The first pair is two countries. The country labels keep both
   names (2026-09-30).
+- **A band `.CNV` on a measurement labels its out-of-range values "Ign"**: it
+  is TabNet's tabulation domain, not a sentinel (IDADEMAE 66+ `Ign`, SINASC
+  PESO ≥ 9000 `ign`, SIM PESO > 8000). SIM's QTDFILVIVO/QTDFILMORT bands label
+  `0`/`00` `Ignorado`, yet zero is a real count: SIM 2022 holds 5,947 `00`
+  against 9,832 `01`, SINASC 2022 1,046,860 `00` of 2.56 M. In the files,
+  `99` is the de facto not-recorded value of the two-digit counts (CONSPRENAT
+  2022: 11,107 at `99`, single records at 66–72), documented nowhere for them
+  (2026-10-07, `scripts/propose_missing.py`).
 
 ### 2.2 `.DEF` grammar (F §1 V3)
 

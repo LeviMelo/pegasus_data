@@ -228,6 +228,9 @@ columns:
     - 2014
     - 2018
   DIFDATA:
+    missing: []
+    domain: [0, 999]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 1544266 values in 2022 (none)
     role: death.receipt_delay_days
     kind: number
     model: excluded
@@ -528,6 +531,9 @@ columns:
     note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_anos) is
       the decoded stratum.
   IDADEMAE:
+    missing: []
+    domain: [1, 99]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 29100 values in 2022 (none)
     role: mother.age
     kind: number
     model: mark
@@ -642,6 +648,9 @@ columns:
     note: 'Three-digit day count, 2014 investigation block; which two dates it differences is not established
       (curation, source: inferred).'
   NUDIASOBCO:
+    missing: []
+    domain: [0, 999]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 1 of 62120 values in 2022 (7915: 1)
     role: death.days_to_investigation_conclusion
     kind: number
     model: mark
@@ -650,6 +659,9 @@ columns:
     - 2014
     - 2026
   NUDIASOBIN:
+    missing: []
+    domain: [0, 999]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 0 values in 2022 (none)
     role: death.days_to_investigation
     kind: number
     model: mark
@@ -758,6 +770,9 @@ columns:
     - 1996
     - 2026
   PESO:
+    missing: []
+    domain: [1, 8000]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 4 of 28628 values in 2022 (0000: 4)
     role: birth.weight
     kind: number
     model: mark
@@ -768,6 +783,8 @@ columns:
     - 1996
     - 2026
   QTDFILMORT:
+    # undeclared (2026-10-07): its band labels 0/00 Ignorado and 1-15 values, but the files hold 00 as a
+    # count (2022: 20,124 at 00 against 5,384 at 01; SINASC's same variable has 00 as its mode). Two claims.
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
@@ -776,6 +793,8 @@ columns:
     - 1996
     - 2026
   QTDFILVIVO:
+    # undeclared (2026-10-07): its band labels 0/00 Ignorado and 1-15 values, but the files hold 00 as a
+    # count (2022: 5,947 at 00 against 9,832 at 01; SINASC's same variable has 00 as its mode). Two claims.
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -792,6 +811,9 @@ columns:
     - 1996
     - 2026
   SEMAGESTAC:
+    missing: []
+    domain: [0, 98]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 491 of 28341 values in 2022 (99: 491)
     role: birth.gestation_weeks
     kind: number
     model: mark
