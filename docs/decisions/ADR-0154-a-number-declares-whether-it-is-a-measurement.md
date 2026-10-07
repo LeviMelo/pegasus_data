@@ -28,5 +28,4 @@ SIH-RD's categories declared from 2022 (ETNIA 0000, NATUREZA 00; the rest none).
 SINASC-DN's and SIM-DO's from 2022. The labels read are the year's values and every other code of the column's
 codelists (catalog and curated) of a width the year shows: a code DATASUS defines may be absent from one year
 (PARIDADE 9, KOTELCHUCK 6). "Not classified" for null, ignored or absent inputs counts as not recorded
-(KOTELCHUCK 6/9, TPROBSON 11). TPROBSON's codelist writes `01`–`09`, so groups 1–9 in the files stay unlabelled
-until the widths are reconciled at the source.
+(KOTELCHUCK 6/9, TPROBSON 11).
