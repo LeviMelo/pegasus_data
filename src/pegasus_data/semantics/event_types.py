@@ -78,9 +78,15 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
 
     out: dict[str, list[EventType]] = {}
     for path in sorted((curation_root() / "datasets").glob("*.yml")):
-        for key, body in (read_yaml(path).get("datasets") or {}).items():
+        doc = read_yaml(path)
+        # a file's shared event types hold for every dataset in it that does not declare one of the same name
+        # (SINAN's notification: every agravo carries the notification block, so a row is a notification in all 58)
+        shared = (doc.get("shared") or {}).get("event_types") or ()
+        for key, body in (doc.get("datasets") or {}).items():
             body = body or {}
-            for spec in body.get("event_types") or ():
+            own = list(body.get("event_types") or ())
+            names = {str(s.get("name")) for s in own}
+            for spec in own + [s for s in shared if str(s.get("name")) not in names]:
                 event = _event(str(key).upper(), body, spec, path.name)
                 out.setdefault(f"{event.system}-{event.series}", []).append(event)
     return {k: tuple(v) for k, v in out.items()}

@@ -151,6 +151,8 @@ def roles(dataset: str) -> list[dict[str, Any]]:
             if alias in declared:
                 key = alias
                 break
+        if key not in declared and system.upper() == "SINAN" and "SINAN-*" in declared:
+            key = "SINAN-*"     # the notification block every agravo's form carries (roles/SINAN-_notification.yml)
     if key not in declared:
         raise KeyError(f"no column roles declared for {dataset!r}; declared: {sorted(declared)}")
     return [c.as_dict() for c in declared[key]]

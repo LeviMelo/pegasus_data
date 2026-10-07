@@ -18,6 +18,13 @@
 # differ by weeks." This is the machine-readable form of that same statement,
 # and the reason an aggregate must be told WHICH question it is answering.
 shared:
+  # what a row becomes when counted: a notification, in every agravo (the header above); an agravo declares its
+  # own `case` or `probable_case` only from its own form's classification codes
+  event_types:
+    - name: notification
+      kind: notification
+      grain: one notification; a person notified twice is two
+      evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
   semantic_axes:
     default_geography: residence
     geography:
