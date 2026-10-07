@@ -123,6 +123,11 @@ it is run again.
   reading its output. The old suite takes ~5 minutes: never wait on it before
   a commit. Run it rarely, in the background, and when it contradicts a
   deliberate decision, delete the test rather than port it.
+- **Real data with known answers, not the mock loop** (user, 2026-10-07). A test
+  built from the system's own assumptions passes by construction: a synthetic
+  problem has a synthetic solution. Judge work on real records against facts
+  known independently (documented events, official totals where meaning is at
+  stake, the same quantity in two sources), and read what comes out.
 - **Read the output, not the exit code.** Open the table; look at the labels;
   count the rows against an independent figure (TabNet, the file's own row
   count). Earlier sessions declared bugs fixed without reading the output and
