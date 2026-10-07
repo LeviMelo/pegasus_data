@@ -20,3 +20,8 @@ recorded"; `[]` when its layout names none) and, where documented, `domain: [lo,
 is undeclared is not to be modelled: its sentinels are unknown. Declared so far from the layouts: SIH-RD's 38
 quantities `missing: []` (IT_SIHSUS_1603, numeric, no such code; `TOT_PT_SP` is "Zerado", so not a measurement);
 SINASC-DN's Apgar `domain: [0, 10]` (Estrutura_SINASC_2019).
+
+**Addendum: categories.** A category column declares `missing` too. `scripts/propose_missing.py` proposes it from
+DATASUS's own labels for one year's values (the codes labelled Ignorado / Não informado), writes it with the labels
+as a comment, and leaves undeclared a column whose values carry no label; the proposal is reviewed in the diff.
+SIH-RD's categories declared from 2022 (ETNIA 0000, NATUREZA 00; the rest none).

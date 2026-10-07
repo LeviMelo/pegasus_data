@@ -19,6 +19,8 @@ columns:
     - 2011
     - 2026
   CAR_INT:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.admission_character
     kind: category
     model: mark
@@ -89,6 +91,8 @@ columns:
     - 1999
     - 2026
   CNAER:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.work_accident_code
     kind: category
     model: mark
@@ -117,6 +121,8 @@ columns:
     - 2008
     - 2026
   COBRANCA:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.discharge_reason
     kind: category
     model: mark
@@ -157,6 +163,8 @@ columns:
     - 2004
     - 2006
   COMPLEX:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.complexity
     kind: category
     model: mark
@@ -174,6 +182,8 @@ columns:
     - 1992
     - 2006
   CONTRACEP1:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.contraceptive_1
     kind: category
     model: mark
@@ -182,6 +192,8 @@ columns:
     - 1999
     - 2026
   CONTRACEP2:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.contraceptive_2
     kind: category
     model: mark
@@ -411,6 +423,8 @@ columns:
     - 1992
     - 2026
   ESPEC:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.bed_specialty
     kind: category
     model: mark
@@ -419,6 +433,8 @@ columns:
     - 1992
     - 2026
   ETNIA:
+    missing: ['0000']
+    # proposed from DATASUS's labels (2022): 0000='NÃO INFORMADO'
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -427,6 +443,8 @@ columns:
     - 2008
     - 2026
   FAEC_TP:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.faec_subtype
     kind: category
     model: mark
@@ -435,6 +453,8 @@ columns:
     - 2008
     - 2026
   FINANC:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.funding_type
     kind: category
     model: mark
@@ -453,6 +473,8 @@ columns:
     - 2025
     - 2026
   GESTAO:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.management_type
     kind: category
     model: mark
@@ -463,6 +485,8 @@ columns:
     - 1998
     - 2026
   GESTOR_COD:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.manager_override
     kind: category
     model: mark
@@ -489,6 +513,8 @@ columns:
     - 2003
     - 2026
   GESTOR_TP:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.manager_authorisation
     kind: category
     model: mark
@@ -497,6 +523,8 @@ columns:
     - 2008
     - 2026
   GESTRISCO:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: pregnancy.high_risk
     kind: category
     model: mark
@@ -524,6 +552,8 @@ columns:
     - 1992
     - 2026
   IDENT:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.aih_type
     kind: category
     model: mark
@@ -532,6 +562,8 @@ columns:
     - 1992
     - 2026
   IND_VDRL:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.vdrl_test
     kind: category
     model: mark
@@ -556,6 +588,8 @@ columns:
     - 2001
     - 2026
   INSTRU:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: patient.education
     kind: category
     model: dimension
@@ -564,6 +598,8 @@ columns:
     - 1999
     - 2026
   MARCA_UCI:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.intermediate_unit_type
     kind: category
     model: mark
@@ -572,6 +608,8 @@ columns:
     - 2013
     - 2026
   MARCA_UTI:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.icu_type
     kind: category
     model: mark
@@ -591,6 +629,8 @@ columns:
     - 1992
     - 2026
   MORTE:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.death
     kind: category
     model: mark
@@ -621,6 +661,8 @@ columns:
     - 1994
     - 2026
   NACIONAL:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: patient.nationality
     kind: category
     model: dimension
@@ -637,6 +679,8 @@ columns:
     - 1992
     - 2026
   NATUREZA:
+    missing: ['00']
+    # proposed from DATASUS's labels (2022): 00='Ignorado'
     role: facility.legal_nature_old
     kind: category
     model: mark
@@ -646,6 +690,8 @@ columns:
     - 1992
     - 2026
   NAT_JUR:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -721,6 +767,8 @@ columns:
     - 2008
     - 2026
   REGCT:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.contract_rule
     kind: category
     model: mark
@@ -800,6 +848,8 @@ columns:
     - 1999
     - 2026
   TPDISEC1:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_1
     kind: category
     model: mark
@@ -810,6 +860,8 @@ columns:
     - 2014
     - 2026
   TPDISEC2:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_2
     kind: category
     model: mark
@@ -820,6 +872,8 @@ columns:
     - 2014
     - 2026
   TPDISEC3:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_3
     kind: category
     model: mark
@@ -830,6 +884,8 @@ columns:
     - 2014
     - 2026
   TPDISEC4:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_4
     kind: category
     model: mark
@@ -840,6 +896,8 @@ columns:
     - 2014
     - 2026
   TPDISEC5:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_5
     kind: category
     model: mark
@@ -850,6 +908,8 @@ columns:
     - 2014
     - 2026
   TPDISEC6:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_6
     kind: category
     model: mark
@@ -860,6 +920,8 @@ columns:
     - 2014
     - 2026
   TPDISEC7:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_7
     kind: category
     model: mark
@@ -870,6 +932,8 @@ columns:
     - 2014
     - 2026
   TPDISEC8:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_8
     kind: category
     model: mark
@@ -880,6 +944,8 @@ columns:
     - 2014
     - 2026
   TPDISEC9:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: admission.secondary_diagnosis_type_9
     kind: category
     model: mark
@@ -1248,6 +1314,8 @@ columns:
     - 1999
     - 2026
   VINCPREV:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: patient.social_security_link
     kind: category
     model: dimension
