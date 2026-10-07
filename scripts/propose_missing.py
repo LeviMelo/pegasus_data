@@ -3,8 +3,9 @@
     python scripts/propose_missing.py DATASET YEAR [--write]
 
 For every reviewed `category` column (model mark or dimension) of DATASET's roles file that declares no `missing`,
-the distinct values of YEAR are labelled (`translate`) and the codes whose DATASUS label says "not recorded"
-(Ignorado, Ign, Não informado, Sem informação) are proposed. A column with no such code is proposed `missing: []`.
+the distinct values of YEAR are labelled (`translate`), and every other code of the codelists the catalog binds to the
+column is added with its codelist label; then the codes whose DATASUS label says "not recorded" (Ignorado, Ign, Não informado, Sem informação,
+or "not classified" for null, ignored or absent inputs) are proposed. A column with no such code is proposed `missing: []`.
 `--write` inserts the declarations into the roles file, each with the labels it rests on as a comment, to be reviewed
 in the diff like any curation. Nothing is decided by a pattern alone: the comment carries the source's label.
 """
@@ -22,6 +23,7 @@ from pegasus_data.semantics import column_roles
 
 NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|n[ãa]o informad[oa]|sem informa[çc][ãa]o|não declarad[oa])\s*$",
                           re.IGNORECASE)
+NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
 
 
 def main(dataset: str, year: int, write: bool) -> None:
@@ -58,7 +60,11 @@ def main(dataset: str, year: int, write: bool) -> None:
             warnings.simplefilter("ignore")
             labelled = pg.translate(_table(r.column, values), system=system).to_pylist()
         labels = {str(x[r.column]): x.get(f"{r.column}_label") for x in labelled}
-        miss = sorted(v for v, lab in labels.items() if lab and NOT_RECORDED.match(str(lab)))
+        if any(lab is not None for lab in labels.values()):     # a code defined but not seen this year, of a seen width
+            widths = {len(v) for v in values}
+            labels = {**{c: lab for c, lab in _codelist_labels(system, r.column).items() if len(c) in widths}, **labels}
+        miss = sorted(v for v, lab in labels.items()
+                      if lab and (NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))))
         evidence = ", ".join(f"{v}={labels[v]!r}" for v in miss) or "no value labelled as not recorded"
         proposals[r.column] = (miss, evidence, all(lab is None for lab in labels.values()))
         print(f"{r.column}: missing {miss} ({evidence}){'  [no labels: left undeclared]' if proposals[r.column][2] else ''}")
@@ -77,6 +83,21 @@ def main(dataset: str, year: int, write: bool) -> None:
             text = text.replace(head, head + decl)
         path.write_text(text, encoding="utf-8")
         print(f"written {path}")
+
+
+def _codelist_labels(system: str, column: str) -> dict[str, str]:
+    """Every code of the codelists the catalog binds to the column, with its label: a code DATASUS defines may be
+    absent from the year read. The year's own labelling (`translate`) takes precedence where both speak."""
+    from pegasus_data.catalog.store import CatalogStore
+    from pegasus_data.config import load_settings
+    from pegasus_data.semantics import curation, dictionary
+
+    store = CatalogStore(load_settings().catalog_path, read_only=True)
+    try:
+        return {c: lab for cl in reversed(dictionary.codelists_for(store, system=system, field_name=column))
+                for c, lab in (curation.inline_codelist(cl) or dictionary.codelist_values(store, cl, system=system)).items()}
+    finally:
+        store.close()
 
 
 def _table(column: str, values: list[str]):

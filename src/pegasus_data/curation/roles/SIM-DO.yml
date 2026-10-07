@@ -2,6 +2,8 @@ dataset: SIM-DO
 record: death
 columns:
   ACIDTRAB:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: death.work_related
     kind: category
     model: mark
@@ -10,6 +12,8 @@ columns:
     - 1996
     - 2026
   ALTCAUSA:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: death.cause_altered
     kind: category
     model: mark
@@ -20,6 +24,8 @@ columns:
     - 2014
     - 2026
   ASSISTMED:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 3='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: death.medical_care
     kind: category
     model: mark
@@ -37,6 +43,8 @@ columns:
     - 2026
     note: Raw 70-character string of the ICD codes as written on the certificate; not parsed.
   ATESTANTE:
+    missing: ['0', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: certifier.condition
     kind: category
     model: mark
@@ -67,6 +75,8 @@ columns:
     - 2006
     - 2026
   CAUSAMAT:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: death.maternal_external_cause
     kind: category
     model: mark
@@ -85,6 +95,8 @@ columns:
     - 2006
     - 2026
   CIRCOBITO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: death.violent_circumstance
     kind: category
     model: mark
@@ -93,6 +105,8 @@ columns:
     - 1996
     - 2026
   CIRURGIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: death.surgery
     kind: category
     model: mark
@@ -328,6 +342,8 @@ columns:
     - 2012
     - 2013
   ESC:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: deceased.education_years_band
     kind: category
     model: dimension
@@ -336,6 +352,8 @@ columns:
     - 1996
     - 2026
   ESC2010:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: deceased.education_level_2010
     kind: category
     model: dimension
@@ -344,6 +362,8 @@ columns:
     - 2011
     - 2026
   ESCFALAGR1:
+    missing: ['09']
+    # proposed from DATASUS's labels (2022): 09='Ignorado'
     role: deceased.education_aggregated
     kind: category
     model: dimension
@@ -355,6 +375,8 @@ columns:
     - 2012
     - 2026
   ESCMAE:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: mother.education_years_band
     kind: category
     model: dimension
@@ -363,6 +385,8 @@ columns:
     - 1996
     - 2026
   ESCMAE2010:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: mother.education_level_2010
     kind: category
     model: dimension
@@ -371,6 +395,8 @@ columns:
     - 2011
     - 2026
   ESCMAEAGR1:
+    missing: ['09']
+    # proposed from DATASUS's labels (2022): 09='Ignorado'
     role: mother.education_aggregated
     kind: category
     model: dimension
@@ -387,6 +413,8 @@ columns:
     - 2014
     - 2026
   ESTCIV:
+    missing: ['0', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: deceased.marital_status
     kind: category
     model: dimension
@@ -395,6 +423,8 @@ columns:
     - 1996
     - 2026
   EXAME:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: death.exam_performed
     kind: category
     model: mark
@@ -412,6 +442,8 @@ columns:
     - 2012
     note: Computed date difference (export); bookkeeping.
   FONTE:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: death.information_source
     kind: category
     model: mark
@@ -423,6 +455,8 @@ columns:
     - 1996
     - 2026
   FONTEINV:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ignorado'
     role: death.investigation_source
     kind: category
     model: mark
@@ -451,6 +485,8 @@ columns:
     note: 'Positional S/X flags; meaning inferred by pegasus_data from FONTES (source: inferred), not
       documented by DATASUS.'
   GESTACAO:
+    missing: ['0', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 9='Ignorado'
     role: pregnancy.gestation_band
     kind: category
     model: mark
@@ -459,6 +495,8 @@ columns:
     - 1996
     - 2026
   GRAVIDEZ:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality
     kind: category
     model: mark
@@ -555,6 +593,8 @@ columns:
     - 1996
     - 2026
   LOCOCOR:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: death.place
     kind: category
     model: mark
@@ -581,6 +621,8 @@ columns:
     - 1996
     - 2026
   NECROPSIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: death.autopsy
     kind: category
     model: mark
@@ -640,6 +682,8 @@ columns:
     - 2012
     - 2013
   OBITOGRAV:
+    missing: ['3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: deceased.pregnancy_status
     kind: category
     model: dimension
@@ -650,6 +694,8 @@ columns:
     - 1996
     - 2026
   OBITOPARTO:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: death.childbirth_relation
     kind: category
     model: mark
@@ -658,6 +704,8 @@ columns:
     - 1996
     - 2026
   OBITOPUERP:
+    missing: ['4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: deceased.puerperium_status
     kind: category
     model: dimension
@@ -698,6 +746,8 @@ columns:
     - 2009
     - 2026
   PARTO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.delivery
     kind: category
     model: mark
@@ -818,6 +868,8 @@ columns:
     - 2008
     note: 'Meaning inferred from the name only; values undocumented (curation source: inferred).'
   TPMORTEOCO:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: death.pregnancy_relation
     kind: category
     model: mark
@@ -826,6 +878,8 @@ columns:
     - 2012
     - 2026
   TPNIVELINV:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: death.investigator_level
     kind: category
     model: mark
@@ -834,6 +888,8 @@ columns:
     - 2014
     - 2026
   TPOBITOCOR:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: death.timing_investigated
     kind: category
     model: mark
@@ -842,6 +898,8 @@ columns:
     - 2009
     - 2026
   TPPOS:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: death.investigated
     kind: category
     model: mark
@@ -850,6 +908,8 @@ columns:
     - 2006
     - 2026
   TPRESGINFO:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ignorado'
     role: death.information_recovery_type
     kind: category
     model: mark

@@ -174,6 +174,8 @@ columns:
     - 2010
     - 2026
   CONSULTAS:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: pregnancy.prenatal_visits_band
     kind: category
     model: mark
@@ -300,6 +302,8 @@ columns:
     - 2010
     - 2026
   ESCMAE:
+    missing: ['0', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ignorado'
     role: mother.education_years_band
     kind: category
     model: dimension
@@ -308,6 +312,8 @@ columns:
     - 1994
     - 2026
   ESCMAE2010:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: mother.education_level_2010
     kind: category
     model: dimension
@@ -316,6 +322,8 @@ columns:
     - 2012
     - 2026
   ESCMAEAGR1:
+    missing: ['09']
+    # proposed from DATASUS's labels (2022): 09='Ignorado'
     role: mother.education_aggregated
     kind: category
     model: dimension
@@ -324,6 +332,8 @@ columns:
     - 2013
     - 2026
   ESTCIVMAE:
+    missing: ['0', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 9='Ignorado'
     role: mother.marital_status
     kind: category
     model: dimension
@@ -371,6 +381,8 @@ columns:
     - 1994
     - 1995
   GESTACAO:
+    missing: ['0', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 9='Ignorado'
     role: birth.gestation_band
     kind: category
     model: mark
@@ -379,6 +391,8 @@ columns:
     - 1994
     - 2026
   GRAVIDEZ:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality
     kind: category
     model: mark
@@ -413,6 +427,8 @@ columns:
     - 2026
     note: Adds entity `father`; no listed entity fits.
   IDANOMAL:
+    missing: ['3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: birth.anomaly_flag
     kind: category
     model: mark
@@ -421,6 +437,8 @@ columns:
     - 2000
     - 2026
   KOTELCHUCK:
+    missing: ['6', '9']
+    # proposed from DATASUS's labels (2022): 6='Não classificado (consultas ou mês de início do pré-natal nulo ou ignorado)', 9='Não Classificados (campos 33 ou 34, Nulo ou Ign)'
     role: pregnancy.prenatal_adequacy
     kind: category
     model: mark
@@ -431,6 +449,8 @@ columns:
     - 2014
     - 2026
   LOCNASC:
+    missing: ['0', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.place
     kind: category
     model: mark
@@ -439,6 +459,8 @@ columns:
     - 1994
     - 2026
   MESPRENAT:
+    missing: ['99']
+    # proposed from DATASUS's labels (2022): 99='Ign'
     role: pregnancy.prenatal_start_month
     kind: category
     model: mark
@@ -490,6 +512,8 @@ columns:
     - 2010
     - 2026
   PARIDADE:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ignorado'
     role: pregnancy.parity
     kind: category
     model: mark
@@ -498,6 +522,8 @@ columns:
     - 2014
     - 2026
   PARTO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: birth.delivery
     kind: category
     model: mark
@@ -565,6 +591,8 @@ columns:
     - 2010
     - 2026
   RACACOR:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: baby.race
     kind: category
     model: mark
@@ -616,6 +644,8 @@ columns:
     - 2010
     - 2026
   SEXO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9', 'I']
+    # proposed from DATASUS's labels (2022): 0='Ignorado', 3='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado', I='Ignorado'
     role: baby.sex
     kind: category
     model: mark
@@ -624,6 +654,8 @@ columns:
     - 1994
     - 2026
   STCESPARTO:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: birth.cesarean_before_labor
     kind: category
     model: mark
@@ -652,6 +684,8 @@ columns:
     - 2010
     - 2026
   STTRABPART:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: birth.labor_induced
     kind: category
     model: mark
@@ -662,6 +696,8 @@ columns:
     - 2010
     - 2026
   TPAPRESENT:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: birth.presentation
     kind: category
     model: mark
@@ -672,6 +708,8 @@ columns:
     - 2010
     - 2026
   TPDOCRESP:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: informant.document_type
     kind: category
     model: mark
@@ -680,6 +718,8 @@ columns:
     - 2014
     - 2026
   TPFUNCRESP:
+    missing: []
+    # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: informant.function
     kind: category
     model: mark
@@ -690,6 +730,8 @@ columns:
     - 2014
     - 2026
   TPMETESTIM:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: birth.gestation_estimation_method
     kind: category
     model: mark
@@ -700,6 +742,8 @@ columns:
     - 2010
     - 2026
   TPNASCASSI:
+    missing: ['9']
+    # proposed from DATASUS's labels (2022): 9='Ign'
     role: birth.attendant
     kind: category
     model: mark
@@ -710,6 +754,8 @@ columns:
     - 2013
     - 2026
   TPROBSON:
+    missing: ['11']
+    # proposed from DATASUS's labels (2022): 11='11 Nasc n clas por aus resp aos itens necessarios'
     role: birth.robson_group
     kind: category
     model: mark
