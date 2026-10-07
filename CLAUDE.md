@@ -90,6 +90,11 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
   is a defect; this project already has several (ARCHITECTURE §5).
 - **Carry the whole request.** Each instruction is done or reported as not
   done, with the reason.
+- **Always ask whether it can be made better** (user, 2026-10-07): more
+  general, more principled, more robust? Write the most general formulation
+  first; every hand-fixed choice (a partition, a threshold, a list, a range)
+  is a debt to learn from the data or integrate over. Ask again before
+  calling anything done.
 - **Never idle on a wait; work fronts in parallel** (user, 2026-10-03). While
   a build, a national run or an agent is in progress, advance another task
   that does not depend on it: other code, a measurement on data already at
