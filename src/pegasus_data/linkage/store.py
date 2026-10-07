@@ -22,8 +22,8 @@ from .engine import links_file
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for
-#: merging links into entities (linkage/entities.py).
-_NOT_LINKING = ("person",)
+#: merging links into entities (linkage/entities.py); `same_event` what the pairs mean.
+_NOT_LINKING = ("person", "same_event")
 
 
 def _spec_digest(name: str) -> str:
