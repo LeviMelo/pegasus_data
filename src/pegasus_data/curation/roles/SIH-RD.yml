@@ -67,7 +67,8 @@ columns:
     - S_CID
     years:
     - 2006
-    - 2026
+    - 2014
+    # filled through 2014; every record from 2015 holds '0000' (measured 2026-10-08, DATA_SOURCES §1.9)
   CID_MORTE:
     role: admission.death_cause
     kind: code_tree
@@ -78,7 +79,8 @@ columns:
     - S_CID
     years:
     - 2006
-    - 2026
+    - 2014
+    # filled through 2014; every record from 2015 holds '0000' (measured 2026-10-08, DATA_SOURCES §1.9)
   CID_NOTIF:
     role: admission.notifiable_condition
     kind: code_tree

@@ -93,7 +93,9 @@ columns:
     - ICD10
     years:
     - 2006
-    - 2026
+    - 2010
+    # filled 2006-2010 (2010: 1,126,944 of 1,136,947); absent from the 2011-2013 files; present but empty from 2014
+    # (measured 2026-10-08, DATA_SOURCES §1.9)
   CIRCOBITO:
     missing: ['0', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'

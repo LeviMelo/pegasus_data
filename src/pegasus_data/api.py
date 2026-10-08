@@ -119,6 +119,11 @@ class FieldDescription:
     #: the rung travels with the prose rather than being left in the YAML.
     description_source: str | None = None
     description_source_ref: str | None = None
+    #: Whether a cell holds several codes, and how to split them (the curation's ``multi_valued`` and
+    #: ``token_rule``): SINASC's CODANOMAL packs four-character ICD-10 codes. A reader that took such a cell as one
+    #: code would mis-read every newborn with two anomalies.
+    multi_valued: bool = False
+    token_rule: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -132,6 +137,8 @@ class FieldDescription:
             "code_system": self.code_system,
             "description_source": self.description_source,
             "description_source_ref": self.description_source_ref,
+            "multi_valued": self.multi_valued,
+            "token_rule": self.token_rule,
             "semantic_type": self.semantic_type,
             "semantic_confidence": self.semantic_confidence,
             "semantic_evidence": self.semantic_evidence,
@@ -691,6 +698,8 @@ def describe(
             code_system=code_system,
             description_source=description_source,
             description_source_ref=description_source_ref,
+            multi_valued=bool(curated and curated.multi_valued),
+            token_rule=dict(curated.token_rule) if curated and curated.token_rule else None,
             semantic_type=led.get("semantic_type") or prof.get("semantic_type"),
             semantic_confidence=led.get("semantic_confidence") or prof.get("semantic_confidence"),
             semantic_evidence=evidence,
