@@ -170,9 +170,11 @@ columns:
     - 2013
     - 2026
   CONSPRENAT:
-    # undeclared (2026-10-07): its only band is SEMADUM.CNV, borrowed from gestational weeks (variables/sinasc), whose
-    # range [1, 50] would drop the 15,649 births of 2022 with no prenatal visit (00), a value; 99 (11,107) has no
-    # documented meaning. Neither source settles the domain.
+    missing: []
+    domain: [0, 98]
+    # declared 2026-10-08: 00 (no visit) is a value; 99 (13,452 in 2020, its neighbours 0-3) is not, and no meaning
+    # is given to it. 36-41 rise again (1,265 in 2020, a mode at 39) where the visits decay: gestational weeks typed
+    # into the visits field, kept as written and noted (OPEN_QUESTIONS)
     role: pregnancy.prenatal_visits
     kind: number
     model: mark
@@ -567,6 +569,12 @@ columns:
     - 1995
     note: 1994-1995 banded prenatal history.
   QTDFILMORT:
+    missing: []
+    domain: [0, 98]
+    # declared 2026-10-08: 99 is not a value of the column, and no meaning is given to it. SINASC 2020: 08 130, 09 76, 10 94, 99 46 of 2.63 M filled.
+    # The claims: SIM's tabulation band labels 0/00 Ignorado, but the files hold 00 as a count (SINASC's mode);
+    # SIM's layout (sim2025, dicdo) says '9 - ignorado' of a two-character field, where 09 sits on the counts'
+    # smooth decay; 99 alone stands apart. Read 99 as the layout's sentinel, outside the domain
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
@@ -575,6 +583,12 @@ columns:
     - 1996
     - 2026
   QTDFILVIVO:
+    missing: []
+    domain: [0, 98]
+    # declared 2026-10-08: 99 is not a value of the column, and no meaning is given to it. SINASC 2020: 08 3,636, 09 1,887, 10 949, 99 45 of 2.67 M filled.
+    # The claims: SIM's tabulation band labels 0/00 Ignorado, but the files hold 00 as a count (SINASC's mode);
+    # SIM's layout (sim2025, dicdo) says '9 - ignorado' of a two-character field, where 09 sits on the counts'
+    # smooth decay; 99 alone stands apart. Read 99 as the layout's sentinel, outside the domain
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -664,6 +678,8 @@ columns:
     - 2010
     - 2026
   SERIESCMAE:
+    missing: []
+    # the layouts: 'Números de 1 a 8'; 2020 holds 1-8 only
     role: mother.education_grade
     kind: category
     model: dimension
