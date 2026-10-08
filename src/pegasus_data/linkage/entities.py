@@ -70,28 +70,46 @@ def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
 
 
 def _stored_edges(settings: Any, period: object, geography: object, method: str) -> pa.Table:
-    """Every stored pair of the scope as one edge table."""
+    """Every stored pair of the scope's viable runs as one edge table, with its p_match (1 where the run carries none).
+    A run stored with the verdict "not viable" (SINAN's dengue deaths in 2015: its controls matched like its pairs)
+    merges no one."""
+    import json
+
     con = connect()
     parts = []
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
         key = stored_key(name, method, period, geography)
         path = links_dir(settings) / name / f"{key.stem}.parquet"
+        report = path.with_suffix(".json")
         if not path.exists():
             continue
+        if report.exists() and json.loads(report.read_text(encoding="utf-8")).get("verdict") == "not viable":
+            continue
+        cols = con.execute(f"SELECT * FROM '{path.as_posix()}' LIMIT 0").to_arrow_table().column_names
+        pm = "p_match" if "p_match" in cols else "1.0"
         parts.append(f"""SELECT '{name}' AS spec, '{lds}' AS lds, '{lrole}' AS lrole, l,
-                                 '{rds}' AS rds, '{rrole}' AS rrole, r, bits FROM '{path.as_posix()}'""")
+                                 '{rds}' AS rds, '{rrole}' AS rrole, r, bits, CAST({pm} AS DOUBLE) AS p_match
+                          FROM '{path.as_posix()}'""")
     if not parts:
         raise FileNotFoundError("no stored links for this scope: run link() first")
     return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").to_arrow_table()
 
 
 def build_entities(*, period: object, geography: object, method: str = "probabilistic",
-                   settings: Any = None) -> Entities:
-    """Merge every stored link of the scope into persons, strongest evidence first."""
+                   settings: Any = None, draw: int | None = None) -> Entities:
+    """Merge every stored link of the scope into persons, strongest evidence first. ``draw`` (a seed) merges one
+    plausible link set: each edge kept with its p_match (`uncertainty.draws`), so an analysis over persons carries the
+    linkage's uncertainty by repeating it over draws and combining (`uncertainty.combine`)."""
     from ..config import load_settings
 
     settings = settings or load_settings()
     edges = _stored_edges(settings, period, geography, method)
+    if draw is not None:
+        p = edges.column("p_match").to_numpy(zero_copy_only=False)
+        import zlib
+
+        rng = np.random.default_rng([int(draw), zlib.crc32(str(period).encode())])     # reproducible across processes
+        edges = edges.filter(pa.array(rng.random(len(p)) < p))
     spec = edges.column("spec").to_pylist()
     lnode = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
                                                 edges.column("l").to_pylist(), strict=True)]
