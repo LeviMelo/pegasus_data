@@ -29,7 +29,7 @@ import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .engine import links_file, load_links, stored_key
+from .engine import link_method, links_file, load_links, stored_key
 from .identity import connect
 from .store import links_dir
 
@@ -69,7 +69,7 @@ def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
     return out
 
 
-def _stored_edges(settings: Any, period: object, geography: object, method: str) -> pa.Table:
+def _stored_edges(settings: Any, period: object, geography: object, method: str | None) -> pa.Table:
     """Every stored pair of the scope's viable runs as one edge table, with its p_match (1 where the run carries none).
     A run stored with the verdict "not viable" (SINAN's dengue deaths in 2015: its controls matched like its pairs)
     merges no one."""
@@ -78,7 +78,7 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str)
     con = connect()
     parts = []
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
-        key = stored_key(name, method, period, geography)
+        key = stored_key(name, method or link_method(name), period, geography)
         path = links_dir(settings) / name / f"{key.stem}.parquet"
         report = path.with_suffix(".json")
         if not path.exists():
@@ -95,9 +95,10 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str)
     return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").to_arrow_table()
 
 
-def build_entities(*, period: object, geography: object, method: str = "probabilistic",
+def build_entities(*, period: object, geography: object, method: str | None = None,
                    settings: Any = None, draw: int | None = None) -> Entities:
-    """Merge every stored link of the scope into persons, strongest evidence first. ``draw`` (a seed) merges one
+    """Merge every stored link of the scope into persons, strongest evidence first, each link's run by its own method
+    (`link_method`) unless ``method`` names one. ``draw`` (a seed) merges one
     plausible link set: each edge kept with its p_match (`uncertainty.draws`), so an analysis over persons carries the
     linkage's uncertainty by repeating it over draws and combining (`uncertainty.combine`)."""
     from ..config import load_settings

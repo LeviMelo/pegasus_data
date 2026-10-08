@@ -451,7 +451,14 @@ def link(
     return result
 
 
-def side_counts(name: str, *, period: object, side: str, by: str, method: str = "probabilistic",
+def link_method(name: str) -> str:
+    """The method a link is run by: probabilistic where its spec declares that block, deterministic otherwise (the
+    women's deaths to their births as mothers declare keys only)."""
+    body = (read_yaml(links_file()).get("links") or {}).get(name) or {}
+    return "probabilistic" if body.get("probabilistic") else "deterministic"
+
+
+def side_counts(name: str, *, period: object, side: str, by: str, method: str | None = None,
                 **query_kwargs: Any) -> pa.Table:
     """One side of a stored national run by the value of role ``by`` (a residence): ``n`` the side's records the link
     can pair (its filter applied, a group's records as one, numbered as the run numbered them) and ``k`` the expected
@@ -467,6 +474,7 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str = 
         raise ValueError(f"side must be 'left' or 'right', not {side!r}")
     s = spec.left if side == "left" else spec.right
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    method = method or link_method(name)
     right_period = padded_period(period, spec.right) if spec.right.pad_years != (0, 0) else None
     stored = store.load(settings, stored_key(name, method, period, "BR", right_period=right_period))
     if stored is None:
@@ -491,5 +499,5 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str = 
         ON m.id = x._id GROUP BY 1 ORDER BY 1""").fetch_arrow_table()
 
 
-__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "load_links", "run", "side_counts",
-           "stored_key"]
+__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "link_method", "load_links", "run",
+           "side_counts", "stored_key"]
