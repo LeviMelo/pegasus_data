@@ -244,6 +244,21 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
         if not name or len(codes) < 2 or not _fits(codes, width):
             return None
         return name, codes
+    # SINAN Online's dictionaries (dengue, chikungunya): no type or width cell, the categories in the first cell that
+    # reads as codes, the DBF name last (``| 33- Sinais clínicos (Cefaleia) | | | 1 – Sim / 2 – Não | … | CEFALEIA |``);
+    # an accent the DBF name cannot carry is dropped (ÁCIDO_PEPT is the column ACIDO_PEPT). Every other check holds
+    import unicodedata
+
+    last = cells[-1].split()[-1] if cells[-1] else ""
+    name = unicodedata.normalize("NFKD", last).encode("ascii", "ignore").decode()
+    if not _DBF.fullmatch(name):
+        return None
+    for k in range(1, len(row) - 1):
+        if row[k].strip():
+            codes = _categories(row[k])
+            if len(codes) >= 2 and _fits(codes, max(len(c) for c in codes)):
+                return name, codes
+            return None
     return None
 
 

@@ -2,6 +2,8 @@ dataset: SINAN-CHIK
 record: notification
 columns:
   ACIDO_PEPT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: patient.peptic_ulcer
     kind: category
     model: dimension
@@ -11,6 +13,8 @@ columns:
     - 2014
     - 2026
   ALRM_ABDOM:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_abdominal_pain
     kind: category
     model: mark
@@ -19,6 +23,8 @@ columns:
     - 2014
     - 2026
   ALRM_HEMAT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_hematocrit_rise
     kind: category
     model: mark
@@ -27,6 +33,8 @@ columns:
     - 2014
     - 2026
   ALRM_HEPAT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_hepatomegaly
     kind: category
     model: mark
@@ -35,6 +43,8 @@ columns:
     - 2014
     - 2026
   ALRM_HIPOT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_postural_hypotension
     kind: category
     model: mark
@@ -43,6 +53,8 @@ columns:
     - 2014
     - 2026
   ALRM_LETAR:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_lethargy
     kind: category
     model: mark
@@ -51,6 +63,8 @@ columns:
     - 2014
     - 2026
   ALRM_LIQ:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 7='Ign/Branco'; they disagree on ['0', '7']
     role: case.alarm_fluid_accumulation
     kind: category
     model: mark
@@ -59,6 +73,8 @@ columns:
     - 2014
     - 2026
   ALRM_PLAQ:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_platelet_drop
     kind: category
     model: mark
@@ -67,6 +83,8 @@ columns:
     - 2014
     - 2026
   ALRM_SANG:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_mucosal_bleeding
     kind: category
     model: mark
@@ -75,6 +93,8 @@ columns:
     - 2014
     - 2026
   ALRM_VOM:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.alarm_persistent_vomiting
     kind: category
     model: mark
@@ -92,6 +112,8 @@ columns:
     - 2014
     - 2026
   ARTRALGIA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_arthralgia
     kind: category
     model: mark
@@ -100,6 +122,8 @@ columns:
     - 2014
     - 2026
   ARTRITE:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_arthritis
     kind: category
     model: mark
@@ -108,6 +132,8 @@ columns:
     - 2014
     - 2026
   AUTO_IMUNE:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: patient.autoimmune_disease
     kind: category
     model: dimension
@@ -116,6 +142,8 @@ columns:
     - 2014
     - 2026
   CEFALEIA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.sign_headache
     kind: category
     model: mark
@@ -173,6 +201,8 @@ columns:
     - 2014
     - 2026
   CONJUNTVIT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 5='Ign/Branco'; they disagree on ['5']
     role: case.sign_conjunctivitis
     kind: category
     model: mark
@@ -288,6 +318,8 @@ columns:
     - 2014
     - 2026
   DIABETES:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: patient.diabetes
     kind: category
     model: dimension
@@ -308,6 +340,8 @@ columns:
     - 2014
     - 2026
   DOR_COSTAS:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_back_pain
     kind: category
     model: mark
@@ -316,6 +350,8 @@ columns:
     - 2014
     - 2026
   DOR_RETRO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 5='Ign/Branco'; they disagree on ['5']
     role: case.sign_retroorbital_pain
     kind: category
     model: mark
@@ -490,6 +526,8 @@ columns:
     - 2014
     - 2026
   EXANTEMA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_rash
     kind: category
     model: mark
@@ -498,6 +536,8 @@ columns:
     - 2014
     - 2026
   FEBRE:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_fever
     kind: category
     model: mark
@@ -528,6 +568,8 @@ columns:
     - 2014
     - 2026
   GRAV_AST:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_ast_alt
     kind: category
     model: mark
@@ -536,6 +578,8 @@ columns:
     - 2014
     - 2026
   GRAV_CONSC:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_consciousness
     kind: category
     model: mark
@@ -544,6 +588,8 @@ columns:
     - 2014
     - 2026
   GRAV_CONV:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_convergent_pressure
     kind: category
     model: mark
@@ -552,6 +598,8 @@ columns:
     - 2014
     - 2026
   GRAV_ENCH:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_capillary_refill
     kind: category
     model: mark
@@ -560,6 +608,8 @@ columns:
     - 2014
     - 2026
   GRAV_EXTRE:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_cold_extremities
     kind: category
     model: mark
@@ -568,6 +618,8 @@ columns:
     - 2014
     - 2026
   GRAV_HEMAT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_hematemesis
     kind: category
     model: mark
@@ -576,6 +628,8 @@ columns:
     - 2014
     - 2026
   GRAV_HIPOT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_hypotension
     kind: category
     model: mark
@@ -584,6 +638,8 @@ columns:
     - 2014
     - 2026
   GRAV_INSUF:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_respiratory_failure
     kind: category
     model: mark
@@ -592,6 +648,8 @@ columns:
     - 2014
     - 2026
   GRAV_MELEN:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_melena
     kind: category
     model: mark
@@ -600,6 +658,8 @@ columns:
     - 2014
     - 2026
   GRAV_METRO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_metrorrhagia
     kind: category
     model: mark
@@ -608,6 +668,8 @@ columns:
     - 2014
     - 2026
   GRAV_MIOC:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_myocarditis
     kind: category
     model: mark
@@ -624,6 +686,8 @@ columns:
     - 2014
     - 2026
   GRAV_PULSO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_weak_pulse
     kind: category
     model: mark
@@ -632,6 +696,8 @@ columns:
     - 2014
     - 2026
   GRAV_SANG:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_cns_bleeding
     kind: category
     model: mark
@@ -640,6 +706,8 @@ columns:
     - 2014
     - 2026
   GRAV_TAQUI:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.severe_tachycardia
     kind: category
     model: mark
@@ -648,6 +716,8 @@ columns:
     - 2014
     - 2026
   HEMATOLOG:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: patient.hematologic_disease
     kind: category
     model: dimension
@@ -668,6 +738,8 @@ columns:
     - 2014
     - 2026
   HEPATOPAT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: patient.liver_disease
     kind: category
     model: dimension
@@ -676,6 +748,8 @@ columns:
     - 2014
     - 2026
   HIPERTENSA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: patient.hypertension
     kind: category
     model: dimension
@@ -826,6 +900,8 @@ columns:
     - 2014
     - 2026
   LACO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_tourniquet_test
     kind: category
     model: mark
@@ -843,6 +919,8 @@ columns:
     - 2014
     - 2026
   LEUCOPENIA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 8='Ign/Branco'; they disagree on ['8']
     role: case.sign_leukopenia
     kind: category
     model: mark
@@ -871,6 +949,8 @@ columns:
     - 2014
     - 2026
   MIALGIA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_myalgia
     kind: category
     model: mark
@@ -900,6 +980,8 @@ columns:
     - 2014
     - 2026
   NAUSEA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_nausea
     kind: category
     model: mark
@@ -954,6 +1036,8 @@ columns:
     - 2014
     - 2026
   PETEQUIA_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_petechiae
     kind: category
     model: mark
@@ -981,6 +1065,8 @@ columns:
     - 2014
     - 2026
   RENAL:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: patient.chronic_kidney_disease
     kind: category
     model: dimension
@@ -1162,6 +1248,8 @@ columns:
     - 2014
     - 2026
   VOMITO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sign_vomiting
     kind: category
     model: mark

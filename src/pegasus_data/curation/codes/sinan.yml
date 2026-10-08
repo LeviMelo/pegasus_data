@@ -2535,6 +2535,76 @@ series:
         '3': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
   CHIK:
+    ACIDO_PEPT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_ABDOM:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_HEMAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_HEPAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_HIPOT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_LETAR:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_LIQ:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_PLAQ:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_SANG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ALRM_VOM:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ARTRALGIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ARTRITE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    AUTO_IMUNE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    CEFALEIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     CLASSI_FIN:
       codes:
         '5': Descartado
@@ -2543,11 +2613,36 @@ series:
         '12': Dengue grave
         '13': Chikungunya
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    CLINIC_CHIK:
+      codes:
+        '1': Aguda
+        '2': Crônica
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    CONJUNTVIT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     CRITERIO:
       codes:
         '1': Laboratório
         '2': Clínico Epidemiológico
         '3': Em investigação
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    DIABETES:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    DOR_COSTAS:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    DOR_RETRO:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     EVOLUCAO:
       codes:
@@ -2556,6 +2651,101 @@ series:
         '3': óbito por outras causas
         '4': óbito em investigação
         '9': ignorado
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    EXANTEMA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    FEBRE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_AST:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_CONSC:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_CONV:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_ENCH:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_EXTRE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_HEMAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_HIPOT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_INSUF:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_MELEN:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_METRO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_MIOC:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_PULSO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_SANG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    GRAV_TAQUI:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    HEMATOLOG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    HEPATOPAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    HIPERTENSA:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     HISTOPA_N:
       codes:
@@ -2570,12 +2760,47 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    ID_AGRAVO:
+      codes:
+        '1': Dengue
+        '2': Chikungunya
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     IMUNOH_N:
       codes:
         '1': Positivo
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    LACO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    LEUCOPENIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    MIALGIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    NAUSEA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    PETEQUIA_N:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    RENAL:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     RESUL_NS1:
       codes:
@@ -2638,6 +2863,11 @@ series:
         '1': Sim
         '2': Não
         '3': Indeterminado
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+    VOMITO:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
   COLE:
     CLASSI_FIN:
@@ -3005,6 +3235,76 @@ series:
         '9': Ignorado
       source_ref: coqueluche__DIC_DADOS_Coqueluche_v5.pdf
   DENG:
+    ACIDO_PEPT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_ABDOM:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_HEMAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_HEPAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_HIPOT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_LETAR:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_LIQ:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_PLAQ:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_SANG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ALRM_VOM:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ARTRALGIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ARTRITE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    AUTO_IMUNE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    CEFALEIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
     CLASSI_FIN:
       codes:
         '5': Descartado
@@ -3013,11 +3313,36 @@ series:
         '12': Dengue grave
         '13': Chikungunya
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    CLINIC_CHIK:
+      codes:
+        '1': Aguda
+        '2': Crônica
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    CONJUNTVIT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
     CRITERIO:
       codes:
         '1': Laboratório
         '2': Clínico Epidemiológico
         '3': Em investigação
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    DIABETES:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    DOR_COSTAS:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    DOR_RETRO:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
     EVOLUCAO:
       codes:
@@ -3026,6 +3351,101 @@ series:
         '3': óbito por outras causas
         '4': óbito em investigação
         '9': ignorado
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    EXANTEMA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    FEBRE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_AST:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_CONSC:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_CONV:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_ENCH:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_EXTRE:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_HEMAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_HIPOT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_INSUF:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_MELEN:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_METRO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_MIOC:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_PULSO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_SANG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    GRAV_TAQUI:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    HEMATOLOG:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    HEPATOPAT:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    HIPERTENSA:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
     HISTOPA_N:
       codes:
@@ -3040,12 +3460,47 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    ID_AGRAVO:
+      codes:
+        '1': Dengue
+        '2': Chikungunya
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
     IMUNOH_N:
       codes:
         '1': Positivo
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    LACO:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    LEUCOPENIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    MIALGIA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    NAUSEA:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    PETEQUIA_N:
+      codes:
+        '1': Sim
+        '2': Não
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    RENAL:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
     RESUL_NS1:
       codes:
@@ -3108,6 +3563,11 @@ series:
         '1': Sim
         '2': Não
         '3': Indeterminado
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+    VOMITO:
+      codes:
+        '1': Sim
+        '2': Não
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
   DERM:
     AFASTAMENT:
@@ -3571,6 +4031,11 @@ series:
     STCURA1:
       codes:
         '0': 0 (zero)
+        '1': 1 ou +
+        '2': Não Realizado
+      source_ref: esquistossomose__DIC_DADOS_Esquistossomose_v5.pdf
+    STCURA2:
+      codes:
         '1': 1 ou +
         '2': Não Realizado
       source_ref: esquistossomose__DIC_DADOS_Esquistossomose_v5.pdf
@@ -8071,6 +8536,11 @@ series:
         '2': Negativo
         '3': Em andamento
         '4': Não realizado
+      source_ref: tuberculose__DICI_DADOS_NET_Tuberculose_23_07_2020.pdf
+    OPORTU:
+      codes:
+        '1': oportuno
+        '2': inoportuno
       source_ref: tuberculose__DICI_DADOS_NET_Tuberculose_23_07_2020.pdf
     POP_IMIG:
       codes:

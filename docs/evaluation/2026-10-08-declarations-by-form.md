@@ -26,3 +26,10 @@
 - Almost every disagreement is the tabulation's `0` (undocumented on the form) lumped with the form's `9`.
 - Over the 23 datasets whose coverage runs (PegaSUS `fields.coverage`), columns read rose from 674 to 906; 415 still wait for missing codes and 400 are draft roles.
 - The one-source columns need their form's dictionary harvested. Chikungunya's signs share the dengue and chikungunya form, but no source here says so; a declaration resting on that waits for the form.
+
+**The online dictionaries harvested** (`scripts/harvest_codes.py`, same day).
+- SINAN Online's dictionaries (dengue, chikungunya) print no type or width cell, so the harvester skipped every row. It now reads that layout: the categories in the first cell that reads as codes, the DBF name last, an accent dropped (ÁCIDO_PEPT).
+- New code tables: 46 chikungunya and 46 dengue fields, and one each from schistosomiasis (STCURA2) and tuberculosis (OPORTU), read as their dictionaries print them.
+- Chikungunya re-proposed: the form decides 44 columns (from 14), 18 rest on the tabulation only, and 10 disagree. CEFALEIA: the form has 1 and 2 only, while the tabulation calls 0 "Ign/Branco"; CONJUNTVIT likewise with 5.
+- PegaSUS's readable columns: 950 of 2,175 (371 wait for missing codes, 400 are draft roles).
+
