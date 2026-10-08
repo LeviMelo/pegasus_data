@@ -1,0 +1,242 @@
+dataset: SINAN-NTRA
+record: notification
+columns:
+  CS_INQUERI:
+    role: survey.survey_type
+    kind: category
+    model: mark
+    name: Tipo de inquérito
+    years:
+    - 2010
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2010
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2010
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2010
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2010
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2010
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2010
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2010
+    - 2026
+  IDENT_MICR:
+    role: notification.entry_workstation
+    kind: identifier
+    model: excluded
+    name: Identificação do micro
+    years:
+    - 2015
+    - 2015
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  NU_CASOEXA:
+    role: survey.cases_examined
+    kind: number
+    model: mark
+    name: Número de casos examinados
+    years:
+    - 2010
+    - 2026
+  NU_CASOPOS:
+    role: survey.cases_positive
+    kind: number
+    model: mark
+    name: Número de casos positivos
+    years:
+    - 2010
+    - 2026
+  NU_LOTE:
+    role: notification.nu_lote
+    kind: identifier
+    model: link_only
+    review: draft
+    name: Número do lote
+    years:
+    - 2010
+    - 2026
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2010
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2010
+    - 2026
+  NU_NOTIFIC:
+    role: notification.number
+    kind: identifier
+    model: link_only
+    name: Nº da notificação
+    years:
+    - 2015
+    - 2015
+  NU_SEMA_EP:
+    role: survey.epi_week
+    kind: number
+    model: mark
+    name: Semana epidemiológica
+    years:
+    - 2010
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2010
+    - 2026
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2010
+    - 2026
+    note: role from the notification block
+  TPUNINOT:
+    role: notification.unit_type
+    kind: category
+    model: mark
+    name: Tipo de Unidade Notificante
+    codelists:
+    - TIPOUNIDADE
+    years:
+    - 2010
+    - 2010

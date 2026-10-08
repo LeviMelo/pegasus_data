@@ -1,0 +1,969 @@
+dataset: SINAN-RAIV
+record: notification
+columns:
+  AEROFOBIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.aerophobia
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Aerofobia
+    years:
+    - 2007
+    - 2026
+  AGITACAO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.psychomotor_agitation
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Agitação psicomotora
+    years:
+    - 2007
+    - 2026
+  AGRESSIVI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.aggressiveness
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Agressividade
+    years:
+    - 2007
+    - 2026
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+    years:
+    - 2007
+    - 2026
+  ANTEC_POS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.prior_post_exposure_prophylaxis
+    kind: category
+    model: mark
+    name: Tem antecedentes de tratamento anti-rábico? - Pós-exposição
+    years:
+    - 2007
+    - 2026
+  ANTEC_PRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.prior_pre_exposure_prophylaxis
+    kind: category
+    model: mark
+    name: Tem antecedentes de tratamento anti-rábico? - Pré-exposição
+    years:
+    - 2007
+    - 2026
+  ANTI_RAB:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rabies_vaccine_given
+    kind: category
+    model: mark
+    name: Vacina antirrábica indicada
+    years:
+    - 2007
+    - 2026
+  ARRANHAO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.scratch
+    kind: category
+    model: mark
+    name: Exposição por arranhão
+    years:
+    - 2007
+    - 2026
+  CABECA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.head_or_neck_exposure
+    kind: category
+    model: mark
+    name: Exposição na cabeça ou pescoço
+    years:
+    - 2007
+    - 2026
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    name: Município Provável da Fonte de Infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  CONTATO:
+    missing: ['0', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'
+    role: case.contact_with_case_exposure_type_flag
+    kind: category
+    model: mark
+    name: "Contato\n"
+    years:
+    - 2007
+    - 2026
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: mark
+    name: País Provável da Fonte de Infecção
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    name: UF Provável da Fonte de Infecção
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    years:
+    - 2007
+    - 2026
+  CRITERIO:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Laboratório', 2='Óbito com clínica compatível + vínculo epidemiológico', 3='Evolução clínica incompatível'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_FLXRET:
+    role: notification.return_flow
+    kind: category
+    model: excluded
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2026
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DILACERANT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.lacerating_wound
+    kind: category
+    model: mark
+    name: Ferimento dilacerante
+    years:
+    - 2007
+    - 2026
+  DISFAGIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dysphagia
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Disfagia
+    years:
+    - 2007
+    - 2026
+  DOENCA_TRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  DOSES_A:
+    role: treatment.vaccine_doses_current
+    kind: number
+    model: mark
+    name: Número de doses aplicadas (tratamento atual)
+    years:
+    - 2007
+    - 2026
+  DT_APLI_SO:
+    role: case.date_serum_applied
+    kind: date
+    model: mark
+    name: Data da aplicação do soro
+    years:
+    - 2007
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_EXPO:
+    role: case.date_of_exposure
+    kind: date
+    model: mark
+    name: Data da exposição
+    years:
+    - 2007
+    - 2026
+  DT_INTERNA:
+    role: case.hospitalization_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-CHIK
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2026
+  DT_R_TRA:
+    role: case.date_current_treatment_started
+    kind: date
+    model: mark
+    name: Data do início do tratamento
+    years:
+    - 2007
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TR_RAB:
+    role: case.date_of_last_dose_of_previous_treatment
+    kind: date
+    model: mark
+    name: Data da última dose (tratamento anterior)
+    years:
+    - 2007
+    - 2026
+  DT_VAC1:
+    role: case.date_of_first_dose
+    kind: date
+    model: mark
+    name: Data da 1ª dose da vacina
+    years:
+    - 2007
+    - 2026
+  DT_VAC_ULT:
+    role: case.date_of_last_dose
+    kind: date
+    model: mark
+    name: Data da última dose da vacina
+    years:
+    - 2007
+    - 2026
+  ESPECIE_N:
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='canina', 2='felina', 3='quiróptera(m orcego)', 4='primata (macaco)', 5='raposa', 6='herbívora', 7='outra', 9='ignorada'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.animal_species
+    kind: category
+    model: mark
+    name: Espécie do animal agressor
+    years:
+    - 2007
+    - 2026
+  ESP_OUT:
+    role: case.attacking_animal_species_other_specified_text
+    kind: text
+    model: excluded
+    name: Espécie do animal agressor - Outra, especificar
+    years:
+    - 2007
+    - 2026
+  FEBRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.fever_symptom_present
+    kind: category
+    model: mark
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  FERIMENT_N:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='único', 2='múltiplo', 3='sem ferimento', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.wound_count_category
+    kind: category
+    model: mark
+    name: Ferimento
+    years:
+    - 2007
+    - 2026
+  FLXRECEBI:
+    role: notification.return_flow_received
+    kind: category
+    model: excluded
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2026
+  HIDROFOBI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.symptom_hydrophobia
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Hidrofobia
+    years:
+    - 2007
+    - 2026
+  HISTOLOG_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.histopathology
+    kind: category
+    model: mark
+    name: Histopatologia
+    years:
+    - 2007
+    - 2026
+  HOSPITALIZ:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 9='Ignorado'
+    role: case.hospitalized
+    kind: category
+    model: mark
+    name: Ocorreu Hospitalização?
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-CHIK
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  IMUNO_DIRE:
+    role: case.direct_immunofluorescence
+    kind: category
+    model: mark
+    name: Imunofluorescência direta
+    years:
+    - 2007
+    - 2026
+  IMUNO_INDI:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.indirect_immunofluorescence
+    kind: category
+    model: mark
+    name: Prova biológica
+    years:
+    - 2007
+    - 2026
+  INFERIORES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.lower_limb_exposure
+    kind: category
+    model: mark
+    name: Exposição em membros inferiores
+    years:
+    - 2007
+    - 2026
+  INFILTRA:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim total', 2='Sim parcial', 3='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.immunoglobulin_infiltrated_into_the_wound
+    kind: category
+    model: mark
+    name: Infiltração do soro na lesão
+    years:
+    - 2007
+    - 2026
+  LAMBEDURA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.lick
+    kind: category
+    model: mark
+    name: Exposição por lambedura
+    years:
+    - 2007
+    - 2026
+  MAOS_N:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hand_exposure
+    kind: category
+    model: mark
+    name: Exposição nas mãos
+    years:
+    - 2007
+    - 2026
+  MIGRADO_W:
+    role: notification.migrated
+    kind: category
+    model: excluded
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2026
+  MORDEDURA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.bite
+    kind: category
+    model: mark
+    name: Exposição por mordedura
+    years:
+    - 2007
+    - 2026
+  MUCOSA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.mucosal_involvement_flag
+    kind: category
+    model: mark
+    name: "Mucosa\n"
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  MUNICIPIO:
+    role: case.hospital_municipality
+    kind: place
+    model: mark
+    name: Município (da hospitalização)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-CHIK
+  NDUPLIC_N:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2026
+  NUM_DOSES:
+    role: treatment.vaccine_doses_previous
+    kind: number
+    model: mark
+    name: Número de doses aplicadas (tratamento anterior)
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  OUTRO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sign_other
+    kind: category
+    model: mark
+    name: Outro (Exames Realizados - Parasitológico Direto)
+    years:
+    - 2007
+    - 2026
+  OUTRO_DES:
+    role: case.free_text_detail_when_other_was_checked_text
+    kind: text
+    model: excluded
+    name: Outro (especificar)
+    years:
+    - 2007
+    - 2026
+  PARALISIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.paralysis
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Paralisia
+    years:
+    - 2007
+    - 2026
+  PARESTESI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.paresthesia
+    kind: category
+    model: mark
+    name: Principais sinais/sintomas - Parestesia
+    years:
+    - 2007
+    - 2026
+  PES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.foot_exposure
+    kind: category
+    model: mark
+    name: Exposição nos pés
+    years:
+    - 2007
+    - 2026
+  PROFUNDO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.deep_wound
+    kind: category
+    model: mark
+    name: Ferimento profundo
+    years:
+    - 2007
+    - 2026
+  PROVA_BIOL:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Positivo', 2='Negativo'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['3', '4'], which the form does not define
+    role: case.biological_test_mouse_inoculation_result
+    kind: category
+    model: mark
+    name: Diagnóstico laboratorial - Prova biológica
+    years:
+    - 2007
+    - 2026
+  QUANTID:
+    role: treatment.serum_ml
+    kind: number
+    model: mark
+    name: Quantidade de soro aplicada
+    years:
+    - 2007
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  SUPERFICIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.superficial_wound
+    kind: category
+    model: mark
+    name: Ferimento superficial
+    years:
+    - 2007
+    - 2026
+  SUPERIORES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.upper_limb_exposure
+    kind: category
+    model: mark
+    name: Exposição em membros superiores
+    years:
+    - 2007
+    - 2026
+  TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; the tabulation: no value labelled as not recorded
+    role: case.autochthonous
+    kind: category
+    model: mark
+    name: Caso é Autóctone da Residência?
+    codelists:
+    - AUTOCTONE
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  TRA_SORO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rabies_immunoglobulin
+    kind: category
+    model: mark
+    name: Soro antirrábico
+    years:
+    - 2007
+    - 2026
+  TRONCO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.trunk_exposure
+    kind: category
+    model: mark
+    name: Exposição no tronco
+    years:
+    - 2007
+    - 2026
+  UF:
+    role: case.hospital_state
+    kind: category
+    model: mark
+    name: UF de hospitalização
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: A state the patient was hospitalised in; its code system is not read.
+  VACINAD:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.animal_vaccinated
+    kind: category
+    model: mark
+    name: Animal vacinado
+    years:
+    - 2007
+    - 2026
+  VARIA_VIR:
+    role: case.viral_variant_identified
+    kind: category
+    model: mark
+    name: Variante
+    years:
+    - 2007
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

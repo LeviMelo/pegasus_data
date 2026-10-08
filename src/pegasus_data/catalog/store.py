@@ -688,6 +688,12 @@ class CatalogStore:
         clause = f" WHERE {where}" if where else ""
         return int(self.scalar(f"SELECT COUNT(*) FROM {table}{clause}", params) or 0)
 
+    def has_rows(self, table: str, where: str = "", params: Sequence[Any] = ()) -> bool:
+        """Whether ``table`` holds any row (matching ``where``): the question `count` answered by counting all of them
+        (``dictionary``: 2.7 s on every labelled read, 2026-10-08)."""
+        clause = f" WHERE {where}" if where else ""
+        return bool(self.scalar(f"SELECT EXISTS (SELECT 1 FROM {table}{clause})", params))
+
     # ---------------------------------------------------------------- L0 files
 
     def upsert_files(self, rows: Iterable[dict[str, Any]]) -> int:

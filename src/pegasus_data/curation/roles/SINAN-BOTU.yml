@@ -1,0 +1,1478 @@
+dataset: SINAN-BOTU
+record: notification
+columns:
+  AGENTE_OUT:
+    role: case.discard_agent_text
+    kind: text
+    model: excluded
+    name: Se descartado, especificar outro agente
+    years:
+    - 2007
+    - 2026
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+    years:
+    - 2009
+    - 2026
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CRITERIO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Laboratorial', 2='Clínico-epidemiológico'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DOENCA_TRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  DSALIMENTO:
+    role: case.suspected_food_text
+    kind: text
+    model: excluded
+    name: Se sim, qual alimento suspeito
+    years:
+    - 2007
+    - 2026
+  DSCAUSALIM:
+    role: case.cause_incriminated_food_text
+    kind: text
+    model: excluded
+    name: Qual a causa/ alimento incriminado/ alimento potencialmente suspeito
+    years:
+    - 2007
+    - 2026
+  DS_ALI1:
+    role: case.food_type_1_text
+    kind: text
+    model: excluded
+    name: Tipo de alimento 1
+    years:
+    - 2007
+    - 2026
+  DS_ALI1OUT:
+    role: case.material_collected_specify_food_1_text
+    kind: text
+    model: excluded
+    name: Material coletado - Especificar alimento 1
+    years:
+    - 2007
+    - 2026
+  DS_ALI2:
+    role: case.food_type_2_text
+    kind: text
+    model: excluded
+    name: Tipo de alimento 2
+    years:
+    - 2007
+    - 2026
+  DS_ALI2OUT:
+    role: case.material_collected_specify_food_2_text
+    kind: text
+    model: excluded
+    name: Material coletado - Especificar alimento 2
+    years:
+    - 2007
+    - 2026
+  DS_FIM_GES:
+    role: case.time_last_ingestion_to_onset
+    kind: number
+    model: mark
+    measure: false
+    name: Se múltipla, tempo decorrido entre a última ingestão e início dos sintomas
+    years:
+    - 2007
+    - 2026
+    note: 'An exposure-to-onset time whose unit the form does not document: not a measurement as recorded.'
+  DS_INDUS:
+    role: case.industrial_food_brand_expiry_date_and_batch_text
+    kind: text
+    model: excluded
+    name: Se Industrial/ Comercial, especificar marca, data de validade e lote
+    years:
+    - 2007
+    - 2026
+  DS_INGEST:
+    role: case.time_ingestion_to_onset
+    kind: number
+    model: mark
+    measure: false
+    name: Se única, tempo decorrido entre ingestão e início dos sintomas
+    years:
+    - 2007
+    - 2026
+    note: 'An exposure-to-onset time whose unit the form does not document: not a measurement as recorded.'
+  DS_INI_GES:
+    role: case.time_first_ingestion_to_onset
+    kind: number
+    model: mark
+    measure: false
+    name: Se múltipla, tempo decorrido entre a primeira ingestão e início dos sintomas
+    years:
+    - 2007
+    - 2026
+    note: 'An exposure-to-onset time whose unit the form does not document: not a measurement as recorded.'
+  DS_LOCAL1:
+    role: case.place_of_consumption_1_text
+    kind: text
+    model: excluded
+    name: Local de consumo 1
+    years:
+    - 2007
+    - 2026
+  DS_LOCAL2:
+    role: case.place_of_consumption_2_text
+    kind: text
+    model: excluded
+    name: Local de consumo 2
+    years:
+    - 2007
+    - 2026
+  DS_OUTRO:
+    role: case.other_material_collected_specify_text
+    kind: text
+    model: excluded
+    name: Material coletado - Outros (especificar)
+    years:
+    - 2007
+    - 2026
+  DS_OUTROSI:
+    role: case.other_signs_and_symptoms_specify_text
+    kind: text
+    model: excluded
+    name: Sinais e sintomas - Outros (especificar)
+    years:
+    - 2007
+    - 2026
+  DS_OUTR_LO:
+    role: case.place_of_ingestion_other_specify_text
+    kind: text
+    model: excluded
+    name: Local da ingestão - Se outro, especificar
+    years:
+    - 2007
+    - 2026
+  DS_PARES:
+    role: case.paresthesia_where_text
+    kind: text
+    model: excluded
+    name: Sinais e sintomas - Parestesia (onde)
+    years:
+    - 2007
+    - 2026
+  DS_TRAT:
+    role: case.other_treatment_specify_text
+    kind: text
+    model: excluded
+    name: Tratamento - Se outros, especificar
+    years:
+    - 2007
+    - 2026
+  DTALTA:
+    role: case.hospital_discharge_date
+    kind: date
+    model: mark
+    name: "Data da Alta\n"
+    years:
+    - 2007
+    - 2026
+  DTATEND:
+    role: case.date_of_first_medical_attendance
+    kind: date
+    model: mark
+    name: Data do 1º atendimento
+    years:
+    - 2007
+    - 2026
+  DTELETRO:
+    role: case.electroneuromyography_date
+    kind: date
+    model: mark
+    name: Eletroneuromiografia - Data da realização
+    years:
+    - 2007
+    - 2026
+  DTFEZESCOL:
+    role: case.stool_collection_date
+    kind: date
+    model: mark
+    name: Data da coleta - Fezes
+    years:
+    - 2007
+    - 2026
+  DTINTERNA:
+    role: case.hospital_admission_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-FMAC
+  DTSORO:
+    role: case.antibotulinum_serum_administration_date
+    kind: date
+    model: mark
+    name: Se recebeu soro antibotulínico, data da administração
+    years:
+    - 2007
+    - 2026
+  DTSOROCOL:
+    role: case.serum_collection_date
+    kind: date
+    model: mark
+    name: Data da coleta - Soro
+    years:
+    - 2007
+    - 2026
+  DTSUSPEIC:
+    role: case.date_of_clinical_suspicion
+    kind: date
+    model: mark
+    name: Data da suspeição clínica
+    years:
+    - 2007
+    - 2026
+  DT_ALI1COL:
+    role: case.collection_date_food_item_1
+    kind: date
+    model: mark
+    name: Data da coleta - Alimento 1
+    years:
+    - 2007
+    - 2026
+  DT_ALI2COL:
+    role: case.collection_date_food_item_2
+    kind: date
+    model: mark
+    name: Data da coleta - Alimento 2
+    years:
+    - 2007
+    - 2026
+  DT_COLOUT:
+    role: case.collection_date_other
+    kind: date
+    model: mark
+    name: Data da coleta - Outro
+    years:
+    - 2007
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2009
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_LIQUOR:
+    role: case.collection_date_csf
+    kind: date
+    model: mark
+    name: Líquor - Data da coleta
+    years:
+    - 2007
+    - 2026
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: excluded
+    name: Data de Nascimento
+    years:
+    - 2007
+    - 2015
+    note: 'A personal birth date (DATA_SOURCES: BOTU 2007-15 still carries DT_NASC): passed through unmodified and
+      flagged, never modelled.'
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2009
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRNASRM:
+    role: notification.dt_trnasrm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de transmissão (RM)
+    years:
+    - 2009
+    - 2026
+  EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Cura', 2='Óbito por botulismo', 3='Óbito por outras causas', 9='Ignorado'; the tabulation: 9='Ignorado'
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  MUN_HOSP:
+    role: case.municipality_of_hospitalization
+    kind: place
+    model: mark
+    name: "Município do Hospital\n"
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  MUN_ING:
+    role: case.municipality_where_the_suspect_food_was_eaten
+    kind: place
+    model: mark
+    name: Município onde ingeriu o alimento suspeito
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+  NUATEND:
+    role: case.visits_until_suspicion
+    kind: number
+    model: mark
+    name: Nº total de atendimentos até a suspeição clínica
+    years:
+    - 2007
+    - 2026
+  NUCONSOME:
+    role: case.people_who_ate_suspect_food
+    kind: number
+    model: mark
+    name: Número de pessoas (comensais) que consumiram o alimento suspeito
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_CELULA:
+    role: case.csf_cells_mm3
+    kind: number
+    model: mark
+    name: Líquor - número de células/mm3
+    years:
+    - 2007
+    - 2026
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2009
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2009
+    - 2026
+  NU_PROTEI:
+    role: case.csf_protein_mg
+    kind: number
+    model: mark
+    name: Líquor - Proteínas mg%
+    years:
+    - 2007
+    - 2026
+  RESALIM1:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Presença de toxina', 2='Ausência de toxina', 3='Inconclusivo', 4='Não realizado'; the tabulation: no value labelled as not recorded
+    role: case.result_food_1
+    kind: category
+    model: mark
+    name: Resultado - Alimento 1
+    years:
+    - 2007
+    - 2026
+  RESALIMOUT:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Presença de toxina', 2='Ausência de toxina', 3='Inconclusivo', 4='Não realizado'; the tabulation: no value labelled as not recorded
+    role: case.result_other_material
+    kind: category
+    model: mark
+    name: Resultado - Outro
+    years:
+    - 2007
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  STALIMENTO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 9='Ignorado'
+    role: case.suspected_foodborne_transmission
+    kind: category
+    model: mark
+    name: Suspeita de transmissão alimentar?
+    years:
+    - 2007
+    - 2026
+  STANTIBIO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.antibiotic_given_flag
+    kind: category
+    model: mark
+    name: Tratamento - Antibioticoterapia
+    years:
+    - 2007
+    - 2026
+  STANTIBOTU:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.antitoxin_given_after_clinical_sample_collection
+    kind: category
+    model: mark
+    name: Se recebeu soro antibotulínico, foi após a coleta do material clínico?
+    years:
+    - 2007
+    - 2026
+  STBOCA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dry_mouth
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Boca seca
+    years:
+    - 2007
+    - 2026
+  STBROMATO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.botulinum_toxin_in_food_bromatological_sample
+    kind: category
+    model: mark
+    name: Presença de toxina botulínica na amostra bromatológica
+    years:
+    - 2007
+    - 2026
+  STBULBAR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.neurological_exam_bulbar_muscle_involvement
+    kind: category
+    model: mark
+    name: Exame neurológico - Comprometimento da musculatura bulbar
+    years:
+    - 2007
+    - 2026
+  STCARDIACA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sign_heart_failure
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Insuficiência cardíaca
+    years:
+    - 2007
+    - 2026
+  STCASEIRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.home_made_food_source
+    kind: category
+    model: mark
+    name: Produção do alimento suspeito - Caseira
+    years:
+    - 2007
+    - 2026
+  STCEFALEIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.headache
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Cefaleia
+    years:
+    - 2007
+    - 2026
+  STCLINICA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.botulinum_toxin_in_clinical_sample
+    kind: category
+    model: mark
+    name: Presença de toxina botulínica na amostra clínica
+    years:
+    - 2007
+    - 2026
+  STCOMA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.coma
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Coma
+    years:
+    - 2007
+    - 2026
+  STCOMERCIO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.commercial_food_source
+    kind: category
+    model: mark
+    name: Produção do alimento suspeito - Industrial/ Comercial
+    years:
+    - 2007
+    - 2026
+  STCONSTIPA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.constipation
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Constipação
+    years:
+    - 2007
+    - 2026
+  STDESCENDE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.neurological_exam_descending_weakness
+    kind: category
+    model: mark
+    name: Exame neurológico - Fraqueza descendente
+    years:
+    - 2007
+    - 2026
+  STDIARREIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.diarrhea
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Diarreia
+    years:
+    - 2007
+    - 2026
+  STDIPLOPIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.double_vision_diplopia
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Diplopia
+    years:
+    - 2007
+    - 2026
+  STDISARTRI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dysarthria_slurred_speech
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Disartria
+    years:
+    - 2007
+    - 2026
+  STDISFAGIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dysphagia_difficulty_swallowing
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Disfagia
+    years:
+    - 2007
+    - 2026
+  STDISFONIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dysphonia_voice_change
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Disfonia
+    years:
+    - 2007
+    - 2026
+  STDISPNEIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dyspnea_shortness_of_breath
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Dispneia
+    years:
+    - 2007
+    - 2026
+  STDOMICILI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.home_exposure_setting
+    kind: category
+    model: mark
+    name: Local da ingestão - Domicílio
+    years:
+    - 2007
+    - 2026
+  STELETRO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Realizado', 2='Não Realizado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.electroneuromyography_performed
+    kind: category
+    model: mark
+    name: Exames complementares - Eletroneuromiografia
+    years:
+    - 2007
+    - 2026
+  STESCOLA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.school_exposure_setting
+    kind: category
+    model: mark
+    name: Local da ingestão - Creche/ escola
+    years:
+    - 2007
+    - 2026
+  STEXPALIM:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    role: case.exposure_to_the_food
+    kind: category
+    model: mark
+    name: Exposição ao alimento
+    years:
+    - 2007
+    - 2026
+  STFACIAL:
+    role: case.facial_paralysis
+    kind: category
+    model: mark
+    name: Exame neurológico - Paralisia facial
+    years:
+    - 2007
+    - 2026
+  STFEBRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.fever
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Febre
+    years:
+    - 2007
+    - 2026
+  STFERIMENT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sign_wound
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Ferimento
+    years:
+    - 2007
+    - 2026
+  STFESTA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.party_event_exposure_setting
+    kind: category
+    model: mark
+    name: Local da ingestão - Festa
+    years:
+    - 2007
+    - 2026
+  STFEZESMAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.stool_sample_collected
+    kind: category
+    model: mark
+    name: Material coletado - Fezes
+    years:
+    - 2007
+    - 2026
+  STFEZESRES:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Presença de toxina', 2='Ausência de toxina', 3='Inconclusivo', 4='Não realizado'; the tabulation: no value labelled as not recorded
+    role: case.stool_test_result
+    kind: category
+    model: mark
+    name: Resultado - Fezes
+    years:
+    - 2007
+    - 2026
+  STFLACIDEZ:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sign_neck_flaccidity
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Flacidez de pescoço
+    years:
+    - 2007
+    - 2026
+  STHOSPITAL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hospitalised
+    kind: category
+    model: mark
+    name: Hospitalização
+    years:
+    - 2007
+    - 2026
+  STMEMINF:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.neurological_exam_lower_limb_weakness
+    kind: category
+    model: mark
+    name: Exame neurológico - Fraqueza em membros inferiores
+    years:
+    - 2007
+    - 2026
+  STMEMSUP:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.neurological_exam_upper_limb_weakness
+    kind: category
+    model: mark
+    name: Exame neurológico - Fraqueza em membros superiores
+    years:
+    - 2007
+    - 2026
+  STMIDRIASE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.mydriasis_dilated_pupils
+    kind: category
+    model: mark
+    name: Exame neurológico - Midríase
+    years:
+    - 2007
+    - 2026
+  STNAUSEA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.nausea
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Náusea
+    years:
+    - 2007
+    - 2026
+  STOFTALMO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.ophthalmoplegia
+    kind: category
+    model: mark
+    name: Exame neurológico - Oftalmoparesia / Oftalmoplegia
+    years:
+    - 2007
+    - 2026
+  STOUTROLOC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.other_exposure_setting
+    kind: category
+    model: mark
+    name: Local da ingestão - Outro
+    years:
+    - 2007
+    - 2026
+  STOUTROSIN:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.other_sign_or_symptom_flag
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Outros
+    years:
+    - 2007
+    - 2026
+  STOUTROTRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.other_treatment_flag
+    kind: category
+    model: mark
+    name: Tratamento - Outros
+    years:
+    - 2007
+    - 2026
+  STPARESTES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.paresthesia
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Parestesia
+    years:
+    - 2007
+    - 2026
+  STPTOSE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.ptosis_drooping_eyelid
+    kind: category
+    model: mark
+    name: Exame neurológico - Ptose palpebral
+    years:
+    - 2007
+    - 2026
+  STRESPIRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.respiratory_failure
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Insuficiência respiratória
+    years:
+    - 2007
+    - 2026
+  STRESTAURA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.restaurant_exposure_setting
+    kind: category
+    model: mark
+    name: Local da ingestão - Restaurante/ Bar/ Lanchonete
+    years:
+    - 2007
+    - 2026
+  STSENSIVEL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sensory_impairment
+    kind: category
+    model: mark
+    name: Exame neurológico - Alterações de sensibilidade
+    years:
+    - 2007
+    - 2026
+  STSIMETRIC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.neurological_exam_symmetric_weakness
+    kind: category
+    model: mark
+    name: Exame neurológico - Fraqueza simétrica
+    years:
+    - 2007
+    - 2026
+  STSORO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.treatment_botulinum_antitoxin
+    kind: category
+    model: mark
+    name: Tratamento - Soro antibotulínico
+    years:
+    - 2007
+    - 2026
+  STSOROMAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.material_collected_serum
+    kind: category
+    model: mark
+    name: Material coletado - Soro
+    years:
+    - 2007
+    - 2026
+  STSORORES:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Presença de toxina', 2='Ausência de toxina', 3='Inconclusivo', 4='Não realizado'; the tabulation: no value labelled as not recorded
+    role: case.result_serum
+    kind: category
+    model: mark
+    name: Resultado - Soro
+    years:
+    - 2007
+    - 2026
+  STTONTURA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dizziness_symptom
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Tontura
+    years:
+    - 2007
+    - 2026
+  STTRABALHO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.place_of_ingestion_workplace
+    kind: category
+    model: mark
+    name: Local da ingestão - Trabalho
+    years:
+    - 2007
+    - 2026
+  STVENTILA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.mechanical_ventilation_required_flag
+    kind: category
+    model: mark
+    name: Tratamento - Assistência ventilatória
+    years:
+    - 2007
+    - 2026
+  STVISAO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.sign_blurred_vision
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Visão turva
+    years:
+    - 2007
+    - 2026
+  STVOMITO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.vomiting_symptom
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Vômito
+    years:
+    - 2007
+    - 2026
+  ST_ALI1COL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    role: case.first_suspect_food_sample_collected_flag
+    kind: category
+    model: mark
+    name: Coletou material? - Alimento 1
+    years:
+    - 2007
+    - 2026
+  ST_ALI2COL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    role: case.suspect_food_item_2_sample_collected_flag
+    kind: category
+    model: mark
+    name: Coletou material? - Alimento 2
+    years:
+    - 2007
+    - 2026
+  ST_ALI2RES:
+    role: case.result_food_2
+    kind: category
+    model: mark
+    name: Resultado - Alimento 2
+    years:
+    - 2007
+    - 2026
+  TPBOTULISM:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Alimentar', 2='Intestinal', 3='Por ferimento', 4='Outra'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.botulism_form
+    kind: category
+    model: mark
+    name: Forma clínica do botulismo
+    years:
+    - 2007
+    - 2026
+  TPBROMATO:
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='A', 2='B', 3='AB', 4='E', 5='F', 6='G', 7='Outra', 9='Ignorado'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.toxin_type_in_food
+    kind: category
+    model: mark
+    name: Toxina identificada no alimento
+    years:
+    - 2007
+    - 2026
+  TPCLINICA:
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='A', 2='B', 3='AB', 4='E', 5='F', 6='G', 7='Outra', 9='Ignorado'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.toxin_type_in_clinical_sample
+    kind: category
+    model: mark
+    name: Toxina identificada na amostra clínica
+    years:
+    - 2007
+    - 2026
+  TPFEZESTOX:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='A', 2='B', 3='AB', 4='E', 5='F', 6='G', 7='Outra', 9='Ign'; the tabulation: no value labelled as not recorded
+    role: case.toxin_type_stool
+    kind: category
+    model: mark
+    name: Tipo de toxina - Fezes
+    years:
+    - 2007
+    - 2026
+  TPNEURO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Normais', 2='Aumentados', 3='Reduzidos/Ausentes', 9='Ignorado'; the tabulation: 9='Ignorado'
+    role: case.neurological_reflexes
+    kind: category
+    model: mark
+    name: Reflexos neurológicos
+    years:
+    - 2007
+    - 2026
+  TPSOROTOX:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='A', 2='B', 3='AB', 4='E', 5='F', 6='G', 7='Outra', 9='Ign'; the tabulation: no value labelled as not recorded
+    role: case.toxin_type_serum
+    kind: category
+    model: mark
+    name: Tipo de toxina - Soro
+    years:
+    - 2007
+    - 2026
+  TP_ALI1TOX:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='A', 2='B', 3='AB', 4='E', 5='F', 6='G', 7='Outra', 9='Ign'; the tabulation: no value labelled as not recorded
+    role: case.toxin_type_food_1
+    kind: category
+    model: mark
+    name: Tipo de toxina - Alimento 1
+    years:
+    - 2007
+    - 2026
+  TP_ALI2TO:
+    role: case.toxin_type_food_2
+    kind: category
+    model: mark
+    name: Tipo de toxina - Alimento 2
+    years:
+    - 2007
+    - 2026
+  TP_COLOUT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    role: case.material_collected_other
+    kind: category
+    model: mark
+    name: Coletou material? - Outros
+    years:
+    - 2007
+    - 2026
+  TP_LIQUOR:
+    missing: ['0', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Realizado', 2='Não Realizado'; the tabulation: 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.csf_examination_performed
+    kind: category
+    model: mark
+    name: 'Exames complementares: líquor'
+    years:
+    - 2007
+    - 2026
+  TP_MOTORA:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Normal', 2='Diminuição de amplitude', 3='Lentificações'; the tabulation: no value labelled as not recorded
+    role: case.motor_nerve_conduction
+    kind: category
+    model: mark
+    name: Neurocondução motora
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  TP_REPETE:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Normal', 2='Decremento (freq baixa)', 3='Incremento (freq alta)'; the tabulation: no value labelled as not recorded
+    role: case.repetitive_nerve_stimulation
+    kind: category
+    model: mark
+    name: Estimulação repetitiva
+    years:
+    - 2007
+    - 2026
+  TP_SENSITI:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Normal', 2='Diminuição de amplitude', 3='Lentificações'; the tabulation: no value labelled as not recorded
+    role: case.sensory_nerve_conduction
+    kind: category
+    model: mark
+    name: Neurocondução sensitiva
+    years:
+    - 2007
+    - 2026
+  TP_TOXOUTR:
+    role: case.toxin_type_other_material
+    kind: category
+    model: mark
+    name: Tipo de toxina - Outro
+    years:
+    - 2007
+    - 2026
+  UF_HOSP:
+    role: case.state_uf_of_hospitalization
+    kind: category
+    model: mark
+    name: "UF do Hospital\n"
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  UF_ING:
+    role: case.state_uf_where_food_was_ingested
+    kind: category
+    model: mark
+    name: UF de ingestão do alimento suspeito
+    years:
+    - 2007
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

@@ -1,0 +1,843 @@
+dataset: SINAN-PNEU
+record: notification
+columns:
+  AFAST_RISC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_risk_removal
+    kind: category
+    model: mark
+    name: Conduta geral – afastamento do agente do risco com mudança de função e/ou posto de trabalho
+    years:
+    - 2006
+    - 2026
+  AFAST_TRAB:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_workplace_removal
+    kind: category
+    model: mark
+    name: Conduta geral – afastamento do local de trabalho
+    years:
+    - 2006
+    - 2026
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+    years:
+    - 2006
+    - 2026
+  ARTRITE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.associated_rheumatoid_arthritis
+    kind: category
+    model: mark
+    name: Sinais clínicos – Artrite
+    years:
+    - 2006
+    - 2026
+  ASBESTO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_asbestos
+    kind: category
+    model: mark
+    name: Agentes de Exposição - Asbesto
+    years:
+    - 2006
+    - 2026
+  BERILIO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_beryllium
+    kind: category
+    model: mark
+    name: "Agentes de Exposição — Berílio\n"
+    years:
+    - 2006
+    - 2026
+  BIOPSIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_lung_biopsy
+    kind: category
+    model: mark
+    name: Confirmação diagnóstica - Biópsia pulmonar
+    years:
+    - 2006
+    - 2026
+  CANCER:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.associated_cancer
+    kind: category
+    model: mark
+    name: Agravos associados - Câncer
+    years:
+    - 2006
+    - 2026
+  CARVAO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_coal_dust
+    kind: category
+    model: mark
+    name: Agentes de exposição - Poeiras de carvão mineral
+    years:
+    - 2006
+    - 2026
+  CAT:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não se aplica', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cat_issued
+    kind: category
+    model: mark
+    name: Comunicação de Acidente de Trabalho (CAT) Emitida?
+    codelists:
+    - SIM_NAOAP
+    years:
+    - 2006
+    - 2026
+  CNAE:
+    role: patient.employer_activity
+    kind: code_tree
+    model: dimension
+    name: Código da Atividade Econômica (CNAE)
+    codelists:
+    - CNAENET
+    - CNAE20
+    years:
+    - 2006
+    - 2026
+    note: role from SINAN-ACBI
+  COLETIVA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_collective_protection
+    kind: category
+    model: mark
+    name: Conduta geral – adoção de proteção coletiva
+    years:
+    - 2006
+    - 2026
+  CONDUTA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_other
+    kind: category
+    model: mark
+    name: Conduta geral – outros
+    years:
+    - 2006
+    - 2026
+  CONDUT_DES:
+    role: case.conduct_other_text
+    kind: text
+    model: excluded
+    name: Conduta geral, se outros – especificar
+    years:
+    - 2006
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  DIAG_ESP:
+    role: case.specific_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    name: Diagnóstico específico (CID 10)
+    years:
+    - 2006
+    - 2026
+    note: "ICD-10 codes, some written with a trailing dot (M75.): those do not match ICD-10's widths and stay undecoded,
+      visibly."
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: mark
+    name: Data do Diagnóstico
+    years:
+    - 2006
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2006
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2006
+    - 2026
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2006
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2006
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2006
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2006
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2006
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2006
+    - 2026
+  EVOLUCAO:
+    missing: ['0', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Cura', 2='Cura não confirmada', 3='Incapacidade temporária', 4='Incapacidade permanente parcial', 5='Incapacidade permanente total', 6='Óbito por doença relacionada ao trabalho', 7='Óbito por outra causa', 8='Outro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2006
+    - 2026
+  FLUXO_AERE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.associated_airflow_limitation
+    kind: category
+    model: mark
+    name: Agravos associados - Limitação crônica ao fluxo aéreo
+    years:
+    - 2006
+    - 2026
+  FUMA:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 3='Ex-fumante', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: patient.smoking
+    kind: category
+    model: mark
+    name: Hábito de fumar
+    years:
+    - 2006
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2006
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  INDIVIDUAL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_individual_protection
+    kind: category
+    model: mark
+    name: Conduta geral – adoção de proteção individual
+    years:
+    - 2006
+    - 2026
+  METAL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_hard_metals
+    kind: category
+    model: mark
+    name: Agentes de Exposição - Metais duros
+    years:
+    - 2006
+    - 2026
+  MUDA_TRAB:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_work_reorganisation
+    kind: category
+    model: mark
+    name: Conduta geral – adoção de mudança na organização do trabalho
+    years:
+    - 2006
+    - 2026
+  MUN_EMP:
+    role: patient.employer_municipality
+    kind: place
+    model: mark
+    name: Município da Empresa Contratante
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2006
+    - 2026
+  NENHUM:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.conduct_none
+    kind: category
+    model: mark
+    name: Conduta geral – nenhuma
+    years:
+    - 2006
+    - 2026
+  NUTEMPO:
+    role: patient.time_in_occupation
+    kind: number
+    model: mark
+    measure: false
+    name: Tempo de Trabalho na Ocupação (valor)
+    years:
+    - 2006
+    - 2026
+    note: 'A magnitude whose unit is TPTEMPO (hours, days, months, years): not a measurement on its own.'
+  NUTEMPORIS:
+    role: case.risk_exposure_time
+    kind: number
+    model: mark
+    measure: false
+    name: Tempo de exposição ao agente de risco
+    years:
+    - 2006
+    - 2026
+    note: 'A magnitude whose unit is TPTEMPORIS: not a measurement on its own.'
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2006
+    - 2026
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2006
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2006
+    - 2026
+  OUTRO_DOE:
+    role: case.associated_other
+    kind: category
+    model: mark
+    name: Agravos associados - Outros
+    years:
+    - 2006
+    - 2026
+  OUT_DOE_DE:
+    role: case.associated_other_text
+    kind: text
+    model: excluded
+    name: Agravos associados - se Outros, especificar
+    years:
+    - 2006
+    - 2026
+  OUT_EXAME:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_other
+    kind: category
+    model: mark
+    name: Confirmação diagnóstica - Outro
+    years:
+    - 2006
+    - 2026
+  POEIRAS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.dust_exposure_multiple_jobs
+    kind: category
+    model: mark
+    name: A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa
+    years:
+    - 2006
+    - 2026
+  POE_ABRASI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_abrasive_dust
+    kind: category
+    model: mark
+    name: Agentes de exposição - Poeiras de abrasivos
+    years:
+    - 2006
+    - 2026
+  POE_MISTA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_mixed_dust
+    kind: category
+    model: mark
+    name: Agentes de exposição - Poeira mista (silicato, talco)
+    years:
+    - 2006
+    - 2026
+  POE_ORGANI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_organic_dust
+    kind: category
+    model: mark
+    name: Agentes de exposição - Poeiras orgânicas
+    years:
+    - 2006
+    - 2026
+  RAIOX:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_chest_xray
+    kind: category
+    model: mark
+    name: Confirmação Diagnóstica - Radiografia de tórax
+    years:
+    - 2006
+    - 2026
+  REGIME:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='hospitalar', 2='ambulatorial'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: treatment.setting
+    kind: category
+    model: mark
+    name: Regime de Tratamento
+    years:
+    - 2006
+    - 2026
+  SEM_DIAG:
+    role: case.diagnosis_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica do Diagnóstico
+    years:
+    - 2006
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2006
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2006
+    - 2026
+    note: role from the notification block
+  SILICA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.exposure_silica
+    kind: category
+    model: mark
+    name: "Agentes de Exposição — Sílica\n"
+    years:
+    - 2006
+    - 2026
+  SIT_TRAB:
+    missing: ['00', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 01='Empregado registrado com carteira assinada', 02='Empregado não registrado', 03='Autônomo/conta própria', 04='Servidor público estatuário', 05='Servidor público celetista', 06='Aposentado', 07='Desempregado', 08='Trabalho temporário', 09='Cooperativado', 10='Trabalhador avulso', 11='Empregador', 12='Outros', 99='Ignorado'; the tabulation: 00='Ign/Branco', 13='Ign/Branco', 14='Ign/Branco', 15='Ign/Branco', 16='Ign/Branco', 17='Ign/Branco', 18='Ign/Branco', 19='Ign/Branco', 20='Ign/Branco', 21='Ign/Branco', 22='Ign/Branco', 23='Ign/Branco', 24='Ign/Branco', 25='Ign/Branco', 26='Ign/Branco', 27='Ign/Branco', 28='Ign/Branco', 29='Ign/Branco', 30='Ign/Branco', 31='Ign/Branco', 32='Ign/Branco', 33='Ign/Branco', 34='Ign/Branco', 35='Ign/Branco', 36='Ign/Branco', 37='Ign/Branco', 38='Ign/Branco', 39='Ign/Branco', 40='Ign/Branco', 41='Ign/Branco', 42='Ign/Branco', 43='Ign/Branco', 44='Ign/Branco', 45='Ign/Branco', 46='Ign/Branco', 47='Ign/Branco', 48='Ign/Branco', 49='Ign/Branco', 50='Ign/Branco', 51='Ign/Branco', 52='Ign/Branco', 53='Ign/Branco', 54='Ign/Branco', 55='Ign/Branco', 56='Ign/Branco', 57='Ign/Branco', 58='Ign/Branco', 59='Ign/Branco', 60='Ign/Branco', 61='Ign/Branco', 62='Ign/Branco', 63='Ign/Branco', 64='Ign/Branco', 65='Ign/Branco', 66='Ign/Branco', 67='Ign/Branco', 68='Ign/Branco', 69='Ign/Branco', 70='Ign/Branco', 71='Ign/Branco', 72='Ign/Branco', 73='Ign/Branco', 74='Ign/Branco', 75='Ign/Branco', 76='Ign/Branco', 77='Ign/Branco', 78='Ign/Branco', 79='Ign/Branco', 80='Ign/Branco', 81='Ign/Branco', 82='Ign/Branco', 83='Ign/Branco', 84='Ign/Branco', 85='Ign/Branco', 86='Ign/Branco', 87='Ign/Branco', 88='Ign/Branco', 89='Ign/Branco', 90='Ign/Branco', 91='Ign/Branco', 92='Ign/Branco', 93='Ign/Branco', 94='Ign/Branco', 95='Ign/Branco', 96='Ign/Branco', 97='Ign/Branco', 98='Ign/Branco', 99='Ign/Branco'; CONFLICT: the records use ['1', '2', '3', '4', '5', '6', '7'], which the form does not define
+    role: patient.labour_market_status
+    kind: category
+    model: dimension
+    name: Situação no Mercado de Trabalho
+    years:
+    - 2006
+    - 2026
+  STAVALIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.lung_function_test
+    kind: category
+    model: mark
+    name: Avaliação funcional (prova de função pulmonar)
+    years:
+    - 2006
+    - 2026
+  STRESULTA:
+    missing: []
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Normal', 2='Alterada'; the tabulation: no value labelled as not recorded
+    role: case.lung_function_result
+    kind: category
+    model: mark
+    name: Resultado da avaliação funcional
+    years:
+    - 2006
+    - 2026
+  TEMPO_FUMA:
+    role: patient.smoking_duration
+    kind: number
+    model: mark
+    measure: false
+    name: Tempo de exposição ao tabaco
+    years:
+    - 2006
+    - 2026
+    note: 'A magnitude whose unit is TP_TEMP_FU: not a measurement on its own.'
+  TERCEIRIZA:
+    role: patient.employer_subcontractor
+    kind: category
+    model: mark
+    name: Empregador é Empresa Terceirizada?
+    years:
+    - 2006
+    - 2026
+    note: role from SINAN-ACBI
+  TIREOIDITE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.associated_thyroiditis
+    kind: category
+    model: mark
+    name: Agravos associados - Tireoidite
+    years:
+    - 2006
+    - 2026
+  TOMOGRAFIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.confirmation_hrct
+    kind: category
+    model: mark
+    name: Confirmação diagnóstica - Tomografia de tórax de alta resolução
+    years:
+    - 2006
+    - 2026
+  TPTEMPO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='(hora)', 2='(dias)', 3='(meses)', 4='(anos)'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: patient.time_in_occupation_unit
+    kind: category
+    model: mark
+    name: Unidade do Tempo de Trabalho na Ocupação
+    codelists:
+    - TPTEMPOTRAB
+    years:
+    - 2006
+    - 2026
+  TPTEMPORIS:
+    role: case.risk_exposure_time_unit
+    kind: category
+    model: mark
+    name: Tempo de exposição ao agente de risco – unidade
+    codelists:
+    - HORADIAMESANO
+    years:
+    - 2006
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2006
+    - 2026
+  TP_TEMP_FU:
+    role: patient.smoking_duration_unit
+    kind: category
+    model: mark
+    name: Tempo de exposição ao tabaco – unidade
+    years:
+    - 2006
+    - 2026
+  TRAB_DOE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.other_workers_same_disease
+    kind: category
+    model: mark
+    name: Há ou houve outros trabalhadores com a mesma doença no local de trabalho
+    years:
+    - 2006
+    - 2026
+  TUBE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.associated_tuberculosis
+    kind: category
+    model: mark
+    name: Agravos associados – tuberculose
+    years:
+    - 2006
+    - 2026
+  UF_EMP:
+    role: patient.employer_state
+    kind: place
+    model: dimension
+    name: UF da Empresa Contratante
+    codelists:
+    - UF_BR
+    years:
+    - 2006
+    - 2026
+    note: role from SINAN-ACBI
+  VINC_ESP:
+    role: case.dust_exposure_jobs_text
+    kind: text
+    model: excluded
+    name: Especificar (vínculos distintos com exposição a poeiras)
+    years:
+    - 2006
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

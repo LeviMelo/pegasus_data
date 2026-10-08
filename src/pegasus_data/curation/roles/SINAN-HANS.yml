@@ -12,7 +12,7 @@ columns:
     - 2026
   AVALIA_N:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='Grau zero', 1='Grau I', 2='Grau II', 3='Não avaliado'; the tabulation: no value labelled as not recorded
     role: case.disability_at_diagnosis
     kind: category
     model: mark
@@ -22,7 +22,7 @@ columns:
     - 2026
   AVAL_ATU_N:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='grau zero', 1='grau I', 2='grau II', 3='Não avaliado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: treatment.disability_at_discharge
     kind: category
     model: mark
@@ -39,8 +39,8 @@ columns:
     - 2001
     - 2026
   CLASSATUAL:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='PB (Paucibacilar)', 2='MB (Multibacilar)'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.current_operational_class
     kind: category
     model: mark
@@ -49,8 +49,8 @@ columns:
     - 2001
     - 2026
   CLASSOPERA:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='PB - Paucibacilar', 2='MB - Multibacilar'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.operational_class
     kind: category
     model: mark
@@ -125,6 +125,9 @@ columns:
     - 2001
     - 2026
   DOSE_RECEB:
+    missing: []
+    domain: [0, 99]
+    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 0 of 22857 values in 2021 (none)
     role: treatment.supervised_doses
     kind: number
     model: mark
@@ -254,7 +257,7 @@ columns:
     - 2026
   EPIS_RACIO:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reação tipo 1', 2='Reação tipo 2', 3='Reação tipo 1 e 2'; the tabulation: no value labelled as not recorded
     role: case.reaction_episode
     kind: category
     model: mark
@@ -263,8 +266,8 @@ columns:
     - 2001
     - 2026
   ESQ_ATU_N:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='PQT/PB/06 doses', 2='PQT/MB/12 doses', 3='Outros Esquemas Substitutivos'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: treatment.current_regimen
     kind: category
     model: mark
@@ -273,8 +276,8 @@ columns:
     - 2001
     - 2026
   ESQ_INI_N:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='PQT/ PB/ 6 doses', 2='PQT/ MB/ 12 doses', 3='Outros Esquemas Substitutos'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: treatment.initial_regimen
     kind: category
     model: mark
@@ -291,8 +294,8 @@ columns:
     - 2001
     - 2026
   FORMACLINI:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 6='Ign/Branco', 9='Ign/Branco'; they disagree on ['6', '9']
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='I -Indeterminada', 2='T - Tuberculóide', 3='D - Dimorfa', 4='V - Virchowiana', 5='Não classificado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.clinical_form
     kind: category
     model: mark
@@ -447,8 +450,8 @@ columns:
     - 2001
     - 2026
   MODODETECT:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Encaminhamento', 2='Demanda espontânea', 3='Exame de coletividade', 4='Exame de contatos', 5='Outros modos', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.detection_mode
     kind: category
     model: mark
@@ -457,8 +460,8 @@ columns:
     - 2001
     - 2026
   MODOENTR:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Caso novo', 2='Transferencia do mesmo município (outra unidade)', 3='Transferência de outro município (mesma UF)', 4='Transferência de outro estado', 5='Transferencia de outro país', 6='Recidiva', 7='Outros reingressos', 9='Ignorado'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: treatment.entry_mode
     kind: category
     model: mark
@@ -487,6 +490,9 @@ columns:
     - 2001
     - 2026
   NERVOSAFET:
+    missing: []
+    domain: [0, 99]
+    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 0 of 21566 values in 2021 (none)
     role: case.nerves_affected
     kind: number
     model: mark
@@ -513,6 +519,9 @@ columns:
     - 2001
     - 2026
   NU_LESOES:
+    missing: []
+    domain: [0, 99]
+    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 0 of 22782 values in 2021 (none)
     role: case.skin_lesions
     kind: number
     model: mark

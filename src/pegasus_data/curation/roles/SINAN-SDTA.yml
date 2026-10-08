@@ -1,0 +1,908 @@
+dataset: SINAN-SDTA
+record: notification
+columns:
+  AGENTE_ET0:
+    role: outbreak.etiological_agent_free_text_text
+    kind: text
+    model: excluded
+    name: Agente etiológico (descrição)
+    years:
+    - 2007
+    - 2021
+  AGENTE_ET1:
+    role: outbreak.first_identified_suspected_etiologic_agent_text
+    kind: text
+    model: excluded
+    name: Agente etiológico 1
+    years:
+    - 2007
+    - 2024
+  AGENTE_ET2:
+    role: outbreak.second_identified_suspected_etiologic_agent_text
+    kind: text
+    model: excluded
+    name: Agente etiológico 2
+    years:
+    - 2022
+    - 2024
+  AGENTE_ET3:
+    role: outbreak.etiological_agent_coded_text
+    kind: text
+    model: excluded
+    name: Agente etiológico (código)
+    years:
+    - 2022
+    - 2024
+  AGENTE_ETI:
+    role: outbreak.etiologic_agent_text
+    kind: text
+    model: excluded
+    name: Agente etiológico
+    years:
+    - 2007
+    - 2021
+  ALIMENTO_C:
+    role: outbreak.food_item_consumed_text
+    kind: text
+    model: excluded
+    name: Alimento consumido
+    years:
+    - 2007
+    - 2024
+  CRITERIO:
+    role: outbreak.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2024
+  CS_LOCAL:
+    role: outbreak.infection_place_type
+    kind: category
+    model: mark
+    name: "Local Provável da Fonte de Infecção\n"
+    codelists:
+    - OCORRENCIA
+    years:
+    - 2007
+    - 2024
+  CS_TRANS:
+    role: outbreak.transmission_mode
+    kind: category
+    model: mark
+    name: Modo de transmissão
+    years:
+    - 2007
+    - 2024
+  DS_F_OUTRO:
+    role: outbreak.other_contributing_factor_free_text_text
+    kind: text
+    model: excluded
+    name: Fatores causais - Outros (especificar)
+    years:
+    - 2007
+    - 2024
+  DTTRANSDM:
+    role: notification.transfer_date_dm
+    kind: date
+    model: excluded
+    name: Data de transferência da distrito municipal
+    years:
+    - 2007
+    - 2024
+  DTTRANSRM:
+    role: notification.dttransrm
+    kind: date
+    model: mark
+    review: draft
+    name: Data de transferência da regional municipal
+    years:
+    - 2007
+    - 2024
+  DTTRANSRS:
+    role: notification.transfer_date_rs
+    kind: date
+    model: excluded
+    name: Data de transferência da regional de saúde
+    years:
+    - 2007
+    - 2024
+  DTTRANSSE:
+    role: notification.transfer_date_se
+    kind: date
+    model: excluded
+    name: Data de transferência da secretaria estadual de saúde
+    years:
+    - 2007
+    - 2024
+  DTTRANSSM:
+    role: notification.transfer_date_sm
+    kind: date
+    model: excluded
+    name: Data de transferência da secretaria municipal de saúde
+    years:
+    - 2007
+    - 2024
+  DTTRANSUS:
+    role: notification.transfer_date_us
+    kind: date
+    model: excluded
+    name: Data de transferência da unidade de saúde
+    years:
+    - 2007
+    - 2024
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2024
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2024
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2024
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_MUNI_RE:
+    role: outbreak.residence_municipality
+    kind: place
+    model: mark
+    name: Município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2024
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  MAX_INC:
+    role: outbreak.maximum_incubation_period_observed
+    kind: number
+    model: mark
+    measure: false
+    name: Período de incubação máximo (em horas ou dias) - período
+    years:
+    - 2007
+    - 2024
+    note: 'A magnitude whose unit is its ST_/MAX_ST_ companion: not a measurement on its own.'
+  MAX_ST_INC:
+    role: outbreak.unit_of_maximum_incubation_period
+    kind: category
+    model: mark
+    name: Período de incubação máximo - horas/dias
+    years:
+    - 2007
+    - 2024
+  NU10_19_N:
+    role: outbreak.female_cases_10_to_19
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino 10 a 19
+    years:
+    - 2007
+    - 2024
+  NU1_4_F_NU:
+    role: outbreak.female_cases_1_to_4
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino 1 a 4
+    years:
+    - 2007
+    - 2024
+  NU5_9_F_NU:
+    role: outbreak.female_cases_5_to_9
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino 5 a 9
+    years:
+    - 2007
+    - 2024
+  NU_10_19:
+    role: outbreak.total_cases_10_to_19
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total 10 a 19
+    years:
+    - 2007
+    - 2024
+  NU_10_19IG:
+    role: outbreak.cases_of_unknown_sex_10_to_19
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado 10 a 19
+    years:
+    - 2007
+    - 2024
+  NU_10_19_M:
+    role: outbreak.male_cases_10_to_19
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino 10 a 19
+    years:
+    - 2007
+    - 2024
+  NU_1_4_IGN:
+    role: outbreak.cases_of_unknown_sex_1_to_4
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado 1 a 4
+    years:
+    - 2007
+    - 2024
+  NU_1_4_NU:
+    role: outbreak.male_cases_1_to_4
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino 1 a 4
+    years:
+    - 2007
+    - 2024
+  NU_1_4_TOT:
+    role: outbreak.total_cases_1_to_4
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total 1 a 4
+    years:
+    - 2007
+    - 2024
+  NU_1_F_NU:
+    role: outbreak.female_cases_under_1
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino < 1
+    years:
+    - 2007
+    - 2024
+  NU_1_IGN:
+    role: outbreak.cases_of_unknown_sex_under_1
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado < 1
+    years:
+    - 2007
+    - 2024
+  NU_1_M_NU:
+    role: outbreak.male_cases_under_1
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino < 1
+    years:
+    - 2007
+    - 2024
+  NU_1_TOT_N:
+    role: outbreak.total_cases_under_1
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total < 1
+    years:
+    - 2007
+    - 2024
+  NU_20_49:
+    role: outbreak.total_cases_20_to_49
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total 20 a 49
+    years:
+    - 2007
+    - 2024
+  NU_20_49IG:
+    role: outbreak.cases_of_unknown_sex_20_to_49
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado 20 a 49
+    years:
+    - 2007
+    - 2024
+  NU_20_49_F:
+    role: outbreak.female_cases_20_to_49
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino 20 a 49
+    years:
+    - 2007
+    - 2024
+  NU_20_49_N:
+    role: outbreak.male_cases_20_to_49
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino 20 a 49
+    years:
+    - 2007
+    - 2024
+  NU_50_F_NU:
+    role: outbreak.female_cases_50_and_over
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino 50 e +
+    years:
+    - 2007
+    - 2024
+  NU_50_IGN:
+    role: outbreak.cases_of_unknown_sex_50_and_over
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado 50 e +
+    years:
+    - 2007
+    - 2024
+  NU_50_M_NU:
+    role: outbreak.male_cases_50_and_over
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino 50 e +
+    years:
+    - 2007
+    - 2024
+  NU_50_TOT:
+    role: outbreak.total_cases_50_and_over
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total 50 e +
+    years:
+    - 2007
+    - 2024
+  NU_5_9_IGN:
+    role: outbreak.cases_of_unknown_sex_5_to_9
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado 5 a 9
+    years:
+    - 2007
+    - 2024
+  NU_5_9_NU:
+    role: outbreak.male_cases_5_to_9
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino 5 a 9
+    years:
+    - 2007
+    - 2024
+  NU_5_9_TOT:
+    role: outbreak.total_cases_5_to_9
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total 5 a 9
+    years:
+    - 2007
+    - 2024
+  NU_ABDOM_N:
+    role: outbreak.cases_with_abdominal_pain
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Dor abdominal (número)
+    years:
+    - 2007
+    - 2024
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  NU_A_ALIM:
+    role: outbreak.food_samples_taken
+    kind: number
+    model: mark
+    name: Se sim, nº de amostras (bromatológicas)
+    years:
+    - 2022
+    - 2024
+  NU_A_CLINI:
+    role: outbreak.number_of_clinical_samples_collected
+    kind: number
+    model: mark
+    name: Se sim, nº de amostras (clínicas)
+    years:
+    - 2022
+    - 2024
+  NU_A_NUM_1:
+    role: outbreak.positive_food_samples_result_1
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras de alimentos, resultado 1)
+    years:
+    - 2022
+    - 2024
+  NU_A_NUM_2:
+    role: outbreak.positive_food_samples_result_2
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras de alimentos, resultado 2)
+    years:
+    - 2022
+    - 2024
+  NU_A_NUM_3:
+    role: outbreak.positive_food_samples_result_3
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras de alimentos, resultado 3)
+    years:
+    - 2007
+    - 2024
+  NU_CEFAL_N:
+    role: outbreak.cases_with_headache
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Cefaléia (número)
+    years:
+    - 2007
+    - 2024
+  NU_CLI_NUM:
+    role: outbreak.positive_clinical_samples_result_1
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras clínicas, resultado 1)
+    years:
+    - 2022
+    - 2024
+  NU_DIARR_N:
+    role: outbreak.cases_with_diarrhoea
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Diarréia (número)
+    years:
+    - 2007
+    - 2024
+  NU_ENTR:
+    role: outbreak.people_interviewed
+    kind: number
+    model: mark
+    name: Número de entrevistados
+    years:
+    - 2007
+    - 2024
+  NU_ENT_DOE:
+    role: outbreak.interviewed_who_fell_ill
+    kind: number
+    model: mark
+    name: Número de doentes entrevistados
+    years:
+    - 2007
+    - 2024
+  NU_FEBRE_N:
+    role: outbreak.cases_with_fever
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Febre (número)
+    years:
+    - 2007
+    - 2024
+  NU_F_TOT:
+    role: outbreak.ill_persons_by_age_and_sex_grand_total
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total Total
+    years:
+    - 2007
+    - 2024
+  NU_F_TOT_N:
+    role: outbreak.male_cases_total
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino Total
+    years:
+    - 2007
+    - 2024
+  NU_IGN_NU:
+    role: outbreak.total_cases_age_unknown
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Total Ignorada
+    years:
+    - 2007
+    - 2024
+  NU_IGRA_NU:
+    role: outbreak.male_cases_age_unknown
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Masculino Ignorada
+    years:
+    - 2007
+    - 2024
+  NU_IG_F_NU:
+    role: outbreak.female_cases_age_unknown
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino Ignorada
+    years:
+    - 2007
+    - 2024
+  NU_IG_IGN:
+    role: outbreak.cases_of_unknown_sex_and_age
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado Ignorada
+    years:
+    - 2007
+    - 2024
+  NU_INCUB_M:
+    role: outbreak.minimum_incubation_period_observed
+    kind: number
+    model: mark
+    measure: false
+    name: Período de incubação mínimo (em horas ou dias) - período
+    years:
+    - 2007
+    - 2024
+    note: 'A magnitude whose unit is its ST_/MAX_ST_ companion: not a measurement on its own.'
+  NU_INC_ME:
+    role: outbreak.median_incubation_period
+    kind: number
+    model: mark
+    measure: false
+    name: Mediana do período de incubação (em horas ou dias) - período
+    years:
+    - 2007
+    - 2024
+    note: 'A magnitude whose unit is its ST_/MAX_ST_ companion: not a measurement on its own.'
+  NU_NAUSE_P:
+    role: outbreak.cases_with_nausea
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Náuseas (número)
+    years:
+    - 2007
+    - 2024
+  NU_NEURO_N:
+    role: outbreak.cases_with_neurological_symptoms
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Neurológicos (número)
+    years:
+    - 2007
+    - 2024
+  NU_NUM_2:
+    role: outbreak.positive_clinical_samples_result_2
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras clínicas, resultado 2)
+    years:
+    - 2022
+    - 2024
+  NU_NUM_3:
+    role: outbreak.positive_clinical_samples_result_3
+    kind: category
+    model: mark
+    name: Nº de positivas (amostras clínicas, resultado 3)
+    years:
+    - 2007
+    - 2024
+  NU_OBITO:
+    role: outbreak.deaths
+    kind: number
+    model: mark
+    name: Número de óbitos
+    years:
+    - 2007
+    - 2024
+  NU_OUTRO_N:
+    role: outbreak.cases_with_other_symptoms
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Outros (número)
+    years:
+    - 2007
+    - 2024
+  NU_RESU_3:
+    role: outbreak.clinical_sample_result_3_other_finding
+    kind: category
+    model: mark
+    name: Resultado 3 (outro achado) - amostras clínicas
+    years:
+    - 2022
+    - 2024
+  NU_TOT:
+    role: outbreak.total_cases
+    kind: number
+    model: mark
+    name: Número total de doentes
+    years:
+    - 2007
+    - 2024
+  NU_TOT_HOS:
+    role: outbreak.hospitalised
+    kind: number
+    model: mark
+    name: Número total de hospitalizados
+    years:
+    - 2007
+    - 2024
+  NU_TOT_IGN:
+    role: outbreak.cases_of_unknown_sex_total
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Ignorado Total
+    years:
+    - 2007
+    - 2024
+  NU_TO_F_NU:
+    role: outbreak.female_cases_total
+    kind: number
+    model: mark
+    name: Número de doentes por faixa etária e sexo - Feminino Total
+    years:
+    - 2007
+    - 2024
+  NU_VOMTO_N:
+    role: outbreak.cases_with_vomiting
+    kind: number
+    model: mark
+    name: Sinais e sintomas - Doentes Vômitos (número)
+    years:
+    - 2007
+    - 2024
+  QT_TOTAL_C:
+    role: outbreak.suspected_exposed_cases_up_to_notification
+    kind: number
+    model: mark
+    name: Nº de casos suspeitos/expostos até a data de notificação
+    years:
+    - 2007
+    - 2024
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2024
+  SEM_PRI:
+    role: outbreak.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2024
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2024
+    note: role from the notification block
+  ST_ALIMEN:
+    role: outbreak.food_samples_collected
+    kind: category
+    model: mark
+    name: Coletadas amostras de alimentos (bromatológicas)
+    years:
+    - 2007
+    - 2024
+  ST_A_CLINI:
+    role: outbreak.clinical_samples_collected
+    kind: category
+    model: mark
+    name: Coletadas amostras clínicas
+    years:
+    - 2007
+    - 2024
+  ST_F_OUTRO:
+    role: outbreak.causal_factor_other
+    kind: category
+    model: mark
+    name: Fatores causais - Outros
+    years:
+    - 2007
+    - 2024
+  ST_IMPRO:
+    role: outbreak.causal_factor_unfit_raw_material
+    kind: category
+    model: mark
+    name: Fatores causais - Matéria-prima imprópria
+    years:
+    - 2007
+    - 2024
+  ST_IMPRO_:
+    role: outbreak.food_deemed_improper_flag_text
+    kind: text
+    model: excluded
+    name: Situação - alimento impróprio
+    years:
+    - 2023
+    - 2023
+  ST_INAD:
+    role: outbreak.causal_factor_inadequate_storage
+    kind: category
+    model: mark
+    name: Fatores causais - Conservação inadequada
+    years:
+    - 2007
+    - 2024
+  ST_INCUB_M:
+    role: outbreak.unit_of_minimum_incubation_period
+    kind: category
+    model: mark
+    name: Período de incubação mínimo - horas/dias
+    years:
+    - 2007
+    - 2024
+  ST_INC_ME:
+    role: outbreak.unit_of_median_incubation_period
+    kind: category
+    model: mark
+    name: Mediana do período de incubação - horas/dias
+    years:
+    - 2007
+    - 2024
+  ST_MANIP:
+    role: outbreak.causal_factor_inadequate_handling_preparation
+    kind: category
+    model: mark
+    name: Fatores causais - Manipulação/preparação inadequada
+    years:
+    - 2007
+    - 2024
+  TP_INDIRET:
+    role: outbreak.indirect_transmission_vehicle
+    kind: category
+    model: mark
+    name: Tipo de transmissão indireta
+    years:
+    - 2007
+    - 2024
+  TP_LOCAL:
+    role: outbreak.venue_type
+    kind: category
+    model: mark
+    name: Tipo de local
+    years:
+    - 2007
+    - 2024
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2024
+  TP_PRO_PRE:
+    role: outbreak.place_of_food_production_preparation
+    kind: category
+    model: mark
+    name: Local de produção/preparação
+    years:
+    - 2007
+    - 2024

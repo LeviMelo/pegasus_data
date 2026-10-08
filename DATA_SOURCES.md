@@ -740,6 +740,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - What the pre-2021 files carried is not measurable from today's tree
   (OQ-56).
 
+### Facts read off SINAN forms and files during role review (2026-10-08)
+
+- **Toxoplasmosis' entry dates are 70 years early in two years.** In the FINAIS `.dbc` of TOXG (and TOXC) for 2021 and 2022, `DT_DIGITA` holds the year minus 70 on most records: TOXG 2022 has 11,190 of 12,447 in 1952–53, and 2021 has 8,998 in 1951, raw in the file. 2020 and 2023 are clean. Whether the Dados Abertos CSV republication carries the right year is not yet read.
+- **Dictionaries are sources, not the truth.**
+  - Meningitis's v5 dictionary prints `ANT_TRAUMA` as 1 Sim / 3 Não, while the records use 2 for Não and never 3.
+  - Schistosomiasis's prints `EVOLUCAO` "1 – Cura 2, Não Cura" without a separator.
+  - Both are corrected in `curation/codes/supplements.yml`, with both claims cited (evaluation 2026-10-08-declarations-by-form).
+- **"Não se aplica" is a category, not a missing value**, on several forms (SIFC `LABC_IGG` 4: 15,353 of 27,186 recorded in 2021). TabNet's labels call it "Ign/Branco".
+
 ### The CNES establishment registry in the TabWin kit (measured 2026-09-29)
 
 - **What it is.** `TAB_CNES.zip` ships `DBF/CADGER<UF>.dbf`, one table per

@@ -1,0 +1,296 @@
+dataset: SINAN-TRAC
+record: notification
+columns:
+  CS_INQUERI:
+    role: case.survey_type
+    kind: category
+    model: mark
+    name: Tipo de inquérito
+    years:
+    - 2009
+    - 2026
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2009
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2009
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2009
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2009
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2009
+    - 2026
+  ENCAMINHA:
+    role: case.referred
+    kind: category
+    model: mark
+    name: Encaminhamento
+    years:
+    - 2009
+    - 2026
+  FORMA_CO:
+    role: case.corneal_opacity
+    kind: category
+    model: mark
+    name: Forma CO, opacificação corneana
+    years:
+    - 2009
+    - 2026
+  FORMA_TF:
+    role: case.trachomatous_inflammation_follicular
+    kind: category
+    model: mark
+    name: Forma TF, folicular
+    years:
+    - 2009
+    - 2026
+  FORMA_TI:
+    role: case.trachomatous_inflammation_intense
+    kind: category
+    model: mark
+    name: Forma TI, intensa
+    years:
+    - 2009
+    - 2026
+  FORMA_TS:
+    role: case.trachomatous_scarring
+    kind: category
+    model: mark
+    name: Forma TS, cicatricial
+    years:
+    - 2009
+    - 2026
+  FORMA_TT:
+    role: case.trachomatous_trichiasis
+    kind: category
+    model: mark
+    name: Forma TT, triquíase
+    years:
+    - 2009
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  ID_MUNI_RE:
+    role: patient.residence_municipality
+    kind: place
+    model: mark
+    name: Município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2009
+    - 2026
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  NU_CASO:
+    role: case.number
+    kind: identifier
+    model: excluded
+    name: Número do caso
+    years:
+    - 2009
+    - 2026
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2009
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2009
+    - 2026
+  NU_NOTIFIC:
+    role: notification.number
+    kind: identifier
+    model: link_only
+    name: Nº da notificação
+    years:
+    - 2020
+    - 2020
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2009
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2009
+    - 2026
+    note: role from the notification block
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

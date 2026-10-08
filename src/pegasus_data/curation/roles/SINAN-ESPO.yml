@@ -1,0 +1,162 @@
+dataset: SINAN-ESPO
+record: notification
+columns:
+  C_D:
+    role: notification.c_d
+    kind: number
+    model: mark
+    review: draft
+    name: Coordenada geográfica - graus
+    years:
+    - 2013
+    - 2022
+  C_M:
+    role: notification.c_m
+    kind: number
+    model: mark
+    review: draft
+    name: Contato com mordedura
+    years:
+    - 2013
+    - 2022
+  DS_OUT_AMB:
+    role: notification.ds_out_amb
+    kind: number
+    model: mark
+    review: draft
+    name: Se outro ambiente, especificar
+    years:
+    - 2013
+    - 2022
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2013
+    - 2022
+  DT_INI_EPI:
+    role: notification.dt_ini_epi
+    kind: date
+    model: mark
+    review: draft
+    name: Data do início da epizootia
+    years:
+    - 2013
+    - 2022
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2013
+    - 2022
+    note: role from the notification block
+  ESPECIE:
+    role: notification.especie
+    kind: number
+    model: mark
+    review: draft
+    name: Espécie do animal envolvido
+    years:
+    - 2013
+    - 2022
+  G_D:
+    role: notification.g_d
+    kind: number
+    model: mark
+    review: draft
+    name: Gatos doentes no domicílio
+    years:
+    - 2013
+    - 2022
+  G_M:
+    role: notification.g_m
+    kind: number
+    model: mark
+    review: draft
+    name: Gatos (contagem/faixa)
+    years:
+    - 2013
+    - 2022
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2013
+    - 2022
+    note: role from the notification block
+  ID_NOTIFIC:
+    role: notification.identifier
+    kind: identifier
+    model: link_only
+    name: Identificador da notificação
+    years:
+    - 2013
+    - 2022
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2013
+    - 2022
+    note: role from the notification block
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2013
+    - 2022
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2013
+    - 2022
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2013
+    - 2022
+    note: role from the notification block
+  TP_AMB_OCO:
+    role: notification.tp_amb_oco
+    kind: category
+    model: mark
+    review: draft
+    name: Ambiente de ocorrência
+    years:
+    - 2013
+    - 2022
+  TP_ZN_OCO:
+    role: notification.tp_zn_oco
+    kind: number
+    model: mark
+    review: draft
+    name: Zona
+    years:
+    - 2013
+    - 2022

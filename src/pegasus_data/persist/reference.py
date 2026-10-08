@@ -307,7 +307,7 @@ def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
     import hashlib
 
     from ..config import curation_root
-    from ..semantics.curation import curation_fingerprint
+    from ..semantics.curation import codelist_fingerprint
 
     path = getattr(catalog, "path", None) or getattr(catalog, "db_path", None)
     state = (str(path), Path(path).stat().st_mtime_ns if path and Path(path).exists() else None, system)
@@ -315,7 +315,7 @@ def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
         return _FINGERPRINTS[state]
     row = catalog.query("SELECT count(*) AS n, coalesce(sum(length(value_label)), 0) AS l, "
                         "coalesce(sum(length(value_raw)), 0) AS r FROM dictionary WHERE system = ?", (system,))[0]
-    text = f"{row['n']}|{row['l']}|{row['r']}|{curation_fingerprint(curation_root())}"
+    text = f"{row['n']}|{row['l']}|{row['r']}|{codelist_fingerprint(curation_root())}"
     out = hashlib.sha256(text.encode()).hexdigest()[:16]
     if state[1] is not None:
         _FINGERPRINTS[state] = out
@@ -777,6 +777,13 @@ def systems_with_tables(lake_root: str | Path) -> set[str]:
             if system_dir.is_dir() and system_dir.name.startswith("system="):
                 found.add(system_dir.name.split("=", 1)[1].upper())
     return found
+
+
+def has_reference_tables(lake_root: str | Path) -> bool:
+    """Whether any lookup is materialised: the question `available_tables` answered by walking every codelist, system
+    and window directory (283,000 stat calls, about 9 s a `translate`, 2026-10-08)."""
+    root = Path(lake_root) / "reference"
+    return root.exists() and any(p.is_dir() for p in root.iterdir())
 
 
 def available_tables(lake_root: str | Path) -> list[dict[str, object]]:

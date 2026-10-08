@@ -123,7 +123,7 @@ def _from_catalog(settings: Settings) -> tuple[list[dict[str, Any]], str | None]
 
     store = CatalogStore(settings.catalog_path, read_only=True)
     try:
-        if not store.count("files", "gone_at IS NULL"):
+        if not store.has_rows("files", "gone_at IS NULL"):
             return None
         rows = [
             {

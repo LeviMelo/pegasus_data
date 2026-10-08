@@ -163,7 +163,7 @@ def translate(
     try:
         # A fresh catalog is the seed: bindings and curation are already in it
         # (ADR-0067); labels come from the shipped pack when there is no dictionary.
-        if store.count("dictionary"):
+        if store.has_rows("dictionary"):
             _ensure_reference(store, resolved, str(system).upper())
         family_id = _family_for(store, system, series, table.column_names)
         from .persist.decisions import borrowed_label_policy
@@ -189,9 +189,9 @@ def translate(
 
 def _ensure_reference(store, settings: Settings, system: str) -> None:
     """Materialise the Parquet lookups the join needs, and rewrite a system's when they are stale."""
-    from .persist.reference import available_tables, stale_systems, write_reference_tables
+    from .persist.reference import has_reference_tables, stale_systems, write_reference_tables
 
-    if not available_tables(settings.lake_dir):
+    if not has_reference_tables(settings.lake_dir):
         write_reference_tables(store, settings.lake_dir, compression=settings.compression)
         return
     from .semantics.curation import system_spellings

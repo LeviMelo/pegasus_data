@@ -1,0 +1,1554 @@
+dataset: SINAN-PFAN
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+    years:
+    - 2007
+    - 2026
+  ANT_30_DIA:
+    role: case.vaccinated_within_30_days_before_onset
+    kind: category
+    model: mark
+    name: Recebeu vacina nos 30 dias anteriores
+    years:
+    - 2007
+    - 2026
+  ANT_DOSES:
+    role: case.number_of_polio_doses_received
+    kind: number
+    model: mark
+    name: Número de doses válidas
+    years:
+    - 2007
+    - 2026
+  ANT_DT_VAC:
+    role: case.date_of_last_polio_dose
+    kind: date
+    model: mark
+    name: Data da última dose da vacina
+    years:
+    - 2007
+    - 2026
+  ANT_PAIS:
+    role: case.travel_country
+    kind: place
+    model: mark
+    name: Se sim, país origem
+    years:
+    - 2007
+    - 2026
+  ANT_VACINA:
+    role: case.received_polio_vaccine
+    kind: category
+    model: mark
+    name: Antecedente de vacina contra poliomielite
+    years:
+    - 2007
+    - 2026
+  ATE_DT_INT:
+    role: case.hospital_admission_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2007
+    - 2026
+  ATE_HIPOTE:
+    role: case.encounter_diagnostic_hypothesis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    name: Hipótese diagnóstica
+    years:
+    - 2007
+    - 2026
+    note: "ICD-10 codes written with a dot (G61.0): they do not match ICD-10's widths and stay undecoded, visibly."
+  ATE_HOSP:
+    role: case.hospitalised
+    kind: category
+    model: mark
+    name: Ocorreu hospitalização?
+    years:
+    - 2007
+    - 2026
+  ATE_MUNICI:
+    role: case.hospital_municipality
+    kind: place
+    model: mark
+    name: Município do hospital
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  ATE_UF:
+    role: case.hospital_state
+    kind: place
+    model: mark
+    name: UF do hospital
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: "State abbreviations (SP, PE) in 2022, not IBGE codes: no place reader compares them with the residence's
+      code."
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CLI_AGUDA:
+    role: case.acute_onset
+    kind: category
+    model: mark
+    name: Instalação aguda
+    years:
+    - 2007
+    - 2026
+  CLI_AQ_D_N:
+    role: case.right_ankle_reflex
+    kind: category
+    model: mark
+    name: Reflexo aquileu direito
+    years:
+    - 2007
+    - 2026
+  CLI_AQ_E_N:
+    role: case.left_ankle_reflex
+    kind: category
+    model: mark
+    name: Reflexo aquileu esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_ASCEND:
+    role: case.ascending_progression
+    kind: category
+    model: mark
+    name: Progressão ascendente
+    years:
+    - 2007
+    - 2026
+  CLI_ASSIME:
+    role: case.asymmetric_paralysis
+    kind: category
+    model: mark
+    name: Assimetria da paralisia
+    years:
+    - 2007
+    - 2026
+  CLI_A_FMID:
+    role: case.muscle_strength_acute_phase_right_leg
+    kind: category
+    model: mark
+    name: 'Força muscular, fase aguda: MID'
+    years:
+    - 2007
+    - 2026
+  CLI_A_FMIE:
+    role: case.muscle_strength_acute_phase_left_leg
+    kind: category
+    model: mark
+    name: 'Força muscular, fase aguda: MIE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_FMSD:
+    role: case.muscle_strength_acute_phase_right_arm
+    kind: category
+    model: mark
+    name: 'Força muscular, fase aguda: MSD'
+    years:
+    - 2007
+    - 2026
+  CLI_A_FMSE:
+    role: case.muscle_strength_acute_phase_left_arm
+    kind: category
+    model: mark
+    name: 'Força muscular, fase aguda: MSE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_SMID:
+    role: case.sensation_acute_phase_right_leg
+    kind: category
+    model: mark
+    name: 'Sensibilidade, fase aguda: MID'
+    years:
+    - 2007
+    - 2026
+  CLI_A_SMIE:
+    role: case.sensation_acute_phase_left_leg
+    kind: category
+    model: mark
+    name: 'Sensibilidade, fase aguda: MIE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_SMSD:
+    role: case.sensation_acute_phase_right_arm
+    kind: category
+    model: mark
+    name: 'Sensibilidade, fase aguda: MSD'
+    years:
+    - 2007
+    - 2026
+  CLI_A_SMSE:
+    role: case.sensation_acute_phase_left_arm
+    kind: category
+    model: mark
+    name: 'Sensibilidade, fase aguda: MSE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_S_FA:
+    role: case.sensation_acute_phase_face
+    kind: category
+    model: mark
+    name: 'Sensibilidade, fase aguda: face'
+    years:
+    - 2007
+    - 2026
+  CLI_A_TMID:
+    role: case.muscle_tone_acute_phase_right_leg
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: MID'
+    years:
+    - 2007
+    - 2026
+  CLI_A_TMIE:
+    role: case.muscle_tone_acute_phase_left_leg
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: MIE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_TMSD:
+    role: case.muscle_tone_acute_phase_right_arm
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: MSD'
+    years:
+    - 2007
+    - 2026
+  CLI_A_TMSE:
+    role: case.muscle_tone_acute_phase_left_arm
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: MSE'
+    years:
+    - 2007
+    - 2026
+  CLI_A_T_CE:
+    role: case.muscle_tone_acute_phase_neck
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: cervical'
+    years:
+    - 2007
+    - 2026
+  CLI_A_T_FA:
+    role: case.muscle_tone_acute_phase_face
+    kind: category
+    model: mark
+    name: 'Tônus muscular, fase aguda: face'
+    years:
+    - 2007
+    - 2026
+  CLI_BICD_N:
+    role: case.right_biceps_reflex
+    kind: category
+    model: mark
+    name: Reflexo bicipital direito
+    years:
+    - 2007
+    - 2026
+  CLI_BICE_N:
+    role: case.left_biceps_reflex
+    kind: category
+    model: mark
+    name: Reflexo bicipital esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_BRUDZ:
+    role: case.brudzinski_sign
+    kind: category
+    model: mark
+    name: Sinal de Brudzinski
+    years:
+    - 2007
+    - 2026
+  CLI_CEFALE:
+    role: case.sign_headache
+    kind: category
+    model: mark
+    name: Cefaleia
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CLI_CERVIC:
+    role: case.neck_involvement
+    kind: category
+    model: mark
+    name: Comprometimento cervical
+    years:
+    - 2007
+    - 2026
+  CLI_CONTAT:
+    role: case.contact_with_or_ingestion_of_toxic_substances
+    kind: category
+    model: mark
+    name: Contato ou ingestão de substâncias tóxicas
+    years:
+    - 2007
+    - 2026
+  CLI_CON_ES:
+    role: case.toxic_substance_contacted_or_ingested_specify_text
+    kind: text
+    model: excluded
+    name: Contato ou ingestão de substâncias tóxicas - caso afirmativo, especifique
+    years:
+    - 2007
+    - 2026
+  CLI_DESCEN:
+    role: case.descending_progression
+    kind: category
+    model: mark
+    name: Progressão descendente
+    years:
+    - 2007
+    - 2026
+  CLI_DIARRE:
+    role: case.sign_diarrhoea
+    kind: category
+    model: mark
+    name: Diarreia
+    years:
+    - 2007
+    - 2026
+  CLI_DORES:
+    role: case.muscle_pain
+    kind: category
+    model: mark
+    name: Dores musculares
+    years:
+    - 2007
+    - 2026
+  CLI_DT:
+    role: case.date_motor_deficit_began
+    kind: date
+    model: mark
+    name: Data de início da deficiência motora
+    years:
+    - 2007
+    - 2026
+  CLI_DT_EXA:
+    role: case.date_of_neurological_examination
+    kind: date
+    model: mark
+    name: Data do exame
+    years:
+    - 2007
+    - 2026
+  CLI_EXT_D:
+    role: case.plantar_reflex_extension_right
+    kind: category
+    model: mark
+    name: 'Reflexo cutâneo plantar: extensão D'
+    years:
+    - 2007
+    - 2026
+  CLI_EXT_E:
+    role: case.plantar_reflex_extension_left
+    kind: category
+    model: mark
+    name: 'Reflexo cutâneo plantar: extensão E'
+    years:
+    - 2007
+    - 2026
+  CLI_FACE:
+    role: case.facial_paralysis
+    kind: category
+    model: mark
+    name: Paralisia facial
+    years:
+    - 2007
+    - 2026
+  CLI_FEBRE:
+    role: case.sign_fever
+    kind: category
+    model: mark
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CLI_FLACID:
+    role: case.flaccid_paralysis
+    kind: category
+    model: mark
+    name: Paralisia flácida
+    years:
+    - 2007
+    - 2026
+  CLI_FLE_D:
+    role: case.plantar_reflex_flexion_right
+    kind: category
+    model: mark
+    name: 'Reflexo cutâneo plantar: flexão D'
+    years:
+    - 2007
+    - 2026
+  CLI_FLE_E:
+    role: case.plantar_reflex_flexion_left
+    kind: category
+    model: mark
+    name: 'Reflexo cutâneo plantar: flexão E'
+    years:
+    - 2007
+    - 2026
+  CLI_F_MID:
+    role: case.muscle_strength_right_leg
+    kind: category
+    model: mark
+    name: Força muscular no membro inferior direito
+    years:
+    - 2007
+    - 2026
+  CLI_F_MIE:
+    role: case.muscle_strength_left_leg
+    kind: category
+    model: mark
+    name: Força muscular no membro inferior esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_F_MSD:
+    role: case.muscle_strength_right_arm
+    kind: category
+    model: mark
+    name: Força muscular no membro superior direito
+    years:
+    - 2007
+    - 2026
+  CLI_F_MSE:
+    role: case.muscle_strength_left_arm
+    kind: category
+    model: mark
+    name: Força muscular no membro superior esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_INJECA:
+    role: case.prior_intramuscular_injection
+    kind: category
+    model: mark
+    name: Injeção intramuscular prévia
+    years:
+    - 2007
+    - 2026
+  CLI_KERNIG:
+    role: case.sign_kernig
+    kind: category
+    model: mark
+    name: "Sinais e Sintomas — Kernig/Brudzinski\n"
+    codelists:
+    - AUSEPRES
+    years:
+    - 2007
+    - 2026
+  CLI_LOCAL:
+    role: case.site_of_intramuscular_injection
+    kind: category
+    model: mark
+    name: Local de aplicação
+    years:
+    - 2007
+    - 2026
+  CLI_NUCA:
+    role: case.neck_stiffness
+    kind: category
+    model: mark
+    name: Rigidez de nuca
+    years:
+    - 2007
+    - 2026
+  CLI_OBSTIP:
+    role: case.constipation
+    kind: category
+    model: mark
+    name: Obstipação intestinal
+    years:
+    - 2007
+    - 2026
+  CLI_OUTROS:
+    role: case.sign_other
+    kind: category
+    model: mark
+    name: Sinais e sintomas – outros
+    years:
+    - 2007
+    - 2026
+  CLI_PATD_N:
+    role: case.right_knee_reflex
+    kind: category
+    model: mark
+    name: Reflexo patelar direito
+    years:
+    - 2007
+    - 2026
+  CLI_PATE_N:
+    role: case.left_knee_reflex
+    kind: category
+    model: mark
+    name: Reflexo patelar esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_PROGRE:
+    role: case.motor_deficit_progressing_beyond_3_days
+    kind: category
+    model: mark
+    name: 'Deficiência motora: progressão após 3 dias'
+    years:
+    - 2007
+    - 2026
+  CLI_RESPIR:
+    role: case.sign_respiratory
+    kind: category
+    model: mark
+    name: Alterações respiratórias
+    years:
+    - 2007
+    - 2026
+  CLI_SINTOM:
+    role: case.respiratory_symptoms
+    kind: category
+    model: mark
+    name: 'Sinais e sintomas: sintomas respiratórios'
+    years:
+    - 2007
+    - 2026
+  CLI_TRID_N:
+    role: case.right_triceps_reflex
+    kind: category
+    model: mark
+    name: Reflexo tricipital direito
+    years:
+    - 2007
+    - 2026
+  CLI_TRIE_N:
+    role: case.left_triceps_reflex
+    kind: category
+    model: mark
+    name: Reflexo tricipital esquerdo
+    years:
+    - 2007
+    - 2026
+  CLI_VOMITO:
+    role: case.sign_vomiting
+    kind: category
+    model: mark
+    name: Vômito
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CON_DESCAR:
+    role: case.reason_the_case_was_discarded
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    name: Motivo do descarte
+    years:
+    - 2007
+    - 2026
+    note: "ICD-10 codes written with a dot (G61.0): they do not match ICD-10's widths and stay undecoded, visibly."
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_FLXRET:
+    role: notification.return_flow
+    kind: category
+    model: excluded
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2026
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DTPRICONS:
+    role: case.date_of_first_consultation
+    kind: date
+    model: mark
+    name: Data da 1ª consulta
+    years:
+    - 2007
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2026
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2026
+  EVOR1_DT_R:
+    role: case.date_of_review
+    kind: date
+    model: mark
+    name: Data da revisão
+    years:
+    - 2007
+    - 2026
+  EVOR_A_MID:
+    role: case.atrophy_at_reassessment_right_leg
+    kind: category
+    model: mark
+    name: Atrofia no membro inferior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_A_MIE:
+    role: case.atrophy_at_reassessment_left_leg
+    kind: category
+    model: mark
+    name: Atrofia no membro inferior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_A_MSD:
+    role: case.atrophy_at_reassessment_right_arm
+    kind: category
+    model: mark
+    name: Atrofia no membro superior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_A_MSE:
+    role: case.atrophy_at_reassessment_left_arm
+    kind: category
+    model: mark
+    name: Atrofia no membro superior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_DT_RE:
+    role: case.date_of_revisit
+    kind: date
+    model: mark
+    name: Data da revisita
+    years:
+    - 2007
+    - 2026
+  EVOR_F_MID:
+    role: case.strength_at_reassessment_right_leg
+    kind: category
+    model: mark
+    name: Força no membro inferior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_F_MIE:
+    role: case.strength_at_reassessment_left_leg
+    kind: category
+    model: mark
+    name: Força no membro inferior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_F_MSD:
+    role: case.strength_at_reassessment_right_arm
+    kind: category
+    model: mark
+    name: Força no membro superior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_F_MSE:
+    role: case.strength_at_reassessment_left_arm
+    kind: category
+    model: mark
+    name: Força no membro superior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_RC_ED:
+    role: case.reflex_at_reassessment_right_upper
+    kind: category
+    model: mark
+    name: Reflexo na reavaliação, extremidade direita
+    years:
+    - 2007
+    - 2026
+  EVOR_RC_EE:
+    role: case.reflex_at_reassessment_left_upper
+    kind: category
+    model: mark
+    name: Reflexo na reavaliação, extremidade esquerda
+    years:
+    - 2007
+    - 2026
+  EVOR_RC_FD:
+    role: case.reflex_at_reassessment_right_lower
+    kind: category
+    model: mark
+    name: Reflexo na reavaliação, segundo grupo, direita
+    years:
+    - 2007
+    - 2026
+  EVOR_RC_FE:
+    role: case.reflex_at_reassessment_left_lower
+    kind: category
+    model: mark
+    name: Reflexo na reavaliação, segundo grupo, esquerda
+    years:
+    - 2007
+    - 2026
+  EVOR_S_FAC:
+    role: case.sensation_at_reassessment_face
+    kind: category
+    model: mark
+    name: Sensibilidade facial na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_S_MID:
+    role: case.sensation_at_reassessment_right_leg
+    kind: category
+    model: mark
+    name: Sensibilidade no membro inferior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_S_MIE:
+    role: case.sensation_at_reassessment_left_leg
+    kind: category
+    model: mark
+    name: Sensibilidade no membro inferior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_S_MSD:
+    role: case.sensation_at_reassessment_right_arm
+    kind: category
+    model: mark
+    name: Sensibilidade no membro superior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  EVOR_S_MSE:
+    role: case.sensation_at_reassessment_left_arm
+    kind: category
+    model: mark
+    name: Sensibilidade no membro superior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  FLXRECEBI:
+    role: notification.return_flow_received
+    kind: category
+    model: excluded
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  LAB_CELEBR:
+    role: case.brain_tissue_collected
+    kind: category
+    model: mark
+    name: Coleta de tecido cerebral
+    years:
+    - 2007
+    - 2026
+  LAB_CON_F:
+    role: case.stool_sample_cold_chain_intact
+    kind: category
+    model: mark
+    name: Condição de conservação da amostra de fezes
+    years:
+    - 2007
+    - 2026
+  LAB_DT_C1:
+    role: case.date_anatomopathological_material_collected
+    kind: date
+    model: mark
+    name: Data da coleta (material anatomopatológico)
+    years:
+    - 2007
+    - 2026
+  LAB_DT_CEN:
+    role: case.date_stool_sample_sent_from_state_level_to_reference_laborat
+    kind: date
+    model: mark
+    name: Data do envio do nível estadual para LRR
+    years:
+    - 2007
+    - 2026
+  LAB_DT_E_1:
+    role: case.date_of_electroneuromyography
+    kind: date
+    model: mark
+    name: Eletroneuromiografia - data da realização
+    years:
+    - 2007
+    - 2026
+  LAB_DT_F1:
+    role: case.date_first_stool_sample_collected
+    kind: date
+    model: mark
+    name: Data da coleta (amostra de fezes)
+    years:
+    - 2007
+    - 2026
+  LAB_DT_L_1:
+    role: case.date_first_csf_sample_taken
+    kind: date
+    model: mark
+    name: Exame complementar 1 Líquor - Data da coleta
+    years:
+    - 2007
+    - 2026
+  LAB_DT_L_2:
+    role: case.date_second_csf_sample_taken
+    kind: date
+    model: mark
+    name: Exame complementar 2 Líquor - Data da coleta
+    years:
+    - 2007
+    - 2026
+  LAB_DT_NLE:
+    role: case.date_stool_sample_sent_from_local_to_state_level
+    kind: date
+    model: mark
+    name: Data do envio do nível local para estadual
+    years:
+    - 2007
+    - 2026
+  LAB_DT_R1:
+    role: case.date_stool_sample_received_at_reference_laboratory
+    kind: date
+    model: mark
+    name: Data do recebimento no LRR
+    years:
+    - 2007
+    - 2026
+  LAB_DT_RE1:
+    role: case.date_of_stool_sample_result
+    kind: date
+    model: mark
+    name: Data do resultado
+    years:
+    - 2007
+    - 2026
+  LAB_E_D_1:
+    role: case.diagnosis_suggested_by_electroneuromyography_text
+    kind: text
+    model: excluded
+    name: Diagnóstico sugestivo de (eletroneuromiografia)
+    years:
+    - 2007
+    - 2026
+  LAB_INTEST:
+    role: case.intestinal_content_collected
+    kind: category
+    model: mark
+    name: Coleta de conteúdo intestinal
+    years:
+    - 2007
+    - 2026
+  LAB_L_CEL1:
+    role: case.csf_cell_count_first_sample
+    kind: number
+    model: mark
+    name: Exame complementar 1 Líquor - Nº de células/mm³
+    years:
+    - 2007
+    - 2026
+  LAB_L_CEL2:
+    role: case.csf_cell_count_second_sample
+    kind: number
+    model: mark
+    name: Exame complementar 2 Líquor - Nº de células/mm³
+    years:
+    - 2007
+    - 2026
+  LAB_L_CL1:
+    role: case.csf_chloride_first_sample
+    kind: number
+    model: mark
+    name: Exame complementar 1 Líquor - Cloreto mg%
+    years:
+    - 2007
+    - 2026
+  LAB_L_CL2:
+    role: case.csf_chloride_second_sample
+    kind: number
+    model: mark
+    name: Exame complementar 2 Líquor - Cloreto mg%
+    years:
+    - 2007
+    - 2026
+  LAB_L_GLI1:
+    role: case.csf_glucose_first_sample
+    kind: number
+    model: mark
+    name: Exame complementar 1 Líquor - Glicose mg%
+    years:
+    - 2007
+    - 2026
+  LAB_L_GLI2:
+    role: case.csf_glucose_second_sample
+    kind: number
+    model: mark
+    name: Exame complementar 2 Líquor - Glicose mg%
+    years:
+    - 2007
+    - 2026
+  LAB_L_LIN1:
+    role: case.csf_lymphocytes_first_sample
+    kind: number
+    model: mark
+    name: Exame complementar 1 Líquor - Linfócitos %
+    years:
+    - 2007
+    - 2026
+  LAB_L_LIN2:
+    role: case.csf_lymphocytes_second_sample
+    kind: number
+    model: mark
+    name: Exame complementar 2 Líquor - Linfócitos %
+    years:
+    - 2007
+    - 2026
+  LAB_L_PRO1:
+    role: case.csf_protein_first_sample
+    kind: number
+    model: mark
+    name: Exame complementar 1 Líquor - Proteínas mg%
+    years:
+    - 2007
+    - 2026
+  LAB_L_PRO2:
+    role: case.csf_protein_second_sample
+    kind: number
+    model: mark
+    name: Exame complementar 2 Líquor - Proteínas mg%
+    years:
+    - 2007
+    - 2026
+  LAB_MEDULA:
+    role: case.spinal_cord_tissue_collected
+    kind: category
+    model: mark
+    name: Coleta de medula espinhal
+    years:
+    - 2007
+    - 2026
+  LAB_Q_F:
+    role: case.stool_sample_quantity_adequate
+    kind: category
+    model: mark
+    name: Quantidade da amostra de fezes
+    years:
+    - 2007
+    - 2026
+  LAB_RESULT:
+    role: case.anatomopathological_result
+    kind: category
+    model: mark
+    name: Resultado (exame anatomopatológico)
+    years:
+    - 2007
+    - 2026
+  LAB_RES_F1:
+    role: case.first_stool_result
+    kind: category
+    model: mark
+    name: Resultado da primeira amostra de fezes
+    years:
+    - 2007
+    - 2026
+  LAB_RES_F2:
+    role: case.second_stool_result
+    kind: category
+    model: mark
+    name: Resultado da segunda amostra de fezes
+    years:
+    - 2007
+    - 2026
+  LAB_RES_F3:
+    role: case.third_stool_result
+    kind: category
+    model: mark
+    name: Resultado da terceira amostra de fezes
+    years:
+    - 2007
+    - 2026
+  LOCA_MID_N:
+    role: case.paralysis_site_right_leg
+    kind: category
+    model: mark
+    name: Localização da paralisia, membro inferior direito
+    years:
+    - 2007
+    - 2026
+  LOCA_MIE_N:
+    role: case.paralysis_site_left_leg
+    kind: category
+    model: mark
+    name: Localização da paralisia, membro inferior esquerdo
+    years:
+    - 2007
+    - 2026
+  LOCA_MSD_N:
+    role: case.paralysis_site_right_arm
+    kind: category
+    model: mark
+    name: Localização da paralisia, membro superior direito
+    years:
+    - 2007
+    - 2026
+  LOCA_MSE_N:
+    role: case.paralysis_site_left_arm
+    kind: category
+    model: mark
+    name: Localização da paralisia, membro superior esquerdo
+    years:
+    - 2007
+    - 2026
+  MIGRADO_W:
+    role: notification.migrated
+    kind: category
+    model: excluded
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2026
+  NDUPLIC_N:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2007
+    - 2026
+  OUTROS_DES:
+    role: case.other_signs_and_symptoms_specify_text
+    kind: text
+    model: excluded
+    name: Sinais e sintomas - Outros (especificar)
+    years:
+    - 2007
+    - 2026
+  REFR_AQD_N:
+    role: case.ankle_reflex_at_reassessment_right
+    kind: category
+    model: mark
+    name: Reflexo aquileu direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_AQE_N:
+    role: case.ankle_reflex_at_reassessment_left
+    kind: category
+    model: mark
+    name: Reflexo aquileu esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_BID_N:
+    role: case.biceps_reflex_at_reassessment_right
+    kind: category
+    model: mark
+    name: Reflexo bicipital direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_BIE_N:
+    role: case.biceps_reflex_at_reassessment_left
+    kind: category
+    model: mark
+    name: Reflexo bicipital esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_PAD_N:
+    role: case.knee_reflex_at_reassessment_right
+    kind: category
+    model: mark
+    name: Reflexo patelar direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_PAE_N:
+    role: case.knee_reflex_at_reassessment_left
+    kind: category
+    model: mark
+    name: Reflexo patelar esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_TRD_N:
+    role: case.triceps_reflex_at_reassessment_right
+    kind: category
+    model: mark
+    name: Reflexo tricipital direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  REFR_TRE_N:
+    role: case.triceps_reflex_at_reassessment_left
+    kind: category
+    model: mark
+    name: Reflexo tricipital esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  TONR_CER_N:
+    role: case.cervical_muscle_tone_at_revisit
+    kind: category
+    model: mark
+    name: Tônus muscular - Musculatura cervical (revisita)
+    years:
+    - 2007
+    - 2026
+  TONR_FAC_N:
+    role: case.tone_at_reassessment_face
+    kind: category
+    model: mark
+    name: Tônus facial na reavaliação
+    years:
+    - 2007
+    - 2026
+  TONR_MID_N:
+    role: case.tone_at_reassessment_right_leg
+    kind: category
+    model: mark
+    name: Tônus no membro inferior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  TONR_MIE_N:
+    role: case.tone_at_reassessment_left_leg
+    kind: category
+    model: mark
+    name: Tônus no membro inferior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  TONR_MSD_N:
+    role: case.tone_at_reassessment_right_arm
+    kind: category
+    model: mark
+    name: Tônus no membro superior direito na reavaliação
+    years:
+    - 2007
+    - 2026
+  TONR_MSE_N:
+    role: case.tone_at_reassessment_left_arm
+    kind: category
+    model: mark
+    name: Tônus no membro superior esquerdo na reavaliação
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

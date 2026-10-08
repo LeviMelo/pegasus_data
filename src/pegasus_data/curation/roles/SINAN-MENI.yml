@@ -13,8 +13,8 @@ columns:
     note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
       fits a birth year, so model is provisional.'
   ANT_AC:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_meningococcal_ac
     kind: category
     model: dimension
@@ -23,8 +23,8 @@ columns:
     - 2007
     - 2026
   ANT_AIDS:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_aids
     kind: category
     model: dimension
@@ -33,8 +33,8 @@ columns:
     - 2007
     - 2026
   ANT_BC:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_meningococcal_bc
     kind: category
     model: dimension
@@ -43,8 +43,8 @@ columns:
     - 2007
     - 2026
   ANT_BCG:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_bcg
     kind: category
     model: dimension
@@ -53,8 +53,8 @@ columns:
     - 2007
     - 2026
   ANT_CONJ_C:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_meningococcal_c_conjugate
     kind: category
     model: dimension
@@ -191,8 +191,8 @@ columns:
     - 2007
     - 2026
   ANT_HEMO_T:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_hib
     kind: category
     model: dimension
@@ -201,6 +201,8 @@ columns:
     - 2007
     - 2026
   ANT_IMUNO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_immunosuppression
     kind: category
     model: dimension
@@ -209,8 +211,8 @@ columns:
     - 2007
     - 2026
   ANT_INF_HO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_hospital_infection
     kind: category
     model: dimension
@@ -219,8 +221,8 @@ columns:
     - 2007
     - 2026
   ANT_IRA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_acute_respiratory_infection
     kind: category
     model: dimension
@@ -229,8 +231,8 @@ columns:
     - 2007
     - 2026
   ANT_OUTRA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_other
     kind: category
     model: dimension
@@ -239,8 +241,8 @@ columns:
     - 2007
     - 2026
   ANT_OUTRO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_other_condition
     kind: category
     model: dimension
@@ -265,8 +267,8 @@ columns:
     - 2007
     - 2026
   ANT_PNEUMO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_pneumococcal
     kind: category
     model: dimension
@@ -274,11 +276,11 @@ columns:
     years:
     - 2007
     - 2026
-    note: On the AIDS forms the same name is Pneumocystis pneumonia; on the meningitis form it is pneumococcal vaccination
-      (curation).
+    note: On the AIDS forms the same name is Pneumocystis pneumonia; on the meningitis form it is pneumococcal
+      vaccination (curation).
   ANT_SECUND:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.secondary_case
     kind: category
     model: mark
@@ -287,8 +289,8 @@ columns:
     - 2007
     - 2026
   ANT_TRAUMA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 3='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: patient.history_head_trauma
     kind: category
     model: dimension
@@ -297,8 +299,8 @@ columns:
     - 2007
     - 2026
   ANT_TRIPLI:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccine_triple_viral
     kind: category
     model: dimension
@@ -307,8 +309,8 @@ columns:
     - 2007
     - 2026
   ANT_TUBE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.history_tuberculosis
     kind: category
     model: dimension
@@ -317,14 +319,12 @@ columns:
     - 2007
     - 2026
   ATE_HOSPIT:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalized
     kind: category
     model: mark
-    name: 'Ocorreu Hospitalização
-
-      '
+    name: "Ocorreu Hospitalização\n"
     codelists:
     - SIM_NAO
     years:
@@ -334,9 +334,7 @@ columns:
     role: case.hospital_admission_date
     kind: date
     model: mark
-    name: 'Data da Internação
-
-      '
+    name: "Data da Internação\n"
     years:
     - 2007
     - 2026
@@ -364,6 +362,8 @@ columns:
     years:
     - 2007
     - 2026
+    note: "State abbreviations (AC, AL, ...), not IBGE codes: 0 of 10,455 values in 2021 are numeric; no place reader
+      compares an abbreviation with the residence's code."
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -412,8 +412,8 @@ columns:
     - 2007
     - 2026
   CLI_ABAULA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_bulging_fontanelle
     kind: category
     model: mark
@@ -422,8 +422,8 @@ columns:
     - 2007
     - 2026
   CLI_CEFALE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_headache
     kind: category
     model: mark
@@ -434,8 +434,8 @@ columns:
     - 2007
     - 2026
   CLI_COMA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_coma
     kind: category
     model: mark
@@ -444,8 +444,8 @@ columns:
     - 2007
     - 2026
   CLI_CONVUL:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_convulsions
     kind: category
     model: mark
@@ -457,15 +457,13 @@ columns:
     role: case.sign_other_text
     kind: text
     model: excluded
-    name: 'Sinais e Sintomas / Complicações — Outros (Especificar)
-
-      '
+    name: "Sinais e Sintomas / Complicações — Outros (Especificar)\n"
     years:
     - 2007
     - 2026
   CLI_FEBRE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_fever
     kind: category
     model: mark
@@ -476,22 +474,20 @@ columns:
     - 2007
     - 2026
   CLI_KERNIG:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_kernig_brudzinski
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Kernig/Brudzinski
-
-      '
+    name: "Sinais e Sintomas — Kernig/Brudzinski\n"
     codelists:
     - AUSEPRES
     years:
     - 2007
     - 2026
   CLI_OUTRAS:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_other_manifestation
     kind: category
     model: mark
@@ -500,22 +496,20 @@ columns:
     - 2007
     - 2026
   CLI_PETEQU:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_petechiae
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Petéquias/Sufusões Hemorrágicas
-
-      '
+    name: "Sinais e Sintomas — Petéquias/Sufusões Hemorrágicas\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2026
   CLI_RIGIDE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_neck_stiffness
     kind: category
     model: mark
@@ -524,8 +518,8 @@ columns:
     - 2007
     - 2026
   CLI_VOMITO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_vomiting
     kind: category
     model: mark
@@ -537,7 +531,7 @@ columns:
     - 2026
   CON_DIAGES:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Meningococcemia', 10='Meningite por Pneumococo', 2='Meningite Meningocócica', 3='Meningite Meningocócica com Meningococcemia', 4='Meningite Tuberculosa', 5='Meningite por outras bactérias', 6='Meningite não especificada', 7='Meningite Asséptica', 8='Meningite por outra etiologia', 9='Meningite por Hemófilo'; the tabulation: no value labelled as not recorded
     role: case.confirmed_form
     kind: category
     model: mark
@@ -623,8 +617,8 @@ columns:
     - 2007
     - 2026
   DOENCA_TRA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.work_related
     kind: category
     model: mark
@@ -724,7 +718,7 @@ columns:
     - 2026
   EVOLUCAO:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ignorado'
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='alta', 2='óbito por meningite', 3='óbito por outra causa', 9='ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -874,8 +868,8 @@ columns:
     - 2007
     - 2026
   LAB_ASPECT:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Límpido', 2='Purulento', 3='Hemorrágico', 4='Turvo', 5='Xantocrômico', 6='Outro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.lab_csf_appearance
     kind: category
     model: mark
@@ -1092,8 +1086,8 @@ columns:
     - 2007
     - 2026
   LAB_PUNCAO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.lab_lumbar_puncture
     kind: category
     model: mark
@@ -1126,8 +1120,8 @@ columns:
     - 2007
     - 2026
   MED_QUIMIO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.chemoprophylaxis
     kind: category
     model: mark
@@ -1171,8 +1165,8 @@ columns:
     years:
     - 2007
     - 2026
-    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
-      the derived IDADE_anos.
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
+      is the derived IDADE_anos.
   NU_LOTE_H:
     role: notification.batch_horizontal
     kind: identifier

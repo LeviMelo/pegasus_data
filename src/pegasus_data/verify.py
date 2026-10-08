@@ -582,7 +582,7 @@ def check_demas(catalog: CatalogStore, settings: Settings) -> Check:
 def check_describe(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.10 — describe() returns labels, coverage and provenance."""
     c = Check("describe() answers the user-facing question", 10)
-    if catalog.count("ledger") == 0:
+    if not catalog.has_rows("ledger"):
         return _skip(c, "the ledger is empty; run `pegasus-data ledger`")
     from .api import Catalog as PublicCatalog
     from .api import describe
@@ -830,7 +830,7 @@ def check_codes_are_codes(catalog: CatalogStore, settings: Settings) -> Check:
     causes it next time.
     """
     c = Check("codes are codes, not prose", 16)
-    if not catalog.count("dictionary"):
+    if not catalog.has_rows("dictionary"):
         return _skip(c, "no dictionary has been built yet")
 
     rows = catalog.query(
@@ -916,7 +916,7 @@ def check_ontology_exhaustive(catalog: CatalogStore, settings: Settings) -> Chec
     except Exception as exc:  # pragma: no cover - only if curation is unreadable
         return _skip(c, f"the declared ontology could not be read: {exc}")
 
-    if not catalog.count("file_facts"):
+    if not catalog.has_rows("file_facts"):
         return _skip(c, "no file_facts rows: crawl and inventory first")
 
     report = onto.reconcile(catalog.conn)
@@ -975,7 +975,7 @@ def check_every_dataset_says_what_a_row_is(catalog: CatalogStore, settings: Sett
     except Exception as exc:  # pragma: no cover - only if curation is unreadable
         return _skip(c, f"the declared ontology could not be read: {exc}")
 
-    if not catalog.count("dataset_docs"):
+    if not catalog.has_rows("dataset_docs"):
         return _skip(c, "no dataset documentation loaded: run `curate` first")
 
     documented: dict[str, dict[str, str]] = {}
@@ -1043,7 +1043,7 @@ def check_join_keys_exist(catalog: CatalogStore, settings: Settings) -> Check:
 
     if not onto.keys:
         return _skip(c, "no join keys are declared in curation/joins.yml")
-    if not catalog.count("schema_presence"):
+    if not catalog.has_rows("schema_presence"):
         return _skip(c, "no schema_presence rows: inventory first")
 
     # Dataset -> the schema signatures its files were decoded under. Resolved
@@ -1135,7 +1135,7 @@ def check_bound_codelists_decode(catalog: CatalogStore, settings: Settings) -> C
     kind of defect.
     """
     c = Check("no binding known to decode nothing is offered", 20)
-    if not catalog.count("field_codelists"):
+    if not catalog.has_rows("field_codelists"):
         return _skip(c, "no codelist bindings: run semantics first")
 
     measured = catalog.count("field_codelists", "decodes_observed IS NOT NULL")

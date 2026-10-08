@@ -2,7 +2,7 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-10-04.
+`DECISIONS.md`. Last rewritten 2026-10-04; the declarations section 2026-10-08.
 
 ## Where the project is
 
@@ -11,6 +11,18 @@ described and code translatable, ADR-0061 to ADR-0106) was live-verified and
 fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
+
+## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
+
+Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels across schema generations).
+- **Roles.** 56 SINAN forms have role files (17 on 2026-10-07), plus SIM-DOFET from SIM-DO's declaration form.
+  - Every column is read against its form's harvested layout, its variable note and a year of values (`data/probes/review/`).
+  - Left as drafts, each with its reason: 2000–2006 layouts with no source, ESPO's inferred notes, and cholera and neonatal tetanus, whose recent files are published empty.
+- **Missing codes.** The form decides where its dictionary is harvested, and the tabulation speaks only where the form is silent.
+  - A code the records use that neither defines is written as a CONFLICT (evaluation 2026-10-08-declarations-by-form).
+  - Two dictionary errors were corrected by supplement, with both claims cited.
+- **Labels.** The label pack chose a vintage before a system, which left SIH 2008–2010 and 378 system-codelists unlabelled in the pack fallback. Fixed (OQ-73); the SIH 2010 links are being recomputed.
+- **Throughput.** `translate` takes 0.1 s a call (from 22 s).
 
 ## Record linkage (branch `linkage`, ADR-0107 to ADR-0124)
 

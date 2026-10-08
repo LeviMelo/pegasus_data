@@ -652,10 +652,10 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     wanted_system = str(report.system or "").upper()
     present = systems_with_tables(lake_root)
     if present and (not wanted_system or wanted_system in present) and not (
-            wanted_system and pipeline.catalog.count("dictionary")
+            wanted_system and pipeline.catalog.has_rows("dictionary")
             and stale_systems(pipeline.catalog, lake_root, [wanted_system])):
         return
-    if not pipeline.catalog.count("dictionary"):
+    if not pipeline.catalog.has_rows("dictionary"):
         # No local dictionary. The shipped label pack answers instead, via
         # read_reference_table's fallback, so this is no longer fatal.
         return

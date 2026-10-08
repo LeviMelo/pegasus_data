@@ -1196,7 +1196,11 @@ def _read_packed(
             if competencia is not None
             else (int(year) * 100 + 1, int(year) * 100 + 12)  # type: ignore[arg-type]
         )
-        dated = _dated_runs(codelist, span_lo, span_hi)
+        # the vintage is chosen among the requested system's own rows and the shared ones: CIH's RACACOR and SEXO
+        # are dated 200801-201012, and choosing the vintage first let them pre-empt SIHSUS's current rows, which
+        # scoping then refused as a borrow (SIH-RD 2008-2010 without sex and race labels; OPEN_QUESTIONS 73)
+        dated = tuple(r for r in _dated_runs(codelist, span_lo, span_hi)
+                      if not system or not r[0] or str(r[0]).upper() == system)
         if dated:
             runs = list(dated)
         elif not has_windows and _is_historical(asked) and policy == "refuse":

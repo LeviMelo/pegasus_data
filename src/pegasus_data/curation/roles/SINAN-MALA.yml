@@ -1,0 +1,1001 @@
+dataset: SINAN-MALA
+record: notification
+columns:
+  AMALARIA:
+    role: notification.amalaria
+    kind: number
+    model: mark
+    review: draft
+    name: Resultado de exame para Plasmodium malariae
+    years:
+    - 2004
+    - 2006
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+    years:
+    - 2007
+    - 2026
+  ANT_DT_INV:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da investigação (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  ARTEI:
+    role: notification.artei
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de arteméter
+    years:
+    - 2004
+    - 2006
+  ARTEM:
+    role: notification.artem
+    kind: number
+    model: mark
+    review: draft
+    name: Artemeter/Artesunato
+    years:
+    - 2004
+    - 2006
+  ARTEMI:
+    role: notification.artemi
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de artemisinina/derivado
+    years:
+    - 2004
+    - 2006
+  ARTESU:
+    role: notification.artesu
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de artesunato
+    years:
+    - 2004
+    - 2006
+  ASSINTOM:
+    role: notification.assintom
+    kind: number
+    model: mark
+    review: draft
+    name: Caso assintomático
+    years:
+    - 2004
+    - 2006
+  AT_ATIVIDA:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='agricultura', 10='Viajante', 11='Outros', 2='Pecuária', 3='Doméstica', 4='Turismo', 5='Garimpagem', 6='Exploração vegetal', 7='caça/pesca', 8='construtor de estradas /barragens', 9='Mineração', 99='ignorado'; the tabulation: 99='Ignorado'; CONFLICT: the records use ['12'], which the form does not define
+    role: case.activity_last_15_days
+    kind: category
+    model: mark
+    name: Atividade exercida no momento da provável infecção
+    codelists:
+    - AT_ATIVIDA
+    years:
+    - 2007
+    - 2026
+  AT_LAMINA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='BP', 2='BA', 3='LVC'; the tabulation: no value labelled as not recorded
+    role: case.slide_type
+    kind: category
+    model: mark
+    name: Tipo de lâmina
+    years:
+    - 2007
+    - 2026
+  AT_SINTOMA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Com sintomas', 2='Sem sintomas'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.symptomatic
+    kind: category
+    model: mark
+    name: Sintomas
+    years:
+    - 2007
+    - 2026
+  CALAFRIO:
+    role: notification.calafrio
+    kind: category
+    model: mark
+    review: draft
+    name: Calafrio
+    years:
+    - 2004
+    - 2006
+  CD_OUTRO:
+    role: notification.cd_outro
+    kind: number
+    model: mark
+    review: draft
+    name: Outro medicamento - descrição
+    years:
+    - 2004
+    - 2006
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CLIND:
+    role: notification.clind
+    kind: number
+    model: mark
+    review: draft
+    name: Diagnóstico clínico
+    years:
+    - 2004
+    - 2006
+  CLINDI:
+    role: notification.clindi
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de clindamicina
+    years:
+    - 2004
+    - 2006
+  CLI_OUTRO:
+    role: notification.cli_outro
+    kind: category
+    model: mark
+    review: draft
+    name: Outros sinais/sintomas
+    years:
+    - 2004
+    - 2006
+  CLOROQ:
+    role: notification.cloroq
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de cloroquina
+    years:
+    - 2004
+    - 2006
+  CLOROQI:
+    role: notification.cloroqi
+    kind: number
+    model: mark
+    review: draft
+    name: Cloroquina
+    years:
+    - 2004
+    - 2006
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    name: Município Provável da Fonte de Infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  CON_CLASSI:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  CON_CONFIR:
+    role: notification.con_confir
+    kind: number
+    model: mark
+    review: draft
+    name: Confirmação laboratorial
+    years:
+    - 2004
+    - 2006
+  CON_DOENCA:
+    role: notification.con_doenca
+    kind: number
+    model: mark
+    review: draft
+    name: Doença (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  CON_DT_ENC:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de encerramento (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  CON_DT_OBI:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data do óbito (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  CON_EVOLUC:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução (bloco de conclusão legado)
+    years:
+    - 2004
+    - 2006
+  CON_INF_MU:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    name: Município provável de infecção (nome de campo legado)
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNIC_BR7
+    years:
+    - 2004
+    - 2006
+  CON_INF_PA:
+    role: case.infection_country
+    kind: place
+    model: mark
+    name: País de infecção
+    years:
+    - 2004
+    - 2006
+  CON_INF_UF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    name: UF provável de infecção (nome de campo legado)
+    codelists:
+    - UF_BR
+    years:
+    - 2004
+    - 2006
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: mark
+    name: País Provável da Fonte de Infecção
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    name: UF Provável da Fonte de Infecção
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    years:
+    - 2007
+    - 2026
+    note: "State abbreviations (AM, ...) in 2021, not IBGE codes: no place reader compares them with the residence's
+      code."
+  CS_ESCOLAR:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2004
+    - 2006
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  DEXAME:
+    role: case.exam_date
+    kind: date
+    model: mark
+    name: Data do exame
+    years:
+    - 2004
+    - 2026
+  DINTERNA:
+    role: notification.dinterna
+    kind: number
+    model: mark
+    review: draft
+    name: Data de internação
+    years:
+    - 2004
+    - 2006
+  DOXOCI:
+    role: notification.doxoci
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de doxiciclina
+    years:
+    - 2004
+    - 2006
+  DSTRAESQUE:
+    role: treatment.regimen_text
+    kind: text
+    model: excluded
+    name: Esquema de tratamento utilizado – outro
+    years:
+    - 2007
+    - 2026
+  DTRATA:
+    role: treatment.start_date
+    kind: date
+    model: mark
+    name: Data do início do tratamento
+    years:
+    - 2004
+    - 2026
+  DTTRANSFU:
+    role: notification.dttransfu
+    kind: date
+    model: mark
+    review: draft
+    name: Data da transfusão
+    years:
+    - 2004
+    - 2006
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2026
+  FEBRE:
+    role: notification.febre
+    kind: category
+    model: mark
+    review: draft
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2004
+    - 2006
+  GESTANTE:
+    role: notification.gestante
+    kind: number
+    model: mark
+    review: draft
+    name: Gestante
+    years:
+    - 2004
+    - 2006
+  HOSPITAL:
+    role: notification.hospital
+    kind: category
+    model: mark
+    review: draft
+    name: Ocorreu Hospitalização
+    years:
+    - 2004
+    - 2006
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_DG_NOT:
+    role: notification.id_dg_not
+    kind: number
+    model: mark
+    review: draft
+    name: Identificador de notificação (bloco Dados Gerais)
+    years:
+    - 2004
+    - 2006
+  ID_EV_NOT:
+    role: notification.id_ev_not
+    kind: number
+    model: mark
+    review: draft
+    name: Identificador de notificação (bloco Evolução/Notificação)
+    years:
+    - 2004
+    - 2006
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  IN_VINCULA:
+    role: notification.in_vincula
+    kind: category
+    model: mark
+    review: draft
+    name: Vinculação
+    years:
+    - 2004
+    - 2006
+  LOC_INF:
+    role: case.infection_locality_text
+    kind: text
+    model: excluded
+    name: Localidade provável de infecção
+    years:
+    - 2007
+    - 2026
+  MEFLOQ:
+    role: notification.mefloq
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de mefloquina
+    years:
+    - 2004
+    - 2006
+  MINTERNA:
+    role: notification.minterna
+    kind: number
+    model: mark
+    review: draft
+    name: Unidade de internação (CNES)
+    years:
+    - 2004
+    - 2006
+  MTRANSFU:
+    role: notification.mtransfu
+    kind: place
+    model: mark
+    review: draft
+    name: Município da transfusão
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNIC_BR7
+    years:
+    - 2004
+    - 2006
+  NDUPLIC:
+    role: notification.nduplic
+    kind: category
+    model: mark
+    review: draft
+    name: Não Listar/Não Contar
+    years:
+    - 2004
+    - 2006
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  NU_IDADE:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2004
+    - 2006
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-DIFT
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2007
+    - 2026
+  OCUPACAO:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    years:
+    - 2004
+    - 2006
+  PCRUZ:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='menor ½ + (Menor que meia cruz)', 2='1/2 + (Meia cruz)', 3='+ (Uma cruz)', 4='++ (Duas cruzes)', 5='+++ (Três cruzes)', 6='++++ (Quatro cruzes)'; the tabulation: no value labelled as not recorded
+    role: case.parasitaemia_crosses
+    kind: category
+    model: mark
+    name: Parasitemia em cruzes
+    years:
+    - 2004
+    - 2026
+  PMALARIA:
+    role: notification.pmalaria
+    kind: number
+    model: mark
+    review: draft
+    name: Plasmodium malariae identificado
+    years:
+    - 2004
+    - 2006
+  PMM:
+    role: case.parasite_density_mm3
+    kind: number
+    model: mark
+    name: Parasitos por mm³
+    years:
+    - 2004
+    - 2026
+  PRIMAQ:
+    role: notification.primaq
+    kind: number
+    model: mark
+    review: draft
+    name: Primaquina
+    years:
+    - 2004
+    - 2006
+  PTRANSFU:
+    role: notification.ptransfu
+    kind: number
+    model: mark
+    review: draft
+    name: Provável transfusional
+    years:
+    - 2004
+    - 2006
+  PUSUARIO:
+    role: notification.pusuario
+    kind: number
+    model: mark
+    review: draft
+    name: Peso do usuário
+    years:
+    - 2004
+    - 2006
+  QUININO:
+    role: notification.quinino
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de quinino
+    years:
+    - 2004
+    - 2006
+  QUININOI:
+    role: notification.quininoi
+    kind: number
+    model: mark
+    review: draft
+    name: Quinino
+    years:
+    - 2004
+    - 2006
+  RESULT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='negativo', 10='O', 2='F', 3='F + FG', 4='V', 5='F+ V', 6='V + FG', 7='FG', 8='M', 9='F+ M'; the tabulation: no value labelled as not recorded
+    role: case.exam_result
+    kind: category
+    model: mark
+    name: Resultado do exame
+    years:
+    - 2004
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2004
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2004
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2004
+    - 2026
+    note: role from the notification block
+  SOUTROS:
+    role: notification.soutros
+    kind: number
+    model: mark
+    review: draft
+    name: Se outros
+    years:
+    - 2004
+    - 2006
+  SUDORESE:
+    role: notification.sudorese
+    kind: number
+    model: mark
+    review: draft
+    name: Sudorese
+    years:
+    - 2004
+    - 2006
+  TETRAC:
+    role: notification.tetrac
+    kind: number
+    model: mark
+    review: draft
+    name: Uso de tetraciclina
+    years:
+    - 2004
+    - 2006
+  TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; the tabulation: no value labelled as not recorded
+    role: case.autochthonous
+    kind: category
+    model: mark
+    name: Caso é Autóctone da Residência?
+    codelists:
+    - AUTOCTONE
+    years:
+    - 2007
+    - 2026
+    note: role from SINAN-CHIK
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  TRANSFU:
+    role: notification.transfu
+    kind: number
+    model: mark
+    review: draft
+    name: Transfusão
+    years:
+    - 2004
+    - 2006
+  TRA_ESQUEM:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Infecções por Pv com Cloroquina em 3 dias e Primaquina em 7 dias', 10='Prevenção de recaída da malária por Pv com Cloroquina em dose única semanal durante 3 meses', 11='Malária grave e complicada', 2='Infecções por Pf com Quinina em 3 dias + Doxiciclina em 5 dias + primaquina no 6º dia', 3='Infecções mistas por Pv + Pf com Mefloquina em dose única e primaquina em 7 dias', 4='Infecções por Pm com cloroquina em 3 dias', 5='Infecções por Pv em crianças apresentando vômitos, com cápsulas retais de artesunato em 4 dias e Primaquina em 7 dias', 6='Infecções por Pf com Mefloquina em dose única e primaquina no segundo dia', 7='Infecções por Pf com Quinina em 7 dias', 8='Infecções por Pf de crianças com cápsulas retais de artesunato em 4 dias e dose única de Mefloquina no 3º dia e Primaquina no 5º ida', 9='Infecções mistas por Pv + Pf com Quinina em 3 dias, doxiciclina em 5 dias e Primaquina em 7 dias', 99='Outro esquema utilizado (por médico) - descrever:'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['12'], which the form does not define
+    role: treatment.regimen
+    kind: category
+    model: mark
+    name: Esquema de tratamento
+    years:
+    - 2007
+    - 2026
+  UFINTERNA:
+    role: notification.ufinterna
+    kind: number
+    model: mark
+    review: draft
+    name: UF de internação
+    years:
+    - 2004
+    - 2006
+  UFTRANSFU:
+    role: notification.uftransfu
+    kind: number
+    model: mark
+    review: draft
+    name: UF da transfusão
+    years:
+    - 2004
+    - 2006
+  UTRANSFU:
+    role: notification.utransfu
+    kind: number
+    model: mark
+    review: draft
+    name: Unidade da transfusão (CNES)
+    years:
+    - 2004
+    - 2006
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

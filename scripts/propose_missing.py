@@ -1,7 +1,7 @@
 """Propose each column's missing codes and domain from DATASUS's own labels, for review (ADR-0154).
 
     python scripts/propose_missing.py DATASET YEAR[-YEAR] [--write]
-    python scripts/propose_missing.py DATASET YEAR --check      # re-read the declared codes by the rule below
+    python scripts/propose_missing.py DATASET YEAR --check [--write]   # re-read the declared codes by the rule below
 
 For every reviewed `category` column (model mark or dimension) of DATASET's roles file that declares no `missing`,
 the distinct values of YEAR are labelled (`translate`), and every other code of the codelists the catalog binds to the
@@ -32,8 +32,8 @@ import pegasus_data as pg
 from pegasus_data.semantics import column_roles
 from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 
-NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|sem informa[çc][ãa]o|não declarad[oa])\s*$",
-                          re.IGNORECASE)
+NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|sem informa[çc][ãa]o|não declarad[oa]"
+                          r"|desconhecid[oa])\s*$", re.IGNORECASE)     # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
 NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
 
 
@@ -92,20 +92,13 @@ def main(dataset: str, spec: str, write: bool) -> None:
         miss = sorted(v for v, lab in labels.items()
                       if lab and (NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))))
         tabnet = ", ".join(f"{v}={labels[v]!r}" for v in miss) or "no value labelled as not recorded"
-        # the record's own form outranks the tabulation (TabNet's catch-all labels call documented categories
-        # "Ignorado"): where the form's dictionary is harvested, its not-recorded codes are declared and the tabulation's
-        # disagreements recorded; without it, the tabulation alone does not declare (2026-10-08, work plan P1)
-        form = inline_codelist(harvested_codelist(system, series, r.column) or "") or {}
-        if form:
-            miss = sorted(c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab)))
-            disagree = sorted(set(miss) ^ {v for v in labels if labels[v] and (NOT_RECORDED.match(str(labels[v]))
-                                                                              or NOT_CLASSIFIED.match(str(labels[v])))})
-            evidence = (f"the form's dictionary: {', '.join(f'{c}={form[c]!r}' for c in miss) or 'no code not recorded'}; "
-                        f"the tabulation: {tabnet}" + (f"; they disagree on {disagree}" if disagree else ""))
-            proposals[r.column] = (miss, evidence, False)
-        else:
-            evidence = f"the tabulation only: {tabnet}"
-            proposals[r.column] = (miss, evidence, True)     # one source: left undeclared, said
+        # the record's own form outranks the tabulation where they speak of the same code: a code the form defines with
+        # a meaning is that meaning, whatever the tabulation's catch-all label calls it ("Ignorado" for a documented
+        # category: CONJUNTVIT 5 is not one). A code the form does not define, which the tabulation calls not recorded,
+        # is not recorded: the form is silent, the tabulation speaks. Without the form, the tabulation alone does not
+        # declare (2026-10-08, work plan P1)
+        proposals[r.column] = by_form(system, series, r.column, miss, tabnet, seen=set(values))
+        miss, evidence, _ = proposals[r.column]
         print(f"{r.column}: missing {miss} ({evidence})"
               f"{'  [no form dictionary: left undeclared]' if proposals[r.column][2] else ''}")
     if write:
@@ -123,6 +116,25 @@ def main(dataset: str, spec: str, write: bool) -> None:
             text = text.replace(head, head + decl)
         path.write_text(text, encoding="utf-8")
         print(f"written {path}")
+
+
+def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
+            seen: set[str] | None = None) -> tuple[list[str], str, bool]:
+    """The column's not-recorded codes by the rule above, from the tabulation's ``miss`` and the form's dictionary:
+    (codes, evidence, one source only). The form is a source, not the truth: a code the records use that it does not
+    define, and that the tabulation does not call not recorded, is a conflict written into the evidence (MENI
+    ANT_TRAUMA: the dictionary prints 3 Não, the records use 2)."""
+    form = inline_codelist(harvested_codelist(system, series, column) or "") or {}
+    if not form:
+        return miss, f"the tabulation only: {tabnet}", True     # one source: left undeclared, said
+    form_miss = {c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))}
+    overruled = sorted(c for c in miss if c in form and c not in form_miss)
+    evidence = (f"the form's dictionary: {', '.join(f'{c}={form[c]!r}' for c in sorted(form)) or 'no codes'}; "
+                f"the tabulation: {tabnet}" + (f"; the form overrules the tabulation on {overruled}" if overruled else ""))
+    undefined = sorted(c for c in (seen or ()) if c not in form and c not in miss)
+    if undefined:
+        evidence += f"; CONFLICT: the records use {undefined}, which the form does not define"
+    return sorted(form_miss | {c for c in miss if c not in form}), evidence, False
 
 
 def numbers(dataset: str, year: int, write: bool) -> None:
@@ -212,10 +224,13 @@ def _table(column: str, values: list[str]):
     return pa.table({column: values})
 
 
-def check(dataset: str, year: int) -> None:
-    """``--check``: every declared `missing` code of a category column re-read by the rule above (the year's own
-    labels and the codelists that agree with them); a code whose label does not say "not recorded" is reported, for a
-    correction by hand with its evidence. Nothing is written."""
+def check(dataset: str, year: int, write: bool = False) -> None:
+    """``--check``: every declared `missing` of a category column re-read by the rule above (the year's own labels,
+    the codelists that agree with them, and the form's dictionary where harvested); a declaration that differs is
+    reported, and with ``--write`` replaced by the rule's, its evidence as the comment. A column without a form keeps
+    its declaration, its codes the tabulation does not call not recorded reported for a correction by hand. One year's
+    labels can be narrower than the years a declaration rests on (SINAN-DENG HOSPITALIZ: 2021's labels cover 9 only,
+    2019-2023's also 0 and 3-8), so a check is read against the declaration's own years before it is written."""
     key = dataset.upper().replace(".", "-")
     rows = [r for r in column_roles.load_column_roles()[key]
             if r.kind == "category" and r.model in ("mark", "dimension") and r.missing
@@ -226,7 +241,8 @@ def check(dataset: str, year: int) -> None:
         warnings.simplefilter("ignore")
         table = pg.query(dataset, period=year, geography="BR", select=[r.column for r in rows], present="codes",
                          allow_partial=True)
-    bad = 0
+    series = dataset.replace(".", "-").split("-", 1)[1] if "-" in dataset.replace(".", "-") else ""
+    bad, fixes = 0, {}
     for r in rows:
         if r.column not in table.column_names:
             continue
@@ -236,16 +252,41 @@ def check(dataset: str, year: int) -> None:
             seen = {str(x[r.column]): x.get(f"{r.column}_label")
                     for x in pg.translate(_table(r.column, values), system=system).to_pylist()}
         labels = {**_codelist_labels(system, r.column, seen), **seen}
+        tab = sorted(c for c, lab in labels.items()
+                     if lab and (NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))))
+        miss, evidence, alone = by_form(system, series, r.column, tab, ", ".join(
+            f"{c}={labels[c]!r}" for c in tab) or "no value labelled as not recorded", seen=set(values))
+        if not alone:
+            if sorted(map(str, r.missing)) != miss:
+                bad += 1
+                fixes[r.column] = (miss, evidence)
+                print(f"{r.column}: declared {sorted(map(str, r.missing))}, by the form {miss} ({evidence})")
+            continue
         for code in r.missing:
             lab = labels.get(code)
             if lab is None or not (NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))):
                 bad += 1
                 print(f"{r.column}: declared missing {code!r}, label by the agreeing codelists: {lab!r}")
-    print(f"{len(rows)} columns checked, {bad} declared codes not supported")
+    print(f"{len(rows)} columns checked, {bad} declarations not supported")
+    if write and fixes:
+        path = column_roles.roles_dir() / f"{key}.yml"
+        lines = path.read_text(encoding="utf-8").split("\n")
+        for i, line in enumerate(lines):
+            col = line.strip().rstrip(":")
+            if line.startswith("  ") and not line.startswith("   ") and col in fixes:
+                j = i + 1
+                while j < len(lines) and lines[j].startswith("    ") and not lines[j].startswith("    missing:"):
+                    j += 1
+                miss, evidence = fixes[col]
+                lines[j] = f"    missing: [{', '.join(repr(m) for m in miss)}]"
+                if j + 1 < len(lines) and lines[j + 1].startswith("    # "):
+                    lines[j + 1] = f"    # declared from DATASUS's own sources ({year}): {evidence}"
+        path.write_text("\n".join(lines), encoding="utf-8")
+        print(f"written {path}")
 
 
 if __name__ == "__main__":
     if "--check" in sys.argv:
-        check(sys.argv[1], int(sys.argv[2]))
+        check(sys.argv[1], int(sys.argv[2]), "--write" in sys.argv[3:])
     else:
         main(sys.argv[1], sys.argv[2], "--write" in sys.argv[3:])

@@ -5,12 +5,24 @@
 system: RESP
 series:
   RESP:
+    ANO_NASC:
+      type: text
+      width: 4
+      source_ref: DIC_DADOS_RESP.pdf
+    ANO_NOT:
+      type: text
+      width: 4
+      source_ref: DIC_DADOS_RESP.pdf
     CEFALEIA:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     CLASSIFIN:
+      type: text
+      width: 1
       codes:
         '1': Confirmado
         '2': Provável
@@ -20,47 +32,129 @@ series:
         '6': Excluído
       source_ref: DIC_DADOS_RESP.pdf
     CLASS_FETO:
+      type: text
+      width: 1
       codes:
         '1': Pré-Termo (menor que 37 semanas de gestação)
         '2': A Termo (idade gestacional entre 37 e 41 semanas e 6 dias)
         '3': Pós-Termo (idade gestacional igual ou maior que 42 semanas)
       source_ref: DIC_DADOS_RESP.pdf
+    CODMUNNOT:
+      type: text
+      width: 6
+      source_ref: DIC_DADOS_RESP.pdf
+    CODMUNRES:
+      type: text
+      width: 6
+      source_ref: DIC_DADOS_RESP.pdf
+    COMPRIMENT:
+      type: text
+      width: 2
+      source_ref: DIC_DADOS_RESP.pdf
     CONJUNTIV:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
+    CO_SEQ:
+      type: text
+      width: 12
+      source_ref: DIC_DADOS_RESP.pdf
+    CRITERIO:
+      type: text
+      width: 7
+      source_ref: DIC_DADOS_RESP.pdf
     DEF_AUDIT:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     DEF_NEURO:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     DEF_VISUAL:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
+    DIAMCEFAL:
+      type: text
+      width: 4
+      source_ref: DIC_DADOS_RESP.pdf
     DOR_ARTIC:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     DOR_MUSC:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
+    DT_NASC:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_NASCMAE:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_NOTIFIC:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_OBITO:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_RS:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_SINTOMA:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_TC:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_TRANSF:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_ULT_ALT:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
+    DT_USS:
+      type: text
+      width: 8
+      source_ref: DIC_DADOS_RESP.pdf
     EDEMA:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     ETIOLOGIA:
+      type: text
+      width: 1
       codes:
         '1': Vírus Zika
         '2': STORCH
@@ -69,6 +163,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     EXAME_RS:
+      type: text
+      width: 1
       codes:
         '1': Resultado Normal
         '2': Resultado alterado, sugestivo de infecção congênita
@@ -78,6 +174,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     EXAME_TC:
+      type: text
+      width: 1
       codes:
         '1': Resultado Normal
         '2': Resultado alterado, sugestivo de infecção congênita
@@ -87,6 +185,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     EXAME_USS:
+      type: text
+      width: 1
       codes:
         '1': Resultado Normal
         '2': Resultado alterado, sugestivo de infecção congênita
@@ -96,6 +196,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     EXANT_GES:
+      type: text
+      width: 1
       codes:
         '1': Sim, no 1º trimestre
         '2': Sim, no 2º trimestre
@@ -105,12 +207,16 @@ series:
         '9': Não sabe
       source_ref: DIC_DADOS_RESP.pdf
     EXA_TORSCH:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     EXA_TRANSF:
+      type: text
+      width: 1
       codes:
         '1': Resultado Normal
         '2': Resultado alterado, sugestivo de infecção congênita
@@ -120,12 +226,20 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     FEBRE_GES:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
+    GEST_DIAG:
+      type: text
+      width: 2
+      source_ref: DIC_DADOS_RESP.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
       codes:
         '1': Única
         '2': Dupla
@@ -133,11 +247,15 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     HIPERT_GAN:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     HIST_ARBOV:
+      type: text
+      width: 1
       codes:
         '1': Dengue
         '2': Chikungunya
@@ -146,12 +264,20 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     HIST_MALFO:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
+    IDADEGES:
+      type: text
+      width: 2
+      source_ref: DIC_DADOS_RESP.pdf
     MICROCEFAL:
+      type: text
+      width: 1
       codes:
         '1': Microcefalia apenas
         '2': Microcefalia com alteração do SNC
@@ -159,11 +285,15 @@ series:
         '4': Alterações congênitas sem microcefalia
       source_ref: DIC_DADOS_RESP.pdf
     NEUROLOG:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     PCR_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -171,12 +301,24 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
+    PERIMCEFAL:
+      type: text
+      width: 4
+      source_ref: DIC_DADOS_RESP.pdf
+    PESO:
+      type: text
+      width: 4
+      source_ref: DIC_DADOS_RESP.pdf
     PRURIDO:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
       source_ref: DIC_DADOS_RESP.pdf
     RACACOR:
+      type: text
+      width: 1
       codes:
         '1': Branca
         '2': Negra
@@ -185,7 +327,17 @@ series:
         '5': Indígena
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
+    REGIAONOT:
+      type: text
+      width: 1
+      source_ref: DIC_DADOS_RESP.pdf
+    REGIAORES:
+      type: text
+      width: 1
+      source_ref: DIC_DADOS_RESP.pdf
     RESUL_C:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -194,6 +346,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RESUL_H:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -202,6 +356,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RESUL_S:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -210,6 +366,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RESUL_TO:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -218,17 +376,23 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RESUL_Z:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '0': Não
       source_ref: DIC_DADOS_RESP.pdf
     RNEXA_TORS:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNPCR_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -237,6 +401,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNRESUL_C:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -245,6 +411,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNRESUL_H:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -253,6 +421,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNRESUL_S:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -261,6 +431,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNRESUL_TO:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -269,11 +441,15 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNRESUL_Z:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '0': Não
       source_ref: DIC_DADOS_RESP.pdf
     RNSO_IGG_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -282,6 +458,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNSO_IGM_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -290,6 +468,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNTR_IGG_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -298,6 +478,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     RNTR_IGM_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -306,12 +488,16 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     SEXO:
+      type: text
+      width: 1
       codes:
         '1': Masculino
         '2': Feminino
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     SO_IGG_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -320,6 +506,8 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     SO_IGM_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -328,25 +516,37 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     STATUS_NOT:
+      type: text
+      width: 1
       codes:
         '1': Ativo
         '2': Reativado
         '3': Inativo
       source_ref: DIC_DADOS_RESP.pdf
     ST_OBITO:
+      type: text
+      width: 1
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     TPDETECCAO:
+      type: text
+      width: 1
       codes:
         '1': Intrauterino (na gestação)
         '2': Pós-Parto
         '3': Não detectada
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
+    TP_NOTIFIC:
+      type: text
+      width: 1
+      source_ref: DIC_DADOS_RESP.pdf
     TR_IGG_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
@@ -355,10 +555,20 @@ series:
         '9': Ignorado
       source_ref: DIC_DADOS_RESP.pdf
     TR_IGM_Z:
+      type: text
+      width: 1
       codes:
         '1': Reagente/Positivo
         '2': Não reagente/Negativo
         '3': Indetectável/ Indeterminado
         '4': Não realizado
         '9': Ignorado
+      source_ref: DIC_DADOS_RESP.pdf
+    UFNOT:
+      type: text
+      width: 2
+      source_ref: DIC_DADOS_RESP.pdf
+    UFRES:
+      type: text
+      width: 2
       source_ref: DIC_DADOS_RESP.pdf

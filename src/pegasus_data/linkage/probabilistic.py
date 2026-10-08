@@ -813,14 +813,15 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     right_roles = sorted((set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.side_roles("right")})
                          - inherited)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    rest = {k: v for k, v in query_kwargs.items() if k != "settings"}     # `settings` is passed once, resolved
     left = role_table(spec.left.dataset, period=period, geography=geography, roles=left_roles, **query_kwargs)
     left = _inherited(left, spec.left.dataset, [i for i in prob.inherit if i.side == "left"],
-                      period=period, geography=geography, settings=settings, **query_kwargs)
+                      period=period, geography=geography, settings=settings, **rest)
     right_geo = right_geography or geography
     right = role_table(spec.right.dataset, period=right_period or period,
                        geography=right_geo, roles=right_roles, **query_kwargs)
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
-                       period=right_period or period, geography=right_geo, settings=settings, **query_kwargs)
+                       period=right_period or period, geography=right_geo, settings=settings, **rest)
     national = None if str(geography).upper() == "BR" and right_geography is None else load_params(settings, name)
     return run_probabilistic(spec, prob, left, right, national)
 

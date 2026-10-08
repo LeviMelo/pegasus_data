@@ -2,19 +2,17 @@ dataset: SINAN-AIDA
 record: notification
 columns:
   ANTDTTRANS:
-    role: notification.antdttrans
-    kind: number
+    role: case.transfusion_accident_date
+    kind: date
     model: mark
-    review: draft
     name: Data da transfusão/acidente
     years:
     - 2007
     - 2024
   ANTMUNTRAN:
-    role: notification.antmuntran
+    role: case.transfusion_accident_municipality
     kind: place
     model: mark
-    review: draft
     name: Município onde foi realizada a transfusão/acidente
     codelists:
     - BR_MUNICIPALFA
@@ -22,425 +20,395 @@ columns:
     - 2007
     - 2024
   ANTRELSE_N:
-    role: notification.antrelse_n
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Relações sexuais com Homens', 2='Relações sexuais com Mulheres', 3='Relações sexuais com homens e mulheres', 4='Não foi transmissão sexual', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transmission_sexual
     kind: category
     model: mark
-    review: draft
-    name: '33. Sexual
-
-      '
+    name: "33. Sexual\n"
     codelists:
     - ANTRELN
     years:
     - 2007
     - 2024
   ANTTRANS_M:
-    role: notification.anttrans_m
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transmission_transfusion
     kind: category
     model: mark
-    review: draft
-    name: '34. Sanguínea — Transfusão Sanguínea
-
-      '
+    name: "34. Sanguínea — Transfusão Sanguínea\n"
     years:
     - 2007
     - 2024
   ANTUFTRANS:
-    role: notification.antuftrans
-    kind: category
+    role: case.transfusion_accident_state
+    kind: place
     model: mark
-    review: draft
     name: UF da transfusão/acidente
     years:
     - 2007
     - 2024
   ANT_ACIDEN:
-    role: notification.ant_aciden
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transmission_biological_accident
     kind: category
     model: mark
-    review: draft
     name: Acidente com material biológico com posterior soroconversão até 6 meses
     years:
     - 2007
     - 2024
   ANT_ANEMIA:
-    role: notification.ant_anemia
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_anaemia_cytopenia
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Anemia e/ou Linfopenia e/ou Trombocitopenia (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Anemia e/ou Linfopenia e/ou Trombocitopenia (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_ASTERI:
-    role: notification.ant_asteri
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_asthenia
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Astenia ≥1 Mês (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Astenia ≥1 Mês (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CANCER:
-    role: notification.ant_cancer
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cervical_cancer
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC Adaptado — Câncer Cervical Invasivo
-
-      '
+    name: "42. Critério CDC Adaptado — Câncer Cervical Invasivo\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CANDID:
-    role: notification.ant_candid
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_oral_candidiasis
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Candidose Oral ou Leucoplasia Pilosa (5 pts)
-
-      '
+    name: "41. RJ/Caracas — Candidose Oral ou Leucoplasia Pilosa (5 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CAQUEX:
-    role: notification.ant_caquex
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_cachexia
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Caquexia ou Perda de Peso >10% (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Caquexia ou Perda de Peso >10% (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CHAGAS:
-    role: notification.ant_chagas
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_chagas_reactivation
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Reativação de Doença de Chagas
-
-      '
+    name: "42. Critério CDC — Reativação de Doença de Chagas\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CITO:
-    role: notification.ant_cito
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cytomegalovirus
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Citomegalovirose (Exceto Fígado, Baço ou Linfonodos)
-
-      '
+    name: "42. Critério CDC — Citomegalovirose (Exceto Fígado, Baço ou Linfonodos)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CONTAG:
-    role: notification.ant_contag
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cd4_below_350
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Contagem de Linfócitos T CD4+ <350 cel/mm3
-
-      '
+    name: "42. Critério CDC — Contagem de Linfócitos T CD4+ <350 cel/mm3\n"
     years:
     - 2007
     - 2024
   ANT_CRIPTO:
-    role: notification.ant_cripto
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cryptococcosis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Criptococose (Extra-Pulmonar)
-
-      '
+    name: "42. Critério CDC — Criptococose (Extra-Pulmonar)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_CRIP_1:
-    role: notification.ant_crip_1
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cryptosporidiosis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Criptosporidiose Intestinal Crônica >1 Mês
-
-      '
+    name: "42. Critério CDC — Criptosporidiose Intestinal Crônica >1 Mês\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_DERMAT:
-    role: notification.ant_dermat
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_dermatitis
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Dermatite Persistente (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Dermatite Persistente (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_DIARRE:
-    role: notification.ant_diarre
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_diarrhoea
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Diarréia ≥1 Mês (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Diarréia ≥1 Mês (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_DISFUN:
-    role: notification.ant_disfun
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_cns_dysfunction
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Disfunção do Sistema Nervoso Central (5 pts)
-
-      '
+    name: "41. RJ/Caracas — Disfunção do Sistema Nervoso Central (5 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_DROGA:
-    role: notification.ant_droga
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transmission_injecting_drugs
     kind: category
     model: mark
-    review: draft
     name: 'Provável modo de transmissão – sanguínea: uso de droga injetável'
     years:
     - 2007
     - 2024
   ANT_ESOF_N:
-    role: notification.ant_esof_n
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    role: case.cdc_oesophageal_candidiasis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Candidose de Esôfago
-
-      '
+    name: "42. Critério CDC — Candidose de Esôfago\n"
     years:
     - 2007
     - 2024
   ANT_FEBRE:
-    role: notification.ant_febre
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_fever
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Febre ≥38ºC por ≥1 Mês (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Febre ≥38ºC por ≥1 Mês (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_HEMOLF:
-    role: notification.ant_hemolf
+    role: case.transmission_haemophilia
     kind: category
     model: mark
-    review: draft
-    name: '34. Sanguínea — Tratamento/Hemotransfusão para Hemofilia
-
-      '
+    name: "34. Sanguínea — Tratamento/Hemotransfusão para Hemofilia\n"
     years:
     - 2007
     - 2024
   ANT_HERPES:
-    role: notification.ant_herpes
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_herpes_zoster
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Herpes Zoster em Indivíduo ≤60 Anos (5 pts)
-
-      '
+    name: "41. RJ/Caracas — Herpes Zoster em Indivíduo ≤60 Anos (5 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_HISTO:
-    role: notification.ant_histo
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_histoplasmosis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Histoplasmose Disseminada
-
-      '
+    name: "42. Critério CDC — Histoplasmose Disseminada\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_H_SIMP:
-    role: notification.ant_h_simp
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_herpes_simplex
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Herpes Simples Mucocutâneo >1 Mês
-
-      '
+    name: "42. Critério CDC — Herpes Simples Mucocutâneo >1 Mês\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_INVEST:
-    role: notification.ant_invest
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não se aplica'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transfusion_accident_confirmed
     kind: category
     model: mark
-    review: draft
-    name: Após investigação, a transfusão/acidente com material biológico foi confirmada como via de transmissão
+    name: Após investigação, a transfusão/acidente com material biológico foi confirmada como via de 
+      transmissão
     years:
     - 2007
     - 2024
   ANT_ISOPOR:
-    role: notification.ant_isopor
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_isosporiasis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Isosporidiose Intestinal Crônica >1 Mês
-
-      '
+    name: "42. Critério CDC — Isosporidiose Intestinal Crônica >1 Mês\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_LEUCO:
-    role: notification.ant_leuco
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_progressive_multifocal_leukoencephalopathy
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Leucoencefalopatia Multifocal Progressiva
-
-      '
+    name: "42. Critério CDC — Leucoencefalopatia Multifocal Progressiva\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_LINFO:
-    role: notification.ant_linfo
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_lymphadenopathy
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Linfadenopatia ≥1cm (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Linfadenopatia ≥1cm (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_LINFOM:
-    role: notification.ant_linfom
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_lymphoma
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Linfoma Não Hodgkin e Outros Linfomas
-
-      '
+    name: "42. Critério CDC — Linfoma Não Hodgkin e Outros Linfomas\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_LINFO_:
-    role: notification.ant_linfo_
+    role: case.cdc_primary_brain_lymphoma
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Linfoma Primário de Cérebro
-
-      '
+    name: "42. Critério CDC — Linfoma Primário de Cérebro\n"
     years:
     - 2007
     - 2024
   ANT_MICRO:
-    role: notification.ant_micro
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_disseminated_mycobacteriosis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Micobacteriose Disseminada (Exceto TB e Hanseníase)
-
-      '
+    name: "42. Critério CDC — Micobacteriose Disseminada (Exceto TB e Hanseníase)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_PNEUMO:
-    role: notification.ant_pneumo
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_pneumocystis_pneumonia
     kind: category
     model: mark
-    review: draft
     name: Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)
     years:
     - 2007
     - 2024
   ANT_PULMON:
-    role: notification.ant_pulmon
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_pulmonary_tuberculosis
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Tuberculose Pulmonar Cavitária ou Não Especificada (5 pts)
-
-      '
+    name: "41. RJ/Caracas — Tuberculose Pulmonar Cavitária ou Não Especificada (5 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_PULM_N:
-    role: notification.ant_pulm_n
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_pulmonary_candidiasis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Candidose de Traquéia, Brônquio ou Pulmão
-
-      '
+    name: "42. Critério CDC — Candidose de Traquéia, Brônquio ou Pulmão\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_REL_CA:
-    role: notification.ant_rel_ca
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 10='Homossexual', 11='Homo/Drogas', 12='Homo/Hemofilico', 13='Homo/transfusão', 14='Homo/Droga/Hemof', 15='Homo/Droga/Transf', 20='Bissexual', 21='Bi/Drogas', 22='Bi/Hemofílico', 23='Bi/Transfusão', 24='Bi/Droga/Hemofílico', 25='Bi/Droga/Transfusão', 30='Heterossexual', 31='Hetero/Droga', 32='Hetero/Hemofílico', 33='Hetero/Transfusão', 34='Hetero/Droga/Hem ofílico'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['36', '40', '41', '50', '60', '62', '66', '70', '80', '90'], which the form does not define
+    role: case.exposure_category
     kind: category
     model: mark
-    review: draft
-    name: 'Categoria de Exposição (Campo Interno)
-
-      '
+    name: "Categoria de Exposição (Campo Interno)\n"
     codelists:
     - CATHIERN
     - CLASCATN
@@ -448,86 +416,81 @@ columns:
     - 2007
     - 2024
   ANT_SALMO:
-    role: notification.ant_salmo
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_salmonella_septicaemia
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Salmonelose (Septicemia Recorrente Não-Tifóide)
-
-      '
+    name: "42. Critério CDC — Salmonelose (Septicemia Recorrente Não-Tifóide)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_SARCOM:
-    role: notification.ant_sarcom
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_kaposi_sarcoma
     kind: category
     model: mark
-    review: draft
-    name: '41. Critério Rio de Janeiro/Caracas — Sarcoma de Kaposi (10 pts)
-
-      '
+    name: "41. Critério Rio de Janeiro/Caracas — Sarcoma de Kaposi (10 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_TOSSE:
-    role: notification.ant_tosse
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_cough_pneumonia
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Tosse Persistente ou Qualquer Pneumonia (2 pts)
-
-      '
+    name: "41. RJ/Caracas — Tosse Persistente ou Qualquer Pneumonia (2 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_TOXO:
-    role: notification.ant_toxo
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.cdc_cerebral_toxoplasmosis
     kind: category
     model: mark
-    review: draft
-    name: '42. Critério CDC — Toxoplasmose Cerebral
-
-      '
+    name: "42. Critério CDC — Toxoplasmose Cerebral\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   ANT_TRASMI:
-    role: notification.ant_trasmi
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não foi transmissão vertical', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.transmission_vertical
     kind: category
     model: mark
-    review: draft
-    name: '32. Transmissão Vertical
-
-      '
+    name: "32. Transmissão Vertical\n"
     years:
     - 2007
     - 2024
   ANT_TUBERC:
-    role: notification.ant_tuberc
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.rjc_extrapulmonary_tuberculosis
     kind: category
     model: mark
-    review: draft
-    name: '41. RJ/Caracas — Tuberculose Disseminada/Extrapulmonar/Não Cavitária (10 pts)
-
-      '
+    name: "41. RJ/Caracas — Tuberculose Disseminada/Extrapulmonar/Não Cavitária (10 pts)\n"
     codelists:
     - SIM_NAO
     years:
     - 2007
     - 2024
   CRITERIO:
-    role: notification.criterio
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 100='CDC adaptado', 120='CDC + CDC/laboratório', 123='CDC + CDC/laboratório + Rio de Janeiro/Caracas', 130='CDC + Rio de Janeiro/Caracas', 140='CDC/laboratório + Rio de Janeiro/Caracas', 200='CDC/laboratório', 300='Rio de Janeiro/Caracas', 400='CDC excepcional', 500='ARC + óbito', 600='Critério óbito', 601='Critério óbito', 900='Descartado', 901='HIV+', 902='HIV+'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['101'], which the form does not define
+    role: case.confirmation_criterion
     kind: category
     model: mark
-    review: draft
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -540,10 +503,9 @@ columns:
     - 2007
     - 2024
   CS_ESCOL_N:
-    role: notification.cs_escol_n
+    role: patient.education
     kind: category
-    model: mark
-    review: draft
+    model: dimension
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -551,10 +513,9 @@ columns:
     - 2007
     - 2024
   CS_GESTANT:
-    role: notification.cs_gestant
+    role: patient.pregnancy_status
     kind: category
-    model: mark
-    review: draft
+    model: dimension
     name: Gestante
     codelists:
     - GESTANTE
@@ -582,28 +543,27 @@ columns:
     - 2007
     - 2024
   DEF_DIAGNO:
-    role: notification.def_diagno
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.death_certificate_criterion
     kind: category
     model: mark
-    review: draft
     name: Critério óbito
     years:
     - 2007
     - 2024
   DTTRIAGEM:
-    role: notification.dttriagem
+    role: case.screening_sample_date
     kind: date
     model: mark
-    review: draft
     name: Data da coleta (Teste de triagem)
     years:
     - 2007
     - 2024
   DT_CONFIRM:
-    role: notification.dt_confirm
+    role: case.confirmatory_sample_date
     kind: date
     model: mark
-    review: draft
     name: Data de coleta (Teste confirmatório)
     years:
     - 2007
@@ -625,28 +585,27 @@ columns:
     - 2007
     - 2024
   DT_OBITO:
-    role: notification.dt_obito
+    role: case.death_date
     kind: date
     model: mark
-    review: draft
     name: Data de Óbito
     years:
     - 2007
     - 2024
   DT_RAPIDO:
-    role: notification.dt_rapido
+    role: case.rapid_test_date
     kind: date
     model: mark
-    review: draft
     name: Data da coleta dos exames (Teste rápido)
     years:
     - 2007
     - 2024
   EVOLUCAO:
-    role: notification.evolucao
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Vivo', 2='Óbito por Aids', 3='Óbito por outras causas', 9='Ignorado'; the tabulation: 9='Ignorado'
+    role: case.outcome
     kind: category
     model: mark
-    review: draft
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -659,10 +618,9 @@ columns:
     - 2007
     - 2024
   ID_AGRAVO:
-    role: notification.id_agravo
-    kind: identifier
-    model: link_only
-    review: draft
+    role: case.disease
+    kind: code_tree
+    model: event_type
     name: Agravo/doença
     codelists:
     - ICD10
@@ -692,10 +650,9 @@ columns:
     - 2007
     - 2024
   ID_MUNICIP:
-    role: notification.id_municip
+    role: notification.municipality
     kind: place
-    model: mark
-    review: draft
+    model: where
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -709,10 +666,9 @@ columns:
     - 2007
     - 2024
   ID_OCUPA_N:
-    role: notification.id_ocupa_n
+    role: patient.occupation
     kind: code_tree
-    model: mark
-    review: draft
+    model: dimension
     name: Ocupação
     codelists:
     - CBO2002
@@ -722,10 +678,9 @@ columns:
     - 2007
     - 2024
   ID_PAIS:
-    role: notification.id_pais
+    role: patient.residence_country
     kind: place
-    model: mark
-    review: draft
+    model: dimension
     name: País de Residência
     codelists:
     - PAISNET
@@ -733,10 +688,9 @@ columns:
     - 2007
     - 2024
   ID_REGIONA:
-    role: notification.id_regiona
+    role: notification.health_region
     kind: place
-    model: mark
-    review: draft
+    model: where
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -745,10 +699,9 @@ columns:
     - 2007
     - 2024
   ID_RG_RESI:
-    role: notification.id_rg_resi
+    role: patient.residence_health_region
     kind: place
-    model: mark
-    review: draft
+    model: dimension
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -757,75 +710,77 @@ columns:
     - 2007
     - 2024
   LAB_CONFIR:
-    role: notification.lab_confir
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo / Reagente', 2='Negativo / Não reagente', 3='Inconclusivo', 4='Não realizado', 5='Indeterminado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hiv_confirmatory_test
     kind: category
     model: mark
-    review: draft
     name: Evidência laboratorial de infecção pelo HIV (Teste confirmatório)
     years:
     - 2007
     - 2024
   LAB_TRIAGE:
-    role: notification.lab_triage
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo / Reagente', 2='Negativo / Não reagente', 3='Inconclusivo', 4='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hiv_screening_test
     kind: category
     model: mark
-    review: draft
     name: Evidência laboratorial de infecção pelo HIV (Teste de triagem)
     years:
     - 2007
     - 2024
   NU_ANO:
-    role: notification.nu_ano
+    role: notification.year
     kind: number
     model: mark
-    review: draft
     name: Ano da notificação
     years:
     - 2007
     - 2024
   NU_IDADE_N:
-    role: notification.nu_idade_n
+    role: patient.age_coded
     kind: number
     model: mark
-    review: draft
     name: Idade
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
+      is the derived IDADE_anos.
     years:
     - 2007
     - 2024
   ORIGEM:
-    role: notification.origem
-    kind: number
+    role: notification.record_origin
+    kind: category
     model: mark
-    review: draft
     name: Origem do registro
     years:
     - 2007
     - 2024
+    note: No document defines its codes; in 2021 only ORIGEM 1 (21,327 of 38,060) carries the investigation 
+      form.
   SEM_DIAG:
-    role: notification.sem_diag
+    role: case.diagnosis_week
     kind: number
     model: mark
-    review: draft
     name: Semana Epidemiológica do Diagnóstico
     years:
     - 2007
     - 2024
   SG_UF:
-    role: notification.sg_uf
+    role: patient.residence_state
     kind: place
-    model: mark
-    review: draft
+    model: dimension
     name: UF de Residência
     codelists:
     - UF_BR
+    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension
+      because `residence_state` is not a population-account property name.'
     years:
     - 2007
     - 2024
   SG_UF_NOT:
-    role: notification.sg_uf_not
+    role: notification.state
     kind: place
-    model: mark
-    review: draft
+    model: where
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -833,46 +788,47 @@ columns:
     - 2007
     - 2024
   TPRAPIDO1:
-    role: notification.tprapido1
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo / Reagente', 2='Negativo / Não reagente', 3='Inconclusivo', 4='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hiv_rapid_test_1
     kind: category
     model: mark
-    review: draft
     name: Teste rápido 1
     years:
     - 2007
     - 2024
   TPRAPIDO2:
-    role: notification.tprapido2
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo / Reagente', 2='Negativo / Não reagente'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['3', '4'], which the form does not define
+    role: case.hiv_rapid_test_2
     kind: category
     model: mark
-    review: draft
     name: Teste rápido 2
     years:
     - 2007
     - 2024
   TPRAPIDO3:
-    role: notification.tprapido3
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo / Reagente', 2='Negativo / Não reagente', 3='Inconclusivo', 4='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    role: case.hiv_rapid_test_3
     kind: category
     model: mark
-    review: draft
     name: Teste rápido 3
     years:
     - 2007
     - 2024
   TP_NOT:
-    role: notification.tp_not
+    role: notification.type
     kind: category
     model: mark
-    review: draft
     name: Tipo de Notificação
     years:
     - 2007
     - 2024
   TRA_MUNICI:
-    role: notification.tra_munici
+    role: case.treatment_municipality
     kind: place
     model: mark
-    review: draft
     name: Município onde se realiza o tratamento
     codelists:
     - BR_MUNICIPALFA
@@ -880,16 +836,16 @@ columns:
     - 2007
     - 2024
   TRA_UF:
-    role: notification.tra_uf
-    kind: place
+    role: case.treatment_state
+    kind: category
     model: mark
-    review: draft
     name: UF onde se realiza o tratamento
     codelists:
     - UF_BR
     years:
     - 2007
     - 2024
+    note: State abbreviations (ES), not IBGE codes; 182 of 38,060 filled in 2021.
   IDADE_anos:
     role: patient.age_years
     kind: number

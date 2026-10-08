@@ -6,13 +6,16 @@ Every SINAN NET "Dicionário de Dados" is a PDF table with one row per field:
     | 1 – Normais / 2 – Aumentados / 3 – Reduzidos/Ausentes / 9 – Ignorado |
     | Informar os reflexos ... | Campo essencial | TPNEURO |
 
-This reads those tables with pdfplumber and writes the code lists to
-``curation/codes/sinan.yml``, keyed by the FORM (the agravo series). This file
-is GENERATED. EVOLUCAO and CLASSI_FIN measurably carry different codes on
+This reads those tables with pdfplumber and writes each field's layout (its
+type, width and label as the form prints them, and a code table it names) and
+its code list to ``curation/codes/sinan.yml``, keyed by the FORM (the agravo
+series). The layout is what a field IS by its own documentation (a date, a
+number, free text, a category); the role drafter reads it rather than guessing
+from the column's name. This file is GENERATED. EVOLUCAO and CLASSI_FIN measurably carry different codes on
 different forms, so a table belongs to the series whose dictionary printed it.
 It is not a property of the column name.
 
-A list is kept only when:
+A code list is kept only when:
 - every code fits the field's declared width;
 - it has at least two codes;
 - each code is a short digit or letter run.
@@ -95,9 +98,42 @@ DICTIONARIES: dict[str, tuple[str, ...]] = {
     "acbi_dic": ("ACBI",),
     "dermatoses_dic": ("DERM",),
     "lerdort_dic": ("LERD", "LER"),
+    "DIC_DADOS_SRC_v5": ("SRC",),
+    "mental_dic": ("MENT",),
 }
 
-_WIDTH = re.compile(r"(?:varchar2?|char|caractere|num[eé]rico)\s*\(\s*(\d+)\s*\)", re.I)
+_WIDTH = re.compile(r"(?:varchar2?|char|caractere|num[eé]rico|number)\s*\(\s*(\d+)\s*\)?", re.I)
+#: A type cell: SINAN NET's ``varchar2(1)``, ``number(4)``, ``date``; SIM's ``Caracter`` with the width apart.
+_TYPE = re.compile(r"^\s*(varchar2?|char|caractere?|caracter|num[eé]rico|number|date|data)\s*(?:\(\s*(\d+)\s*\)?)?\s*$",
+                   re.I)
+
+
+def _kind(word: str) -> str:
+    """The storage type a dictionary prints, in three words: date, number, text."""
+    w = word.lower()
+    return "date" if w in ("date", "data") else "number" if w.startswith(("num", "number")) else "text"
+
+
+def _entry(label: str, type_cell: str, width: int | None, following: list[str]) -> dict:
+    """A field's layout from its row: type, width, the form's label, and what its categories cell holds (a code list
+    that fits the width, or the name of a code table: 'Tabela com Código e nome dos municípios')."""
+    m = re.search(r"varchar|char|caract|num[eé]rico|number|date|data", type_cell, re.I)
+    entry: dict = {"type": _kind(m.group(0)) if m else "text"}
+    if width:
+        entry["width"] = width
+    label = re.sub(r"^\s*\d+\s*[-.–]?\s*", "", label.replace("\n", " ")).strip()
+    if label:
+        entry["label"] = re.sub(r"\s+", " ", label)
+    if following:
+        cell = following[0]
+        codes = _categories(cell)
+        # a number-typed field's printed codes are kept: ESQU AN_QUANT (number(4), "0 (zero) / 1 (um) ou mais ovos")
+        # holds 0 and 1 only in the records (2021: 1,298 and 1,096), a flag as printed, not an egg count
+        if len(codes) >= 2 and _fits(codes, width or max(len(c) for c in codes)):
+            entry["codes"] = codes
+        elif re.match(r"^\s*tabela", cell, re.I):
+            entry["table"] = re.sub(r"\s+", " ", cell).strip()
+    return entry
 #: "1 – Sim", "1-Sim", "1. Sim", "9-" (label wrapped to the next line).
 _CODE = re.compile(
     r"^\s*(?:([0-9]{1,3})\s*(?:[–\-—=.]\s*|\s+)|([A-Z]{1,2})\s*[–\-—=.]\s*)(.*?)\s*$"
@@ -114,6 +150,9 @@ _WORDS = {"a", "o", "e", "à", "ao", "as", "os", "da", "de", "do", "em", "na", "
 #: A Portuguese word does not end like this; a line after it finishes the word.
 _CUT = r"(?:[bcdfgjkpqtvx]|[bcdfgjkpqtvx]i)$"
 _TYPES = {"caracter", "caractere", "numérico", "numerico", "char"}
+#: A dictionary table's own header cells, repeated at the top of a page.
+_HEADER = {"nome do campo", "campo", "tipo", "categoria", "categorias", "descrição", "descricao", "características",
+           "caracteristicas", "dbf"}
 
 
 def _fits(codes: dict[str, str], width: int) -> bool:
@@ -186,6 +225,9 @@ def _rows(pdf_path: Path):
 
     A field whose code list runs past the page ends goes on as the next page's
     first row, its leading cells empty (ACBI ``TIPO_ACID`` stopped at code 04).
+    A page that repeats the table's header first has the continuation after it:
+    the header and empty rows are passed over (AIDA ``ANT_REL_CA`` stopped at
+    "34-", the codes 34 to 90 on the next page under a repeated header).
     """
     held: list[str] | None = None
     with pdfplumber.open(pdf_path) as pdf:
@@ -194,6 +236,8 @@ def _rows(pdf_path: Path):
             for table in page.extract_tables():
                 for raw in table:
                     row = [(c or "").strip() for c in raw]
+                    if not any(row) or sum(c.lower() in _HEADER for c in row) >= 2:
+                        continue        # a repeated header or an empty row: the continuation may follow
                     filled = next((i for i, c in enumerate(row) if c), None)
                     if (first and held is not None and filled and len(row) == len(held)
                             and held[filled] and not any(_WIDTH.search(c) or _DBF.fullmatch(c)
@@ -208,9 +252,10 @@ def _rows(pdf_path: Path):
         yield held
 
 
-def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
-    """One dictionary row: the width cell, the first non-empty cell after it
-    (the categories), and the DBF name at either end of the row.
+def _parse_row(row: list[str]) -> tuple[str, dict] | None:
+    """One dictionary row: the field's layout (`_entry`) from the type cell, the
+    first non-empty cell after it (the categories), and the DBF name at either
+    end of the row.
 
     SINAN NET puts the DBF name last (``| 44. Reflexos | tp_... | varchar(1) |
     categories | ... | TPNEURO |``); RESP and PCE put it first, with empty spacer
@@ -221,29 +266,24 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
     # (type and width in separate cells, the DBF name just before the type).
     for i, cell in enumerate(cells[:-2]):
         if cell.lower() in _TYPES and cells[i + 1].isdigit():
-            width = int(cells[i + 1])
             name = cells[i - 1] if i > 0 else ""
+            if not _DBF.fullmatch(name):
+                return None
             following = [row[k] for k in range(i + 2, len(row)) if row[k].strip()]
-            if not following or not _DBF.fullmatch(name):
-                return None
-            codes = _categories(following[0])
-            if len(codes) < 2 or not _fits(codes, width):
-                return None
-            return name, codes
+            return name, _entry(cells[0] if i > 1 else "", cell, int(cells[i + 1]), following)
     for i, cell in enumerate(cells):
-        m = _WIDTH.search(cell) if len(cell) < 25 else None
-        if not m:
+        m = _TYPE.match(cell) if len(cell) < 25 else None
+        w = _WIDTH.search(cell) if len(cell) < 25 else None
+        if not (m or w):
             continue
-        width = int(m.group(1))
-        following = [row[k] for k in range(i + 1, len(row)) if row[k].strip()]
-        if not following:
-            return None
-        codes = _categories(following[0])
         ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1] if cells[-1] else ""]
         name = next((n for n in reversed(ends) if _DBF.fullmatch(n)), "")
-        if not name or len(codes) < 2 or not _fits(codes, width):
+        if not name:
             return None
-        return name, codes
+        following = [row[k] for k in range(i + 1, len(row)) if row[k].strip()]
+        label = cells[0] if cells[0] and name != cells[0].split()[0] else ""
+        width = int(m.group(2)) if m and m.group(2) else int(w.group(1)) if w else None
+        return name, _entry(label, cell, width, following)
     # SINAN Online's dictionaries (dengue, chikungunya): no type or width cell, the categories in the first cell that
     # reads as codes, the DBF name last (``| 33- Sinais clínicos (Cefaleia) | | | 1 – Sim / 2 – Não | … | CEFALEIA |``);
     # an accent the DBF name cannot carry is dropped (ÁCIDO_PEPT is the column ACIDO_PEPT). Every other check holds
@@ -257,7 +297,8 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
         if row[k].strip():
             codes = _categories(row[k])
             if len(codes) >= 2 and _fits(codes, max(len(c) for c in codes)):
-                return name, codes
+                label = re.sub(r"^\s*\d+\s*[-.–]?\s*", "", cells[0]).strip()
+                return name, {"codes": codes, **({"label": label} if label else {})}
             return None
     return None
 
@@ -267,11 +308,14 @@ def _read(pdf: Path, series: tuple[str, ...], into: dict[str, dict[str, dict]]) 
         parsed = _parse_row(row)
         if not parsed:
             continue
-        name, codes = parsed
+        name, entry = parsed
         for s in series:
             # Two dictionaries for one series (older and newer editions): the
-            # first parsed is kept, and a later one only adds fields.
-            into[s].setdefault(name, {"codes": codes, "source_ref": pdf.name})
+            # first parsed is kept, and a later one only adds fields, or what
+            # the first did not print (a type, a code list).
+            held = into[s].setdefault(name, {**entry, "source_ref": pdf.name})
+            for key, value in entry.items():
+                held.setdefault(key, value)
 
 
 def harvest() -> tuple[dict[str, dict[str, dict[str, dict]]], list[str]]:
@@ -305,7 +349,8 @@ def _supplement(out: dict[str, dict[str, dict[str, dict]]]) -> None:
     for system, series_map in (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).items():
         for series, fields in series_map.items():
             for field, extra in fields.items():
-                entry = out[system][series].setdefault(field, {"codes": {}, "source_ref": ""})
+                entry = out[system][series].setdefault(field, {"source_ref": ""})
+                entry.setdefault("codes", {})
                 for code in extra.get("drop") or ():
                     # A code the PDF text invented (a glyph read as digits).
                     entry["codes"].pop(str(code), None)
@@ -323,9 +368,11 @@ def main() -> int:
     args = parser.parse_args()
     systems, unmapped = harvest()
     for system, tables in sorted(systems.items()):
-        count = sum(len(v) for v in tables.values())
+        count = sum(1 for v in tables.values() for e in v.values() if e.get("codes"))
+        typed = sum(1 for v in tables.values() for e in v.values() if e.get("type"))
         fields = Counter(f for v in tables.values() for f in v)
-        print(f"{system}: {count} code tables over {len(tables)} series; {len(fields)} distinct fields")
+        print(f"{system}: {count} code tables, {typed} typed fields over {len(tables)} series; "
+              f"{len(fields)} distinct fields")
     if unmapped:
         print("dictionaries with no series mapping:", unmapped)
     if args.dry_run:

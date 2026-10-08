@@ -17,6 +17,15 @@ SINAN:
         '500': ARC + óbito
         '601': Critério óbito
         '902': HIV+
+  ESQU:
+    EVOLUCAO:
+      source_ref: 'DIC_DADOS_Esquistossomose_v5 prints "1 – Cura 2, Não Cura" without a separator, read as one code; the records use 2 (2021: 65 of 1,646), so 2 is Não cura (2026-10-08)'
+      drop: ['1']
+      codes: {'1': Cura, '2': Não cura}
+  MENI:
+    ANT_TRAUMA:
+      source_ref: 'DIC_DADOS_Meningite_v5 prints "1. Sim / 3. Não / 9.Ignorado" for tp_doenca_pre_traumatismo; the files hold 1, 2 and 9 and never 3 (2010: 2 on 23,627 of 27,721 recorded; 2015, 2021 alike), and the tabulation labels 2 Não and 3 Ign/Branco. The dictionary''s 3 is kept as printed; 2 is the No the records use (2026-10-08)'
+      codes: {'2': Não}
   SIFC:
     HEPATO:
       source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_hepato (SINAN-W name HEPATO): "1 sim 2. não 3. não se aplica 9. ignorado"'

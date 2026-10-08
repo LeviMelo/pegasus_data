@@ -31,8 +31,11 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
 #: The properties a population account carries, the only admissible strata.
 STRATA = frozenset({"age", "birth_date", "sex", "race", "residence"})
 _ROLE = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
-#: Properties whose numbers are codes, not quantities: their sums and logs mean nothing (ADR-0154).
-NOT_MEASURES = frozenset({"age_coded", "year", "birth_year", "epi_week", "onset_week", "time"})
+#: Properties whose numbers are codes, not quantities: their sums and logs mean nothing (ADR-0154). A calendar index
+#: (a property ending in ``week`` or ``year``: case.diagnosis_week, notification.week) is one by its name's own
+#: statement, whatever the form (SINAN-HANS's diagnosis week was modelled as a measurement until 2026-10-08).
+NOT_MEASURES = frozenset({"age_coded", "time"})
+_CALENDAR = re.compile(r"(^|_)(week|year)$")
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +132,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     years = tuple(spec.get("years") or (None, None))
     measure = None
     if kind == "number":
-        measure = bool(spec["measure"]) if "measure" in spec else prop not in NOT_MEASURES
+        measure = bool(spec["measure"]) if "measure" in spec else not (prop in NOT_MEASURES or _CALENDAR.search(prop))
     elif "measure" in spec:
         raise bad("`measure` is declared for numbers only")
     missing = tuple(str(v) for v in spec["missing"]) if "missing" in spec else None

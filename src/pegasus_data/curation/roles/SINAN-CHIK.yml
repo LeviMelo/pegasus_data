@@ -2,8 +2,8 @@ dataset: SINAN-CHIK
 record: notification
 columns:
   ACIDO_PEPT:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.peptic_ulcer
     kind: category
     model: dimension
@@ -14,7 +14,7 @@ columns:
     - 2026
   ALRM_ABDOM:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_abdominal_pain
     kind: category
     model: mark
@@ -24,7 +24,7 @@ columns:
     - 2026
   ALRM_HEMAT:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_hematocrit_rise
     kind: category
     model: mark
@@ -34,7 +34,7 @@ columns:
     - 2026
   ALRM_HEPAT:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_hepatomegaly
     kind: category
     model: mark
@@ -43,8 +43,8 @@ columns:
     - 2014
     - 2026
   ALRM_HIPOT:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_postural_hypotension
     kind: category
     model: mark
@@ -54,7 +54,7 @@ columns:
     - 2026
   ALRM_LETAR:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_lethargy
     kind: category
     model: mark
@@ -63,8 +63,8 @@ columns:
     - 2014
     - 2026
   ALRM_LIQ:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 7='Ign/Branco'; they disagree on ['0', '7']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_fluid_accumulation
     kind: category
     model: mark
@@ -74,7 +74,7 @@ columns:
     - 2026
   ALRM_PLAQ:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_platelet_drop
     kind: category
     model: mark
@@ -84,7 +84,7 @@ columns:
     - 2026
   ALRM_SANG:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_mucosal_bleeding
     kind: category
     model: mark
@@ -94,7 +94,7 @@ columns:
     - 2026
   ALRM_VOM:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.alarm_persistent_vomiting
     kind: category
     model: mark
@@ -113,7 +113,7 @@ columns:
     - 2026
   ARTRALGIA:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_arthralgia
     kind: category
     model: mark
@@ -123,7 +123,7 @@ columns:
     - 2026
   ARTRITE:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_arthritis
     kind: category
     model: mark
@@ -132,8 +132,8 @@ columns:
     - 2014
     - 2026
   AUTO_IMUNE:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.autoimmune_disease
     kind: category
     model: dimension
@@ -142,8 +142,8 @@ columns:
     - 2014
     - 2026
   CEFALEIA:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_headache
     kind: category
     model: mark
@@ -201,8 +201,8 @@ columns:
     - 2014
     - 2026
   CONJUNTVIT:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 5='Ign/Branco'; they disagree on ['5']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_conjunctivitis
     kind: category
     model: mark
@@ -248,8 +248,8 @@ columns:
     - 2014
     - 2026
   CRITERIO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Laboratório', 2='Clínico Epidemiológico', 3='Em investigação'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -318,8 +318,8 @@ columns:
     - 2014
     - 2026
   DIABETES:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.diabetes
     kind: category
     model: dimension
@@ -341,7 +341,7 @@ columns:
     - 2026
   DOR_COSTAS:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_back_pain
     kind: category
     model: mark
@@ -350,8 +350,8 @@ columns:
     - 2014
     - 2026
   DOR_RETRO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 5='Ign/Branco'; they disagree on ['5']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_retroorbital_pain
     kind: category
     model: mark
@@ -509,8 +509,8 @@ columns:
     - 2014
     - 2026
   EVOLUCAO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='cura', 2='óbito pelo agravo', 3='óbito por outras causas', 4='óbito em investigação', 9='ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.outcome
     kind: category
     model: mark
@@ -527,7 +527,7 @@ columns:
     - 2026
   EXANTEMA:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_rash
     kind: category
     model: mark
@@ -536,8 +536,8 @@ columns:
     - 2014
     - 2026
   FEBRE:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_fever
     kind: category
     model: mark
@@ -569,7 +569,7 @@ columns:
     - 2026
   GRAV_AST:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_ast_alt
     kind: category
     model: mark
@@ -579,7 +579,7 @@ columns:
     - 2026
   GRAV_CONSC:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_consciousness
     kind: category
     model: mark
@@ -589,7 +589,7 @@ columns:
     - 2026
   GRAV_CONV:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_convergent_pressure
     kind: category
     model: mark
@@ -599,7 +599,7 @@ columns:
     - 2026
   GRAV_ENCH:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_capillary_refill
     kind: category
     model: mark
@@ -609,7 +609,7 @@ columns:
     - 2026
   GRAV_EXTRE:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_cold_extremities
     kind: category
     model: mark
@@ -619,7 +619,7 @@ columns:
     - 2026
   GRAV_HEMAT:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_hematemesis
     kind: category
     model: mark
@@ -629,7 +629,7 @@ columns:
     - 2026
   GRAV_HIPOT:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_hypotension
     kind: category
     model: mark
@@ -639,7 +639,7 @@ columns:
     - 2026
   GRAV_INSUF:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_respiratory_failure
     kind: category
     model: mark
@@ -649,7 +649,7 @@ columns:
     - 2026
   GRAV_MELEN:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_melena
     kind: category
     model: mark
@@ -659,7 +659,7 @@ columns:
     - 2026
   GRAV_METRO:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_metrorrhagia
     kind: category
     model: mark
@@ -669,7 +669,7 @@ columns:
     - 2026
   GRAV_MIOC:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_myocarditis
     kind: category
     model: mark
@@ -687,7 +687,7 @@ columns:
     - 2026
   GRAV_PULSO:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_weak_pulse
     kind: category
     model: mark
@@ -697,7 +697,7 @@ columns:
     - 2026
   GRAV_SANG:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_cns_bleeding
     kind: category
     model: mark
@@ -707,7 +707,7 @@ columns:
     - 2026
   GRAV_TAQUI:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.severe_tachycardia
     kind: category
     model: mark
@@ -716,8 +716,8 @@ columns:
     - 2014
     - 2026
   HEMATOLOG:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.hematologic_disease
     kind: category
     model: dimension
@@ -738,8 +738,8 @@ columns:
     - 2014
     - 2026
   HEPATOPAT:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.liver_disease
     kind: category
     model: dimension
@@ -748,8 +748,8 @@ columns:
     - 2014
     - 2026
   HIPERTENSA:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.hypertension
     kind: category
     model: dimension
@@ -758,8 +758,8 @@ columns:
     - 2014
     - 2026
   HISTOPA_N:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.histopathology_result
     kind: category
     model: mark
@@ -768,8 +768,8 @@ columns:
     - 2014
     - 2026
   HOSPITALIZ:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalized
     kind: category
     model: mark
@@ -890,8 +890,8 @@ columns:
     - 2014
     - 2026
   IMUNOH_N:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.immunohistochemistry_result
     kind: category
     model: mark
@@ -900,8 +900,8 @@ columns:
     - 2014
     - 2026
   LACO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_tourniquet_test
     kind: category
     model: mark
@@ -919,8 +919,8 @@ columns:
     - 2014
     - 2026
   LEUCOPENIA:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 8='Ign/Branco'; they disagree on ['8']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_leukopenia
     kind: category
     model: mark
@@ -949,8 +949,8 @@ columns:
     - 2014
     - 2026
   MIALGIA:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_myalgia
     kind: category
     model: mark
@@ -981,7 +981,7 @@ columns:
     - 2026
   NAUSEA:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_nausea
     kind: category
     model: mark
@@ -1037,7 +1037,7 @@ columns:
     - 2026
   PETEQUIA_N:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: case.sign_petechiae
     kind: category
     model: mark
@@ -1065,8 +1065,8 @@ columns:
     - 2014
     - 2026
   RENAL:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.chronic_kidney_disease
     kind: category
     model: dimension
@@ -1075,8 +1075,8 @@ columns:
     - 2014
     - 2026
   RESUL_NS1:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.ns1_result
     kind: category
     model: mark
@@ -1085,8 +1085,8 @@ columns:
     - 2014
     - 2026
   RESUL_PCR_:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.pcr_result
     kind: category
     model: mark
@@ -1095,8 +1095,8 @@ columns:
     - 2014
     - 2026
   RESUL_PRNT:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.prnt_result
     kind: category
     model: mark
@@ -1105,8 +1105,8 @@ columns:
     - 2014
     - 2026
   RESUL_SORO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.igm_result
     kind: category
     model: mark
@@ -1117,8 +1117,8 @@ columns:
     - 2014
     - 2026
   RESUL_VI_N:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.viral_isolation_result
     kind: category
     model: mark
@@ -1127,8 +1127,8 @@ columns:
     - 2014
     - 2026
   RES_CHIKS1:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 5='Ign/Branco'; they disagree on ['0', '5']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.chik_igm1_result
     kind: category
     model: mark
@@ -1137,8 +1137,8 @@ columns:
     - 2014
     - 2026
   RES_CHIKS2:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 5='Ign/Branco'; they disagree on ['0', '5']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.chik_igm2_result
     kind: category
     model: mark
@@ -1198,8 +1198,8 @@ columns:
     - 2014
     - 2026
   SOROTIPO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='DEN 1', 2='DEN 2', 3='DEN 3', 4='DEN 4'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.serotype
     kind: category
     model: mark
@@ -1209,7 +1209,7 @@ columns:
     - 2026
   TPAUTOCTO:
     missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; the tabulation: no value labelled as not recorded
     role: case.autochthonous
     kind: category
     model: mark
@@ -1248,8 +1248,8 @@ columns:
     - 2014
     - 2026
   VOMITO:
-    missing: []
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_vomiting
     kind: category
     model: mark

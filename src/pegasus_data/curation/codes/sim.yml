@@ -6,23 +6,38 @@ system: SIM
 series:
   DO:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: &id001
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: &id002
         '1': Sim
         '2': Não
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: &id003
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: &id004
         '1': Assistente
         '2': Substituto
@@ -30,7 +45,23 @@ series:
         '4': SVO
         '5': Outro
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: &id005
         '1': acidente
         '2': suicídio
@@ -39,12 +70,92 @@ series:
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: &id006
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: &id007
         '1': Nenhuma
         '2': de 1 a 3 anos
@@ -54,6 +165,9 @@ series:
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: &id008
         '0': Sem escolaridade
         '1': Fundamental I (1ª a 4ª série)
@@ -63,7 +177,13 @@ series:
         '5': Superior completo
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: &id009
         '1': Nenhuma
         '2': de 1 a 3 anos
@@ -73,6 +193,9 @@ series:
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: &id010
         '0': Sem escolaridade
         '1': Fundamental I (1ª a 4ª série)
@@ -83,6 +206,8 @@ series:
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: &id011
         '00': Sem Escolaridade
         '01': Fundamental I Incompleto
@@ -99,6 +224,9 @@ series:
         '12': Ensino Médio Incompleto ou Inespecífico
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: &id012
         '1': Solteiro
         '2': Casado
@@ -108,12 +236,17 @@ series:
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: &id013
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: &id014
         '1': ocorrência policial
         '2': hospital
@@ -122,6 +255,8 @@ series:
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: &id015
         '1': Comitê de Morte Materna e/ou Infantil
         '2': Visita domiciliar /Entrevista família
@@ -133,7 +268,14 @@ series:
         '8': Múltiplas fontes
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: &id016
         '1': Menos de 22 semanas
         '2': 22 a 27 semanas
@@ -143,13 +285,49 @@ series:
         '6': 42 e + semanas
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: &id017
         '1': única
         '2': dupla
         '3': tripla e mais
         '9': ignorada
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: &id018
         '1': hospital
         '2': outros estabelecimentos de saúde
@@ -160,25 +338,48 @@ series:
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: &id019
         '1': antes
         '2': durante
         '3': após
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: &id020
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: &id021
         '1': sim
         '2': não
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: &id022
         '1': antes
         '2': durante
@@ -186,19 +387,60 @@ series:
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: &id023
         '1': Sim, até 42 dias após o parto
         '2': Sim, de 43 dias a 1 ano
         '3': Não
         '9': Ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: &id024
         '1': vaginal
         '2': cesáreo
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: &id025
         '1': Branca
         '2': Preta
@@ -206,7 +448,20 @@ series:
         '4': Parda
         '5': Indígena
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: &id026
         M: masculino
         F: feminino
@@ -216,22 +471,36 @@ series:
         '0': ignorado
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: &id027
         '1': Sim
         '0': Não
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: &id028
         '1': Sim
         '0': Não
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: &id029
         '1': Fetal
         '2': Não Fetal
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: &id030
         '1': na gravidez
         '2': no parto
@@ -242,12 +511,16 @@ series:
         '9': ignorado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: &id031
         E: estadual
         R: regional
         M: Municipal
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: &id032
         '1': Durante a gestação, 2- Durante o abortamento, 3- Após o abortamento , 4- No parto ou até
           1 hora após o parto, 5- No puerpério - até 42 dias após o parto, 6- Entre 43 dias e até 1 ano
@@ -256,734 +529,2741 @@ series:
           - Não investigado
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: &id033
         '1': sim
         '2': não
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: &id034
         '01': Não acrescentou nem corrigiu informação
         '02': Sim, permitiu o resgate de novas informações
         '03': Sim, permitiu a correção de alguma das causas informadas originalmente
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOEXT:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOFET:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOINF:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOMAT:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOR:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DOREXT:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
   DORIG:
     ACIDTRAB:
+      type: text
+      width: 1
+      label: Acidente do trabalho
       codes: *id001
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ALTCAUSA:
+      type: text
+      width: 1
       codes: *id002
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ASSISTMED:
+      type: text
+      width: 1
+      label: Recebeu assist. médica durante a doença que ocasionou a morte?
       codes: *id003
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ATESTADO:
+      type: text
+      width: 70
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ATESTANTE:
+      type: text
+      width: 1
+      label: Óbito atestado por Médico
       codes: *id004
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS:
+      type: text
+      width: 4
+      label: Causa básica da Morte
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSABAS_O:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CAUSAMAT:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRCOBITO:
+      type: text
+      width: 1
+      label: Tipo
       codes: *id005
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     CIRURGIA:
+      type: text
+      width: 1
       codes: *id006
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODESTAB:
+      type: text
+      width: 8
+      label: Estabelecimento (Código CNES)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODIFICADO:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNNATU:
+      type: text
+      width: 7
+      label: Código do município de naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNOCOR:
+      type: text
+      width: 8
+      label: Código do Município de ocorrência
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    CODMUNRES:
+      type: text
+      width: 7
+      label: Município de residência (Código)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    COMUNSVOIM:
+      type: text
+      width: 7
+      label: Município e UF do SVO ou IML
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DIFDATA:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTATESTADO:
+      type: text
+      width: 8
+      label: Data do atestado
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADASTRO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINF:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCADINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONCASO:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTCONINV:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTINVESTIG:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTNASC:
+      type: text
+      width: 8
+      label: Data de Nascimento
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTOBITO:
+      type: text
+      width: 8
+      label: Data do Óbito
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    DTRECEBIM:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC:
+      type: text
+      width: 1
       codes: *id007
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESC2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id008
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ESCFALAGR1:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE:
+      type: text
+      width: 1
       codes: *id009
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAE2010:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - nível
       codes: *id010
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESCMAEAGR1:
+      type: text
+      width: 2
       codes: *id011
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     ESTCIV:
+      type: text
+      width: 1
+      label: Situação Conjugal
       codes: *id012
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     EXAME:
+      type: text
+      width: 1
       codes: *id013
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTE:
+      type: text
+      width: 1
+      label: Fonte da Informação
       codes: *id014
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     FONTEINV:
+      type: text
+      width: 8
       codes: *id015
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    FONTES:
+      type: text
+      width: 6
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GESTACAO:
+      type: text
+      width: 1
+      label: Semanas de gestação (formulário antigo)
       codes: *id016
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     GRAVIDEZ:
+      type: text
+      width: 1
+      label: Tipo de Gravidez
       codes: *id017
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    HORAOBITO:
+      type: text
+      width: 5
+      label: Hora
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADE:
+      type: text
+      width: 3
+      label: Idade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    IDADEMAE:
+      type: text
+      width: 2
+      label: Idade (anos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAB:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAC:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    LINHAD:
+      type: text
+      width: 20
+      label: Causas da Morte- Parte I - CID
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     LOCOCOR:
+      type: text
+      width: 1
+      label: Local de Ocorrência do Óbito
       codes: *id018
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     MORTEPARTO:
+      type: text
+      width: 1
       codes: *id019
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NATURAL:
+      type: text
+      width: 3
+      label: Naturalidade
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     NECROPSIA:
+      type: text
+      width: 1
+      label: Necrópsia
       codes: *id020
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUDIASOBCO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    NUMEROLOTE:
+      type: text
+      width: 8
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOGRAV:
+      type: text
+      width: 1
       codes: *id021
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPARTO:
+      type: text
+      width: 1
+      label: Morte em relação ao Parto
       codes: *id022
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     OBITOPUERP:
+      type: text
+      width: 1
       codes: *id023
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUP:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OCUPMAE:
+      type: text
+      width: 6
+      label: Ocupação habitual (Código CBO 2002)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    OPOR_DO:
+      type: text
+      width: 4
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    ORIGEM:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     PARTO:
+      type: text
+      width: 1
+      label: Tipo de Parto
       codes: *id024
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    PESO:
+      type: text
+      width: 4
+      label: Peso ao Nascer
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILMORT:
+      type: text
+      width: 2
+      label: Número de filhos tidos (perdas fetais/aborto)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    QTDFILVIVO:
+      type: text
+      width: 2
+      label: Número de filhos tidos (nascidos vivos)
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     RACACOR:
+      type: text
+      width: 1
+      label: Raça Cor
       codes: *id025
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SEMAGESTAC:
+      type: text
+      width: 3
+      label: Nº de semanas de gestação
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    SERIESCMAE:
+      type: text
+      width: 1
+      label: Escolaridade (última série concluída) - série
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     SEXO:
+      type: text
+      width: 1
+      label: Sexo
       codes: *id026
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    STCODIFICA:
+      type: text
+      width: 1
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDOEPIDEM:
+      type: text
+      width: 1
       codes: *id027
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     STDONOVA:
+      type: text
+      width: 1
       codes: *id028
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TIPOBITO:
+      type: text
+      width: 1
+      label: Tipo do óbito
       codes: *id029
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPMORTEOCO:
+      type: text
+      width: 1
+      label: A morte ocorreu
       codes: *id030
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPNIVELINV:
+      type: text
+      width: 1
       codes: *id031
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPOBITOCOR:
+      type: text
+      width: 1
       codes: *id032
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
+      type: text
+      width: 1
       codes: *id033
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPRESGINFO:
+      type: text
+      width: 2
       codes: *id034
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSCB:
+      type: text
+      width: 7
+      source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
+    VERSAOSIST:
+      type: text
+      width: 7
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf

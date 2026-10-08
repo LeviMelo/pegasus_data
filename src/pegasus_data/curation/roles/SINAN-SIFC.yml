@@ -3,7 +3,7 @@ record: notification
 columns:
   ANTSIFIL_N:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ignorado'
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='durante o pré-natal', 2='no momento do parto/curetagem', 3='após o parto', 4='não realizado', 9='ignorado'; the tabulation: 9='Ignorado'
     role: pregnancy.maternal_syphilis_diagnosis_timing
     kind: category
     model: mark
@@ -32,8 +32,8 @@ columns:
     - 2007
     - 2025
   ANT_PRE_NA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: pregnancy.prenatal_care
     kind: category
     model: mark
@@ -42,8 +42,8 @@ columns:
     - 2007
     - 2025
   ANT_RACA:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='branca', 2='preta', 3='amarela', 4='parda', 5='indígena', 9='ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: mother.race
     kind: category
     model: dimension
@@ -52,8 +52,8 @@ columns:
     - 2007
     - 2025
   ANT_TRATAD:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: pregnancy.partner_treated
     kind: category
     model: mark
@@ -65,7 +65,8 @@ columns:
     role: birth.state
     kind: place
     model: mark
-    note: Draft typing said number; a UF code.
+    note: "Mostly state abbreviations (AC, AL, ...): 525 of 26,570 values in 2021 are IBGE codes; two code systems
+      in one column, no place reader compares it with the residence's code."
     name: UF do nascimento/aborto/natimorto
     years:
     - 2007
@@ -104,7 +105,7 @@ columns:
     - 2025
   CLI_OUTRO:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não se aplica', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: case.sign_outro
     kind: category
     model: mark
@@ -116,9 +117,7 @@ columns:
     role: case.sign_pseudo
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Pseudo
-
-      '
+    name: "Sinais e Sintomas — Pseudo\n"
     codelists:
     - SIM_NAO
     years:
@@ -215,8 +214,8 @@ columns:
     - 2007
     - 2025
   ESCOLMAE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorada'; the tabulation: 09='Ign/Branco'; they disagree on ['09', '9']
+    missing: ['09', '9', '99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='analfabeto', 1='1ª a 4ª série incompleta do ef', 10='não se aplica', 2='até 4ª série completa do ef', 3='5 a 8ª série incompleta do ef', 4='ensino fundamental completo', 5='ensino médio incompleto', 6='ensino médio completo', 7='educação superior incompleta', 8='educação superior completa', 9='ignorada'; the tabulation: 09='Ign/Branco', 99='Ign/Branco'
     role: mother.education
     kind: category
     model: dimension
@@ -226,7 +225,7 @@ columns:
     - 2025
   EVOLUCAO:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ignorado'
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='vivo', 2='óbito por sífilis congênita', 3='óbito por outras causas', 4='aborto', 5='natimorto', 9='ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -245,14 +244,15 @@ columns:
     role: case.classification
     kind: category
     model: event_type
-    note: Final diagnosis (recent/late congenital syphilis, abortion, stillbirth, discarded); SIFC has no CLASSI_FIN.
+    note: Final diagnosis (recent/late congenital syphilis, abortion, stillbirth, discarded); SIFC has no 
+      CLASSI_FIN.
     name: Diagnóstico final
     years:
     - 2007
     - 2025
   HEPATO:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não se aplica', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: case.hepatomegaly
     kind: category
     model: mark
@@ -381,8 +381,8 @@ columns:
     - 2007
     - 2025
   LABC_EVIDE:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.pallidum_evidence
     kind: category
     model: mark
@@ -391,8 +391,8 @@ columns:
     - 2007
     - 2025
   LABC_IGG:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='não realizado', 4='não se aplica', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['4']
     role: case.treponemal_test_18m
     kind: category
     model: mark
@@ -401,8 +401,8 @@ columns:
     - 2007
     - 2025
   LABC_LIQUO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.csf_test
     kind: category
     model: mark
@@ -411,8 +411,8 @@ columns:
     - 2007
     - 2025
   LABC_LIQ_1:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.csf_abnormality
     kind: category
     model: mark
@@ -421,8 +421,8 @@ columns:
     - 2007
     - 2025
   LABC_SANGU:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.blood_test
     kind: category
     model: mark
@@ -431,8 +431,8 @@ columns:
     - 2007
     - 2025
   LABC_TITUL:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.titre_rising
     kind: category
     model: mark
@@ -457,8 +457,8 @@ columns:
     - 2007
     - 2025
   LAB_CONF:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: pregnancy.delivery_treponemal_test
     kind: category
     model: mark
@@ -476,8 +476,8 @@ columns:
     - 2007
     - 2025
   LAB_PARTO:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: pregnancy.delivery_nontreponemal_test
     kind: category
     model: mark
@@ -523,8 +523,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
-    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
-      the derived IDADE_anos.
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
+      is the derived IDADE_anos.
     name: Idade
     years:
     - 2007
@@ -591,8 +591,8 @@ columns:
     - 2007
     - 2025
   TRA_DIAG_T:
-    missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 3='não realizado', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.radiology_child
     kind: category
     model: mark
@@ -611,11 +611,11 @@ columns:
     - 2025
   TRA_ESQUEM:
     missing: ['9']
-    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='adequado', 2='inadequado', 3='não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: pregnancy.maternal_treatment_adequacy
     kind: category
     model: mark
-    note: 'On SIFC: adequacy of the mother''s treatment (_shared.yml:7245), not a regimen.'
+    note: "On SIFC: adequacy of the mother's treatment (_shared.yml:7245), not a regimen."
     name: Esquema de tratamento
     years:
     - 2007
@@ -632,7 +632,8 @@ columns:
     role: pregnancy.prenatal_state
     kind: place
     model: mark
-    note: Draft typing said number; a UF code.
+    note: "Mostly state abbreviations (AC, AL, ...): 525 of 21,504 values in 2021 are IBGE codes; two code systems
+      in one column, no place reader compares it with the residence's code."
     name: UF do local da realização do pré-natal
     years:
     - 2007
