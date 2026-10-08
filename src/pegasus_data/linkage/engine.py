@@ -255,7 +255,11 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
     if side.group:
         # One record stands for its group (the live births of one delivery):
         # the smallest id (or the latest by ``side.latest``), with the group's size kept for validation.
-        keys = ", ".join(_q(g) for g in side.group)
+        # A record missing any key is its own group: null keys partitioned together made every birth of a facility and
+        # day without the mother's birth date one "delivery" (SINASC 2010: 2.86 M births, 870 k groups), and its
+        # members took one partner (2026-10-08)
+        anynull = " OR ".join(f"{_q(g)} IS NULL" for g in side.group)
+        keys = f"CASE WHEN {anynull} THEN _id END, " + ", ".join(_q(g) for g in side.group)
         order = f"{_q(side.latest)} DESC NULLS LAST, _id" if side.latest else "_id"
         base = (f"SELECT * EXCLUDE (_n), _n AS _group_size FROM (SELECT *, count(*) OVER (PARTITION BY {keys}) AS _n, "
                 f"row_number() OVER (PARTITION BY {keys} ORDER BY {order}) AS _k FROM ({base})) WHERE _k = 1")
