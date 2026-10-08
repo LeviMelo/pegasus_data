@@ -384,6 +384,22 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     return table.replace_schema_metadata(meta), strategy
 
 
+def _carried_also(dataset: str, wanted: list[Role], period: object, query_kwargs: dict[str, Any]) -> set[str]:
+    """The roles' additional columns (``also``) that some year of ``period`` may carry. A role is built from the
+    ones present (`_normalise`), so a column every year of the period lacks is not asked for: SIH-RD's DIAGSEC1-9
+    arrive in 2015, and asking for them failed every SIH link before (2026-10-08). A year nothing was decoded for
+    keeps the column, and the query decides."""
+    from .._availability import availability
+    from .._query_engine.model import _period
+
+    also = {c for role in wanted for c in role.also}
+    if not also:
+        return set()
+    found = availability(dataset, root=query_kwargs.get("root"), settings=query_kwargs.get("settings"))
+    years = _period(period).years if period is not None else tuple(found.decoded_years)
+    return {c for c in also if (w := found.fields.get(c.upper())) is not None and any(w.state(y) != "absent" for y in years)}
+
+
 def _compute_roles_one(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
                        **query_kwargs: Any) -> tuple[pa.Table, str]:
     from .._query_engine.executor import query
@@ -391,7 +407,7 @@ def _compute_roles_one(spec: DatasetRoles, names: list[str], *, period: object, 
     wanted = [spec.roles[name] for name in names]
     # Only the columns the roles read: a national year of SIH-RD is about 12
     # million rows of 113 columns, and linkage needs a dozen of them.
-    select = sorted({col for role in wanted for col in (role.column, *role.also)})
+    select = sorted({role.column for role in wanted} | _carried_also(spec.dataset, wanted, period, query_kwargs))
     table, report = query(
         spec.dataset, period=period, geography=geography, select=select, present="analysis",
         provenance="all", return_report=True, **query_kwargs,
