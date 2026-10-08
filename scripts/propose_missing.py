@@ -14,6 +14,8 @@ is proposed as the column's `domain` (a value outside it is not a value of the c
 any other code), with `missing: []`; the comment states the codelists and the share of YEAR's values outside. A
 measurement with no codelist is left undeclared. A band that labels a value the files hold as a value (a count's
 zero) is a conflict between sources: read the proposal before writing.
+A label is not the record layout: TabNet's SIM labels call documented categories "Ignorado" (ESC 5, LOCOCOR 5 and 6;
+DATA_SOURCES §1.9), so a proposal is read against the system's layout before it is written.
 `--write` inserts the declarations into the roles file, each with the labels it rests on as a comment, to be reviewed
 in the diff like any curation. Nothing is decided by a pattern alone: the comment carries the source's label.
 """

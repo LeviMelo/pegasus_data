@@ -364,6 +364,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 
 - **SIH-RD's `CID_MORTE` and `CID_ASSO` stop in 2014** (measured 2026-10-08 from the decoded lake): through 2014 they hold the cause of a death in hospital and an associated cause on 3–4 % and about 1 % of AIHs (2013: 439,319 and 133,866 of 11,197,160); from 2015 every record holds `0000`. The roles end their years at 2014. SIM-DO's `CB_PRE` (the underlying cause before reselection) is filled 2006–2010 (2010: 1,126,944 of 1,136,947), absent from the 2011–2013 files, and present but empty from 2014. A column's presence in a schema (`field_available`, `field_coverage`) does not say it is filled.
 
+- **TabNet's SIM labels call documented categories 'Ignorado'** (2026-10-08): the 2022 labels give 'Ignorado' to every code from 5 up for `ESC`, `ESCMAE` and `LOCOCOR`, where the record layout (`sources/sim2025.txt`) defines 5 = '12 anos e mais' (both schooling bands) and 5 = 'outros', 6 = 'aldeia indígena' (place of death). A missing code proposed from the labels alone (`scripts/propose_missing.py`) is checked against the layout; SINASC's declarations agree with theirs.
+
 ### 1.10 Identifiers in public files (2026-08-21, F §3j)
 
 - SIASUS patient identifiers (`*_CPFPCN`, `AP_CNSPCN`) fail their check

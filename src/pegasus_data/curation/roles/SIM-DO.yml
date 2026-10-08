@@ -347,8 +347,10 @@ columns:
     - 2012
     - 2013
   ESC:
-    missing: ['0', '5', '6', '7', '8', '9']
-    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
+    missing: ['0', '6', '7', '8', '9']
+    # the record layout (sources/sim2025.txt, Estrutura do SIM 07/2025) defines 5 = '12 anos e mais'; TabNet's 2022
+    # labels call 0 and 5-9 'Ignorado'. The layout wins for 5 (a documented category), the labels stand for 0 and 6-8
+    # (codes the layout does not define); corrected 2026-10-08
     role: deceased.education_years_band
     kind: category
     model: dimension
@@ -380,8 +382,9 @@ columns:
     - 2012
     - 2026
   ESCMAE:
-    missing: ['0', '5', '6', '7', '8', '9']
-    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
+    missing: ['0', '6', '7', '8', '9']
+    # the record layout (sources/sim2025.txt) defines 5 = '12 anos e mais'; TabNet's 2022 labels call 0 and 5-9
+    # 'Ignorado'. The layout wins for 5, the labels stand for 0 and 6-8; corrected 2026-10-08
     role: mother.education_years_band
     kind: category
     model: dimension
@@ -603,8 +606,9 @@ columns:
     - 1996
     - 2026
   LOCOCOR:
-    missing: ['0', '5', '6', '7', '8', '9']
-    # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
+    missing: ['0', '7', '8', '9']
+    # the record layout (sources/sim2025.txt) defines 5 = 'outros' and 6 = 'aldeia indígena'; TabNet's 2022 labels
+    # call 0 and 5-9 'Ignorado'. The layout wins for 5 and 6, the labels stand for 0, 7 and 8; corrected 2026-10-08
     role: death.place
     kind: category
     model: mark
