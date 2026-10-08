@@ -64,6 +64,8 @@ def main(dataset: str, spec: str, write: bool) -> None:
                     raise
                 print(f"absent in {y}: {sorted(absent)}")
                 mine = [r for r in mine if r.column not in absent]
+        if not mine:                # no column of the year's roles, or every one absent from its files
+            continue
         for r in mine:
             seen.setdefault(r.column, set()).update(
                 v for v in pc.unique(pc.cast(table[r.column], "string")).to_pylist() if v not in (None, ""))
