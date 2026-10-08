@@ -332,6 +332,8 @@ columns:
     - 2000
     - 2006
   CON_FHD:
+    missing: []
+    # proposed from DATASUS's labels (2010-2012): no value labelled as not recorded
     role: case.fhd_grade
     kind: category
     model: mark
@@ -793,6 +795,8 @@ columns:
     - 2000
     - 2006
   EPISTAXE:
+    missing: ['9']
+    # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_epistaxis
     kind: category
     model: mark
@@ -862,6 +866,8 @@ columns:
     - 2007
     - 2026
   GENGIVO:
+    missing: ['9']
+    # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_gum_bleeding
     kind: category
     model: mark
@@ -1034,6 +1040,8 @@ columns:
     - 2014
     - 2026
   HEMATURA:
+    missing: ['9']
+    # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_hematuria
     kind: category
     model: mark
@@ -1371,6 +1379,8 @@ columns:
     - 2000
     - 2006
   METRO:
+    missing: ['9']
+    # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_metrorrhagia
     kind: category
     model: mark
@@ -1788,6 +1798,8 @@ columns:
     - 2000
     - 2006
   SANGRAM:
+    missing: ['9']
+    # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_bleeding
     kind: category
     model: mark
