@@ -2,6 +2,8 @@ dataset: SINAN-TUBE
 record: notification
 columns:
   AGRAVAIDS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 3='Ign/Branco', 9='Ign/Branco'; they disagree on ['3']
     role: case.comorbidity_aids
     kind: category
     model: mark
@@ -10,6 +12,8 @@ columns:
     - 2001
     - 2025
   AGRAVALCOO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.comorbidity_alcohol
     kind: category
     model: mark
@@ -18,6 +22,8 @@ columns:
     - 2001
     - 2025
   AGRAVDIABE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.comorbidity_diabetes
     kind: category
     model: mark
@@ -26,6 +32,8 @@ columns:
     - 2001
     - 2025
   AGRAVDOENC:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.comorbidity_mental
     kind: category
     model: mark
@@ -51,6 +59,8 @@ columns:
     - 2001
     - 2018
   AGRAVOUTRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.comorbidity_other
     kind: category
     model: mark
@@ -84,6 +94,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_1:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_1
     kind: category
     model: mark
@@ -92,6 +104,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_2:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_2
     kind: category
     model: mark
@@ -100,6 +114,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_3:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_3
     kind: category
     model: mark
@@ -108,6 +124,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_4:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_4
     kind: category
     model: mark
@@ -116,6 +134,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_5:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_5
     kind: category
     model: mark
@@ -124,6 +144,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_6:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.smear_month_6
     kind: category
     model: mark
@@ -132,6 +154,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_E:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 4='Ign/Branco'; they disagree on ['4']
     role: case.sputum_smear
     kind: category
     model: mark
@@ -228,6 +252,8 @@ columns:
     - 2001
     - 2025
   CULTURA_ES:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.sputum_culture
     kind: category
     model: mark
@@ -436,6 +462,8 @@ columns:
     - 2001
     - 2025
   FORMA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.clinical_form
     kind: category
     model: mark
@@ -444,6 +472,8 @@ columns:
     - 2001
     - 2025
   HISTOPATOL:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 6='Ign/Branco'; they disagree on ['6']
     role: case.histopathology
     kind: category
     model: mark
@@ -454,6 +484,8 @@ columns:
     - 2001
     - 2025
   HIV:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.hiv_status
     kind: category
     model: mark
@@ -692,6 +724,8 @@ columns:
     - 2001
     - 2025
   POP_IMIG:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 3='Ign/Branco', 9='Ign/Branco'; they disagree on ['3']
     role: patient.is_immigrant
     kind: category
     model: dimension
@@ -702,6 +736,8 @@ columns:
     - 2001
     - 2025
   POP_LIBER:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: patient.is_deprived_of_liberty
     kind: category
     model: dimension
@@ -712,6 +748,8 @@ columns:
     - 2001
     - 2025
   POP_RUA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: patient.is_homeless
     kind: category
     model: dimension
@@ -722,6 +760,8 @@ columns:
     - 2001
     - 2025
   POP_SAUDE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 3='Ign/Branco', 9='Ign/Branco'; they disagree on ['3']
     role: patient.is_health_worker
     kind: category
     model: dimension
@@ -732,6 +772,8 @@ columns:
     - 2001
     - 2025
   RAIOX_TORA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.chest_xray
     kind: category
     model: mark
@@ -803,6 +845,8 @@ columns:
     - 2001
     - 2025
   SITUA_ENCE:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.outcome
     kind: category
     model: mark
@@ -871,6 +915,8 @@ columns:
     - 2001
     - 2025
   TRATSUP_AT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: treatment.dot_done
     kind: category
     model: mark

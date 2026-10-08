@@ -218,6 +218,8 @@ columns:
     - 2014
     - 2026
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -471,6 +473,8 @@ columns:
     - 2014
     - 2026
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'; they disagree on ['0']
     role: case.outcome
     kind: category
     model: mark
@@ -680,6 +684,8 @@ columns:
     - 2014
     - 2026
   HISTOPA_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.histopathology_result
     kind: category
     model: mark
@@ -688,6 +694,8 @@ columns:
     - 2014
     - 2026
   HOSPITALIZ:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'; they disagree on ['0']
     role: case.hospitalized
     kind: category
     model: mark
@@ -808,6 +816,8 @@ columns:
     - 2014
     - 2026
   IMUNOH_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.immunohistochemistry_result
     kind: category
     model: mark
@@ -979,6 +989,8 @@ columns:
     - 2014
     - 2026
   RESUL_NS1:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.ns1_result
     kind: category
     model: mark
@@ -987,6 +999,8 @@ columns:
     - 2014
     - 2026
   RESUL_PCR_:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.pcr_result
     kind: category
     model: mark
@@ -995,6 +1009,8 @@ columns:
     - 2014
     - 2026
   RESUL_PRNT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.prnt_result
     kind: category
     model: mark
@@ -1003,6 +1019,8 @@ columns:
     - 2014
     - 2026
   RESUL_SORO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.igm_result
     kind: category
     model: mark
@@ -1013,6 +1031,8 @@ columns:
     - 2014
     - 2026
   RESUL_VI_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco'; they disagree on ['0']
     role: case.viral_isolation_result
     kind: category
     model: mark
@@ -1021,6 +1041,8 @@ columns:
     - 2014
     - 2026
   RES_CHIKS1:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 5='Ign/Branco'; they disagree on ['0', '5']
     role: case.chik_igm1_result
     kind: category
     model: mark
@@ -1029,6 +1051,8 @@ columns:
     - 2014
     - 2026
   RES_CHIKS2:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 0='Ign/Branco', 5='Ign/Branco'; they disagree on ['0', '5']
     role: case.chik_igm2_result
     kind: category
     model: mark
@@ -1088,6 +1112,8 @@ columns:
     - 2014
     - 2026
   SOROTIPO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.serotype
     kind: category
     model: mark
@@ -1096,6 +1122,8 @@ columns:
     - 2014
     - 2026
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.autochthonous
     kind: category
     model: mark

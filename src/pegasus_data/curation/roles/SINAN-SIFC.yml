@@ -2,6 +2,8 @@ dataset: SINAN-SIFC
 record: notification
 columns:
   ANTSIFIL_N:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ignorado'
     role: pregnancy.maternal_syphilis_diagnosis_timing
     kind: category
     model: mark
@@ -30,6 +32,8 @@ columns:
     - 2007
     - 2025
   ANT_PRE_NA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: pregnancy.prenatal_care
     kind: category
     model: mark
@@ -38,6 +42,8 @@ columns:
     - 2007
     - 2025
   ANT_RACA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: mother.race
     kind: category
     model: dimension
@@ -46,6 +52,8 @@ columns:
     - 2007
     - 2025
   ANT_TRATAD:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: pregnancy.partner_treated
     kind: category
     model: mark
@@ -95,6 +103,8 @@ columns:
     - 2007
     - 2025
   CLI_OUTRO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
     role: case.sign_outro
     kind: category
     model: mark
@@ -205,6 +215,8 @@ columns:
     - 2007
     - 2025
   ESCOLMAE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorada'; the tabulation: 09='Ign/Branco'; they disagree on ['09', '9']
     role: mother.education
     kind: category
     model: dimension
@@ -213,6 +225,8 @@ columns:
     - 2007
     - 2025
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -237,6 +251,8 @@ columns:
     - 2007
     - 2025
   HEPATO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
     role: case.hepatomegaly
     kind: category
     model: mark
@@ -365,6 +381,8 @@ columns:
     - 2007
     - 2025
   LABC_EVIDE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: case.pallidum_evidence
     kind: category
     model: mark
@@ -373,6 +391,8 @@ columns:
     - 2007
     - 2025
   LABC_IGG:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
     role: case.treponemal_test_18m
     kind: category
     model: mark
@@ -381,6 +401,8 @@ columns:
     - 2007
     - 2025
   LABC_LIQUO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
     role: case.csf_test
     kind: category
     model: mark
@@ -389,6 +411,8 @@ columns:
     - 2007
     - 2025
   LABC_LIQ_1:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: case.csf_abnormality
     kind: category
     model: mark
@@ -397,6 +421,8 @@ columns:
     - 2007
     - 2025
   LABC_SANGU:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 4='Ign/Branco', 9='Ign/Branco'; they disagree on ['4']
     role: case.blood_test
     kind: category
     model: mark
@@ -405,6 +431,8 @@ columns:
     - 2007
     - 2025
   LABC_TITUL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: case.titre_rising
     kind: category
     model: mark
@@ -429,6 +457,8 @@ columns:
     - 2007
     - 2025
   LAB_CONF:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: pregnancy.delivery_treponemal_test
     kind: category
     model: mark
@@ -446,6 +476,8 @@ columns:
     - 2007
     - 2025
   LAB_PARTO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: pregnancy.delivery_nontreponemal_test
     kind: category
     model: mark
@@ -559,6 +591,8 @@ columns:
     - 2007
     - 2025
   TRA_DIAG_T:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='ignorado'; the tabulation: 9='Ign/Branco'
     role: case.radiology_child
     kind: category
     model: mark
@@ -576,6 +610,8 @@ columns:
     - 2007
     - 2025
   TRA_ESQUEM:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
     role: pregnancy.maternal_treatment_adequacy
     kind: category
     model: mark

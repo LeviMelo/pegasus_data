@@ -26,6 +26,8 @@ columns:
     - 2006
     - 2026
   AGENTE_TOX:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 99='Ignorado'; the tabulation: 99='Ign/Branco'
     role: case.agent_group
     kind: category
     model: mark
@@ -45,6 +47,8 @@ columns:
     note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
       fits a birth year, so model is provisional.'
   ATIVIDA_1:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 99='Ignorado'; the tabulation: 99='Ign/Branco'
     role: case.pesticide_activity_1
     kind: category
     model: mark
@@ -53,6 +57,8 @@ columns:
     - 2006
     - 2026
   ATIVIDA_2:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 99='Ignorado'; the tabulation: 99='Ign/Branco'
     role: case.pesticide_activity_2
     kind: category
     model: mark
@@ -61,6 +67,8 @@ columns:
     - 2006
     - 2026
   ATIVIDA_3:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 99='Ignorado'; the tabulation: 99='Ign/Branco'
     role: case.pesticide_activity_3
     kind: category
     model: mark
@@ -69,6 +77,8 @@ columns:
     - 2006
     - 2026
   CAT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 8='Ign/Branco', 9='Ign/Branco'; they disagree on ['8']
     role: case.cat_issued
     kind: category
     model: mark
@@ -79,6 +89,8 @@ columns:
     - 2006
     - 2026
   CIRCUNSTAN:
+    missing: ['99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 99='Ignorado'; the tabulation: 99='Ign/Branco'
     role: case.exposure_circumstance
     kind: category
     model: mark
@@ -145,6 +157,8 @@ columns:
     - 2006
     - 2026
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 7='Ign/Branco'; they disagree on ['7']
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -212,6 +226,8 @@ columns:
     - 2006
     - 2026
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; they disagree on ['0', '7', '8']
     role: case.work_related
     kind: category
     model: mark
@@ -335,6 +351,8 @@ columns:
     - 2006
     - 2026
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorada'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -350,6 +368,8 @@ columns:
     - 2006
     - 2026
   HOSPITAL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.hospitalized
     kind: category
     model: mark
@@ -500,6 +520,8 @@ columns:
     - 2006
     - 2026
   LOC_EXPO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.exposure_setting
     kind: category
     model: mark
@@ -687,6 +709,8 @@ columns:
     - 2006
     - 2026
   TPATENDE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.care_type
     kind: category
     model: mark
@@ -695,6 +719,8 @@ columns:
     - 2006
     - 2026
   TPEXP:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.exposure_pattern
     kind: category
     model: mark
@@ -703,6 +729,8 @@ columns:
     - 2006
     - 2026
   TPTEMPO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: patient.occupation_tenure_unit
     kind: category
     model: dimension
@@ -751,6 +779,8 @@ columns:
     - 2006
     - 2026
   UTILIZACAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.pesticide_use
     kind: category
     model: mark
@@ -767,6 +797,8 @@ columns:
     - 2006
     - 2026
   VIA_1:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.exposure_route_1
     kind: category
     model: mark
@@ -775,6 +807,8 @@ columns:
     - 2006
     - 2026
   VIA_2:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.exposure_route_2
     kind: category
     model: mark
@@ -783,6 +817,8 @@ columns:
     - 2006
     - 2026
   VIA_3:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.exposure_route_3
     kind: category
     model: mark

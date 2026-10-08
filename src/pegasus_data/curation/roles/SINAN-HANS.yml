@@ -11,6 +11,8 @@ columns:
     - 2001
     - 2026
   AVALIA_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.disability_at_diagnosis
     kind: category
     model: mark
@@ -19,6 +21,8 @@ columns:
     - 2001
     - 2026
   AVAL_ATU_N:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: no value labelled as not recorded; they disagree on ['9']
     role: treatment.disability_at_discharge
     kind: category
     model: mark
@@ -35,6 +39,8 @@ columns:
     - 2001
     - 2026
   CLASSATUAL:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: case.current_operational_class
     kind: category
     model: mark
@@ -43,6 +49,8 @@ columns:
     - 2001
     - 2026
   CLASSOPERA:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 9='Ign/Branco'; they disagree on ['9']
     role: case.operational_class
     kind: category
     model: mark
@@ -245,6 +253,8 @@ columns:
     - 2001
     - 2026
   EPIS_RACIO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: case.reaction_episode
     kind: category
     model: mark
@@ -253,6 +263,8 @@ columns:
     - 2001
     - 2026
   ESQ_ATU_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.current_regimen
     kind: category
     model: mark
@@ -261,6 +273,8 @@ columns:
     - 2001
     - 2026
   ESQ_INI_N:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: no value labelled as not recorded
     role: treatment.initial_regimen
     kind: category
     model: mark
@@ -277,6 +291,8 @@ columns:
     - 2001
     - 2026
   FORMACLINI:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: no code not recorded; the tabulation: 6='Ign/Branco', 9='Ign/Branco'; they disagree on ['6', '9']
     role: case.clinical_form
     kind: category
     model: mark
@@ -431,6 +447,8 @@ columns:
     - 2001
     - 2026
   MODODETECT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: case.detection_mode
     kind: category
     model: mark
@@ -439,6 +457,8 @@ columns:
     - 2001
     - 2026
   MODOENTR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 9='Ignorado'; the tabulation: 9='Ign/Branco'
     role: treatment.entry_mode
     kind: category
     model: mark

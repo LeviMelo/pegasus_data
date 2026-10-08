@@ -30,6 +30,7 @@ import pyarrow.compute as pc
 
 import pegasus_data as pg
 from pegasus_data.semantics import column_roles
+from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 
 NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|sem informa[çc][ãa]o|não declarad[oa])\s*$",
                           re.IGNORECASE)
@@ -73,6 +74,7 @@ def main(dataset: str, spec: str, write: bool) -> None:
     rows = [r for r in rows if r.column in seen]
     system = dataset.split("-")[0].split(".")[0]
     system = {"SIH": "SIHSUS"}.get(system, system)
+    series = dataset.replace(".", "-").split("-", 1)[1] if "-" in dataset.replace(".", "-") else ""
     proposals = {}
     for r in rows:
         values = sorted(seen[r.column])
@@ -89,21 +91,35 @@ def main(dataset: str, spec: str, write: bool) -> None:
                       **labels}
         miss = sorted(v for v, lab in labels.items()
                       if lab and (NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))))
-        evidence = ", ".join(f"{v}={labels[v]!r}" for v in miss) or "no value labelled as not recorded"
-        proposals[r.column] = (miss, evidence, all(lab is None for lab in labels.values()))
-        print(f"{r.column}: missing {miss} ({evidence}){'  [no labels: left undeclared]' if proposals[r.column][2] else ''}")
+        tabnet = ", ".join(f"{v}={labels[v]!r}" for v in miss) or "no value labelled as not recorded"
+        # the record's own form outranks the tabulation (TabNet's catch-all labels call documented categories
+        # "Ignorado"): where the form's dictionary is harvested, its not-recorded codes are declared and the tabulation's
+        # disagreements recorded; without it, the tabulation alone does not declare (2026-10-08, work plan P1)
+        form = inline_codelist(harvested_codelist(system, series, r.column) or "") or {}
+        if form:
+            miss = sorted(c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab)))
+            disagree = sorted(set(miss) ^ {v for v in labels if labels[v] and (NOT_RECORDED.match(str(labels[v]))
+                                                                              or NOT_CLASSIFIED.match(str(labels[v])))})
+            evidence = (f"the form's dictionary: {', '.join(f'{c}={form[c]!r}' for c in miss) or 'no code not recorded'}; "
+                        f"the tabulation: {tabnet}" + (f"; they disagree on {disagree}" if disagree else ""))
+            proposals[r.column] = (miss, evidence, False)
+        else:
+            evidence = f"the tabulation only: {tabnet}"
+            proposals[r.column] = (miss, evidence, True)     # one source: left undeclared, said
+        print(f"{r.column}: missing {miss} ({evidence})"
+              f"{'  [no form dictionary: left undeclared]' if proposals[r.column][2] else ''}")
     if write:
         path = column_roles.roles_dir() / f"{key}.yml"
         text = path.read_text(encoding="utf-8")
         for col, (miss, evidence, unlabelled) in proposals.items():
             if unlabelled:
-                continue                    # no label to rest on: the column stays undeclared
+                continue                    # no form dictionary to rest on: the column stays undeclared
             head = f"  {col}:\n"
             if text.count(head) != 1:
                 print(f"  {col}: not found once in {path.name}, skipped")
                 continue
             decl = (f"    missing: [{', '.join(repr(m) for m in miss)}]\n"
-                    f"    # proposed from DATASUS's labels ({year}): {evidence}\n")
+                    f"    # declared from DATASUS's own sources ({year}): {evidence}\n")
             text = text.replace(head, head + decl)
         path.write_text(text, encoding="utf-8")
         print(f"written {path}")
