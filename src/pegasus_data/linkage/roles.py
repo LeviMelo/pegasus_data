@@ -400,6 +400,24 @@ def _carried(dataset: str, columns: set[str], period: object, query_kwargs: dict
 
 def _compute_roles_one(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
                        **query_kwargs: Any) -> tuple[pa.Table, str]:
+    """One scope's role table. A period of several years is read year by year, each asking for the columns its own
+    files may carry (`_carried`): a padded side reads a year whose generation lacks a column the next one has
+    (SINASC 2009 without DTNASCMAE, read by the 2010 infant-death link), and one query for both failed."""
+    from .._query_engine.model import _period
+
+    years = _period(period).years if period is not None else ()
+    if len(years) > 1:
+        parts = [_compute_roles_one(spec, names, period=y, geography=geography, **query_kwargs) for y in years]
+        absent = set.intersection(*(set(absent_roles(t)) for t, _ in parts))
+        table = pa.concat_tables([t for t, _ in parts], promote_options="default")
+        meta = dict(parts[0][0].schema.metadata or {})
+        meta[b"absent_roles"] = ",".join(sorted(absent)).encode()
+        return table.replace_schema_metadata(meta), ("lake" if all(s == "lake" for _, s in parts) else "other")
+    return _compute_roles_year(spec, names, period=period, geography=geography, **query_kwargs)
+
+
+def _compute_roles_year(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
+                        **query_kwargs: Any) -> tuple[pa.Table, str]:
     from .._query_engine.executor import query
 
     wanted = [spec.roles[name] for name in names]
