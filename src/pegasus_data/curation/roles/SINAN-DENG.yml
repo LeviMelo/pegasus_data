@@ -11,6 +11,8 @@ columns:
     - 2000
     - 2006
   ACIDO_PEPT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.peptic_ulcer
     kind: category
     model: dimension
@@ -20,6 +22,8 @@ columns:
     - 2014
     - 2026
   ALRM_ABDOM:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_abdominal_pain
     kind: category
     model: mark
@@ -28,6 +32,8 @@ columns:
     - 2014
     - 2026
   ALRM_HEMAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_hematocrit_rise
     kind: category
     model: mark
@@ -36,6 +42,8 @@ columns:
     - 2014
     - 2026
   ALRM_HEPAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_hepatomegaly
     kind: category
     model: mark
@@ -44,6 +52,8 @@ columns:
     - 2014
     - 2026
   ALRM_HIPOT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_postural_hypotension
     kind: category
     model: mark
@@ -52,6 +62,8 @@ columns:
     - 2014
     - 2026
   ALRM_LETAR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_lethargy
     kind: category
     model: mark
@@ -60,6 +72,8 @@ columns:
     - 2014
     - 2026
   ALRM_LIQ:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_fluid_accumulation
     kind: category
     model: mark
@@ -68,6 +82,8 @@ columns:
     - 2014
     - 2026
   ALRM_PLAQ:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_platelet_drop
     kind: category
     model: mark
@@ -76,6 +92,8 @@ columns:
     - 2014
     - 2026
   ALRM_SANG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_mucosal_bleeding
     kind: category
     model: mark
@@ -84,6 +102,8 @@ columns:
     - 2014
     - 2026
   ALRM_VOM:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.alarm_persistent_vomiting
     kind: category
     model: mark
@@ -137,6 +157,8 @@ columns:
     - 2000
     - 2006
   ARTRALGIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_arthralgia
     kind: category
     model: mark
@@ -145,6 +167,8 @@ columns:
     - 2000
     - 2026
   ARTRITE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_arthritis
     kind: category
     model: mark
@@ -162,6 +186,8 @@ columns:
     - 2000
     - 2006
   AUTO_IMUNE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.autoimmune_disease
     kind: category
     model: dimension
@@ -170,6 +196,8 @@ columns:
     - 2014
     - 2026
   CEFALEIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_headache
     kind: category
     model: mark
@@ -204,6 +232,8 @@ columns:
     - 2007
     - 2026
   CLINC_CHIK:
+    missing: []
+    # proposed from DATASUS's labels (2019-2023): no value labelled as not recorded
     role: case.chik_presentation
     kind: category
     model: mark
@@ -212,6 +242,8 @@ columns:
     - 2014
     - 2026
   COMPLICA:
+    missing: ['0', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 9='Ign/Branco'
     role: case.complications
     kind: category
     model: mark
@@ -236,6 +268,8 @@ columns:
     - 2007
     - 2026
   CONJUNTVIT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_conjunctivitis
     kind: category
     model: mark
@@ -367,6 +401,8 @@ columns:
     - 2007
     - 2026
   CRITERIO:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -390,6 +426,8 @@ columns:
     - 2000
     - 2006
   CS_ESCOL_N:
+    missing: ['09', '9', '99']
+    # proposed from DATASUS's labels (2019-2023): 09='Ign/Branco', 9='Ign/Branco', 99='Ign/Branco'
     role: patient.education
     kind: category
     model: dimension
@@ -410,6 +448,8 @@ columns:
     - 2007
     - 2026
   CS_GESTANT:
+    missing: ['0', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.pregnancy_status
     kind: category
     model: dimension
@@ -454,6 +494,8 @@ columns:
     - 2000
     - 2006
   DIABETES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.diabetes
     kind: category
     model: dimension
@@ -473,6 +515,8 @@ columns:
     - 2000
     - 2006
   DOENCA_TRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.work_related
     kind: category
     model: mark
@@ -492,6 +536,8 @@ columns:
     - 2000
     - 2006
   DOR_COSTAS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_back_pain
     kind: category
     model: mark
@@ -500,6 +546,8 @@ columns:
     - 2014
     - 2026
   DOR_RETRO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_retroorbital_pain
     kind: category
     model: mark
@@ -757,6 +805,8 @@ columns:
     - 2000
     - 2026
   EVIDENCIA:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.plasma_leakage_evidence
     kind: category
     model: mark
@@ -765,6 +815,8 @@ columns:
     - 2007
     - 2026
   EVOLUCAO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.outcome
     kind: category
     model: mark
@@ -780,6 +832,8 @@ columns:
     - 2007
     - 2026
   EXANTEMA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_rash
     kind: category
     model: mark
@@ -788,6 +842,8 @@ columns:
     - 2000
     - 2026
   FEBRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_fever
     kind: category
     model: mark
@@ -818,6 +874,8 @@ columns:
     - 2000
     - 2026
   GRAV_AST:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_ast_alt
     kind: category
     model: mark
@@ -826,6 +884,8 @@ columns:
     - 2014
     - 2026
   GRAV_CONSC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_consciousness
     kind: category
     model: mark
@@ -834,6 +894,8 @@ columns:
     - 2014
     - 2026
   GRAV_CONV:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_convergent_pressure
     kind: category
     model: mark
@@ -842,6 +904,8 @@ columns:
     - 2014
     - 2026
   GRAV_ENCH:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_capillary_refill
     kind: category
     model: mark
@@ -850,6 +914,8 @@ columns:
     - 2014
     - 2026
   GRAV_EXTRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_cold_extremities
     kind: category
     model: mark
@@ -858,6 +924,8 @@ columns:
     - 2014
     - 2026
   GRAV_HEMAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_hematemesis
     kind: category
     model: mark
@@ -866,6 +934,8 @@ columns:
     - 2014
     - 2026
   GRAV_HIPOT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_hypotension
     kind: category
     model: mark
@@ -874,6 +944,8 @@ columns:
     - 2014
     - 2026
   GRAV_INSUF:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_respiratory_failure
     kind: category
     model: mark
@@ -882,6 +954,8 @@ columns:
     - 2014
     - 2026
   GRAV_MELEN:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_melena
     kind: category
     model: mark
@@ -890,6 +964,8 @@ columns:
     - 2014
     - 2026
   GRAV_METRO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_metrorrhagia
     kind: category
     model: mark
@@ -898,6 +974,8 @@ columns:
     - 2014
     - 2026
   GRAV_MIOC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_myocarditis
     kind: category
     model: mark
@@ -906,6 +984,8 @@ columns:
     - 2014
     - 2026
   GRAV_ORGAO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_other_organs
     kind: category
     model: mark
@@ -914,6 +994,8 @@ columns:
     - 2014
     - 2026
   GRAV_PULSO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_weak_pulse
     kind: category
     model: mark
@@ -922,6 +1004,8 @@ columns:
     - 2014
     - 2026
   GRAV_SANG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_cns_bleeding
     kind: category
     model: mark
@@ -930,6 +1014,8 @@ columns:
     - 2014
     - 2026
   GRAV_TAQUI:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.severe_tachycardia
     kind: category
     model: mark
@@ -938,6 +1024,8 @@ columns:
     - 2014
     - 2026
   HEMATOLOG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.hematologic_disease
     kind: category
     model: dimension
@@ -985,6 +1073,8 @@ columns:
     - 2000
     - 2006
   HEPATOPAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.liver_disease
     kind: category
     model: dimension
@@ -993,6 +1083,8 @@ columns:
     - 2014
     - 2026
   HIPERTENSA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.hypertension
     kind: category
     model: dimension
@@ -1019,6 +1111,8 @@ columns:
     - 2000
     - 2006
   HISTOPA_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.histopathology_result
     kind: category
     model: mark
@@ -1027,6 +1121,8 @@ columns:
     - 2007
     - 2026
   HOSPITALIZ:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalized
     kind: category
     model: mark
@@ -1177,6 +1273,8 @@ columns:
     - 2000
     - 2006
   IMUNOH_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.immunohistochemistry_result
     kind: category
     model: mark
@@ -1214,6 +1312,8 @@ columns:
     - 2000
     - 2006
   LACO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_tourniquet_test
     kind: category
     model: mark
@@ -1222,6 +1322,8 @@ columns:
     - 2000
     - 2026
   LACO_N:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_tourniquet_test
     kind: category
     model: mark
@@ -1231,6 +1333,8 @@ columns:
     - 2007
     - 2026
   LEUCOPENIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_leukopenia
     kind: category
     model: mark
@@ -1248,6 +1352,8 @@ columns:
     - 2000
     - 2006
   MANI_HEMOR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_hemorrhagic_manifestations
     kind: category
     model: mark
@@ -1277,6 +1383,8 @@ columns:
     - 2000
     - 2026
   MIALGIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_myalgia
     kind: category
     model: mark
@@ -1315,6 +1423,8 @@ columns:
     - 2000
     - 2026
   NAUSEA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_nausea
     kind: category
     model: mark
@@ -1455,6 +1565,8 @@ columns:
     - 2000
     - 2006
   PETEQUIAS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_petechiae
     kind: category
     model: mark
@@ -1463,6 +1575,8 @@ columns:
     - 2000
     - 2026
   PETEQUIA_N:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_petechiae
     kind: category
     model: mark
@@ -1482,6 +1596,8 @@ columns:
     - 2000
     - 2026
   PLASMATICO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.plasma_leakage
     kind: category
     model: mark
@@ -1508,6 +1624,8 @@ columns:
     - 2000
     - 2006
   RENAL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.chronic_kidney_disease
     kind: category
     model: dimension
@@ -1516,6 +1634,8 @@ columns:
     - 2014
     - 2026
   RESUL_NS1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.ns1_result
     kind: category
     model: mark
@@ -1543,6 +1663,8 @@ columns:
     - 2000
     - 2006
   RESUL_PCR_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.pcr_result
     kind: category
     model: mark
@@ -1551,6 +1673,8 @@ columns:
     - 2007
     - 2026
   RESUL_PRNT:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.prnt_result
     kind: category
     model: mark
@@ -1559,6 +1683,8 @@ columns:
     - 2014
     - 2026
   RESUL_SORO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.igm_result
     kind: category
     model: mark
@@ -1578,6 +1704,8 @@ columns:
     - 2000
     - 2006
   RESUL_VI_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.viral_isolation_result
     kind: category
     model: mark
@@ -1586,6 +1714,8 @@ columns:
     - 2007
     - 2026
   RES_CHIKS1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.chik_igm1_result
     kind: category
     model: mark
@@ -1594,6 +1724,8 @@ columns:
     - 2014
     - 2026
   RES_CHIKS2:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.chik_igm2_result
     kind: category
     model: mark
@@ -1733,6 +1865,8 @@ columns:
     - 2000
     - 2006
   SOROTIPO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.serotype
     kind: category
     model: mark
@@ -1759,6 +1893,8 @@ columns:
     - 2000
     - 2006
   TPAUTOCTO:
+    missing: []
+    # proposed from DATASUS's labels (2019-2023): no value labelled as not recorded
     role: case.autochthonous
     kind: category
     model: mark
@@ -1769,6 +1905,8 @@ columns:
     - 2007
     - 2026
   TP_NOT:
+    missing: []
+    # proposed from DATASUS's labels (2019-2023): no value labelled as not recorded
     role: notification.type
     kind: category
     model: mark
@@ -1805,6 +1943,8 @@ columns:
     - 2000
     - 2006
   VOMITO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_vomiting
     kind: category
     model: mark
