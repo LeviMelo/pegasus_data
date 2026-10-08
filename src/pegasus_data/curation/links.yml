@@ -65,6 +65,7 @@ links:
       such death should have a birth: the linked share approximates sensitivity.
     person: [deceased, baby]   # the same person on each side (linkage/entities.py)
     same_event: false   # a death and the birth before it: two events of one person
+    sensitivity: left   # every infant death has its birth: the deaths' linked share is the link's sensitivity
     left:
       dataset: SIM-DO
       where: >

@@ -88,6 +88,10 @@ class LinkSpec:
     #: whether the two sides record one event (a death in hospital: the admission and the certificate) or two events of
     #: one person (a birth, then an infant death); a count of each side shares events only in the first case
     same_event: bool = False
+    #: the side every record of which should find a partner (each infant death has its birth), so that its linked share
+    #: measures the link's sensitivity by residence (`side_counts`); "" when neither side should (two systems that
+    #: share some events). A reader of the other side's linked share reads it through this sensitivity
+    sensitivity: str = ""
 
 
 def _side(body: dict[str, Any]) -> Side:
@@ -150,7 +154,7 @@ def load_links() -> dict[str, LinkSpec]:
         out[name] = LinkSpec(
             name, str(body.get("description", "")).strip(), _side(body["left"]), _side(body["right"]),
             passes, str(control["role"]), int(control.get("shift_days", 7)), validations,
-            bool(body["same_event"]),
+            bool(body["same_event"]), str(body.get("sensitivity") or ""),
         )
     return out
 
@@ -447,4 +451,45 @@ def link(
     return result
 
 
-__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "load_links", "run", "stored_key"]
+def side_counts(name: str, *, period: object, side: str, by: str, method: str = "probabilistic",
+                **query_kwargs: Any) -> pa.Table:
+    """One side of a stored national run by the value of role ``by`` (a residence): ``n`` the side's records the link
+    can pair (its filter applied, a group's records as one, numbered as the run numbered them) and ``k`` the expected
+    number paired (each record's largest p_match, 1 for a deterministic pair). n per residence is the denominator of
+    the link's completeness there: a share of infant deaths that found their birth, by municipality and year, reads
+    where the link has holes (a birth field's missing infant deaths were the link's, 2026-10-08). The run must be
+    stored (`link`); a run not viable or absent raises."""
+    from ..config import load_settings
+    from . import store
+
+    spec = load_links()[name]
+    if side not in ("left", "right"):
+        raise ValueError(f"side must be 'left' or 'right', not {side!r}")
+    s = spec.left if side == "left" else spec.right
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    right_period = padded_period(period, spec.right) if spec.right.pad_years != (0, 0) else None
+    stored = store.load(settings, stored_key(name, method, period, "BR", right_period=right_period))
+    if stored is None:
+        raise LookupError(f"{name} {period}: no stored {method} run (link it first)")
+    if (stored[1] or {}).get("verdict") == "not viable":
+        raise LinkNotViable(store.StoredResult(name, stored[0], stored[1]))
+    declared = dataset_roles(s.dataset).roles
+    if by not in declared:
+        raise KeyError(f"{s.dataset} declares no role {by!r}")
+    needed = sorted({by, *s.group, *([s.latest] if s.latest else []),
+                     *(r for r in declared if s.where and f'"{r}"' in s.where)})
+    scope = period if side == "left" else (right_period or period)
+    table = role_table(s.dataset, period=scope, geography="BR", roles=needed, **query_kwargs)
+    con = duckdb.connect()
+    _prepare(con, "x", table, Side(s.dataset, s.where, None, s.group, s.latest, (0, 0)))
+    pairs = stored[0]
+    p = pairs.column("p_match") if "p_match" in pairs.column_names else pa.array([1.0] * pairs.num_rows)
+    con.register("pm", pa.table({"id": pairs.column("l" if side == "left" else "r"), "p": p}))
+    return con.execute(f"""SELECT x.{_q(by)} AS unit, CAST(count(DISTINCT x._id) AS INTEGER) AS n,
+            CAST(sum(coalesce(m.p, 0)) AS DOUBLE) AS k
+        FROM (SELECT DISTINCT _id, {_q(by)} FROM x) x LEFT JOIN (SELECT id, max(p) AS p FROM pm GROUP BY id) m
+        ON m.id = x._id GROUP BY 1 ORDER BY 1""").fetch_arrow_table()
+
+
+__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "load_links", "run", "side_counts",
+           "stored_key"]
