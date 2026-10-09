@@ -1293,7 +1293,7 @@ columns:
     - 2026
   QTINST32:
     role: establishment.recovery_rooms_surgical_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Recuperação
     years:
@@ -1301,7 +1301,7 @@ columns:
     - 2026
   QTINST33:
     role: establishment.outpatient_surgery_rooms_surgical_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Cirurgia Ambulatorial
     years:
@@ -1309,7 +1309,7 @@ columns:
     - 2026
   QTINST34:
     role: establishment.pre_delivery_rooms_obstetric_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Pré Parto
     years:
@@ -1317,7 +1317,7 @@ columns:
     - 2026
   QTINST35:
     role: establishment.normal_delivery_rooms_obstetric_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Parto Normal
     years:
@@ -1325,7 +1325,7 @@ columns:
     - 2026
   QTINST36:
     role: establishment.curettage_rooms_obstetric_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Curetagem
     years:
@@ -1333,7 +1333,7 @@ columns:
     - 2026
   QTINST37:
     role: establishment.surgery_rooms_obstetric_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. sala Cirurgia
     years:
@@ -1341,7 +1341,7 @@ columns:
     - 2026
   QTLEIT05:
     role: establishment.paediatric_rest_observation_beds_emergency
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Pediatria
     years:
@@ -1349,7 +1349,7 @@ columns:
     - 2026
   QTLEIT06:
     role: establishment.female_rest_observation_beds_emergency
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Feminino
     years:
@@ -1357,7 +1357,7 @@ columns:
     - 2026
   QTLEIT07:
     role: establishment.male_rest_observation_beds_emergency
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Masculino
     years:
@@ -1365,7 +1365,7 @@ columns:
     - 2026
   QTLEIT08:
     role: establishment.undifferentiated_rest_observation_beds_emergency
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Indiferenciado
     years:
@@ -1373,7 +1373,7 @@ columns:
     - 2026
   QTLEIT09:
     role: establishment.dental_units_emergency
-    kind: category
+    kind: number
     model: mark
     name: Qt. Equipo Odontologia
     years:
@@ -1381,7 +1381,7 @@ columns:
     - 2026
   QTLEIT19:
     role: establishment.female_rest_observation_beds_outpatient
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Feminino
     years:
@@ -1389,7 +1389,7 @@ columns:
     - 2026
   QTLEIT20:
     role: establishment.male_rest_observation_beds_outpatient
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Masculino
     years:
@@ -1397,7 +1397,7 @@ columns:
     - 2026
   QTLEIT21:
     role: establishment.paediatric_rest_observation_beds_outpatient
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leitos Repouso/Obs. Pediatria
     years:
@@ -1405,7 +1405,7 @@ columns:
     - 2026
   QTLEIT22:
     role: establishment.undifferentiated_rest_observation_beds_outpatient
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Repouso/Obs. Indiferenciado
     years:
@@ -1413,7 +1413,7 @@ columns:
     - 2026
   QTLEIT23:
     role: establishment.dental_units_outpatient
-    kind: category
+    kind: number
     model: mark
     name: Qt. Equipo Odontologia
     years:
@@ -1421,7 +1421,7 @@ columns:
     - 2026
   QTLEIT32:
     role: establishment.recovery_beds_surgical_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Recuperação
     years:
@@ -1429,7 +1429,7 @@ columns:
     - 2026
   QTLEIT34:
     role: establishment.pre_delivery_beds_obstetric_centre
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Pré Parto
     years:
@@ -1437,7 +1437,7 @@ columns:
     - 2026
   QTLEIT38:
     role: establishment.normal_newborn_cots_neonatal_unit
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito RN Normal
     years:
@@ -1445,7 +1445,7 @@ columns:
     - 2026
   QTLEIT39:
     role: establishment.sick_newborn_cots_neonatal_unit
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito RN Patológico
     years:
@@ -1453,7 +1453,7 @@ columns:
     - 2026
   QTLEIT40:
     role: establishment.rooming_in_beds_neonatal_unit
-    kind: category
+    kind: number
     model: mark
     name: Qt. Leito Alojamento Conjunto
     years:
@@ -1461,7 +1461,7 @@ columns:
     - 2026
   QTLEITP1:
     role: establishment.existing_surgical_beds_legacy_rollup
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de leitos tipo 1 (cirurgico) existentes
     years:
@@ -1477,7 +1477,7 @@ columns:
     - 2026
   QTLEITP3:
     role: establishment.existing_complementary_beds_legacy_rollup
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de leitos tipo 3 (complementar) existentes
     years:

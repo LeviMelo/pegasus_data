@@ -953,7 +953,7 @@ columns:
     - 2026
   QT_AGIPL:
     role: establishment.hemotherapy_platelet_agitators
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de agitadores de plaquetas
     years:
@@ -961,7 +961,7 @@ columns:
     - 2026
   QT_AGLTN:
     role: establishment.hemotherapy_agglutinoscopes
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de aglutinoscopio
     years:
@@ -969,7 +969,7 @@ columns:
     - 2026
   QT_CADRE:
     role: establishment.hemotherapy_reclining_donor_chairs
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de cadeiras reclinaveis
     years:
@@ -977,7 +977,7 @@ columns:
     - 2026
   QT_CAPFL:
     role: establishment.hemotherapy_laminar_flow_cabinets
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de capelas fluxo laminar
     years:
@@ -985,7 +985,7 @@ columns:
     - 2026
   QT_CENRE:
     role: establishment.hemotherapy_refrigerated_centrifuges
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de centrifugas refrigeradas
     years:
@@ -993,7 +993,7 @@ columns:
     - 2026
   QT_CONRA:
     role: establishment.hemotherapy_rapid_blast_freezers
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de congeladores rapidos
     years:
@@ -1001,7 +1001,7 @@ columns:
     - 2026
   QT_EXTPL:
     role: establishment.hemotherapy_automatic_plasma_extractors
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de extratores automaticos de plasma
     years:
@@ -1009,7 +1009,7 @@ columns:
     - 2026
   QT_FRE18:
     role: establishment.hemotherapy_18c_freezers
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de freezers -18C
     years:
@@ -1017,7 +1017,7 @@ columns:
     - 2026
   QT_FRE30:
     role: establishment.hemotherapy_30c_freezers
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de freezers -30C
     years:
@@ -1025,7 +1025,7 @@ columns:
     - 2026
   QT_IRRHE:
     role: establishment.hemotherapy_blood_component_irradiators
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de irradiadores de hemocomponentes
     years:
@@ -1033,7 +1033,7 @@ columns:
     - 2026
   QT_MAQAF:
     role: establishment.hemotherapy_apheresis_machines
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de maquinas de aferese
     years:
@@ -1041,7 +1041,7 @@ columns:
     - 2026
   QT_REFAS:
     role: establishment.hemotherapy_blood_sample_storage_refrigerators
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de refrigeradores para guarda de amostras de sangue
     years:
@@ -1049,7 +1049,7 @@ columns:
     - 2026
   QT_REFRE:
     role: establishment.hemotherapy_reagent_storage_refrigerators
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de refrigeradores para guarda de reagentes
     years:
@@ -1057,7 +1057,7 @@ columns:
     - 2026
   QT_REFSA:
     role: establishment.hemotherapy_blood_storage_refrigerators
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de refrigeradores para guarda de sangue
     years:
@@ -1065,7 +1065,7 @@ columns:
     - 2026
   QT_SELAD:
     role: establishment.hemotherapy_tube_bag_sealers
-    kind: category
+    kind: number
     model: mark
     name: Quantidade de seladoras
     years:

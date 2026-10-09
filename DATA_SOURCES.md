@@ -61,6 +61,13 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **`Dados_Abertos/SIPNIBD/`** holds SI-PNI/RNDS extracts by municipality of residence: `Doses_Residencia.parquet` (1.17 GB, 236,140,984 rows from 2026-01) and `Cobertura_Residencia.parquet` (1,088,479 rows, 2015-2026, coverage as a fraction). They are not the PNI DBF tables (2026-10-08).
 - **`/cnes/Download`** (outside `/dissemin`) has the SCNES glossary, the CBO-service glossary and the TXT layout notebooks for SIA/SIH/CIHA/CIH; `/territorio/doc` has the territorial base documents (2026-10-08).
 - **Two systems share the file prefix CM**: SISMAMA's `SISCAN/SISMAMA/Dados/CMuuaamm.dbc` (mammography cytology, 2009-2015) and SIH's `SIHSUS/200801_/Dados/CMBRaamm.dbc` (maintainer register, 2019-). A prefix identifies a system only inside a republication tree (2026-10-08).
+- **CNES-ST is a pivot of the SCNES database's own tables** (2026-10-08). The layout notebook `ftp.datasus.gov.br/cnes/Download/Caderno_Layout_TXT_SIA_SIHD_CIHA_CIH_2.0.pdf` (local `sources/ftp_cnes_docs/`) documents them, one row per (establishment, code):
+  - LFCES004 establishments → ST's identity columns;
+  - LFCES006 attendance provided (CODATPREST × COD_CONVEN) → the 49 flags `AP##CV##`;
+  - LFCES007 management of activities (CODPROG × IND_ESTMUN) → `GESPRG#E/#M`;
+  - LFCES015 physical installations (COD_INSTAL, QTDE_INST, NUM_LEITOS) → `QTINST##` with `QTLEIT##`, the beds in installation ##.
+  ST spreads these onto one row per establishment and month, so a code lives in a column name. The other CNES files come from their own tables: LT ← LFCES002, PF ← LFCES018/021, SR ← LFCES032, EP ← LFCES037/038, HB ← LFCES045, RC ← LFCES046.
+  The same folder's `GLOSSARIO_SCNES_Geral.xls` lists the entry software's validation messages, and `leia_me.pdf` (505 pages) is its release notes; neither is a data dictionary.
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.

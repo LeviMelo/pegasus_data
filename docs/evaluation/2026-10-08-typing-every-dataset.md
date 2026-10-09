@@ -91,3 +91,5 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
 - **SINAN COLE and TETN:** cholera's files are about 3 KB each. Their shared blocks take the role every other SINAN form gives the column, where at least 5 forms agree at 80% or more (23 and 22 columns).
 - **e-SUS Notifica (chronic Chagas):** SINAN's names, but `ID_MN_RESI`, `ID_MUNICIP` and the like hold municipality names, and the codes sit in `CD_*`. The SINAN convention was applied only where the kind agrees.
 - **Painel Oncologia** diagnoses are three-character ICD-10, the case's event type. **PCE's** `ID_LOC` is a 12-digit locality code that no municipal table matches; it is never cut to make one.
+
+**CNES counts.** 38 CNES count columns had been typed as categories (ST's `QTLEIT##` and `QTLEITP#`, `QTINST32`-`37`; DC's `QT_*`). They are numbers. QTLEITP1 holds 6, 129, 22 surgical beds; the SCNES installations table gives `QTLEIT##` as the beds of installation ##. Found while reading the SCNES layout notebook (DATA_SOURCES).
