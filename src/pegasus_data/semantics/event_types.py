@@ -258,11 +258,17 @@ def event_weights(table: pa.Table, event: EventType) -> pa.Array:
 
 
 def _integers(table: pa.Table, column: str, event: EventType) -> pa.Array:
-    """A count column as integers, blank as null; any other text raises (an unknown quantity is not zero events)."""
+    """A count column as integers, blank and its role's missing codes as null (SDTA's NU_TOT 0: an outbreak has two
+    or more ill); any other text raises (an unknown quantity is not zero events)."""
+    from .column_roles import load_column_roles
+
     if column not in table.column_names:
         raise KeyError(f"{event.name}: grid column {column} is not in the table")
+    role = next((r for r in load_column_roles().get(f"{event.system}-{event.series}", ()) if r.column == column), None)
     text = pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string()))
     blank = pc.fill_null(pc.equal(text, ""), True)
+    if role is not None and role.missing:
+        blank = pc.or_(blank, pc.fill_null(pc.is_in(text, value_set=pa.array(list(role.missing), pa.string())), False))
     whole = pc.fill_null(pc.match_substring_regex(text, r"^\d+$"), False)
     bad = pc.sum(pc.and_(pc.invert(blank), pc.invert(whole))).as_py()
     if bad:
@@ -279,7 +285,9 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
     is solved from the grid's margin (the form's own sum of the grid) when that leaves it a whole number, and any
     other blank holds no one in the grid, so its people, if any, are among the total's of unknown sex and age. A row
     with no cell filled has no grid; a row with neither grid nor total is ``unquantified`` (a group, not zero
-    people). Where the grid exceeds the total, the grid counts: its people were counted one by one."""
+    people), and so is a row whose grid holds no one and has no total. The total is the count where it is recorded
+    (the Ministry's published totals are its sums); a grid that exceeds a recorded total cannot be the same people, so
+    that row's total is of unknown sex and age, and a grid with no total counts its own people."""
     keep = list(keep or [])
     n = table.num_rows
     counts = [_integers(table, c.column, event) for c in event.grid]
@@ -296,8 +304,11 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
         grid_sum = pc.if_else(solvable, margin, grid_sum)
         n_filled = pc.if_else(solvable, pa.scalar(len(event.grid), pa.int64()), n_filled)
     total = _integers(table, event.grid_total, event) if event.grid_total else pa.nulls(n, pa.int64())
+    over = pc.fill_null(pc.greater(grid_sum, total), False)            # the grid contradicts the total: not allocated
+    counts = [pc.if_else(over, pa.scalar(None, pa.int64()), a) for a in counts]
+    grid_sum = pc.if_else(over, pa.scalar(0, pa.int64()), grid_sum)
     beyond = pc.max_element_wise(pc.subtract(pc.fill_null(total, 0), grid_sum), pa.scalar(0, pa.int64()))
-    unquantified = pc.cast(pc.and_(pc.equal(n_filled, 0), pc.is_null(total)), pa.int64())
+    unquantified = pc.cast(pc.and_(pc.equal(grid_sum, 0), pc.is_null(total)), pa.int64())
     zero = pa.repeat(pa.scalar(0, pa.int64()), n)
     parts = [pa.table({**{k: table.column(k) for k in keep},
                        GRID_SEX: pa.repeat(pa.scalar(c.sex, pa.int8()), n), GRID_AGE: pa.repeat(pa.scalar(c.age, pa.int16()), n),

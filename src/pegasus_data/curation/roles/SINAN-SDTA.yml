@@ -724,6 +724,11 @@ columns:
     - 2022
     - 2024
   NU_TOT:
+    missing: ['0']
+    # an outbreak has two or more ill, one for botulism and cholera (Nota Técnica Surtos de DTA, sources/sinan_docs, §2.1),
+    # so 0 is no count: written in 84-135 outbreaks a year from 2022 (0-2 before), 7-10 of them with ill in the grid
+    # (2023: 208 people), which the published totals (NU_TOT's sums) leave out (evaluation 2026-10-09-outbreak-grid-and-fill)
+    domain: [1, 9999]
     role: outbreak.total_cases
     kind: number
     model: mark

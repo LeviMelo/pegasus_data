@@ -19,9 +19,18 @@ counted no foodborne illness.
 - **Blank cells.** A blank cell is never read as zero:
   - when it is the row's only blank, the margin solves it;
   - otherwise it holds no one in the grid, and any people it had fall to the total's unknown remainder.
-- **No count at all.** A row with neither a grid nor a total is `unquantified`: an outbreak whose ill were not
-  counted, never zero.
-- **Grid above the total.** Where the grid exceeds the total, the grid counts.
+- **No count at all.** A row whose grid holds no one and whose total is not recorded is `unquantified`: an outbreak
+  whose ill were not counted, never zero.
+- **The total is the count where it is recorded**, read through its role's missing codes.
+  - **What is published.** The Ministry of Health's figures are NU_TOT's sums: 19,671 ill in 1,162 outbreaks in 2023,
+    9,586 in 2019.
+  - **A zero total is not recorded.** An outbreak has two or more ill, or one for botulism and cholera (Nota Técnica
+    Surtos de DTA, §2.1), so NU_TOT 0 means not recorded. From 2022 it is written in 84–135 outbreaks a year (0–2
+    before); in 7–10 of them the grid holds people (2023: 208).
+  - **A grid with no recorded total** counts its own people: 208 in 2023, 59 in 2019 and 118 in 2010. The published
+    figure leaves them out, and PegaSUS's count is that figure plus them (2023: 19,879).
+  - **A grid above a recorded total** cannot be the same people, so that row's total is of unknown sex and age. One row
+    in 2007–2024 (2015) is in this case.
 
 **Declared.** SINAN-SDTA `case`, with bands 0, 1, 5, 10, 20 and 50.
 - **Grid consistency.** Tested on the records (2010, 2015, 2019, 2023): in every row that fills the grid, each
@@ -36,7 +45,8 @@ counted no foodborne illness.
 - PegaSUS reads a grid event's strata from the grid. The place is the municipality of the entity the grid counts, and
   the block's age bands are those the population and the grid share (`gateway.age_edges(source, dataset)`).
 - Per-record computations (marks, links) refuse a grid event.
-- SDTA 2015–2023 assembles on 6 bands × 2 sexes, with 80,909 cases allocated. Visible gaps:
+- **Totals.** PegaSUS counts 19,879 people in 2023 (16,819 allocated; 106 outbreaks never counted) and 9,645 in 2019.
+- **Assembly.** SDTA 2015–2023 assembled on 6 bands × 2 sexes, with 80,909 cases allocated. Visible gaps then:
   - 14,408 cases of unknown sex;
   - 973 of unknown age;
   - 457 outbreaks never counted.

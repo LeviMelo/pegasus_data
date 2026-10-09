@@ -18,13 +18,27 @@ to its total.
   - 2010: grid 7,694 against NU_TOT 8,628;
   - 2023: grid 18,313 against 19,671, and above NU_TOT in 10 rows.
 
-**Through PegaSUS** (`gateway.event_counts('SINAN-SDTA', 'case', y)`):
+**Against the published figure.** The Ministry of Health reports 19,671 ill in 1,162 outbreaks in 2023, and 9,586
+in 2019 (as cited in the literature). These are NU_TOT's sums exactly, so NU_TOT is the count.
+- **The 2023 excess.** PegaSUS counted 19,879 in 2023. The 208 extra people are in 10 outbreaks whose NU_TOT is 0 and
+  whose grid holds them.
+- **Zero is not a total.** An outbreak has two or more ill, or one for botulism and cholera (Nota Técnica, §2.1), so
+  NU_TOT 0 is declared not recorded.
+  - It is written in 84 outbreaks in 2022, 116 in 2023 and 135 in 2024, against 0–2 a year before.
+  - Only one row in 2007–2024 has a grid above a recorded total (2015). That row's total counts, at unknown sex and age.
+- **The count is the published figure plus the people in grids with no recorded total:**
+  - 2023: 19,879 (+208);
+  - 2019: 9,645 (+59);
+  - 2010: 8,746 (+118).
+
+**Through PegaSUS** (`gateway.event_counts('SINAN-SDTA', 'case', y)`; the 2010 and 2019 rows are unchanged by the
+total rule; 2023's 106 zero-total outbreaks with an empty grid are now never counted, not zero people):
 
 | year | allocated | sex unknown | age unknown | outbreaks never counted |
 |---|---|---|---|---|
 | 2010 | 6,866 | 1,797 | 72 | 39 |
-| 2019 | 8,440 | 1,182 | 23 | 199 |
-| 2023 | 16,819 | 2,404 | 608 | 0 |
+| 2019 | 8,440 | 1,182 | 23 | 201 |
+| 2023 | 16,819 | 2,404 | 608 | 106 |
 
 - **2019's band split:** 136 under 1, 940 aged 1–4, 548 aged 5–9, 1,383 aged 10–19, 4,459 aged 20–49, 974 aged 50+.
 - **Assembly.** The 2015–2023 block assembles on the bands the population and the grid share: 6 bands × 2 sexes,
