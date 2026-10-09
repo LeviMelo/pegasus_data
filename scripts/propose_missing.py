@@ -97,7 +97,7 @@ def main(dataset: str, spec: str, write: bool) -> None:
         # category: CONJUNTVIT 5 is not one). A code the form does not define, which the tabulation calls not recorded,
         # is not recorded: the form is silent, the tabulation speaks. Without the form, the tabulation alone does not
         # declare (2026-10-08, work plan P1)
-        proposals[r.column] = by_form(system, series, r.column, miss, tabnet, seen=set(values))
+        proposals[r.column] = by_form(system, series, r.column, miss, tabnet, seen=set(values), labels=labels)
         miss, evidence, _ = proposals[r.column]
         print(f"{r.column}: missing {miss} ({evidence})"
               f"{'  [no form dictionary: left undeclared]' if proposals[r.column][2] else ''}")
@@ -118,14 +118,26 @@ def main(dataset: str, spec: str, write: bool) -> None:
         print(f"written {path}")
 
 
+#: SINAN's yes/no table: of the 1,128 harvested SINAN tables with 1 Sim and 2 Não, the 943 that define 9 all define
+#: it as Ignorado; 3 and 8 vary from form to form (não se aplica, indeterminado, não realizado), so only 9 generalises
+#: (sinan.yml, 2026-10-08). A form-less SINAN column the tabulation labels 1 Sim, 2 Não, and whose records hold no other
+#: code than 1, 2 and 9, declares 9 by that convention.
+YES_NO_NINE = "SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado"
+
+
 def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
-            seen: set[str] | None = None) -> tuple[list[str], str, bool]:
+            seen: set[str] | None = None, labels: dict | None = None) -> tuple[list[str], str, bool]:
     """The column's not-recorded codes by the rule above, from the tabulation's ``miss`` and the form's dictionary:
     (codes, evidence, one source only). The form is a source, not the truth: a code the records use that it does not
     define, and that the tabulation does not call not recorded, is a conflict written into the evidence (MENI
     ANT_TRAUMA: the dictionary prints 3 Não, the records use 2)."""
     form = inline_codelist(harvested_codelist(system, series, column) or "") or {}
     if not form:
+        lab = {k: str(v or "").strip().lower() for k, v in (labels or {}).items()}
+        if (system.upper() == "SINAN" and seen and set(seen) <= {"1", "2", "9"} and lab.get("1", "").startswith("sim")
+                and lab.get("2", "").startswith(("não", "nao"))):
+            return (["9"] if "9" in seen or "9" in miss else []), (f"no form dictionary; the tabulation labels 1 Sim, "
+                    f"2 Não and the records hold only {sorted(seen)}; {YES_NO_NINE}"), False
         return miss, f"the tabulation only: {tabnet}", True     # one source: left undeclared, said
     form_miss = {c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))}
     overruled = sorted(c for c in miss if c in form and c not in form_miss)

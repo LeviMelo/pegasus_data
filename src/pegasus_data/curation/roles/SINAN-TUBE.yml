@@ -42,6 +42,8 @@ columns:
     - 2001
     - 2025
   AGRAVDROGA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.comorbidity_drugs
     kind: category
     model: mark
@@ -69,6 +71,8 @@ columns:
     - 2001
     - 2025
   AGRAVTABAC:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.comorbidity_tobacco
     kind: category
     model: mark
@@ -931,6 +935,8 @@ columns:
     - 2001
     - 2025
   TRAT_SUPER:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.dot_indicated
     kind: category
     model: mark

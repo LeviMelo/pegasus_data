@@ -153,3 +153,13 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
   - SIH's unit 5 is 100 + value (SP 2015-06: 4 = 104.0–104.7).
   - The new `cih` encoding in `_age` reads 10 × IDADE, the decade's first year: a lower bound.
   - CIHA now has its age stratum and runs in PegaSUS (31 columns, 14 read); its rows without an age are its 128,261 consolidated outpatient rows (MODALIDADE 00, PR 2021), which carry no patient.
+
+**IBGE schooling: ESCA and ESCB were summed.** IBGE.ESCA was declared over both files, so `query("IBGE-ESCA", 2010)` returned 498,155 rows and 167.7 million people. Each file alone tells another story:
+- ESCA totals the population aged 15 and over: 95.35, 119.56 and 143.98 million in 1991, 2000 and 2010;
+- ESCB totals the population aged 18 to 24: 19.30, 23.37 and 23.71 million.
+ESCB is now its own dataset. The ages are read from the totals; no layout found states them. The declaration's own gotcha already said adding the two double-counts; the ontology did it anyway.
+
+**Other multi-series declarations, tested on their totals:**
+- PNI.DPNI and CPNI: the IG and UF variants are not read with the municipal files (DPNI SP 2015 reads DPNISP15 only).
+- RESP: RESPBR is not read with the state files (PE 2016 reads RESPPE16 only).
+- The SIA APAC republications are the same files under Dados_Abertos.

@@ -119,6 +119,8 @@ columns:
     - 2009
     - 2025
   ATEND_MULH:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_womens_services
     kind: category
     model: mark
@@ -186,6 +188,8 @@ columns:
     - 2009
     - 2025
   CONS_COMP:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_behavioural_disorder
     kind: category
     model: mark
@@ -194,6 +198,8 @@ columns:
     - 2009
     - 2025
   CONS_DST:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_std
     kind: category
     model: mark
@@ -210,6 +216,8 @@ columns:
     - 2009
     - 2025
   CONS_ESTRE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_post_traumatic_stress
     kind: category
     model: mark
@@ -236,6 +244,8 @@ columns:
     - 2009
     - 2025
   CONS_MENT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_mental_disorder
     kind: category
     model: mark
@@ -244,6 +254,8 @@ columns:
     - 2009
     - 2025
   CONS_OUTR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_other
     kind: category
     model: mark
@@ -252,6 +264,8 @@ columns:
     - 2009
     - 2025
   CONS_SUIC:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.consequence_suicide_attempt
     kind: category
     model: mark
@@ -412,6 +426,8 @@ columns:
     - 2009
     - 2025
   DELEG_IDOS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_elderly_police_station
     kind: category
     model: mark
@@ -420,6 +436,8 @@ columns:
     - 2009
     - 2025
   DELEG_MULH:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_womens_police_station
     kind: category
     model: mark
@@ -534,6 +552,8 @@ columns:
     - 2009
     - 2025
   ENC_ABRIGO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_shelter
     kind: category
     model: mark
@@ -542,6 +562,8 @@ columns:
     - 2009
     - 2025
   ENC_CREAS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_creas
     kind: category
     model: mark
@@ -550,6 +572,8 @@ columns:
     - 2009
     - 2025
   ENC_DEAM:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_deam
     kind: category
     model: mark
@@ -558,6 +582,8 @@ columns:
     - 2009
     - 2025
   ENC_DELEG:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_police_station
     kind: category
     model: mark
@@ -566,6 +592,8 @@ columns:
     - 2009
     - 2025
   ENC_DPCA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_dpca
     kind: category
     model: mark
@@ -582,6 +610,8 @@ columns:
     - 2009
     - 2025
   ENC_IML:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_iml
     kind: category
     model: mark
@@ -590,6 +620,8 @@ columns:
     - 2009
     - 2025
   ENC_MPU:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_public_prosecutor
     kind: category
     model: mark
@@ -598,6 +630,8 @@ columns:
     - 2009
     - 2025
   ENC_MULHER:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_womens_reference_center
     kind: category
     model: mark
@@ -606,6 +640,8 @@ columns:
     - 2009
     - 2025
   ENC_OUTR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_other
     kind: category
     model: mark
@@ -624,6 +660,8 @@ columns:
     - 2009
     - 2025
   ENC_SENTIN:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_sentinel_service
     kind: category
     model: mark
@@ -632,6 +670,8 @@ columns:
     - 2009
     - 2025
   ENC_TUTELA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_child_protection_council
     kind: category
     model: mark
@@ -640,6 +680,8 @@ columns:
     - 2009
     - 2025
   ENC_VARA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_juvenile_court
     kind: category
     model: mark
@@ -831,6 +873,8 @@ columns:
     - 2009
     - 2025
   MPU:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_public_prosecutor
     kind: category
     model: mark
@@ -1005,6 +1049,8 @@ columns:
     - 2009
     - 2025
   REDE_SAU:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.referral_health_network
     kind: category
     model: mark
@@ -1111,6 +1157,8 @@ columns:
     - 2009
     - 2025
   REL_IRMAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: perpetrator.relation_sibling
     kind: category
     model: mark
@@ -1403,6 +1451,8 @@ columns:
     - 2009
     - 2025
   VIOL_FINAN:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.violence_financial
     kind: category
     model: mark

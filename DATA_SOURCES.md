@@ -68,6 +68,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - LFCES015 physical installations (COD_INSTAL, QTDE_INST, NUM_LEITOS) → `QTINST##` with `QTLEIT##`, the beds in installation ##.
   ST spreads these onto one row per establishment and month, so a code lives in a column name. The other CNES files come from their own tables: LT ← LFCES002, PF ← LFCES018/021, SR ← LFCES032, EP ← LFCES037/038, HB ← LFCES045, RC ← LFCES046.
   The same folder's `GLOSSARIO_SCNES_Geral.xls` lists the entry software's validation messages, and `leia_me.pdf` (505 pages) is its release notes; neither is a data dictionary.
+- **SIA-PA mixes documents** (Informe Técnico SIASUS 2019-07, §2.1): PA_DOCORIG I = BPA-I (one row per attendance, with the patient), P/S = an APAC's main/secondary procedure, A/B = RAAS home care/psychosocial, C = BPA-C (a count per procedure and CBO, no patient). The BI, APAC and RAAS files republish the patient-level parts, so PA is never pooled with them (2026-10-08).
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.
