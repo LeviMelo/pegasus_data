@@ -77,3 +77,6 @@ left on device", among them PegaSUS's Roraima re-score and SINAN-ZIKA 2025.
   - `DbfHeader` refuses zero-width fields, and widths that exceed the record.
 - **Checked.** All 7,270 cached `.dbc` and 7,429 cached `.dbf`/`.dbc` headers pass. The Parquet bytes are refused
   ("version byte 0x50"; "width 0"). SINAN-ZIKA 2025 reads its 25,764 rows. 44.5 GB of leaked staging was removed.
+- **Leaked spools.** A process that dies mid-decode leaves its temp directory. `registry.prune_stale_temp()`, run once
+  per process when the first reader starts, removes this package's own `pegasus_decode_`, `pegasus_dbc_` and
+  `pegasus_stage_` directories untouched for three days: 1,246 removed and 391 recent ones kept on its first run.

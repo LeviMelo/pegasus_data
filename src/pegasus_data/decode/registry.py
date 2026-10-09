@@ -112,10 +112,46 @@ def readers_ordered_by_suffix_hint(path: str) -> tuple[str, ...]:
     return hinted + rest
 
 
+#: Temp directories the decoders make, and how long one must lie untouched before it is taken as left by a process that
+#: died (no decode holds a spool for days): `prune_stale_temp`
+_TEMP_PREFIXES = ("pegasus_decode_", "pegasus_dbc_", "pegasus_stage_")
+STALE_SECONDS = 3 * 24 * 3600
+_pruned = False
+
+
+def prune_stale_temp() -> dict[str, int]:
+    """Remove the decoders' temp directories untouched for `STALE_SECONDS`, once per process. A process that dies
+    mid-decode leaves its spool behind: 1,091 `pegasus_decode_*` directories (2.25 GB) and one 44.5 GB runaway
+    inflation were found on 2026-10-09. Only this package's own prefixes are touched."""
+    import shutil
+    import time
+
+    global _pruned
+    if _pruned:
+        return {}
+    _pruned = True
+    removed = kept = 0
+    cutoff = time.time() - STALE_SECONDS
+    for d in Path(tempfile.gettempdir()).iterdir():
+        if not d.is_dir() or not d.name.startswith(_TEMP_PREFIXES):
+            continue
+        try:
+            newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
+            if newest < cutoff:
+                shutil.rmtree(d, ignore_errors=True)
+                removed += 1
+            else:
+                kept += 1
+        except OSError:
+            kept += 1
+    return {"removed": removed, "kept": kept}
+
+
 class ReaderRegistry:
     """Probes a payload with every plausible reader until one produces a table."""
 
     def __init__(self, *, row_limit: int | None = None, max_archive_depth: int = 3) -> None:
+        prune_stale_temp()
         self.row_limit = row_limit
         self.max_archive_depth = max_archive_depth
         #: Members that could not be read during the current open_bytes() call.
