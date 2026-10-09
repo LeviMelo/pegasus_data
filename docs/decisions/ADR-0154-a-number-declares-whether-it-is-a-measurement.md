@@ -36,3 +36,11 @@ range its TabNet band `.CNV` labels as values (the band calls everything outside
 QTDPARTCES; SIM-DO's PESO, IDADEMAE, SEMAGESTAC, DIFDATA, NUDIASOBCO, NUDIASOBIN. A band that excludes a value the
 files hold as one stays undeclared with both claims written beside it: SIM's QTDFILVIVO/QTDFILMORT (`00` labelled
 Ignorado, a real zero) and SINASC's CONSPRENAT (a band borrowed from gestational weeks).
+
+**Addendum: a band bounds only the records that stop at its edges (2026-10-08).** Two band shapes are not a domain:
+- a linear `.CNV` (an `L` entry: a display format whose one or two sample codes gave SIA-AN's AN_ALBUMI [1, 2]);
+- a band the records run across, meaning an edge value and its outside neighbour are both held: TabNet's display
+  width, not the column's (AQ_TOTMAU 1–99 months, the files hold 0 and 100–120).
+A code beside an edge that the records do not reach is outside (SIM SEMAGESTAC 99). A column with no value in the
+year read is left undeclared. Five earlier domains were withdrawn: SINAN-ACGR HORA_JOR, SIM PESO, SINASC IDADEPAI and
+QTDPARTCES, SINAN-IEXO NUTEMPO.

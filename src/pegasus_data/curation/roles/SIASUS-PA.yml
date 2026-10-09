@@ -328,14 +328,16 @@ columns:
   PA_IDADE:
     role: patient.age
     kind: number
-    model: mark
+    model: stratum
     missing:
+    - '998'
     - '999'
+    # PA_IDADE's own table: 998 'Idade informada com erro', 999 'Idade não exigida (BPA-C)'; ages 000-130 in years
     name: Idade do paciente em anos
     years:
     - 2008
     - 2026
-    note: 999 marks age not recorded (141,475 of 4,813,028 in 2026-04 PR); no real age reaches it.
+    note: The patient's age stratum, in years (layout). 999 marks age not recorded (141,475 of 4,813,028 in 2026-04 PR) and 998 an age entered in error; no real age reaches either.
   PA_INCOUT:
     role: procedure.other_increment_code
     kind: category

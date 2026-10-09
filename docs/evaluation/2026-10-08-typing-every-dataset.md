@@ -186,3 +186,15 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
   - Five are withdrawn, with their sub-series copies: SINAN-ACGR HORA_JOR [1, 24] (1: 13,980 beside 0: 13,871, so 00, the first hour of the shift, had been discarded); SIM PESO [1, 8000] (1 g: 1 beside 0: 4); SINASC IDADEPAI [10, 99] (10: 3 beside 9: 1); QTDPARTCES [0, 30] (30: 17 beside 31: 1); SINAN-IEXO NUTEMPO [0, 99] (0 beside −1: 6).
   - Eighteen stand, among them AN_ALTURA [0, 254] and AN_PESO [0, 999] (outside: 999, "1,6", "56,") and CIH DIAS_PERM [0, 9999] (2 of 2.6 M outside).
 - **Labels that begin with a number lost it.** The presentation layer drops a label's first word when it repeats the code (CID "O80.0 Parto…" for O800). It also cut "1,60 m" for 160 down to "m", and would cut "2.500 g" for 2500 to "g". A first word written as a Brazilian number (decimal comma or thousand dots) is now kept as the value. AN_ALTURA reads "1,69 m (169)" (AC 2013).
+
+**Events that carry a quantity: SIA PA, BI and PS (2026-10-09, ADR-0155).** Measured on AC 2023-01 (`pg.query`, `count_events`).
+| PA_DOCORIG | rows | approved procedures | patient |
+|---|---|---|---|
+| I (BPA-I) | 68,554 | 81,366 | residence, sex, age |
+| C (consolidated BPA) | 21,398 | 1,046,221 | age only (MUNPCN 999999, SEXO 0) |
+| P, S (APAC) | 4,001 | 62,860 | yes |
+| B (RAAS psychosocial) | 1,461 | 2,002 | yes |
+- BI equals PA's I rows (68,554 rows, 81,366 approved), and PS equals PA's B rows (1,461, 2,002), so the three are never pooled. No quantity is empty; 623 rows approve 0.
+- `count_events` now returns 1,192,449 for PA, 81,366 for BI and 2,002 for PS. PegaSUS's `event_counts` and `monthly_counts` (run on AC with the store stubbed) allocate PA's 146,228 and leave the 1,046,221 consolidated procedures unallocated by municipality. BI allocates 79,876 and leaves 1,490 without an age (TPIDADEPAC 9).
+- BI's `IDADE_anos` reads units 2 (0–0.08 years), 3 (0.08–0.92), 4 (1–99) and 5 (100–109). PA_IDADE declares 998 ("Idade informada com erro") missing beside 999 ("Idade não exigida (BPA-C)").
+- Two documented claims were wrong and are corrected. `SIA.PA` said "no patient exists in it at all". `SIA.BI` said smaller municipalities report "through the aggregate PA instead": BI *is* PA's BPA-I rows.

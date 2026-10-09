@@ -132,7 +132,7 @@ columns:
     - 2012
     - 2018
   DT_ATEND:
-    role: care.care_month_competence
+    role: care.competence
     kind: date
     model: when
     name: Ano e mes do Atendimento
@@ -197,6 +197,13 @@ columns:
     years:
     - 2012
     - 2018
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    name: Idade em anos (derivada de IDADEPAC e TPIDADEPAC)
+    note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.
   IDADEPAC:
     role: patient.age
     kind: number

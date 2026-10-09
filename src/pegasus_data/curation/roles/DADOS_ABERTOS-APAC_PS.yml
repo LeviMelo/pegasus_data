@@ -134,7 +134,7 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   DT_ATEND:
-    role: care.month
+    role: care.competence
     kind: date
     model: when
     name: Ano e mes do Atendimento

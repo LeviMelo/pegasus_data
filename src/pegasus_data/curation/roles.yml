@@ -135,7 +135,7 @@ datasets:
       patient.sex: {column: SEXOPAC, type: sex}
       patient.residence: {column: MUNPAC, type: municipality}
       care.facility: {column: CNES_EXEC, type: facility}
-      care.month: {column: DT_ATEND, type: month, format: YYYYMM}
+      care.competence: {column: DT_ATEND, type: month, format: YYYYMM}
       care.start: {column: INICIO, type: date, format: YYYYMMDD}
       care.end: {column: FIM, type: date, format: YYYYMMDD}
       treatment.start: {column: DT_INICIO, type: date, format: YYYYMMDD}

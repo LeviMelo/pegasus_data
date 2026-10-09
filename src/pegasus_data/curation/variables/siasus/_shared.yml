@@ -1207,6 +1207,17 @@ variables:
 
       '
     code_system: none
+    depends_on:
+    - TPIDADEPAC
+    derived:
+    - name: IDADE_anos
+      from:
+      - IDADEPAC
+      - TPIDADEPAC
+      encoding: sih
+      rule: fractional years (ADR-0070); TPIDADEPAC 2 days, 3 months, 4 years, 5 '100 anos' + IDADEPAC (IDADEDET.CNV
+        500 = 100 anos, 501 = 101 anos), 0, 1 and 6-9 invalid or ignored; IDADEPAC holds two digits (BI AC 2023-01, units
+        2-5 and 9). One converter, _age.years_column
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

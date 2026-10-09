@@ -12,10 +12,13 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   from that dataset's own form or layout, never guessed);
 * ``consolidation``: the key whose distinct values are the events (SIH's
   long-stay continuation AIHs share their principal's ``N_AIH``);
+* ``weight``: the column whose value is the number of events a row stands for
+  (SIA's production rows are quantities of a procedure: PA's consolidated BPA
+  holds up to 95,404 on one row), with its evidence;
 * ``evidence``: where the rule comes from.
 
-:func:`count_events` applies status and consolidation to a query, so a count
-of hospitalisations is one rule wherever it is asked.
+:func:`count_events` applies status, consolidation and weight to a query, so a
+count of hospitalisations is one rule wherever it is asked.
 """
 
 from __future__ import annotations
@@ -50,6 +53,7 @@ class EventType:
     #: (a SINAN notification still under investigation is a probable case).
     status_excluded: tuple[str, ...] = ()
     consolidation_key: tuple[str, ...] = ()
+    weight: str | None = None
     marks: tuple[str, ...] = ()
     evidence: str | None = None
     note: str | None = None
@@ -62,12 +66,13 @@ class EventType:
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
             "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
+            "weight": self.weight,
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
         }
 
 
 KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case",
-                   "authorisation"})
+                   "authorisation", "procedure"})
 
 
 @lru_cache(maxsize=1)
@@ -112,6 +117,11 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         raise ValueError(f"{where}: {key}.{name}: a status lists either the codes that count or those that do not")
     if status and not status.get("evidence") and not spec.get("evidence"):
         raise ValueError(f"{where}: {key}.{name}: a status rule needs its evidence")
+    weight = spec.get("weight") or {}
+    if weight and not (weight.get("column") and weight.get("evidence")):
+        raise ValueError(f"{where}: {key}.{name}: a weight names its column and its evidence")
+    if weight and spec.get("consolidation"):
+        raise ValueError(f"{where}: {key}.{name}: a weighted row is many events; consolidating it to one is a contradiction")
     return EventType(
         dataset=key, system=_canonical_system(str(body.get("system") or "")), series=str(body.get("series") or "").upper(),
         name=name, kind=kind, grain=spec.get("grain") or body.get("what_one_row_is"), classifiers=classifiers,
@@ -119,6 +129,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_values=tuple(str(v) for v in status.get("values") or ()),
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
+        weight=str(weight["column"]).upper() if weight else None,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
     )
@@ -183,21 +194,39 @@ def events_of(table: pa.Table, event: EventType) -> pa.Table:
     return table
 
 
+def event_weights(table: pa.Table, event: EventType) -> pa.Array:
+    """The number of events each row of ``table`` stands for: 1, or its ``weight`` column as an integer.
+
+    A weight that is not a non-negative integer raises: a row whose quantity is unknown is not zero events, and a
+    sum that silently skipped it would look like a count."""
+    if event.weight is None:
+        return pa.repeat(pa.scalar(1, pa.int64()), table.num_rows)
+    if event.weight not in table.column_names:
+        raise KeyError(f"{event.name}: weight column {event.weight} is not in the table")
+    text = pc.utf8_trim_whitespace(pc.cast(table.column(event.weight), pa.string()))
+    numeric = pc.match_substring_regex(text, r"^\d+$")
+    bad = table.num_rows - pc.sum(pc.fill_null(numeric, False)).as_py() if table.num_rows else 0
+    if bad:
+        raise ValueError(f"{event.name}: {bad} of {table.num_rows} rows carry no quantity in {event.weight}")
+    return pc.cast(text, pa.int64())
+
+
 def count_events(
     dataset: str, name: str, *, period: object, geography: object = "BR", by: list[str] | None = None,
     **query_kwargs: Any,
 ) -> pa.Table:
-    """Counts of one event type, optionally grouped by columns of the record."""
+    """Counts of one event type, optionally grouped by columns of the record; a weighted event sums its weight."""
     from .._query_engine.executor import query
 
     event = event_type(dataset, name)
-    columns = {c for c in (event.status_column, *event.consolidation_key, *(by or [])) if c}
+    columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
     table = query(dataset, period=period, geography=geography, select=sorted(columns) or None,
                   present="codes", **query_kwargs)
     events = events_of(table, event)
+    events = events.append_column("__w", event_weights(events, event))
     if not by:
-        return pa.table({"events": [events.num_rows]})
-    return events.group_by(by).aggregate([([], "count_all")]).rename_columns([*by, "events"])
+        return pa.table({"events": [pc.sum(events.column("__w")).as_py() or 0]})
+    return events.group_by(by).aggregate([("__w", "sum")]).rename_columns([*by, "events"])
 
 
 def field_overlap(

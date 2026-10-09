@@ -412,32 +412,58 @@ datasets:
   SIA.BI:
     system: SIA
     series: BI
+    event_types:
+      - name: procedure
+        kind: procedure
+        grain: one BPA-I line, a quantity of one procedure for one identified patient
+        weight:
+          column: QT_APROV
+          evidence: >-
+            BI is PA's BPA-I rows (PA_DOCORIG I): AC 2023-01 holds 68,554 rows and 81,366 approved procedures in both, up to 51 on one row.
+        classifiers:
+          - {column: PROC_ID, role: primary, structure: SIGTAP}
+          - {column: CIDPRI, role: alternative, structure: ICD10}
+        note: >-
+          The individualised procedures only; care reported on the consolidated BPA is in PA alone. Never pooled with PA's event.
     asserted_by: pegasus_data
-    what_one_row_is: one outpatient procedure for one identified person
+    what_one_row_is: a quantity of one outpatient procedure for one identified person (PA's BPA-I rows)
     unit_of_analysis: procedure
     known_biases: >
-      Individualised reporting was phased in unevenly. Early years and smaller
-      municipalities report through the aggregate PA instead, so BI's coverage
-      grows for reasons that have nothing to do with activity.
+      Only what SIGTAP has reported individually (BPA-I): procedures on the consolidated BPA never reach BI,
+      so BI's coverage changes with the instrument each procedure is reported on, not only with activity.
     gotchas:
-      - The individualised counterpart to SIA.PA. Adding BI to PA double-counts the same care.
+      - PA's I rows republished with the patient's fields. Adding BI to PA double-counts the same care.
       - One person appears many times; rows are procedures, not patients.
       - The patient identifier is obfuscated, so it links a person's records to each other and does not name them.
 
   SIA.PA:
     system: SIA
     series: PA
+    event_types:
+      - name: procedure
+        kind: procedure
+        grain: one line of outpatient production, PA_DOCORIG's document - an attendance (BPA-I, I), an APAC's main or secondary procedure (P, S), a RAAS line (A, B), or a consolidated count with no patient (BPA-C, C)
+        weight:
+          column: PA_QTDAPR
+          evidence: >-
+            A row is a quantity of one procedure, not one procedure: AC 2023-01 holds 95,414 rows and 1,192,449 approved procedures, the consolidated BPA (C) 21,398 rows and 1,046,221 of them (up to 95,404 on one row). The approved quantity is what SIA accepted; PA_QTDPRO, the quantity presented, differs (1,195,363). No quantity is empty; 623 rows approve 0.
+        classifiers:
+          - {column: PA_PROC_ID, role: primary, structure: SIGTAP}
+          - {column: PA_CIDPRI, role: alternative, structure: ICD10}
+        note: >-
+          Every outpatient procedure of SIA, once. BI republishes PA's I rows and PS its B rows (measured row for row, AC 2023-01), so a procedure is counted from one of the three, never two. A consolidated row has an age but no residence or sex (MUNPCN 999999, SEXO 0): a count by residence leaves C unallocated, visibly.
     asserted_by: pegasus_data
-    what_one_row_is: a count of one procedure at one establishment in one competência
+    what_one_row_is: a quantity of one procedure from one production document (PA_DOCORIG) at one establishment in one competência
     unit_of_analysis: procedure-establishment-month
     known_biases: >
-      Aggregate, so no patient exists in it at all. Anything needing a person —
-      counting individuals, following a course of care — is impossible here by
-      construction, not by omission.
+      The consolidated BPA (PA_DOCORIG C, 87% of AC 2023-01's approved procedures) records no patient; the
+      other documents (BPA-I, APAC, RAAS) carry the patient's residence, sex and age. Which document a
+      procedure is reported on is SIGTAP's rule for that procedure, so a share by residence changes with the
+      procedure mix, not only with care.
     gotchas:
-      - Already aggregated. Sum the quantity column, never the rows.
+      - Sum the quantity column, never the rows (the `procedure` event does).
       - Quantity presented and quantity approved differ; only one of them was paid for.
-      - Do not pool with SIA.BI, which reports the same care individually.
+      - Do not pool with SIA.BI or SIA.PS, which are PA's I and B rows republished with more fields.
 
   SIA.AQ:
     system: SIA
@@ -661,6 +687,19 @@ datasets:
   SIA.PS:
     system: SIA
     series: PS
+    event_types:
+      - name: procedure
+        kind: procedure
+        grain: one RAAS psychosocial line, a quantity of one procedure for one patient
+        weight:
+          column: PA_QTDAPR
+          evidence: >-
+            PS is PA's RAAS psychosocial rows (PA_DOCORIG B): AC 2023-01 holds 1,461 rows and 2,002 approved procedures in both; QTDATE (686) and QTDPCN (686) count attendances and patients, not procedures.
+        classifiers:
+          - {column: PA_PROC_ID, role: primary, structure: SIGTAP}
+          - {column: CIDPRI, role: alternative, structure: ICD10}
+        note: >-
+          Never pooled with PA's event, which holds the same rows.
     asserted_by: pegasus_data
     what_one_row_is: one psychosocial care action recorded under RAAS
     unit_of_analysis: care action
