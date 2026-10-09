@@ -117,6 +117,8 @@ columns:
     - 2007
     - 2025
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Laboratorial', 2='Clínico-epidemiológico'; no value of the column was read in 2015
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -133,6 +135,8 @@ columns:
     - 2025
     note: As across SINAN forms (31 of 32).
   CS_ANTIB:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.antibiotic_before_specimen_collection
     kind: category
     model: mark
@@ -141,6 +145,8 @@ columns:
     - 2007
     - 2025
   CS_ANTIB_T:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; no value of the column was read in 2015
     role: case.treated_with_antibiotics
     kind: category
     model: mark
@@ -149,6 +155,8 @@ columns:
     - 2007
     - 2025
   CS_ASSINTO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.asymptomatic
     kind: category
     model: mark
@@ -157,6 +165,8 @@ columns:
     - 2007
     - 2025
   CS_CAIMBRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.cramps
     kind: category
     model: mark
@@ -165,6 +175,8 @@ columns:
     - 2007
     - 2025
   CS_CHOQUE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.hypovolaemic_shock
     kind: category
     model: mark
@@ -173,6 +185,8 @@ columns:
     - 2007
     - 2025
   CS_DESIT:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Não', 2='Algum grau', 3='Grave', 9='Ignorado'; no value of the column was read in 2015
     role: case.dehydration
     kind: category
     model: mark
@@ -181,6 +195,8 @@ columns:
     - 2007
     - 2025
   CS_DIARRE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.diarrhoea
     kind: category
     model: mark
@@ -189,6 +205,8 @@ columns:
     - 2007
     - 2025
   CS_DOR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.abdominal_pain
     kind: category
     model: mark
@@ -211,6 +229,8 @@ columns:
     - 2025
     note: role from the notification block
   CS_FEBRE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.fever
     kind: category
     model: mark
@@ -219,6 +239,8 @@ columns:
     - 2007
     - 2025
   CS_FREQUEN:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='até 5 evacuações', 2='de 6 a 10 evacuações', 3='de 11 a 20 evacuações', 4='acima de 20 evacuações'; no value of the column was read in 2015
     role: case.stool_frequency
     kind: category
     model: mark
@@ -241,6 +263,8 @@ columns:
     - 2025
     note: role from the notification block
   CS_MATERIA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.specimen_collected
     kind: category
     model: mark
@@ -249,6 +273,8 @@ columns:
     - 2007
     - 2025
   CS_MUCO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; no value of the column was read in 2015
     role: case.mucus_in_stool
     kind: category
     model: mark
@@ -266,6 +292,8 @@ columns:
     - 2025
     note: Empty in every file read; kind from its variable note.
   CS_POSITIV:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Ogawa', 2='Inaba', 3='Hikojima', 4='Outro sorotipo', 5='Não vibrio'; no value of the column was read in 2015
     role: case.serotype_isolated
     kind: category
     model: mark
@@ -288,6 +316,8 @@ columns:
     - 2025
     note: role from the notification block
   CS_REIDRAT:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='via oral', 2='venosa', 3='oral - venosa'; no value of the column was read in 2015
     role: case.rehydration_route
     kind: category
     model: mark
@@ -296,6 +326,8 @@ columns:
     - 2007
     - 2025
   CS_RESULTA:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Positivo', 2='Negativo'; no value of the column was read in 2015
     role: case.test_result_flag_virus_type_result
     kind: category
     model: mark
@@ -306,6 +338,8 @@ columns:
     codelists:
     - POSNEGIG
   CS_SANGUE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; no value of the column was read in 2015
     role: case.blood_related_sign_or_specimen_flag
     kind: category
     model: mark
@@ -332,6 +366,8 @@ columns:
     - 2025
     note: role from the notification block
   CS_TIPO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Hospitalar', 2='Ambulatorial', 3='Domiciliar', 4='Nenhum', 9='Ignorado'; no value of the column was read in 2015
     role: case.care_setting
     kind: category
     model: mark
@@ -340,6 +376,8 @@ columns:
     - 2007
     - 2025
   CS_VOMITO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.vomiting
     kind: category
     model: mark
@@ -348,6 +386,8 @@ columns:
     - 2007
     - 2025
   CS_VOMITOS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.vomiting_sign
     kind: category
     model: mark
@@ -358,6 +398,8 @@ columns:
     codelists:
     - SIM_NAO
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='sim', 2='não', 9='ignorado'; no value of the column was read in 2015
     role: case.work_related
     kind: category
     model: mark
@@ -561,6 +603,8 @@ columns:
     - 2025
     note: As across SINAN forms (28 of 30).
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='cura', 2='óbito por cólera', 3='óbito por outras causas', 9='ignorado'; no value of the column was read in 2015
     role: case.outcome
     kind: category
     model: mark
@@ -577,6 +621,8 @@ columns:
     - 2025
     note: As across SINAN forms (44 of 44).
   FC_CONTATO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Domicílio', 2='Vizinhança', 3='Trabalho', 4='Creche/escola', 5='Posto de saúde/hospital', 6='Outro estado/município', 7='Outros', 8='Sem história de contato', 9='Ignorado'; no value of the column was read in 2015
     role: case.location_of_contact_with_a_similar_case
     kind: category
     model: mark
@@ -884,6 +930,8 @@ columns:
     - 2025
     note: role from the notification block
   TIP_DIARRE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='aquosa/ amarelada', 2='aquosa/ água de arroz', 3='pastosa', 9='ignorado'; no value of the column was read in 2015
     role: case.stool_character
     kind: category
     model: mark
@@ -892,6 +940,8 @@ columns:
     - 2007
     - 2025
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; no value of the column was read in 2015
     role: case.autochthonous
     kind: category
     model: mark
@@ -923,6 +973,8 @@ columns:
     - 2025
     note: Empty in every file read; kind from its variable note.
   VINCULO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2015): the form's dictionary: 1='Consumo de água não tratada', 2='Exposição à esgoto', 3='Alimento', 4='Deslocamento', 5='Outros', 9='Ignorado'; no value of the column was read in 2015
     role: case.suggested_epidemiological_link
     kind: category
     model: mark

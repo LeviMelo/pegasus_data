@@ -80,6 +80,8 @@ columns:
     - 2014
     - 2026
   CS_ABDOMEN:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rigid_abdomen
     kind: category
     model: mark
@@ -88,6 +90,8 @@ columns:
     - 2014
     - 2026
   CS_ANALISE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measure_taken_analysis_of_tetanus_vaccine_coverage_in_women_
     kind: category
     model: mark
@@ -96,6 +100,8 @@ columns:
     - 2014
     - 2026
   CS_ATEND_N:
+    missing: ['0', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='médico', 2='enfermeiro', 3='auxiliar de enfermagem', 4='parteira treinada', 5='parteira não treinada', 6='outros', 9='ignorado'; the tabulation: 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.who_attended_the_birth
     kind: category
     model: mark
@@ -104,6 +110,8 @@ columns:
     - 2014
     - 2026
   CS_BUSCAAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.active_case_search_performed
     kind: category
     model: mark
@@ -112,6 +120,8 @@ columns:
     - 2014
     - 2026
   CS_CADASTR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measure_taken_registration_and_training_of_midwives
     kind: category
     model: mark
@@ -120,6 +130,8 @@ columns:
     - 2014
     - 2026
   CS_CHORO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.excessive_crying
     kind: category
     model: mark
@@ -128,6 +140,8 @@ columns:
     - 2014
     - 2026
   CS_COBERTU:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='PACS', 2='PSF', 3='PACS/PSF', 4='Nenhum', 5='Outro', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: case.residence_covered_by_primary_care_programme
     kind: category
     model: mark
@@ -136,6 +150,8 @@ columns:
     - 2014
     - 2026
   CS_CRISE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.contracture_crises
     kind: category
     model: mark
@@ -144,6 +160,8 @@ columns:
     - 2014
     - 2026
   CS_DIVULGA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.case_disclosed_reported_flag
     kind: category
     model: mark
@@ -180,6 +198,8 @@ columns:
     - 2026
     note: role from the notification block
   CS_HOSPITA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalised
     kind: category
     model: mark
@@ -188,6 +208,8 @@ columns:
     - 2014
     - 2026
   CS_INF_COT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.umbilical_stump_infection
     kind: category
     model: mark
@@ -196,6 +218,8 @@ columns:
     - 2014
     - 2026
   CS_MAMAR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.difficulty_feeding
     kind: category
     model: mark
@@ -204,6 +228,8 @@ columns:
     - 2014
     - 2026
   CS_MEMBROS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.limb_rigidity
     kind: category
     model: mark
@@ -212,6 +238,8 @@ columns:
     - 2014
     - 2026
   CS_NASCIDO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='hospital', 2='domicílio', 3='casa de parto', 4='outro', 9='ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.birth_setting
     kind: category
     model: mark
@@ -220,6 +248,8 @@ columns:
     - 2014
     - 2026
   CS_NUCA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.neck_stiffness
     kind: category
     model: mark
@@ -228,6 +258,8 @@ columns:
     - 2014
     - 2026
   CS_OPISTOT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.opisthotonus
     kind: category
     model: mark
@@ -236,6 +268,8 @@ columns:
     - 2014
     - 2026
   CS_ORIENTA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measure_taken_umbilical_stump_care_guidance
     kind: category
     model: mark
@@ -244,6 +278,8 @@ columns:
     - 2014
     - 2026
   CS_ORIGEM:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='notificação', 2='busca ativa', 3='declaração de óbito'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.how_the_case_was_found
     kind: category
     model: mark
@@ -261,6 +297,8 @@ columns:
     - 2026
     note: Empty in every file read; kind from its variable note.
   CS_OUTROS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_sign_neonatal_tetanus
     kind: category
     model: mark
@@ -283,6 +321,8 @@ columns:
     - 2026
     note: role from the notification block
   CS_RISO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sardonic_smile
     kind: category
     model: mark
@@ -307,6 +347,8 @@ columns:
     - 2026
     note: role from the notification block
   CS_SUGOU:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.baby_suckled_normally_at_birth_flag
     kind: category
     model: mark
@@ -315,6 +357,8 @@ columns:
     - 2014
     - 2026
   CS_TRISMO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.trismus
     kind: category
     model: mark
@@ -323,6 +367,8 @@ columns:
     - 2014
     - 2026
   CS_VACINAC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.mother_vaccinated
     kind: category
     model: mark
@@ -331,6 +377,8 @@ columns:
     - 2014
     - 2026
   CS_VACTETA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Vacinada (comprovado pelo cartão)', 2='Não Vacinada', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.mother_vaccinated_against_tetanus
     kind: category
     model: mark
@@ -339,6 +387,8 @@ columns:
     - 2014
     - 2026
   DS_INF_LOC:
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Hospital', 2='Domicílio', 3='Casa de Parto', 4='Outro Local', 9='IGN'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.infection_place_type
     kind: category
     model: mark
@@ -518,6 +568,8 @@ columns:
     - 2014
     - 2026
   EVOLUCAO:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='cura', 2='óbito por TNN', 3='óbito por outras causas', 9='ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.outcome
     kind: category
     model: mark
@@ -534,6 +586,9 @@ columns:
     - 2026
     note: As across SINAN forms (44 of 44).
   IDADE_MAE:
+    missing: []
+    domain: [0, 500]
+    # proposed (2016): the range DATASUS's tabulation bands label as values; outside it 0 of 1 values in 2016 (none)
     role: mother.age
     kind: number
     model: mark
@@ -700,6 +755,8 @@ columns:
     - 2014
     - 2026
   NUM_CON_N:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Uma', 2='Duas', 3='De 3 a 5', 4='6 e mais', 5='Nenhuma', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: pregnancy.prenatal_visits_band
     kind: category
     model: mark
@@ -717,6 +774,9 @@ columns:
     - 2026
     note: role from the notification block
   NU_GESTA:
+    missing: []
+    domain: [1, 5]
+    # proposed (2016): the range DATASUS's tabulation bands label as values; outside it 0 of 1 values in 2016 (none)
     role: mother.pregnancies
     kind: number
     model: mark
@@ -815,6 +875,8 @@ columns:
     - 2026
     note: role from the notification block
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; the tabulation: no value labelled as not recorded
     role: case.autochthonous
     kind: category
     model: mark

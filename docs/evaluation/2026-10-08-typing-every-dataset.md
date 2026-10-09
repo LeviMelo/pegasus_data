@@ -222,4 +222,5 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
   - LAB_PCLIQU's cell is cut at a page break and stays undeclared.
   - No other harvested dictionary cites an annex.
 - `pegasus-core coverage`: 3,727 of 6,137 columns read, up from 3,556; 594 columns still lack missing codes.
+- The form decides even where no record can be read. SINAN COLE's files are published empty, and TETN's hold a case or two a year. A column with no value read now takes its form's own not-recorded codes (`propose_missing.py`, logs `SINAN-COLE.form.log` and `SINAN-TETN.form.log`): COLE 26 columns, TETN 27; coverage 3,783 of 6,137. A measurement needs records to test its band and stays undeclared.
 

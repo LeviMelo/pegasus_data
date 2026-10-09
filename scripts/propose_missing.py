@@ -76,6 +76,10 @@ def main(dataset: str, spec: str, write: bool) -> None:
                     table = _read(dataset, y, [r.column for r in mine])
                 break
             except Exception as exc:  # noqa: BLE001 - a column absent this year
+                if type(exc).__name__ in ("PublishedEmpty", "NothingPublished"):
+                    print(f"no records in {y}: {type(exc).__name__}")
+                    mine = []
+                    break
                 absent = set(re.findall(r"'([A-Z0-9_]+)' is not present", str(exc))) | set(
                     re.findall(r"also absent: ([A-Z0-9_, ]+)\)", str(exc))[0].replace(" ", "").split(",")
                     if "also absent" in str(exc) else [])
@@ -89,19 +93,29 @@ def main(dataset: str, spec: str, write: bool) -> None:
             seen.setdefault(r.column, set()).update(
                 v for v in pc.unique(pc.cast(table[r.column], "string")).to_pylist() if v not in (None, ""))
         del table
-    if not seen:                    # said, not silent: SIA-AN's columns end in 2014, so 2023 read nothing
-        spans = sorted({(r.years[0], r.years[1]) for r in rows})
-        print(f"no category column is published in {spec} (their years: {spans[:3]}...)")
-    rows = [r for r in rows if r.column in seen]
     system = dataset.split("-")[0].split(".")[0]
     system = {"SIH": "SIHSUS"}.get(system, system)
     series = dataset.replace(".", "-").split("-", 1)[1] if "-" in dataset.replace(".", "-") else ""
     proposals = {}
+    if not seen:                    # said, not silent: SIA-AN's columns end in 2014, so 2023 read nothing
+        spans = sorted({(r.years[0], r.years[1]) for r in rows})
+        print(f"no category column is published in {spec} (their years: {spans[:3]}...)")
+    # the form decides, and needs no records: SINAN's COLE files are published empty, TETN's hold a case or two a year,
+    # and their dictionaries are harvested; a column with no value read takes the form's own not-recorded codes
+    for r in rows:
+        if seen.get(r.column):
+            continue
+        form = inline_codelist(harvested_codelist(system, series, r.column) or "") or {}
+        if not form:
+            print(f"{r.column}: no value in {year} and no form dictionary  [left undeclared]")
+            continue
+        miss = sorted(c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab)))
+        proposals[r.column] = (miss, f"the form's dictionary: {', '.join(f'{c}={form[c]!r}' for c in sorted(form))}; "
+                                     f"no value of the column was read in {year}", False)
+        print(f"{r.column}: missing {miss} (the form only)")
+    rows = [r for r in rows if seen.get(r.column)]
     for r in rows:
         values = sorted(seen[r.column])
-        if not values:
-            print(f"{r.column}: no value in {year}  [left undeclared]")
-            continue
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             labelled = pg.translate(_table(r.column, values), system=system).to_pylist()
@@ -200,7 +214,11 @@ def numbers(dataset: str, year: int, write: bool) -> None:
     system = {"SIH": "SIHSUS"}.get(system, system)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = _read(dataset, year, [r.column for r in rows])
+        try:
+            table = _read(dataset, year, [r.column for r in rows])
+        except (pg.PublishedEmpty, pg.NothingPublished) as exc:
+            print(f"measurements: no records in {read} to test a band against ({type(exc).__name__})  [left undeclared]")
+            return
     proposals = {}
     for r in rows:
         counts = {x["values"]: x["counts"] for x in pc.value_counts(pc.cast(table[r.column], "string")).to_pylist()
