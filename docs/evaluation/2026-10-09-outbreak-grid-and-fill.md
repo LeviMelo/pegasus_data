@@ -70,3 +70,17 @@ DTCONCASO's gap, so it keeps the years filled without one.
 publication. The FTP's port 21 was unreachable from 13:40 (DNS answered, and datasus.saude.gov.br answered 200 over
 HTTPS), and SINASC's uncached years had been dropping out of the audit silently.
 
+
+## Aggregate recipes against their datasets' columns
+
+SDTA's withdrawn recipe named columns SDTA lacks. So every recipe's dimensions and bindings were checked against its
+dataset's roles.
+- **The template's columns.** 31 SINAN recipes named columns their datasets do not have. The generator gave every
+  agravo CLASSI_FIN, CRITERIO and EVOLUCAO, which ACBI, AIDA, HANS, TUBE and 24 others lack. A recipe naming a missing
+  column cannot be built.
+- **The repairs.**
+  - Those dimensions were removed.
+  - TRAC binds its residence to its own ID_MUNI_RE (its roles: patient.residence).
+  - The ESPO (animal epizootics) and NTRA (survey batches) recipes are withdrawn: they have no person and no residence.
+- **The check.** `sinan_hepa_municipality_month` builds for 2019 with 40,874 notifications. TRAC's 2019 file was not
+  cached and the FTP was unreachable, so it was not built.
