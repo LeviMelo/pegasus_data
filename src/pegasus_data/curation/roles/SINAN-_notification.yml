@@ -115,6 +115,9 @@ columns:
     - UNIDANET
     - CADGERBR
   CS_SEXO:
+    missing:
+    - 'I'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
     role: patient.sex
     kind: category
     model: stratum
@@ -124,6 +127,9 @@ columns:
     codelists:
     - SEXO
   CS_RACA:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.race
     kind: category
     model: stratum
@@ -131,6 +137,9 @@ columns:
     codelists:
     - RAÇA
   CS_GESTANT:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9. Ignorado
     role: patient.pregnancy_status
     kind: category
     model: dimension
@@ -138,6 +147,9 @@ columns:
     codelists:
     - GESTANTE
   CS_ESCOL_N:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.education
     kind: category
     model: dimension

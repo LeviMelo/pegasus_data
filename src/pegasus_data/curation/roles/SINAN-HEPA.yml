@@ -225,6 +225,9 @@ columns:
     - 2007
     - 2023
   CS_ESCOL_N:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.education
     kind: category
     model: dimension
@@ -235,6 +238,9 @@ columns:
     - 2007
     - 2023
   CS_GESTANT:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9. Ignorado
     role: patient.pregnancy_status
     kind: category
     model: dimension
@@ -245,6 +251,9 @@ columns:
     - 2007
     - 2023
   CS_RACA:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.race
     kind: category
     model: stratum
@@ -255,6 +264,9 @@ columns:
     - 2007
     - 2023
   CS_SEXO:
+    missing:
+    - 'I'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
     role: patient.sex
     kind: category
     model: stratum
@@ -751,6 +763,8 @@ columns:
     - 2007
     - 2023
   TP_NOT:
+    missing: []
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt): 1 Negativa, 2 Individual, 3 Surto, 4 Agregado, a mandatory field with no code for not recorded
     role: notification.type
     kind: category
     model: mark

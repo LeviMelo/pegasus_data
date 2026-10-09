@@ -463,6 +463,9 @@ columns:
     - 2007
     - 2026
   CS_RACA:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.race
     kind: category
     model: stratum
@@ -473,6 +476,9 @@ columns:
     - 2000
     - 2026
   CS_SEXO:
+    missing:
+    - 'I'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
     role: patient.sex
     kind: category
     model: stratum

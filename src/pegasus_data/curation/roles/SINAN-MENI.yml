@@ -380,6 +380,8 @@ columns:
     - 2007
     - 2026
   CLA_ME_ASS:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 37='Caxumba', 38='Sarampo', 39='Herpes simples', 40='Varicela/Catapora/ Herpes Zoster', 41='Rubéola', 55='Influenza', 56='Echovirus', 59='Outros Enterovirus', 63='Coxasackie', 70='Adenovirus', 71='Virus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovirus', 74='Outros vírus', 75='Não identificado'; the tabulation: no value labelled as not recorded
     role: case.aseptic_meningitis_diagnosis
     kind: category
     model: mark
@@ -388,6 +390,8 @@ columns:
     - 2007
     - 2026
   CLA_ME_BAC:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 09='Shigella sp', 10='Staphylococcus (aureus, sp, epidermidis)', 11='Salmonella sp', 12='Escherichia coli', 13='Klebsiella (sp, pneumoniae)', 14='Streptococcus (sp, pyogenes, agalactiae)', 15='Enterococcus', 16='Pseudomonas (aeruginosa, sp)', 18='Serratia (marcescens, sp)', 19='Alcaligenes (sp, faecalis)', 20='Proteus (sp, vulgaris, mirabilis)', 21='Listeria monocytogenes', 22='Enterobacter (sp, cloacae)', 23='Acinetobacter (sp, baumannii)', 26='Neisseria sp', 28='Outras Bactérias', 45='Treponema Pallidum', 46='Rickettsiae', 49='Leptospira', 81='Bactéria não especificada'; the tabulation: no value labelled as not recorded
     role: case.other_bacterium
     kind: category
     model: mark
@@ -396,6 +400,8 @@ columns:
     - 2007
     - 2026
   CLA_ME_ETI:
+    missing: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '45', '46', '49', '51', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 42='Outros fungos', 43='Cryptococcus/Torula', 44='Candida albicans, sp', 47='Tripanossoma cruzi', 48='Toxoplasma (Gondii, sp', 50='Cisticerco', 52='Outros Parasitas', 64='Aspergillus', 76='Plasmodium sp', 77='Taenia Solium'; the tabulation: 00='Ign/branco', 01='Ign/branco', 02='Ign/branco', 03='Ign/branco', 04='Ign/branco', 05='Ign/branco', 06='Ign/branco', 07='Ign/branco', 08='Ign/branco', 09='Ign/branco', 10='Ign/branco', 11='Ign/branco', 12='Ign/branco', 13='Ign/branco', 14='Ign/branco', 15='Ign/branco', 16='Ign/branco', 17='Ign/branco', 18='Ign/branco', 19='Ign/branco', 20='Ign/branco', 21='Ign/branco', 22='Ign/branco', 23='Ign/branco', 24='Ign/branco', 25='Ign/branco', 26='Ign/branco', 27='Ign/branco', 28='Ign/branco', 29='Ign/branco', 30='Ign/branco', 31='Ign/branco', 32='Ign/branco', 33='Ign/branco', 34='Ign/branco', 35='Ign/branco', 36='Ign/branco', 37='Ign/branco', 38='Ign/branco', 39='Ign/branco', 40='Ign/branco', 41='Ign/branco', 45='Ign/branco', 46='Ign/branco', 49='Ign/branco', 51='Ign/branco', 53='Ign/branco', 54='Ign/branco', 55='Ign/branco', 56='Ign/branco', 57='Ign/branco', 58='Ign/branco', 59='Ign/branco', 60='Ign/branco', 61='Ign/branco', 62='Ign/branco', 63='Ign/branco', 65='Ign/branco', 66='Ign/branco', 67='Ign/branco', 68='Ign/branco', 69='Ign/branco', 70='Ign/branco', 71='Ign/branco', 72='Ign/branco', 73='Ign/branco', 74='Ign/branco', 75='Ign/branco', 78='Ign/branco', 79='Ign/branco', 80='Ign/branco', 81='Ign/branco', 82='Ign/branco', 83='Ign/branco', 84='Ign/branco', 85='Ign/branco', 86='Ign/branco', 87='Ign/branco', 88='Ign/branco', 89='Ign/branco', 90='Ign/branco', 91='Ign/branco', 92='Ign/branco', 93='Ign/branco', 94='Ign/branco', 95='Ign/branco', 96='Ign/branco', 97='Ign/branco', 98='Ign/branco', 99='Ign/branco'
     role: case.other_etiology_diagnosis
     kind: category
     model: mark
@@ -404,6 +410,8 @@ columns:
     - 2007
     - 2026
   CLA_SOROGR:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='A', 02='B', 03='C', 04='D', 05='X', 06='Y', 07='Z', 08='W 135', 09='29 E'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['2', '3', '6', '8'], which the form does not define
     role: case.serogroup
     kind: category
     model: mark
@@ -540,6 +548,8 @@ columns:
     - 2007
     - 2026
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Cultura', 02='CIE', 03='Ag. Látex', 04='Clínico', 05='Bacterioscopia', 06='Quimiocitológico', 07='Clínico Epidemiológico', 08='Isolamento Viral', 09='PCR', 10='Outros'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['1', '2', '3', '4', '5', '6', '7', '8', '9'], which the form does not define
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -555,6 +565,9 @@ columns:
     - 2007
     - 2026
   CS_ESCOL_N:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.education
     kind: category
     model: dimension
@@ -575,6 +588,9 @@ columns:
     - 2007
     - 2026
   CS_GESTANT:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9. Ignorado
     role: patient.pregnancy_status
     kind: category
     model: dimension
@@ -595,6 +611,9 @@ columns:
     note: "Meaning inferred (curation source: inferred): a single-character subtype code; its codes are unknown.
       Not printed by the form's dictionary; meaning read from the variable note, kind from the values."
   CS_RACA:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: 9 Ignorado
     role: patient.race
     kind: category
     model: stratum
@@ -605,6 +624,9 @@ columns:
     - 2007
     - 2026
   CS_SEXO:
+    missing:
+    - 'I'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
     role: patient.sex
     kind: category
     model: stratum
@@ -852,6 +874,8 @@ columns:
     - 2007
     - 2026
   LAB_AGLIQU:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 14='Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)', 28='Outras Bactérias', 43='Criptococos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_latex_csf
     kind: category
     model: mark
@@ -860,6 +884,8 @@ columns:
     - 2007
     - 2026
   LAB_AGSANG:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 14='Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)', 28='Outras Bactérias', 43='Criptococos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_latex_blood
     kind: category
     model: mark
@@ -878,6 +904,8 @@ columns:
     - 2007
     - 2026
   LAB_BCESCA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 03='Diplococos Gram negativo', 08='Diplococos Gram positivo', 28='Outras Bactérias', 29='Bastonetes Gram positivo', 30='Bastonetes Gram negativo', 31='Bacilos Gram positivo', 32='Bacilos Gram negativo', 33='Cocos Gram positivo', 34='Cocos Gram negativo', 35='Diplobacilos Gram negativo', 36='Cocobacilos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '8'], which the form does not define
     role: case.lab_bacterioscopy_sputum
     kind: category
     model: mark
@@ -886,6 +914,8 @@ columns:
     - 2007
     - 2026
   LAB_BCLESA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 03='Diplococos Gram negativo', 08='Diplococos Gram positivo', 28='Outras Bactérias', 29='Bastonetes Gram positivo', 30='Bastonetes Gram negativo', 31='Bacilos Gram positivo', 32='Bacilos Gram negativo', 33='Cocos Gram positivo', 34='Cocos Gram negativo', 35='Diplobacilos Gram negativo', 36='Cocobacilos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0'], which the form does not define
     role: case.lab_bacterioscopy_petechial_lesion
     kind: category
     model: mark
@@ -894,6 +924,8 @@ columns:
     - 2007
     - 2026
   LAB_BCLIQU:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 03='Diplococos Gram negativo', 08='Diplococos Gram positivo', 28='Outras Bactérias', 29='Bastonetes Gram positivo', 30='Bastonetes Gram negativo', 31='Bacilos Gram positivo', 32='Bacilos Gram negativo', 33='Cocos Gram positivo', 34='Cocos Gram negativo', 35='Diplobacilos Gram negativo', 36='Cocobacilos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '3', '8'], which the form does not define
     role: case.lab_bacterioscopy_csf
     kind: category
     model: mark
@@ -902,6 +934,8 @@ columns:
     - 2007
     - 2026
   LAB_BCSANG:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 03='Diplococos Gram negativo', 08='Diplococos Gram positivo', 28='Outras Bactérias', 29='Bastonetes Gram positivo', 30='Bastonetes Gram negativo', 31='Bacilos Gram positivo', 32='Bacilos Gram negativo', 33='Cocos Gram positivo', 34='Cocos Gram negativo', 35='Diplobacilos Gram negativo', 36='Cocobacilos', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '3', '8'], which the form does not define
     role: case.lab_bacterioscopy_blood
     kind: category
     model: mark
@@ -910,6 +944,8 @@ columns:
     - 2007
     - 2026
   LAB_CILIQU:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6'], which the form does not define
     role: case.lab_cie_csf
     kind: category
     model: mark
@@ -918,6 +954,8 @@ columns:
     - 2007
     - 2026
   LAB_CISANG:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6'], which the form does not define
     role: case.lab_cie_blood
     kind: category
     model: mark
@@ -934,6 +972,8 @@ columns:
     - 2007
     - 2026
   LAB_CTESCA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_culture_sputum
     kind: category
     model: mark
@@ -942,6 +982,8 @@ columns:
     - 2007
     - 2026
   LAB_CTLESA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_culture_petechial_lesion
     kind: category
     model: mark
@@ -950,6 +992,8 @@ columns:
     - 2007
     - 2026
   LAB_CTLIQU:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_culture_csf
     kind: category
     model: mark
@@ -958,6 +1002,8 @@ columns:
     - 2007
     - 2026
   LAB_CTSANG:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 51='Nenhum agente', 61='Não realizado', 62='Ignorado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_culture_blood
     kind: category
     model: mark
@@ -998,6 +1044,8 @@ columns:
     - 2007
     - 2026
   LAB_ISFEZE:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 37='Caxumba', 38='Sarampo', 39='Herpes Simples', 40='Varicela/Catapora/Herpes Zoster', 41='Rubéola', 55='Influenza', 56='Echovírus', 59='Outros Enterovírus', 63='Coxasackie', 70='Adenovírus', 71='Vírus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovírus', 74='Outros vírus', 75='Não identificado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['0'], which the form does not define
     role: case.lab_viral_isolation_feces
     kind: category
     model: mark
@@ -1006,6 +1054,8 @@ columns:
     - 2007
     - 2026
   LAB_ISLIQU:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 37='Caxumba', 38='Sarampo', 39='Herpes Simples', 40='Varicela/Catapora/Herpes Zoster', 41='Rubéola', 55='Influenza', 56='Echovírus', 59='Outros Enterovírus', 63='Coxasackie', 70='Adenovírus', 71='Vírus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovírus', 74='Outros vírus', 75='Não identificado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['0'], which the form does not define
     role: case.lab_viral_isolation_csf
     kind: category
     model: mark
@@ -1046,6 +1096,8 @@ columns:
     - 2007
     - 2026
   LAB_PCESCA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 37='Caxumba', 38='Sarampo', 39='Herpes Simples', 40='Varicela/Catapora/Herpes Zoster', 41='Rubéola', 42='Outros fungos', 43='Cryptococcus/Torula', 48='Toxoplasma (Gondii, sp', 51='Nenhum agente', 52='Outros Parasitas', 55='Influenza', 56='Echovírus', 59='Outros Enterovírus', 61='Não realizado', 62='Ignorado', 63='Coxasackie', 70='Adenovírus', 71='Vírus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovírus', 74='Outros vírus', 75='Não identificado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0'], which the form does not define
     role: case.lab_pcr_sputum
     kind: category
     model: mark
@@ -1054,6 +1106,8 @@ columns:
     - 2007
     - 2026
   LAB_PCLESA:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 37='Caxumba', 38='Sarampo', 39='Herpes Simples', 40='Varicela/Catapora/Herpes Zoster', 41='Rubéola', 42='Outros fungos', 43='Cryptococcus/Torula', 48='Toxoplasma (Gondii, sp', 51='Nenhum agente', 52='Outros Parasitas', 55='Influenza', 56='Echovírus', 59='Outros Enterovírus', 61='Não realizado', 62='Ignorado', 63='Coxasackie', 70='Adenovírus', 71='Vírus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovírus', 74='Outros vírus', 75='Não identificado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '7'], which the form does not define
     role: case.lab_pcr_petechial_lesion
     kind: category
     model: mark
@@ -1070,6 +1124,8 @@ columns:
     - 2007
     - 2026
   LAB_PCSANG:
+    missing: ['62']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 01='Neisseria meningitidis', 06='Haemophilus influenzae', 07='Streptococos pneumoniae', 28='Outras bactérias', 37='Caxumba', 38='Sarampo', 39='Herpes Simples', 40='Varicela/Catapora/Herpes Zoster', 41='Rubéola', 42='Outros fungos', 43='Cryptococcus/Torula', 48='Toxoplasma (Gondii, sp', 51='Nenhum agente', 52='Outros Parasitas', 55='Influenza', 56='Echovírus', 59='Outros Enterovírus', 61='Não realizado', 62='Ignorado', 63='Coxasackie', 70='Adenovírus', 71='Vírus do Nilo Ocidental', 72='Dengue', 73='Outros Arbovírus', 74='Outros vírus', 75='Não identificado'; the tabulation: 62='Ignorado'; CONFLICT: the records use ['0', '1', '6', '7'], which the form does not define
     role: case.lab_pcr_blood
     kind: category
     model: mark
@@ -1230,6 +1286,8 @@ columns:
     - 2007
     - 2026
   TP_NOT:
+    missing: []
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt): 1 Negativa, 2 Individual, 3 Surto, 4 Agregado, a mandatory field with no code for not recorded
     role: notification.type
     kind: category
     model: mark

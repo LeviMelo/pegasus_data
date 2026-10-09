@@ -156,7 +156,39 @@ def _entry(label: str, type_cell: str, width: int | None, following: list[str]) 
             entry["codes"] = codes
         elif re.match(r"^\s*tabela", cell, re.I):
             entry["table"] = re.sub(r"\s+", " ", cell).strip()
+        elif m := _CITES.search(cell):
+            entry["annex"] = m.group(1).upper()     # resolved against the dictionary's annexes in `_read`
     return entry
+
+
+#: A categories cell that names an annex table: "Segundo Quadro VIII (anexo)", "Conforme quadro II" (MENI v5).
+_CITES = re.compile(r"\bquadro\s+([IVXL]+)\b", re.I)
+#: An annex table's heading, and one of its rows: "Quadro V – Tabela de critérios", "02 CIE".
+_ANNEX = re.compile(r"^\s*quadro\s+([IVXL]+)\b", re.I)
+_ANNEX_ROW = re.compile(r"^\s*(\d{2})\s+(\S.*?)\s*$")
+#: What follows a label in some annexes: the confirmation criteria it permits ("1,2,3,9,10") or a pointer.
+_ANNEX_TAIL = re.compile(r"\s+(?:\d{1,2}(?:\s*,\s*\d{1,2})+|ver\s+quadro\s+[IVXL]+)\s*$", re.I)
+
+
+def _annexes(pdf_path: Path) -> dict[str, dict[str, str]]:
+    """The code tables a dictionary prints after its ANEXOS heading, by their numeral (MENI v5's Quadros I-XII: the
+    laboratory results' 62 'Ignorado', the confirmation criteria). A table needs two codes to count."""
+    with pdfplumber.open(pdf_path) as pdf:
+        lines = [line for page in pdf.pages for line in (page.extract_text() or "").splitlines()]
+    start = next((i for i, line in enumerate(lines) if re.match(r"^\s*anexos?\s*:?\s*$", line, re.I)), None)
+    if start is None:
+        return {}
+    out: dict[str, dict[str, str]] = {}
+    current: str | None = None
+    for line in lines[start + 1:]:
+        if m := _ANNEX.match(line):
+            current = m.group(1).upper()
+            out.setdefault(current, {})
+        elif current and (m := _ANNEX_ROW.match(line)):
+            out[current].setdefault(m.group(1), _ANNEX_TAIL.sub("", m.group(2)).strip())
+    return {k: v for k, v in out.items() if len(v) >= 2}
+
+
 #: "1 – Sim", "1-Sim", "1. Sim", "9-" (label wrapped to the next line).
 _CODE = re.compile(
     r"^\s*(?:([0-9]{1,3})\s*(?:[–\-—=.]\s*|\s+)|([A-Z]{1,2})\s*[–\-—=.]\s*)(.*?)\s*$"
@@ -299,7 +331,8 @@ def _parse_row(row: list[str]) -> tuple[str, dict] | None:
         w = _WIDTH.search(cell) if len(cell) < 25 else None
         if not (m or w):
             continue
-        ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1] if cells[-1] else ""]
+        # a name the dictionary closes with a period is the name (MENI v5's "LAB_CTLIQU.")
+        ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1].rstrip(".;,") if cells[-1] else ""]
         name = next((n for n in reversed(ends) if _DBF.fullmatch(n)), "")
         if not name:
             return None
@@ -335,11 +368,18 @@ def _parse_row(row: list[str]) -> tuple[str, dict] | None:
 
 
 def _read(pdf: Path, series: tuple[str, ...], into: dict[str, dict[str, dict]]) -> None:
+    annexes: dict[str, dict[str, str]] | None = None
     for row in _rows(pdf):
         parsed = _parse_row(row)
         if not parsed:
             continue
         name, entry = parsed
+        if numeral := entry.pop("annex", None):
+            annexes = _annexes(pdf) if annexes is None else annexes
+            codes = annexes.get(numeral) or {}
+            if len(codes) >= 2 and _fits(codes, entry.get("width") or max(len(c) for c in codes)):
+                entry["codes"] = dict(codes)
+                entry["annex"] = f"Quadro {numeral}"
         for s in series:
             # Two dictionaries for one series (older and newer editions): the
             # first parsed is kept, and a later one only adds fields, or what

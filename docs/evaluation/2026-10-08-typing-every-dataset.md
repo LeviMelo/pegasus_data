@@ -211,3 +211,15 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
   - SDTA is one foodborne outbreak per row. It had inherited SINAN's person-level notification event and now declares none; OQ-76 holds the counting of its cases, which are columns by sex and age band.
 - `pegasus-core coverage`: 74 of 74 event datasets now run, with 3,556 of 6,137 columns read. Before this branch's last three commits, 70 of 75 ran with 3,374 of 5,847 read.
 
+**SINAN's notification block, and a dictionary's annexes (2026-10-09).**
+- The notification block (CS_SEXO, CS_RACA, CS_GESTANT, CS_ESCOL_N, TP_NOT) is printed by its own dictionary, DIC_DADOS_NET Notificação Individual (rev. Nov/2018, `sources/dic_notif_indiv.txt`), not by the agravos' dictionaries. Only six forms reprint CS_ESCOL_N, and all six agree with it. Every form's roles now declare the block from it:
+  - CS_SEXO I, CS_RACA 9, CS_GESTANT 9 and CS_ESCOL_N 9, 212 declarations. A form whose own dictionary also defines a code as Ignorado (CS_SEXO 9 on two forms) adds it.
+  - TP_NOT `[]`, in 50 forms: 1 Negativa, 2 Individual, 3 Surto, 4 Agregado, a mandatory field.
+  - In the records, 9 is one character (MENI 2019, DENG 2015, TUBE 2010). CS_GESTANT 4, "idade gestacional ignorada", is a pregnancy, not a missing value. TUBE 2010's CS_GESTANT 0 (26 records) is not in the dictionary and stays undecoded.
+- MENI v5's dictionary prints its laboratory, criterion and etiology codes in annexes (Quadros I–XII) that the fields cite: "Colocar o número da etiologia Segundo Quadro VIII (anexo)". `harvest_codes.py` now resolves a field's cited Quadro to the annex table printed after ANEXOS. A name the dictionary closes with a period ("LAB_CTLIQU.") is the name. 22 MENI fields gained codes:
+  - LAB_* declare 62 'Ignorado'; 61 'Não realizado' and 75 'Não identificado' are results.
+  - CRITERIO and CLA_* declare none.
+  - LAB_PCLIQU's cell is cut at a page break and stays undeclared.
+  - No other harvested dictionary cites an annex.
+- `pegasus-core coverage`: 3,727 of 6,137 columns read, up from 3,556; 594 columns still lack missing codes.
+

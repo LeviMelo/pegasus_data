@@ -15950,21 +15950,83 @@ series:
       type: text
       width: 4
       label: Se Confirmado, Especifique (7 - Meningite Asséptica)
+      codes:
+        '75': Não identificado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes simples
+        '40': Varicela/Catapora/ Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '70': Adenovirus
+        '56': Echovirus
+        '63': Coxasackie
+        '59': Outros Enterovirus
+        '71': Virus do Nilo Ocidental
+        '72': Dengue
+        '73': Outros Arbovirus
+        '74': Outros vírus
+      annex: Quadro III
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     CLA_ME_BAC:
       type: text
       width: 4
       label: Se Confirmado, Especifique (5 - Meningite Por Outras Bactérias)
+      codes:
+        09: Shigella sp
+        '10': Staphylococcus (aureus, sp, epidermidis)
+        '11': Salmonella sp
+        '12': Escherichia coli
+        '13': Klebsiella (sp, pneumoniae)
+        '14': Streptococcus (sp, pyogenes, agalactiae)
+        '15': Enterococcus
+        '16': Pseudomonas (aeruginosa, sp)
+        '18': Serratia (marcescens, sp)
+        '19': Alcaligenes (sp, faecalis)
+        '20': Proteus (sp, vulgaris, mirabilis)
+        '21': Listeria monocytogenes
+        '22': Enterobacter (sp, cloacae)
+        '23': Acinetobacter (sp, baumannii)
+        '26': Neisseria sp
+        '28': Outras Bactérias
+        '45': Treponema Pallidum
+        '46': Rickettsiae
+        '49': Leptospira
+        '81': Bactéria não especificada
+      annex: Quadro II
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     CLA_ME_ETI:
       type: text
       width: 4
       label: Se Confirmado, Especifique (8 - Meningite de Outra Etiologia)
+      codes:
+        '42': Outros fungos
+        '43': Cryptococcus/Torula
+        '44': Candida albicans, sp
+        '47': Tripanossoma cruzi
+        '48': Toxoplasma (Gondii, sp
+        '50': Cisticerco
+        '52': Outros Parasitas
+        '76': Plasmodium sp
+        '77': Taenia Solium
+        '64': Aspergillus
+      annex: Quadro IV
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     CLA_SOROGR:
       type: number
       width: 4
       label: Se N. Meningiditis Especificar Sorogrupo
+      codes:
+        '01': A
+        '02': B
+        '03': C
+        '04': D
+        '05': X
+        '06': Y
+        '07': Z
+        08: W 135
+        09: 29 E
+      annex: Quadro VI
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     CLI_ABAULA:
       type: text
@@ -16081,6 +16143,18 @@ series:
       type: text
       width: 2
       label: Critério de Confirmação
+      codes:
+        '01': Cultura
+        '02': CIE
+        '03': Ag. Látex
+        '04': Clínico
+        '05': Bacterioscopia
+        '06': Quimiocitológico
+        '07': Clínico Epidemiológico
+        08: Isolamento Viral
+        09: PCR
+        '10': Outros
+      annex: Quadro V
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     DOENCA_TRA:
       type: text
@@ -16118,11 +16192,33 @@ series:
       type: text
       width: 2
       label: LATEX líquor
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '43': Criptococos
+        '06': Haemophilus influenzae
+        '14': Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)
+        '07': Streptococos pneumoniae
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro X
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_AGSANG:
       type: text
       width: 2
       label: LATEX Sangue/soro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '43': Criptococos
+        '06': Haemophilus influenzae
+        '14': Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)
+        '07': Streptococos pneumoniae
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro X
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_ASPECT:
       type: text
@@ -16141,46 +16237,165 @@ series:
       type: text
       width: 2
       label: Bacterioscopia escarro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '32': Bacilos Gram negativo
+        '31': Bacilos Gram positivo
+        '30': Bastonetes Gram negativo
+        '29': Bastonetes Gram positivo
+        '36': Cocobacilos
+        '34': Cocos Gram negativo
+        '33': Cocos Gram positivo
+        '35': Diplobacilos Gram negativo
+        '03': Diplococos Gram negativo
+        08: Diplococos Gram positivo
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro VIII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_BCLESA:
       type: text
       width: 2
       label: Bacterioscopia lesão petequial
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '32': Bacilos Gram negativo
+        '31': Bacilos Gram positivo
+        '30': Bastonetes Gram negativo
+        '29': Bastonetes Gram positivo
+        '36': Cocobacilos
+        '34': Cocos Gram negativo
+        '33': Cocos Gram positivo
+        '35': Diplobacilos Gram negativo
+        '03': Diplococos Gram negativo
+        08: Diplococos Gram positivo
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro VIII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_BCLIQU:
       type: text
       width: 2
       label: Bacterioscopia líquor
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '32': Bacilos Gram negativo
+        '31': Bacilos Gram positivo
+        '30': Bastonetes Gram negativo
+        '29': Bastonetes Gram positivo
+        '36': Cocobacilos
+        '34': Cocos Gram negativo
+        '33': Cocos Gram positivo
+        '35': Diplobacilos Gram negativo
+        '03': Diplococos Gram negativo
+        08: Diplococos Gram positivo
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro VIII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_BCSANG:
       type: text
       width: 2
       label: Bacterioscopia Sangue/soro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '32': Bacilos Gram negativo
+        '31': Bacilos Gram positivo
+        '30': Bastonetes Gram negativo
+        '29': Bastonetes Gram positivo
+        '36': Cocobacilos
+        '34': Cocos Gram negativo
+        '33': Cocos Gram positivo
+        '35': Diplobacilos Gram negativo
+        '03': Diplococos Gram negativo
+        08: Diplococos Gram positivo
+        '28': Outras Bactérias
+        '51': Nenhum agente
+      annex: Quadro VIII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_CILIQU:
       type: text
       width: 2
       label: CIE líquor
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '51': Nenhum agente
+      annex: Quadro IX
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_CISANG:
       type: text
       width: 2
       label: CIE Sangue/soro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '51': Nenhum agente
+      annex: Quadro IX
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_CTESCA:
       type: text
       width: 2
       label: Cultura escarro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '51': Nenhum agente
+      annex: Quadro VII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_CTLESA:
       type: text
       width: 2
       label: Cultura lesão petequial
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '51': Nenhum agente
+      annex: Quadro VII
+      source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
+    LAB_CTLIQU:
+      type: text
+      width: 2
+      label: Cultura Líquor
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '51': Nenhum agente
+      annex: Quadro VII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_CTSANG:
       type: text
       width: 2
       label: Cultura Sangue/soro
+      codes:
+        '61': Não realizado
+        '62': Ignorado
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '51': Nenhum agente
+      annex: Quadro VII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_DTPUNC:
       type: date
@@ -16190,21 +16405,111 @@ series:
       type: text
       width: 2
       label: Isolamento viral fezes
+      codes:
+        '75': Não identificado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes Simples
+        '40': Varicela/Catapora/Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '70': Adenovírus
+        '56': Echovírus
+        '63': Coxasackie
+        '59': Outros Enterovírus
+        '71': Vírus do Nilo Ocidental
+        '72': Dengue
+        '73': Outros Arbovírus
+        '74': Outros vírus
+      annex: Quadro XI
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_ISLIQU:
       type: text
       width: 2
       label: Isolamento viral líquor
+      codes:
+        '75': Não identificado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes Simples
+        '40': Varicela/Catapora/Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '70': Adenovírus
+        '56': Echovírus
+        '63': Coxasackie
+        '59': Outros Enterovírus
+        '71': Vírus do Nilo Ocidental
+        '72': Dengue
+        '73': Outros Arbovírus
+        '74': Outros vírus
+      annex: Quadro XI
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_PCESCA:
       type: text
       width: 2
       label: PCR escarro
+      codes:
+        '62': Ignorado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes Simples
+        '40': Varicela/Catapora/Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '72': Dengue
+        '61': Não realizado
+        '75': Não identificado
+        '70': Adenovírus
+        '56': Echovírus
+        '63': Coxasackie
+        '59': Outros Enterovírus
+        '71': Vírus do Nilo Ocidental
+        '73': Outros Arbovírus
+        '74': Outros vírus
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '43': Cryptococcus/Torula
+        '42': Outros fungos
+        '48': Toxoplasma (Gondii, sp
+        '52': Outros Parasitas
+        '51': Nenhum agente
+      annex: Quadro XII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_PCLESA:
       type: text
       width: 2
       label: PCR lesão petequial
+      codes:
+        '62': Ignorado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes Simples
+        '40': Varicela/Catapora/Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '72': Dengue
+        '61': Não realizado
+        '75': Não identificado
+        '70': Adenovírus
+        '56': Echovírus
+        '63': Coxasackie
+        '59': Outros Enterovírus
+        '71': Vírus do Nilo Ocidental
+        '73': Outros Arbovírus
+        '74': Outros vírus
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '43': Cryptococcus/Torula
+        '42': Outros fungos
+        '48': Toxoplasma (Gondii, sp
+        '52': Outros Parasitas
+        '51': Nenhum agente
+      annex: Quadro XII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_PCLIQU:
       type: text
@@ -16215,6 +16520,34 @@ series:
       type: text
       width: 2
       label: PCR Sangue/soro
+      codes:
+        '62': Ignorado
+        '37': Caxumba
+        '38': Sarampo
+        '39': Herpes Simples
+        '40': Varicela/Catapora/Herpes Zoster
+        '41': Rubéola
+        '55': Influenza
+        '72': Dengue
+        '61': Não realizado
+        '75': Não identificado
+        '70': Adenovírus
+        '56': Echovírus
+        '63': Coxasackie
+        '59': Outros Enterovírus
+        '71': Vírus do Nilo Ocidental
+        '73': Outros Arbovírus
+        '74': Outros vírus
+        '01': Neisseria meningitidis
+        '06': Haemophilus influenzae
+        '07': Streptococos pneumoniae
+        '28': Outras bactérias
+        '43': Cryptococcus/Torula
+        '42': Outros fungos
+        '48': Toxoplasma (Gondii, sp
+        '52': Outros Parasitas
+        '51': Nenhum agente
+      annex: Quadro XII
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_PUNCAO:
       type: text

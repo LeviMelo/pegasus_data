@@ -10,6 +10,10 @@ columns:
     - 2009
     - 2026
   CS_SEXO:
+    missing:
+    - 'I'
+    - '9'
+    # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado; its own form also defines 9 'Ignorado'
     role: patient.sex
     kind: category
     model: stratum
