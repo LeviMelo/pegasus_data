@@ -1,0 +1,375 @@
+dataset: CNES-PF
+record: professional
+columns:
+  ATIVIDAD:
+    role: establishment.teaching_research_activity_of_the_establishment
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ATIV_ENS
+  CBO:
+    role: professional.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    name: Codigo da especialidade do profissional
+    years:
+    - 2005
+    - 2026
+    note: 'Six-digit CBO-2002 (322205: 4,324 of 19,023 in 2026-02 RR).'
+  CBOUNICO:
+    role: professional.unique_cpf_cbo_marker
+    kind: identifier
+    model: excluded
+    codelists:
+    - CBO_94
+    name: Registro unico do Codigo da especialidade do profissional
+    years:
+    - 2005
+    - 2026
+  CLIENTEL:
+    role: establishment.patient_flow_referral_intake_type
+    kind: category
+    model: mark
+    name: Fluxo de clientela
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - FLUX_CLI
+  CNES:
+    role: establishment.cnes
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2005
+    - 2026
+  CNPJ_MAN:
+    role: establishment.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2005
+    - 2026
+  CNS_PROF:
+    role: professional.cns
+    kind: identifier
+    model: link_only
+    name: CNS do profissional ou "999999999999999" caso nao seja preenchido.
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CODUFMUN:
+    role: establishment.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Código do Município (UF + Município)
+    years:
+    - 2005
+    - 2026
+  COMPETEN:
+    role: establishment.competence
+    kind: date
+    model: when
+    name: Competência (Ano/Mês)
+    years:
+    - 2005
+    - 2026
+    note: YYYYMM of the monthly CNES snapshot.
+  CONSELHO:
+    role: professional.professional_council_code
+    kind: category
+    model: mark
+    name: Codigo do conselho de classe
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - CR_CONSEL
+  CPFUNICO:
+    role: professional.unique_cpf_marker
+    kind: identifier
+    model: excluded
+    name: Contador de CPF UNICO do Profissional
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CPF_CNPJ:
+    role: establishment.cpf_cnpj
+    kind: identifier
+    model: link_only
+    name: CPF/CNPJ do estabelecimento
+    years:
+    - 2005
+    - 2026
+    note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
+      unchanged.'
+  CPF_PROF:
+    role: professional.cpf
+    kind: identifier
+    model: link_only
+    name: CPF do Profissional ou caso "99999999999" caso nao seja preenchido.
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  DISTRADM:
+    role: establishment.administrative_district_local
+    kind: category
+    model: mark
+    name: Distrito administrativo / Módulo assistencial
+    years:
+    - 2005
+    - 2026
+  DISTRSAN:
+    role: establishment.sanitary_district_local
+    kind: category
+    model: mark
+    name: Distrito sanitário
+    years:
+    - 2005
+    - 2026
+  ESFERA_A:
+    role: establishment.administrative_sphere
+    kind: category
+    model: mark
+    name: Esfera administrativa
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ESFERADM
+  HORAHOSP:
+    role: professional.weekly_hours_hospital
+    kind: number
+    model: mark
+    name: Carga horaria HOSPITALAR
+    years:
+    - 2005
+    - 2026
+  HORAOUTR:
+    role: professional.weekly_hours_other_setting
+    kind: number
+    model: mark
+    name: Carga horaria nao ambulatorial, nem hospitalar
+    years:
+    - 2005
+    - 2026
+  HORA_AMB:
+    role: professional.weekly_hours_outpatient
+    kind: number
+    model: mark
+    name: Carga horaria AMBULATORIAL
+    years:
+    - 2005
+    - 2026
+  MICR_REG:
+    role: establishment.micro_region_local
+    kind: category
+    model: mark
+    name: Microrregião de saúde
+    years:
+    - 2005
+    - 2026
+  NATUREZA:
+    role: establishment.organisation_nature_legacy
+    kind: category
+    model: mark
+    name: Código da natureza da organização
+    years:
+    - 2005
+    - 2026
+  NAT_JUR:
+    role: establishment.legal_nature
+    kind: category
+    model: mark
+    name: Natureza Jurídica
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - NAT_JUR
+    - NATJUR
+  NIV_DEP:
+    role: establishment.institutional_dependency_level
+    kind: category
+    model: mark
+    name: Grau/Nível de dependência
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    role: establishment.care_network_hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIV_HIER
+  NOMEPROF:
+    role: professional.name
+    kind: identifier
+    model: excluded
+    name: Nome do profissional
+    years:
+    - 2005
+    - 2026
+    note: "The professional's name: a direct personal identifier, passed through unchanged."
+  PF_PJ:
+    role: establishment.person_type
+    kind: category
+    model: mark
+    name: Indicador de pessoa física/jurídica
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TP_PFPJ
+  PROFNSUS:
+    role: professional.professional_serves_non_sus_patients
+    kind: category
+    model: mark
+    name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO NAO SUS
+    years:
+    - 2005
+    - 2026
+  PROF_SUS:
+    role: professional.professional_serves_sus_patients
+    kind: category
+    model: mark
+    name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO SUS
+    years:
+    - 2005
+    - 2026
+  REGISTRO:
+    role: professional.council_registration
+    kind: identifier
+    model: excluded
+    name: Número do registro no conselho de classe
+    years:
+    - 2005
+    - 2026
+  REGSAUDE:
+    role: establishment.health_region_local
+    kind: category
+    model: mark
+    name: Região de saúde
+    years:
+    - 2005
+    - 2026
+  RETENCAO:
+    role: establishment.tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - RETENCAO
+  TERCEIRO:
+    role: professional.outsourced_link_flag
+    kind: category
+    model: mark
+    name: Terceiro
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TERCEIRO
+  TPGESTAO:
+    role: establishment.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_UNID:
+    role: establishment.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de unidade (estabelecimento)
+    years:
+    - 2005
+    - 2026
+  TURNO_AT:
+    role: establishment.operating_shift_hours_code
+    kind: category
+    model: mark
+    name: Turno de atendimento
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TURNOSAT
+  UFMUNRES:
+    role: professional.residence
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF e município de residência do profissional
+    years:
+    - 2005
+    - 2026
+  VINCULAC:
+    role: professional.professionals_employment_link
+    kind: category
+    model: mark
+    name: Tipo de vínculo do profissional
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - VINCULO
+  VINCUL_A:
+    role: professional.autonomous_link_flag
+    kind: category
+    model: mark
+    name: 'Vínculo empregatício com o estabelecimento: Autônomo SUS'
+    years:
+    - 2005
+    - 2026
+  VINCUL_C:
+    role: professional.contractual_link_flag
+    kind: category
+    model: mark
+    name: 'Vínculo empregatício com o estabelecimento: Contratado SUS'
+    years:
+    - 2005
+    - 2026
+  VINCUL_N:
+    role: professional.unidentified_link_flag
+    kind: category
+    model: mark
+    name: 'Vínculo empregatício com o estabelecimento: Vínculo não identificado'
+    years:
+    - 2005
+    - 2026

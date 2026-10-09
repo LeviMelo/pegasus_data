@@ -1,0 +1,85 @@
+dataset: PNI-CPNIUF
+record: vaccination
+columns:
+  ANO:
+    role: vaccination.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  COBERT:
+    role: vaccination.coverage_percent
+    kind: number
+    model: mark
+    measure: false
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  DOSE:
+    role: vaccination.dose
+    kind: category
+    model: dimension
+    codelists:
+    - DOSE
+    name: Dose
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  FX_ETARIA:
+    role: vaccination.age_band
+    kind: category
+    model: dimension
+    codelists:
+    - FXET
+    name: Faixa Etária
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  IMUNO:
+    role: vaccination.vaccine
+    kind: category
+    model: dimension
+    codelists:
+    - IMUNO
+    - IMUNOC
+    - COBIMUNO
+    - COBIMUC
+    name: Imunobiológico
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  POP:
+    role: vaccination.target_population
+    kind: number
+    model: mark
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  QT_DOSE:
+    role: vaccination.doses
+    kind: number
+    model: mark
+    name: Quantidade de Doses Aplicadas
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).
+  UF:
+    role: vaccination.state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Unidade da Federação
+    years:
+    - 1994
+    - 2010
+    note: As in PNI-CPNI (the same file republished).

@@ -1,0 +1,621 @@
+dataset: DADOS_ABERTOS-APAC_AN
+record: procedure
+columns:
+  AN_ACEVAS:
+    role: authorisation.vascular_access
+    kind: category
+    model: mark
+    name: Acesso vascular
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_ALBUMI:
+    role: authorisation.albumi
+    kind: number
+    model: mark
+    name: Albumina
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_ALTURA:
+    role: authorisation.altura
+    kind: number
+    model: mark
+    name: Altura
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_CNCDO:
+    role: authorisation.cncdo
+    kind: category
+    model: mark
+    name: Inscrição na CNCDO
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_DIURES:
+    role: authorisation.diures
+    kind: number
+    model: mark
+    name: Diurese
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_DTPDR:
+    role: authorisation.first_dialysis_date
+    kind: date
+    model: when
+    name: Data da primeira diálise realizada
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_GLICOS:
+    role: authorisation.glicos
+    kind: number
+    model: mark
+    name: Glicose
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_HB:
+    role: authorisation.hb
+    kind: number
+    model: mark
+    name: Hemoglobina
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_HBSAG:
+    role: authorisation.hbsag
+    kind: category
+    model: mark
+    name: HBsAg
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_HCV:
+    role: authorisation.hcv
+    kind: category
+    model: mark
+    name: Sorologia para hepatite C
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_HIV:
+    role: authorisation.hiv
+    kind: category
+    model: mark
+    name: Sorologia para HIV
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_INTFIS:
+    role: authorisation.intfis
+    kind: number
+    model: mark
+    name: Quantidade de fístulas
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_PESO:
+    role: authorisation.peso
+    kind: number
+    model: mark
+    name: Peso
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_TRU:
+    role: authorisation.tru
+    kind: number
+    model: mark
+    name: Taxa de redução de ureia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AN_ULSOAB:
+    role: authorisation.ulsoab
+    kind: category
+    model: mark
+    name: Ultrassonografia abdominal
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_ALTA:
+    role: authorisation.discharge
+    kind: category
+    model: mark
+    codelists:
+    - ALTA
+    name: Indicador de Alta
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_APACANT:
+    role: authorisation.previous_number
+    kind: identifier
+    model: link_only
+    name: Numero APAC Anterior
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_AUTORIZ:
+    role: authorisation.number
+    kind: identifier
+    model: link_only
+    name: Numero da APAC
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CATEND:
+    role: authorisation.admission_character
+    kind: category
+    model: mark
+    codelists:
+    - CARAT_AT
+    name: Carater do Atendimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: CEP do endereco do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CIDCAS:
+    role: authorisation.associated_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Causas Associadas
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CIDPRI:
+    role: authorisation.diagnosis
+    kind: code_tree
+    model: event_type
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CIDSEC:
+    role: authorisation.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Secundario
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CMP:
+    role: authorisation.competence
+    kind: date
+    model: when
+    name: Data de Atendimento ao paciente / Competencia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CNPJCPF:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CNPJMNT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da Mantenedora do estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CNSPCN:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Numero do CNS do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CODEMI:
+    role: authorisation.issuer
+    kind: category
+    model: mark
+    name: Codigo do Orgao emissor
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CODUNI:
+    role: authorisation.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Codigo do Estabelecimento no CNES
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_COIDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    codelists:
+    - IDADEDET
+    name: Codigo da Idade do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_CONDIC:
+    role: authorisation.management_condition
+    kind: category
+    model: mark
+    codelists:
+    - TPGEST_C
+    - TP_GESTAO
+    name: Sigla do Tipo de Gestao
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_DTAUT:
+    role: authorisation.authorised
+    kind: date
+    model: when
+    name: Data da Autorizacao
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_DTFIM:
+    role: authorisation.end
+    kind: date
+    model: when
+    name: Data de FIM validade
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_DTINIC:
+    role: authorisation.start
+    kind: date
+    model: when
+    name: Data de INICIO validade
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_DTOCOR:
+    role: authorisation.exit_date
+    kind: date
+    model: when
+    name: Data de Ocorrencia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_DTSOLIC:
+    role: authorisation.requested
+    kind: date
+    model: when
+    name: Data da Solicitacao
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_ENCERR:
+    role: authorisation.closure
+    kind: category
+    model: mark
+    codelists:
+    - ENCERRAM
+    name: Indicador de Encerramento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    codelists:
+    - ETNIA
+    name: Etnia do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_GESTAO:
+    role: authorisation.management_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    - MUNICBR
+    name: Codigo da UF+Municipio de Gestao
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_MNDIF:
+    role: authorisation.municipality_mismatch_flag
+    kind: category
+    model: excluded
+    name: Municipio de residencia diferente do estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_MN_IND:
+    role: facility.maintained_or_individual
+    kind: category
+    model: mark
+    codelists:
+    - MANT_IND
+    name: Estabelecimento Mantido / Individual
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_MOTSAI:
+    role: authorisation.exit_reason
+    kind: category
+    model: mark
+    codelists:
+    - MOTSAIPE
+    name: Motivo de Saida e Permanencia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio de Residencia do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_MVM:
+    role: authorisation.processing_month
+    kind: date
+    model: when
+    name: Data de Processamento / Movimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_NATJUR:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    codelists:
+    - NATJUR
+    - NATJURC
+    name: Codigo da Natureza Juridica
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_NUIDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Numero da Idade
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_OBITO:
+    role: authorisation.death
+    kind: category
+    model: mark
+    codelists:
+    - OBITO
+    name: Indicador de Obito
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_PERMAN:
+    role: authorisation.continuation
+    kind: category
+    model: mark
+    codelists:
+    - PERMANEN
+    name: Indicador de Permanencia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_PRIPAL:
+    role: authorisation.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Procedimento Principal da APAC
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    codelists:
+    - RACA_COR
+    name: Raca/Cor do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    codelists:
+    - SEXO
+    name: Sexo do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_TIPPRE:
+    role: facility.provider_type
+    kind: category
+    model: mark
+    codelists:
+    - ESFERA
+    - ESFERA_C
+    - TIPOPRES
+    name: Tipo de Prestador
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_TPAPAC:
+    role: authorisation.apac_type
+    kind: category
+    model: event_type
+    codelists:
+    - TP_APAC
+    name: Tipo de APAC
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_TPATEN:
+    role: authorisation.care_type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ATEND
+    name: Tipo de Atendimento de APAC
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_TPUPS:
+    role: facility.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de Estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_TRANSF:
+    role: authorisation.transfer
+    kind: category
+    model: mark
+    codelists:
+    - TRANSFER
+    name: Indicador de Transferencia
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_UFDIF:
+    role: authorisation.state_mismatch
+    kind: category
+    model: mark
+    codelists:
+    - INVASAO
+    name: UF de residencia diferente da UF do estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_UFMUN:
+    role: authorisation.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - AC_MUNICIP
+    name: UF+Municipio do Estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_UFNACIO:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    codelists:
+    - UFNACIO
+    name: Codigo da Nacionalidade do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_UNISOL:
+    role: authorisation.requesting_facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Codigo CNES do Estabelecimento Solicitante
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).
+  AP_VL_AP:
+    role: authorisation.approved_value
+    kind: number
+    model: mark
+    name: Valor Total da APAC Aprovado
+    years:
+    - 
+    - 
+    note: As in SIASUS-AN (the same file republished).

@@ -804,7 +804,7 @@ datasets:
     what_it_is: >
       Doses given, aggregated by municipality, immunobiological and dose number.
       The IG and UF variants are the same measure at different aggregations.
-    observed_as: [DPNI, DPNIIG, DPNIUF, DOSES_RESIDENCIA]
+    observed_as: [DPNI, DPNIIG, DPNIUF]
 
   PNI.CPNI:
     system: PNI
@@ -813,7 +813,33 @@ datasets:
     what_it_is: >
       Coverage — doses over target population. A rate, already divided, so it
       must not be summed across areas.
-    observed_as: [CPNI, CPNIIG, CPNIUF, COBERTURA_RESIDENCIA]
+    observed_as: [CPNI, CPNIIG, CPNIUF]
+
+  DADOS_ABERTOS.DOSES_RESIDENCIA:
+    system: DADOS_ABERTOS
+    official_name: Doses aplicadas por residência (SI-PNI/RNDS)
+    translated_name: Doses administered, by municipality of residence
+    what_it_is: >
+      The SI-PNI open-data extract Dados_Abertos/SIPNIBD/Doses_Residencia.parquet:
+      doses counted by the residence municipality of the person vaccinated, year,
+      month, strategy, immunobiological, dose, age, race/colour and sex
+      (236,140,984 rows read 2026-10-08, starting 2026-01). Not the DPNI tables:
+      another system (SI-PNI/RNDS), another place (residence, not application)
+      and another layout. Until 2026-10-08 it was declared an alias of PNI.DPNI,
+      so a query read the old DBF tables instead.
+    observed_as: [DOSES_RESIDENCIA]
+
+  DADOS_ABERTOS.COBERTURA_RESIDENCIA:
+    system: DADOS_ABERTOS
+    official_name: Cobertura vacinal por residência (SI-PNI/RNDS)
+    translated_name: Vaccination coverage, by municipality of residence
+    what_it_is: >
+      Dados_Abertos/SIPNIBD/Cobertura_Residencia.parquet: doses, target population
+      and coverage as a fraction (0.96, not a percentage) by year, municipality of
+      residence and immunobiological (1,088,479 rows, 2015-2026). A published
+      rate, never summed or recomputed. Not an alias of PNI.CPNI (see
+      DADOS_ABERTOS.DOSES_RESIDENCIA).
+    observed_as: [COBERTURA_RESIDENCIA]
 
   CIH.CR:
     system: CIH

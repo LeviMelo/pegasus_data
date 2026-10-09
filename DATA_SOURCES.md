@@ -57,6 +57,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - **Reopened by 2026-10-05 17:16 UTC.** The last failed probe was at 17:01;
     every probe since has connected in 0.1 s (230 failed, then 39 open).
 - **Documentation lives outside `/dissemin/publicos` too** (2026-10-08). The FTP root holds 40 directories (`siasus`, `catalogo`, `siscam`, `tabwin`, `territorio`, `municip`, `caderno`, ...), which the catalog does not crawl. `/siasus/Documentos` and `/siasus/{APAC,BPA,RAAS,SIA}` alone hold 214 documents (`data/probes/ftp_outside_siasus.txt`): the APAC, BPA and RAAS export layouts, the operational manuals, oncology manuals 2008-2022, and layout spreadsheets 2008-2012. The server answers `LIST` (IIS format) but not `MLSD`.
+- **CNES publishes template files** `Dados/{EF,GM,HB,IN,RC}/<DS>ufAAmm.dbc` (about 1 KB, header only), whose names are the naming pattern itself. They belong to their series with no UF and no date (2026-10-08).
+- **`Dados_Abertos/SIPNIBD/`** holds SI-PNI/RNDS extracts by municipality of residence: `Doses_Residencia.parquet` (1.17 GB, 236,140,984 rows from 2026-01) and `Cobertura_Residencia.parquet` (1,088,479 rows, 2015-2026, coverage as a fraction). They are not the PNI DBF tables (2026-10-08).
+- **`/cnes/Download`** (outside `/dissemin`) has the SCNES glossary, the CBO-service glossary and the TXT layout notebooks for SIA/SIH/CIHA/CIH; `/territorio/doc` has the territorial base documents (2026-10-08).
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.

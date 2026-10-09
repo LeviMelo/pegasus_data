@@ -1,0 +1,117 @@
+dataset: PNI-DPNI
+record: vaccination
+columns:
+  ANO:
+    role: vaccination.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1994
+    - 2019
+  ANOMES:
+    role: vaccination.month_yyyymm
+    kind: date
+    model: when
+    name: Ano/Mês
+    years:
+    - 2004
+    - 2019
+  DIFER:
+    role: vaccination.dropout_difference
+    kind: number
+    model: mark
+    name: Diferença D1-Dn
+    years:
+    - 2004
+    - 2019
+    note: First dose minus the closing dose, for the dropout rate.
+  DOSE:
+    role: vaccination.dose
+    kind: category
+    model: dimension
+    name: Dose
+    years:
+    - 1994
+    - 2019
+    codelists:
+    - DOSE
+  DOSE1:
+    role: vaccination.first_doses
+    kind: number
+    model: mark
+    name: Doses D1 (dose inicial do esquema)
+    years:
+    - 2004
+    - 2019
+  DOSEN:
+    role: vaccination.closing_doses
+    kind: number
+    model: mark
+    name: Doses Dn (dose final do esquema)
+    years:
+    - 2004
+    - 2019
+  FX_ETARIA:
+    role: vaccination.age_band
+    kind: category
+    model: dimension
+    name: Faixa Etária
+    years:
+    - 1994
+    - 2019
+    codelists:
+    - FXET
+  IMUNO:
+    role: vaccination.vaccine
+    kind: category
+    model: dimension
+    name: Imunobiológico
+    years:
+    - 1994
+    - 2019
+    codelists:
+    - IMUNO
+    - IMUNOC
+    - COBIMUNO
+    - COBIMUC
+  MES:
+    role: vaccination.month
+    kind: date
+    model: mark
+    codelists:
+    - MESES
+    name: Mês
+    years:
+    - 2004
+    - 2019
+  MUNIC:
+    role: vaccination.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município
+    years:
+    - 1994
+    - 2019
+    note: The variable note says the municipality of application; the open-data republication names the same 
+      file ..._RESIDENCIA (residence). Both claims recorded; not resolved.
+  QT_DOSE:
+    role: vaccination.doses
+    kind: number
+    model: mark
+    name: Quantidade de Doses Aplicadas
+    years:
+    - 1994
+    - 2019
+  UF:
+    role: vaccination.state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Unidade da Federação
+    years:
+    - 1994
+    - 2019

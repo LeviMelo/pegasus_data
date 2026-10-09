@@ -1,0 +1,94 @@
+dataset: PNI-CPNI
+record: vaccination
+columns:
+  ANO:
+    role: vaccination.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1994
+    - 2019
+  COBERT:
+    role: vaccination.coverage_percent
+    kind: number
+    model: mark
+    measure: false
+    name: Cobertura Vacinal
+    years:
+    - 1994
+    - 2019
+    note: The coverage DATASUS publishes, a percentage with a decimal comma (29,53); a finished rate, not 
+      additive, never recomputed here.
+  DOSE:
+    role: vaccination.dose
+    kind: category
+    model: dimension
+    name: Dose
+    years:
+    - 1994
+    - 2012
+    codelists:
+    - DOSE
+  FX_ETARIA:
+    role: vaccination.age_band
+    kind: category
+    model: dimension
+    name: Faixa Etária
+    years:
+    - 1994
+    - 2012
+    codelists:
+    - FXET
+  IMUNO:
+    role: vaccination.vaccine
+    kind: category
+    model: dimension
+    name: Imunobiológico
+    years:
+    - 1994
+    - 2019
+    codelists:
+    - IMUNO
+    - IMUNOC
+    - COBIMUNO
+    - COBIMUC
+  MUNIC:
+    role: vaccination.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município
+    years:
+    - 1994
+    - 2019
+    note: The variable note says the municipality of application; the open-data republication names the same 
+      file ..._RESIDENCIA (residence). Both claims recorded; not resolved.
+  POP:
+    role: vaccination.target_population
+    kind: number
+    model: mark
+    name: População Alvo
+    years:
+    - 1994
+    - 2019
+    note: The coverage's denominator, as published.
+  QT_DOSE:
+    role: vaccination.doses
+    kind: number
+    model: mark
+    name: Quantidade de Doses Aplicadas
+    years:
+    - 1994
+    - 2019
+  UF:
+    role: vaccination.state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Unidade da Federação
+    years:
+    - 1994
+    - 2019

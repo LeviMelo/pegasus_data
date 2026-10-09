@@ -1,0 +1,466 @@
+dataset: DADOS_ABERTOS-APAC_PS
+record: procedure
+columns:
+  CATEND:
+    role: care.type_of_care_episode
+    kind: category
+    model: mark
+    codelists:
+    - CARAT_AT
+    name: Carater de Atendimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CIDASSOC:
+    role: care.associated_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Causas Associadas
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CIDPRI:
+    role: care.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CNES_ESF:
+    role: care.cnes_code_of_the_areas_family_health_unit
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da Família da região
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CNES_EXEC:
+    role: care.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do SCNES do Estabelecimento de Saúde
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CNPJCPF:
+    role: care.executing_establishments_cnpj_cpf
+    kind: identifier
+    model: excluded
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CNPJMNT:
+    role: care.establishments_parent_organization_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da Mantenedora
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CNS_PAC:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    also:
+    - patient.id
+    name: Numero do CNS do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  COB_ESF:
+    role: care.esf_coverage_indicator
+    kind: category
+    model: mark
+    codelists:
+    - COBERTURA
+    name: Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  CONDIC:
+    role: care.management_type_code
+    kind: category
+    model: mark
+    codelists:
+    - TP_GESTAO
+    - TP_GEST_C
+    name: Sigla do Tipo de Gestao
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DESTINOPAC:
+    role: care.patient_destination
+    kind: category
+    model: mark
+    codelists:
+    - DESTINO
+    - DEST_PSI
+    name: Destino do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DTNASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DT_ATEND:
+    role: care.month
+    kind: date
+    model: when
+    name: Ano e mes do Atendimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DT_FIM:
+    role: care.record_end_date
+    kind: date
+    model: mark
+    name: Data de Fim
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DT_INICIO:
+    role: treatment.start
+    kind: date
+    model: mark
+    name: Data de Início
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DT_MOTCOB:
+    role: care.date_of_discharge_transfer_death
+    kind: date
+    model: mark
+    name: Data da ocorrência no caso de alta, transferência ou óbito
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  DT_PROCESS:
+    role: care.processing_month
+    kind: date
+    model: when
+    name: Ano e mes de Processamento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  ETNIA:
+    role: care.indigenous_ethnicity
+    kind: category
+    model: mark
+    name: Etnia
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  FIM:
+    role: care.end
+    kind: date
+    model: mark
+    name: Data de Fim do Atendimento (DDMMAAAA)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  GESTAO:
+    role: care.managing_authority
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    name: Gestão
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  IDADEPAC:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade do Paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  INICIO:
+    role: care.start
+    kind: date
+    model: mark
+    name: Data de Início do Atendimento (DDMMAAAA)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  LOC_REALIZ:
+    role: care.place_of_delivery
+    kind: category
+    model: mark
+    codelists:
+    - LOC_REALIZ
+    name: Local de Realização (C – CAPS, T - Território)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  MN_IND:
+    role: care.maintained_vs_individual_establishment_flag
+    kind: category
+    model: mark
+    codelists:
+    - MANT_IND
+    name: Estabelecimento Mantido / Individual
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  MOT_COB:
+    role: care.reason_for_discharge_continuation
+    kind: category
+    model: mark
+    codelists:
+    - MOTSAIPE
+    name: Motivo de Saída/Permanência
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  MUNPAC:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio de residencia do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  NACION_PAC:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    codelists:
+    - UFNACIO
+    name: Nacionalidade do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  NAT_JUR:
+    role: care.establishment_legal_nature_concla
+    kind: category
+    model: mark
+    name: Natureza jurídica
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  ORIGEM_PAC:
+    role: care.patient_origin
+    kind: category
+    model: mark
+    codelists:
+    - ORIGEM
+    - ORIG_PSI
+    name: Origem do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PA_CLASS_S:
+    role: care.service_classification
+    kind: category
+    model: mark
+    codelists:
+    - S_CLASSEN
+    name: Classificação do Serviço
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PA_PROC_ID:
+    role: care.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Codigo do Procedimento Ambulatorial
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PA_QTDAPR:
+    role: care.approved_quantity
+    kind: number
+    model: mark
+    name: Quantidade Aprovada
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PA_QTDPRO:
+    role: care.submitted_presented_quantity
+    kind: number
+    model: mark
+    name: Quantidade Produzida (APRESENTADA)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PA_SRV:
+    role: care.specialised_service
+    kind: category
+    model: mark
+    codelists:
+    - S_CLASSEN
+    name: Serviço Especializado
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  PERMANEN:
+    role: care.time_in_attendance
+    kind: number
+    model: mark
+    name: Permanência em Atendimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  QTDATE:
+    role: care.number_of_attendances
+    kind: number
+    model: mark
+    name: Quantidade de Atendimentos
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  QTDPCN:
+    role: care.number_of_patients
+    kind: number
+    model: mark
+    name: Quantidade de pacientes
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  RACACOR:
+    role: care.race_colour
+    kind: category
+    model: mark
+    name: Raça/Cor
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  SEXOPAC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    codelists:
+    - SEXO
+    name: Sexo do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  SIT_RUA:
+    role: care.homelessness_status
+    kind: category
+    model: mark
+    codelists:
+    - SIT_RUA
+    name: Situação de Rua (S- SIM, N - NÃO)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  TIPPRE:
+    role: care.provider_type_code
+    kind: category
+    model: mark
+    name: Tipo de Prestador
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  TPIDADEPAC:
+    role: care.age_unit_code
+    kind: category
+    model: mark
+    codelists:
+    - IDADEDET
+    name: Tipo da Idade do paciente
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  TPUPS:
+    role: care.establishment_type_code
+    kind: institution
+    model: institution
+    codelists:
+    - TP_ESTAB
+    name: Tipo de Estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  TP_DROGA:
+    role: care.drug_type
+    kind: category
+    model: mark
+    codelists:
+    - TP_DROGA
+    name: TIPO DE DROGA (A - Álcool, C - Crack, O - Outros)
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).
+  UFMUN:
+    role: care.establishments_municipality_ibge_code
+    kind: place
+    model: mark
+    codelists:
+    - AC_MUNICIP
+    name: UF+Municipio do estabelecimento
+    years:
+    - 
+    - 
+    note: As in SIASUS-PS (the same file republished).

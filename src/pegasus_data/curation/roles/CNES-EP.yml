@@ -1,0 +1,937 @@
+dataset: CNES-EP
+record: team
+columns:
+  AP01CV01:
+    role: establishment.inpatient_admission_internacao_offered_under_the_sus_public_
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP01CV01
+  AP01CV02:
+    role: establishment.inpatient_admission_internacao_offered_under_out_of_pocket_p
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP01CV03:
+    role: establishment.inpatient_admission_internacao_offered_under_the_establishme
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP01CV03
+  AP01CV04:
+    role: establishment.inpatient_admission_internacao_offered_under_a_third_partys_
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP01CV05:
+    role: establishment.inpatient_admission_internacao_offered_under_a_public_health
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP01CV06:
+    role: establishment.inpatient_admission_internacao_offered_under_a_private_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP01CV07:
+    role: establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNAÇÃO / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP02CV01:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP02CV01
+  AP02CV02:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP02CV03:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP02CV03
+  AP02CV04:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP02CV05:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP02CV06:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP02CV07:
+    role: establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado AMBULATORIAL / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP03CV01:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP03CV01
+  AP03CV02:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP03CV03:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP03CV03
+  AP03CV04:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP03CV05:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP03CV06:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP03CV07:
+    role: establishment.sadt_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP04CV01:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_the_sus_public_
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP04CV01
+  AP04CV02:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_out_of_pocket_p
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP04CV03:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_the_establishme
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP04CV03
+  AP04CV04:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_third_partys_
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP04CV05:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_public_health
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP04CV06:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_private_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP04CV07:
+    role: establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado URGÊNCIA / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP05CV01:
+    role: establishment.other_care_outros_offered_under_the_sus_public_system
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP05CV01
+  AP05CV02:
+    role: establishment.other_care_outros_offered_under_out_of_pocket_private_pay_pa
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP05CV03:
+    role: establishment.other_care_outros_offered_under_the_establishments_own_compa
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP05CV03
+  AP05CV04:
+    role: establishment.other_care_outros_offered_under_a_third_partys_company_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP05CV05:
+    role: establishment.other_care_outros_offered_under_a_public_health_plan_plano_d
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP05CV06:
+    role: establishment.other_care_outros_offered_under_a_private_health_plan_plano_
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP05CV07:
+    role: establishment.outros_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP06CV01:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_su
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP06CV01
+  AP06CV02:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_out_of
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP06CV03:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_es
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP06CV03
+  AP06CV04:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_thir
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP06CV05:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_publ
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP06CV06:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_priv
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP06CV07:
+    role: establishment.health_surveillance_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP07CV01:
+    role: establishment.regulation_referral_management_regulacao_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP07CV01
+  AP07CV02:
+    role: establishment.regulation_referral_management_regulacao_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PARTICULAR
+    years:
+    - 2007
+    - 2026
+  AP07CV03:
+    role: establishment.regulation_referral_management_regulacao_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - AP07CV03
+  AP07CV04:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2007
+    - 2026
+  AP07CV05:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2007
+    - 2026
+  AP07CV06:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2007
+    - 2026
+  AP07CV07:
+    role: establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULAÇÃO / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  ASSENTAD:
+    role: team.serves_a_land_settlement
+    kind: category
+    model: mark
+    name: Atende assentamento
+    years:
+    - 2007
+    - 2026
+  ATEND_PR:
+    role: establishment.any_service_provided_flag
+    kind: category
+    model: mark
+    name: Atendimento prestado
+    years:
+    - 2007
+    - 2026
+  ATIVIDAD:
+    role: establishment.teaching_research_activity_of_the_establishment
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - ATIV_ENS
+  CLIENTEL:
+    role: establishment.patient_flow_referral_intake_type
+    kind: category
+    model: mark
+    name: Fluxo de clientela
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - FLUX_CLI
+  CNES:
+    role: establishment.cnes
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2007
+    - 2026
+  CNPJ_MAN:
+    role: establishment.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2007
+    - 2026
+  CODUFMUN:
+    role: establishment.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Código do Município (UF + Município)
+    years:
+    - 2007
+    - 2026
+  COD_CEP:
+    role: establishment.postcode
+    kind: place
+    model: link_only
+    name: Código de Endereçamento Postal (CEP)
+    years:
+    - 2007
+    - 2026
+  COD_IR:
+    role: establishment.income_tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção do imposto de renda
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - RETENMAN
+  COMPETEN:
+    role: establishment.competence
+    kind: date
+    model: when
+    name: Competência (Ano/Mês)
+    years:
+    - 2007
+    - 2026
+    note: YYYYMM of the monthly CNES snapshot.
+  CPF_CNPJ:
+    role: establishment.cpf_cnpj
+    kind: identifier
+    model: link_only
+    name: CPF/CNPJ do estabelecimento
+    years:
+    - 2007
+    - 2026
+    note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
+      unchanged.'
+  DESCSEGM:
+    role: team.segment_description
+    kind: text
+    model: excluded
+    name: Descrição do segmento
+    years:
+    - 2007
+    - 2026
+  DISTRADM:
+    role: establishment.administrative_district_local
+    kind: category
+    model: mark
+    name: Distrito administrativo / Módulo assistencial
+    years:
+    - 2007
+    - 2026
+  DISTRSAN:
+    role: establishment.sanitary_district_local
+    kind: category
+    model: mark
+    name: Distrito sanitário
+    years:
+    - 2007
+    - 2026
+  DT_ATIVA:
+    role: team.activation_month
+    kind: date
+    model: mark
+    name: Competência de ativação da equipe
+    years:
+    - 2007
+    - 2026
+  DT_DESAT:
+    role: team.deactivation_month
+    kind: date
+    model: mark
+    name: Competência de desativação da equipe
+    years:
+    - 2007
+    - 2026
+  ESCOLA:
+    role: team.serves_schoolchildren
+    kind: category
+    model: mark
+    name: Atende escolares
+    years:
+    - 2007
+    - 2026
+  ESFERA_A:
+    role: establishment.administrative_sphere
+    kind: category
+    model: mark
+    name: Esfera administrativa
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - ESFERADM
+  GESPRG1E:
+    role: establishment.state_level_management_of_outpatient_primary_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG1M:
+    role: establishment.municipal_level_management_of_outpatient_primary_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  GESPRG2E:
+    role: establishment.state_level_management_of_outpatient_medium_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG2M:
+    role: establishment.municipal_level_management_of_outpatient_medium_complexity_c
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  GESPRG3E:
+    role: establishment.legacy_state_level_internacao_general_inpatient_management_i
+    kind: category
+    model: mark
+    name: Indicador se a gestao do programa cod. 03 e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG3M:
+    role: establishment.legacy_municipal_level_internacao_general_inpatient_manageme
+    kind: category
+    model: mark
+    name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  GESPRG4E:
+    role: establishment.state_level_management_of_outpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG4M:
+    role: establishment.municipal_level_management_of_outpatient_high_complexity_car
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  GESPRG5E:
+    role: establishment.state_level_management_of_inpatient_medium_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG5M:
+    role: establishment.municipal_level_management_of_inpatient_medium_complexity_ca
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  GESPRG6E:
+    role: establishment.state_level_management_of_inpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
+    years:
+    - 2007
+    - 2026
+  GESPRG6M:
+    role: establishment.municipal_level_management_of_inpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
+    years:
+    - 2007
+    - 2026
+  IDEQUIPE:
+    role: team.identifier
+    kind: identifier
+    model: link_only
+    name: Identificador da equipe
+    years:
+    - 2007
+    - 2026
+  ID_AREA:
+    role: team.coverage_area
+    kind: category
+    model: mark
+    name: Área de abrangência
+    years:
+    - 2007
+    - 2026
+  ID_SEGM:
+    role: team.territorial_segment
+    kind: category
+    model: mark
+    name: Segmento territorial
+    years:
+    - 2007
+    - 2026
+  INDIGENA:
+    role: team.serves_indigenous_population
+    kind: category
+    model: mark
+    name: Atende população indígena
+    years:
+    - 2007
+    - 2026
+  MICR_REG:
+    role: establishment.micro_region_local
+    kind: category
+    model: mark
+    name: Microrregião de saúde
+    years:
+    - 2007
+    - 2026
+  MOTDESAT:
+    role: team.reason_for_deactivation
+    kind: category
+    model: mark
+    name: Motivo da desativação
+    years:
+    - 2007
+    - 2026
+  NATUREZA:
+    role: establishment.organisation_nature_legacy
+    kind: category
+    model: mark
+    name: Código da natureza da organização
+    years:
+    - 2007
+    - 2026
+  NAT_JUR:
+    role: establishment.legal_nature
+    kind: category
+    model: mark
+    name: Natureza Jurídica
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - NAT_JUR
+    - NATJUR
+  NIVATE_A:
+    role: establishment.outpatient_ambulatorial_care_tier_exists_for_this_establishm
+    kind: category
+    model: mark
+    name: Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao Municipal/Estadual, para este CNES
+    years:
+    - 2007
+    - 2026
+  NIVATE_H:
+    role: establishment.inpatient_hospitalar_care_tier_exists_for_this_establishment
+    kind: category
+    model: mark
+    name: Indica a existencia de Nivel de Atencao HOSPITALAR, de gestao Municipal/Estadual, para este CNES
+    years:
+    - 2007
+    - 2026
+  NIV_DEP:
+    role: establishment.institutional_dependency_level
+    kind: category
+    model: mark
+    name: Grau/Nível de dependência
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    role: establishment.care_network_hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIV_HIER
+  NOMEAREA:
+    role: team.coverage_area_name_text
+    kind: text
+    model: excluded
+    name: Nome da área
+    years:
+    - 2007
+    - 2026
+  NOME_EQP:
+    role: team.team_name_text
+    kind: text
+    model: excluded
+    name: Nome da equipe
+    years:
+    - 2007
+    - 2026
+  PF_PJ:
+    role: establishment.person_type
+    kind: category
+    model: mark
+    name: Indicador de pessoa física/jurídica
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TP_PFPJ
+  POPGERAL:
+    role: team.serves_the_general_population
+    kind: category
+    model: mark
+    name: Atende população geral
+    years:
+    - 2007
+    - 2026
+  PRONASCI:
+    role: team.pronasci_team
+    kind: category
+    model: mark
+    name: Equipe do PRONASCI
+    years:
+    - 2007
+    - 2026
+  QUILOMBO:
+    role: team.serves_quilombola_population
+    kind: category
+    model: mark
+    name: Atende população quilombola
+    years:
+    - 2007
+    - 2026
+  REGSAUDE:
+    role: establishment.health_region_local
+    kind: category
+    model: mark
+    name: Região de saúde
+    years:
+    - 2007
+    - 2026
+  RETENCAO:
+    role: establishment.tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - RETENCAO
+  TERCEIRO:
+    role: team.outsourced_link_flag
+    kind: category
+    model: mark
+    name: Terceiro
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TERCEIRO
+  TIPOSEGM:
+    role: team.segment_type
+    kind: category
+    model: mark
+    name: Tipo do segmento
+    years:
+    - 2007
+    - 2026
+  TIPO_EQP:
+    role: team.type
+    kind: category
+    model: dimension
+    name: Tipo de equipe
+    years:
+    - 2007
+    - 2026
+  TPGESTAO:
+    role: establishment.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_DESAT:
+    role: team.deactivation_type
+    kind: category
+    model: mark
+    name: Tipo de desativação
+    years:
+    - 2007
+    - 2026
+  TP_PREST:
+    role: establishment.provider_ownership_legal_nature_classification
+    kind: category
+    model: mark
+    name: Tipo de prestador
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TIPOPRES
+  TP_UNID:
+    role: establishment.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de unidade (estabelecimento)
+    years:
+    - 2007
+    - 2026
+  TURNO_AT:
+    role: establishment.operating_shift_hours_code
+    kind: category
+    model: mark
+    name: Turno de atendimento
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TURNOSAT
+  VINC_SUS:
+    role: establishment.sus_linked
+    kind: category
+    model: mark
+    name: Vínculo com o SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - VINC_SUS

@@ -1,0 +1,298 @@
+dataset: CNES-GM
+record: establishment
+columns:
+  ATIVIDAD:
+    role: establishment.teaching_research_activity_of_the_establishment
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - ATIV_ENS
+  CLIENTEL:
+    role: establishment.patient_flow_referral_intake_type
+    kind: category
+    model: mark
+    name: Fluxo de clientela
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - FLUX_CLI
+  CMPT_FIM:
+    role: establishment.end_year_month_of_the_habilita_o_records_validity_period
+    kind: date
+    model: when
+    name: Competência final
+    years:
+    - 2007
+    - 2026
+  CMPT_INI:
+    role: establishment.start_year_month_of_the_habilita_o_records_validity_period
+    kind: date
+    model: mark
+    name: Competência inicial
+    years:
+    - 2007
+    - 2026
+  CNES:
+    role: establishment.cnes
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2007
+    - 2026
+  CNPJ_MAN:
+    role: establishment.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2007
+    - 2026
+  CODUFMUN:
+    role: establishment.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Código do Município (UF + Município)
+    years:
+    - 2007
+    - 2026
+  COD_CEP:
+    role: establishment.postcode
+    kind: place
+    model: link_only
+    name: Código de Endereçamento Postal (CEP)
+    years:
+    - 2007
+    - 2026
+  COMPETEN:
+    role: establishment.competence
+    kind: date
+    model: when
+    name: Competência (Ano/Mês)
+    years:
+    - 2007
+    - 2026
+    note: YYYYMM of the monthly CNES snapshot.
+  CPF_CNPJ:
+    role: establishment.cpf_cnpj
+    kind: identifier
+    model: link_only
+    name: CPF/CNPJ do estabelecimento
+    years:
+    - 2007
+    - 2026
+    note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
+      unchanged.'
+  DISTRADM:
+    role: establishment.administrative_district_local
+    kind: category
+    model: mark
+    name: Distrito administrativo / Módulo assistencial
+    years:
+    - 2007
+    - 2026
+  DISTRSAN:
+    role: establishment.sanitary_district_local
+    kind: category
+    model: mark
+    name: Distrito sanitário
+    years:
+    - 2007
+    - 2026
+  DTPORTAR:
+    role: establishment.date_of_the_ordinance_portaria_granting_the_habilita_o
+    kind: date
+    model: mark
+    name: Data da portaria
+    years:
+    - 2007
+    - 2026
+  ESFERA_A:
+    role: establishment.administrative_sphere
+    kind: category
+    model: mark
+    name: Esfera administrativa
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - ESFERADM
+  MAPORTAR:
+    role: establishment.year_month_of_the_ordinance_portaria
+    kind: date
+    model: when
+    name: Campo DT_PORTARIA formatado como AAAAMM
+    years:
+    - 2007
+    - 2026
+  MICR_REG:
+    role: establishment.micro_region_local
+    kind: category
+    model: mark
+    name: Microrregião de saúde
+    years:
+    - 2007
+    - 2026
+  NATUREZA:
+    role: establishment.organisation_nature_legacy
+    kind: category
+    model: mark
+    name: Código da natureza da organização
+    years:
+    - 2007
+    - 2026
+  NAT_JUR:
+    role: establishment.legal_nature
+    kind: category
+    model: mark
+    name: Natureza Jurídica
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - NAT_JUR
+    - NATJUR
+  NIV_DEP:
+    role: establishment.institutional_dependency_level
+    kind: category
+    model: mark
+    name: Grau/Nível de dependência
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    role: establishment.care_network_hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIV_HIER
+  PF_PJ:
+    role: establishment.person_type
+    kind: category
+    model: mark
+    name: Indicador de pessoa física/jurídica
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TP_PFPJ
+  PORTARIA:
+    role: establishment.ordinance_number_citation
+    kind: category
+    model: mark
+    name: Portaria
+    years:
+    - 2007
+    - 2026
+  REGSAUDE:
+    role: establishment.health_region_local
+    kind: category
+    model: mark
+    name: Região de saúde
+    years:
+    - 2007
+    - 2026
+  RETENCAO:
+    role: establishment.tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - RETENCAO
+  SGRUPHAB:
+    role: establishment.habilita_o_sus_accreditation_group_code
+    kind: category
+    model: mark
+    name: Código da habilitação
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - ESTABENS
+    - ESTABFIL
+    - GESTAO
+    - HABILITA
+    - INCENTIVOS
+    - REGRAS
+  TERCEIRO:
+    role: establishment.outsourced_link_flag
+    kind: category
+    model: mark
+    name: Terceiro
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TERCEIRO
+  TPGESTAO:
+    role: establishment.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_PREST:
+    role: establishment.provider_ownership_legal_nature_classification
+    kind: category
+    model: mark
+    name: Tipo de prestador
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TIPOPRES
+  TP_UNID:
+    role: establishment.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de unidade (estabelecimento)
+    years:
+    - 2007
+    - 2026
+  TURNO_AT:
+    role: establishment.operating_shift_hours_code
+    kind: category
+    model: mark
+    name: Turno de atendimento
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - TURNOSAT
+  VINC_SUS:
+    role: establishment.sus_linked
+    kind: category
+    model: mark
+    name: Vínculo com o SUS
+    years:
+    - 2007
+    - 2026
+    codelists:
+    - VINC_SUS

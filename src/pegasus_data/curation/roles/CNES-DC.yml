@@ -1,0 +1,1446 @@
+dataset: CNES-DC
+record: establishment
+columns:
+  ABRANDAD:
+    role: establishment.water_treatment_with_water_softener
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com abrandador
+    years:
+    - 2005
+    - 2026
+  AP01CV01:
+    role: establishment.inpatient_admission_internacao_offered_under_the_sus_public_
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP01CV01
+  AP01CV02:
+    role: establishment.inpatient_admission_internacao_offered_under_out_of_pocket_p
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP01CV03:
+    role: establishment.inpatient_admission_internacao_offered_under_the_establishme
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP01CV03
+  AP01CV04:
+    role: establishment.inpatient_admission_internacao_offered_under_a_third_partys_
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP01CV05:
+    role: establishment.inpatient_admission_internacao_offered_under_a_public_health
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP01CV06:
+    role: establishment.inpatient_admission_internacao_offered_under_a_private_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP01CV07:
+    role: establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado INTERNAÇÃO / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP02CV01:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP02CV01
+  AP02CV02:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP02CV03:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP02CV03
+  AP02CV04:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP02CV05:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP02CV06:
+    role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP02CV07:
+    role: establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado AMBULATORIAL / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP03CV01:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP03CV01
+  AP03CV02:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP03CV03:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP03CV03
+  AP03CV04:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP03CV05:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP03CV06:
+    role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP03CV07:
+    role: establishment.sadt_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado SADT / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP04CV01:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_the_sus_public_
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP04CV01
+  AP04CV02:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_out_of_pocket_p
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP04CV03:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_the_establishme
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP04CV03
+  AP04CV04:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_third_partys_
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP04CV05:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_public_health
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP04CV06:
+    role: establishment.emergency_urgent_care_urgencia_offered_under_a_private_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP04CV07:
+    role: establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado URGÊNCIA / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP05CV01:
+    role: establishment.other_care_outros_offered_under_the_sus_public_system
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP05CV01
+  AP05CV02:
+    role: establishment.other_care_outros_offered_under_out_of_pocket_private_pay_pa
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP05CV03:
+    role: establishment.other_care_outros_offered_under_the_establishments_own_compa
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP05CV03
+  AP05CV04:
+    role: establishment.other_care_outros_offered_under_a_third_partys_company_healt
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP05CV05:
+    role: establishment.other_care_outros_offered_under_a_public_health_plan_plano_d
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP05CV06:
+    role: establishment.other_care_outros_offered_under_a_private_health_plan_plano_
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP05CV07:
+    role: establishment.outros_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado OUTROS / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP06CV01:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_su
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP06CV01
+  AP06CV02:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_out_of
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP06CV03:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_es
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP06CV03
+  AP06CV04:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_thir
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP06CV05:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_publ
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP06CV06:
+    role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_priv
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP06CV07:
+    role: establishment.health_surveillance_care_given_free_of_charge_gratuidade
+    kind: category
+    model: mark
+    name: Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  AP07CV01:
+    role: establishment.regulation_referral_management_regulacao_offered_under_the_s
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP07CV01
+  AP07CV02:
+    role: establishment.regulation_referral_management_regulacao_offered_under_out_o
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PARTICULAR
+    years:
+    - 2005
+    - 2026
+  AP07CV03:
+    role: establishment.regulation_referral_management_regulacao_offered_under_the_e
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - AP07CV03
+  AP07CV04:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_thi
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO
+    years:
+    - 2005
+    - 2026
+  AP07CV05:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_pub
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO
+    years:
+    - 2005
+    - 2026
+  AP07CV06:
+    role: establishment.regulation_referral_management_regulacao_offered_under_a_pri
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO
+    years:
+    - 2005
+    - 2026
+  AP07CV07:
+    role: establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid
+    kind: category
+    model: mark
+    name: Atendimento prestado REGULAÇÃO / Convênio Gratuidade
+    years:
+    - 2019
+    - 2026
+  ARMAZ_FT:
+    role: establishment.radiotherapy_sealed_source_storage_rooms
+    kind: category
+    model: mark
+    name: Numero de salas de armazenamento de fontes - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  ATEND_PR:
+    role: establishment.any_service_provided_flag
+    kind: category
+    model: mark
+    name: Atendimento prestado
+    years:
+    - 2005
+    - 2026
+  ATIVIDAD:
+    role: establishment.teaching_research_activity_of_the_establishment
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ATIV_ENS
+  BLOCOPER:
+    role: establishment.radiotherapy_custom_block_fabrication_rooms
+    kind: category
+    model: mark
+    name: Numero de salas de bloco personalizado - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  CLIENTEL:
+    role: establishment.patient_flow_referral_intake_type
+    kind: category
+    model: mark
+    name: Fluxo de clientela
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - FLUX_CLI
+  CNES:
+    role: establishment.cnes
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2005
+    - 2026
+  CNPJ_MAN:
+    role: establishment.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2005
+    - 2026
+  CNS_ADM:
+    role: establishment.cns_of_the_responsible_administrator_technical_director
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - ADMINISTRADOR OU RESPONSAVEL TECNICO
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_CONC:
+    role: establishment.cns_of_the_responsible_oncologic_surgeon
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - CIRURGIA ONCOLOGICA
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_CRES:
+    role: establishment.cns_of_the_responsible_qualified_responsible_physician
+    kind: identifier
+    model: link_only
+    name: CNS do medico medico capacitado RESPONSAVEL
+    years:
+    - 2005
+    - 2026
+  CNS_FNUC:
+    role: establishment.cns_of_the_responsible_nuclear_medical_physicist
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - FISICO NUCLEAR
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_HMTL:
+    role: establishment.cns_of_the_responsible_hematologist
+    kind: identifier
+    model: link_only
+    name: CNS do medico responsavel - HEMATOLOGISTA
+    years:
+    - 2005
+    - 2026
+  CNS_HMTR:
+    role: establishment.cns_of_the_responsible_hemotherapist
+    kind: identifier
+    model: link_only
+    name: CNS do medico responsavel - HEMOTERAPEUTA
+    years:
+    - 2005
+    - 2026
+  CNS_MRAD:
+    role: establishment.cns_of_the_responsible_radiotherapist
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - RADIOTERAPEUTA
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_NEFR:
+    role: establishment.cns_of_the_responsible_nephrologist
+    kind: identifier
+    model: excluded
+    name: CNS do MEDICO NEFROLOGISTA RESPONSAVEL
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_OCLIN:
+    role: establishment.cns_of_the_responsible_clinical_oncologist
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - ONCOLOGISTA CLINICO
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_OPED:
+    role: establishment.cns_of_the_responsible_pediatric_oncologist
+    kind: identifier
+    model: excluded
+    name: CNS do medico responsavel - ONCOLOGISTA PEDIATRICO
+    years:
+    - 2005
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNS_RTEC:
+    role: establishment.cns_of_the_responsible_serology_technical_director
+    kind: identifier
+    model: link_only
+    name: CNS do medico responsavel - responsavel TECNICO / SOROLOGIA
+    years:
+    - 2005
+    - 2026
+  CODUFMUN:
+    role: establishment.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Código do Município (UF + Município)
+    years:
+    - 2005
+    - 2026
+  COD_IR:
+    role: establishment.income_tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção do imposto de renda
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - RETENMAN
+  COMPETEN:
+    role: establishment.competence
+    kind: date
+    model: when
+    name: Competência (Ano/Mês)
+    years:
+    - 2005
+    - 2026
+    note: YYYYMM of the monthly CNES snapshot.
+  CONF_MAS:
+    role: establishment.radiotherapy_mask_fabrication_rooms
+    kind: category
+    model: mark
+    name: Numero de salas confeccao masc. - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  CPF_CNPJ:
+    role: establishment.cpf_cnpj
+    kind: identifier
+    model: link_only
+    name: CPF/CNPJ do estabelecimento
+    years:
+    - 2005
+    - 2026
+    note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
+      unchanged.'
+  DEIONIZA:
+    role: establishment.water_treatment_with_deionizer
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com deionizador
+    years:
+    - 2005
+    - 2026
+  DIALISE:
+    role: establishment.dialysis_service_requirements_met
+    kind: category
+    model: mark
+    name: Indica a existencia de algum REQUISITO DE DIALISE para este CNES
+    years:
+    - 2005
+    - 2026
+  DISTRADM:
+    role: establishment.administrative_district_local
+    kind: category
+    model: mark
+    name: Distrito administrativo / Módulo assistencial
+    years:
+    - 2005
+    - 2026
+  DISTRSAN:
+    role: establishment.sanitary_district_local
+    kind: category
+    model: mark
+    name: Distrito sanitário
+    years:
+    - 2005
+    - 2026
+  EQBRALTA:
+    role: establishment.radiotherapy_high_dose_rate_brachytherapy_units
+    kind: number
+    model: mark
+    name: Quantidade de Equipamentos de Braquiterapia Alta
+    years:
+    - 2005
+    - 2026
+  EQBRBAIX:
+    role: establishment.radiotherapy_low_dose_rate_brachytherapy_units
+    kind: number
+    model: mark
+    name: Quantidade de Equipamentos de Braquiterapia Baixa
+    years:
+    - 2005
+    - 2026
+  EQBRMEDI:
+    role: establishment.radiotherapy_medium_dose_rate_brachytherapy_units
+    kind: number
+    model: mark
+    name: Quantidade de Equipamentos de Braquiterapia Media
+    years:
+    - 2005
+    - 2026
+  EQDOSCLI:
+    role: establishment.radiotherapy_clinical_dosimeters
+    kind: category
+    model: mark
+    name: Quantidade de dosimetro clinico
+    years:
+    - 2005
+    - 2026
+  EQFONSEL:
+    role: establishment.radiotherapy_sealed_radioactive_sources
+    kind: category
+    model: mark
+    name: Quantidade de fontes seladas
+    years:
+    - 2005
+    - 2026
+  EQSISPLN:
+    role: establishment.radiotherapy_treatment_planning_computer_systems
+    kind: category
+    model: mark
+    name: Quantidade de sistema de Computacao para Planejamento
+    years:
+    - 2005
+    - 2026
+  EQ_MAREA:
+    role: establishment.radiotherapy_area_radiation_monitors
+    kind: category
+    model: mark
+    name: Quantidade de Monitor de Area
+    years:
+    - 2005
+    - 2026
+  EQ_MINDI:
+    role: establishment.radiotherapy_personal_individual_dosimetry_monitors
+    kind: category
+    model: mark
+    name: Quantidade de Monitor Individual
+    years:
+    - 2005
+    - 2026
+  ESFERA_A:
+    role: establishment.administrative_sphere
+    kind: category
+    model: mark
+    name: Esfera administrativa
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ESFERADM
+  F_AREIA:
+    role: establishment.water_treatment_with_sand_filter
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com filtro de areia
+    years:
+    - 2005
+    - 2026
+  F_CARVAO:
+    role: establishment.water_treatment_with_carbon_filter
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com filtro de carvao
+    years:
+    - 2005
+    - 2026
+  GESPRG3E:
+    role: establishment.legacy_state_level_internacao_general_inpatient_management_i
+    kind: category
+    model: mark
+    name: Indicador se a gestao do programa cod. 03 e ESTADUAL
+    years:
+    - 2005
+    - 2026
+  GESPRG3M:
+    role: establishment.legacy_municipal_level_internacao_general_inpatient_manageme
+    kind: category
+    model: mark
+    name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
+    years:
+    - 2005
+    - 2026
+  GESPRG4E:
+    role: establishment.state_level_management_of_outpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL
+    years:
+    - 2005
+    - 2026
+  GESPRG4M:
+    role: establishment.municipal_level_management_of_outpatient_high_complexity_car
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e MUNICIPAL
+    years:
+    - 2005
+    - 2026
+  GESPRG6E:
+    role: establishment.state_level_management_of_inpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
+    years:
+    - 2005
+    - 2026
+  GESPRG6M:
+    role: establishment.municipal_level_management_of_inpatient_high_complexity_care
+    kind: category
+    model: mark
+    name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
+    years:
+    - 2005
+    - 2026
+  HEMOTERA:
+    role: establishment.hemotherapy_requirements_met
+    kind: category
+    model: mark
+    name: Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este CNES
+    years:
+    - 2005
+    - 2026
+  MAQ_OUTR:
+    role: establishment.other_dialysis_machines
+    kind: category
+    model: mark
+    name: Quantidade de outras maquinas
+    years:
+    - 2005
+    - 2026
+  MAQ_PROP:
+    role: establishment.proportioning_dialysis_machines
+    kind: category
+    model: mark
+    name: Quantidade de maquinas de proporcao
+    years:
+    - 2005
+    - 2026
+  MICR_REG:
+    role: establishment.micro_region_local
+    kind: category
+    model: mark
+    name: Microrregião de saúde
+    years:
+    - 2005
+    - 2026
+  NATUREZA:
+    role: establishment.organisation_nature_legacy
+    kind: category
+    model: mark
+    name: Código da natureza da organização
+    years:
+    - 2005
+    - 2026
+  NAT_JUR:
+    role: establishment.legal_nature
+    kind: category
+    model: mark
+    name: Natureza Jurídica
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - NAT_JUR
+    - NATJUR
+  NIVATE_A:
+    role: establishment.outpatient_ambulatorial_care_tier_exists_for_this_establishm
+    kind: category
+    model: mark
+    name: Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao Municipal/Estadual, para este CNES
+    years:
+    - 2005
+    - 2026
+  NIVATE_H:
+    role: establishment.inpatient_hospitalar_care_tier_exists_for_this_establishment
+    kind: category
+    model: mark
+    name: Indica a existencia de Nivel de Atencao HOSPITALAR, de gestao Municipal/Estadual, para este CNES
+    years:
+    - 2005
+    - 2026
+  NIV_DEP:
+    role: establishment.institutional_dependency_level
+    kind: category
+    model: mark
+    name: Grau/Nível de dependência
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    role: establishment.care_network_hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIV_HIER
+  ORTV1050:
+    role: establishment.radiotherapy_orthovoltage_units_10_50_kv
+    kind: category
+    model: mark
+    name: Quantidade de Equipamentos de Ortovoltagem 10-50 KV
+    years:
+    - 2005
+    - 2026
+  ORV50150:
+    role: establishment.radiotherapy_orthovoltage_units_50_150_kv
+    kind: category
+    model: mark
+    name: Quantidade de Equipamentos de Ortovoltagem 50-150 KV
+    years:
+    - 2005
+    - 2026
+  OSMOSE_R:
+    role: establishment.water_treatment_with_reverse_osmosis_unit
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com maquina de osmose reversa
+    years:
+    - 2005
+    - 2026
+  OUT_TRAT:
+    role: establishment.water_treatment_with_other_water_treatment_equipment
+    kind: category
+    model: mark
+    name: Indica se faz tratamento de agua com outros tipos de equipamento
+    years:
+    - 2005
+    - 2026
+  OV150500:
+    role: establishment.radiotherapy_orthovoltage_units_150_500_kv
+    kind: category
+    model: mark
+    name: Quantidade de Equipamentos de Ortovoltagem 150-500 KV
+    years:
+    - 2005
+    - 2026
+  PF_PJ:
+    role: establishment.person_type
+    kind: category
+    model: mark
+    name: Indicador de pessoa física/jurídica
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TP_PFPJ
+  PLANJ_RD:
+    role: establishment.radiotherapy_treatment_planning_rooms
+    kind: category
+    model: mark
+    name: Numero de salas de Planejamento - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  QT_AGIPL:
+    role: establishment.hemotherapy_platelet_agitators
+    kind: category
+    model: mark
+    name: Quantidade de agitadores de plaquetas
+    years:
+    - 2005
+    - 2026
+  QT_AGLTN:
+    role: establishment.hemotherapy_agglutinoscopes
+    kind: category
+    model: mark
+    name: Quantidade de aglutinoscopio
+    years:
+    - 2005
+    - 2026
+  QT_CADRE:
+    role: establishment.hemotherapy_reclining_donor_chairs
+    kind: category
+    model: mark
+    name: Quantidade de cadeiras reclinaveis
+    years:
+    - 2005
+    - 2026
+  QT_CAPFL:
+    role: establishment.hemotherapy_laminar_flow_cabinets
+    kind: category
+    model: mark
+    name: Quantidade de capelas fluxo laminar
+    years:
+    - 2005
+    - 2026
+  QT_CENRE:
+    role: establishment.hemotherapy_refrigerated_centrifuges
+    kind: category
+    model: mark
+    name: Quantidade de centrifugas refrigeradas
+    years:
+    - 2005
+    - 2026
+  QT_CONRA:
+    role: establishment.hemotherapy_rapid_blast_freezers
+    kind: category
+    model: mark
+    name: Quantidade de congeladores rapidos
+    years:
+    - 2005
+    - 2026
+  QT_EXTPL:
+    role: establishment.hemotherapy_automatic_plasma_extractors
+    kind: category
+    model: mark
+    name: Quantidade de extratores automaticos de plasma
+    years:
+    - 2005
+    - 2026
+  QT_FRE18:
+    role: establishment.hemotherapy_18c_freezers
+    kind: category
+    model: mark
+    name: Quantidade de freezers -18C
+    years:
+    - 2005
+    - 2026
+  QT_FRE30:
+    role: establishment.hemotherapy_30c_freezers
+    kind: category
+    model: mark
+    name: Quantidade de freezers -30C
+    years:
+    - 2005
+    - 2026
+  QT_IRRHE:
+    role: establishment.hemotherapy_blood_component_irradiators
+    kind: category
+    model: mark
+    name: Quantidade de irradiadores de hemocomponentes
+    years:
+    - 2005
+    - 2026
+  QT_MAQAF:
+    role: establishment.hemotherapy_apheresis_machines
+    kind: category
+    model: mark
+    name: Quantidade de maquinas de aferese
+    years:
+    - 2005
+    - 2026
+  QT_REFAS:
+    role: establishment.hemotherapy_blood_sample_storage_refrigerators
+    kind: category
+    model: mark
+    name: Quantidade de refrigeradores para guarda de amostras de sangue
+    years:
+    - 2005
+    - 2026
+  QT_REFRE:
+    role: establishment.hemotherapy_reagent_storage_refrigerators
+    kind: category
+    model: mark
+    name: Quantidade de refrigeradores para guarda de reagentes
+    years:
+    - 2005
+    - 2026
+  QT_REFSA:
+    role: establishment.hemotherapy_blood_storage_refrigerators
+    kind: category
+    model: mark
+    name: Quantidade de refrigeradores para guarda de sangue
+    years:
+    - 2005
+    - 2026
+  QT_SELAD:
+    role: establishment.hemotherapy_tube_bag_sealers
+    kind: category
+    model: mark
+    name: Quantidade de seladoras
+    years:
+    - 2005
+    - 2026
+  QUIMRADI:
+    role: establishment.chemo_radiotherapy_requirements_met
+    kind: category
+    model: mark
+    name: Indica a existencia de algum REQUISITO DE QUIMIO/RADIO para este CNES
+    years:
+    - 2005
+    - 2026
+  REGSAUDE:
+    role: establishment.health_region_local
+    kind: category
+    model: mark
+    name: Região de saúde
+    years:
+    - 2005
+    - 2026
+  RETENCAO:
+    role: establishment.tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - RETENCAO
+  SALA_MOL:
+    role: establishment.radiotherapy_mould_room_facilities
+    kind: category
+    model: mark
+    name: Numero de salas de salas de molde - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  SIMUL_RD:
+    role: establishment.radiotherapy_simulation_rooms
+    kind: category
+    model: mark
+    name: Numero de salas simulacao - (Radioterapia)
+    years:
+    - 2005
+    - 2026
+  S_ACELL6:
+    role: establishment.radiotherapy_linear_accelerators_up_to_6_mev
+    kind: category
+    model: mark
+    name: Quantidade de Acelerador Linear ate 6 MeV
+    years:
+    - 2005
+    - 2026
+  S_AFERES:
+    role: establishment.apheresis_rooms
+    kind: category
+    model: mark
+    name: Numero de salas de aferese
+    years:
+    - 2005
+    - 2026
+  S_ALCOME:
+    role: establishment.linear_accelerators_above_6_mev_with_electrons
+    kind: category
+    model: mark
+    name: Quantidade de acelerador linear maior 6 MeV com elétrons
+    years:
+    - 2005
+    - 2026
+  S_ALSEME:
+    role: establishment.linear_accelerators_above_6_mev_without_electrons
+    kind: category
+    model: mark
+    name: Quantidade de Acelerador Linear maior 6 MeV sem elétrons
+    years:
+    - 2005
+    - 2026
+  S_ARMAZE:
+    role: establishment.storage_rooms
+    kind: category
+    model: mark
+    name: Número de salas de armazenagem
+    years:
+    - 2005
+    - 2026
+  S_BIOMOL:
+    role: establishment.molecular_biology_rooms
+    kind: category
+    model: mark
+    name: Número de salas de biologia molecular
+    years:
+    - 2005
+    - 2026
+  S_COLETA:
+    role: establishment.collection_rooms
+    kind: category
+    model: mark
+    name: Número de salas de coleta
+    years:
+    - 2005
+    - 2026
+  S_CONTRQ:
+    role: establishment.quality_control_rooms
+    kind: category
+    model: mark
+    name: Número de salas de controle de qualidade
+    years:
+    - 2005
+    - 2026
+  S_CPFLUX:
+    role: establishment.laminar_flow_hoods
+    kind: category
+    model: mark
+    name: Salas/Equipamentos de Capela Fluxo Laminar
+    years:
+    - 2005
+    - 2026
+  S_DISTRI:
+    role: establishment.distribution_rooms
+    kind: category
+    model: mark
+    name: Número de salas de distribuição
+    years:
+    - 2005
+    - 2026
+  S_DPAC:
+    role: establishment.capd_rooms
+    kind: category
+    model: mark
+    name: Quantidade de salas DPAC
+    years:
+    - 2005
+    - 2026
+  S_DPI:
+    role: establishment.intermittent_peritoneal_dialysis_rooms
+    kind: category
+    model: mark
+    name: Quantidade de salas DPI
+    years:
+    - 2005
+    - 2026
+  S_ESTOQU:
+    role: establishment.stock_rooms
+    kind: category
+    model: mark
+    name: Número de salas de estoque
+    years:
+    - 2005
+    - 2026
+  S_HBSAGN:
+    role: establishment.dialysis_rooms_for_hbsag_negative_patients
+    kind: category
+    model: mark
+    name: Quantidade de salas HBsAG-
+    years:
+    - 2005
+    - 2026
+  S_HBSAGP:
+    role: establishment.dialysis_rooms_for_hbsag_positive_patients
+    kind: category
+    model: mark
+    name: Quantidade de salas HBsAG+
+    years:
+    - 2005
+    - 2026
+  S_HEMOST:
+    role: establishment.haemostasis_rooms
+    kind: category
+    model: mark
+    name: Número de salas hemostasia
+    years:
+    - 2005
+    - 2026
+  S_IMUNFE:
+    role: establishment.immunophenotyping_rooms
+    kind: category
+    model: mark
+    name: Número de salas de imunofenotipágem
+    years:
+    - 2005
+    - 2026
+  S_IMUNOH:
+    role: establishment.immunohaematology_rooms
+    kind: category
+    model: mark
+    name: Número de salas de imunohematologia
+    years:
+    - 2005
+    - 2026
+  S_PREEST:
+    role: establishment.pre_stock_rooms
+    kind: category
+    model: mark
+    name: Número de salas de pré-estoque
+    years:
+    - 2005
+    - 2026
+  S_PREPAR:
+    role: establishment.preparation_rooms
+    kind: category
+    model: mark
+    name: Número de salas de preparo
+    years:
+    - 2005
+    - 2026
+  S_PRETRA:
+    role: establishment.pre_transfusion_testing_rooms
+    kind: category
+    model: mark
+    name: Número de salas pré-transfusionais
+    years:
+    - 2005
+    - 2026
+  S_PROCES:
+    role: establishment.processing_rooms
+    kind: category
+    model: mark
+    name: Número de salas de processamento
+    years:
+    - 2005
+    - 2026
+  S_QCDURA:
+    role: establishment.short_duration_chemotherapy_rooms_equipment
+    kind: category
+    model: mark
+    name: Salas/Equipamentos de Quimio Curta duração
+    years:
+    - 2005
+    - 2026
+  S_QLDURA:
+    role: establishment.long_duration_chemotherapy_rooms_equipment
+    kind: category
+    model: mark
+    name: Salas/Equipamentos de Quimio de Longa Duração
+    years:
+    - 2005
+    - 2026
+  S_REAGN:
+    role: establishment.dialyser_reuse_rooms_hbsag_negative
+    kind: category
+    model: mark
+    name: Quantidade de salas de reuso de HBsAG-
+    years:
+    - 2005
+    - 2026
+  S_REAGP:
+    role: establishment.dialyser_reuse_rooms_hbsag_positive
+    kind: category
+    model: mark
+    name: Quantidade de salas de reuso de HBsAG+
+    years:
+    - 2005
+    - 2026
+  S_RECEPC:
+    role: establishment.reception_rooms
+    kind: category
+    model: mark
+    name: Número de salas de recepção
+    years:
+    - 2005
+    - 2026
+  S_REHCV:
+    role: establishment.dialyser_reuse_rooms_hcv_positive
+    kind: category
+    model: mark
+    name: Quantidade de Salas de reuso de HCV+
+    years:
+    - 2005
+    - 2026
+  S_SGDOAD:
+    role: establishment.donor_follow_up_rooms
+    kind: category
+    model: mark
+    name: Número de salas seguimento doador
+    years:
+    - 2005
+    - 2026
+  S_SIMULA:
+    role: establishment.radiotherapy_simulators
+    kind: category
+    model: mark
+    name: Quantidade de Simuladores
+    years:
+    - 2005
+    - 2026
+  S_SOROLO:
+    role: establishment.serology_rooms
+    kind: category
+    model: mark
+    name: Número de salas de sorologia
+    years:
+    - 2005
+    - 2026
+  S_TRANSF:
+    role: establishment.transfusion_rooms
+    kind: category
+    model: mark
+    name: Número de salas de transfusão
+    years:
+    - 2005
+    - 2026
+  S_TRICLI:
+    role: establishment.clinical_screening_rooms
+    kind: category
+    model: mark
+    name: Número de salas de triagem clínica
+    years:
+    - 2005
+    - 2026
+  S_TRIHMT:
+    role: establishment.haematological_screening_rooms
+    kind: category
+    model: mark
+    name: Número de salas de triagem hematológica
+    years:
+    - 2005
+    - 2026
+  TPGESTAO:
+    role: establishment.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_PREST:
+    role: establishment.provider_ownership_legal_nature_classification
+    kind: category
+    model: mark
+    name: Tipo de prestador
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TIPOPRES
+  TP_UNID:
+    role: establishment.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de unidade (estabelecimento)
+    years:
+    - 2005
+    - 2026
+  TURNO_AT:
+    role: establishment.operating_shift_hours_code
+    kind: category
+    model: mark
+    name: Turno de atendimento
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TURNOSAT
+  UN_COBAL:
+    role: establishment.cobalt_units
+    kind: category
+    model: mark
+    name: Quantidade de Unidade de Cobalto
+    years:
+    - 2005
+    - 2026
+  VINC_SUS:
+    role: establishment.sus_linked
+    kind: category
+    model: mark
+    name: Vínculo com o SUS
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - VINC_SUS

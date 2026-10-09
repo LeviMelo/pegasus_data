@@ -59,3 +59,14 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
 - **`sources/apac_layout1.txt`**, the 1999–2007 APAC layout, documents PQ and PR's oncology fields, the CNS columns and the credit assignment. 107 variable notes were added. UO's census columns are documented by no source found; they are read from their names against the oncology manual's equipment vocabulary, and said so.
 - **base_aih1.duck** (12 GB, 221.5 million admissions) reads over HTTP from the mirror, its 12 dimension tables included. It was typed from its header and a 100,000-row profile.
 - **SINAN Windows (2000–2006):** no dictionary is published. Searched: SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, Goiás's SINAN NET 4.0 mirror and the web. Those columns carry that statement on their roles.
+
+**Second batch, the same day.** 134 role files, all of them loading:
+- **CNES (13).** Each dataset's record has its own entity: establishment, bed, equipment, team, service, habilitation or professional. A column repeated from ST takes ST's role. The establishment's municipality is `where`, because a stratum must be a population property.
+- **CNES's five `*UFAAMM` series were not datasets.** They were five header-only template files (`EFufAAmm.dbc`, about 1 KB), read as series names. `inventory/naming.py` now parses a template grammar: the file belongs to its series with no UF and no date. `inventory` and `families` were re-run, and the catalog lists 165 datasets, not 170.
+- **Dados Abertos.**
+  - The 11 APAC exports take their SIASUS family's reviewed roles, column by column.
+  - `SIPNIBD/Doses_Residencia.parquet` and `SIPNIBD/Cobertura_Residencia.parquet` were declared aliases of PNI.DPNI and PNI.CPNI, so `query()` read the old DBF tables. They are another publication: SI-PNI/RNDS, by residence, another layout. Declared as their own datasets:
+    - coverage: 1,088,479 rows, 2015–2026, coverage as a fraction (0.96);
+    - doses: 236,140,984 rows, starting 2026-01, by sex, race, age, strategy and source system.
+- **PNI (6).** Published aggregates. Coverage and dropout rates are finished rates (`measure: false`), never summed. The municipality is the place of application by its variable note, while the open-data republication is named for residence; both claims are recorded.
+- **More documentation found on the FTP, outside the crawled tree.** `/cnes/Download` holds the SCNES glossary (`GLOSSARIO_SCNES_Geral.xls`), the TXT layout notebooks for SIA, SIH, CIHA and CIH, and the CBO-service glossary. `/territorio/doc` holds the territorial base documents (`data/probes/ftp_outside_rest.txt`).

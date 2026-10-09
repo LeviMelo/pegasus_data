@@ -1,0 +1,143 @@
+dataset: DADOS_ABERTOS-DOSES_RESIDENCIA
+record: procedure
+columns:
+  CO_DOSE:
+    role: vaccination.dose
+    kind: category
+    model: dimension
+    name: Código da dose
+    years:
+    - 
+    - 
+    note: Numeric code; ds_dose carries its name.
+  CO_ESTRATEGIA:
+    role: vaccination.strategy
+    kind: category
+    model: dimension
+    name: Código da estratégia de vacinação
+    years:
+    - 
+    - 
+    note: Labels inline (Rotina, Pós-exposição, Especial).
+  CO_IMUNO:
+    role: vaccination.vaccine
+    kind: category
+    model: dimension
+    name: Código do imunobiológico
+    years:
+    - 
+    - 
+    note: Numeric code; ds_imuno and sg_imuno carry its name and abbreviation on the row.
+  CO_MUNICIPIO:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Código do município
+    years:
+    - 
+    - 
+    note: Municipality of residence (CNS-registered address) of the people vaccinated.
+  CO_RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 
+    - 
+    note: Labels inline (PARDA, BRANCA, SEM INFORMACAO).
+  CO_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 
+    - 
+    note: Labels inline (Feminino, Masculino, Outros).
+  CO_TRANSCRICAO:
+    role: vaccination.transcribed
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+    note: Sim/Não inline.
+  DS_DOSE:
+    role: vaccination.dose_name
+    kind: text
+    model: excluded
+    name: Descrição da dose
+    years:
+    - 
+    - 
+  DS_IMUNO:
+    role: vaccination.vaccine_name
+    kind: text
+    model: excluded
+    name: Descrição do imunobiológico
+    years:
+    - 
+    - 
+  DT_CARGA:
+    role: vaccination.load_date
+    kind: date
+    model: mark
+    name: Data de carga
+    years:
+    - 
+    - 
+    note: DD/MM/YYYY HH:MM:SS of the extract.
+  NU_ANO:
+    role: vaccination.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 
+    - 
+  NU_IDADE:
+    role: patient.age_published
+    kind: category
+    model: dimension
+    name: Idade
+    years:
+    - 
+    - 
+    note: "Age as published: years as a bare number, months as 'N meses' (6 meses); a unit mixed in the text, so
+      not a number."
+  NU_MES:
+    role: vaccination.month
+    kind: date
+    model: when
+    name: Mês
+    years:
+    - 
+    - 
+  QT_DOSE:
+    role: vaccination.doses
+    kind: number
+    model: mark
+    name: Quantidade de doses
+    years:
+    - 
+    - 
+  SG_IMUNO:
+    role: vaccination.vaccine_abbreviation
+    kind: text
+    model: excluded
+    name: Sigla do imunobiológico
+    years:
+    - 
+    - 
+  SG_SISTEMA_ORIGEM:
+    role: vaccination.source_system
+    kind: category
+    model: mark
+    name: Sigla do sistema de origem
+    years:
+    - 
+    - 
+    note: The system the dose came from (e-SUS APS, PEC, Novo PNI, state systems).

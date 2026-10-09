@@ -1,0 +1,77 @@
+dataset: DADOS_ABERTOS-COBERTURA_RESIDENCIA
+record: procedure
+columns:
+  CO_ANO:
+    role: vaccination.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 
+    - 
+  CO_MUNICIPIO:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Código do município
+    years:
+    - 
+    - 
+    note: Municipality of residence of the people vaccinated (the publication's name and the SI-PNI panel's 
+      definition).
+  CO_UF:
+    role: vaccination.state
+    kind: category
+    model: mark
+    name: Código da Unidade da Federação
+    years:
+    - 
+    - 
+    codelists:
+    - UF_BR
+    note: State abbreviation (MG, SP).
+  DT_CARGA:
+    role: vaccination.load_date
+    kind: date
+    model: mark
+    name: Data de carga
+    years:
+    - 
+    - 
+    note: DD/MM/YYYY of the extract.
+  NU_IMUNO:
+    role: vaccination.vaccine
+    kind: category
+    model: dimension
+    years:
+    - 
+    - 
+    note: The vaccine's name as text (BCG, Febre Amarela), not a code.
+  NU_POPULACAO:
+    role: vaccination.target_population
+    kind: number
+    model: mark
+    name: População
+    years:
+    - 
+    - 
+  NU_TAXA_COBERTURA:
+    role: vaccination.coverage
+    kind: number
+    model: mark
+    measure: false
+    name: Taxa de cobertura vacinal
+    years:
+    - 
+    - 
+    note: A fraction (0.96), not a percentage; the published rate, never summed or recomputed.
+  QT_DOSE:
+    role: vaccination.doses
+    kind: number
+    model: mark
+    name: Quantidade de doses
+    years:
+    - 
+    - 

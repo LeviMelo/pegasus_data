@@ -1,0 +1,263 @@
+dataset: CNES-LT
+record: bed
+columns:
+  ATIVIDAD:
+    role: establishment.teaching_research_activity_of_the_establishment
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ATIV_ENS
+  CLIENTEL:
+    role: establishment.patient_flow_referral_intake_type
+    kind: category
+    model: mark
+    name: Fluxo de clientela
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - FLUX_CLI
+  CNES:
+    role: establishment.cnes
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2005
+    - 2026
+  CNPJ_MAN:
+    role: establishment.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2005
+    - 2026
+  CODLEITO:
+    role: bed.specialty
+    kind: category
+    model: dimension
+    name: Especialidade do leito
+    years:
+    - 2005
+    - 2026
+  CODUFMUN:
+    role: establishment.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Código do Município (UF + Município)
+    years:
+    - 2005
+    - 2026
+  COMPETEN:
+    role: establishment.competence
+    kind: date
+    model: when
+    name: Competência (Ano/Mês)
+    years:
+    - 2005
+    - 2026
+    note: YYYYMM of the monthly CNES snapshot.
+  CPF_CNPJ:
+    role: establishment.cpf_cnpj
+    kind: identifier
+    model: link_only
+    name: CPF/CNPJ do estabelecimento
+    years:
+    - 2005
+    - 2026
+    note: 'A CPF where the establishment is an individual (PF_PJ): then a direct personal identifier, passed through
+      unchanged.'
+  DISTRADM:
+    role: establishment.administrative_district_local
+    kind: category
+    model: mark
+    name: Distrito administrativo / Módulo assistencial
+    years:
+    - 2005
+    - 2026
+  DISTRSAN:
+    role: establishment.sanitary_district_local
+    kind: category
+    model: mark
+    name: Distrito sanitário
+    years:
+    - 2005
+    - 2026
+  ESFERA_A:
+    role: establishment.administrative_sphere
+    kind: category
+    model: mark
+    name: Esfera administrativa
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - ESFERADM
+  MICR_REG:
+    role: establishment.micro_region_local
+    kind: category
+    model: mark
+    name: Microrregião de saúde
+    years:
+    - 2005
+    - 2026
+  NATUREZA:
+    role: establishment.organisation_nature_legacy
+    kind: category
+    model: mark
+    name: Código da natureza da organização
+    years:
+    - 2005
+    - 2026
+  NAT_JUR:
+    role: establishment.legal_nature
+    kind: category
+    model: mark
+    name: Natureza Jurídica
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - NAT_JUR
+    - NATJUR
+  NIV_DEP:
+    role: establishment.institutional_dependency_level
+    kind: category
+    model: mark
+    name: Grau/Nível de dependência
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    role: establishment.care_network_hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIV_HIER
+  PF_PJ:
+    role: establishment.person_type
+    kind: category
+    model: mark
+    name: Indicador de pessoa física/jurídica
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TP_PFPJ
+  QT_CONTR:
+    role: bed.contracted
+    kind: number
+    model: mark
+    name: Quantidade de leitos contratados
+    years:
+    - 2005
+    - 2026
+  QT_EXIST:
+    role: bed.existing
+    kind: number
+    model: mark
+    name: Quantidade existente
+    years:
+    - 2005
+    - 2026
+  QT_NSUS:
+    role: bed.not_sus
+    kind: number
+    model: mark
+    name: Quantidade de leitos não SUS
+    years:
+    - 2005
+    - 2026
+  QT_SUS:
+    role: bed.sus
+    kind: number
+    model: mark
+    name: Quantidade de leitos SUS
+    years:
+    - 2005
+    - 2026
+  REGSAUDE:
+    role: establishment.health_region_local
+    kind: category
+    model: mark
+    name: Região de saúde
+    years:
+    - 2005
+    - 2026
+  RETENCAO:
+    role: establishment.tax_withholding_classification_code
+    kind: category
+    model: mark
+    name: Código de retenção
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - RETENCAO
+  TERCEIRO:
+    role: bed.outsourced_link_flag
+    kind: category
+    model: mark
+    name: Terceiro
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TERCEIRO
+  TPGESTAO:
+    role: establishment.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_LEITO:
+    role: bed.bed_type
+    kind: category
+    model: mark
+    name: Tipo de leito
+    years:
+    - 2005
+    - 2026
+  TP_UNID:
+    role: establishment.type
+    kind: category
+    model: mark
+    codelists:
+    - TP_ESTAB
+    name: Tipo de unidade (estabelecimento)
+    years:
+    - 2005
+    - 2026
+  TURNO_AT:
+    role: establishment.operating_shift_hours_code
+    kind: category
+    model: mark
+    name: Turno de atendimento
+    years:
+    - 2005
+    - 2026
+    codelists:
+    - TURNOSAT

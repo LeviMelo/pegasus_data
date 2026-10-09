@@ -68,6 +68,10 @@ _DESCRIPTIVE_YEAR = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9_]*?)_(?P<date>(?:19|20
 _CLASSIC_SEP = re.compile(r"^(?P<prefix>[A-Z]{1,10})[_\-](?P<geo>[A-Z]{2})[_\-]?(?P<date>\d{2,6})$")
 _NO_GEO = re.compile(r"^(?P<prefix>[A-Z][A-Z_]{1,11}?)(?P<date>\d{2,6})$")
 _DESCRIPTIVE_UF = re.compile(r"^(?P<prefix>[a-z0-9_]+?)_(?P<geo>[a-z]{2})$")
+#: A published template whose geography and date are the naming pattern itself: CNES's `EFufAAmm.dbc`, header-only
+#: files of about 1 KB beside `EFAC2601.dbc`. It belongs to its series, with no UF and no date; read as a name it made
+#: five spurious series (EFUFAAMM, GMUFAAMM, ...; 2026-10-08).
+_TEMPLATE = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9_]{0,10}?)UF(?:AAAAMM|AAMM|AAAA|AA)$")
 
 _CURRENT_YEAR = datetime.now(UTC).year
 
@@ -130,6 +134,12 @@ def parse_filename(filename: str) -> ParsedName:
             parsed.part = m.groupdict().get("part") or m.groupdict().get("npart") or None
             parsed.grammar = grammar
             return parsed
+
+    m = _TEMPLATE.match(upper)
+    if m:
+        parsed.series_prefix = m.group("prefix")
+        parsed.grammar = "template"
+        return parsed
 
     m = _NO_GEO.match(upper)
     if m:
