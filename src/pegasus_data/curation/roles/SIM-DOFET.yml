@@ -1052,8 +1052,6 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   PESO:
-    missing: []
-    domain: [1, 8000]
     role: birth.weight
     kind: number
     model: mark

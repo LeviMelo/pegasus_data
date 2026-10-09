@@ -174,3 +174,15 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
   - "The tabulation alone declares nothing" was decided for SINAN, whose tabulations spread "Ign/Branco" over every undefined code.
   - A bound table that names each code the records use with its own label, and has no catch-all label anywhere, is a code table and now speaks for those codes.
   - Examples: SIA's ALTA (0 não, 1 sim); CIH's NATUREZA (01-13) and SAIDAPERM (11-24); SIFC's 1 sim, 2 não, 3 não se aplica, 9 ignorado, where only 9 is declared missing.
+
+**The APAC code tables, and domains tested against the records** (`scripts/propose_missing.py`, logs `data/probes/p4/SIASUS-*.log`, `*.num.log`).
+- Code-table declarations were written for SIA AQ (27 columns), AR (18), ATD (21), AN (19, read on 2013: AN ended in 2014) and CIH-CR (1). AP_TIPPRE 00 "não preenchido" is a not-recorded label, so NOT_RECORDED now matches it. A year in which no column is published is now reported instead of skipped silently.
+- **A tabulation band is the column's domain only where the records stop at its edges.** The first AN run proposed AN_ALBUMI [1, 2], with 1,064,661 of 1,099,019 values outside it. Two band shapes do not bound their values:
+  - a linear CNV (`L`), whose one or two sample codes are a display format: AN_ALBUMI, HB, TRU, INTFIS, DIURES, GLICOS;
+  - a band the records run across, meaning an edge value and its outside neighbour are both held. AQ_TOTMAU labels 1–99 months; the files hold 99 (2,762) beside 100 (1,709) and 1 (79,509) beside 0 (869,185).
+- A code beside an edge that the records do not reach stays outside: SIM SEMAGESTAC 99, with 98 empty.
+- Columns with no value in the year are left undeclared, since nothing tests the band: AR_NUMC1–3 in 2023.
+- **The committed proposed domains were re-tested the same way** (SIM-DO and SINASC-DN 2022, RESP 2016, SINAN 2021).
+  - Five are withdrawn, with their sub-series copies: SINAN-ACGR HORA_JOR [1, 24] (1: 13,980 beside 0: 13,871, so 00, the first hour of the shift, had been discarded); SIM PESO [1, 8000] (1 g: 1 beside 0: 4); SINASC IDADEPAI [10, 99] (10: 3 beside 9: 1); QTDPARTCES [0, 30] (30: 17 beside 31: 1); SINAN-IEXO NUTEMPO [0, 99] (0 beside −1: 6).
+  - Eighteen stand, among them AN_ALTURA [0, 254] and AN_PESO [0, 999] (outside: 999, "1,6", "56,") and CIH DIAS_PERM [0, 9999] (2 of 2.6 M outside).
+- **Labels that begin with a number lost it.** The presentation layer drops a label's first word when it repeats the code (CID "O80.0 Parto…" for O800). It also cut "1,60 m" for 160 down to "m", and would cut "2.500 g" for 2500 to "g". A first word written as a Brazilian number (decimal comma or thousand dots) is now kept as the value. AN_ALTURA reads "1,69 m (169)" (AC 2013).

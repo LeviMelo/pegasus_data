@@ -2,6 +2,8 @@ dataset: SIASUS-AQ
 record: authorisation
 columns:
   AP_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.discharge
     kind: category
     model: mark
@@ -30,6 +32,8 @@ columns:
     - 2008
     - 2026
   AP_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito', 06='outros tipos lesões/envenenamentos(agent.fis./quim.'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.admission_character
     kind: category
     model: mark
@@ -149,6 +153,8 @@ columns:
     - 2008
     - 2026
   AP_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (EP='estado pleno', PG='pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_condition
     kind: category
     model: mark
@@ -201,6 +207,8 @@ columns:
     - 2008
     - 2026
   AP_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento', 1='sim (motivo de saída-encerramento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.closure
     kind: category
     model: mark
@@ -241,6 +249,8 @@ columns:
     - 2008
     - 2026
   AP_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -251,6 +261,8 @@ columns:
     - 2008
     - 2026
   AP_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 14='alta a pedido', 15='alta com previsão de retorno p/ acompan. do pacient', 16='alta por evasão', 18='alta por outros motivos', 21='permanência por características próprias da doença', 22='permanência por intercorrência', 23='permanência por impossibilidade sócio-familiar', 24='perman. por processo-doação de órgãos-doador vivo', 25='perman. por processo-doação de órgãos-doador morto', 26='permanência por mudança de procedimento', 27='permanência por reoperação', 28='permanência por outros motivos', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 42='óbito com declaração de óbito fornecida pelo i.m.l', 43='óbito com declaração de óbito fornecida pelo s.v.o', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.exit_reason
     kind: category
     model: mark
@@ -283,6 +295,8 @@ columns:
     - 2008
     - 2026
   AP_NATJUR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1015='101-5 órgão público do poder executivo federal', 1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1031='103-1 órgão público do poder executivo municipal', 1104='110-4 autarquia federal', 1112='111-2 autarquia estadual ou do distrito federal', 1120='112-0 autarquia municipal', 1139='113-9 fundação pública de direito público federal', 1147='114-7 fundação pública de direito público estadual ou do distrito federal', 1155='115-5 fundação pública de direito público municipal', 1210='121-0 consórcio público de direito público (associação pública)', 1236='123-6 estado ou distrito federal', 1244='124-4 município', 1279='127-9 fundação pública de direito privado municipal', 2011='201-1 empresa pública', 2054='205-4 sociedade anônima fechada', 2062='206-2 sociedade empresária limitada', 2240='224-0 sociedade simples limitada', 3069='306-9 fundação privada', 3077='307-7 serviço social autônomo', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -303,6 +317,8 @@ columns:
     - 2008
     - 2026
   AP_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.death
     kind: category
     model: mark
@@ -313,6 +329,8 @@ columns:
     - 2008
     - 2026
   AP_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.continuation
     kind: category
     model: mark
@@ -354,6 +372,8 @@ columns:
     - 2008
     - 2026
   AP_TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: facility.provider_type
     kind: category
     model: mark
@@ -377,6 +397,8 @@ columns:
     - 2008
     - 2026
   AP_TPATEN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (03='quimioterapia'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.care_type
     kind: category
     model: mark
@@ -387,6 +409,8 @@ columns:
     - 2008
     - 2026
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (05='hospital geral', 07='hospital especializado', 36='clinica especializada/ambulatorio especializado', 62='hospital dia'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -397,6 +421,8 @@ columns:
     - 2008
     - 2026
   AP_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transfer
     kind: category
     model: mark
@@ -407,6 +433,8 @@ columns:
     - 2008
     - 2026
   AP_UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.state_mismatch
     kind: category
     model: mark
@@ -500,6 +528,8 @@ columns:
     - 2008
     - 2026
   AQ_CONTTR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (N='nao (não houve continuidade do tratamento)', S='sim (houve continuidade do tratamento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.treatment_continuity
     kind: category
     model: mark
@@ -566,6 +596,8 @@ columns:
     - 2008
     - 2026
   AQ_ESTADI:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='0_estadio', 1='1_estadio', 2='2_estadio', 3='3_estadio', 4='4_estadio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.tumour_stage
     kind: category
     model: mark
@@ -586,6 +618,8 @@ columns:
     - 2008
     - 2026
   AQ_LINFIN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (3='não avaliáveis', N='nao (linfonodos regionais invadidos)', S='sim (linfonodos regionais invadidos)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.lymph_nodes_invaded
     kind: category
     model: mark
@@ -596,6 +630,8 @@ columns:
     - 2008
     - 2026
   AQ_MED01:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (001='acalabrutinibe', 002='acetato de abiraterona', 003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 007='aflibercepte', 008='alfainterferona 2a', 009='alpelisibe', 010='amifostina', 011='anastrozol', 012='apalutamida', 013='asparaginase', 014='atezolizumabe', 015='avelumabe', 016='axitinibe', 017='azacitidina', 018='baricitinibe', 019='belinostate', 020='bevacizumabe', 021='bicalutamida', 022='blinatumomabe', 023='bortezomibe', 024='brentuximabe vedotina', 025='brigatinibe', 026='bussulfano', 027='cabazitaxel', 028='capecitabina', 029='carboplatina', 030='carfilzomibe', 031='carmustina', 032='cemiplimabe', 033='cetuximabe', 034='ciclofosfamida monoidratada', 035='cisplatina', 036='citrato de ixazomibe', 037='citrato de tamoxifeno', 038='cladribina', 039='clorambucila', 040='cloreto de rádio (223 ra)', 041='cloridrato de alectinibe', 042='cloridrato de aminolevulinato de metila', 043='cloridrato de anagrelida', 044='cloridrato de bendamustina', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 047='cloridrato de epirrubicina', 048='cloridrato de erlotinibe', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 052='cloridrato de irinotecano tri-hidratado', 053='cloridrato de mitoxantrona', 054='cloridrato de pazopanibe', 055='cloridrato de ponatinibe', 056='cloridrato de tepotinibe monoidratado', 057='cloridrato de tipiracila, trifluridina', 058='cloridrato de topotecana', 059='crizotinibe', 060='dacarbazina', 061='dasatinibe', 062='decitabina', 063='denosumabe', 064='dicloridrato de capmatinibe monoidratado', 065='dimaleato de afatinibe', 066='dimetilsulfóxido de trametinibe', 067='ditartarato de vinorelbina', 068='ditosilato de lapatinibe', 069='docetaxel', 070='docetaxel triidratado', 071='elotuzumabe', 072='enzalutamida', 073='erdafitinibe', 074='esilato de nintedanibe', 075='etoposídeo', 076='everolimo', 077='exemestano', 078='fluoruracila', 079='flutamida', 080='fosfato de fludarabina', 081='fosfato de ruxolitinibe', 082='fotemustina', 083='fulvestranto', 084='gefitinibe', 085='gencitabina', 086='gentuzumabe ozogamicina', 087='hemifumarato de cobimetinibe', 088='hemifumarato de gilteritinibe', 089='hemitartarato de vinorelbina', 090='hidroxiureia', 091='ibrutinibe', 092='ifosfamida', 093='inotuzumabe ozogamicina', 094='interferon alfa 2a', 095='ipilimumabe', 096='isatuximabe', 097='letrozol', 098='levomalato de cabozantinibe', 099='lorlatinibe', 100='malato de sunitinibe', 101='maleato de neratinibe', 102='melfalana', 103='mesilato de dabrafenibe', 104='mesilato de eribulina', 105='mesilato de imatinibe', 106='mesilato de lenvatinibe', 107='mesilato de osimertinibe', 108='metotrexato', 109='metotrexato de sódio', 110='midostaurina', 111='mifamurtida', 112='mitotano', 113='moxetumomabe pasudotox', 114='nilotinibe', 115='nimotuzumabe', 116='nivolumabe', 117='obinutuzumabe', 118='olaparibe', 119='oxaliplatina', 120='paclitaxel', 121='palbociclibe', 122='pamidronato dissódico', 123='panitumumabe', 124='pegaspargase', 125='pembrolizumabe', 126='pemetrexede', 127='pemetrexede dissódico', 128='pemetrexede dissódico hemipentaidratado', 129='pertuzumabe', 130='polatuzumabe vedotina', 131='ramucirumabe', 132='regorafenibe', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 140='tacrolimo monoidratado', 141='tartarato de vinorelbina', 142='tioguanina', 143='tosilato de niraparibe monoidratado', 144='tosilato de sorafenibe', 145='trastuzumabe', 146='trastuzumabe deruxtecana', 147='trastuzumabe entansina', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 150='trióxido de arsênio', 151='vandetanibe', 152='vemurafenibe', 153='venetoclax', 154='vinflunina', 155='vinorelbina', 156='vismodegibe', 157='zanubrutinibe', 158='citarabina', 159='dactinomicina', 160='lomustina', 161='mercaptopurina', 162='lanreotida', 163='octreotida', 164='temozolamida', 165='triptorrelina', 166='ciproterona', 167='dietilestilbenol', 168='mitomicina', 169='oncobcg', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 180='teniposídeo', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina', 184='cloridrato de doxorrubicina lipossomal peguilado', 185='ácido trans-retinoico'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_01
     kind: category
     model: mark
@@ -604,6 +640,8 @@ columns:
     - 2021
     - 2026
   AQ_MED02:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (001='acalabrutinibe', 002='acetato de abiraterona', 003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 007='aflibercepte', 008='alfainterferona 2a', 009='alpelisibe', 010='amifostina', 011='anastrozol', 012='apalutamida', 013='asparaginase', 014='atezolizumabe', 016='axitinibe', 017='azacitidina', 018='baricitinibe', 019='belinostate', 020='bevacizumabe', 021='bicalutamida', 022='blinatumomabe', 023='bortezomibe', 024='brentuximabe vedotina', 025='brigatinibe', 026='bussulfano', 027='cabazitaxel', 028='capecitabina', 029='carboplatina', 030='carfilzomibe', 031='carmustina', 032='cemiplimabe', 033='cetuximabe', 034='ciclofosfamida monoidratada', 035='cisplatina', 036='citrato de ixazomibe', 037='citrato de tamoxifeno', 038='cladribina', 039='clorambucila', 040='cloreto de rádio (223 ra)', 041='cloridrato de alectinibe', 042='cloridrato de aminolevulinato de metila', 043='cloridrato de anagrelida', 044='cloridrato de bendamustina', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 047='cloridrato de epirrubicina', 048='cloridrato de erlotinibe', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 052='cloridrato de irinotecano tri-hidratado', 053='cloridrato de mitoxantrona', 054='cloridrato de pazopanibe', 055='cloridrato de ponatinibe', 056='cloridrato de tepotinibe monoidratado', 057='cloridrato de tipiracila, trifluridina', 058='cloridrato de topotecana', 059='crizotinibe', 060='dacarbazina', 061='dasatinibe', 062='decitabina', 063='denosumabe', 064='dicloridrato de capmatinibe monoidratado', 065='dimaleato de afatinibe', 066='dimetilsulfóxido de trametinibe', 067='ditartarato de vinorelbina', 068='ditosilato de lapatinibe', 069='docetaxel', 070='docetaxel triidratado', 071='elotuzumabe', 072='enzalutamida', 073='erdafitinibe', 074='esilato de nintedanibe', 075='etoposídeo', 076='everolimo', 077='exemestano', 078='fluoruracila', 079='flutamida', 080='fosfato de fludarabina', 081='fosfato de ruxolitinibe', 082='fotemustina', 083='fulvestranto', 084='gefitinibe', 085='gencitabina', 086='gentuzumabe ozogamicina', 087='hemifumarato de cobimetinibe', 088='hemifumarato de gilteritinibe', 089='hemitartarato de vinorelbina', 090='hidroxiureia', 091='ibrutinibe', 092='ifosfamida', 093='inotuzumabe ozogamicina', 094='interferon alfa 2a', 095='ipilimumabe', 096='isatuximabe', 097='letrozol', 098='levomalato de cabozantinibe', 099='lorlatinibe', 100='malato de sunitinibe', 102='melfalana', 103='mesilato de dabrafenibe', 105='mesilato de imatinibe', 106='mesilato de lenvatinibe', 107='mesilato de osimertinibe', 108='metotrexato', 109='metotrexato de sódio', 110='midostaurina', 111='mifamurtida', 112='mitotano', 113='moxetumomabe pasudotox', 114='nilotinibe', 115='nimotuzumabe', 116='nivolumabe', 117='obinutuzumabe', 118='olaparibe', 119='oxaliplatina', 120='paclitaxel', 121='palbociclibe', 122='pamidronato dissódico', 123='panitumumabe', 124='pegaspargase', 125='pembrolizumabe', 126='pemetrexede', 127='pemetrexede dissódico', 128='pemetrexede dissódico hemipentaidratado', 129='pertuzumabe', 130='polatuzumabe vedotina', 131='ramucirumabe', 132='regorafenibe', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 140='tacrolimo monoidratado', 141='tartarato de vinorelbina', 142='tioguanina', 143='tosilato de niraparibe monoidratado', 144='tosilato de sorafenibe', 145='trastuzumabe', 146='trastuzumabe deruxtecana', 147='trastuzumabe entansina', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 150='trióxido de arsênio', 151='vandetanibe', 152='vemurafenibe', 153='venetoclax', 154='vinflunina', 155='vinorelbina', 157='zanubrutinibe', 158='citarabina', 159='dactinomicina', 160='lomustina', 161='mercaptopurina', 162='lanreotida', 163='octreotida', 164='temozolamida', 165='triptorrelina', 166='ciproterona', 167='dietilestilbenol', 168='mitomicina', 169='oncobcg', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 180='teniposídeo', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina', 184='cloridrato de doxorrubicina lipossomal peguilado', 185='ácido trans-retinoico'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_02
     kind: category
     model: mark
@@ -612,6 +650,8 @@ columns:
     - 2021
     - 2026
   AQ_MED03:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (001='acalabrutinibe', 002='acetato de abiraterona', 003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 007='aflibercepte', 008='alfainterferona 2a', 010='amifostina', 011='anastrozol', 012='apalutamida', 013='asparaginase', 014='atezolizumabe', 016='axitinibe', 017='azacitidina', 020='bevacizumabe', 021='bicalutamida', 022='blinatumomabe', 023='bortezomibe', 024='brentuximabe vedotina', 026='bussulfano', 027='cabazitaxel', 028='capecitabina', 029='carboplatina', 030='carfilzomibe', 031='carmustina', 033='cetuximabe', 034='ciclofosfamida monoidratada', 035='cisplatina', 036='citrato de ixazomibe', 037='citrato de tamoxifeno', 038='cladribina', 039='clorambucila', 042='cloridrato de aminolevulinato de metila', 043='cloridrato de anagrelida', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 047='cloridrato de epirrubicina', 048='cloridrato de erlotinibe', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 052='cloridrato de irinotecano tri-hidratado', 053='cloridrato de mitoxantrona', 054='cloridrato de pazopanibe', 057='cloridrato de tipiracila, trifluridina', 058='cloridrato de topotecana', 060='dacarbazina', 061='dasatinibe', 062='decitabina', 063='denosumabe', 064='dicloridrato de capmatinibe monoidratado', 065='dimaleato de afatinibe', 066='dimetilsulfóxido de trametinibe', 067='ditartarato de vinorelbina', 068='ditosilato de lapatinibe', 069='docetaxel', 070='docetaxel triidratado', 071='elotuzumabe', 072='enzalutamida', 073='erdafitinibe', 074='esilato de nintedanibe', 075='etoposídeo', 076='everolimo', 077='exemestano', 078='fluoruracila', 079='flutamida', 080='fosfato de fludarabina', 082='fotemustina', 083='fulvestranto', 084='gefitinibe', 085='gencitabina', 088='hemifumarato de gilteritinibe', 089='hemitartarato de vinorelbina', 090='hidroxiureia', 091='ibrutinibe', 092='ifosfamida', 095='ipilimumabe', 097='letrozol', 098='levomalato de cabozantinibe', 100='malato de sunitinibe', 101='maleato de neratinibe', 102='melfalana', 103='mesilato de dabrafenibe', 105='mesilato de imatinibe', 106='mesilato de lenvatinibe', 107='mesilato de osimertinibe', 108='metotrexato', 109='metotrexato de sódio', 111='mifamurtida', 112='mitotano', 113='moxetumomabe pasudotox', 114='nilotinibe', 115='nimotuzumabe', 116='nivolumabe', 117='obinutuzumabe', 118='olaparibe', 119='oxaliplatina', 120='paclitaxel', 121='palbociclibe', 122='pamidronato dissódico', 123='panitumumabe', 124='pegaspargase', 125='pembrolizumabe', 126='pemetrexede', 127='pemetrexede dissódico', 128='pemetrexede dissódico hemipentaidratado', 129='pertuzumabe', 130='polatuzumabe vedotina', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 141='tartarato de vinorelbina', 142='tioguanina', 143='tosilato de niraparibe monoidratado', 145='trastuzumabe', 146='trastuzumabe deruxtecana', 147='trastuzumabe entansina', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 150='trióxido de arsênio', 151='vandetanibe', 153='venetoclax', 154='vinflunina', 155='vinorelbina', 156='vismodegibe', 157='zanubrutinibe', 158='citarabina', 159='dactinomicina', 160='lomustina', 161='mercaptopurina', 162='lanreotida', 163='octreotida', 164='temozolamida', 165='triptorrelina', 166='ciproterona', 167='dietilestilbenol', 168='mitomicina', 169='oncobcg', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 180='teniposídeo', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina', 184='cloridrato de doxorrubicina lipossomal peguilado', 185='ácido trans-retinoico'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_03
     kind: category
     model: mark
@@ -620,6 +660,8 @@ columns:
     - 2021
     - 2026
   AQ_MED04:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (001='acalabrutinibe', 002='acetato de abiraterona', 003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 009='alpelisibe', 010='amifostina', 011='anastrozol', 012='apalutamida', 013='asparaginase', 017='azacitidina', 020='bevacizumabe', 021='bicalutamida', 022='blinatumomabe', 023='bortezomibe', 024='brentuximabe vedotina', 025='brigatinibe', 026='bussulfano', 028='capecitabina', 029='carboplatina', 030='carfilzomibe', 031='carmustina', 033='cetuximabe', 034='ciclofosfamida monoidratada', 035='cisplatina', 037='citrato de tamoxifeno', 038='cladribina', 039='clorambucila', 040='cloreto de rádio (223 ra)', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 047='cloridrato de epirrubicina', 048='cloridrato de erlotinibe', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 052='cloridrato de irinotecano tri-hidratado', 053='cloridrato de mitoxantrona', 058='cloridrato de topotecana', 060='dacarbazina', 061='dasatinibe', 063='denosumabe', 064='dicloridrato de capmatinibe monoidratado', 067='ditartarato de vinorelbina', 069='docetaxel', 070='docetaxel triidratado', 072='enzalutamida', 074='esilato de nintedanibe', 075='etoposídeo', 076='everolimo', 077='exemestano', 078='fluoruracila', 079='flutamida', 080='fosfato de fludarabina', 081='fosfato de ruxolitinibe', 083='fulvestranto', 084='gefitinibe', 085='gencitabina', 090='hidroxiureia', 092='ifosfamida', 094='interferon alfa 2a', 097='letrozol', 102='melfalana', 105='mesilato de imatinibe', 107='mesilato de osimertinibe', 108='metotrexato', 109='metotrexato de sódio', 112='mitotano', 113='moxetumomabe pasudotox', 114='nilotinibe', 116='nivolumabe', 117='obinutuzumabe', 119='oxaliplatina', 120='paclitaxel', 121='palbociclibe', 122='pamidronato dissódico', 123='panitumumabe', 124='pegaspargase', 125='pembrolizumabe', 126='pemetrexede', 127='pemetrexede dissódico', 129='pertuzumabe', 130='polatuzumabe vedotina', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 141='tartarato de vinorelbina', 142='tioguanina', 143='tosilato de niraparibe monoidratado', 144='tosilato de sorafenibe', 145='trastuzumabe', 146='trastuzumabe deruxtecana', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 150='trióxido de arsênio', 151='vandetanibe', 153='venetoclax', 154='vinflunina', 155='vinorelbina', 157='zanubrutinibe', 158='citarabina', 159='dactinomicina', 160='lomustina', 161='mercaptopurina', 162='lanreotida', 163='octreotida', 164='temozolamida', 165='triptorrelina', 166='ciproterona', 167='dietilestilbenol', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 180='teniposídeo', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina', 184='cloridrato de doxorrubicina lipossomal peguilado', 185='ácido trans-retinoico'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_04
     kind: category
     model: mark
@@ -628,6 +670,8 @@ columns:
     - 2021
     - 2026
   AQ_MED05:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (002='acetato de abiraterona', 003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 010='amifostina', 011='anastrozol', 013='asparaginase', 017='azacitidina', 020='bevacizumabe', 021='bicalutamida', 022='blinatumomabe', 023='bortezomibe', 024='brentuximabe vedotina', 028='capecitabina', 029='carboplatina', 031='carmustina', 033='cetuximabe', 034='ciclofosfamida monoidratada', 035='cisplatina', 037='citrato de tamoxifeno', 039='clorambucila', 041='cloridrato de alectinibe', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 052='cloridrato de irinotecano tri-hidratado', 053='cloridrato de mitoxantrona', 054='cloridrato de pazopanibe', 058='cloridrato de topotecana', 060='dacarbazina', 061='dasatinibe', 062='decitabina', 067='ditartarato de vinorelbina', 069='docetaxel', 070='docetaxel triidratado', 075='etoposídeo', 076='everolimo', 077='exemestano', 078='fluoruracila', 079='flutamida', 080='fosfato de fludarabina', 083='fulvestranto', 085='gencitabina', 090='hidroxiureia', 092='ifosfamida', 097='letrozol', 099='lorlatinibe', 100='malato de sunitinibe', 102='melfalana', 105='mesilato de imatinibe', 108='metotrexato', 109='metotrexato de sódio', 112='mitotano', 116='nivolumabe', 117='obinutuzumabe', 118='olaparibe', 119='oxaliplatina', 120='paclitaxel', 122='pamidronato dissódico', 123='panitumumabe', 124='pegaspargase', 126='pemetrexede', 129='pertuzumabe', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 142='tioguanina', 145='trastuzumabe', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 151='vandetanibe', 155='vinorelbina', 158='citarabina', 159='dactinomicina', 160='lomustina', 161='mercaptopurina', 162='lanreotida', 163='octreotida', 164='temozolamida', 165='triptorrelina', 169='oncobcg', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 180='teniposídeo', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina', 184='cloridrato de doxorrubicina lipossomal peguilado', 185='ácido trans-retinoico'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_05
     kind: category
     model: mark
@@ -636,6 +680,8 @@ columns:
     - 2021
     - 2026
   AQ_MED06:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 010='amifostina', 011='anastrozol', 013='asparaginase', 020='bevacizumabe', 023='bortezomibe', 028='capecitabina', 029='carboplatina', 031='carmustina', 034='ciclofosfamida monoidratada', 035='cisplatina', 037='citrato de tamoxifeno', 039='clorambucila', 044='cloridrato de bendamustina', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 047='cloridrato de epirrubicina', 049='cloridrato de gencitabina', 050='cloridrato de idarrubicina', 051='cloridrato de irinotecano', 053='cloridrato de mitoxantrona', 058='cloridrato de topotecana', 060='dacarbazina', 062='decitabina', 067='ditartarato de vinorelbina', 069='docetaxel', 075='etoposídeo', 077='exemestano', 078='fluoruracila', 080='fosfato de fludarabina', 082='fotemustina', 085='gencitabina', 090='hidroxiureia', 092='ifosfamida', 105='mesilato de imatinibe', 108='metotrexato', 109='metotrexato de sódio', 112='mitotano', 119='oxaliplatina', 120='paclitaxel', 122='pamidronato dissódico', 124='pegaspargase', 127='pemetrexede dissódico', 129='pertuzumabe', 133='rituximabe', 135='sulfato de bleomicina', 138='sulfato de vimblastina', 139='sulfato de vincristina', 142='tioguanina', 145='trastuzumabe', 146='trastuzumabe deruxtecana', 149='tretinoína', 150='trióxido de arsênio', 151='vandetanibe', 155='vinorelbina', 158='citarabina', 159='dactinomicina', 161='mercaptopurina', 163='octreotida', 164='temozolamida', 165='triptorrelina', 168='mitomicina', 170='talidomida', 172='eritropoetina', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 181='procarbazina', 182='folinato de cálcio', 183='alfapoetina'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_06
     kind: category
     model: mark
@@ -644,6 +690,8 @@ columns:
     - 2021
     - 2026
   AQ_MED07:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 011='anastrozol', 013='asparaginase', 023='bortezomibe', 029='carboplatina', 034='ciclofosfamida monoidratada', 035='cisplatina', 037='citrato de tamoxifeno', 039='clorambucila', 044='cloridrato de bendamustina', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 051='cloridrato de irinotecano', 058='cloridrato de topotecana', 060='dacarbazina', 061='dasatinibe', 062='decitabina', 067='ditartarato de vinorelbina', 075='etoposídeo', 085='gencitabina', 090='hidroxiureia', 092='ifosfamida', 105='mesilato de imatinibe', 108='metotrexato', 112='mitotano', 119='oxaliplatina', 120='paclitaxel', 122='pamidronato dissódico', 124='pegaspargase', 133='rituximabe', 134='succinato de ribociclibe', 135='sulfato de bleomicina', 136='sulfato de larotrectinibe', 137='sulfato de selumetinibe', 138='sulfato de vimblastina', 139='sulfato de vincristina', 142='tioguanina', 146='trastuzumabe deruxtecana', 147='trastuzumabe entansina', 148='trastuzumabe, pertuzumabe', 149='tretinoína', 155='vinorelbina', 158='citarabina', 159='dactinomicina', 161='mercaptopurina', 163='octreotida', 164='temozolamida', 170='talidomida', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 181='procarbazina', 182='folinato de cálcio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_07
     kind: category
     model: mark
@@ -652,6 +700,8 @@ columns:
     - 2021
     - 2026
   AQ_MED08:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (003='acetato de gosserrelina', 004='acetato de leuprorrelina', 005='acetato de megestrol', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 011='anastrozol', 013='asparaginase', 020='bevacizumabe', 028='capecitabina', 031='carmustina', 034='ciclofosfamida monoidratada', 042='cloridrato de aminolevulinato de metila', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 053='cloridrato de mitoxantrona', 060='dacarbazina', 062='decitabina', 067='ditartarato de vinorelbina', 069='docetaxel', 075='etoposídeo', 078='fluoruracila', 085='gencitabina', 092='ifosfamida', 094='interferon alfa 2a', 102='melfalana', 105='mesilato de imatinibe', 108='metotrexato', 112='mitotano', 119='oxaliplatina', 120='paclitaxel', 124='pegaspargase', 133='rituximabe', 135='sulfato de bleomicina', 138='sulfato de vimblastina', 139='sulfato de vincristina', 142='tioguanina', 143='tosilato de niraparibe monoidratado', 145='trastuzumabe', 149='tretinoína', 155='vinorelbina', 158='citarabina', 161='mercaptopurina', 167='dietilestilbenol', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 181='procarbazina', 182='folinato de cálcio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_08
     kind: category
     model: mark
@@ -660,6 +710,8 @@ columns:
     - 2021
     - 2026
   AQ_MED09:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (003='acetato de gosserrelina', 004='acetato de leuprorrelina', 006='ácido zoledrônico monoidratado', 008='alfainterferona 2a', 013='asparaginase', 020='bevacizumabe', 021='bicalutamida', 023='bortezomibe', 031='carmustina', 034='ciclofosfamida monoidratada', 035='cisplatina', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 053='cloridrato de mitoxantrona', 062='decitabina', 068='ditosilato de lapatinibe', 069='docetaxel', 072='enzalutamida', 075='etoposídeo', 085='gencitabina', 092='ifosfamida', 105='mesilato de imatinibe', 108='metotrexato', 112='mitotano', 115='nimotuzumabe', 120='paclitaxel', 124='pegaspargase', 133='rituximabe', 135='sulfato de bleomicina', 138='sulfato de vimblastina', 139='sulfato de vincristina', 142='tioguanina', 150='trióxido de arsênio', 155='vinorelbina', 158='citarabina', 161='mercaptopurina', 168='mitomicina', 169='oncobcg', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 182='folinato de cálcio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_09
     kind: category
     model: mark
@@ -668,6 +720,8 @@ columns:
     - 2021
     - 2026
   AQ_MED10:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (003='acetato de gosserrelina', 004='acetato de leuprorrelina', 008='alfainterferona 2a', 011='anastrozol', 013='asparaginase', 020='bevacizumabe', 021='bicalutamida', 023='bortezomibe', 034='ciclofosfamida monoidratada', 039='clorambucila', 045='cloridrato de daunorrubicina', 046='cloridrato de doxorrubicina', 049='cloridrato de gencitabina', 053='cloridrato de mitoxantrona', 062='decitabina', 075='etoposídeo', 092='ifosfamida', 108='metotrexato', 112='mitotano', 124='pegaspargase', 131='ramucirumabe', 133='rituximabe', 135='sulfato de bleomicina', 138='sulfato de vimblastina', 139='sulfato de vincristina', 141='tartarato de vinorelbina', 142='tioguanina', 155='vinorelbina', 158='citarabina', 159='dactinomicina', 161='mercaptopurina', 162='lanreotida', 173='leucovorin', 174='mesna', 175='ácido folínico', 176='filgrastima', 177='prednisona', 178='prenidsolona', 179='dexametasona', 182='folinato de cálcio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.drug_10
     kind: category
     model: mark

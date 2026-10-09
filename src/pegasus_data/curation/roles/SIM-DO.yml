@@ -775,9 +775,6 @@ columns:
     - 1996
     - 2026
   PESO:
-    missing: []
-    domain: [1, 8000]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 4 of 28628 values in 2022 (0000: 4)
     role: birth.weight
     kind: number
     model: mark

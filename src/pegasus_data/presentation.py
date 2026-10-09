@@ -103,6 +103,9 @@ def clean_label(label: str) -> str:
     return " / ".join(parts)
 
 
+_QUANTITY = re.compile(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+,\d+")
+
+
 def _plain(code: str) -> str:
     """A code without its punctuation: ``O80.0`` and ``O800`` are one code."""
     return "".join(ch for ch in code if ch.isalnum()).upper()
@@ -154,9 +157,10 @@ def _render_value(code: object, label: object, p: Presentation) -> str | None:
     # Many tables already write the code into the label: BR_MUNICIPALFA
     # "120001 Acrelândia, AC", CID-10 "O80.0 Parto espontaneo cefalico"
     # for O800. Do not print it twice when the template shows the code.
+    # A head written as a number ("1,60 m" for 160, "2.500 g" for 2500) is the value, not the code repeated.
     if "{code}" in p.values:
         head, _, rest = text.partition(" ")
-        if rest and _plain(head) == _plain(str(code)):
+        if rest and _plain(head) == _plain(str(code)) and (head == str(code) or not _QUANTITY.fullmatch(head)):
             text = rest.lstrip(" -–")
     return p.values.format(code=code, label=clean_label(text))
 

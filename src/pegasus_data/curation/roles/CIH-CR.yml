@@ -85,6 +85,9 @@ columns:
     - 2008
     - 2011
   DIAS_PERM:
+    missing: []
+    domain: [0, 9999]
+    # proposed (2010): the range DATASUS's tabulation bands label as values; outside it 2 of 2604948 values in 2010 (11008: 1, 26269: 1)
     role: admission.length_of_stay
     kind: number
     model: mark
@@ -214,6 +217,8 @@ columns:
     - 2008
     - 2011
   NATUREZA:
+    missing: []
+    # declared from DATASUS's own sources (2010): no form dictionary; the table names every code the records use, each with its own label (01='administracao direta da saude', 02='administracao direta outros orgaos', 03='administracao indireta - autarquias', 04='administracao indireta - fundação publica', 05='administracao indireta - empresa publica', 06='administracao indireta - org. social publica', 07='empresa privada', 08='fundacao privada', 09='cooperativa', 11='entidade beneficente sem fins lucrativos', 13='sindicato'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature_old
     kind: category
     model: mark

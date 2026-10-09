@@ -343,10 +343,6 @@ columns:
     - 2026
     note: role from SINASC-DN
   IDADEPAI:
-    missing: []
-    domain:
-    - 10
-    - 99
     role: father.age
     kind: number
     model: mark
@@ -525,10 +521,6 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDPARTCES:
-    missing: []
-    domain:
-    - 0
-    - 30
     role: pregnancy.previous_cesareans
     kind: number
     model: mark

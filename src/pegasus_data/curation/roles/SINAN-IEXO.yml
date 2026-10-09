@@ -591,9 +591,6 @@ columns:
     - 2006
     - 2026
   NUTEMPO:
-    missing: []
-    domain: [0, 99]
-    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 125 of 152456 values in 2021 (1/: 20, 1:: 18, 1h: 14, 0,: 12)
     role: patient.occupation_tenure
     kind: number
     model: mark

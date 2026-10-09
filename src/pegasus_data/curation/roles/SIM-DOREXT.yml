@@ -871,10 +871,6 @@ columns:
     - 2026
     note: role from SIM-DO
   PESO:
-    missing: []
-    domain:
-    - 1
-    - 8000
     role: birth.weight
     kind: number
     model: mark

@@ -12,8 +12,13 @@ For every reviewed measurement (`kind: number`, `measure`) that declares no `mis
 it are TabNet's tabulation bands: they label each value in a range and everything outside it "Ign". The labelled range
 is proposed as the column's `domain` (a value outside it is not a value of the column; no meaning is given to 99 or
 any other code), with `missing: []`; the comment states the codelists and the share of YEAR's values outside. A
-measurement with no codelist is left undeclared. A band that labels a value the files hold as a value (a count's
-zero) is a conflict between sources: read the proposal before writing.
+measurement with no codelist is left undeclared, and so is one whose band does not bound its records:
+- a linear CNV (an `L` entry: TabNet's display format, whose one or two sample codes are no range; SIA-AN's AN_ALBUMI
+  read as [1, 2] left 97% of its values outside);
+- a band the records run across (an edge value and its neighbour outside both held: SIA-AQ's AQ_TOTMAU labels 1-99
+  months, the files hold 99, 100-120 and 0 beside 1), which is TabNet's display width, not the column's. A code beside
+  an edge that the records do not reach (SIM's SEMAGESTAC 99 past an empty 98) is outside, not a continuation;
+- a column with no value in YEAR, where nothing tests the band.
 A label is not the record layout: TabNet's SIM labels call documented categories "Ignorado" (ESC 5, LOCOCOR 5 and 6;
 DATA_SOURCES §1.9), so a proposal is read against the system's layout before it is written.
 `--write` inserts the declarations into the roles file, each with the labels it rests on as a comment, to be reviewed
@@ -32,7 +37,7 @@ import pegasus_data as pg
 from pegasus_data.semantics import column_roles
 from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 
-NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|sem informa[çc][ãa]o|não declarad[oa]"
+NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|n[ãa]o preenchid[oa]|sem informa[çc][ãa]o|não declarad[oa]"
                           r"|desconhecid[oa])\s*$", re.IGNORECASE)     # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
 NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
 
@@ -71,6 +76,9 @@ def main(dataset: str, spec: str, write: bool) -> None:
             seen.setdefault(r.column, set()).update(
                 v for v in pc.unique(pc.cast(table[r.column], "string")).to_pylist() if v not in (None, ""))
         del table
+    if not seen:                    # said, not silent: SIA-AN's columns end in 2014, so 2023 read nothing
+        spans = sorted({(r.years[0], r.years[1]) for r in rows})
+        print(f"no category column is published in {spec} (their years: {spans[:3]}...)")
     rows = [r for r in rows if r.column in seen]
     system = dataset.split("-")[0].split(".")[0]
     system = {"SIH": "SIHSUS"}.get(system, system)
@@ -192,7 +200,23 @@ def numbers(dataset: str, year: int, write: bool) -> None:
             if not valid:
                 print(f"{r.column}: no tabulation band  [left undeclared]")
                 continue
+            if "L" in labels:
+                print(f"{r.column}: a linear CNV (L), a display format with no range  [left undeclared]")
+                continue
+            if not counts:
+                print(f"{r.column}: no value in {year} to test the band against  [left undeclared]")
+                continue
             lo, hi, why = min(valid), max(valid), "the range DATASUS's tabulation bands label as values"
+            held: dict[int, int] = {}
+            for c, k in counts.items():
+                if c.strip().lstrip("-").isdigit():
+                    held[int(c)] = held.get(int(c), 0) + k
+            across = [(e, v) for e, v in ((lo, lo - 1), (hi, hi + 1)) if e in held and v in held]
+            if across:
+                edge = [f"{e}: {held[e]} beside {v}: {held[v]}" for e, v in across]
+                print(f"{r.column}: band [{lo}, {hi}] continued by the records ({', '.join(edge)}): a display width, "
+                      f"not the column's  [left undeclared]")
+                continue
         n = sum(counts.values())
         out = {c: k for c, k in counts.items() if not (c.strip().lstrip("-").isdigit() and lo <= int(c) <= hi)}
         top = ", ".join(f"{c}: {k}" for c, k in sorted(out.items(), key=lambda kv: -kv[1])[:4])

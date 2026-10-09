@@ -2,6 +2,8 @@ dataset: SIASUS-AR
 record: authorisation
 columns:
   AP_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.discharge
     kind: category
     model: mark
@@ -30,6 +32,8 @@ columns:
     - 2008
     - 2026
   AP_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.admission_character
     kind: category
     model: mark
@@ -149,6 +153,8 @@ columns:
     - 2008
     - 2026
   AP_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (EP='estado pleno', PG='pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_condition
     kind: category
     model: mark
@@ -201,6 +207,8 @@ columns:
     - 2008
     - 2026
   AP_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento', 1='sim (motivo de saída-encerramento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.closure
     kind: category
     model: mark
@@ -241,6 +249,8 @@ columns:
     - 2008
     - 2026
   AP_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -251,6 +261,8 @@ columns:
     - 2008
     - 2026
   AP_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 14='alta a pedido', 15='alta com previsão de retorno p/ acompan. do pacient', 16='alta por evasão', 18='alta por outros motivos', 26='permanência por mudança de procedimento', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 42='óbito com declaração de óbito fornecida pelo i.m.l', 43='óbito com declaração de óbito fornecida pelo s.v.o', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.exit_reason
     kind: category
     model: mark
@@ -283,6 +295,8 @@ columns:
     - 2008
     - 2026
   AP_NATJUR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1015='101-5 órgão público do poder executivo federal', 1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1104='110-4 autarquia federal', 1112='111-2 autarquia estadual ou do distrito federal', 1120='112-0 autarquia municipal', 1139='113-9 fundação pública de direito público federal', 1147='114-7 fundação pública de direito público estadual ou do distrito federal', 1155='115-5 fundação pública de direito público municipal', 1236='123-6 estado ou distrito federal', 1244='124-4 município', 1279='127-9 fundação pública de direito privado municipal', 2011='201-1 empresa pública', 2054='205-4 sociedade anônima fechada', 2062='206-2 sociedade empresária limitada', 2232='223-2 sociedade simples pura', 2240='224-0 sociedade simples limitada', 3069='306-9 fundação privada', 3077='307-7 serviço social autônomo', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -303,6 +317,8 @@ columns:
     - 2008
     - 2026
   AP_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.death
     kind: category
     model: mark
@@ -313,6 +329,8 @@ columns:
     - 2008
     - 2026
   AP_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.continuation
     kind: category
     model: mark
@@ -354,6 +372,8 @@ columns:
     - 2008
     - 2026
   AP_TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: facility.provider_type
     kind: category
     model: mark
@@ -377,6 +397,8 @@ columns:
     - 2008
     - 2026
   AP_TPATEN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (04='radioterapia'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.care_type
     kind: category
     model: mark
@@ -387,6 +409,8 @@ columns:
     - 2008
     - 2026
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (04='policlinica', 05='hospital geral', 07='hospital especializado', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 62='hospital dia'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -397,6 +421,8 @@ columns:
     - 2008
     - 2026
   AP_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transfer
     kind: category
     model: mark
@@ -407,6 +433,8 @@ columns:
     - 2008
     - 2026
   AP_UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.state_mismatch
     kind: category
     model: mark
@@ -533,6 +561,8 @@ columns:
     - 2008
     - 2026
   AR_CONTTR:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (N='nao (não houve continuidade do tratamento)', S='sim (houve continuidade do tratamento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.treatment_continuity
     kind: category
     model: mark
@@ -583,6 +613,8 @@ columns:
     - 2008
     - 2026
   AR_ESTADI:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (0='0_estadio', 1='1_estadio', 2='2_estadio', 3='3_estadio', 4='4_estadio'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.tumour_stage
     kind: category
     model: mark
@@ -661,6 +693,8 @@ columns:
     - 2008
     - 2026
   AR_LINFIN:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (3='não avaliáveis', N='nao (linfonodos regionais invadidos)', S='sim (linfonodos regionais invadidos)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.lymph_nodes_invaded
     kind: category
     model: mark
@@ -703,6 +737,8 @@ columns:
     - 2008
     - 2026
   AR_TRANTE:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (N='nao houve tratamento anterior', S='sim (houve tratamento anterior)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.previous_treatment
     kind: category
     model: mark

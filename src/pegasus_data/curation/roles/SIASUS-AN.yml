@@ -2,6 +2,8 @@ dataset: SIASUS-AN
 record: authorisation
 columns:
   AN_ACEVAS:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.vascular_access
     kind: category
     model: mark
@@ -18,6 +20,9 @@ columns:
     - 2008
     - 2014
   AN_ALTURA:
+    missing: []
+    domain: [0, 254]
+    # proposed (2013): the range DATASUS's tabulation bands label as values; outside it 5041 of 962772 values in 2013 (999: 1737, 1,6: 1082, 1,7: 553, 1,5: 193)
     role: authorisation.altura
     kind: number
     model: mark
@@ -66,6 +71,8 @@ columns:
     - 2008
     - 2014
   AN_HBSAG:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (N='negativo', P='positivo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.hbsag
     kind: category
     model: mark
@@ -74,6 +81,8 @@ columns:
     - 2008
     - 2014
   AN_HCV:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (N='negativo', P='positivo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.hcv
     kind: category
     model: mark
@@ -82,6 +91,8 @@ columns:
     - 2008
     - 2014
   AN_HIV:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (N='negativo', P='positivo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.hiv
     kind: category
     model: mark
@@ -98,6 +109,9 @@ columns:
     - 2008
     - 2014
   AN_PESO:
+    missing: []
+    domain: [0, 999]
+    # proposed (2013): the range DATASUS's tabulation bands label as values; outside it 2556 of 963013 values in 2013 (00N: 130, 56,: 112, 66,: 95, 68,: 93)
     role: authorisation.peso
     kind: number
     model: mark
@@ -114,6 +128,8 @@ columns:
     - 2008
     - 2014
   AN_ULSOAB:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.ulsoab
     kind: category
     model: mark
@@ -122,6 +138,8 @@ columns:
     - 2008
     - 2014
   AP_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.discharge
     kind: category
     model: mark
@@ -150,6 +168,8 @@ columns:
     - 2008
     - 2014
   AP_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito', 06='outros tipos lesões/envenenamentos(agent.fis./quim.'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.admission_character
     kind: category
     model: mark
@@ -269,6 +289,8 @@ columns:
     - 2008
     - 2014
   AP_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (EP='estado pleno', MN='municip. pleno(noas)', PG='pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_condition
     kind: category
     model: mark
@@ -321,6 +343,8 @@ columns:
     - 2008
     - 2014
   AP_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento', 1='sim (motivo de saída-encerramento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.closure
     kind: category
     model: mark
@@ -331,6 +355,8 @@ columns:
     - 2008
     - 2014
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acora¡nes)', 0002='aikana (aikana, mas saka,tubarao)', 0003='ajuru', 0004="akunsu (akunt'su)", 0005='amanaye', 0010='apinaye (apinaje/apinaie/apinage)', 0011='apurina (aporina, ipurina, ipurina, ipuri¡nan)', 0015='arara do acre (shawanaua, amawaka)', 0019='arikapu (aricapu, arikapo, masubi, maxubi)', 0020='arikem (ariquen, ariqueme, arikeme)', 0030='bakairi (kura, bacairi)', 0036='bororo (boe)', 0057='guajajara (tenetehara)', 0058='guarani kaiowa (pai tavytera)', 0075='kaiabi (caiabi, kayabi)', 0077='kaingang (caingangue)', 0081='kalapalo (calapalo)', 0082='kamayura (camaiura, kamaiura)', 0096='karaja (caraja)', 0099='karapana (carapana, muteamasa, ukopino¡pona)', 0100='karapoto (carapoto)', 0101='karipuna (caripuna)', 0102='karipuna do amapa (caripuna)', 0111='kaxinawa (huni-kuin, cashinaua, caxinaua)', 0114='kayapo (caiapo)', 0121='kocama (cocama, kokama)', 0122='kokuiregateje', 0127='krikati (krinkati)', 0143='makuxi (macuxi, machusi, pemon)', 0150='maya (maya)', 0158='mura', 0192='satere-mawe (satere-maue)', 0207='terena', 0208='ticuna (tikuna, tukuna, maguta)', 0216='trumai', 0245="xavante (a'uwe, akwe, awen, akwen)"): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -361,6 +387,8 @@ columns:
     - 2008
     - 2014
   AP_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -371,6 +399,8 @@ columns:
     - 2008
     - 2014
   AP_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 14='alta a pedido', 15='alta com previsão de retorno p/ acompan. do pacient', 16='alta por evasão', 18='alta por outros motivos', 21='permanência por características próprias da doença', 22='permanência por intercorrência', 23='permanência por impossibilidade sócio-familiar', 24='perman. por processo-doação de órgãos-doador vivo', 25='perman. por processo-doação de órgãos-doador morto', 26='permanência por mudança de procedimento', 27='permanência por reoperação', 28='permanência por outros motivos', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 42='óbito com declaração de óbito fornecida pelo i.m.l', 43='óbito com declaração de óbito fornecida pelo s.v.o', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.exit_reason
     kind: category
     model: mark
@@ -423,6 +453,8 @@ columns:
     - 2008
     - 2014
   AP_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.death
     kind: category
     model: mark
@@ -433,6 +465,8 @@ columns:
     - 2008
     - 2014
   AP_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.continuation
     kind: category
     model: mark
@@ -474,6 +508,8 @@ columns:
     - 2008
     - 2014
   AP_TIPPRE:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (20='estabelecimento privado com fins lucrativospj/pf', 22='estabelecimento privado lucrativo simples', 30='esfera federal', 40='esfera estadual', 50='esfera municipal', 60='estabelecimento privado sem fins lucrativos', 61='estabelecimento filantrópico com cnas válido'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.provider_type
     kind: category
     model: mark
@@ -497,6 +533,8 @@ columns:
     - 2008
     - 2014
   AP_TPATEN:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (02='nefrologia'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.care_type
     kind: category
     model: mark
@@ -507,6 +545,8 @@ columns:
     - 2008
     - 2014
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (04='policlinica', 05='hospital geral', 07='hospital especializado', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 62='hospital dia'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -517,6 +557,8 @@ columns:
     - 2008
     - 2014
   AP_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transfer
     kind: category
     model: mark
@@ -527,6 +569,8 @@ columns:
     - 2008
     - 2014
   AP_UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (2013): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.state_mismatch
     kind: category
     model: mark

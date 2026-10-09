@@ -183,9 +183,6 @@ columns:
     - 2006
     - 2026
   HORA_JOR:
-    missing: []
-    domain: [1, 24]
-    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 14205 of 116898 values in 2021 (00: 13858, 30: 168, 40: 42, 50: 17)
     role: case.hours_into_shift
     kind: number
     model: mark

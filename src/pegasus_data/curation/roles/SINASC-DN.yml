@@ -431,9 +431,6 @@ columns:
     - 1994
     - 2026
   IDADEPAI:
-    missing: []
-    domain: [10, 99]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 1 of 893880 values in 2022 (09: 1)
     role: father.age
     kind: number
     model: mark
@@ -609,9 +606,6 @@ columns:
     - 2010
     - 2026
   QTDPARTCES:
-    missing: []
-    domain: [0, 30]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 67 of 2495535 values in 2022 (99: 52, 33: 4, 32: 3, 41: 2)
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
