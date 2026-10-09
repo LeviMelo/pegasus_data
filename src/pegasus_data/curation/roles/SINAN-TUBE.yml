@@ -196,6 +196,8 @@ columns:
     - 2001
     - 2025
   BENEF_GOV:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.income_transfer_beneficiary
     kind: category
     model: dimension
@@ -452,6 +454,8 @@ columns:
     - 2001
     - 2025
   EXTRAPU2_N:
+    missing: ['0', '00', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99']
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='pleural', 10='outra', 2='gang. perif.', 3='genitourinária', 4='óssea', 6='miliar', 7='meningoencefálica', 8='cutânea', 9='laríngea'): a code table, not a catch-all; 0='IGN', 00='IGN', 11='IGN', 12='IGN', 13='IGN', 14='IGN', 15='IGN', 16='IGN', 17='IGN', 18='IGN', 19='IGN', 20='IGN', 21='IGN', 22='IGN', 23='IGN', 24='IGN', 25='IGN', 26='IGN', 27='IGN', 28='IGN', 29='IGN', 30='IGN', 31='IGN', 32='IGN', 33='IGN', 34='IGN', 35='IGN', 36='IGN', 37='IGN', 38='IGN', 39='IGN', 40='IGN', 41='IGN', 42='IGN', 43='IGN', 44='IGN', 45='IGN', 46='IGN', 47='IGN', 48='IGN', 49='IGN', 50='IGN', 51='IGN', 52='IGN', 53='IGN', 54='IGN', 55='IGN', 56='IGN', 57='IGN', 58='IGN', 59='IGN', 60='IGN', 61='IGN', 62='IGN', 63='IGN', 64='IGN', 65='IGN', 66='IGN', 67='IGN', 68='IGN', 69='IGN', 70='IGN', 71='IGN', 72='IGN', 73='IGN', 74='IGN', 75='IGN', 76='IGN', 77='IGN', 78='IGN', 79='IGN', 80='IGN', 81='IGN', 82='IGN', 83='IGN', 84='IGN', 85='IGN', 86='IGN', 87='IGN', 88='IGN', 89='IGN', 90='IGN', 91='IGN', 92='IGN', 93='IGN', 94='IGN', 95='IGN', 96='IGN', 97='IGN', 98='IGN', 99='IGN'
     role: case.extrapulmonary_site_2
     kind: category
     model: mark
@@ -854,6 +858,8 @@ columns:
     - 2001
     - 2025
   SITUA_9_M:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='cura', 2='abandono', 5='transferência p/ mesmo município'): a code table, not a catch-all; no value labelled as not recorded
     role: treatment.status_month_9
     kind: category
     model: mark
@@ -921,6 +927,8 @@ columns:
     - 2001
     - 2025
   TRANSF:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Mesmo município', 2='Município diferente (mesma UF)', 3='UF diferente', 4='País diferente', 9='Ignorado'; the tabulation: 9='Ignorado'
     role: treatment.transfer_type
     kind: category
     model: mark
@@ -929,6 +937,8 @@ columns:
     - 2001
     - 2025
   TRATAMENTO:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Caso Novo', 2='Recidiva', 3='Reingresso após Abandono', 4='Não Sabe', 5='Transferência', 6='Pós-óbito'; the tabulation: no value labelled as not recorded
     role: treatment.entry_type
     kind: category
     model: mark

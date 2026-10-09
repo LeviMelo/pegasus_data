@@ -26,6 +26,12 @@ SINAN:
     ANT_TRAUMA:
       source_ref: 'DIC_DADOS_Meningite_v5 prints "1. Sim / 3. Não / 9.Ignorado" for tp_doenca_pre_traumatismo; the files hold 1, 2 and 9 and never 3 (2010: 2 on 23,627 of 27,721 recorded; 2015, 2021 alike), and the tabulation labels 2 Não and 3 Ign/Branco. The dictionary''s 3 is kept as printed; 2 is the No the records use (2026-10-08)'
       codes: {'2': Não}
+  PFAN:
+    CLI_A_S_FA:
+      source_ref: 'The PFAN dictionary prints "9 - Ignorado"; its text layer lost the capital, read as "gnorado" (2026-10-09).
+        The field''s siblings in the same table print 9 Ignorado'
+      drop: ['9']
+      codes: {'9': Ignorado}
   SIFC:
     HEPATO:
       source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_hepato (SINAN-W name HEPATO): "1 sim 2. não 3. não se aplica 9. ignorado"'

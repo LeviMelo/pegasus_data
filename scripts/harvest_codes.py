@@ -332,7 +332,9 @@ def _parse_row(row: list[str]) -> tuple[str, dict] | None:
         if not (m or w):
             continue
         # a name the dictionary closes with a period is the name (MENI v5's "LAB_CTLIQU.")
-        ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1].rstrip(".;,") if cells[-1] else ""]
+        # the row's last non-empty cell: TUBE 2020's rows end in empty cells after the DBF name (TRATAMENTO)
+        tail = next((c for c in reversed(cells) if c), "")
+        ends = [cells[0].split()[0] if cells[0] else "", tail.split()[-1].rstrip(".;,") if tail else ""]
         name = next((n for n in reversed(ends) if _DBF.fullmatch(n)), "")
         if not name:
             return None
@@ -353,17 +355,19 @@ def _parse_row(row: list[str]) -> tuple[str, dict] | None:
     # an accent the DBF name cannot carry is dropped (ÁCIDO_PEPT is the column ACIDO_PEPT). Every other check holds
     import unicodedata
 
-    last = cells[-1].split()[-1] if cells[-1] else ""
+    tail = next((c for c in reversed(cells) if c), "")
+    last = tail.split()[-1] if tail else ""
     name = unicodedata.normalize("NFKD", last).encode("ascii", "ignore").decode()
     if not _DBF.fullmatch(name):
         return None
     for k in range(1, len(row) - 1):
+        # the first cell that reads as codes, past the internal name a type-less row may carry first (TUBE 2020's
+        # BENEF_GOV: | 34. Beneficiário… | tp-benef_gov | 1- Sim 2- Não 9- Ignorado | … | BENEF_GOV |)
         if row[k].strip():
             codes = _categories(row[k])
             if len(codes) >= 2 and _fits(codes, max(len(c) for c in codes)):
                 label = re.sub(r"^\s*\d+\s*[-.–]?\s*", "", cells[0]).strip()
                 return name, {"codes": codes, **({"label": label} if label else {})}
-            return None
     return None
 
 

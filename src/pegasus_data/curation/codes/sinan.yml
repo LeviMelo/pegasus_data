@@ -285,6 +285,13 @@ series:
       width: 1
       label: Uso de EPI (aceita mais de uma opção) Óculos
       source_ref: acbi_dic.pdf
+    OUTRO_ARV:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      label: Conduta no momento do acidente Outro esquema de ARV
+      source_ref: acbi_dic.pdf
     OUTRO_EXP:
       type: text
       width: 1
@@ -1232,6 +1239,10 @@ series:
       type: date
       label: Data dos primeiros sintomas / Diagnóstico
       source_ref: tabsinan__AIDSAN_DIC_DADOS.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tabsinan__AIDSAN_DIC_DADOS.pdf
     DT_OBITO:
       type: date
       label: 48. Data do Óbito
@@ -1250,6 +1261,15 @@ series:
         '3': Óbito por outras causas
         '9': Ignorado
       source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf
+    ID_AGRAVO:
+      type: text
+      width: 4
+      label: Agravo
+      table: Tabela de agravos do sistema com códigos (classificação internacional de doenças – CID 10)
+        e nomes dos agravos classificados como notificação compulsória (nacional, estadual ou municipal)
+        e as síndromes (febre hemorragia aguda; respiratória aguda; diarréia aguda; sanguinolenta; neurológica
+        aguda; insuficiência renal aguda; outras síndromes.
+      source_ref: tabsinan__AIDSAN_DIC_DADOS.pdf
     ID_MN_RESI:
       type: text
       width: 6
@@ -1306,6 +1326,11 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: (campo interno)
+      source_ref: tabsinan__AIDSAN_DIC_DADOS.pdf
     NU_IDADE_N:
       type: number
       width: 4
@@ -1372,6 +1397,16 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf
+    TP_NOT:
+      type: text
+      width: 1
+      label: Tipo de Notificação
+      codes:
+        '1': Negativa
+        '2': Individual
+        '3': Surto
+        '4': Agregado
+      source_ref: tabsinan__AIDSAN_DIC_DADOS.pdf
     TRA_MUNICI:
       type: text
       width: 6
@@ -2047,6 +2082,10 @@ series:
       type: date
       label: Data dos primeiros sintomas / Diagnóstico
       source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
     DT_PCR_1:
       type: date
       label: Data da coleta do 1° Teste de detecção de ácido nucléico
@@ -2114,6 +2153,15 @@ series:
       type: date
       label: Data do óbito
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
+    ID_AGRAVO:
+      type: text
+      width: 4
+      label: Agravo
+      table: Tabela de agravos do sistema com códigos (classificação internacional de doenças – CID 10)
+        e nomes dos agravos classificados como notificação compulsória (nacional, estadual ou municipal)
+        e as síndromes (febre hemorragia aguda; respiratória aguda; diarréia aguda; sanguinolenta; neurológica
+        aguda; insuficiência renal aguda; outras síndromes.
+      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
     ID_MN_RESI:
       type: text
       width: 6
@@ -2189,6 +2237,11 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: (campo interno)
+      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
     NU_IDADE_N:
       type: number
       width: 4
@@ -2226,6 +2279,12 @@ series:
       label: UF
       table: Tabela com Códigos e siglas padronizados pelo IBGE (tabela municipi.dbf)
       source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
+    SG_UF_NOT:
+      type: text
+      width: 2
+      label: UF de Notificação
+      table: Tabela com Códigos e siglas padronizados pelo IBGE
+      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
     TIPO_INVES:
       type: text
       width: 1
@@ -2262,6 +2321,16 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
+    TP_NOT:
+      type: text
+      width: 1
+      label: Tipo de Notificação
+      codes:
+        '1': Negativa
+        '2': Individual
+        '3': Surto
+        '4': Agregado
+      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
     TRA_MUNIC:
       type: text
       width: 6
@@ -2282,11 +2351,6 @@ series:
       width: 70
       label: Unidade de Saúde onde se Realiza o Tratamento
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
-    UF:
-      type: text
-      width: 2
-      table: Tabela com Códigos e siglas padronizados pelo IBGE
-      source_ref: tabsinan__AIDSCN_DIC_DADOS.pdf
   ANIM:
     ANI_ARANHA:
       type: text
@@ -6127,6 +6191,13 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: coqueluche__DIC_DADOS_Coqueluche_v5.pdf
+    DOENCA_TRA:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      label: Doença Relacionada ao Trabalho
+      source_ref: coqueluche__DIC_DADOS_Coqueluche_v5.pdf
     DT_ADM_ANT:
       type: date
       label: Data De Adm. Do Antibiótico
@@ -8884,6 +8955,13 @@ series:
         '1': Sim
         '2': Não
         '9': Ignorado
+      source_ref: febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.pdf
+    FOI_MATA:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      label: Freqüentou ambientes com vegetação(mata, floresta, rios, cachoeiras, etc)
       source_ref: febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.pdf
     HEMORRAG:
       type: text
@@ -11794,6 +11872,10 @@ series:
       type: date
       label: Data dos primeiros sintomas / Diagnóstico
       source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
     DT_OBITO:
       type: date
       label: Data do Óbito
@@ -11811,6 +11893,15 @@ series:
         '2': Óbito por Aids
         '3': Óbito por outras causas
         '9': Ignorado
+      source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
+    ID_AGRAVO:
+      type: text
+      width: 4
+      label: Agravo
+      table: Tabela de agravos do sistema com códigos (classificação internacional de doenças – CID 10)
+        e nomes dos agravos classificados como notificação compulsória (nacional, estadual ou municipal)
+        e as síndromes (febre hemorragia aguda; respiratória aguda; diarréia aguda; sanguinolenta; neurológica
+        aguda; insuficiência renal aguda; outras síndromes.
       source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
     ID_MN_RESI:
       type: text
@@ -11868,6 +11959,11 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: (campo interno)
+      source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
     NU_IDADE_N:
       type: number
       width: 4
@@ -11922,6 +12018,16 @@ series:
         '3': Inconclusivo
         '4': Não realizado
         '9': Ignorado
+      source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
+    TP_NOT:
+      type: text
+      width: 1
+      label: Tipo de Notificação
+      codes:
+        '1': Negativa
+        '2': Individual
+        '3': Surto
+        '4': Agregado
       source_ref: tabsinan__HIVAN_DIC_DADOS.pdf
     TRA_MUNICI:
       type: text
@@ -12572,6 +12678,10 @@ series:
       type: date
       label: Data dos primeiros sintomas / Diagnóstico
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
     DT_PCR_1:
       type: date
       label: Data da coleta do 1° Teste de detecção de ácido nucléico
@@ -12627,6 +12737,15 @@ series:
     EVO_DT_OBI:
       type: date
       label: Data do óbito
+      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
+    ID_AGRAVO:
+      type: text
+      width: 4
+      label: Agravo
+      table: Tabela de agravos do sistema com códigos (classificação internacional de doenças – CID 10)
+        e nomes dos agravos classificados como notificação compulsória (nacional, estadual ou municipal)
+        e as síndromes (febre hemorragia aguda; respiratória aguda; diarréia aguda; sanguinolenta; neurológica
+        aguda; insuficiência renal aguda; outras síndromes.
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
     ID_MN_RESI:
       type: text
@@ -12697,6 +12816,11 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: (campo interno)
+      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
     NU_IDADE_N:
       type: number
       width: 4
@@ -12724,6 +12848,12 @@ series:
       width: 2
       label: UF
       table: Tabela com Códigos e siglas padronizados pelo IBGE (tabela municipi.dbf)
+      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
+    SG_UF_NOT:
+      type: text
+      width: 2
+      label: UF de Notificação
+      table: Tabela com Códigos e siglas padronizados pelo IBGE
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
     TIPO_INVES:
       type: text
@@ -12763,6 +12893,16 @@ series:
         '4': Não realizado
         '9': Ignorado
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
+    TP_NOT:
+      type: text
+      width: 1
+      label: Tipo de Notificação
+      codes:
+        '1': Negativa
+        '2': Individual
+        '3': Surto
+        '4': Agregado
+      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
     TRA_MUNICI:
       type: text
       width: 6
@@ -12772,11 +12912,6 @@ series:
       type: text
       width: 2
       label: UF
-      source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
-    UF:
-      type: text
-      width: 2
-      table: Tabela com Códigos e siglas padronizados pelo IBGE
       source_ref: tabsinan__HIVCN_DIC_DADOS.pdf
   HIVE:
     CLASSI_FIN:
@@ -16874,6 +17009,10 @@ series:
         '3': Periurbano
         '9': Ignorado
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     ENCAMINHA:
       type: text
       width: 1
@@ -16948,19 +17087,35 @@ series:
       width: 60
       label: Bairro Residência
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NM_LOCAL:
+      type: text
+      width: 30
+      label: Iniciais do Caso
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     NU_ANO:
       type: text
       width: 4
       label: Ano da notificação (campo interno)
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_CASO:
+      type: text
+      width: 5
+      label: Número do Caso
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     NU_IDADE_N:
       type: number
       width: 4
       label: Idade
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
-    UF:
+    NU_NOTIFIC:
+      type: text
+      width: 7
+      label: Nº da Notificação
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    SG_UF:
       type: text
       width: 2
+      label: UF Residência
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
   PAIR:
     AFASTAMENT:
@@ -17832,6 +17987,18 @@ series:
         '5': Prejudicado
         '9': Ignorado
       source_ref: tabsinan__PFAN_DIC_DADOS.pdf
+    CLI_A_S_FA:
+      codes:
+        '1': Diminuída
+        '2': Ausente
+        '3': Normal
+        '4': Parestesia
+        '5': Prejudicado
+        '9': Ignorado
+      label: Sensibilidade Face
+      source_ref: tabsinan__PFAN_DIC_DADOS.pdf; The PFAN dictionary prints "9 - Ignorado"; its text layer
+        lost the capital, read as "gnorado" (2026-10-09). The field's siblings in the same table print
+        9 Ignorado
     CLI_A_TMID:
       type: text
       width: 1
@@ -20437,6 +20604,11 @@ series:
         '2': Não
         '3': Não se aplica
         '9': Ignorado
+    DS_ESQUEMA:
+      type: text
+      width: 30
+      label: Esquema de Tratament o – Outro Esquema
+      source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
     DT_OBITO:
       type: date
       label: Data do óbito
@@ -20612,6 +20784,16 @@ series:
       width: 6
       label: Município do Local da realização do Pré-Natal
       source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
+    SIN_OUTR_E:
+      type: text
+      width: 20
+      label: Presença de sinais e sintomas Outro Especificar
+      codes:
+        '1': sim
+        '2': não
+        '3': não se aplica
+        '9': ignorado
+      source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
     TRA_DIAG_T:
       type: text
       width: 1
@@ -20635,6 +20817,11 @@ series:
         '2': inadequado
         '3': não realizado
         '9': Ignorado
+      source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
+    TRA_ESQU_1:
+      type: text
+      width: 1
+      label: Esquema de Tratament o
       source_ref: sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
     UF_PRE_NAT:
       type: text
@@ -21336,6 +21523,19 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: tabsinan__TETACN_DIC_DADOS.pdf
+    TP_CAUSA:
+      codes:
+        '1': Injeção
+        '2': Laceração
+        '3': Queimadura
+        '4': Cirúrgico
+        '5': Perfuração
+        '6': Escoriação
+        '7': Abortamento Séptico
+        '8': Outros
+        '9': Ignorado
+      label: Possível Causa
+      source_ref: tabsinan__TETACN_DIC_DADOS.pdf
     TP_CAUSOUT:
       type: text
       width: 30
@@ -21794,6 +21994,10 @@ series:
       label: Zona
       codes: *id036
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    DT_NOTIFIC:
+      type: date
+      label: Data da Notificação
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     ENCAMINHA:
       type: text
       width: 1
@@ -21850,19 +22054,35 @@ series:
       width: 60
       label: Bairro Residência
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NM_LOCAL:
+      type: text
+      width: 30
+      label: Iniciais do Caso
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     NU_ANO:
       type: text
       width: 4
       label: Ano da notificação (campo interno)
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_CASO:
+      type: text
+      width: 5
+      label: Número do Caso
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
     NU_IDADE_N:
       type: number
       width: 4
       label: Idade
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
-    UF:
+    NU_NOTIFIC:
+      type: text
+      width: 7
+      label: Nº da Notificação
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    SG_UF:
       type: text
       width: 2
+      label: UF Residência
       source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
   TUBE:
     AGRAVAIDS:
@@ -22003,6 +22223,13 @@ series:
         '3': Não realizada
         '4': Não se aplica
       source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
+    BENEF_GOV:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      label: Beneficiário de programa de transferência de renda do governo
+      source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
     CULTURA_ES:
       type: text
       width: 1
@@ -22126,6 +22353,11 @@ series:
       width: 7
       label: Número de notificação atual
       source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
+    NU_PRONTUA:
+      type: text
+      width: 10
+      label: Nº do Prontuário
+      source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
     OPORTU:
       codes:
         '1': oportuno
@@ -22214,6 +22446,27 @@ series:
         '3': Não detectável
         '4': Inconclusivo
         '5': Não realizado
+      source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
+    TRANSF:
+      codes:
+        '1': Mesmo município
+        '2': Município diferente (mesma UF)
+        '3': UF diferente
+        '4': País diferente
+        '9': Ignorado
+      label: Se transferência
+      source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
+    TRATAMENTO:
+      type: text
+      width: 1
+      label: Tipo de Entrada
+      codes:
+        '1': Caso Novo
+        '2': Recidiva
+        '3': Reingresso após Abandono
+        '4': Não Sabe
+        '5': Transferência
+        '6': Pós-óbito
       source_ref: tabsinan__TUBEN_DIC_DADOS.pdf
     TRATSUP_AT:
       type: text
