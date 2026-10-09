@@ -944,6 +944,15 @@ datasets:
     unit_of_analysis: notification
     gotchas:
       - Cases are found through school screening surveys, so counts follow where surveys were run rather than where disease is.
+    # its residence is ID_MUNI_RE (patient.residence in its roles), not the shared ID_MN_RESI, which TRAC lacks
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [ID_MUNI_RE], code_system: ibge_municipality}
+        notification: {fields: [ID_MUNICIP], code_system: ibge_municipality}
+      default_time: notification
+      time:
+        notification: {fields: [DT_NOTIFIC], encoding: date}
   SINAN_VARC:
     system: SINAN
     series: VARC

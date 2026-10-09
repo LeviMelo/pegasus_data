@@ -54,3 +54,19 @@ total rule; 2023's 106 zero-total outbreaks with an empty grid are now never cou
 
 Their spans are corrected to 2014, 2014, 2012–2015 and 2017–2026, each with its fill noted. A span cannot hold
 DTCONCASO's gap, so it keeps the years filled without one.
+
+## SDTA's counts declared (P1)
+
+`data/probes/p3_outbreaks/count_domains.py` (log beside it) read SDTA's 47 undeclared count columns over every year,
+2007–2024 (no 2014).
+- **What the records hold.** Every value is a whole number, and none sits at a sentinel. At or above 999 are only
+  outbreaks' own sizes: NU_ENTR up to 6,190 interviewed, and QT_TOTAL_C at round 1,000–10,028 exposed.
+- **What the dictionary says.** Each count is numeric(4) with no code for "not recorded"; QT_TOTAL_C is varchar2(5).
+- **What was declared.** Each takes missing [] and domain [0, 9999], or [0, 99999] for QT_TOTAL_C.
+- **What remains undeclared.** 11 coded SDTA columns with no table in the form, which the rule leaves undeclared: the
+  incubation units, sample results and venue type.
+
+`field_fill` now reports a year whose files could not be fetched or decoded as unread (null records), not as no
+publication. The FTP's port 21 was unreachable from 13:40 (DNS answered, and datasus.saude.gov.br answered 200 over
+HTTPS), and SINASC's uncached years had been dropping out of the audit silently.
+

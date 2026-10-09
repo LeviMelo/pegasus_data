@@ -436,7 +436,8 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
     (not empty, not one of the column's declared missing codes in its roles), and their share. Presence is not fill:
     SIH-RD's CID_MORTE and CID_ASSO are present every year and hold 0000 in every record from 2015, and SIM-DO's CB_PRE
     is present from 2014 and empty (DATA_SOURCES §1.9); `field_available` says "present" for all of them. A field the
-    year's files lack has records but no filled ones, and a year with no publication is left out. Reads through
+    year's files lack has records but no filled ones, and a year with no publication is left out. A year whose files
+    could not be fetched or decoded is a gap, not an absence: its rows carry null records and fill. Reads through
     `query` (the lake when built), every field of a year in one read."""
     import pyarrow as pa
     import pyarrow.compute as pc
@@ -454,13 +455,13 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
     out = {"year": [], "field": [], "records": [], "filled": [], "share": []}
     for year in years:
         cols = list(wanted)
-        table = None
+        table, unread = None, False
         while cols:
             try:
                 table = query(dataset, period=int(year), select=cols, present="codes", **query_kwargs)
                 break
-            except (NothingPublished, PublishedEmpty):
-                table = None
+            except (NothingPublished, PublishedEmpty) as exc:
+                table, unread = None, "could not be fetched or decoded" in str(exc)
                 break
             except Exception as exc:  # noqa: BLE001 - a column absent this year: read the others
                 import re
@@ -470,6 +471,9 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
                     raise
                 cols = [c for c in cols if c not in gone]
         if table is None:
+            for f in wanted if unread else ():
+                for k, v in (("year", int(year)), ("field", f), ("records", None), ("filled", None), ("share", None)):
+                    out[k].append(v)
             continue
         n = table.num_rows
         for f in wanted:

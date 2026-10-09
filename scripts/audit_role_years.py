@@ -23,6 +23,9 @@ for r in rows:
         f = by.get((r.column, y))
         if f is None:
             continue
+        if f["records"] is None:
+            print(f"{r.column}: {y} could not be read (a gap, not an absence)")
+            continue
         inside = lo <= y <= hi
         if inside and f["filled"] == 0:
             print(f"{r.column}: declared {lo}-{hi}, fills no record in {y} ({f['records']:,} records)")

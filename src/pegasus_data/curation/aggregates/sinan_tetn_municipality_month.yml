@@ -23,11 +23,11 @@ geography_binding: residence
 time_binding: notification
 time_grain: month
 
+# CRITERIO removed 2026-10-09: SINAN-TETN has no such column (its roles; a recipe naming one could not be built)
 dimensions:
   - CLASSI_FIN
   - CS_SEXO
   - EVOLUCAO
-  - CRITERIO
 
 age_dimension:
   encoding: sinan
@@ -37,7 +37,6 @@ dimension_labels:
   CLASSI_FIN: Classificação final
   CS_SEXO: Sexo
   EVOLUCAO: Evolução
-  CRITERIO: Critério de confirmação
 
 measures:
   notifications:

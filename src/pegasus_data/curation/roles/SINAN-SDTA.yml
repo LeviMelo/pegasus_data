@@ -303,6 +303,9 @@ columns:
     - 2007
     - 2024
   NU10_19_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 185 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_10_to_19
     kind: number
     model: mark
@@ -311,6 +314,9 @@ columns:
     - 2007
     - 2024
   NU1_4_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 100 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_1_to_4
     kind: number
     model: mark
@@ -319,6 +325,9 @@ columns:
     - 2007
     - 2024
   NU5_9_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 86 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_5_to_9
     kind: number
     model: mark
@@ -327,6 +336,9 @@ columns:
     - 2007
     - 2024
   NU_10_19:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 350 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_10_to_19
     kind: number
     model: mark
@@ -335,6 +347,9 @@ columns:
     - 2007
     - 2024
   NU_10_19IG:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 51 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_10_to_19
     kind: number
     model: mark
@@ -343,6 +358,9 @@ columns:
     - 2007
     - 2024
   NU_10_19_M:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 171 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_10_to_19
     kind: number
     model: mark
@@ -351,6 +369,9 @@ columns:
     - 2007
     - 2024
   NU_1_4_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 93 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_1_to_4
     kind: number
     model: mark
@@ -359,6 +380,9 @@ columns:
     - 2007
     - 2024
   NU_1_4_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 83 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_1_to_4
     kind: number
     model: mark
@@ -367,6 +391,9 @@ columns:
     - 2007
     - 2024
   NU_1_4_TOT:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 183 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_1_to_4
     kind: number
     model: mark
@@ -375,6 +402,9 @@ columns:
     - 2007
     - 2024
   NU_1_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 25 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_under_1
     kind: number
     model: mark
@@ -383,6 +413,9 @@ columns:
     - 2007
     - 2024
   NU_1_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 9 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_under_1
     kind: number
     model: mark
@@ -391,6 +424,9 @@ columns:
     - 2007
     - 2024
   NU_1_M_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 23 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_under_1
     kind: number
     model: mark
@@ -399,6 +435,9 @@ columns:
     - 2007
     - 2024
   NU_1_TOT_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 45 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_under_1
     kind: number
     model: mark
@@ -407,6 +446,9 @@ columns:
     - 2007
     - 2024
   NU_20_49:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 800 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_20_to_49
     kind: number
     model: mark
@@ -415,6 +457,9 @@ columns:
     - 2007
     - 2024
   NU_20_49IG:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 105 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_20_to_49
     kind: number
     model: mark
@@ -423,6 +468,9 @@ columns:
     - 2007
     - 2024
   NU_20_49_F:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 345 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_20_to_49
     kind: number
     model: mark
@@ -431,6 +479,9 @@ columns:
     - 2007
     - 2024
   NU_20_49_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 537 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_20_to_49
     kind: number
     model: mark
@@ -439,6 +490,9 @@ columns:
     - 2007
     - 2024
   NU_50_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 130 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_50_and_over
     kind: number
     model: mark
@@ -447,6 +501,9 @@ columns:
     - 2007
     - 2024
   NU_50_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 38 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_50_and_over
     kind: number
     model: mark
@@ -455,6 +512,9 @@ columns:
     - 2007
     - 2024
   NU_50_M_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 120 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_50_and_over
     kind: number
     model: mark
@@ -463,6 +523,9 @@ columns:
     - 2007
     - 2024
   NU_50_TOT:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 250 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_50_and_over
     kind: number
     model: mark
@@ -471,6 +534,9 @@ columns:
     - 2007
     - 2024
   NU_5_9_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 98 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_5_to_9
     kind: number
     model: mark
@@ -479,6 +545,9 @@ columns:
     - 2007
     - 2024
   NU_5_9_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 70 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_5_to_9
     kind: number
     model: mark
@@ -487,6 +556,9 @@ columns:
     - 2007
     - 2024
   NU_5_9_TOT:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 156 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_5_to_9
     kind: number
     model: mark
@@ -495,6 +567,9 @@ columns:
     - 2007
     - 2024
   NU_ABDOM_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 616 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_abdominal_pain
     kind: number
     model: mark
@@ -512,6 +587,9 @@ columns:
     - 2024
     note: role from the notification block
   NU_A_ALIM:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 324 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.food_samples_taken
     kind: number
     model: mark
@@ -520,6 +598,9 @@ columns:
     - 2022
     - 2024
   NU_A_CLINI:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 83 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.number_of_clinical_samples_collected
     kind: number
     model: mark
@@ -552,6 +633,9 @@ columns:
     - 2007
     - 2024
   NU_CEFAL_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 400 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_headache
     kind: number
     model: mark
@@ -568,6 +652,9 @@ columns:
     - 2022
     - 2024
   NU_DIARR_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 1203 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_diarrhoea
     kind: number
     model: mark
@@ -576,6 +663,9 @@ columns:
     - 2007
     - 2024
   NU_ENTR:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 6190 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.people_interviewed
     kind: number
     model: mark
@@ -584,6 +674,9 @@ columns:
     - 2007
     - 2024
   NU_ENT_DOE:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 3006 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.interviewed_who_fell_ill
     kind: number
     model: mark
@@ -592,6 +685,9 @@ columns:
     - 2007
     - 2024
   NU_FEBRE_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 380 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_fever
     kind: number
     model: mark
@@ -600,6 +696,9 @@ columns:
     - 2007
     - 2024
   NU_F_TOT:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 1203 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.ill_persons_by_age_and_sex_grand_total
     kind: number
     model: mark
@@ -608,6 +707,9 @@ columns:
     - 2007
     - 2024
   NU_F_TOT_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 590 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_total
     kind: number
     model: mark
@@ -616,6 +718,9 @@ columns:
     - 2007
     - 2024
   NU_IGN_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 777 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.total_cases_age_unknown
     kind: number
     model: mark
@@ -624,6 +729,9 @@ columns:
     - 2007
     - 2024
   NU_IGRA_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 204 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.male_cases_age_unknown
     kind: number
     model: mark
@@ -632,6 +740,9 @@ columns:
     - 2007
     - 2024
   NU_IG_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 291 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_age_unknown
     kind: number
     model: mark
@@ -640,6 +751,9 @@ columns:
     - 2007
     - 2024
   NU_IG_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 578 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_and_age
     kind: number
     model: mark
@@ -668,6 +782,9 @@ columns:
     - 2024
     note: 'A magnitude whose unit is its ST_/MAX_ST_ companion: not a measurement on its own.'
   NU_NAUSE_P:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 565 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_nausea
     kind: number
     model: mark
@@ -676,6 +793,9 @@ columns:
     - 2007
     - 2024
   NU_NEURO_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 101 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_neurological_symptoms
     kind: number
     model: mark
@@ -700,6 +820,9 @@ columns:
     - 2007
     - 2024
   NU_OBITO:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 8 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.deaths
     kind: number
     model: mark
@@ -708,6 +831,9 @@ columns:
     - 2007
     - 2024
   NU_OUTRO_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 406 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_other_symptoms
     kind: number
     model: mark
@@ -737,6 +863,9 @@ columns:
     - 2007
     - 2024
   NU_TOT_HOS:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 575 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.hospitalised
     kind: number
     model: mark
@@ -745,6 +874,9 @@ columns:
     - 2007
     - 2024
   NU_TOT_IGN:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 777 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_of_unknown_sex_total
     kind: number
     model: mark
@@ -753,6 +885,9 @@ columns:
     - 2007
     - 2024
   NU_TO_F_NU:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 627 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.female_cases_total
     kind: number
     model: mark
@@ -761,6 +896,9 @@ columns:
     - 2007
     - 2024
   NU_VOMTO_N:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): numeric(4), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 713 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 9999]
     role: outbreak.cases_with_vomiting
     kind: number
     model: mark
@@ -769,6 +907,9 @@ columns:
     - 2007
     - 2024
   QT_TOTAL_C:
+    missing: []
+    # the form's dictionary (SDTA_DIC_DADOS.pdf): varchar2(5), a count with no code for not recorded; the records 2007-2024 hold whole numbers only, at most 10028 (data/probes/p3_outbreaks/count_domains.log)
+    domain: [0, 99999]
     role: outbreak.suspected_exposed_cases_up_to_notification
     kind: number
     model: mark
