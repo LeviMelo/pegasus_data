@@ -463,13 +463,15 @@ def link_method(name: str) -> str:
 
 
 def side_counts(name: str, *, period: object, side: str, by: str, method: str | None = None,
-                **query_kwargs: Any) -> pa.Table:
+                persons: Any = None, **query_kwargs: Any) -> pa.Table:
     """One side of a stored national run by the value of role ``by`` (a residence): ``n`` the side's records the link
     can pair (its filter applied, a group's records as one, numbered as the run numbered them) and ``k`` the expected
     number paired (each record's largest p_match, 1 for a deterministic pair). n per residence is the denominator of
     the link's completeness there: a share of infant deaths that found their birth, by municipality and year, reads
-    where the link has holes (a birth field's missing infant deaths were the link's, 2026-10-08). The run must be
-    stored (`link`); a run not viable or absent raises."""
+    where the link has holes (a birth field's missing infant deaths were the link's, 2026-10-08). With ``persons``
+    (`entities.build_entities` of the scope) a record also counts as paired when its person holds a record of the
+    other side's kind through any route: an infant death the direct link missed but an admission and its death
+    certificate reached. The run must be stored (`link`); a run not viable or absent raises."""
     from ..config import load_settings
     from . import store
 
@@ -497,10 +499,21 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
     pairs = stored[0]
     p = pairs.column("p_match") if "p_match" in pairs.column_names else pa.array([1.0] * pairs.num_rows)
     con.register("pm", pa.table({"id": pairs.column("l" if side == "left" else "r"), "p": p}))
+    found = "0"
+    if persons is not None:
+        from .entities import _person_of_specs, person_pairs
+
+        lds, lrole, rds, rrole = _person_of_specs()[name]
+        mine, other = ((lds, lrole), (rds, rrole)) if side == "left" else ((rds, rrole), (lds, lrole))
+        con.register("pp", pa.table({"id": person_pairs(persons, mine, other).column("l")}))
+        # a record the direct link paired keeps its own p_match; one it missed counts when another route reached it
+        found = "CASE WHEN f.id IS NOT NULL THEN 1.0 ELSE 0.0 END"
+    joined = ("LEFT JOIN (SELECT DISTINCT CAST(id AS VARCHAR) AS id FROM pp) f ON f.id = CAST(x._id AS VARCHAR)"
+              if persons is not None else "")
     return con.execute(f"""SELECT x.{_q(by)} AS unit, CAST(count(DISTINCT x._id) AS INTEGER) AS n,
-            CAST(sum(coalesce(m.p, 0)) AS DOUBLE) AS k
+            CAST(sum(coalesce(m.p, {found})) AS DOUBLE) AS k
         FROM (SELECT DISTINCT _id, {_q(by)} FROM x) x LEFT JOIN (SELECT id, max(p) AS p FROM pm GROUP BY id) m
-        ON m.id = x._id GROUP BY 1 ORDER BY 1""").fetch_arrow_table()
+        ON m.id = x._id {joined} GROUP BY 1 ORDER BY 1""").fetch_arrow_table()
 
 
 __all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "link_method", "load_links", "run",

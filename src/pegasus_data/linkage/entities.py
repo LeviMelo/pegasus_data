@@ -27,6 +27,7 @@ from typing import Any
 
 import numpy as np
 import pyarrow as pa
+import pyarrow.compute  # noqa: F401 - pa.compute
 
 from ..semantics.curation import read_yaml
 from .engine import link_method, links_file, load_links, stored_key
@@ -69,7 +70,8 @@ def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
     return out
 
 
-def _stored_edges(settings: Any, period: object, geography: object, method: str | None) -> pa.Table:
+def _stored_edges(settings: Any, period: object, geography: object, method: str | None,
+                  exclude: frozenset[str] = frozenset()) -> pa.Table:
     """Every stored pair of the scope's viable runs as one edge table, with its p_match (1 where the run carries none).
     A run stored with the verdict "not viable" (SINAN's dengue deaths in 2015: its controls matched like its pairs)
     merges no one."""
@@ -78,6 +80,8 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
     con = connect()
     parts = []
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
+        if name in exclude:
+            continue
         key = stored_key(name, method or link_method(name), period, geography)
         path = links_dir(settings) / name / f"{key.stem}.parquet"
         report = path.with_suffix(".json")
@@ -96,15 +100,16 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
 
 
 def build_entities(*, period: object, geography: object, method: str | None = None,
-                   settings: Any = None, draw: int | None = None) -> Entities:
+                   settings: Any = None, draw: int | None = None, exclude: frozenset[str] = frozenset()) -> Entities:
     """Merge every stored link of the scope into persons, strongest evidence first, each link's run by its own method
     (`link_method`) unless ``method`` names one. ``draw`` (a seed) merges one
     plausible link set: each edge kept with its p_match (`uncertainty.draws`), so an analysis over persons carries the
-    linkage's uncertainty by repeating it over draws and combining (`uncertainty.combine`)."""
+    linkage's uncertainty by repeating it over draws and combining (`uncertainty.combine`). ``exclude`` leaves links
+    out (`triangles`: the persons the other links make)."""
     from ..config import load_settings
 
     settings = settings or load_settings()
-    edges = _stored_edges(settings, period, geography, method)
+    edges = _stored_edges(settings, period, geography, method, exclude)
     if draw is not None:
         p = edges.column("p_match").to_numpy(zero_copy_only=False)
         import zlib
@@ -185,4 +190,43 @@ def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, st
     """).to_arrow_table()
 
 
-__all__ = ["Entities", "build_entities", "person_pairs"]
+def triangles(*, period: object, geography: object, settings: Any = None) -> dict[str, dict[str, Any]]:
+    """Each stored link of the scope against the persons the OTHER links make: of its pairs whose left record the other
+    links also reach a right record of the same kind for, how many reach the same one (agree) and how many another
+    (disagree). Two independent routes to one pair measure the links against each other, which no link's own controls
+    can (2026-10-02: 3,085 newborn triangles agreed, 76 did not, 97.6 %). A link with no other route has none."""
+    from ..config import load_settings
+
+    settings = settings or load_settings()
+    edges = _stored_edges(settings, period, geography, None)
+    out: dict[str, dict[str, Any]] = {}
+    con = connect()
+    for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
+        mask = pa.compute.equal(edges.column("spec"), name)
+        direct = edges.filter(mask).select(["l", "r"])
+        if direct.num_rows == 0:
+            continue
+        try:
+            others = build_entities(period=period, geography=geography, settings=settings, exclude=frozenset({name}))
+        except FileNotFoundError:
+            out[name] = {"pairs": direct.num_rows, "with_route": 0, "agree": 0, "disagree": 0, "agreement": None}
+            continue
+        routed = person_pairs(others, (lds, lrole), (rds, rrole))
+        con.register("d", pa.table({"l": _as_str(direct.column("l")), "r": _as_str(direct.column("r"))}))
+        con.register("o", pa.table({"l": _as_str(routed.column("l")), "r": _as_str(routed.column("r"))}))
+        row = con.execute("""SELECT count(*) FILTER (WHERE agree) AS agree, count(*) FILTER (WHERE NOT agree) AS disagree
+            FROM (SELECT d.l, bool_or(o.r = d.r) AS agree FROM d JOIN o USING (l) GROUP BY d.l, d.r)""").fetchone()
+        con.unregister("d")
+        con.unregister("o")
+        agree, disagree = int(row[0]), int(row[1])
+        out[name] = {"pairs": direct.num_rows, "with_route": agree + disagree, "agree": agree, "disagree": disagree,
+                     "agreement": round(agree / (agree + disagree), 4) if agree + disagree else None}
+    return out
+
+
+def _as_str(column: Any) -> pa.Array:
+    """A record identity column as strings (stored runs and persons name records alike)."""
+    return pa.compute.cast(column, pa.string())
+
+
+__all__ = ["Entities", "build_entities", "person_pairs", "triangles"]

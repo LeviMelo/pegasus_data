@@ -123,6 +123,10 @@ links:
         "deceased.sex" = 'F' AND "deceased.age_years" BETWEEN 15 AND 49
     right:
       dataset: SINASC-DN
+      # a woman's births before her death: four years before the death year and that year (the race bridge's
+      # narrowest window, 2012-2016). Without it a year's run read only that year's births: 2010-2018 run on
+      # 2026-10-09 by PegaSUS's person links were all not viable (one pass, 91 % chance agreement)
+      pad_years: [4, 0]
       group: [mother.birth_date, mother.residence]
       latest: birth.date
     passes:
