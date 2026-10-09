@@ -835,32 +835,11 @@ datasets:
         kind: case
         grain: one person ill in a foodborne outbreak, from the outbreak's count of its ill by sex and age band
         weight:
-          grid:
-            bands: [0, 1, 5, 10, 20, 50]
-            total: NU_TOT
-            margin: NU_F_TOT
-            cells:
-            - {column: NU_1_M_NU, sex: male, age: 0}
-            - {column: NU_1_F_NU, sex: female, age: 0}
-            - {column: NU_1_IGN, sex: null, age: 0}
-            - {column: NU_1_4_NU, sex: male, age: 1}
-            - {column: NU1_4_F_NU, sex: female, age: 1}
-            - {column: NU_1_4_IGN, sex: null, age: 1}
-            - {column: NU_5_9_NU, sex: male, age: 5}
-            - {column: NU5_9_F_NU, sex: female, age: 5}
-            - {column: NU_5_9_IGN, sex: null, age: 5}
-            - {column: NU_10_19_M, sex: male, age: 10}
-            - {column: NU10_19_N, sex: female, age: 10}
-            - {column: NU_10_19IG, sex: null, age: 10}
-            - {column: NU_20_49_N, sex: male, age: 20}
-            - {column: NU_20_49_F, sex: female, age: 20}
-            - {column: NU_20_49IG, sex: null, age: 20}
-            - {column: NU_50_M_NU, sex: male, age: 50}
-            - {column: NU_50_F_NU, sex: female, age: 50}
-            - {column: NU_50_IGN, sex: null, age: 50}
-            - {column: NU_IGRA_NU, sex: male, age: null}
-            - {column: NU_IG_F_NU, sex: female, age: null}
-            - {column: NU_IG_IGN, sex: null, age: null}
+          grid: ill
+          sex: {axis: sex, male: M, female: F}
+          age: {axis: age_band, unknown: [I]}
+          total: NU_TOT
+          margin: NU_F_TOT
           evidence: >-
             Form field 32 counts the ill by sex (masculino, feminino, ignorado) and band (<1, 1-4, 5-9, 10-19, 20-49,
             50+, ignorada); its dictionary (SDTA_DIC_DADOS.pdf) requires the grid to sum to the ill interviewed (field

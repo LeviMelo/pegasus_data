@@ -2036,3 +2036,141 @@ columns:
     - 2026
     codelists:
     - VINC_SUS
+grids:
+  attendance:
+    value: flag
+    evidence: >-
+      The SCNES table LFCES006 (attendance type CODATPREST x payer COD_CONVEN) spread by CNES-ST into one 0/1 column per pair, AP##CV## (the layout notebook Caderno_Layout_TXT_SIA_SIHD_CIHA_CIH_2.0, DATA_SOURCES §1); the labels are the columns' own.
+    axes:
+      attendance: {'01': 'INTERNACAO', '02': 'ATENDIMENTO AMBULATORIAL', '03': 'SADT', '04': 'URGENCIA', '05': 'OUTROS', '06': 'VIGILANCIA EM SAUDE', '07': 'REGULACAO'}
+      payer: {'01': 'SUS', '02': 'PARTICULAR', '03': 'PLANO-SEGURO PROPRIO', '04': 'PLANO-SEGURO TERCEIRO', '05': 'PLANO de SAUDE PUBLICO', '06': 'PLANO de SAUDE PRIVADO', '07': 'Gratuidade'}
+    cells:
+      AP01CV01: {attendance: '01', payer: '01'}
+      AP01CV02: {attendance: '01', payer: '02'}
+      AP01CV03: {attendance: '01', payer: '03'}
+      AP01CV04: {attendance: '01', payer: '04'}
+      AP01CV05: {attendance: '01', payer: '05'}
+      AP01CV06: {attendance: '01', payer: '06'}
+      AP01CV07: {attendance: '01', payer: '07'}
+      AP02CV01: {attendance: '02', payer: '01'}
+      AP02CV02: {attendance: '02', payer: '02'}
+      AP02CV03: {attendance: '02', payer: '03'}
+      AP02CV04: {attendance: '02', payer: '04'}
+      AP02CV05: {attendance: '02', payer: '05'}
+      AP02CV06: {attendance: '02', payer: '06'}
+      AP02CV07: {attendance: '02', payer: '07'}
+      AP03CV01: {attendance: '03', payer: '01'}
+      AP03CV02: {attendance: '03', payer: '02'}
+      AP03CV03: {attendance: '03', payer: '03'}
+      AP03CV04: {attendance: '03', payer: '04'}
+      AP03CV05: {attendance: '03', payer: '05'}
+      AP03CV06: {attendance: '03', payer: '06'}
+      AP03CV07: {attendance: '03', payer: '07'}
+      AP04CV01: {attendance: '04', payer: '01'}
+      AP04CV02: {attendance: '04', payer: '02'}
+      AP04CV03: {attendance: '04', payer: '03'}
+      AP04CV04: {attendance: '04', payer: '04'}
+      AP04CV05: {attendance: '04', payer: '05'}
+      AP04CV06: {attendance: '04', payer: '06'}
+      AP04CV07: {attendance: '04', payer: '07'}
+      AP05CV01: {attendance: '05', payer: '01'}
+      AP05CV02: {attendance: '05', payer: '02'}
+      AP05CV03: {attendance: '05', payer: '03'}
+      AP05CV04: {attendance: '05', payer: '04'}
+      AP05CV05: {attendance: '05', payer: '05'}
+      AP05CV06: {attendance: '05', payer: '06'}
+      AP05CV07: {attendance: '05', payer: '07'}
+      AP06CV01: {attendance: '06', payer: '01'}
+      AP06CV02: {attendance: '06', payer: '02'}
+      AP06CV03: {attendance: '06', payer: '03'}
+      AP06CV04: {attendance: '06', payer: '04'}
+      AP06CV05: {attendance: '06', payer: '05'}
+      AP06CV06: {attendance: '06', payer: '06'}
+      AP06CV07: {attendance: '06', payer: '07'}
+      AP07CV01: {attendance: '07', payer: '01'}
+      AP07CV02: {attendance: '07', payer: '02'}
+      AP07CV03: {attendance: '07', payer: '03'}
+      AP07CV04: {attendance: '07', payer: '04'}
+      AP07CV05: {attendance: '07', payer: '05'}
+      AP07CV06: {attendance: '07', payer: '06'}
+      AP07CV07: {attendance: '07', payer: '07'}
+  management:
+    value: flag
+    evidence: >-
+      The SCNES table LFCES007 (programme CODPROG x manager IND_ESTMUN) spread into GESPRG#E/#M; the labels are the columns' own (programme 3 names none).
+    axes:
+      programme: {'1': 'ATENCAO BASICA / AMBULATORIAL', '2': 'MEDIA COMPLEXIDADE / AMBULATORIAL', '3': 'programa cod. 03', '4': 'ALTA COMPLEXIDADE / AMBULATORIAL', '5': 'MEDIA COMPLEXIDADE / HOSPITALAR', '6': 'ALTA COMPLEXIDADE / HOSPITALAR'}
+      manager: {'E': 'ESTADUAL', 'M': 'MUNICIPAL'}
+    cells:
+      GESPRG1E: {programme: '1', manager: 'E'}
+      GESPRG1M: {programme: '1', manager: 'M'}
+      GESPRG2E: {programme: '2', manager: 'E'}
+      GESPRG2M: {programme: '2', manager: 'M'}
+      GESPRG3E: {programme: '3', manager: 'E'}
+      GESPRG3M: {programme: '3', manager: 'M'}
+      GESPRG4E: {programme: '4', manager: 'E'}
+      GESPRG4M: {programme: '4', manager: 'M'}
+      GESPRG5E: {programme: '5', manager: 'E'}
+      GESPRG5M: {programme: '5', manager: 'M'}
+      GESPRG6E: {programme: '6', manager: 'E'}
+      GESPRG6M: {programme: '6', manager: 'M'}
+  installations:
+    value: count
+    evidence: >-
+      The SCNES table LFCES015 (installation COD_INSTAL: rooms QTDE_INST, beds NUM_LEITOS) spread into QTINST## (rooms) and QTLEIT## (beds) of installation ##; QTLEITP1-3 are another, older partition of beds and are not cells here.
+    axes:
+      installation: {'01': 'Atendimento Pediatria', '02': 'Atendimento Feminino', '03': 'Atendimento Masculino', '04': 'Atendimento Indifer.', '05': 'Repouso/Obs. Pediatria', '06': 'Repouso/Obs. Feminino', '07': 'Repouso/Obs.Masculino', '08': 'Repouso/Obs.Indiferen.', '09': 'Qt.Consultorio Odontologia', '10': 'Higienizacao', '11': 'de Gesso', '12': 'de Curativo', '13': 'Pequena Cirurgia', '14': 'Qt.Consultorios Medico', '15': 'Qt.Consultorio Clinica Basica', '16': 'Qt.Consultorio Clinica Especial.', '17': 'Qt.Consultorio Clinica Indiferen.', '18': 'Qt.Consultorio Nao Medico', '19': 'Repouso/Obs.Feminino', '20': 'Repouso/Obs.Masculino', '21': 'Repouso/Obs.Pediatria', '22': 'Repouso/Obs.Indiferen.', '23': 'Qt.Consultorio Odontologia', '24': 'Pequenas Cirurgias', '25': 'Enfermagem', '26': 'Imunizacao', '27': 'Nebulizacao', '28': 'de Gesso', '29': 'de Curativo', '30': 'Cirurgia Ambulatorial', '31': 'Cirurgia', '32': 'Recuperação', '33': 'Cirurgia Ambulatorial', '34': 'Pré Parto', '35': 'Parto Normal', '36': 'Curetagem', '37': 'Cirurgia', '38': 'RN Normal', '39': 'RN Patológico', '40': 'Alojamento Conjunto'}
+      quantity: {'beds': 'leitos', 'rooms': 'salas'}
+    cells:
+      QTINST01: {installation: '01', quantity: 'rooms'}
+      QTINST02: {installation: '02', quantity: 'rooms'}
+      QTINST03: {installation: '03', quantity: 'rooms'}
+      QTINST04: {installation: '04', quantity: 'rooms'}
+      QTINST05: {installation: '05', quantity: 'rooms'}
+      QTINST06: {installation: '06', quantity: 'rooms'}
+      QTINST07: {installation: '07', quantity: 'rooms'}
+      QTINST08: {installation: '08', quantity: 'rooms'}
+      QTINST09: {installation: '09', quantity: 'rooms'}
+      QTINST10: {installation: '10', quantity: 'rooms'}
+      QTINST11: {installation: '11', quantity: 'rooms'}
+      QTINST12: {installation: '12', quantity: 'rooms'}
+      QTINST13: {installation: '13', quantity: 'rooms'}
+      QTINST14: {installation: '14', quantity: 'rooms'}
+      QTINST15: {installation: '15', quantity: 'rooms'}
+      QTINST16: {installation: '16', quantity: 'rooms'}
+      QTINST17: {installation: '17', quantity: 'rooms'}
+      QTINST18: {installation: '18', quantity: 'rooms'}
+      QTINST19: {installation: '19', quantity: 'rooms'}
+      QTINST20: {installation: '20', quantity: 'rooms'}
+      QTINST21: {installation: '21', quantity: 'rooms'}
+      QTINST22: {installation: '22', quantity: 'rooms'}
+      QTINST23: {installation: '23', quantity: 'rooms'}
+      QTINST24: {installation: '24', quantity: 'rooms'}
+      QTINST25: {installation: '25', quantity: 'rooms'}
+      QTINST26: {installation: '26', quantity: 'rooms'}
+      QTINST27: {installation: '27', quantity: 'rooms'}
+      QTINST28: {installation: '28', quantity: 'rooms'}
+      QTINST29: {installation: '29', quantity: 'rooms'}
+      QTINST30: {installation: '30', quantity: 'rooms'}
+      QTINST31: {installation: '31', quantity: 'rooms'}
+      QTINST32: {installation: '32', quantity: 'rooms'}
+      QTINST33: {installation: '33', quantity: 'rooms'}
+      QTINST34: {installation: '34', quantity: 'rooms'}
+      QTINST35: {installation: '35', quantity: 'rooms'}
+      QTINST36: {installation: '36', quantity: 'rooms'}
+      QTINST37: {installation: '37', quantity: 'rooms'}
+      QTLEIT05: {installation: '05', quantity: 'beds'}
+      QTLEIT06: {installation: '06', quantity: 'beds'}
+      QTLEIT07: {installation: '07', quantity: 'beds'}
+      QTLEIT08: {installation: '08', quantity: 'beds'}
+      QTLEIT09: {installation: '09', quantity: 'beds'}
+      QTLEIT19: {installation: '19', quantity: 'beds'}
+      QTLEIT20: {installation: '20', quantity: 'beds'}
+      QTLEIT21: {installation: '21', quantity: 'beds'}
+      QTLEIT22: {installation: '22', quantity: 'beds'}
+      QTLEIT23: {installation: '23', quantity: 'beds'}
+      QTLEIT32: {installation: '32', quantity: 'beds'}
+      QTLEIT34: {installation: '34', quantity: 'beds'}
+      QTLEIT38: {installation: '38', quantity: 'beds'}
+      QTLEIT39: {installation: '39', quantity: 'beds'}
+      QTLEIT40: {installation: '40', quantity: 'beds'}

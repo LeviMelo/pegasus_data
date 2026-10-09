@@ -1081,3 +1081,34 @@ columns:
     years:
     - 2007
     - 2024
+grids:
+  ill:
+    value: count
+    evidence: >-
+      The form's field 32, the ill by sex and age band (SDTA_DIC_DADOS.pdf); each band's three sexes sum to its
+      total column and each sex's bands to its total in every row that fills the grid (2010, 2015, 2019, 2023).
+    axes:
+      sex: {M: Masculino, F: Feminino, I: Ignorado}
+      age_band: {'0': '< 1', '1': 1 a 4, '5': 5 a 9, '10': 10 a 19, '20': 20 a 49, '50': 50 e +, I: Ignorada}
+    cells:
+      NU_1_M_NU: {sex: M, age_band: '0'}
+      NU_1_F_NU: {sex: F, age_band: '0'}
+      NU_1_IGN: {sex: I, age_band: '0'}
+      NU_1_4_NU: {sex: M, age_band: '1'}
+      NU1_4_F_NU: {sex: F, age_band: '1'}
+      NU_1_4_IGN: {sex: I, age_band: '1'}
+      NU_5_9_NU: {sex: M, age_band: '5'}
+      NU5_9_F_NU: {sex: F, age_band: '5'}
+      NU_5_9_IGN: {sex: I, age_band: '5'}
+      NU_10_19_M: {sex: M, age_band: '10'}
+      NU10_19_N: {sex: F, age_band: '10'}
+      NU_10_19IG: {sex: I, age_band: '10'}
+      NU_20_49_N: {sex: M, age_band: '20'}
+      NU_20_49_F: {sex: F, age_band: '20'}
+      NU_20_49IG: {sex: I, age_band: '20'}
+      NU_50_M_NU: {sex: M, age_band: '50'}
+      NU_50_F_NU: {sex: F, age_band: '50'}
+      NU_50_IGN: {sex: I, age_band: '50'}
+      NU_IGRA_NU: {sex: M, age_band: 'I'}
+      NU_IG_F_NU: {sex: F, age_band: 'I'}
+      NU_IG_IGN: {sex: I, age_band: 'I'}

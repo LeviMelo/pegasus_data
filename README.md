@@ -277,6 +277,8 @@ fields, years)` counts, per year, the records whose value is neither empty
 nor one of the column's declared missing codes (SIM's `CB_PRE` exists from
 2014 and fills almost no record).
 
+Some forms spread one variable over columns, each column a cell of its axes (CNES-ST's attendance type × payer, AP##CV##). `grids(dataset)` lists them and `grid_table(dataset, name, period=..., geography=..., keep=[...])` reads one long, one row per record and cell.
+
 **One codelist per column per schema generation.** A column is bound to every
 TabNet table that mentions it (31 for SIH's `CNES`, 294 for PNI's `MUNIC`).
 Which one actually labels it is decided once:

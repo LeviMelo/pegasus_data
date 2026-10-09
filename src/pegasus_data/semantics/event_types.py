@@ -155,7 +155,9 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         raise ValueError(f"{where}: {key}.{name}: a weight names its column or its grid, and its evidence")
     if weight and spec.get("consolidation"):
         raise ValueError(f"{where}: {key}.{name}: a weighted row is many events; consolidating it to one is a contradiction")
-    grid, bands, total, margin = _grid(weight.get("grid"), f"{where}: {key}.{name}")
+    system, series = _canonical_system(str(body.get("system") or "")), str(body.get("series") or "").upper()
+    grid, bands, total, margin = _grid(weight if weight.get("grid") else None, f"{system}-{series}",
+                                       f"{where}: {key}.{name}")
     return EventType(
         dataset=key, system=_canonical_system(str(body.get("system") or "")), series=str(body.get("series") or "").upper(),
         name=name, kind=kind, grain=spec.get("grain") or body.get("what_one_row_is"), classifiers=classifiers,
@@ -169,24 +171,35 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
     )
 
 
-def _grid(spec: dict[str, Any] | None, where: str) -> tuple[tuple[GridCell, ...], tuple[int, ...], str | None, str | None]:
-    """A weight grid's cells, validated: every cell a distinct (sex, band) in its own column, every band one of
-    ``bands``."""
+def _grid(spec: dict[str, Any] | None, dataset: str,
+          where: str) -> tuple[tuple[GridCell, ...], tuple[int, ...], str | None, str | None]:
+    """A weight grid's cells: the role file's grid ``spec["grid"]`` (`grids`, ADR-0158), its ``sex`` axis read through
+    the codes the weight names male and female (any other code: unknown), its ``age`` axis codes the bands' lower edges
+    in years but for those the weight names ``unknown``. The bands start at 0 and every cell is a distinct (sex, band)."""
     if not spec:
         return (), (), None, None
-    bands = tuple(int(b) for b in spec.get("bands") or ())
-    if not bands or bands[0] != 0 or list(bands) != sorted(set(bands)):
-        raise ValueError(f"{where}: a grid's bands are increasing lower edges from 0")
-    sexes = {"male": 1, "female": 2, None: None}
-    cells = []
-    for c in spec.get("cells") or ():
-        if c.get("sex") not in sexes or (c.get("age") is not None and int(c["age"]) not in bands):
-            raise ValueError(f"{where}: grid cell {c}: sex male, female or null; age one of the bands {bands} or null")
-        cells.append(GridCell(str(c["column"]).upper(), sexes[c.get("sex")], None if c.get("age") is None else int(c["age"])))
-    if not cells or len({(c.sex, c.age) for c in cells}) != len(cells) or len({c.column for c in cells}) != len(cells):
-        raise ValueError(f"{where}: a grid's cells are distinct (sex, band) pairs in distinct columns")
+    from .grids import load_grids
+
+    g = load_grids().get(dataset, {}).get(str(spec["grid"]))
+    if g is None:
+        raise ValueError(f"{where}: no grid {spec['grid']!r} in the roles of {dataset}")
+    sx, ag = spec.get("sex") or {}, spec.get("age") or {}
+    axes = [a for a, _ in g.axes]
+    if sorted(axes) != sorted([sx.get("axis"), ag.get("axis")]):
+        raise ValueError(f"{where}: the weight reads the grid's axes {axes} as its sex and age")
+    sex_of = {str(sx.get("male")): 1, str(sx.get("female")): 2}
+    unknown_age = {str(u) for u in ag.get("unknown") or ()}
+    try:
+        bands = tuple(sorted(int(c) for c in g.axis_codes(ag["axis"]) if c not in unknown_age))
+    except ValueError as exc:
+        raise ValueError(f"{where}: an age code that is not a band's lower edge must be named unknown") from exc
+    if not bands or bands[0] != 0:
+        raise ValueError(f"{where}: a grid's bands are lower edges from 0")
+    i_sex, i_age = axes.index(sx["axis"]), axes.index(ag["axis"])
+    cells = tuple(GridCell(column, sex_of.get(codes[i_sex]), None if codes[i_age] in unknown_age else int(codes[i_age]))
+                  for column, codes in g.cells)
     total, margin = (str(spec[k]).upper() if spec.get(k) else None for k in ("total", "margin"))
-    return tuple(cells), bands, total, margin
+    return cells, bands, total, margin
 
 
 def _canonical_system(name: str) -> str:
