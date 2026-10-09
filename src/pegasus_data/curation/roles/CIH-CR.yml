@@ -251,3 +251,10 @@ columns:
     years:
     - 2008
     - 2011
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    name: Idade em anos (derivada de IDADE e COD_IDADE)
+    note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.

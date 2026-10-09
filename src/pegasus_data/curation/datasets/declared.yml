@@ -775,6 +775,13 @@ datasets:
       - Under-reporting means CIHA is a lower bound on non-SUS activity, never an estimate of it.
 
   CIH.CR:
+    event_types:
+      - name: hospitalisation
+        kind: hospitalisation
+        grain: one communicated non-SUS hospitalisation (CIH, 2008-2010)
+        classifiers:
+          - {column: DIAG_PRINC, role: primary, structure: ICD10}
+          - {column: PROC_REA, role: alternative, structure: SIGTAP}
     system: CIH
     series: CR
     asserted_by: pegasus_data
@@ -828,6 +835,14 @@ datasets:
       - Enrolment date is not the date care began, and the gap matters for the first-trimester indicator.
 
   PAINEL_ONCOLOGIA.PO:
+    event_types:
+      - name: cancer_case
+        kind: case
+        grain: one cancer diagnosis with its first treatment, as the Painel de Oncologia records it
+        classifiers:
+          - {column: DIAG_DETH, role: primary, structure: ICD10}
+        note: >-
+          CNS_PAC is blank on every row (2026: 213,834 of 213,834), so cases cannot be consolidated by person.
     system: PAINEL_ONCOLOGIA
     series: PO
     asserted_by: pegasus_data
@@ -843,6 +858,28 @@ datasets:
       - A patient with two primary tumours appears twice.
 
   RESP.RESP:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notified newborn or foetus with a suspected congenital alteration (microcephaly)
+        status:
+          column: CLASSIFIN
+          exclude: ["6"]
+          evidence: >-
+            CLASSIFIN 6 is Excluído (DIC_DADOS_RESP), a record excluded from surveillance; every other row,
+            a blank one included, is a notification.
+      - name: case
+        kind: case
+        status:
+          column: CLASSIFIN
+          values: ["1"]
+          evidence: CLASSIFIN 1 is Confirmado (DIC_DADOS_RESP); 161 of 1,174 in PE 2016.
+      - name: probable_case
+        kind: probable_case
+        status:
+          column: CLASSIFIN
+          values: ["2"]
+          evidence: CLASSIFIN 2 is Provável (DIC_DADOS_RESP).
     system: RESP
     series: RESP
     asserted_by: pegasus_data
@@ -870,6 +907,11 @@ datasets:
       - Positivity is conditional on being surveyed, and surveys target known endemic areas.
 
   ESUSNOTIFICA.DCCR:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notified case of chronic Chagas disease (e-SUS Notifica)
+        evidence: "e-SUS Notifica is a notification system; the form carries no final classification column"
     system: ESUSNOTIFICA
     series: DCCR
     asserted_by: pegasus_data
@@ -979,6 +1021,24 @@ datasets:
       - The predecessor of SIM.DO, not a republication of it; the two cover different years.
       - Deaths of residents abroad or of unknown residence are in SIM.DORIG (1995), not here.
   SIM.DOREXT:
+    event_types:
+      - name: death
+        kind: death
+        classifiers:
+          - {column: CAUSABAS, role: primary, structure: ICD10}
+        status:
+          column: TIPOBITO
+          values: ["2"]
+          evidence: >-
+            TIPOBITO 2 is a non-foetal death (SIM layout); DOREXT carries both (2022: 433 of 451 are 2, 18 are 1).
+      - name: foetal_death
+        kind: foetal_death
+        classifiers:
+          - {column: CAUSABAS, role: primary, structure: ICD10}
+        status:
+          column: TIPOBITO
+          values: ["1"]
+          evidence: TIPOBITO 1 is a foetal death (SIM layout); 18 of DOREXT's 451 records in 2022.
     system: SIM
     series: DOREXT
     asserted_by: pegasus_data
@@ -1002,6 +1062,11 @@ datasets:
 
   # ================================================================= SINASC
   SINASC.DNEX:
+    event_types:
+      - name: birth
+        kind: birth
+        grain: one live birth in Brazil to a mother resident abroad
+        marks: [IDANOMAL, CODANOMAL]
     system: SINASC
     series: DNEX
     asserted_by: pegasus_data

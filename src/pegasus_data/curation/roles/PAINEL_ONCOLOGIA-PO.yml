@@ -116,11 +116,12 @@ columns:
   IDADE:
     role: patient.age
     kind: number
-    model: mark
+    model: stratum
     name: Idade
     years:
     - 2013
     - 2026
+    note: Plain years at diagnosis, three digits (062), unlike SIM's and SIH's coded ages.
   MUN_DIAG:
     role: case.diagnosis_municipality
     kind: place

@@ -113,3 +113,23 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
 - **SIH**
   - **MT** is the 1995–1997 professional acts, not procedure changes.
   - **BASE_AIH1** is every approved AIH from 2008 in one DuckDB file, not a side file.
+
+**Event types for the newly typed record files.** PegaSUS surveys 71 datasets, from 67.
+- **Declared:**
+  - SIM.DOREXT: death and foetal death; in 2022, 18 of its 451 records are foetal.
+  - SINASC.DNEX: birth.
+  - CIH.CR: hospitalisation, by ICD-10 diagnosis and SIGTAP procedure.
+  - PAINEL_ONCOLOGIA.PO: cancer case, by three-character ICD-10.
+  - RESP.RESP: notification (Excluído excluded), case (Confirmado) and probable case (Provável).
+  - ESUSNOTIFICA.DCCR: notification.
+- **Age.** PegaSUS needs the subject's age in years as a stratum.
+  - CIH and e-SUS Notifica now carry the SIH and SINAN recipes.
+  - SIM's sub-series and DCCR carry `IDADE_anos`; Painel Oncologia's IDADE is plain years.
+  - Read on records: CIH SP 2010-06 has 123,481 of 123,481 aged, median 40 and maximum 111 (COD_IDADE 5 is 100+). DCCR 2025 has 8,256 of 8,256 aged, median 62.
+- **Running in PegaSUS:** DOREXT, CIH-CR, Painel Oncologia and DCCR.
+- **RESP has no age column:** its subject is a newborn or foetus. It is declared but not yet surveyed.
+- **Not declared, each for its reason:**
+  - DOEXT, DOINF and DOMAT are subsets of DO.
+  - SIA's PA, BI, PS and SAD rows carry quantities, and an event type has no weight.
+  - The pre-1996 bases are ICD-9, which PegaSUS does not read.
+  - SISCAN's exams have no event kind yet.

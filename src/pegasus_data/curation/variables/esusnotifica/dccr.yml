@@ -1166,6 +1166,12 @@ variables:
       is eighteen years old; 3009 is nine months old.
 
       '
+    derived:
+    - name: IDADE_anos
+      from:
+      - NU_IDADE_N
+      encoding: sinan
+      rule: fractional years (ADR-0070), SINAN's composite; leading digit 1 hours, 2 days, 3 months, 4 years. One converter, _age.years_column
     code_system: internal
     codelists:
     - IDADEDETESUS

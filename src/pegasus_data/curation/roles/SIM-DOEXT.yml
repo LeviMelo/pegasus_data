@@ -1448,3 +1448,10 @@ columns:
     - 2014
     - 2026
     note: role from SIM-DO
+  IDADE_anos:
+    role: deceased.age_years
+    kind: number
+    model: stratum
+    derived: true
+    name: Idade em anos (derivada de IDADE)
+    note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.

@@ -19,7 +19,8 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - Done: every SINAN form with records but COLE and TETN, SIM's and SINASC's ten sub-series (legacy layouts on their 1996+ roles), SIH's seven, CIH, and SIA's twenty (PA among them; SIA.PR newly declared).
   - Each column is decided from its evidence sheet (`scripts/role_evidence.py`): its variable note, its form's layout, its values.
   - Also done: CNES (13), Dados Abertos (13), PNI (6), SISCAN (15), SIH-CM, IBGE (9), RESP (2), SINAN COLE and TETN, e-SUS Notifica, Painel Oncologia, PCE, SISPRENATAL.
-  - Next: missing codes for the newly typed systems (the proposer covers SINAN), and event types where PegaSUS needs them.
+  - Event types for 71 datasets (from 67): DOREXT, DNEX, CIH-CR, Painel Oncologia, RESP, DCCR; eleven name-guessed dataset declarations corrected (DOR, DOREXT, DORIG, DNR, DNEX, DNRIG, NTRA, TRAC, ESPO, SIH MT, BASE_AIH1).
+  - Next: missing codes for the newly typed systems (the proposer covers SINAN); a weight for quantity rows (SIA PA, BI, PS, SAD); an `exam` kind for SISCAN.
 - **Missing codes.** The form decides where its dictionary is harvested, and the tabulation speaks only where the form is silent.
   - A code the records use that neither defines is written as a CONFLICT (evaluation 2026-10-08-declarations-by-form).
   - Two dictionary errors were corrected by supplement, with both claims cited.
