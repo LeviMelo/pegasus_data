@@ -222,10 +222,11 @@ columns:
     - 2024
     note: role from the notification block
   ID_MUNI_RE:
-    role: outbreak.residence_municipality
+    role: outbreak.municipality
     kind: place
-    model: mark
-    name: Município de residência
+    model: where
+    name: Município de ocorrência do surto
+    note: 'Named RE and tabulated by TabNet as residence, but the form''s field 11 is the municipality where the outbreak occurred (SDTA_DIC_DADOS.pdf); the place of its ill, who have no residence on the form.'
     codelists:
     - BR_MUNICIPALFA
     years:

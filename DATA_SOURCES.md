@@ -165,7 +165,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **`Dados_Abertos` SINAN exports are not the DBC in another format** (2026-10-03, ADR-0135):
   - the CSV strips leading zeros from codes (`08` becomes `8`);
   - IEXO 2023 has 66 columns against 80–82;
-  - SIFA 2023 holds Python bytes reprs as values (`b'2',b'A539'`);
+  - SIFA holds Python bytes reprs as values (`b'2',b'A539'`) in 2018–2020 and 2023 (2026-10-08 sweep); the text reader unwraps them;
   - the exports are dated 2026-01-29, while PRELIM DBCs are republished later.
 - **SINAN dates** (2026-10-04): the DBCs declare type `D` on 1,077 date fields (213 names) in 96 of 98 families, written `YYYYMMDD`; the `Dados_Abertos` CSVs write the same dates as ISO text. HANT 1999–2006 declares its dates `N8` (`YYYYMMDD`, `0` for blank), and a few fields named like dates are `C` (`DT_DOSE_*`, `CON_DT_OBI`).
 - **`.duck`**: DuckDB databases; the storage version is at offset 8 after the
@@ -217,6 +217,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   16.4% of the records have an ignored residence ("Município ignorado"). In
   AC 2023-01 every record's residence is 120000, the ignored code. RR
   published no CIHA for 2023-01.
+- **CIHA starts in 2011** (catalog, 2026-10-09: 4,798 files, 2011–2026); a
+  link asking for CIHA 2010 finds no publication, which is a gap, not zero.
 - **CIHA completes SIH's admissions** (June 2022, national, EVALUATION
   2026-09-30):
   - CIHA: 215,649 admissions against SIH's 1,034,013, about 17% of the two
@@ -760,6 +762,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - Meningitis's v5 dictionary prints `ANT_TRAUMA` as 1 Sim / 3 Não, while the records use 2 for Não and never 3.
   - Schistosomiasis's prints `EVOLUCAO` "1 – Cura 2, Não Cura" without a separator.
   - Both are corrected in `curation/codes/supplements.yml`, with both claims cited (evaluation 2026-10-08-declarations-by-form).
+- **SINAN-SDTA (foodborne outbreaks) counts its ill in a grid** (2026-10-09, ADR-0156):
+  - **The grid.** Field 32 counts the ill by sex × band (<1, 1–4, 5–9, 10–19, 20–49, 50+, ignorada). The
+    dictionary makes it sum to the ill who were interviewed (field 28), not to every ill person (NU_TOT, field 29).
+  - **The place.** `ID_MUNI_RE` is the outbreak's municipality of occurrence (field 11), though it is named RE and
+    TabNet tabulates it as residence.
+  - **2014.** No SDTA file exists for 2014 (FTP listings, 2026-10-09):
+    - `SINAN/DADOS/FINAIS` holds SDTABR07–13 and SDTABR15–24;
+    - `PRELIM` holds no SDTA;
+    - `Dados_Abertos/SINAN` has no outbreak folder.
 - **"Não se aplica" is a category, not a missing value**, on several forms (SIFC `LABC_IGG` 4: 15,353 of 27,186 recorded in 2021). TabNet's labels call it "Ign/Branco".
 
 ### The CNES establishment registry in the TabWin kit (measured 2026-09-29)

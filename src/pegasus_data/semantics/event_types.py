@@ -14,7 +14,9 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   long-stay continuation AIHs share their principal's ``N_AIH``);
 * ``weight``: the column whose value is the number of events a row stands for
   (SIA's production rows are quantities of a procedure: PA's consolidated BPA
-  holds up to 95,404 on one row), with its evidence;
+  holds up to 95,404 on one row), with its evidence; or a ``grid`` of columns,
+  each the events of one (sex, age band), where the row is a group of people
+  the form counts (SINAN-SDTA's foodborne outbreak, OQ-76);
 * ``evidence``: where the rule comes from.
 
 :func:`count_events` applies status, consolidation and weight to a query, so a
@@ -38,6 +40,18 @@ class Classifier:
     structure: str | None = None   # the code structure it lives in (ICD10, SIGTAP...)
 
 
+#: The columns a weight grid's events carry in place of a record's sex and age: sex 1 male / 2 female (None unknown),
+#: age the lower edge of the grid's band in years (None unknown). Not filed by DATASUS; `grid_events` makes them.
+GRID_SEX, GRID_AGE = "grid_sex", "grid_age_band"
+
+
+@dataclass(frozen=True, slots=True)
+class GridCell:
+    column: str
+    sex: int | None       # 1 male, 2 female, None the form's "ignorado"
+    age: int | None       # the band's lower edge in years, None the form's "ignorada"
+
+
 @dataclass(frozen=True, slots=True)
 class EventType:
     dataset: str          # the datasets-file key (SIHSUS_RD)
@@ -54,6 +68,13 @@ class EventType:
     status_excluded: tuple[str, ...] = ()
     consolidation_key: tuple[str, ...] = ()
     weight: str | None = None
+    #: A weight grid: each cell's column holds the events of one (sex, age band); ``bands`` are the bands' lower
+    #: edges (the last open); ``grid_total`` the row's total, whose events beyond the grid's are of unknown sex and age;
+    #: ``grid_margin`` the form's own sum of the grid, which solves a single blank cell.
+    grid: tuple[GridCell, ...] = ()
+    bands: tuple[int, ...] = ()
+    grid_total: str | None = None
+    grid_margin: str | None = None
     marks: tuple[str, ...] = ()
     evidence: str | None = None
     note: str | None = None
@@ -67,6 +88,10 @@ class EventType:
                         "excluded": list(self.status_excluded)} if self.status_column else None),
             "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
             "weight": self.weight,
+            "grid": ({"cells": [{"column": c.column, "sex": c.sex, "age": c.age} for c in self.grid],
+                      "bands": list(self.bands), "total": self.grid_total, "margin": self.grid_margin,
+                      "sex": GRID_SEX, "age": GRID_AGE}
+                     if self.grid else None),
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
         }
 
@@ -118,10 +143,11 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
     if status and not status.get("evidence") and not spec.get("evidence"):
         raise ValueError(f"{where}: {key}.{name}: a status rule needs its evidence")
     weight = spec.get("weight") or {}
-    if weight and not (weight.get("column") and weight.get("evidence")):
-        raise ValueError(f"{where}: {key}.{name}: a weight names its column and its evidence")
+    if weight and not ((weight.get("column") or weight.get("grid")) and weight.get("evidence")):
+        raise ValueError(f"{where}: {key}.{name}: a weight names its column or its grid, and its evidence")
     if weight and spec.get("consolidation"):
         raise ValueError(f"{where}: {key}.{name}: a weighted row is many events; consolidating it to one is a contradiction")
+    grid, bands, total, margin = _grid(weight.get("grid"), f"{where}: {key}.{name}")
     return EventType(
         dataset=key, system=_canonical_system(str(body.get("system") or "")), series=str(body.get("series") or "").upper(),
         name=name, kind=kind, grain=spec.get("grain") or body.get("what_one_row_is"), classifiers=classifiers,
@@ -129,10 +155,30 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_values=tuple(str(v) for v in status.get("values") or ()),
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
-        weight=str(weight["column"]).upper() if weight else None,
+        weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
     )
+
+
+def _grid(spec: dict[str, Any] | None, where: str) -> tuple[tuple[GridCell, ...], tuple[int, ...], str | None, str | None]:
+    """A weight grid's cells, validated: every cell a distinct (sex, band) in its own column, every band one of
+    ``bands``."""
+    if not spec:
+        return (), (), None, None
+    bands = tuple(int(b) for b in spec.get("bands") or ())
+    if not bands or bands[0] != 0 or list(bands) != sorted(set(bands)):
+        raise ValueError(f"{where}: a grid's bands are increasing lower edges from 0")
+    sexes = {"male": 1, "female": 2, None: None}
+    cells = []
+    for c in spec.get("cells") or ():
+        if c.get("sex") not in sexes or (c.get("age") is not None and int(c["age"]) not in bands):
+            raise ValueError(f"{where}: grid cell {c}: sex male, female or null; age one of the bands {bands} or null")
+        cells.append(GridCell(str(c["column"]).upper(), sexes[c.get("sex")], None if c.get("age") is None else int(c["age"])))
+    if not cells or len({(c.sex, c.age) for c in cells}) != len(cells) or len({c.column for c in cells}) != len(cells):
+        raise ValueError(f"{where}: a grid's cells are distinct (sex, band) pairs in distinct columns")
+    total, margin = (str(spec[k]).upper() if spec.get(k) else None for k in ("total", "margin"))
+    return tuple(cells), bands, total, margin
 
 
 def _canonical_system(name: str) -> str:
@@ -211,14 +257,82 @@ def event_weights(table: pa.Table, event: EventType) -> pa.Array:
     return pc.cast(text, pa.int64())
 
 
+def _integers(table: pa.Table, column: str, event: EventType) -> pa.Array:
+    """A count column as integers, blank as null; any other text raises (an unknown quantity is not zero events)."""
+    if column not in table.column_names:
+        raise KeyError(f"{event.name}: grid column {column} is not in the table")
+    text = pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string()))
+    blank = pc.fill_null(pc.equal(text, ""), True)
+    whole = pc.fill_null(pc.match_substring_regex(text, r"^\d+$"), False)
+    bad = pc.sum(pc.and_(pc.invert(blank), pc.invert(whole))).as_py()
+    if bad:
+        raise ValueError(f"{event.name}: {bad} rows carry a count in {column} that is not a whole number")
+    return pc.cast(pc.if_else(blank, pa.scalar(None, pa.string()), text), pa.int64())
+
+
+def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None) -> pa.Table:
+    """A grid event's rows as events by (sex, age band): one row per (record, cell), ``events`` the cell's count,
+    and one per record for the events of its total beyond its grid's, of unknown sex and age.
+
+    The grid is what the form counted by sex and age; its total may hold more people (SINAN-SDTA: the grid counts the
+    ill who were interviewed, field 28, and NU_TOT all the ill, field 29). A blank cell is never zero: a single blank
+    is solved from the grid's margin (the form's own sum of the grid) when that leaves it a whole number, and any
+    other blank holds no one in the grid, so its people, if any, are among the total's of unknown sex and age. A row
+    with no cell filled has no grid; a row with neither grid nor total is ``unquantified`` (a group, not zero
+    people). Where the grid exceeds the total, the grid counts: its people were counted one by one."""
+    keep = list(keep or [])
+    n = table.num_rows
+    counts = [_integers(table, c.column, event) for c in event.grid]
+    n_filled = pa.repeat(pa.scalar(0, pa.int64()), n)
+    grid_sum = pa.repeat(pa.scalar(0, pa.int64()), n)
+    for a in counts:
+        n_filled = pc.add(n_filled, pc.cast(pc.is_valid(a), pa.int64()))
+        grid_sum = pc.add(grid_sum, pc.fill_null(a, 0))
+    if event.grid_margin:
+        margin = _integers(table, event.grid_margin, event)
+        solved = pc.subtract(margin, grid_sum)
+        solvable = pc.fill_null(pc.and_(pc.equal(n_filled, len(event.grid) - 1), pc.greater_equal(solved, 0)), False)
+        counts = [pc.if_else(pc.and_(solvable, pc.is_null(a)), solved, a) for a in counts]
+        grid_sum = pc.if_else(solvable, margin, grid_sum)
+        n_filled = pc.if_else(solvable, pa.scalar(len(event.grid), pa.int64()), n_filled)
+    total = _integers(table, event.grid_total, event) if event.grid_total else pa.nulls(n, pa.int64())
+    beyond = pc.max_element_wise(pc.subtract(pc.fill_null(total, 0), grid_sum), pa.scalar(0, pa.int64()))
+    unquantified = pc.cast(pc.and_(pc.equal(n_filled, 0), pc.is_null(total)), pa.int64())
+    zero = pa.repeat(pa.scalar(0, pa.int64()), n)
+    parts = [pa.table({**{k: table.column(k) for k in keep},
+                       GRID_SEX: pa.repeat(pa.scalar(c.sex, pa.int8()), n), GRID_AGE: pa.repeat(pa.scalar(c.age, pa.int16()), n),
+                       "events": pc.fill_null(a, 0), "unquantified": zero})
+             for c, a in zip(event.grid, counts, strict=True)]
+    parts.append(pa.table({**{k: table.column(k) for k in keep},
+                           GRID_SEX: pa.nulls(n, pa.int8()), GRID_AGE: pa.nulls(n, pa.int16()),
+                           "events": beyond, "unquantified": unquantified}))
+    long = pa.concat_tables(parts)
+    return long.filter(pc.or_(pc.greater(long.column("events"), 0), pc.greater(long.column("unquantified"), 0)))
+
+
 def count_events(
     dataset: str, name: str, *, period: object, geography: object = "BR", by: list[str] | None = None,
     **query_kwargs: Any,
 ) -> pa.Table:
-    """Counts of one event type, optionally grouped by columns of the record; a weighted event sums its weight."""
+    """Counts of one event type, optionally grouped by columns of the record; a weighted event sums its weight.
+
+    A grid event's ``by`` may name `GRID_SEX` and `GRID_AGE`, and its result has a column ``unquantified``: the rows
+    whose grid and total are both blank, a group whose people were not counted (`grid_events`)."""
     from .._query_engine.executor import query
 
     event = event_type(dataset, name)
+    if event.grid:
+        record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
+        columns = {c for c in (event.status_column, event.grid_total, event.grid_margin, *(c.column for c in event.grid),
+                               *record_by) if c}
+        table = query(dataset, period=period, geography=geography, select=sorted(columns), present="codes",
+                      **query_kwargs)
+        long = grid_events(events_of(table, event), event, record_by)
+        if not by:
+            return pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
+                             "unquantified": [pc.sum(long.column("unquantified")).as_py() or 0]})
+        return long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
+            [*by, "events", "unquantified"])
     columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
     table = query(dataset, period=period, geography=geography, select=sorted(columns) or None,
                   present="codes", **query_kwargs)

@@ -272,7 +272,10 @@ columns do not exist before 2014. A query spanning the boundary unions the
 generations and marks those rows null *structurally*, in the report, rather
 than letting the gap read as unrecorded diagnoses. `availability("SIH.RD")`
 and `field_available(...)` answer "did this column exist in that year" as
-present, absent or unknown.
+present, absent or unknown. Existing is not filling: `field_fill(dataset,
+fields, years)` counts, per year, the records whose value is neither empty
+nor one of the column's declared missing codes (SIM's `CB_PRE` exists from
+2014 and fills almost no record).
 
 **One codelist per column per schema generation.** A column is bound to every
 TabNet table that mentions it (31 for SIH's `CNES`, 294 for PNI's `MUNIC`).

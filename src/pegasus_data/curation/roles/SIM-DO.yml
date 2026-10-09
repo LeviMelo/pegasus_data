@@ -279,8 +279,9 @@ columns:
     model: mark
     name: Data de conclusão do caso
     years:
-    - 2012
+    - 2017
     - 2026
+    note: 'Filled 2012-2013 and from 2017 (24-30 thousand records a year), empty 2014-2016 (field_fill, 2026-10-09); the span is the years filled without a gap.'
   DTCONINV:
     role: death.investigation_conclusion_date
     kind: date
@@ -488,7 +489,8 @@ columns:
     name: Fontes de investigação (combinado)
     years:
     - 2014
-    - 2026
+    - 2014
+    note: 'Filled in 2014 only: field_fill over 2012-2023 reads 1,227,039 records in 2014 and none in any other year (2026-10-09).'
   GESTACAO:
     missing: ['0', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 9='Ignorado'
@@ -651,7 +653,8 @@ columns:
     name: Day-count field, 2014 investigation-outcome block
     years:
     - 2014
-    - 2026
+    - 2014
+    note: 'Filled in 2014 only: field_fill over 2012-2023 reads 32,223 records in 2014 and none in any other year (2026-10-09).'
   NUDIASOBCO:
     missing: []
     domain: [0, 999]
@@ -673,7 +676,8 @@ columns:
     name: Número de dias óbito-investigação
     years:
     - 2012
-    - 2026
+    - 2015
+    note: 'Filled 2012-2015 (57-89 thousand records a year), empty from 2016; NUDIASOBCO is filled from 2014 (field_fill, 2026-10-09).'
   NUMERODN:
     role: deceased.birth_declaration_number
     kind: identifier

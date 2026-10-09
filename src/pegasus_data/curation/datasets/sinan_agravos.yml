@@ -827,9 +827,64 @@ datasets:
   SINAN_SDTA:
     system: SINAN
     series: SDTA
-    # an outbreak, not a person: SINAN's shared notification event does not hold (its cases are counted by sex and age
-    # band in columns, NU_1_4_TOT ... NU_10_19_M; OPEN_QUESTIONS 76)
-    event_types: []
+    # an outbreak, not a person: SINAN's shared notification event does not hold. Its ill are counted by sex and age
+    # band in columns (OQ-76, ADR-0156)
+    event_types:
+      - name: case
+        kind: case
+        grain: one person ill in a foodborne outbreak, from the outbreak's count of its ill by sex and age band
+        weight:
+          grid:
+            bands: [0, 1, 5, 10, 20, 50]
+            total: NU_TOT
+            margin: NU_F_TOT
+            cells:
+            - {column: NU_1_M_NU, sex: male, age: 0}
+            - {column: NU_1_F_NU, sex: female, age: 0}
+            - {column: NU_1_IGN, sex: null, age: 0}
+            - {column: NU_1_4_NU, sex: male, age: 1}
+            - {column: NU1_4_F_NU, sex: female, age: 1}
+            - {column: NU_1_4_IGN, sex: null, age: 1}
+            - {column: NU_5_9_NU, sex: male, age: 5}
+            - {column: NU5_9_F_NU, sex: female, age: 5}
+            - {column: NU_5_9_IGN, sex: null, age: 5}
+            - {column: NU_10_19_M, sex: male, age: 10}
+            - {column: NU10_19_N, sex: female, age: 10}
+            - {column: NU_10_19IG, sex: null, age: 10}
+            - {column: NU_20_49_N, sex: male, age: 20}
+            - {column: NU_20_49_F, sex: female, age: 20}
+            - {column: NU_20_49IG, sex: null, age: 20}
+            - {column: NU_50_M_NU, sex: male, age: 50}
+            - {column: NU_50_F_NU, sex: female, age: 50}
+            - {column: NU_50_IGN, sex: null, age: 50}
+            - {column: NU_IGRA_NU, sex: male, age: null}
+            - {column: NU_IG_F_NU, sex: female, age: null}
+            - {column: NU_IG_IGN, sex: null, age: null}
+          evidence: >-
+            Form field 32 counts the ill by sex (masculino, feminino, ignorado) and band (<1, 1-4, 5-9, 10-19, 20-49,
+            50+, ignorada); its dictionary (SDTA_DIC_DADOS.pdf) requires the grid to sum to the ill interviewed (field
+            28, NU_ENT_DOE), while NU_TOT (field 29) is every ill person. Tested on the records (2010, 2015, 2019, 2023):
+            masculino + feminino + ignorado equals the band's total column, and the bands sum to each sex's total, in
+            every row that fills the grid (458 of 498 in 2010, 571 of 771 in 2019, 1,162 of 1,162 in 2023). 0 to 3
+            rows a year (2007-2024) leave one cell blank, which NU_F_TOT, the grid's own total, solves. The grid is
+            below NU_TOT in 47 rows of 2010 and 70 of 2023, above it in 10 of 2023.
+        note: >-
+          The place is the outbreak's (ID_MUNI_RE, the form's field 11, "município de ocorrência do surto"), not the
+          residence of the ill. The ill beyond the grid (NU_TOT less the grid's sum) are counted with sex and age
+          unknown; an outbreak with neither grid nor total is a group whose ill were not counted, never zero.
+    semantic_axes:
+      default_geography: occurrence
+      geography:
+        occurrence:
+          fields: [ID_MUNI_RE]
+          code_system: ibge_municipality
+        notification:
+          fields: [ID_MUNICIP]
+          code_system: ibge_municipality
+      default_time: onset
+      time:
+        notification: {fields: [DT_NOTIFIC], encoding: date}
+        onset: {fields: [DT_SIN_PRI], encoding: date}
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SDTA
