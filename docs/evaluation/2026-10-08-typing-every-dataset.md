@@ -133,3 +133,8 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
   - SIA's PA, BI, PS and SAD rows carry quantities, and an event type has no weight.
   - The pre-1996 bases are ICD-9, which PegaSUS does not read.
   - SISCAN's exams have no event kind yet.
+
+**SISCAN's declarations split.** Each exam dataset (SISCAN.CC, HC, CM, HM, MM) was declared over both SISCOLO/SISMAMA's DBFs (2006–2015) and SISCAN's CSVs (2013–2025). A query resolved to the DBF series, so the CSVs, the current system, could not be reached at all.
+- **Eleven datasets now:** the five DBF series; the five CSV exam series (`SISCAN.SISCAN_CITO_COLO`…, one row per exam); and their `_PACNT` counterparts.
+- **PACNT is per patient, not a dimension.** The PACNT files carry the patient (`CO_PACIENTE`) and a summary result, and no exam key. In 2024's first rows about 97% of rows are distinct patients (CITO_COLO 72,956 of 75,497). PACNT is TabNet's "pacientes" beside the exam files' "exames"; it had been declared a patient dimension joined to the exams.
+- **Read after the split:** SISCAN-SISCAN_CITO_MAMA 2013 gives 604 exams, 50 columns.

@@ -798,54 +798,158 @@ datasets:
   # ---------------------------------------------------------------- SISCAN
   SISCAN.CC:
     system: SISCAN
-    official_name: Citopatológico do Colo do Útero
-    translated_name: Cervical cytology
-    what_it_is: One cervical cytology (Pap) exam and its result.
-    observed_as: [CC, SISCAN_CITO_COLO]
+    official_name: Citopatológico do Colo do Útero (SISCOLO)
+    translated_name: Cervical cytology, SISCOLO (2006-2015)
+    what_it_is: >
+      One cervical cytology (Pap) exam and its result, from SISCOLO, the system SISCAN replaced (SISCAN/SISCOLO4/Dados,
+      one DBF per state and month). Another layout from SISCAN.SISCAN_CITO_COLO: no column name is shared.
+    observed_as: [CC]
+
+  SISCAN.SISCAN_CITO_COLO:
+    system: SISCAN
+    official_name: Citopatológico do Colo do Útero — exames (SISCAN)
+    translated_name: Cervical cytology exams, SISCAN (2013-)
+    what_it_is: >
+      One cervical cytology (Pap) exam and its result: one row per exam, filed by residence (CO_SEQ_..._RESID), one national
+      CSV a year (SISCAN/SISCAN/SISCAN_CITO_COLO_aaaa.csv). Until 2026-10-08 it was an
+      alias of SISCAN.CC, so query() read the SISCOLO DBFs instead.
+    observed_as: [SISCAN_CITO_COLO]
+
+  SISCAN.SISCAN_CITO_COLO_PACNT:
+    system: SISCAN
+    official_name: Citopatológico do Colo do Útero — pacientes (SISCAN)
+    translated_name: Cervical cytology patients, SISCAN (2013-)
+    what_it_is: >
+      One row per patient and competence month (CO_PACIENTE; 2024's first rows:
+      about 97% one row per patient), with the patient's summary result instead
+      of the exam's detailed findings: the "pacientes" counterpart of
+      SISCAN.SISCAN_CITO_COLO's "exames". Not a dimension joined to the exams (the
+      earlier reading): the files carry no exam key.
+    observed_as: [SISCAN_CITO_COLO_PACNT]
 
   SISCAN.HC:
     system: SISCAN
-    official_name: Histopatológico do Colo do Útero
-    translated_name: Cervical histopathology
+    official_name: Histopatológico do Colo do Útero (SISCOLO)
+    translated_name: Cervical histopathology, SISCOLO (2006-2015)
     what_it_is: >
-      One cervical biopsy and its result — the confirmatory step after an
-      abnormal cytology.
-    observed_as: [HC, SISCAN_HISTO_COLO]
+      One cervical biopsy and its result, the confirmatory step after an abnormal cytology, from SISCOLO, the system SISCAN replaced (SISCAN/SISCOLO4/Dados,
+      one DBF per state and month). Another layout from SISCAN.SISCAN_HISTO_COLO: no column name is shared.
+    observed_as: [HC]
+
+  SISCAN.SISCAN_HISTO_COLO:
+    system: SISCAN
+    official_name: Histopatológico do Colo do Útero — exames (SISCAN)
+    translated_name: Cervical histopathology exams, SISCAN (2013-)
+    what_it_is: >
+      One cervical biopsy and its result, the confirmatory step after an abnormal cytology: one row per exam, filed by residence (CO_SEQ_..._RESID), one national
+      CSV a year (SISCAN/SISCAN/SISCAN_HISTO_COLO_aaaa.csv). Until 2026-10-08 it was an
+      alias of SISCAN.HC, so query() read the SISCOLO DBFs instead.
+    observed_as: [SISCAN_HISTO_COLO]
+
+  SISCAN.SISCAN_HISTO_COLO_PACNT:
+    system: SISCAN
+    official_name: Histopatológico do Colo do Útero — pacientes (SISCAN)
+    translated_name: Cervical histopathology patients, SISCAN (2013-)
+    what_it_is: >
+      One row per patient and competence month (CO_PACIENTE; 2024's first rows:
+      about 97% one row per patient), with the patient's summary result instead
+      of the exam's detailed findings: the "pacientes" counterpart of
+      SISCAN.SISCAN_HISTO_COLO's "exames". Not a dimension joined to the exams (the
+      earlier reading): the files carry no exam key.
+    observed_as: [SISCAN_HISTO_COLO_PACNT]
 
   SISCAN.CM:
     system: SISCAN
-    official_name: Citopatológico de Mama
-    translated_name: Breast cytology
-    what_it_is: One breast cytology exam and its result.
-    observed_as: [CM, SISCAN_CITO_MAMA]
+    official_name: Citopatológico de Mama (SISMAMA)
+    translated_name: Breast cytology, SISMAMA (2006-2015)
+    what_it_is: >
+      One breast cytology exam and its result, from SISMAMA, the system SISCAN replaced (SISCAN/SISMAMA/Dados,
+      one DBF per state and month). Another layout from SISCAN.SISCAN_CITO_MAMA: no column name is shared.
+    observed_as: [CM]
+
+  SISCAN.SISCAN_CITO_MAMA:
+    system: SISCAN
+    official_name: Citopatológico de Mama — exames (SISCAN)
+    translated_name: Breast cytology exams, SISCAN (2013-)
+    what_it_is: >
+      One breast cytology exam and its result: one row per exam, filed by residence (CO_SEQ_..._RESID), one national
+      CSV a year (SISCAN/SISCAN/SISCAN_CITO_MAMA_aaaa.csv). Until 2026-10-08 it was an
+      alias of SISCAN.CM, so query() read the SISMAMA DBFs instead.
+    observed_as: [SISCAN_CITO_MAMA]
+
+  SISCAN.SISCAN_CITO_MAMA_PACNT:
+    system: SISCAN
+    official_name: Citopatológico de Mama — pacientes (SISCAN)
+    translated_name: Breast cytology patients, SISCAN (2013-)
+    what_it_is: >
+      One row per patient and competence month (CO_PACIENTE; 2024's first rows:
+      about 97% one row per patient), with the patient's summary result instead
+      of the exam's detailed findings: the "pacientes" counterpart of
+      SISCAN.SISCAN_CITO_MAMA's "exames". Not a dimension joined to the exams (the
+      earlier reading): the files carry no exam key.
+    observed_as: [SISCAN_CITO_MAMA_PACNT]
 
   SISCAN.HM:
     system: SISCAN
-    official_name: Histopatológico de Mama
-    translated_name: Breast histopathology
-    what_it_is: One breast biopsy and its result.
-    observed_as: [HM, SISCAN_HISTO_MAMA]
+    official_name: Histopatológico de Mama (SISMAMA)
+    translated_name: Breast histopathology, SISMAMA (2006-2015)
+    what_it_is: >
+      One breast biopsy and its result, from SISMAMA, the system SISCAN replaced (SISCAN/SISMAMA/Dados,
+      one DBF per state and month). Another layout from SISCAN.SISCAN_HISTO_MAMA: no column name is shared.
+    observed_as: [HM]
+
+  SISCAN.SISCAN_HISTO_MAMA:
+    system: SISCAN
+    official_name: Histopatológico de Mama — exames (SISCAN)
+    translated_name: Breast histopathology exams, SISCAN (2013-)
+    what_it_is: >
+      One breast biopsy and its result: one row per exam, filed by residence (CO_SEQ_..._RESID), one national
+      CSV a year (SISCAN/SISCAN/SISCAN_HISTO_MAMA_aaaa.csv). Until 2026-10-08 it was an
+      alias of SISCAN.HM, so query() read the SISMAMA DBFs instead.
+    observed_as: [SISCAN_HISTO_MAMA]
+
+  SISCAN.SISCAN_HISTO_MAMA_PACNT:
+    system: SISCAN
+    official_name: Histopatológico de Mama — pacientes (SISCAN)
+    translated_name: Breast histopathology patients, SISCAN (2013-)
+    what_it_is: >
+      One row per patient and competence month (CO_PACIENTE; 2024's first rows:
+      about 97% one row per patient), with the patient's summary result instead
+      of the exam's detailed findings: the "pacientes" counterpart of
+      SISCAN.SISCAN_HISTO_MAMA's "exames". Not a dimension joined to the exams (the
+      earlier reading): the files carry no exam key.
+    observed_as: [SISCAN_HISTO_MAMA_PACNT]
 
   SISCAN.MM:
     system: SISCAN
-    official_name: Mamografia
-    translated_name: Mammography
-    what_it_is: One mammogram, with its BI-RADS classification.
-    observed_as: [MM, SISCAN_MAMOGRAFIA]
-
-  SISCAN.PACNT:
-    system: SISCAN
-    official_name: Pacientes
-    translated_name: Patients
+    official_name: Mamografia (SISMAMA)
+    translated_name: Mammography, SISMAMA (2006-2015)
     what_it_is: >
-      The patient dimension published beside each exam dataset in the open-data
-      tree, joined to the exam records rather than repeated on them.
-    observed_as:
-      - SISCAN_CITO_COLO_PACNT
-      - SISCAN_HISTO_COLO_PACNT
-      - SISCAN_CITO_MAMA_PACNT
-      - SISCAN_HISTO_MAMA_PACNT
-      - SISCAN_MAMOGRAFIA_PACNT
+      One mammogram, with its BI-RADS classification, from SISMAMA, the system SISCAN replaced (SISCAN/SISMAMA/Dados,
+      one DBF per state and month). Another layout from SISCAN.SISCAN_MAMOGRAFIA: no column name is shared.
+    observed_as: [MM]
+
+  SISCAN.SISCAN_MAMOGRAFIA:
+    system: SISCAN
+    official_name: Mamografia — exames (SISCAN)
+    translated_name: Mammography exams, SISCAN (2013-)
+    what_it_is: >
+      One mammogram, with its BI-RADS classification: one row per exam, filed by residence (CO_SEQ_..._RESID), one national
+      CSV a year (SISCAN/SISCAN/SISCAN_MAMOGRAFIA_aaaa.csv). Until 2026-10-08 it was an
+      alias of SISCAN.MM, so query() read the SISMAMA DBFs instead.
+    observed_as: [SISCAN_MAMOGRAFIA]
+
+  SISCAN.SISCAN_MAMOGRAFIA_PACNT:
+    system: SISCAN
+    official_name: Mamografia — pacientes (SISCAN)
+    translated_name: Mammography patients, SISCAN (2013-)
+    what_it_is: >
+      One row per patient and competence month (CO_PACIENTE; 2024's first rows:
+      about 97% one row per patient), with the patient's summary result instead
+      of the exam's detailed findings: the "pacientes" counterpart of
+      SISCAN.SISCAN_MAMOGRAFIA's "exames". Not a dimension joined to the exams (the
+      earlier reading): the files carry no exam key.
+    observed_as: [SISCAN_MAMOGRAFIA_PACNT]
 
   # ---------------------------------------------------------------- others
   PNI.DPNI:
