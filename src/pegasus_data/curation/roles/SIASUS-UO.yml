@@ -1,0 +1,627 @@
+dataset: SIASUS-UO
+record: procedure
+columns:
+  UDO_APCCGC:
+    role: authorisation.partner_service_apc_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_APCMN:
+    role: authorisation.partner_service_apc_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_APCRZ:
+    role: authorisation.partner_service_apc_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_CODUNI:
+    role: authorisation.executing_establishments_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    name: Código da Unidade (CNES)
+    years:
+    - 2001
+    - 2004
+  UDO_CONDIC:
+    role: authorisation.management_type_code
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestão
+    years:
+    - 2001
+    - 2004
+    codelists:
+    - TP_GESTAO
+    - TP_GEST_C
+  UDO_DATREF:
+    role: authorisation.reference_competence_year_month
+    kind: date
+    model: when
+    name: Data de referência (competência)
+    years:
+    - 2001
+    - 2004
+  UDO_GESTAO:
+    role: authorisation.managing_uf_municipality_ibge_code
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Gestor - BR
+    years:
+    - 2001
+    - 2004
+  UDO_LCCGC:
+    role: authorisation.partner_service_lc_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_LCMN:
+    role: authorisation.partner_service_lc_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_LHCRZ:
+    role: authorisation.partner_service_lc_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_MECGC:
+    role: authorisation.partner_service_me_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_MEMN:
+    role: authorisation.partner_service_me_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_MERZ:
+    role: authorisation.partner_service_me_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_MNCGC:
+    role: authorisation.partner_service_mn_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_MNMN:
+    role: authorisation.partner_service_mn_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_MNRZ:
+    role: authorisation.partner_service_mn_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_MOCCPF:
+    role: authorisation.professional_moc_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MOCNM:
+    role: authorisation.professional_moc_name
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MRACPF:
+    role: authorisation.professional_mra_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MRANM:
+    role: authorisation.professional_mra_name
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MROCPF:
+    role: authorisation.professional_mro_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MRONM:
+    role: authorisation.professional_mro_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_MRRCPF:
+    role: authorisation.professional_mrr_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDO_MRRNM:
+    role: authorisation.professional_mrr_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_PCCGC:
+    role: authorisation.partner_service_pc_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_PCMN:
+    role: authorisation.partner_service_pc_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_PCRZ:
+    role: authorisation.partner_service_pc_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_PRCGC:
+    role: authorisation.partner_service_pr_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_PRMN:
+    role: authorisation.partner_service_pr_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_PRRZ:
+    role: authorisation.partner_service_pr_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_QTCGC:
+    role: authorisation.partner_service_qt_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_QTCGC1:
+    role: authorisation.partner_service_qt1_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_QTCGC2:
+    role: authorisation.partner_service_qt2_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_QTMN:
+    role: authorisation.partner_service_qt_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_QTMN1:
+    role: authorisation.partner_service_qt1_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_QTMN2:
+    role: authorisation.partner_service_qt2_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_QTRZ:
+    role: authorisation.partner_service_qt_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_QTRZ1:
+    role: authorisation.partner_service_qt1_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_QTRZ2:
+    role: authorisation.partner_service_qt2_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_RADCGC:
+    role: authorisation.partner_service_rad_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_RADMN:
+    role: authorisation.partner_service_rad_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_RADRZ:
+    role: authorisation.partner_service_rad_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_RAL6MV:
+    role: authorisation.radiotherapy_equipment_count_acelerador_linear_6_mv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RALM6C:
+    role: authorisation.radiotherapy_equipment_count_acelerador_linear_acima_de_6_mv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RALM6S:
+    role: authorisation.radiotherapy_equipment_count_acelerador_linear_acima_de_6_mv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RBRAQA:
+    role: authorisation.radiotherapy_equipment_count_braquiterapia_de_alta_taxa_de_d
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RBRAQB:
+    role: authorisation.radiotherapy_equipment_count_braquiterapia_de_baixa_taxa_de_
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RBRAQM:
+    role: authorisation.radiotherapy_equipment_count_braquiterapia_de_m_dia_taxa_de_
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RDOSCL:
+    role: authorisation.radiotherapy_equipment_count_dosimetria_cl_nica
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RFONSE:
+    role: authorisation.radiotherapy_equipment_count_fontes_seladas
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RMCGC:
+    role: authorisation.partner_service_rm_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_RMMN:
+    role: authorisation.partner_service_rm_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_RMONAR:
+    role: authorisation.radiotherapy_equipment_count_monitor_de_rea
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RMONIN:
+    role: authorisation.radiotherapy_equipment_count_monitor_individual
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RMRZ:
+    role: authorisation.partner_service_rm_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_RO150K:
+    role: authorisation.radiotherapy_equipment_count_ortovoltagem_150_kv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RO500K:
+    role: authorisation.radiotherapy_equipment_count_ortovoltagem_500_kv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RO50K:
+    role: authorisation.radiotherapy_equipment_count_ortovoltagem_50_kv
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RSICPL:
+    role: authorisation.radiotherapy_equipment_count_sistema_computadorizado_de_plan
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RSIMUL:
+    role: authorisation.radiotherapy_equipment_count_simulador
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_RUNCOB:
+    role: authorisation.radiotherapy_equipment_count_unidade_de_cobalto
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLQARM:
+    role: authorisation.facility_item_slqarm_chemotherapy_slq
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLQCDU:
+    role: authorisation.facility_item_slqcdu_chemotherapy_slq
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLQCFL:
+    role: authorisation.facility_item_slqcfl_chemotherapy_slq
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLQLDU:
+    role: authorisation.facility_item_slqldu_chemotherapy_slq
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLQPRE:
+    role: authorisation.facility_item_slqpre_chemotherapy_slq
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRARF:
+    role: authorisation.facility_item_slrarf_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRBLP:
+    role: authorisation.facility_item_slrblp_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRCOM:
+    role: authorisation.facility_item_slrcom_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRMOL:
+    role: authorisation.facility_item_slrmol_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRPLA:
+    role: authorisation.facility_item_slrpla_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_SLRSIM:
+    role: authorisation.facility_item_slrsim_radiotherapy_slr
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDO_TACCGC:
+    role: authorisation.partner_service_tac_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_TACMN:
+    role: authorisation.partner_service_tac_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_TACRZ:
+    role: authorisation.partner_service_tac_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDO_USCGC:
+    role: authorisation.partner_service_us_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDO_USMN:
+    role: authorisation.partner_service_us_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDO_USRZ:
+    role: authorisation.partner_service_us_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.

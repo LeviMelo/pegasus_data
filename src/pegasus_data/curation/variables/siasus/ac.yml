@@ -2688,6 +2688,8 @@ variables:
       archive, which holds only DBFs).'
   APA_CNSPCN:
     official_name: 'Código CNS paciente'
+    translated_name: 'Patient''s CNS'
+    description: 'The patient''s Cartão Nacional de Saúde: a direct personal identifier, passed through unchanged.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -2695,6 +2697,8 @@ variables:
     notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   APA_CNSRSP:
     official_name: 'Código CNS responsável pelo tratamento'
+    translated_name: 'Responsible physician''s CNS'
+    description: 'CNS of the physician responsible for the treatment: a direct personal identifier.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -2702,6 +2706,8 @@ variables:
     notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   APA_CNSDIR:
     official_name: 'Código CNS diretor do estabelecimento'
+    translated_name: 'Director''s (authoriser''s) CNS'
+    description: 'CNS of the unit''s director or the authorising professional: a direct personal identifier.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -2709,6 +2715,8 @@ variables:
     notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   COB_CGC:
     official_name: 'CNPJ no caso de cessão de crédito'
+    translated_name: 'Credit-assignment CNPJ'
+    description: 'CNPJ of the entity to which the provider assigned the credit for this billing.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -2716,8 +2724,682 @@ variables:
     notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   COB_NF:
     official_name: 'Número da Nota Fiscal Cessão'
+    translated_name: 'Credit-assignment invoice number'
+    description: 'Invoice number of the credit assignment.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campos 058-077 PAP_NF1..10 N(6) ''Número da Nota Fiscal Cessão'' (one per procedure line)'
     notes: 'The legacy AC DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
+  PAQ_DIAGSE:
+    official_name: 'Morfologia do tumor'
+    translated_name: 'Tumour morphology (CID-O)'
+    description: 'Holds CID-O morphology codes (M85003 in 32 of 51 PQ rows, 2007-06 AP), the layout''s apa_morfologia at the position after the principal diagnosis; not a secondary ICD as its name suggests.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_DTDIAG:
+    official_name: 'Data do diagnóstico'
+    translated_name: 'Diagnosis date (year-month)'
+    description: 'Year-month (AAAAMM) of diagnosis.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_DTTRA1:
+    official_name: 'Data do 1º tratamento anterior'
+    translated_name: 'Previous treatment 1 (year-month)'
+    description: 'Year-month (AAAAMM) of the 1th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_DTTRA2:
+    official_name: 'Data do 2º tratamento anterior'
+    translated_name: 'Previous treatment 2 (year-month)'
+    description: 'Year-month (AAAAMM) of the 2th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_DTTRA3:
+    official_name: 'Data do 3º tratamento anterior'
+    translated_name: 'Previous treatment 3 (year-month)'
+    description: 'Year-month (AAAAMM) of the 3th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_METAST:
+    official_name: 'Metástase'
+    translated_name: 'Metastasis (S/N)'
+    description: 'Whether metastasis is present: S or N.'
+    code_system: internal
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_DIAGSE:
+    official_name: 'Morfologia do tumor'
+    translated_name: 'Tumour morphology (CID-O)'
+    description: 'Holds CID-O morphology codes (M85003 in 32 of 51 PQ rows, 2007-06 AP), the layout''s apa_morfologia at the position after the principal diagnosis; not a secondary ICD as its name suggests.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_DTDIAG:
+    official_name: 'Data do diagnóstico'
+    translated_name: 'Diagnosis date (year-month)'
+    description: 'Year-month (AAAAMM) of diagnosis.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_DTTRA1:
+    official_name: 'Data do 1º tratamento anterior'
+    translated_name: 'Previous treatment 1 (year-month)'
+    description: 'Year-month (AAAAMM) of the 1th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_DTTRA2:
+    official_name: 'Data do 2º tratamento anterior'
+    translated_name: 'Previous treatment 2 (year-month)'
+    description: 'Year-month (AAAAMM) of the 2th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_DTTRA3:
+    official_name: 'Data do 3º tratamento anterior'
+    translated_name: 'Previous treatment 3 (year-month)'
+    description: 'Year-month (AAAAMM) of the 3th previous treatment, if any.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_METAST:
+    official_name: 'Metástase'
+    translated_name: 'Metastasis (S/N)'
+    description: 'Whether metastasis is present: S or N.'
+    code_system: internal
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAQ_MEPREV:
+    official_name: 'Total de meses previsto'
+    translated_name: 'Planned months of chemotherapy'
+    description: 'Planned total months of treatment (060, 006, 004 in 2007-06 AP).'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_CAMPOS:
+    official_name: 'Número de campos'
+    translated_name: 'Number of radiotherapy fields'
+    description: 'Number of fields of the radiotherapy.'
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  PAR_FINALI:
+    official_name: 'Finalidade do tratamento'
+    translated_name: 'Purpose of the treatment'
+    description: 'The purpose of the radiotherapy (curative, palliative...), a code the 1999-2007 layout does not tabulate.'
+    code_system: internal
+    source: layout_doc
+    source_ref: 'APAC layout 1999-2007 (DATASUS/SIA; local: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29) and RADIOTERAPIA (28): apa_initrat, apa_morfologia, apa_metástase, apa_finalidade, apa_dtdiag, apa_dt1º-3º trataAnt, apa_estado, apa_área_1-3, apa_campos, apa_meses'
+  APA_DTFIM:
+    official_name: 'Data final'
+    translated_name: 'End date (AAAAMMDD)'
+    description: 'An end date, AAAAMMDD (20070630, 20070731 in 2007-06 AP: month ends after the competence); beside APA_DTFIMV, the validity end. Read from the name and the values; no layout names it.'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_APCCGC:
+    official_name: 'CNPJ do serviço APC'
+    translated_name: 'Partner service APC: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded APC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_APCMN:
+    official_name: 'Município do serviço APC'
+    translated_name: 'Partner service APC: municipality'
+    description: 'Six-digit IBGE municipality of partner service APC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_APCRZ:
+    official_name: 'Razão social do serviço APC'
+    translated_name: 'Partner service APC: legal name'
+    description: 'Legal name of partner service APC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_LCCGC:
+    official_name: 'CNPJ do serviço LC'
+    translated_name: 'Partner service LC: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded LC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_LCMN:
+    official_name: 'Município do serviço LC'
+    translated_name: 'Partner service LC: municipality'
+    description: 'Six-digit IBGE municipality of partner service LC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MECGC:
+    official_name: 'CNPJ do serviço ME'
+    translated_name: 'Partner service ME: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded ME. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MEMN:
+    official_name: 'Município do serviço ME'
+    translated_name: 'Partner service ME: municipality'
+    description: 'Six-digit IBGE municipality of partner service ME. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MERZ:
+    official_name: 'Razão social do serviço ME'
+    translated_name: 'Partner service ME: legal name'
+    description: 'Legal name of partner service ME. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MNCGC:
+    official_name: 'CNPJ do serviço MN'
+    translated_name: 'Partner service MN: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded MN. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MNMN:
+    official_name: 'Município do serviço MN'
+    translated_name: 'Partner service MN: municipality'
+    description: 'Six-digit IBGE municipality of partner service MN. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MNRZ:
+    official_name: 'Razão social do serviço MN'
+    translated_name: 'Partner service MN: legal name'
+    description: 'Legal name of partner service MN. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PCCGC:
+    official_name: 'CNPJ do serviço PC'
+    translated_name: 'Partner service PC: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded PC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PCMN:
+    official_name: 'Município do serviço PC'
+    translated_name: 'Partner service PC: municipality'
+    description: 'Six-digit IBGE municipality of partner service PC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PCRZ:
+    official_name: 'Razão social do serviço PC'
+    translated_name: 'Partner service PC: legal name'
+    description: 'Legal name of partner service PC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PRCGC:
+    official_name: 'CNPJ do serviço PR'
+    translated_name: 'Partner service PR: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded PR. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PRMN:
+    official_name: 'Município do serviço PR'
+    translated_name: 'Partner service PR: municipality'
+    description: 'Six-digit IBGE municipality of partner service PR. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_PRRZ:
+    official_name: 'Razão social do serviço PR'
+    translated_name: 'Partner service PR: legal name'
+    description: 'Legal name of partner service PR. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTCGC:
+    official_name: 'CNPJ do serviço QT'
+    translated_name: 'Partner service QT: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded QT. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTMN:
+    official_name: 'Município do serviço QT'
+    translated_name: 'Partner service QT: municipality'
+    description: 'Six-digit IBGE municipality of partner service QT. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTRZ:
+    official_name: 'Razão social do serviço QT'
+    translated_name: 'Partner service QT: legal name'
+    description: 'Legal name of partner service QT. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RADCGC:
+    official_name: 'CNPJ do serviço RAD'
+    translated_name: 'Partner service RAD: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded RAD. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RADMN:
+    official_name: 'Município do serviço RAD'
+    translated_name: 'Partner service RAD: municipality'
+    description: 'Six-digit IBGE municipality of partner service RAD. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RADRZ:
+    official_name: 'Razão social do serviço RAD'
+    translated_name: 'Partner service RAD: legal name'
+    description: 'Legal name of partner service RAD. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RMCGC:
+    official_name: 'CNPJ do serviço RM'
+    translated_name: 'Partner service RM: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded RM. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RMMN:
+    official_name: 'Município do serviço RM'
+    translated_name: 'Partner service RM: municipality'
+    description: 'Six-digit IBGE municipality of partner service RM. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RMRZ:
+    official_name: 'Razão social do serviço RM'
+    translated_name: 'Partner service RM: legal name'
+    description: 'Legal name of partner service RM. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_TACCGC:
+    official_name: 'CNPJ do serviço TAC'
+    translated_name: 'Partner service TAC: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded TAC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_TACMN:
+    official_name: 'Município do serviço TAC'
+    translated_name: 'Partner service TAC: municipality'
+    description: 'Six-digit IBGE municipality of partner service TAC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_TACRZ:
+    official_name: 'Razão social do serviço TAC'
+    translated_name: 'Partner service TAC: legal name'
+    description: 'Legal name of partner service TAC. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_USCGC:
+    official_name: 'CNPJ do serviço US'
+    translated_name: 'Partner service US: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded US. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_USMN:
+    official_name: 'Município do serviço US'
+    translated_name: 'Partner service US: municipality'
+    description: 'Six-digit IBGE municipality of partner service US. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_USRZ:
+    official_name: 'Razão social do serviço US'
+    translated_name: 'Partner service US: legal name'
+    description: 'Legal name of partner service US. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_LHCRZ:
+    official_name: 'Razão social do serviço LC'
+    translated_name: 'Partner service LC: legal name'
+    description: 'Legal name of partner service LC (the column is named LHCRZ beside LCCGC and LCMN). No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MOCCPF:
+    official_name: 'CPF do profissional MOC'
+    translated_name: 'Professional MOC: CPF'
+    description: 'CPF of the unit''s professional coded MOC (M: médico): a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MOCNM:
+    official_name: 'Nome do profissional MOC'
+    translated_name: 'Professional MOC: name'
+    description: 'Name of the unit''s professional coded MOC: a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MRACPF:
+    official_name: 'CPF do profissional MRA'
+    translated_name: 'Professional MRA: CPF'
+    description: 'CPF of the unit''s professional coded MRA (M: médico): a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MRANM:
+    official_name: 'Nome do profissional MRA'
+    translated_name: 'Professional MRA: name'
+    description: 'Name of the unit''s professional coded MRA: a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MROCPF:
+    official_name: 'CPF do profissional MRO'
+    translated_name: 'Professional MRO: CPF'
+    description: 'CPF of the unit''s professional coded MRO (M: médico): a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MRONM:
+    official_name: 'Nome do profissional MRO'
+    translated_name: 'Professional MRO: name'
+    description: 'Name of the unit''s professional coded MRO: a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MRRCPF:
+    official_name: 'CPF do profissional MRR'
+    translated_name: 'Professional MRR: CPF'
+    description: 'CPF of the unit''s professional coded MRR (M: médico): a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_MRRNM:
+    official_name: 'Nome do profissional MRR'
+    translated_name: 'Professional MRR: name'
+    description: 'Name of the unit''s professional coded MRR: a direct personal identifier. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RO50K:
+    official_name: 'Ortovoltagem 50 kV (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Ortovoltagem 50 kV'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as ortovoltagem 50 kv. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RO150K:
+    official_name: 'Ortovoltagem 150 kV (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Ortovoltagem 150 kV'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as ortovoltagem 150 kv. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RO500K:
+    official_name: 'Ortovoltagem 500 kV (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Ortovoltagem 500 kV'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as ortovoltagem 500 kv. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RAL6MV:
+    official_name: 'Acelerador linear 6 MV (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Acelerador linear 6 MV'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as acelerador linear 6 mv. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RALM6C:
+    official_name: 'Acelerador linear acima de 6 MV, com elétrons (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Acelerador linear acima de 6 MV, com elétrons'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as acelerador linear acima de 6 mv, com elétrons. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RALM6S:
+    official_name: 'Acelerador linear acima de 6 MV, sem elétrons (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Acelerador linear acima de 6 MV, sem elétrons'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as acelerador linear acima de 6 mv, sem elétrons. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RUNCOB:
+    official_name: 'Unidade de cobalto (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Unidade de cobalto'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as unidade de cobalto. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RBRAQA:
+    official_name: 'Braquiterapia de alta taxa de dose (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Braquiterapia de alta taxa de dose'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as braquiterapia de alta taxa de dose. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RBRAQB:
+    official_name: 'Braquiterapia de baixa taxa de dose (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Braquiterapia de baixa taxa de dose'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as braquiterapia de baixa taxa de dose. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RBRAQM:
+    official_name: 'Braquiterapia de média taxa de dose (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Braquiterapia de média taxa de dose'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as braquiterapia de média taxa de dose. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RSIMUL:
+    official_name: 'Simulador (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Simulador'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as simulador. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RSICPL:
+    official_name: 'Sistema computadorizado de planejamento (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Sistema computadorizado de planejamento'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as sistema computadorizado de planejamento. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RDOSCL:
+    official_name: 'Dosimetria clínica (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Dosimetria clínica'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as dosimetria clínica. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RFONSE:
+    official_name: 'Fontes seladas (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Fontes seladas'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as fontes seladas. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RMONAR:
+    official_name: 'Monitor de área (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Monitor de área'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as monitor de área. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_RMONIN:
+    official_name: 'Monitor individual (quantidade)'
+    translated_name: 'Radiotherapy equipment count: Monitor individual'
+    description: 'Two-digit count (00, 01) of radiotherapy equipment, read from the name against the manual''s vocabulary as monitor individual. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    source_ref: 'Equipment vocabulary of the SIA oncology manual (Manual_Onco_Atualizado_03-07-08.pdf, ftp.datasus.gov.br/siasus/Documentos/): ortovoltagem 50-500 kV, acelerador linear de fótons / de fótons e elétrons, cobaltoterapia, braquiterapia de baixa / média / alta taxa de dose, simulador'
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLQARM:
+    official_name: 'Sala/item SLQARM'
+    translated_name: 'Facility item SLQARM (chemotherapy (SLQ))'
+    description: 'Two-digit count (00, 01) of a chemotherapy (SLQ) room or item coded ARM; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLQCDU:
+    official_name: 'Sala/item SLQCDU'
+    translated_name: 'Facility item SLQCDU (chemotherapy (SLQ))'
+    description: 'Two-digit count (00, 01) of a chemotherapy (SLQ) room or item coded CDU; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLQCFL:
+    official_name: 'Sala/item SLQCFL'
+    translated_name: 'Facility item SLQCFL (chemotherapy (SLQ))'
+    description: 'Two-digit count (00, 01) of a chemotherapy (SLQ) room or item coded CFL; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLQLDU:
+    official_name: 'Sala/item SLQLDU'
+    translated_name: 'Facility item SLQLDU (chemotherapy (SLQ))'
+    description: 'Two-digit count (00, 01) of a chemotherapy (SLQ) room or item coded LDU; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLQPRE:
+    official_name: 'Sala/item SLQPRE'
+    translated_name: 'Facility item SLQPRE (chemotherapy (SLQ))'
+    description: 'Two-digit count (00, 01) of a chemotherapy (SLQ) room or item coded PRE; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRARF:
+    official_name: 'Sala/item SLRARF'
+    translated_name: 'Facility item SLRARF (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded ARF; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRBLP:
+    official_name: 'Sala/item SLRBLP'
+    translated_name: 'Facility item SLRBLP (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded BLP; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRCOM:
+    official_name: 'Sala/item SLRCOM'
+    translated_name: 'Facility item SLRCOM (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded COM; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRMOL:
+    official_name: 'Sala/item SLRMOL'
+    translated_name: 'Facility item SLRMOL (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded MOL; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRPLA:
+    official_name: 'Sala/item SLRPLA'
+    translated_name: 'Facility item SLRPLA (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded PLA; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_SLRSIM:
+    official_name: 'Sala/item SLRSIM'
+    translated_name: 'Facility item SLRSIM (radiotherapy (SLR))'
+    description: 'Two-digit count (00, 01) of a radiotherapy (SLR) room or item coded SIM; the code is not expanded by any source found. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTCGC1:
+    official_name: 'CNPJ do serviço QT1'
+    translated_name: 'Partner service QT1: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded QT1. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTMN1:
+    official_name: 'Município do serviço QT1'
+    translated_name: 'Partner service QT1: municipality'
+    description: 'Six-digit IBGE municipality of partner service QT1. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTRZ1:
+    official_name: 'Razão social do serviço QT1'
+    translated_name: 'Partner service QT1: legal name'
+    description: 'Legal name of partner service QT1. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTCGC2:
+    official_name: 'CNPJ do serviço QT2'
+    translated_name: 'Partner service QT2: CNPJ'
+    description: 'CNPJ of the unit''s partner service coded QT2. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: CNPJ_BR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTMN2:
+    official_name: 'Município do serviço QT2'
+    translated_name: 'Partner service QT2: municipality'
+    description: 'Six-digit IBGE municipality of partner service QT2. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: external
+    codelist: MUNICBR
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'
+  UDO_QTRZ2:
+    official_name: 'Razão social do serviço QT2'
+    translated_name: 'Partner service QT2: legal name'
+    description: 'Legal name of partner service QT2. No layout of SIA.UO was found (searched: ftp.datasus.gov.br/dissemin/publicos/SIASUS, the TAB_SIA kits 1994-2007, /siasus/Documentos and /siasus/APAC on the same server, the web). Read from the name, after SIA.UD''s documented UDI_* census (same archive) and the values (2004-05 AP).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the sources named in the description.'

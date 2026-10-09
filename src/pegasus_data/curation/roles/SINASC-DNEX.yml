@@ -1,0 +1,745 @@
+dataset: SINASC-DNEX
+record: birth
+columns:
+  APGAR1:
+    missing: []
+    domain:
+    - 0
+    - 10
+    role: birth.apgar1
+    kind: number
+    model: mark
+    name: Índice de Apgar - 1º minuto
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  APGAR5:
+    missing: []
+    domain:
+    - 0
+    - 10
+    role: birth.apgar5
+    kind: number
+    model: mark
+    name: Índice de Apgar - 5º minuto
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODANOMAL:
+    role: birth.anomaly_code
+    kind: code_tree
+    model: mark
+    name: Código da anomalia congênita (CID-10)
+    codelists:
+    - ICD10
+    - ECLAMC
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODESTAB:
+    role: birth.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODMUNNASC:
+    role: birth.municipality
+    kind: place
+    model: where
+    name: Município de ocorrência do nascimento (código)
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAIS
+    - CIRAC
+    - CIRACC
+    - CIRACN
+    - CIRAL
+    - CIRALC
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODMUNNATU:
+    role: mother.birth_municipality
+    kind: place
+    model: dimension
+    name: Código do município de naturalidade da mãe
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODMUNRES:
+    role: mother.residence
+    kind: place
+    model: stratum
+    name: Código do município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODOCUPMAE:
+    role: mother.occupation
+    kind: code_tree
+    model: dimension
+    name: Código de ocupação da mãe (CBO)
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODPAISRES:
+    role: mother.residence_country
+    kind: place
+    model: mark
+    name: Código do país de residência
+    codelists:
+    - NATURALIDADE
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CODUFNATU:
+    role: mother.birth_state
+    kind: place
+    model: dimension
+    name: Código da UF de naturalidade da mãe
+    codelists:
+    - UF_BR
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CONSPRENAT:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: pregnancy.prenatal_visits
+    kind: number
+    model: mark
+    name: Número de consultas de pré-natal
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CONSULTAS:
+    missing:
+    - '0'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: pregnancy.prenatal_visits_band
+    kind: category
+    model: mark
+    name: Número de consultas de pré-natal (agrupado)
+    codelists:
+    - CONSULTAS
+    - CONSULT
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  CONTADOR:
+    role: birth.counter
+    kind: identifier
+    model: excluded
+    name: Número identificador do registro
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DIFDATA:
+    role: birth.receipt_delay_days
+    kind: number
+    model: excluded
+    name: Diferença entre nascimento e recebimento
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTCADASTRO:
+    role: birth.registration_date
+    kind: date
+    model: when
+    name: Data do cadastro da DN
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTDECLARAC:
+    role: birth.declaration_date
+    kind: date
+    model: mark
+    name: Data do preenchimento da declaração
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTNASC:
+    role: baby.birth_date
+    kind: date
+    model: when
+    also:
+    - birth.date
+    name: Data do nascimento
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTNASCMAE:
+    role: mother.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento da mãe
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTRECEBIM:
+    role: birth.receipt_date
+    kind: date
+    model: mark
+    name: Data do último recebimento do lote
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTRECORIGA:
+    role: birth.original_receipt_date
+    kind: date
+    model: mark
+    name: Data de recebimento original calculada
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  DTULTMENST:
+    role: pregnancy.last_menstrual_period_date
+    kind: date
+    model: mark
+    name: Data da última menstruação (DUM)
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  ESCMAE:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: mother.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe (DN antiga)
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  ESCMAE2010:
+    missing:
+    - '9'
+    role: mother.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe 2010 - nível
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  ESCMAEAGR1:
+    missing:
+    - 09
+    role: mother.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe agregada
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  ESTCIVMAE:
+    missing:
+    - '0'
+    - '9'
+    role: mother.marital_status
+    kind: category
+    model: dimension
+    name: Situação conjugal da mãe
+    codelists:
+    - ESTCIVMAE
+    - ESTCIV
+    - SITCONJU
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  GESTACAO:
+    missing:
+    - '0'
+    - '9'
+    role: birth.gestation_band
+    kind: category
+    model: mark
+    name: Semanas de gestação agrupado
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  GRAVIDEZ:
+    missing:
+    - '0'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.plurality
+    kind: category
+    model: mark
+    name: Tipo de gravidez
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  HORANASC:
+    role: birth.time
+    kind: number
+    model: mark
+    name: Hora do nascimento
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  IDADEMAE:
+    missing: []
+    domain:
+    - 1
+    - 65
+    role: mother.age
+    kind: number
+    model: stratum
+    name: Idade da mãe
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  IDADEPAI:
+    missing: []
+    domain:
+    - 10
+    - 99
+    role: father.age
+    kind: number
+    model: mark
+    name: Idade do pai
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  IDANOMAL:
+    missing:
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.anomaly_flag
+    kind: category
+    model: mark
+    name: Anomalia congênita identificada
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  KOTELCHUCK:
+    missing:
+    - '6'
+    - '9'
+    role: pregnancy.prenatal_adequacy
+    kind: category
+    model: mark
+    name: Índice de Kotelchuck — adequação da assistência pré-natal
+    codelists:
+    - KOTELCHUCK
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  LOCNASC:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.place
+    kind: category
+    model: mark
+    name: Local de ocorrência do nascimento
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  MESPRENAT:
+    missing:
+    - '99'
+    role: pregnancy.prenatal_start_month
+    kind: category
+    model: mark
+    name: Mês de gestação em que iniciou o pré-natal
+    codelists:
+    - MEGEST
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  NATURALMAE:
+    role: mother.birth_place
+    kind: place
+    model: dimension
+    name: Naturalidade da mãe
+    codelists:
+    - NATURALIDADE
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  NUMEROLOTE:
+    role: birth.batch_number
+    kind: number
+    model: excluded
+    name: Número do lote
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  ORIGEM:
+    role: birth.record_origin
+    kind: category
+    model: excluded
+    name: Banco de dados de origem
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  PARIDADE:
+    missing:
+    - '9'
+    role: pregnancy.parity
+    kind: category
+    model: mark
+    name: Paridade
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  PARTO:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.delivery
+    kind: category
+    model: mark
+    name: Tipo de parto
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  PESO:
+    missing: []
+    domain:
+    - 1
+    - 8999
+    role: birth.weight
+    kind: number
+    model: mark
+    name: Peso ao nascer
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  QTDFILMORT:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: pregnancy.previous_fetal_losses
+    kind: number
+    model: mark
+    name: Número de perdas fetais e abortos
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  QTDFILVIVO:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: pregnancy.previous_live_births
+    kind: number
+    model: mark
+    name: Número de filhos vivos
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  QTDGESTANT:
+    missing: []
+    domain:
+    - 0
+    - 30
+    role: pregnancy.previous_pregnancies
+    kind: number
+    model: mark
+    name: Número de gestações anteriores
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  QTDPARTCES:
+    missing: []
+    domain:
+    - 0
+    - 30
+    role: pregnancy.previous_cesareans
+    kind: number
+    model: mark
+    name: Número de partos cesáreos anteriores
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  QTDPARTNOR:
+    missing: []
+    domain:
+    - 0
+    - 30
+    role: pregnancy.previous_vaginal_births
+    kind: number
+    model: mark
+    name: Número de partos vaginais anteriores
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  RACACOR:
+    missing: []
+    role: baby.race
+    kind: category
+    model: mark
+    name: Raça cor do recém nascido
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  RACACORMAE:
+    role: mother.race
+    kind: category
+    model: stratum
+    name: Raça/cor da mãe
+    codelists:
+    - RACACORMAE
+    - RACA
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  SEMAGESTAC:
+    missing: []
+    domain:
+    - 1
+    - 50
+    role: birth.gestation_weeks
+    kind: number
+    model: mark
+    name: Nº de semanas de gestação
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  SERIESCMAE:
+    missing: []
+    role: mother.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar da mãe
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  SEXO:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    - I
+    role: baby.sex
+    kind: category
+    model: mark
+    name: Sexo do recém nascido
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  STCESPARTO:
+    missing:
+    - '9'
+    role: birth.cesarean_before_labor
+    kind: category
+    model: mark
+    name: A cesárea ocorreu antes do trabalho de parto iniciar?
+    codelists:
+    - STPARTO
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  STDNEPIDEM:
+    role: birth.epidemiological_status
+    kind: category
+    model: excluded
+    name: Status de DN Epidemiológica
+    codelists:
+    - DNNOVA
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  STDNNOVA:
+    role: birth.new_dn_status
+    kind: category
+    model: excluded
+    name: Status de DN Nova
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  STTRABPART:
+    missing:
+    - '9'
+    role: birth.labor_induced
+    kind: category
+    model: mark
+    name: O trabalho de parto foi induzido?
+    codelists:
+    - ANOMAL
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPAPRESENT:
+    missing:
+    - '9'
+    role: birth.presentation
+    kind: category
+    model: mark
+    name: Tipo de apresentação do recém-nascido
+    codelists:
+    - PARAPRE
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPDOCRESP:
+    missing: []
+    role: informant.document_type
+    kind: category
+    model: mark
+    name: Tipo do documento do responsável
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPFUNCRESP:
+    missing: []
+    role: informant.function
+    kind: category
+    model: mark
+    name: Tipo de função do responsável pelo preenchimento
+    codelists:
+    - TPFUNC
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPMETESTIM:
+    missing:
+    - '9'
+    role: birth.gestation_estimation_method
+    kind: category
+    model: mark
+    name: Método utilizado para estimar as semanas de gestação
+    codelists:
+    - TPMETODO
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPNASCASSI:
+    missing:
+    - '9'
+    role: birth.attendant
+    kind: category
+    model: mark
+    name: Nascimento assistido por
+    codelists:
+    - TPASSIST
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  TPROBSON:
+    missing:
+    - '11'
+    role: birth.robson_group
+    kind: category
+    model: mark
+    name: Código do Grupo de Robson
+    codelists:
+    - ROBSON
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN
+  VERSAOSIST:
+    role: birth.system_version
+    kind: category
+    model: excluded
+    name: Versão do sistema
+    years:
+    - 2014
+    - 2026
+    note: role from SINASC-DN

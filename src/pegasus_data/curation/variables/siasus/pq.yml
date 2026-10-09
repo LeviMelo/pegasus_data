@@ -127,6 +127,8 @@ variables:
       display_name "CID Principal", lookup CID.CNV.'
   PAQ_INITRA:
     official_name: 'Data de Início do Tratamento (AAAAMM)'
+    translated_name: 'Treatment start (year-month)'
+    description: 'Year-month (AAAAMM) the chemotherapy began.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -134,12 +136,17 @@ variables:
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_ESTAD:
     official_name: 'Estado do Tumor'
+    translated_name: 'Tumour state'
+    description: 'Tumour state (the layout''s apa_estado); codes 0-4 in the records, a table not printed by the layout.'
+    code_system: internal
     source: layout_doc
     asserted_by: pegasus_data
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), parte variável QUIMIO (tipo de atendimento 29), apa_estado C(1) ''Estado do Tumor'''
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_CEPPCN:
     official_name: 'Código de Endereçamento Postal do logradouro do paciente'
+    translated_name: 'Patient''s postcode'
+    description: 'Postcode of the patient''s address.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -147,6 +154,8 @@ variables:
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_CPFPCN:
     official_name: 'Número de registro do paciente no Cadastro de Pessoas Físicas (CPF)'
+    translated_name: 'Patient''s CPF'
+    description: 'The patient''s CPF: a direct personal identifier, passed through unchanged.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -154,6 +163,8 @@ variables:
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_NASCPC:
     official_name: 'Data de nascimento do paciente (AAAAMMDD)'
+    translated_name: 'Patient''s birth date'
+    description: 'Birth date, AAAAMMDD.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data
@@ -161,12 +172,17 @@ variables:
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_UFNASC:
     official_name: 'Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade'
+    translated_name: 'Patient''s state of birth'
+    description: 'Abbreviation of the state of birth (AP, PA in 2007-06 AP), or the nationality code for a foreigner.'
+    code_system: none
     source: layout_doc
     asserted_by: pegasus_data
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA, jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011 apa_ufnascpcnte N(2) ''Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96'''
     notes: 'The legacy PQ DBF columns are not documented themselves; the name is that of the capture-layout field matched by name stem and block.'
   PAQ_NUM:
     official_name: 'Número da APAC'
+    translated_name: 'APAC number'
+    description: 'The APAC number, joining the patient block to SIA.AC.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data

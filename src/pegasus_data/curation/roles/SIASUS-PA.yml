@@ -1,0 +1,740 @@
+dataset: SIASUS-PA
+record: procedure
+columns:
+  IDADEMAX:
+    role: procedure.procedures_maximum_eligible_age
+    kind: number
+    model: mark
+    name: Idade maxima do paciente para o procedimento
+    years:
+    - 2008
+    - 2026
+  IDADEMIN:
+    role: procedure.procedures_minimum_eligible_age
+    kind: number
+    model: mark
+    name: Idade minima do paciente para o procedimento
+    years:
+    - 2008
+    - 2026
+  NU_PA_TOT:
+    role: procedure.sigtap_unit_price
+    kind: number
+    model: mark
+    name: Valor Unitario do Procedimento da Tabela SIGTAP
+    years:
+    - 2008
+    - 2026
+  NU_VPA_TOT:
+    role: procedure.vpa_unit_price
+    kind: number
+    model: mark
+    name: Valor Unitario do Procedimento da Tabela VPA
+    years:
+    - 2008
+    - 2026
+  PA_ALTA:
+    role: procedure.discharge_indicator
+    kind: category
+    model: mark
+    name: Indicador de Alta (APAC)
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - ALTA
+    - PA_ALTA
+  PA_AUTORIZ:
+    role: procedure.authorisation_number
+    kind: identifier
+    model: link_only
+    name: Numero da APAC ou autorizacao do BPA-I
+    years:
+    - 2008
+    - 2026
+  PA_CATEND:
+    role: procedure.admission_character
+    kind: category
+    model: mark
+    name: Carater de Atendimento (APAC ou BPA-I)
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - CARAT_AT
+    - PA_CATEND
+  PA_CBOCOD:
+    role: professional.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    name: Codigo da Ocupacao (CBO)
+    years:
+    - 2008
+    - 2026
+  PA_CIDCAS:
+    role: procedure.associated_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Causas Associadas (APAC)
+    years:
+    - 2008
+    - 2026
+  PA_CIDPRI:
+    role: procedure.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal (APAC ou BPA-I)
+    years:
+    - 1999
+    - 2026
+  PA_CIDSEC:
+    role: procedure.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Secundario (APAC)
+    years:
+    - 1999
+    - 2026
+  PA_CMP:
+    role: procedure.competence
+    kind: date
+    model: when
+    name: Data da Realizacao do Procedimento / Competencia
+    years:
+    - 2008
+    - 2026
+  PA_CNPJCPF:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 2008
+    - 2026
+    note: 'A CPF where the executant is an individual professional (variable note): then a direct personal identifier,
+      passed through unchanged.'
+  PA_CNPJMNT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da Mantenedora
+    years:
+    - 2008
+    - 2026
+  PA_CNPJ_CC:
+    role: procedure.credit_assignment_recipients_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - S_FORNEC
+    - CNPJ_BR
+    name: CNPJ do Orgao que recebeu por cessao de credito
+    years:
+    - 2002
+    - 2026
+  PA_CNSMED:
+    role: professional.cns
+    kind: identifier
+    model: link_only
+    name: Numero do CNS do profissional executante
+    years:
+    - 2008
+    - 2026
+    note: "The executing professional's CNS: a direct personal identifier, passed through unchanged; zeros where
+      absent."
+  PA_CODESP:
+    role: procedure.professional_activity_legacy
+    kind: category
+    model: mark
+    name: Código da Especialidade/Atividade Profissional (inferido)
+    years:
+    - 1994
+    - 2007
+  PA_CODOCO:
+    role: procedure.occurrence_code
+    kind: category
+    model: mark
+    name: Codigo de Ocorrencia
+    years:
+    - 1994
+    - 2026
+    codelists:
+    - CODOCO
+  PA_CODPRO:
+    role: procedure.procedure_legacy
+    kind: code_tree
+    model: event_type
+    codelists:
+    - PROC1199
+    - PROCSIA
+    name: Código do Procedimento (inferido)
+    years:
+    - 1994
+    - 2007
+    note: Seven-digit SIA procedure codes before SIGTAP (1994-2007), bound by the TAB_SIA DEFs to PROC1199 and
+      PROCSIA (not SIH's TPROC).
+  PA_CODUNI:
+    role: procedure.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Codigo do Estabelecimento no CNES
+    years:
+    - 1994
+    - 2026
+  PA_CONDIC:
+    role: procedure.management_type_code
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestao
+    years:
+    - 1994
+    - 2026
+    codelists:
+    - TPGESTAO
+    - TPGEST_C
+    - TP_GESTAO
+    - TP_GEST_C
+  PA_DATPR:
+    role: procedure.competence_legacy
+    kind: date
+    model: when
+    name: Data do Procedimento / Competência (inferido)
+    years:
+    - 1994
+    - 2007
+    note: YYYYMM (200711), the pre-2008 competence.
+  PA_DATREF:
+    role: procedure.reference_month_legacy
+    kind: date
+    model: mark
+    name: Data de Referência (inferido)
+    years:
+    - 1994
+    - 2007
+    note: 'YYYYMM (200709-200711 in 2007-11 AP): the month the production refers to.'
+  PA_DIF_VAL:
+    role: procedure.unit_price_gap_x_approved_quantity_brl
+    kind: number
+    model: mark
+    name: Diferenca do Valor Unitario
+    years:
+    - 2008
+    - 2026
+  PA_DOCORIG:
+    role: procedure.source_instrument_code
+    kind: category
+    model: mark
+    name: Instrumento de Registro
+    years:
+    - 1994
+    - 2026
+    codelists:
+    - DOCORIG
+    - DOC_ORIG
+    - DO_ORIGC
+    - PA_DOCORIG
+  PA_ENCERR:
+    role: procedure.closure_indicator
+    kind: category
+    model: mark
+    name: Indicador de Encerramento (APAC)
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - ENCERRAM
+    - PA_ENCERR
+  PA_ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia do paciente
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - PA_ETNIA
+  PA_FLER:
+    role: procedure.apac_body_error_flag
+    kind: category
+    model: mark
+    name: Indicador de erro de corpo da APAC
+    years:
+    - 2008
+    - 2026
+  PA_FLIDADE:
+    role: procedure.age_eligibility_compatibility_flag
+    kind: category
+    model: mark
+    name: Compatibilidade com a faixa de idade do procedimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - FL_IDADE
+    - PA_FLIDADE
+  PA_FLQT:
+    role: procedure.submitted_quantity_error_flag
+    kind: category
+    model: mark
+    name: Indicador de erro de Quantidade Produzida
+    years:
+    - 2008
+    - 2026
+  PA_FNTORC:
+    role: procedure.funding_source_code
+    kind: category
+    model: mark
+    name: Fonte de Recursos
+    years:
+    - 2025
+    - 2026
+  PA_FXETAR:
+    role: patient.age_band_legacy
+    kind: category
+    model: dimension
+    name: Faixa etária
+    years:
+    - 1999
+    - 2007
+  PA_GESTAO:
+    role: procedure.management_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    - MUNICBR
+    name: Codigo da UF+Municipio de Gestao
+    years:
+    - 1994
+    - 2026
+  PA_IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    missing:
+    - '999'
+    name: Idade do paciente em anos
+    years:
+    - 2008
+    - 2026
+    note: 999 marks age not recorded (141,475 of 4,813,028 in 2026-04 PR); no real age reaches it.
+  PA_INCOUT:
+    role: procedure.other_increment_code
+    kind: category
+    model: mark
+    name: Incremento Outros
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INCREMENTO
+    - PA_INCOUT
+  PA_INCURG:
+    role: procedure.urgency_increment_code
+    kind: category
+    model: mark
+    name: Incremento Urgencia
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INCREMENTO
+    - PA_INCURG
+  PA_INDICA:
+    role: procedure.approval_status_indicator
+    kind: category
+    model: mark
+    name: Indicativo de situacao da producao
+    years:
+    - 1994
+    - 2026
+    codelists:
+    - INDICA
+    - PA_INDICA
+  PA_INE:
+    role: procedure.team
+    kind: identifier
+    model: link_only
+    codelists:
+    - INE_EQUIPE_BR
+    name: Código de Identificação Nacional de Equipes
+    years:
+    - 2011
+    - 2026
+    note: The CNES team (INE) that produced it; links to CNES-EQ.
+  PA_MNDIF:
+    role: procedure.patient_vs_establishment_municipality_mismatch_flag
+    kind: category
+    model: mark
+    name: Municipio de residencia diferente do estabelecimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INVASAO
+    - PA_MNDIF
+  PA_MN_IND:
+    role: facility.maintained_or_individual
+    kind: category
+    model: mark
+    name: Estabelecimento Mantido / Individual
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - MANT_IND
+    - PA_MN_IND
+  PA_MORFOL:
+    role: procedure.tumour_morphology
+    kind: code_tree
+    model: mark
+    name: Morfologia do tumor
+    years:
+    - 1999
+    - 2007
+    note: CID-O morphology (variable note); 0 on all recorded rows of 2007-11 AP.
+  PA_MOTSAI:
+    role: procedure.exit_reason_code
+    kind: category
+    model: mark
+    name: Motivo de saida
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - MOTSAIPE
+    - PA_MOTSAI
+  PA_MUNAT:
+    role: procedure.attendance_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de Atendimento (inferido)
+    years:
+    - 1994
+    - 2007
+  PA_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio de residencia do paciente
+    years:
+    - 2008
+    - 2026
+  PA_MVM:
+    role: procedure.processing_month
+    kind: date
+    model: when
+    name: Data de Processamento / Movimento
+    years:
+    - 2008
+    - 2026
+  PA_NAT_JUR:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Código da Natureza Jurídica
+    years:
+    - 2011
+    - 2026
+    codelists:
+    - NATJUR
+    - NATJURC
+  PA_NH:
+    role: procedure.hierarchy_level
+    kind: category
+    model: mark
+    name: Nível de hierarquia
+    years:
+    - 2002
+    - 2007
+  PA_NIVCPL:
+    role: procedure.procedure_complexity_level
+    kind: category
+    model: mark
+    name: Complexidade do Procedimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - COMPLEX
+    - PA_NIVCPL
+  PA_NUMAPA:
+    role: procedure.apac_number
+    kind: identifier
+    model: link_only
+    name: Número da APAC (inferido)
+    years:
+    - 1994
+    - 2007
+  PA_OBITO:
+    role: procedure.death_indicator
+    kind: category
+    model: mark
+    name: Indicador de Obito (APAC)
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - OBITO
+    - PA_OBITO
+  PA_PERMAN:
+    role: procedure.continuation_indicator
+    kind: category
+    model: mark
+    name: Indicador de Permanencia (APAC)
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - PERMANEN
+    - PA_PERMAN
+  PA_PROC_ID:
+    role: procedure.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Codigo do Procedimento Ambulatorial
+    years:
+    - 2008
+    - 2026
+  PA_QTDAPR:
+    role: procedure.approved_quantity
+    kind: number
+    model: mark
+    name: Quantidade Aprovada
+    years:
+    - 1994
+    - 2026
+  PA_QTDPRO:
+    role: procedure.submitted_presented_quantity
+    kind: number
+    model: mark
+    name: Quantidade Produzida (APRESENTADA)
+    years:
+    - 1994
+    - 2026
+  PA_RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raca/Cor do paciente
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - RACA_COR
+    - PA_RACACOR
+  PA_RCB:
+    role: procedure.receipt_number
+    kind: identifier
+    model: excluded
+    name: Número do recibo
+    years:
+    - 2002
+    - 2007
+  PA_RCBDF:
+    role: procedure.receipt_check_digit
+    kind: identifier
+    model: excluded
+    name: Dígito verificador do recibo
+    years:
+    - 2002
+    - 2007
+  PA_REGCT:
+    role: procedure.contract_rule_code
+    kind: category
+    model: mark
+    name: Codigo da Regra Contratual
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - REGRA_C
+    - PA_REGCT
+    - REGRAS
+  PA_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - SEXO
+  PA_SRV_C:
+    role: procedure.specialised_service
+    kind: category
+    model: mark
+    codelists:
+    - S_CLASSEN
+    name: Código do Serviço Especializado / Classificação CBO (de acordo com o CNES)
+    years:
+    - 2011
+    - 2026
+  PA_SUBFIN:
+    role: procedure.production_financing_subtype
+    kind: category
+    model: mark
+    name: Subtipo de Financiamento da produção
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TP_FINAN
+  PA_TIPATE:
+    role: procedure.attendance_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de Atendimento (inferido)
+    years:
+    - 1994
+    - 2007
+  PA_TIPPRE:
+    role: facility.provider_type
+    kind: category
+    model: mark
+    name: Tipo de Prestador
+    years:
+    - 1994
+    - 2026
+    codelists:
+    - ESFERA
+    - ESFERA_C
+    - PUBLPRIV
+    - PUBPRCOL
+    - RETENCAO
+    - RETENC_C
+  PA_TIPPRO:
+    role: procedure.consultation_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de atendimento
+    years:
+    - 1994
+    - 2007
+  PA_TPFIN:
+    role: procedure.production_financing_type
+    kind: category
+    model: mark
+    name: Tipo de Financiamento da produção
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - FINANC
+    - TP_FINAN
+  PA_TPUPS:
+    role: facility.type
+    kind: category
+    model: mark
+    name: Tipo de Estabelecimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TP_ESTAB
+    - TP_UNID
+  PA_TRANSF:
+    role: procedure.transfer_indicator
+    kind: category
+    model: mark
+    name: Indicador de Transferência
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TRANSFER
+  PA_UFDIF:
+    role: procedure.patient_uf_differs_from_facility_uf
+    kind: category
+    model: mark
+    name: Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INVASAO
+  PA_UFMUN:
+    role: procedure.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio do estabelecimento
+    years:
+    - 1994
+    - 2026
+  PA_VALAPR:
+    role: procedure.approved_value_brl
+    kind: number
+    model: mark
+    name: Valor Aprovado do procedimento
+    years:
+    - 1994
+    - 2026
+  PA_VALPRO:
+    role: procedure.submitted_value_brl
+    kind: number
+    model: mark
+    name: Valor Produzido (APRESENTADO)
+    years:
+    - 1994
+    - 2026
+  PA_VL_CF:
+    role: procedure.federal_supplement_value
+    kind: number
+    model: mark
+    name: Valor do Complemento Federal
+    years:
+    - 2011
+    - 2026
+  PA_VL_CL:
+    role: procedure.local_supplement_value
+    kind: number
+    model: mark
+    name: Valor do Complemento Local
+    years:
+    - 2011
+    - 2026
+  PA_VL_CRD:
+    role: procedure.value_credit
+    kind: number
+    model: mark
+    years:
+    - 2025
+    - 2026
+    note: Undocumented (2025-); 0.00 on all 4,813,028 rows of 2026-04 PR; read from the name as a value.
+  PA_VL_INC:
+    role: procedure.increment_value
+    kind: number
+    model: mark
+    name: Valor do Incremento
+    years:
+    - 2011
+    - 2026

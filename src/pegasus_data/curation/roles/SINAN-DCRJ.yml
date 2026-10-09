@@ -5,13 +5,11 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2024
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   CLASSI_FIN:
     role: case.classification
     kind: category

@@ -5,13 +5,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2000
     - 2026
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_ANIMAI:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -33,15 +33,15 @@ columns:
     - 2007
     - 2026
   ANT_CB_CAR:
-    role: case.exposure_carcass
+    role: case.contact_with_animal_carcass_antecedent
     kind: category
     model: mark
-    review: draft
     name: Antecedente - contato com carcaça de animal
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_CB_COR:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -93,25 +93,25 @@ columns:
     - 2000
     - 2026
   ANT_CB_LAV:
-    role: case.exposure_washing
+    role: case.contact_with_contaminated_water_for_washing_flag
     kind: category
     model: mark
-    review: draft
     name: Contato com água/lavagem em local de risco nos últimos 30 dias
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_CB_LIM:
-    role: case.exposure_drain_cleaning
+    role: case.history_of_cleaning_a_drain_or_ditch
     kind: category
     model: mark
-    review: draft
     name: Antecedente de limpeza de bueiro/córrego
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_CB_LIX:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -191,15 +191,16 @@ columns:
     - 2000
     - 2026
   ANT_OCUPAC:
-    role: case.occupational_exposure
+    role: case.occupational_exposure_code_legacy
     kind: category
     model: mark
-    review: draft
     name: Antecedente ocupacional
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: 'Five-digit codes (00994, 00995, 00639); not verified against an occupation table, so undecoded. 2000-2006
+      SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET,
+      the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_OU_DES:
     role: case.exposure_other_text
     kind: text
@@ -308,15 +309,15 @@ columns:
     - 2000
     - 2026
   CLI_DESC_O:
-    role: case.sign_other_text
+    role: case.other_clinical_sign_free_text
     kind: text
     model: excluded
-    review: draft
     name: Descrição de outro sinal/sintoma
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_DIARRE:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -490,15 +491,15 @@ columns:
     - 2007
     - 2026
   CON_ALIMEN:
-    role: case.exposure_contaminated_food
+    role: case.contact_with_contaminated_food_water
     kind: category
     model: mark
-    review: draft
     name: Contato com alimento contaminado
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_AMBIEN:
     missing: ['0', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Domiciliar', 2='Trabalho', 3='Lazer', 4='Outro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -510,15 +511,15 @@ columns:
     - 2000
     - 2026
   CON_ANIMAI:
-    role: case.exposure_animals
+    role: case.contact_with_animals_exposure_flag
     kind: category
     model: mark
-    review: draft
     name: Contato com animais
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_CLASSI:
     role: case.classification
     kind: category
@@ -529,14 +530,14 @@ columns:
     - 2006
   CON_CLAS_E:
     role: case.exposure_classification
-    kind: category
-    model: mark
-    review: draft
+    kind: text
+    model: excluded
     name: Classificação da exposição
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_CRITER:
     role: case.confirmation_criterion
     kind: category
@@ -546,15 +547,15 @@ columns:
     - 2000
     - 2006
   CON_DOENCA:
-    role: case.disease
-    kind: code_tree
-    model: event_type
-    review: draft
+    role: case.final_diagnosed_disease_legacy
+    kind: category
+    model: mark
     name: Doença (bloco de conclusão legado)
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DT_ENC:
     role: notification.closing_date
     kind: date
@@ -572,35 +573,35 @@ columns:
     - 2000
     - 2006
   CON_ENCHEN:
-    role: case.exposure_floodwater
+    role: case.contact_with_flood_water_exposure_flag
     kind: category
     model: mark
-    review: draft
     name: Contato com enchente
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_ENTULH:
-    role: case.exposure_rubble
+    role: case.contact_with_rubble_debris
     kind: category
     model: mark
-    review: draft
     name: Contato com entulho
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_ESGOTO:
-    role: case.site_sewage
+    role: case.sewage_present_at_likely_infection_site_flag
     kind: category
     model: mark
-    review: draft
     name: Esgoto no local provável de infecção
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_EVOLUC:
     role: case.outcome
     kind: category
@@ -639,35 +640,35 @@ columns:
     - 2000
     - 2006
   CON_RIO:
-    role: case.exposure_river
+    role: case.contact_with_river_stream
     kind: category
     model: mark
-    review: draft
     name: Contato com rio
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_ROEDOR:
-    role: case.site_rodents
+    role: case.signs_of_rodents_at_likely_infection_site_flag
     kind: category
     model: mark
-    review: draft
     name: Sinais de roedores no local provável de infecção
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_TERREN:
-    role: case.exposure_soil
+    role: case.contact_with_flooded_contaminated_ground
     kind: category
     model: mark
-    review: draft
     name: Contato com terreno alagado/contaminado
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   COPAISINF:
     role: case.infection_country
     kind: place
@@ -1077,35 +1078,36 @@ columns:
     - 2007
     - 2026
   ID_DG_NOT:
-    role: notification.dg_block_code
-    kind: identifier
+    role: notification.notification_record_control_code
+    kind: category
     model: excluded
-    review: draft
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
     - 2006
-    note: 'Unknown internal code (curation source: inferred).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_DT_RESI:
-    role: notification.residence_date_code
-    kind: identifier
+    role: notification.id_dt_resi_legacy
+    kind: category
     model: excluded
-    review: draft
     name: Identificador - data de residência
     years:
     - 2002
     - 2002
-    note: 'Unknown internal code, one file only (curation source: inferred).'
+    note: 'Holds 0001, 0002...: no date. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched:
+      FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind
+      from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.ev_block_code
-    kind: identifier
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: excluded
-    review: draft
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
     - 2006
-    note: 'Unknown internal code (curation source: inferred).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -1209,46 +1211,49 @@ columns:
     - 2000
     - 2006
   LAB_BD:
-    role: notification.lab_code
-    kind: identifier
-    model: excluded
-    review: draft
+    role: case.direct_bilirubin
+    kind: number
+    model: mark
     name: Laboratório - código de lote/banco
     years:
     - 2000
     - 2006
-    note: 'Unknown lab code (curation source: inferred; BD undecodable).'
+    note: 'Decimal comma (0,2): bilirubina direta, beside LAB_BI and LAB_BT; not the batch code its variable note
+      reads. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_BI:
-    role: case.lab_bilirubin_direct
+    role: case.indirect_bilirubin
     kind: number
     model: mark
-    review: draft
     name: Bilirrubina
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). Reading
-      BI as direct bilirubin is unconfirmed.'
+    note: 'Decimal comma (0,3). 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   LAB_BT:
-    role: case.lab_bilirubin_total
+    role: case.total_bilirubin
     kind: number
     model: mark
-    review: draft
     name: Bilirrubina total
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: 'Decimal comma (0,6). 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   LAB_CREATI:
-    role: case.lab_creatinine
+    role: case.creatinine_test_result
     kind: number
     model: mark
-    review: draft
     name: Creatinina
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: 'Decimal comma (0,8). 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   LAB_DT_1:
     role: case.lab_igm_elisa_date_1
     kind: date
@@ -1266,15 +1271,15 @@ columns:
     - 2000
     - 2026
   LAB_DT_3:
-    role: case.lab_serology_date_3
+    role: case.date_of_third_lab_sample
     kind: date
     model: mark
-    review: draft
     name: Data da coleta laboratorial 3
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_ELIS_1:
     missing: ['0', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1296,45 +1301,45 @@ columns:
     - 2007
     - 2026
   LAB_MACRO:
-    role: case.lab_macro_agglutination
+    role: case.macroscopic_agglutination_test_flag
     kind: category
     model: mark
-    review: draft
     name: Soroaglutinação macroscópica
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_METODO:
-    role: case.lab_method
+    role: case.laboratory_test_method
     kind: category
     model: mark
-    review: draft
     name: Método do exame laboratorial
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_MET_D:
-    role: case.lab_method_text
+    role: case.other_lab_test_method_description
     kind: text
     model: excluded
-    review: draft
     name: Outro método laboratorial - descrição
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_MICRO:
-    role: case.lab_mat_result
+    role: case.microscopic_agglutination_test_result
     kind: category
     model: mark
-    review: draft
     name: Resultado - microaglutinação
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_MICR_1:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Não Realizada', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1356,155 +1361,151 @@ columns:
     - 2007
     - 2026
   LAB_PLAQUE:
-    role: case.lab_platelets
+    role: case.platelet_count
     kind: number
     model: mark
-    review: draft
     name: Plaquetas
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_POTASS:
-    role: case.lab_potassium
+    role: case.serum_potassium
     kind: number
     model: mark
-    review: draft
     name: Potássio sérico
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: 'Decimal comma (3,9). 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   LAB_R_1:
-    role: case.lab_serology_result_1
+    role: case.first_serology_sample_result_titer
     kind: number
     model: mark
-    review: draft
     name: Resultado da 1ª amostra
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_R_2:
-    role: case.lab_serology_result_2
+    role: case.second_lab_result_titer
     kind: number
     model: mark
-    review: draft
     name: Resultado laboratorial 2
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_SOROAG:
-    role: case.lab_mat_performed
+    role: case.microscopic_agglutination_test_mat_flag_or_result
     kind: category
     model: mark
-    review: draft
     name: Soroaglutinação microscópica
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_S_1:
-    role: case.lab_serology_serovar_titer_1
+    role: case.serology_titer_serovar_1
     kind: number
     model: mark
-    review: draft
     name: Título sorológico - sorovar 1
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_S_2:
-    role: case.lab_serology_result_2b
+    role: case.second_convalescent_serology_sample_result_titer
     kind: number
     model: mark
-    review: draft
     name: Resultado da 2ª amostra
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_S_3:
-    role: case.lab_serology_result_3
+    role: case.third_serology_result_titer
     kind: number
     model: mark
-    review: draft
     name: Sorologia laboratorial 3
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: 'A titre, like LAB_S_1 and LAB_S_2. 2000-2006 SINAN Windows layout: no dictionary for it is published
+      (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the
+      name); kind from the values; codes undecoded.'
   LAB_S_4:
-    role: case.lab_serology_result_4
+    role: case.serology_sample_reading_4
     kind: number
     model: mark
-    review: draft
     name: Sorologia - amostra 4
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: 'A titre, like LAB_S_1 and LAB_S_2. 2000-2006 SINAN Windows layout: no dictionary for it is published
+      (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the
+      name); kind from the values; codes undecoded.'
   LAB_S_5:
-    role: case.lab_serology_serovar_titer_5
+    role: case.serology_titer_serovar_5
     kind: number
     model: mark
-    review: draft
     name: Título sorológico - sorovar 5
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
-      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+    note: 'A titre, like LAB_S_1 and LAB_S_2. 2000-2006 SINAN Windows layout: no dictionary for it is published
+      (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the
+      name); kind from the values; codes undecoded.'
   LAB_TGO:
-    role: case.lab_tgo_elevated
-    kind: category
+    role: case.result_a_ast_sgot_liver_enzyme
+    kind: number
     model: mark
-    review: draft
     name: Resultado A - TGO
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
-      wording.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_TGP:
-    role: case.lab_tgp_elevated
-    kind: category
+    role: case.result_a_alt_sgpt_liver_enzyme
+    kind: number
     model: mark
-    review: draft
     name: Resultado A - TGP
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
-      wording.'
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_UF:
-    role: case.lab_state
-    kind: place
+    role: case.state_uf_where_the_lab_test_was_performed
+    kind: category
     model: mark
-    review: draft
     name: UF do laboratório
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+    note: 'State abbreviations. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   LAB_UREIA:
-    role: case.lab_urea_elevated
-    kind: category
+    role: case.urea
+    kind: number
     model: mark
-    review: draft
     name: Ureia
     years:
     - 2000
     - 2006
-    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
-      wording.'
+    note: 'Values 20-32 (mg/dL); not the raised-urea flag its variable note reads. 2000-2006 SINAN Windows layout:
+      no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning
+      read from the variable note (the name); kind from the values; codes undecoded.'
   MICRO1_S1:
     role: case.mat_sample1_serovar_1
     kind: category

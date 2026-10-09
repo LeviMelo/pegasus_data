@@ -1,0 +1,199 @@
+dataset: SIASUS-AC
+record: procedure
+columns:
+  APA_CNSDIR:
+    role: authorisation.directors_authorisers_cns
+    kind: identifier
+    model: excluded
+    name: Código CNS diretor do estabelecimento
+    years:
+    - 2002
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  APA_CNSPCN:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Código CNS paciente
+    years:
+    - 2002
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  APA_CNSRSP:
+    role: authorisation.responsible_physicians_cns
+    kind: identifier
+    model: excluded
+    name: Código CNS responsável pelo tratamento
+    years:
+    - 2002
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  APA_CODUNI:
+    role: authorisation.provider_unit_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    name: Código da Unidade
+    years:
+    - 2001
+    - 2007
+  APA_CONDIC:
+    role: authorisation.management_arrangement_code
+    kind: category
+    model: mark
+    name: Condição de Gestão
+    years:
+    - 2001
+    - 2007
+  APA_CONTN:
+    role: authorisation.continuity_flag
+    kind: category
+    model: mark
+    name: Indicador de continuação da APAC
+    years:
+    - 2001
+    - 2007
+  APA_CPFDIR:
+    role: authorisation.provider_unit_directors_cpf
+    kind: identifier
+    model: excluded
+    name: CPF do Diretor da Unidade Prestadora do Serviço
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  APA_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    name: CPF do Paciente
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  APA_CPFRES:
+    role: authorisation.responsible_physician_cpf
+    kind: identifier
+    model: excluded
+    name: CPF do Médico Responsável
+    years:
+    - 2001
+    - 2007
+  APA_DATEM:
+    role: authorisation.emission_month
+    kind: date
+    model: mark
+    name: Data de emissão
+    years:
+    - 2001
+    - 2007
+  APA_DATREF:
+    role: authorisation.reference_month_compet_ncia
+    kind: date
+    model: when
+    name: Data de referência
+    years:
+    - 2001
+    - 2007
+  APA_DTFIM:
+    role: authorisation.end_date_aaaammdd
+    kind: date
+    model: mark
+    years:
+    - 2005
+    - 2007
+  APA_DTFIMV:
+    role: authorisation.validity_end_date
+    kind: date
+    model: mark
+    name: Data final de validade
+    years:
+    - 2001
+    - 2004
+  APA_DTINIV:
+    role: authorisation.validity_start_date
+    kind: date
+    model: mark
+    name: Data inicial de validade
+    years:
+    - 2001
+    - 2007
+  APA_DTOCOR:
+    role: authorisation.occurrence_date
+    kind: date
+    model: mark
+    name: Data de ocorrência
+    years:
+    - 2001
+    - 2007
+  APA_GESTAO:
+    role: authorisation.managing_authority_code
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    name: Código de gestão
+    years:
+    - 2001
+    - 2007
+  APA_MOTCOB:
+    role: authorisation.billing_closing_reason
+    kind: category
+    model: mark
+    name: Motivo da cobrança
+    years:
+    - 2001
+    - 2007
+  APA_NOMEDI:
+    role: authorisation.facility_directors_name
+    kind: identifier
+    model: excluded
+    name: Nome do diretor
+    years:
+    - 2001
+    - 2007
+    note: A person's or unit's name, passed through unchanged.
+  APA_NOMERE:
+    role: authorisation.responsible_physicians_name_text
+    kind: text
+    model: excluded
+    name: Nome do médico responsável
+    years:
+    - 2001
+    - 2007
+  APA_NUM:
+    role: authorisation.apac_number
+    kind: identifier
+    model: link_only
+    name: Número da APAC
+    years:
+    - 2001
+    - 2007
+  APA_PRIPAL:
+    role: authorisation.procedure
+    kind: code_tree
+    model: event_type
+    name: Procedimento principal
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - PROC1199
+    - PROCSIA
+  APA_TIPAPA:
+    role: authorisation.apac_type
+    kind: category
+    model: mark
+    name: Tipo de APAC
+    years:
+    - 2001
+    - 2007
+  APA_TIPATE:
+    role: authorisation.type_of_care
+    kind: category
+    model: mark
+    name: Tipo de atendimento
+    years:
+    - 2001
+    - 2007

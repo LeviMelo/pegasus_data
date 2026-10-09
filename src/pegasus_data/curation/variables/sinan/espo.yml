@@ -1,47 +1,26 @@
-# SINAN.ESPO — Sporotrichosis
-# Esporotricose
+# SINAN.ESPO — Sporotrichosis epizootics
+# Esporotricose (Epizootia)
 #
-# One notified case of sporotrichosis, the fungal infection transmitted
-# largely by cats, notifiable in some states before it was nationally.
+# One notified animal epizootic of sporotrichosis (cats, dogs), from the Sinan Net
+# epizootics base; not a human case (Dicionario_de_dados_Epizootias_Esporotricose.pdf).
 system: SINAN
 asserted_by: pegasus_data
 
 variables:
   C_D:
-    official_name: Coordenada geográfica - graus
-    translated_name: Geographic coordinate - degrees
-    description: 'Degrees component of one geographic coordinate used to locate the
-      likely animal-contact/exposure site for the sporotrichosis case (paired with
-      a minutes component, C_M, not owned here).
-
-      '
+    official_name: Número de cães doentes
+    translated_name: Dogs sick
+    description: 'Number of sick dogs, if the notification reports it. Corrects the earlier inferred reading (a coordinate).'
     code_system: none
-    source: inferred
-    reasoning: 'ESPO''s field set includes C_D/C_M and G_D/G_M alongside TP_ZN_OCO and TP_AMB_OCO
-      (zone/environment of occurrence), consistent with a degrees/minutes geocoordinate pair
-      for the exposure site. Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br,
-      the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files,
-      state sporotrichosis notes from RJ/SP/SC). The C_D/C_M/G_D/G_M quartet parallels the
-      epizootia form''s sick/dead animal counts (NU_ANIDO/NU_ANIMO), so cães doentes / cães
-      mortos / gatos doentes / gatos mortos is a more likely reading than coordinates or contact
-      type.'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados, Agravo: Esporotricose (Epizootia), Base de Dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS) — ftp.datasus.gov.br/dissemin/publicos/SINAN/DOCS/Docs_TAB_SINAN.zip!Documentação/AGRAVOS/Dicionario_de_dados_Epizootias_Esporotricose.pdf'
   C_M:
-    official_name: Contato com mordedura
-    translated_name: Contact by bite
-    description: 'Sporotrichosis-form field recording whether the patient''s exposure
-      to an infected cat was through a bite, part of the form''s contact-type breakdown
-      for this cat-transmitted fungal disease.
-
-      '
+    official_name: Número de cães mortos
+    translated_name: Dogs dead
+    description: 'Number of dead dogs, if the notification reports it. Corrects the earlier inferred reading (contact by bite).'
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is ESPO (esporotricose, typically cat-transmitted); short numeric (N1)
-      code fits a categorical contact-type field; exact label inferred from the abbreviation
-      and disease context rather than confirmed documentation. Reviewed 2026-09-28: no documentation
-      found (searched portalsinan.saude.gov.br, the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf,
-      TAB_SINANNET .DEF files, state sporotrichosis notes from RJ/SP/SC). The C_D/C_M/G_D/G_M
-      quartet parallels the epizootia form''s sick/dead animal counts (NU_ANIDO/NU_ANIMO),
-      so C_M more likely reads cães mortos (dead dogs).'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados, Agravo: Esporotricose (Epizootia), Base de Dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS) — ftp.datasus.gov.br/dissemin/publicos/SINAN/DOCS/Docs_TAB_SINAN.zip!Documentação/AGRAVOS/Dicionario_de_dados_Epizootias_Esporotricose.pdf'
   DS_OUT_AMB:
     official_name: Se outro ambiente, especificar
     translated_name: Other setting of occurrence (specify)
@@ -67,51 +46,26 @@ variables:
       (same DBF name; the ESPO form reuses the epizootia occurrence block, cf. TP_AMB_OCO →
       AMB_EPIZ.CNV), campo 7 (Data do início da epizootia)
   ESPECIE:
-    official_name: Espécie do animal envolvido
-    translated_name: Animal species involved
-    description: 'Species of the animal involved in transmitting sporotrichosis to
-      the patient - almost always a cat (the main reservoir/vector in Brazil''s sporotrichosis
-      epidemic), but the field allows other species.
-
-      '
+    official_name: Espécie reportada na notificação
+    translated_name: Species reported
+    description: 'The animal species the epizootic notification reports: 1 cat, 2 dog, 3 cat and dog.'
     code_system: none
-    source: inferred
-    reasoning: 'ESPECIE = espécie; sporotrichosis is predominantly a zoonosis transmitted by
-      cat scratches/bites. Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br,
-      the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files,
-      state sporotrichosis notes from RJ/SP/SC).'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados, Agravo: Esporotricose (Epizootia), Base de Dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS) — ftp.datasus.gov.br/dissemin/publicos/SINAN/DOCS/Docs_TAB_SINAN.zip!Documentação/AGRAVOS/Dicionario_de_dados_Epizootias_Esporotricose.pdf'
   G_D:
-    official_name: Gatos doentes no domicílio
-    translated_name: Sick cats in the household
-    description: 'Sporotrichosis-form field recording how many cats in the patient''s
-      household were visibly ill, since household cats are the main source of human
-      infection.
-
-      '
+    official_name: Número de gatos doentes
+    translated_name: Cats sick
+    description: 'Number of sick cats, if the notification reports it.'
     code_system: none
-    source: inferred
-    reasoning: 'ESPO form; N2 numeric width suggests a small count rather than a yes/no flag,
-      consistent with "quantity of sick cats"; exact label not confirmed by documentation.
-      Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br, the SINAN
-      NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files, state
-      sporotrichosis notes from RJ/SP/SC). Likely gatos doentes (sick cats), paired with G_M
-      gatos mortos.'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados, Agravo: Esporotricose (Epizootia), Base de Dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS) — ftp.datasus.gov.br/dissemin/publicos/SINAN/DOCS/Docs_TAB_SINAN.zip!Documentação/AGRAVOS/Dicionario_de_dados_Epizootias_Esporotricose.pdf'
   G_M:
-    official_name: Gatos (contagem/faixa)
-    translated_name: Cats involved in suspected transmission
-    description: 'Numeric count or category of cats implicated in the suspected sporotrichosis
-      exposure — sporotrichosis in Brazil is overwhelmingly transmitted through scratches/bites
-      from infected cats.
-
-      '
+    official_name: Número de gatos mortos
+    translated_name: Cats dead
+    description: 'Number of dead cats, if the notification reports it.'
     code_system: none
-    source: inferred
-    reasoning: 'N2 numeric field in the ESPO stratum; G read as gato (cat), though the exact
-      unit (count vs. coded range) isn''t confirmed by the evidence available. Reviewed 2026-09-28:
-      no documentation found (searched portalsinan.saude.gov.br, the SINAN NET Epizootia dictionary
-      DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files, state sporotrichosis notes from
-      RJ/SP/SC). Likely gatos mortos (dead cats), by parallel with the epizootia form''s sick/dead
-      counts.'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados, Agravo: Esporotricose (Epizootia), Base de Dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS) — ftp.datasus.gov.br/dissemin/publicos/SINAN/DOCS/Docs_TAB_SINAN.zip!Documentação/AGRAVOS/Dicionario_de_dados_Epizootias_Esporotricose.pdf'
   ID_NOTIFIC:
     official_name: Identificador da notificação
     translated_name: Notification record identifier

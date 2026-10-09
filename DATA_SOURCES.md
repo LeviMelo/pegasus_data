@@ -56,6 +56,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     out the client side.
   - **Reopened by 2026-10-05 17:16 UTC.** The last failed probe was at 17:01;
     every probe since has connected in 0.1 s (230 failed, then 39 open).
+- **Documentation lives outside `/dissemin/publicos` too** (2026-10-08). The FTP root holds 40 directories (`siasus`, `catalogo`, `siscam`, `tabwin`, `territorio`, `municip`, `caderno`, ...), which the catalog does not crawl. `/siasus/Documentos` and `/siasus/{APAC,BPA,RAAS,SIA}` alone hold 214 documents (`data/probes/ftp_outside_siasus.txt`): the APAC, BPA and RAAS export layouts, the operational manuals, oncology manuals 2008-2022, and layout spreadsheets 2008-2012. The server answers `LIST` (IIS format) but not `MLSD`.
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.

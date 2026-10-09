@@ -13,13 +13,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2000
     - 2025
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_DT_INV:
     role: notification.investigation_date
     kind: date
@@ -39,16 +39,15 @@ columns:
     - 2000
     - 2025
   CASO:
-    role: notification.caso
-    kind: number
+    role: notification.case_type
+    kind: category
     model: mark
-    review: draft
     name: Tipo de caso
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -89,16 +88,15 @@ columns:
     - 2000
     - 2006
   CON_DOENCA:
-    role: notification.con_doenca
-    kind: number
+    role: notification.final_diagnosed_disease_legacy
+    kind: category
     model: mark
-    review: draft
     name: Doença (bloco de conclusão legado)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DT_ENC:
     role: notification.closing_date
     kind: date
@@ -124,27 +122,27 @@ columns:
     - 2000
     - 2006
   CON_INF_BA:
-    role: notification.con_inf_ba
-    kind: number
-    model: mark
-    review: draft
+    role: notification.infection_neighbourhood_local
+    kind: category
+    model: excluded
     name: Bairro provável de infecção
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: 'Local neighbourhood codes (000000001): no national table. 2000-2006 SINAN Windows layout: no dictionary
+      for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the
+      variable note (the name); kind from the values; codes undecoded.'
   CON_INF_DI:
-    role: notification.con_inf_di
-    kind: number
-    model: mark
-    review: draft
+    role: notification.infection_district_local
+    kind: category
+    model: excluded
     name: Distrito provável de infecção
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: 'Local district codes (0001): no national table. 2000-2006 SINAN Windows layout: no dictionary for it
+      is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable
+      note (the name); kind from the values; codes undecoded.'
   CON_INF_MU:
     role: case.infection_municipality
     kind: place
@@ -157,16 +155,15 @@ columns:
     - 2000
     - 2006
   CON_INF_OU:
-    role: notification.con_inf_ou
-    kind: number
+    role: notification.other_immunosuppressive_condition
+    kind: category
     model: mark
-    review: draft
     name: Outra condição de imunossupressão
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_INF_PA:
     role: case.infection_country
     kind: place
@@ -341,16 +338,15 @@ columns:
     - 2000
     - 2025
   DIAG_PARA:
-    role: notification.diag_para
-    kind: number
+    role: notification.parasitological_diagnosis_result
+    kind: category
     model: mark
-    review: draft
     name: Diagnóstico parasitológico
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DIAG_PAR_N:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Não realizado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -384,16 +380,16 @@ columns:
     - 2007
     - 2025
   DOSES:
-    role: notification.doses
-    kind: number
+    role: notification.doses_legacy
+    kind: category
     model: mark
-    review: draft
     name: Número de doses de vacina anti-rábica recebidas no tratamento anterior
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: 'The variable note reads rabies vaccine doses, a meaning borrowed from another form; meaning on this form
+      unknown. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DROGA:
     missing: ['0', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Antimonial Pentavalente', 2='anfotericina b', 3='Pentamidina', 4='anfotericina b lipossomal', 5='outras', 6='Não utilizada'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['6']
@@ -575,16 +571,15 @@ columns:
     - 2025
     - 2025
   DURACAO:
-    role: notification.duracao
-    kind: number
+    role: notification.duration
+    kind: category
     model: mark
-    review: draft
     name: Duração
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   EDEMA:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -596,16 +591,15 @@ columns:
     - 2007
     - 2025
   ELISA:
-    role: notification.elisa
-    kind: number
+    role: notification.elisa_serology_test_result
+    kind: category
     model: mark
-    review: draft
     name: ELISA
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   EMAGRA:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -617,16 +611,15 @@ columns:
     - 2000
     - 2025
   ENDEMICO:
-    role: notification.endemico
-    kind: number
+    role: notification.case_located_in_a_recognized_endemic_area_flag
+    kind: category
     model: mark
-    review: draft
     name: Área endêmica
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTRADA:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Caso novo', 2='Recidiva', 3='Transferência', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -759,27 +752,25 @@ columns:
     - 2007
     - 2025
   ID_DG_NOT:
-    role: notification.id_dg_not
-    kind: number
+    role: notification.notification_record_control_code
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.id_ev_not
-    kind: number
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -971,16 +962,16 @@ columns:
     - 2000
     - 2006
   OUTRAS:
-    role: notification.outras
+    role: notification.other_drugs_used
     kind: category
     model: mark
-    review: draft
     name: Drogas - Outras
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: 'The variable note reads a TB drug, borrowed from another form; on the leishmaniasis form other drugs
+      used. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   OUTRO:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Positivo', 2='Negativo', 3='Não realizado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1102,16 +1093,15 @@ columns:
     - 2007
     - 2025
   TUBE:
-    role: notification.tube
+    role: notification.tuberculosis_comorbidity
     kind: category
     model: mark
-    review: draft
     name: Agravos associados – tuberculose
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   IDADE_anos:
     role: patient.age_years
     kind: number

@@ -1,0 +1,125 @@
+dataset: SIASUS-CO
+record: procedure
+columns:
+  COB_CGC:
+    role: authorisation.credit_assignment_cnpj
+    kind: category
+    model: mark
+    years:
+    - 2003
+    - 2007
+    note: Empty in every file read; kind from its variable note.
+  COB_CODESP:
+    role: authorisation.professional_activity_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_CODPR:
+    role: authorisation.billed_procedure
+    kind: code_tree
+    model: event_type
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - PROC1199
+    - PROCSIA
+  COB_CODUNI:
+    role: authorisation.facility_identifier
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    years:
+    - 2001
+    - 2007
+  COB_CONDIC:
+    role: authorisation.management_arrangement_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  COB_DATREF:
+    role: authorisation.reference_month_compet_ncia
+    kind: date
+    model: when
+    years:
+    - 2001
+    - 2007
+  COB_GESTAO:
+    role: authorisation.managing_authority_code
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    years:
+    - 2001
+    - 2007
+  COB_NF:
+    role: authorisation.credit_assignment_invoice_number
+    kind: category
+    model: mark
+    years:
+    - 2003
+    - 2007
+    note: Empty in every file read; kind from its variable note.
+  COB_NUM:
+    role: authorisation.apac_number
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_QTAP:
+    role: authorisation.quantity_presented
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_QTPR:
+    role: authorisation.quantity_approved_produced
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_SEQ:
+    role: authorisation.line_sequence_number
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_TIPATE:
+    role: authorisation.type_of_care
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_VALAP:
+    role: authorisation.approved_value
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  COB_VALPR:
+    role: authorisation.presented_value
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007

@@ -51,10 +51,28 @@ DATASETS = {
 }
 
 
+#: What a record of each system is about: the entity of its event properties. A dataset whose row is something else
+#: says so in its review (CNES's equipment rows, SIA's production lines).
+RECORDS = {"SIM": "death", "SINASC": "birth", "SIHSUS": "admission", "CIH": "admission", "CIHA": "admission",
+           "SIASUS": "procedure", "CNES": "establishment", "SISCAN": "exam", "PNI": "vaccination", "RESP": "notification",
+           "ESUSNOTIFICA": "notification", "PCE": "survey", "PAINEL_ONCOLOGIA": "case", "SISPRENATAL": "pregnancy",
+           "IBGE": "area", "DADOS_ABERTOS": "procedure", "SINAN": "notification"}
+#: The ontology's name for a system, under which `datasets/declared.yml` declares the axes it shares.
+ONTOLOGY = {"SIASUS": "SIA", "SIHSUS": "SIH"}
+
+
 def _datasets(conn: sqlite3.Connection) -> dict[str, tuple]:
-    """`DATASETS` and every SINAN form (series) the catalog holds."""
-    forms = [s for (s,) in conn.execute("SELECT DISTINCT series FROM families WHERE system='SINAN' ORDER BY series")]
-    return {**DATASETS, **{f"SINAN-{s}": ("SINAN", s, s.lower(), "SINAN", "notification") for s in forms}}
+    """`DATASETS` and every other dataset the catalog holds (a system's series), keyed ``SYSTEM-SERIES``."""
+    out = dict(DATASETS)
+    known = {(v[0], v[1]) for v in DATASETS.values()}
+    for system, series in conn.execute("SELECT DISTINCT system, series FROM families ORDER BY system, series"):
+        if (system, series) in known:
+            continue
+        stem = str(series).lower()
+        folder = CURATION / "variables" / str(system).lower()
+        out[f"{system}-{series}"] = (system, series, stem if (folder / f"{stem}.yml").exists() else None,
+                                     f"{system}_{series}" if system != "SINAN" else "SINAN", RECORDS.get(system, "record"))
+    return out
 
 
 def _label(field: dict) -> str:
@@ -65,12 +83,38 @@ def _label(field: dict) -> str:
     return " ".join(re.sub(r"[^a-z0-9 ]", " ", text).split())
 
 
+def _sibling_precedents(system: str, series: str) -> dict[str, tuple[dict, str]]:
+    """Outside SINAN a column is documented once for its system (`variables/<system>/_shared.yml`), its meaning the
+    same in every file of the system: the reviewed role a sibling dataset gives it is its role, where the siblings
+    agree (SIM's DOEXT, DOINF and DOMAT are subsets of the death certificate SIM-DO reads; SIH's RJ is the AIH of RD).
+    A column a sibling's own series file documents differently is no precedent."""
+    from pegasus_data.semantics.curation import INHERITS
+
+    names = {system.upper(), *(p.upper() for p in INHERITS.get(system.upper(), ())), *(
+        k for k, v in {"SIH": "SIHSUS"}.items() if v == system.upper())}
+    keys: dict[str, set] = {}
+    first: dict[str, tuple[dict, str]] = {}
+    for path in sorted(OUT.glob("*.yml")):
+        if path.name.endswith(".draft.yml"):
+            continue
+        body = _yaml(path)
+        ds = str(body.get("dataset") or path.stem).upper()
+        if ds.split("-")[0] not in names or ds == f"{system}-{series}".upper():
+            continue
+        for col, entry in (body.get("columns") or {}).items():
+            if entry.get("review") == "draft" or entry.get("derived"):
+                continue
+            keys.setdefault(col, set()).add((entry["role"], entry["kind"], entry["model"]))
+            first.setdefault(col, (entry, ds))
+    return {c: first[c] for c, found in keys.items() if len(found) == 1}
+
+
 def _precedents(system: str, series: str) -> dict[str, tuple[dict, str]]:
     """The reviewed roles the system's other forms give each column, kept when the forms document it alike: the
     column -> (entry, the form it comes from). The block's declaration first; a column two forms read differently
     (EVOLUCAO, OUTRAS) has no precedent."""
     if system != "SINAN":
-        return {}
+        return _sibling_precedents(system, series)
     out: dict[str, tuple[dict, str]] = {}
     block = (_yaml(OUT / "SINAN-_notification.yml").get("columns") or {})
     for col, entry in block.items():
@@ -116,22 +160,32 @@ def _yaml(path: Path) -> dict:
 
 
 def _docs(system: str, stem: str | None) -> dict[str, dict]:
-    folder = CURATION / "variables" / {"SIHSUS": "sihsus"}.get(system, system.lower())
+    """A system's variable docs: its parent's where it republishes them (`curation.INHERITS`: Dados Abertos' APAC
+    exports carry SIA's columns), its shared file, then the series' own."""
+    from pegasus_data.semantics.curation import INHERITS
+
     out: dict[str, dict] = {}
-    for f in [folder / "_shared.yml", *([folder / f"{stem}.yml"] if stem else [])]:
+    files = []
+    for parent in INHERITS.get(system.upper(), ()):
+        files += sorted((CURATION / "variables" / parent.lower()).glob("*.yml"))
+    folder = CURATION / "variables" / {"SIHSUS": "sihsus"}.get(system, system.lower())
+    files += [folder / "_shared.yml", *([folder / f"{stem}.yml"] if stem else [])]
+    for f in files:
         for name, body in (_yaml(f).get("variables") or {}).items():
             if isinstance(body, dict):
                 out[str(name).upper()] = {**out.get(str(name).upper(), {}), **body}
     return out
 
 
-def _axes(key: str) -> tuple[dict[str, str], dict[str, str]]:
+def _axes(key: str, system: str = "") -> tuple[dict[str, str], dict[str, str]]:
     when: dict[str, str] = {}
     where: dict[str, str] = {}
     for f in (CURATION / "datasets").glob("*.yml"):
         body = (_yaml(f).get("datasets") or {}).get(key)
         if body is None and key == "SINAN":
             body = _yaml(f).get("sinan") or _yaml(f).get("SINAN")
+        if body is None and system:          # the axes a system's datasets share (`declared.yml`)
+            body = (_yaml(f).get("shared_by_system") or {}).get(ONTOLOGY.get(system, system))
         axes = (body or {}).get("semantic_axes") or {}
         for name, spec in (axes.get("time") or {}).items():
             for col in spec.get("fields") or ():
@@ -166,14 +220,15 @@ def _columns(conn: sqlite3.Connection, system: str, series: str) -> dict[str, di
 def draft(dataset: str, conn: sqlite3.Connection) -> dict:
     system, series, stem, key, record = _datasets(conn)[dataset]
     docs = _docs(system, stem)
-    when, where = _axes(key)
+    when, where = _axes(key, system)
     linked = _linkage(dataset)
     precedents = _precedents(system, series)
     columns: dict[str, dict] = {}
     for name, seen in sorted(_columns(conn, system, series).items()):
         if name in precedents and name not in linked:
             entry, source = precedents[name]
-            columns[name] = {**{k: v for k, v in entry.items() if k not in ("years", "note", "missing")},
+            keep = ("years", "note") if system == "SINAN" else ("years", "note", "review")
+            columns[name] = {**{k: v for k, v in entry.items() if k not in keep + (("missing",) if system == "SINAN" else ())},
                              "years": seen["years"], "note": f"role from {source}"}
             continue
         doc = docs.get(name, {})

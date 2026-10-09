@@ -35,13 +35,11 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2026
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   ANTEC_POS:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'

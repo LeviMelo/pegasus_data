@@ -704,11 +704,10 @@ columns:
     - 2001
     - 2025
   OUTRAS_DES:
-    role: treatment.outcome_other
+    role: treatment.outcome_other_description
     kind: text
-    model: mark
+    model: excluded
     note: Curation source is inferred (no documentation found, tube.yml:495); meaning kept unconfirmed.
-    review: draft
     name: Outro desfecho (especificar)
     years:
     - 2001

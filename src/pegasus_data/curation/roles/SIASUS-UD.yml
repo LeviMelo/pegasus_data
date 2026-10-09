@@ -1,0 +1,544 @@
+dataset: SIASUS-UD
+record: procedure
+columns:
+  UDI_APCGC1:
+    role: authorisation.linked_entity_tax_id_slot_1
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_APCGC2:
+    role: authorisation.linked_entity_tax_id_slot_2
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_APMN1:
+    role: authorisation.linked_entity_municipality_slot_1
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_APMN2:
+    role: authorisation.linked_entity_municipality_slot_2
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_APRZ1:
+    role: authorisation.linked_entity_legal_name_slot_1
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_APRZ2:
+    role: authorisation.linked_entity_legal_name_slot_2
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_CODUNI:
+    role: authorisation.establishment_code_dialysis_unit
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    years:
+    - 2001
+    - 2004
+  UDI_CONDIC:
+    role: authorisation.management_arrangement_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_DATREF:
+    role: authorisation.reference_year_month
+    kind: date
+    model: when
+    years:
+    - 2001
+    - 2004
+  UDI_DIRCPF:
+    role: authorisation.clinic_directors_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDI_DIRNM:
+    role: authorisation.clinic_directors_name
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDI_GESTAO:
+    role: authorisation.managing_authority
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_HGCGC1:
+    role: authorisation.backup_general_hospital_tax_id_slot_1
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_HGCGC2:
+    role: authorisation.backup_general_hospital_tax_id_slot_2
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_HGMN1:
+    role: authorisation.backup_general_hospital_municipality_slot_1
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_HGMN2:
+    role: authorisation.backup_general_hospital_municipality_slot_2
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_HGRZ1:
+    role: authorisation.backup_general_hospital_legal_name_slot_1
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_HGRZ2:
+    role: authorisation.backup_general_hospital_legal_name_slot_2
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_HTPCGC:
+    role: authorisation.renal_transplant_referral_hospital_tax_id
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_HTPMN:
+    role: authorisation.renal_transplant_referral_hospital_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_HTPRZ:
+    role: authorisation.renal_transplant_referral_hospital_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_INDTR1:
+    role: authorisation.treatment_type_offered_flag_item_1
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_INDTR2:
+    role: authorisation.treatment_type_offered_flag_item_2
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_INDTR3:
+    role: authorisation.treatment_type_offered_flag_item_3
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_INDTR4:
+    role: authorisation.treatment_type_offered_flag_item_4
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_INDTR5:
+    role: authorisation.treatment_type_offered_flag_item_5
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_INDTR6:
+    role: authorisation.treatment_type_offered_flag_item_6
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_LAACGC:
+    role: authorisation.analysis_laboratory_tax_id
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_LAAMN:
+    role: authorisation.analysis_laboratory_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_LAARZ:
+    role: authorisation.analysis_laboratory_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_LHCCGC:
+    role: authorisation.histocompatibility_laboratory_tax_id
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_LHCMN:
+    role: authorisation.histocompatibility_laboratory_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_LHCRZ:
+    role: authorisation.histocompatibility_laboratory_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_MEDCGC:
+    role: authorisation.medical_supplies_vendor_tax_id
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_MEDMN:
+    role: authorisation.medical_supplies_vendor_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_MEDRZ:
+    role: authorisation.medical_supplies_vendor_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_MTACGC:
+    role: authorisation.maintenance_contractor_tax_id
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_MTAMN:
+    role: authorisation.maintenance_contractor_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_MTARZ:
+    role: authorisation.maintenance_contractor_legal_name
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_NFRCPF:
+    role: authorisation.responsible_nurses_cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDI_NFRNM:
+    role: authorisation.responsible_nurses_name
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2004
+  UDI_PCCGC1:
+    role: authorisation.reference_entity_tax_id_slot_1
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_PCCGC2:
+    role: authorisation.reference_entity_tax_id_slot_2
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_PCMN1:
+    role: authorisation.reference_entity_municipality_slot_1
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_PCMN2:
+    role: authorisation.reference_entity_municipality_slot_2
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_PCRZ1:
+    role: authorisation.reference_entity_legal_name_slot_1
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_PCRZ2:
+    role: authorisation.reference_entity_legal_name_slot_2
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_QTDAG1:
+    role: authorisation.water_treatment_equipment_count_type_1
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDAG2:
+    role: authorisation.water_treatment_equipment_count_type_2
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDDPA:
+    role: authorisation.ambulatory_peritoneal_dialysis_capacity
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDDPI:
+    role: authorisation.intermittent_peritoneal_dialysis_capacity
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDMQD:
+    role: authorisation.dialysis_machine_count_category_d
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDMQO:
+    role: authorisation.dialysis_machine_count_category_o
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_QTDMQP:
+    role: authorisation.dialysis_machine_count_category_p
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2004
+  UDI_RDCGC1:
+    role: authorisation.reference_entity_tax_id_slot_1
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_RDCGC2:
+    role: authorisation.reference_entity_tax_id_slot_2
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_RDMN1:
+    role: authorisation.reference_entity_municipality_slot_1
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_RDMN2:
+    role: authorisation.reference_entity_municipality_slot_2
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_RDRZ1:
+    role: authorisation.reference_entity_legal_name_slot_1
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_RDRZ2:
+    role: authorisation.reference_entity_legal_name_slot_2
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_USCGC1:
+    role: authorisation.reference_entity_tax_id_slot_1
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_USCGC2:
+    role: authorisation.reference_entity_tax_id_slot_2
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2001
+    - 2004
+  UDI_USMN1:
+    role: authorisation.reference_entity_municipality_slot_1
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_USMN2:
+    role: authorisation.reference_entity_municipality_slot_2
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2004
+  UDI_USRZ1:
+    role: authorisation.reference_entity_legal_name_slot_1
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.
+  UDI_USRZ2:
+    role: authorisation.reference_entity_legal_name_slot_2
+    kind: identifier
+    model: excluded
+    years:
+    - 2001
+    - 2004
+    note: A person's or unit's name, passed through unchanged.

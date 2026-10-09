@@ -1,0 +1,72 @@
+dataset: SIHSUS-CH
+record: facility
+columns:
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2019
+    - 2026
+    note: role from SIH-RD
+  CMPT:
+    role: facility.snapshot_competence
+    kind: date
+    model: when
+    name: Reference period of the hospital-registry snapshot
+    years:
+    - 2019
+    - 2026
+    note: YYYYMM of the registry snapshot.
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2019
+    - 2026
+    note: role from SIH-RD
+  CNPJ_MANT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    name: CNPJ da mantenedora
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2019
+    - 2026
+    note: role from SIH-RD
+  MUNIC_LOC:
+    role: facility.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Municipality where the establishment is located
+    years:
+    - 2019
+    - 2026
+  NOMEFANT:
+    role: facility.trade_name
+    kind: text
+    model: excluded
+    name: Establishment trade name
+    years:
+    - 2019
+    - 2026
+  RAZAO:
+    role: facility.legal_name
+    kind: text
+    model: excluded
+    name: Establishment legal name (razão social)
+    years:
+    - 2019
+    - 2026

@@ -1,0 +1,968 @@
+dataset: SIHSUS-RJ
+record: admission
+columns:
+  ANO_CMPT:
+    role: admission.processing_year
+    kind: date
+    model: when
+    name: Ano de processamento da AIH
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CAR_INT:
+    missing: []
+    role: admission.admission_character
+    kind: category
+    model: mark
+    name: Caráter da internação
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CBOR:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação do paciente (CBO)
+    codelists:
+    - CBO2002
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CEP:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: CEP do paciente
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CID_ASSO:
+    role: admission.associated_cause
+    kind: code_tree
+    model: mark
+    name: CID causa associada
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CID_MORTE:
+    role: admission.death_cause
+    kind: code_tree
+    model: mark
+    name: CID da morte
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CID_NOTIF:
+    role: admission.notifiable_condition
+    kind: code_tree
+    model: mark
+    name: CID de Notificação
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CNAER:
+    missing: []
+    role: admission.work_accident_code
+    kind: category
+    model: mark
+    name: Código de acidente de trabalho
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CNPJ_MANT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    name: CNPJ da mantenedora
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  COBRANCA:
+    missing: []
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    name: Motivo de Saída/Permanência
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  COD_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    name: Unidade de medida da idade
+    codelists:
+    - IDADEDET
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  COMPLEX:
+    missing: []
+    role: admission.complexity
+    kind: category
+    model: mark
+    name: Complexidade
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  CONTRACEP1:
+    missing: []
+    role: admission.contraceptive_1
+    kind: category
+    model: mark
+    name: Tipo de contraceptivo utilizado
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CONTRACEP2:
+    missing: []
+    role: admission.contraceptive_2
+    kind: category
+    model: mark
+    name: Segundo tipo de contraceptivo
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  CPF_AUT:
+    role: admission.authorizer_cpf
+    kind: identifier
+    model: link_only
+    name: CPF do autorizador
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DIAG_PRINC:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    also:
+    - admission.diagnoses
+    name: Código do diagnóstico principal
+    codelists:
+    - ICD10
+    - CID9_01
+    - CID9_02
+    - CID9_03
+    - CID9_04
+    - CID9_05
+    - CID9_06
+    - CID9_07
+    - CID9_08
+    - CID9_09
+    - CID9_10
+    - CID9_11
+    - CID9_12
+    - CID9_13
+    - CID9_14
+    - CID9_15
+    - CID9_16
+    - CID9_17
+    - CID9_SUP
+    - CID9XINV
+    - S_CID
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DIAG_SECUN:
+    role: admission.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    name: Código do diagnóstico secundário
+    codelists:
+    - ICD10
+    - CID9_01
+    - CID9_02
+    - CID9_03
+    - CID9_04
+    - CID9_05
+    - CID9_06
+    - CID9_07
+    - CID9_08
+    - CID9_09
+    - CID9_10
+    - CID9_11
+    - CID9_12
+    - CID9_13
+    - CID9_14
+    - CID9_15
+    - CID9_16
+    - CID9_17
+    - CID9_SUP
+    - CID9XINV
+    - S_CID
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DIAR_ACOM:
+    missing: []
+    role: admission.companion_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias de acompanhante
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DIAS_PERM:
+    missing: []
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    name: Dias de Permanência
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DT_INTER:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data de internação
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  ESPEC:
+    missing: []
+    role: admission.bed_specialty
+    kind: category
+    model: mark
+    name: Especialidade do Leito
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  ETNIA:
+    missing:
+    - '0000'
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia do paciente
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  FAEC_TP:
+    missing: []
+    role: admission.faec_subtype
+    kind: category
+    model: mark
+    name: Subtipo de financiamento FAEC
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  FINANC:
+    missing: []
+    role: admission.funding_type
+    kind: category
+    model: mark
+    name: Tipo de financiamento
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  FONTE_ORC:
+    role: admission.budget_source
+    kind: category
+    model: mark
+    name: Fonte Orçamentária
+    codelists:
+    - FONTEREM
+    years:
+    - 2025
+    - 2026
+    note: role from SIH-RD
+  GESTAO:
+    missing: []
+    role: admission.management_type
+    kind: category
+    model: mark
+    name: Gestão
+    codelists:
+    - GESTAO
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  GESTOR_COD:
+    missing: []
+    role: admission.manager_override
+    kind: category
+    model: mark
+    name: Motivo de autorização da AIH pelo Gestor
+    codelists:
+    - LIBGESTOR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  GESTOR_CPF:
+    role: admission.manager_cpf
+    kind: identifier
+    model: link_only
+    name: Número do CPF do Gestor
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  GESTOR_DT:
+    role: admission.manager_authorisation_date
+    kind: date
+    model: mark
+    name: Data da autorização dada pelo Gestor
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  GESTOR_TP:
+    missing: []
+    role: admission.manager_authorisation
+    kind: category
+    model: mark
+    name: Tipo de gestor
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  GESTRISCO:
+    missing: []
+    role: pregnancy.high_risk
+    kind: category
+    model: mark
+    name: Indicador se é gestante de risco
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  HOMONIMO:
+    role: patient.homonym_flag
+    kind: category
+    model: link_only
+    name: Indicador de homônimo
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  IDADE:
+    role: patient.age
+    measure: false
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  IDENT:
+    missing: []
+    role: admission.aih_type
+    kind: category
+    model: mark
+    name: Identificação do tipo da AIH
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  IND_VDRL:
+    missing: []
+    role: admission.vdrl_test
+    kind: category
+    model: mark
+    name: Indica exame VDRL
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  INFEHOSP:
+    role: admission.hospital_infection
+    kind: category
+    model: mark
+    name: Status de infecção hospitalar
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  INSC_PN:
+    role: pregnancy.prenatal_registration
+    kind: identifier
+    model: link_only
+    name: Número da gestante no pré-natal
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  INSTRU:
+    missing: []
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Grau de instrução do paciente
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  MARCA_UTI:
+    missing: []
+    role: admission.icu_type
+    kind: category
+    model: mark
+    name: Tipo de UTI utilizada
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  MES_CMPT:
+    role: admission.processing_month
+    kind: date
+    model: when
+    name: Mês processamento
+    codelists:
+    - MESES
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  MORTE:
+    missing: []
+    role: admission.death
+    kind: category
+    model: mark
+    name: Indica Óbito
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  MUNIC_MOV:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    name: Município do Estabelecimento
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  MUNIC_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência do Paciente
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  NACIONAL:
+    missing: []
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Código da nacionalidade do paciente
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento do paciente
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  NATUREZA:
+    missing:
+    - '00'
+    role: facility.legal_nature_old
+    kind: category
+    model: mark
+    name: Natureza jurídica do hospital
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  NAT_JUR:
+    missing: []
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Natureza jurídica do Estabelecimento
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  NUM_FILHOS:
+    missing: []
+    role: patient.children_count
+    kind: number
+    model: mark
+    name: Número de filhos do paciente
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  NUM_PROC:
+    role: admission.process_number
+    kind: identifier
+    model: excluded
+    name: Número do processo
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  N_AIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  PROC_REA:
+    role: admission.procedure
+    kind: code_tree
+    model: event_type
+    name: Procedimento realizado
+    codelists:
+    - SIGTAP
+    - TPROC
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  PROC_SOLIC:
+    role: admission.requested_procedure
+    kind: code_tree
+    model: mark
+    name: Procedimento solicitado
+    codelists:
+    - SIGTAP
+    - TPROC
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  QT_DIARIAS:
+    missing: []
+    role: admission.billed_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor do paciente
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  REGCT:
+    missing: []
+    role: admission.contract_rule
+    kind: category
+    model: mark
+    name: Regra contratual
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  REMESSA:
+    role: admission.batch_number
+    kind: identifier
+    model: excluded
+    name: Número da remessa
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  RUBRICA:
+    role: admission.budget_line
+    kind: category
+    model: mark
+    name: Rubrica
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  SEQUENCIA:
+    role: admission.batch_sequence
+    kind: identifier
+    model: excluded
+    name: Sequencial da AIH na remessa
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  SEQ_AIH5:
+    role: admission.long_stay_sequence
+    kind: identifier
+    model: link_only
+    name: Sequencial de longa permanência
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  ST_BLOQ:
+    role: admission.block_status
+    kind: category
+    model: mark
+    name: Situação bloqueio
+    years:
+    - 2006
+    - 2026
+    codelists:
+    - SITBLOQUEIO
+  ST_MOT_BLO:
+    role: admission.block_reason
+    kind: category
+    model: mark
+    name: Motivo bloqueio
+    years:
+    - 2006
+    - 2026
+    codelists:
+    - MOTBLOQUEIO
+  ST_SITUAC:
+    role: admission.rejection_status
+    kind: category
+    model: mark
+    name: Situação rejeição
+    years:
+    - 2006
+    - 2026
+    codelists:
+    - SITREJEICAO
+  TOT_PT_SP:
+    measure: false
+    role: admission.professional_points
+    kind: number
+    model: mark
+    name: Total de pontos SP
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UF_ZI:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    name: Município Gestor
+    codelists:
+    - BR_MUNICGESTOR
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  US_TOT:
+    missing: []
+    role: admission.usd_total
+    kind: number
+    model: mark
+    name: Valor total, em dólar
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_INT_AL:
+    missing: []
+    role: admission.intermediate_days_discharge
+    kind: number
+    model: mark
+    name: UTI intermediária - alta
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_INT_AN:
+    missing: []
+    role: admission.intermediate_days_previous
+    kind: number
+    model: mark
+    name: UTI intermediária - anterior
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_INT_IN:
+    missing: []
+    role: admission.intermediate_days_start
+    kind: number
+    model: mark
+    name: UTI intermediária - início
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_INT_TO:
+    missing: []
+    role: admission.intermediate_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias em unidade intermediária
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_MES_AL:
+    missing: []
+    role: admission.icu_days_discharge
+    kind: number
+    model: mark
+    name: UTI mês - alta
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_MES_AN:
+    missing: []
+    role: admission.icu_days_previous
+    kind: number
+    model: mark
+    name: UTI mês - anterior
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_MES_IN:
+    missing: []
+    role: admission.icu_days_start
+    kind: number
+    model: mark
+    name: UTI mês - início
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  UTI_MES_TO:
+    missing: []
+    role: admission.icu_days_month
+    kind: number
+    model: mark
+    name: Quantidade de dias de UTI no mês
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_ACOMP:
+    missing: []
+    role: admission.value_companion
+    kind: number
+    model: mark
+    name: Valor acompanhante
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_OBSANG:
+    missing: []
+    role: admission.value_blood_observation
+    kind: number
+    model: mark
+    name: Valor observação sangue
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_ORTP:
+    missing: []
+    role: admission.value_orthotics
+    kind: number
+    model: mark
+    name: Valor órtese/prótese
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_PED1AC:
+    missing: []
+    role: admission.value_paediatric_companion
+    kind: number
+    model: mark
+    name: Valor pediátrico 1º acompanhante
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_RN:
+    missing: []
+    role: admission.value_newborn
+    kind: number
+    model: mark
+    name: Valor recém-nato
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_SADT:
+    missing: []
+    role: admission.value_sadt
+    kind: number
+    model: mark
+    name: Valor SADT
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_SADTSR:
+    missing: []
+    role: admission.value_sadt_unregistered
+    kind: number
+    model: mark
+    name: Valor SADT sem registro
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_SANGUE:
+    missing: []
+    role: admission.value_blood
+    kind: number
+    model: mark
+    name: Valor sangue
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_SH:
+    missing: []
+    role: admission.value_hospital_services
+    kind: number
+    model: mark
+    name: Valor de serviços hospitalares
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_SP:
+    missing: []
+    role: admission.value_professional_services
+    kind: number
+    model: mark
+    name: Valor de serviços profissionais
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_TOT:
+    missing: []
+    role: admission.value_total
+    kind: number
+    model: mark
+    name: Valor total da AIH
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_TRANSP:
+    missing: []
+    role: admission.value_transport
+    kind: number
+    model: mark
+    name: Valor transporte
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VAL_UTI:
+    missing: []
+    role: admission.value_icu
+    kind: number
+    model: mark
+    name: Valor de UTI
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD
+  VINCPREV:
+    missing: []
+    role: patient.social_security_link
+    kind: category
+    model: dimension
+    name: Vínculo com a Previdência
+    years:
+    - 2006
+    - 2026
+    note: role from SIH-RD

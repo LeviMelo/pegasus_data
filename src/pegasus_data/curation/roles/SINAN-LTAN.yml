@@ -5,13 +5,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2000
     - 2024
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_DT_INV:
     role: notification.investigation_date
     kind: date
@@ -31,16 +31,15 @@ columns:
     - 2000
     - 2025
   CLAS_TIPO_:
-    role: notification.clas_tipo_
-    kind: number
+    role: notification.clinical_type_classification
+    kind: category
     model: mark
-    review: draft
     name: Classificação do tipo clínico
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLA_TIPO_N:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Caso Novo', 2='Recidiva', 3='Transferência', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -82,16 +81,15 @@ columns:
     - 2000
     - 2025
   CLI_CUT_DI:
-    role: notification.cli_cut_di
-    kind: number
+    role: notification.cutaneous_lesion_clinical_description
+    kind: category
     model: mark
-    review: draft
     name: Lesão cutânea - descrição
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_MUCOSA:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -119,27 +117,25 @@ columns:
     - 2007
     - 2025
   CON_AUTO_M:
-    role: notification.con_auto_m
-    kind: number
+    role: notification.autochthonous_in_municipality_flag
+    kind: category
     model: mark
-    review: draft
     name: Condição de autoctonia no município
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_AUTO_U:
-    role: notification.con_auto_u
-    kind: number
+    role: notification.autochthonous_to_state_uf_flag
+    kind: category
     model: mark
-    review: draft
     name: Caso autóctone da UF
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_CLASSI:
     role: case.classification
     kind: category
@@ -167,16 +163,15 @@ columns:
     - 2000
     - 2006
   CON_DOENCA:
-    role: notification.con_doenca
-    kind: number
+    role: notification.final_diagnosed_disease_legacy
+    kind: category
     model: mark
-    review: draft
     name: Doença (bloco de conclusão legado)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DT_ENC:
     role: notification.closing_date
     kind: date
@@ -202,16 +197,15 @@ columns:
     - 2000
     - 2006
   CON_IMPORT:
-    role: notification.con_import
-    kind: number
+    role: notification.imported_case
+    kind: category
     model: mark
-    review: draft
     name: Caso importado
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_MUNICI:
     role: case.infection_municipality
     kind: place
@@ -509,203 +503,186 @@ columns:
     - 2007
     - 2025
   ENTO_ANIMA:
-    role: notification.ento_anima
-    kind: number
+    role: notification.animal_reservoirs_present_entomological_survey
+    kind: category
     model: mark
-    review: draft
     name: Investigação entomológica - presença de animais
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_CAO:
-    role: notification.ento_cao
-    kind: number
+    role: notification.dog_present_at_entomological_investigation_site_flag
+    kind: category
     model: mark
-    review: draft
     name: Presença de cão no local de investigação entomológica
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_CAPTU:
-    role: notification.ento_captu
-    kind: number
-    model: mark
-    review: draft
+    role: notification.entomological_capture_description
+    kind: text
+    model: excluded
     name: Captura entomológica
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EQUIN:
-    role: notification.ento_equin
-    kind: number
+    role: notification.horses_present_near_residence_entomological_finding
+    kind: category
     model: mark
-    review: draft
     name: Presença de equinos
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXIST:
-    role: notification.ento_exist
-    kind: number
+    role: notification.vector_presence_confirmed_entomological_survey
+    kind: category
     model: mark
-    review: draft
     name: Investigação entomológica - existência de vetor
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXI_1:
-    role: notification.ento_exi_1
-    kind: number
+    role: notification.entomological_investigation_finding_1
+    kind: category
     model: mark
-    review: draft
     name: Pesquisa entomológica - item 1
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXI_2:
-    role: notification.ento_exi_2
-    kind: number
+    role: notification.entomological_finding_2
+    kind: category
     model: mark
-    review: draft
     name: Exame entomológico 2
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXI_3:
-    role: notification.ento_exi_3
-    kind: number
+    role: notification.presence_of_a_third_checklist_item_entomological_survey
+    kind: category
     model: mark
-    review: draft
     name: Existência de [item 3] no peridomicílio
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXI_4:
-    role: notification.ento_exi_4
-    kind: number
+    role: notification.vector_presence_category_4
+    kind: category
     model: mark
-    review: draft
     name: Investigação entomológica - existência (categoria 4)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_EXTRA:
-    role: notification.ento_extra
-    kind: number
+    role: notification.vector_found_in_extradomestic_setting_flag
+    kind: category
     model: mark
-    review: draft
     name: Vetor encontrado em ambiente extradomiciliar
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_FLEBO:
-    role: notification.ento_flebo
-    kind: number
+    role: notification.sandflies_captured
+    kind: category
     model: mark
-    review: draft
     name: Flebotomíneos capturados
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_INSET:
-    role: notification.ento_inset
-    kind: number
+    role: notification.sandfly_vector_insects_found_entomological_finding
+    kind: category
     model: mark
-    review: draft
     name: Presença de insetos vetores
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_INTRA:
-    role: notification.ento_intra
-    kind: number
+    role: notification.vector_found_inside_the_home
+    kind: category
     model: mark
-    review: draft
     name: Investigação entomológica - vetor intradomiciliar
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_LOCAL:
-    role: notification.ento_local
-    kind: number
+    role: notification.site_of_entomological_investigation
+    kind: category
     model: mark
-    review: draft
     name: Local da pesquisa entomológica
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_OUTRO:
-    role: notification.ento_outro
-    kind: number
+    role: notification.other_vector_captured
+    kind: category
     model: mark
-    review: draft
     name: Outro vetor capturado
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_PERID:
-    role: notification.ento_perid
-    kind: number
+    role: notification.peridomestic_area_investigated_flag
+    kind: category
     model: mark
-    review: draft
     name: Investigação peridomiciliar
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ENTO_PROXI:
-    role: notification.ento_proxi
+    role: notification.entomological_distance_legacy
     kind: number
     model: mark
-    review: draft
     name: Investigação entomológica - vetor próximo ao domicílio
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: 'Values 100, 50, 200, 10: a distance (likely metres), not a flag. 2000-2006 SINAN Windows layout: no dictionary
+      for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the
+      variable note (the name); kind from the values; codes undecoded.'
   ENTO_TRANS:
-    role: notification.ento_trans
-    kind: number
+    role: notification.transmission_setting_classification
+    kind: category
     model: mark
-    review: draft
     name: Classificação da transmissão
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   EVOLUCAO:
     missing: ['0', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Alta por cura', 2='Abandono', 3='Óbito por LTA', 4='Óbito por outras causas', 5='Transferência', 6='Mudança de diagnóstico'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['6']
@@ -748,27 +725,25 @@ columns:
     - 2007
     - 2025
   ID_DG_NOT:
-    role: notification.id_dg_not
-    kind: number
+    role: notification.notification_record_control_code
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.id_ev_not
-    kind: number
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -1118,16 +1093,15 @@ columns:
     - 2000
     - 2025
   TRA_OUTRA_:
-    role: notification.tra_outra_
-    kind: number
+    role: notification.other_drug_used_in_treatment_flag
+    kind: category
     model: mark
-    review: draft
     name: Tratamento com outra droga
     years:
     - 2000
     - 2006
-    note: "2000-2006 layout: no dictionary of it is harvested, and the variable note borrows another form's reading;
-      left a draft until a source for this layout is found (2026-10-08)."
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TRA_OUTR_N:
     missing: ['0', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Anfotericina B', 2='Pentamidina', 3='Outros', 4='Não se aplica'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'

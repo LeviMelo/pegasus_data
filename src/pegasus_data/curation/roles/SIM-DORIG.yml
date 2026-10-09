@@ -1,0 +1,539 @@
+dataset: SIM-DORIG
+record: death
+columns:
+  ACIDTRAB:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.work_related
+    kind: category
+    model: mark
+    name: Acidente do trabalho
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  AREARES:
+    role: deceased.residence_area_local
+    kind: category
+    model: excluded
+    name: Área de residência
+    years:
+    - 1995
+    - 1995
+    note: A sub-area code each state or municipality assigned (1979-1995); no national codelist.
+  ASSISTMED:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.medical_care
+    kind: category
+    model: mark
+    name: Recebeu assistência médica
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  ATESTANTE:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: certifier.condition
+    kind: category
+    model: mark
+    name: Condição do médico atestante
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  BAIRES:
+    role: deceased.residence_neighbourhood_local
+    kind: category
+    model: excluded
+    name: Bairro de residência
+    years:
+    - 1995
+    - 1995
+    note: A neighbourhood code each state or municipality assigned (1979-1995); no national codelist.
+  CARTORIO:
+    role: death.registry_office
+    kind: identifier
+    model: excluded
+    name: Cartório
+    years:
+    - 1995
+    - 1995
+  CAUSABAS:
+    role: death.cause
+    kind: code_tree
+    model: event_type
+    codelists:
+    - CID9WHO
+    name: Causa básica do óbito
+    years:
+    - 1995
+    - 1995
+    note: '1979-1995: ICD-9 (four characters, X filling the fourth).'
+  CIRURGIA:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.surgery
+    kind: category
+    model: mark
+    name: Realização de cirurgia
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  CODIGO:
+    role: death.facility_local_code
+    kind: identifier
+    model: excluded
+    name: Código do estabelecimento de ocorrência
+    years:
+    - 1995
+    - 1995
+  CONTADOR:
+    role: death.counter
+    kind: identifier
+    model: excluded
+    name: Contador
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  CRITICA:
+    role: death.edit_flag
+    kind: category
+    model: excluded
+    name: Crítica
+    years:
+    - 1995
+    - 1995
+  CRSOCOR:
+    role: death.health_region_local
+    kind: category
+    model: excluded
+    name: CRS de ocorrência
+    years:
+    - 1995
+    - 1995
+  CRSRES:
+    role: deceased.residence_health_region_local
+    kind: category
+    model: excluded
+    name: CRS de residência
+    years:
+    - 1995
+    - 1995
+  DATANASC:
+    role: deceased.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 1995
+    - 1995
+    note: '1979-1995 layout: DDMMAAAA, some values a bare year (1945); 00000000 marks no date.'
+  DATAOBITO:
+    role: death.date
+    kind: date
+    model: when
+    name: Data do óbito
+    years:
+    - 1995
+    - 1995
+  DATAREG:
+    role: death.receipt_date
+    kind: date
+    model: mark
+    name: Data de registro
+    years:
+    - 1995
+    - 1995
+    note: 'Measured 1995 RR: six digits AAMMDD (950108), not the DDMMAAAA the layout prints.'
+  ESTCIVIL:
+    role: deceased.marital_status_legacy
+    kind: category
+    model: mark
+    name: Estado civil
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - ESTCIV
+  ETNIA:
+    role: deceased.indigenous_ethnicity
+    kind: category
+    model: mark
+    name: Código para etnia indígena
+    years:
+    - 1995
+    - 1995
+  EXAME:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.exam_performed
+    kind: category
+    model: mark
+    name: Realização de exame
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  FILHMORT:
+    role: pregnancy.previous_children_dead_legacy
+    kind: category
+    model: mark
+    name: Filhos mortos
+    years:
+    - 1995
+    - 1995
+    note: 'Same coding as FILHVIVOS: 0 ignored, XX none.'
+  FILHVIVOS:
+    role: pregnancy.previous_live_births_legacy
+    kind: category
+    model: mark
+    name: Filhos vivos
+    years:
+    - 1995
+    - 1995
+    note: 0 means ignored and XX means none (the variable note); a count only once those codes are declared.
+  FONTINFO:
+    role: death.information_source_legacy
+    kind: category
+    model: mark
+    name: Fonte da informação
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - FONTINFO
+  IDADE:
+    role: deceased.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    codelists:
+    - IDADE
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  IDADEMAE:
+    missing: []
+    domain:
+    - 1
+    - 99
+    role: mother.age
+    kind: number
+    model: mark
+    also:
+    - death.maternal_age
+    name: Idade da mãe
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  INSTRMAE:
+    role: mother.education_legacy
+    kind: category
+    model: mark
+    name: Instrução da mãe
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - INSTRUC
+  INSTRPAI:
+    role: father.education_legacy
+    kind: category
+    model: mark
+    name: Instrução do pai
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - INSTRUC
+  INSTRUCAO:
+    role: deceased.education_legacy
+    kind: category
+    model: dimension
+    name: Instrução
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - INSTRUC
+  LOCACID:
+    role: death.accident_place_legacy
+    kind: category
+    model: mark
+    name: Local do acidente
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - LOCACID
+  LOCOCOR:
+    missing:
+    - '0'
+    - '7'
+    - '8'
+    - '9'
+    role: death.place
+    kind: category
+    model: mark
+    name: Local de ocorrência do óbito
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  MUNIOCOR:
+    role: death.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de ocorrência
+    years:
+    - 1995
+    - 1995
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
+  MUNIRES:
+    role: deceased.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de residência
+    years:
+    - 1995
+    - 1995
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
+  NATURAL:
+    role: deceased.birth_place
+    kind: place
+    model: dimension
+    name: Naturalidade
+    codelists:
+    - NATURALIDADE
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  NECROPSIA:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.autopsy
+    kind: category
+    model: mark
+    name: Necrópsia
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  NUMEXPORT:
+    role: death.export_batch
+    kind: identifier
+    model: excluded
+    name: Número de exportação
+    years:
+    - 1995
+    - 1995
+  OBITOFE1:
+    role: deceased.pregnant_at_death_legacy
+    kind: category
+    model: mark
+    name: Óbito e gravidez (no momento)
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - OBITOFE1
+  OBITOFE2:
+    role: deceased.pregnant_within_12_months_legacy
+    kind: category
+    model: mark
+    name: Óbito e gravidez (12 meses antes)
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - OBITOFE2
+  OCUPACAO:
+    role: deceased.occupation_legacy
+    kind: code_tree
+    model: mark
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
+    name: Ocupação
+    years:
+    - 1995
+    - 1995
+    note: Pre-2002 CBO, three digits; not CBO-2002.
+  OCUPMAE:
+    role: mother.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação habitual da mãe
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  OCUPPAI:
+    role: father.occupation_legacy
+    kind: code_tree
+    model: mark
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
+    name: Ocupação do pai
+    years:
+    - 1995
+    - 1995
+  PESONASC:
+    role: birth.weight
+    kind: number
+    model: mark
+    name: Peso ao nascer
+    years:
+    - 1995
+    - 1995
+    note: Grams, the same quantity as PESO from 1996.
+  RACACOR:
+    role: deceased.race
+    kind: category
+    model: stratum
+    name: Raça Cor
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  REGISTRO:
+    role: death.registry_number
+    kind: identifier
+    model: excluded
+    name: Registro
+    years:
+    - 1995
+    - 1995
+  SEMANGEST:
+    role: pregnancy.gestation_band_legacy
+    kind: category
+    model: mark
+    name: Semanas de gestação
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - SEMANAS
+  SEXO:
+    role: deceased.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  TIPOACID:
+    role: death.accident_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de acidente
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - TIPOACID
+  TIPOBITO:
+    role: death.kind
+    kind: category
+    model: event_type
+    name: Tipo do óbito
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO
+  TIPOGRAV:
+    role: birth.plurality_legacy
+    kind: category
+    model: mark
+    name: Tipo de gravidez
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - GRAVIDEZ
+  TIPOPARTO:
+    role: birth.delivery_legacy
+    kind: category
+    model: mark
+    name: Tipo de parto
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - PARTO
+  TIPOVIOL:
+    role: death.violence_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de violência
+    years:
+    - 1995
+    - 1995
+    codelists:
+    - TIPOVIOL
+  UFINFORM:
+    role: death.reporting_state
+    kind: place
+    model: excluded
+    name: UF informante
+    codelists:
+    - UF_BR
+    years:
+    - 1995
+    - 1995
+    note: role from SIM-DO

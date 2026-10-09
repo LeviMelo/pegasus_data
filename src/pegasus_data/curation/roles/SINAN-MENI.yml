@@ -5,13 +5,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
     years:
     - 2007
     - 2026
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_AC:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -585,15 +585,15 @@ columns:
     - 2007
     - 2026
   CS_MENING:
-    role: case.meningitis_subtype
+    role: case.meningitis_classification
     kind: category
     model: mark
-    review: draft
     name: Classificação da meningite
     years:
     - 2007
     - 2026
-    note: 'Meaning inferred (curation source: inferred): a single-character subtype code; its codes are unknown.'
+    note: "Meaning inferred (curation source: inferred): a single-character subtype code; its codes are unknown.
+      Not printed by the form's dictionary; meaning read from the variable note, kind from the values."
   CS_RACA:
     role: patient.race
     kind: category

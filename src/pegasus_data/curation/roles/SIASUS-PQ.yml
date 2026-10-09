@@ -1,0 +1,185 @@
+dataset: SIASUS-PQ
+record: procedure
+columns:
+  PAQ_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: Código de Endereçamento Postal do logradouro do paciente
+    years:
+    - 2001
+    - 2007
+  PAQ_CODUNI:
+    role: authorisation.executing_establishment_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    name: UPS Código (per-state lookup)
+    years:
+    - 2001
+    - 2007
+  PAQ_CONDIC:
+    role: authorisation.management_type_code
+    kind: category
+    model: mark
+    name: Tipo de Gestão
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - TPGESTAO
+    - TPGEST_C
+  PAQ_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    name: Número de registro do paciente no Cadastro de Pessoas Físicas (CPF)
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  PAQ_DATREF:
+    role: authorisation.care_reference_month_year
+    kind: category
+    model: mark
+    name: Mês/Ano Atendimento
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - MA_99_03
+    - ANO99_03
+    - AM_0803
+    - AM2C0803
+    - ANO_0803
+  PAQ_DIAGPR:
+    role: authorisation.primary_icd_code
+    kind: code_tree
+    model: mark
+    codelists:
+    - CID
+    name: CID Principal
+    years:
+    - 2001
+    - 2007
+  PAQ_DIAGSE:
+    role: authorisation.tumour_morphology_cid_o
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_DTDIAG:
+    role: authorisation.diagnosis_date_year_month
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_DTTRA1:
+    role: authorisation.previous_treatment_1_year_month
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_DTTRA2:
+    role: authorisation.previous_treatment_2_year_month
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_DTTRA3:
+    role: authorisation.previous_treatment_3_year_month
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_ESTAD:
+    role: authorisation.tumour_state
+    kind: category
+    model: mark
+    name: Estado do Tumor
+    years:
+    - 2001
+    - 2007
+  PAQ_GESTAO:
+    role: authorisation.managing_uf_municipality_ibge_code
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Gestor - BR
+    years:
+    - 2001
+    - 2007
+  PAQ_INITRA:
+    role: authorisation.treatment_start_year_month
+    kind: date
+    model: when
+    name: Data de Início do Tratamento (AAAAMM)
+    years:
+    - 2001
+    - 2007
+  PAQ_MEPREV:
+    role: authorisation.planned_months_of_chemotherapy
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_METAST:
+    role: authorisation.metastasis_s_n
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAQ_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência do paciente
+    years:
+    - 2001
+    - 2007
+  PAQ_NASCPC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento do paciente (AAAAMMDD)
+    years:
+    - 2001
+    - 2007
+  PAQ_NUM:
+    role: authorisation.apac_number
+    kind: identifier
+    model: link_only
+    name: Número da APAC
+    years:
+    - 2001
+    - 2007
+  PAQ_SEXOPC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - SEXO
+  PAQ_UFNASC:
+    role: patient.birth_state
+    kind: category
+    model: mark
+    name: Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade
+    years:
+    - 2001
+    - 2007

@@ -137,8 +137,8 @@ columns:
     role: admission.record_type
     kind: category
     model: excluded
-    review: draft
-    note: Meaning of 1 vs 2 is unexplained in curation; record-type marker, not confirmed.
+    note: 'Reviewed: a file-layout code, administrative. Meaning of 1 vs 2 is unexplained in curation; record-type
+      marker, not confirmed.'
     name: Reduced-AIH record-type code
     years:
     - 1992
@@ -158,8 +158,8 @@ columns:
     role: admission.segment_code
     kind: category
     model: excluded
-    review: draft
-    note: Curation only conjectures a batch/segment identifier (2005-2006 only); meaning unknown.
+    note: 'Reviewed: a file-segment code, administrative. Curation only conjectures a batch/segment identifier (2005-2006
+      only); meaning unknown.'
     name: Segment/batch code (RD, 2005-2006 vintage only)
     years:
     - 2004

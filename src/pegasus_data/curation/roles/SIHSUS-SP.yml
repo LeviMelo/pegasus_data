@@ -1,0 +1,368 @@
+dataset: SIHSUS-SP
+record: act
+columns:
+  FONTE_ORC:
+    role: admission.budget_source
+    kind: category
+    model: mark
+    name: Fonte Orçamentária
+    codelists:
+    - FONTEREM
+    years:
+    - 2025
+    - 2026
+    note: role from SIH-RD
+  IN_TP_VAL:
+    role: act.value_type
+    kind: category
+    model: mark
+    name: Tipo de valor
+    years:
+    - 2008
+    - 2026
+  REMESSA:
+    role: admission.batch_number
+    kind: identifier
+    model: excluded
+    name: Número da remessa
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  SEQUENCIA:
+    role: admission.batch_sequence
+    kind: identifier
+    model: excluded
+    name: Sequencial da AIH na remessa
+    years:
+    - 2008
+    - 2026
+    note: role from SIH-RD
+  SERV_CLA:
+    role: act.service_classification
+    kind: category
+    model: mark
+    name: Serviço/Classificação
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - S_CLASSEN
+  SP_AA:
+    role: admission.processing_year
+    kind: date
+    model: when
+    name: Ano da internação
+    years:
+    - 1997
+    - 2026
+    note: Year of the AIH's competence on each act row.
+  SP_ATOPROF:
+    role: act.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    - TPROC
+    name: Procedimento referente ao ato profissional
+    years:
+    - 1997
+    - 2026
+  SP_CGCHOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: Hospital BR(CNPJ)
+    years:
+    - 1997
+    - 2006
+  SP_CIDPRI:
+    role: admission.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal
+    years:
+    - 2008
+    - 2026
+    note: The AIH's principal diagnosis, repeated on each act row.
+  SP_CIDSEC:
+    role: admission.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Secundário
+    years:
+    - 2008
+    - 2026
+  SP_CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do CNES do Estabelecimento executante
+    years:
+    - 2006
+    - 2026
+  SP_COMPLEX:
+    role: act.complexity
+    kind: category
+    model: mark
+    name: Complexidade do ato profissional
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - COMPLEX2
+  SP_CO_FAEC:
+    role: act.faec_subtype
+    kind: category
+    model: mark
+    name: Tipo e subtipo de financiamento FAEC
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TP_FINAN
+  SP_CPFCGC:
+    role: act.provider_document
+    kind: identifier
+    model: link_only
+    name: CNES, CPF ou CNPJ do prestador
+    years:
+    - 1997
+    - 2026
+    note: A CNES, CPF or CNPJ by its width; a CPF is a direct personal identifier and passes through 
+      unchanged.
+  SP_DES_HOS:
+    role: admission.cross_state_facility
+    kind: category
+    model: mark
+    name: Indica UF de residência diferente
+    years:
+    - 2008
+    - 2026
+  SP_DES_PAC:
+    role: patient.cross_municipality
+    kind: category
+    model: mark
+    name: Indica UF de residência diferente
+    years:
+    - 2008
+    - 2026
+  SP_DTINTER:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data da internação
+    years:
+    - 1997
+    - 2026
+  SP_DTSAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 1997
+    - 2026
+  SP_FINANC:
+    role: act.funding_type
+    kind: category
+    model: mark
+    name: Tipo de financiamento do ato profissional
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - FINANC
+  SP_GESTOR:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    name: Gestor do estabelecimento
+    years:
+    - 2006
+    - 2026
+  SP_MM:
+    role: admission.processing_month
+    kind: date
+    model: when
+    codelists:
+    - MESES
+    name: Mês da internação
+    years:
+    - 1997
+    - 2026
+  SP_M_HOSP:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do Estabelecimento Executante
+    years:
+    - 2008
+    - 2026
+  SP_M_PAC:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de residência do paciente
+    years:
+    - 2008
+    - 2026
+  SP_NAIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 1997
+    - 2026
+  SP_NF:
+    role: act.invoice_or_date
+    kind: text
+    model: excluded
+    name: Nota fiscal do material empregado
+    years:
+    - 2006
+    - 2026
+    note: "An invoice number for orthoses and prostheses, otherwise the act's date (the variable note): two meanings
+      in one column."
+  SP_NUM_PR:
+    role: act.process_number
+    kind: identifier
+    model: excluded
+    name: Número do processo
+    years:
+    - 1997
+    - 2026
+    note: Zeroed from 2008.
+  SP_PF_CBO:
+    role: professional.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    name: Código de Ocupação Brasileira do profissional
+    years:
+    - 2008
+    - 2026
+  SP_PF_DOC:
+    role: professional.cns
+    kind: identifier
+    model: link_only
+    name: Documento de pessoa jurídica
+    years:
+    - 2008
+    - 2026
+    note: "The professional's CNS: 11,816 of 11,816 non-zero values pass the CNS check (2026-06 RR); the IT's description
+      is transposed (variable note). A direct personal identifier."
+  SP_PJ_DOC:
+    role: act.legal_person_document
+    kind: identifier
+    model: excluded
+    name: Documento de pessoa física
+    years:
+    - 2008
+    - 2026
+    note: The establishment's CNES zero-filled to 14 in the records (variable note).
+  SP_PROCREA:
+    role: admission.procedure
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    - TPROC
+    name: Procedimento principal realizado na AIH
+    years:
+    - 1997
+    - 2026
+  SP_PTSP:
+    role: act.points
+    kind: number
+    model: mark
+    name: Quantidade de pontos
+    years:
+    - 2006
+    - 2026
+  SP_PTSP_NF:
+    role: act.points_legacy
+    kind: number
+    model: mark
+    name: Professional-service points (1997 SP file)
+    years:
+    - 1997
+    - 2006
+  SP_QTD_ATO:
+    role: act.quantity
+    kind: number
+    model: mark
+    name: Quantidade de atos profissionais
+    years:
+    - 1997
+    - 2026
+  SP_QT_PROC:
+    role: act.procedures_performed
+    kind: number
+    model: mark
+    name: Quantidade de procedimentos realizados
+    years:
+    - 2008
+    - 2026
+  SP_TIPO:
+    role: act.type_legacy
+    kind: category
+    model: excluded
+    name: Tipo
+    years:
+    - 1997
+    - 2026
+    note: Zeroed from 2008.
+  SP_TP_ATO:
+    role: act.type
+    kind: category
+    model: mark
+    name: Tipo do ato
+    years:
+    - 1997
+    - 2026
+  SP_UF:
+    role: admission.state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Unidade da Federação
+    years:
+    - 1997
+    - 2026
+  SP_U_AIH:
+    role: act.unique_aih_marker
+    kind: category
+    model: mark
+    name: Indicador único da AIH
+    years:
+    - 2008
+    - 2026
+    note: '1 on exactly one row per AIH: the filter that turns act rows into admissions.'
+  SP_VALATO:
+    role: act.value
+    kind: number
+    model: mark
+    name: Valor do ato profissional
+    years:
+    - 1997
+    - 2026

@@ -1,0 +1,336 @@
+dataset: SIASUS-BI
+record: procedure
+columns:
+  AUTORIZ:
+    role: procedure.authorization_number
+    kind: number
+    model: mark
+    name: Número da APAC ou número de autorização do BPA-I
+    years:
+    - 2008
+    - 2026
+  CATEND:
+    role: procedure.type_of_care_episode
+    kind: category
+    model: mark
+    name: Carater de Atendimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - CARAT_AT
+  CBOPROF:
+    role: professional.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    name: Código da Ocupação do profissional na Classificação Brasileira de Ocupações
+    years:
+    - 2008
+    - 2026
+  CIDPRI:
+    role: procedure.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal
+    years:
+    - 2008
+    - 2026
+  CNPJCPF:
+    role: procedure.executing_establishments_cnpj_cpf
+    kind: identifier
+    model: excluded
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 2008
+    - 2026
+  CNPJMNT:
+    role: procedure.establishments_parent_organization_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da Mantenedora
+    years:
+    - 2008
+    - 2026
+  CNPJ_CC:
+    role: procedure.credit_cession_recipient_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ do Órgão que recebeu pela produção por cessão de crédito
+    years:
+    - 2008
+    - 2026
+  CNSPROF:
+    role: procedure.executing_professionals_cns
+    kind: identifier
+    model: excluded
+    name: Número do CNS (Cartão Nacional de Saúde) do profissional de saúde executante
+    years:
+    - 2008
+    - 2026
+  CNS_PAC:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Numero do CNS do paciente
+    years:
+    - 2008
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CODUNI:
+    role: procedure.cnes_establishment_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do Estabelecimento no CNES
+    years:
+    - 2008
+    - 2026
+  COMPLEX:
+    role: procedure.care_complexity
+    kind: category
+    model: mark
+    name: Complexidade
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - COMPLEX
+  CONDIC:
+    role: procedure.management_type_code
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestao
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TP_GESTAO
+    - TP_GEST_C
+  DTNASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 2008
+    - 2026
+  DT_ATEND:
+    role: procedure.care_month_competence
+    kind: date
+    model: when
+    name: Ano e mes do Atendimento
+    years:
+    - 2008
+    - 2026
+  DT_PROCESS:
+    role: procedure.processing_month
+    kind: date
+    model: when
+    name: Ano e mes de Processamento
+    years:
+    - 2008
+    - 2026
+  ETNIA:
+    role: procedure.indigenous_ethnicity
+    kind: category
+    model: mark
+    name: Etnia
+    years:
+    - 2008
+    - 2026
+  GESTAO:
+    role: procedure.managing_authority
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    name: Gestão
+    years:
+    - 2008
+    - 2026
+  IDADEPAC:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade do Paciente
+    years:
+    - 2008
+    - 2026
+  MNDIF:
+    role: procedure.patient_municipality_differs_from_facility_municipality
+    kind: category
+    model: mark
+    name: Indica se o município de residência do paciente é diferente do município de localização do 
+      estabelecimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INVASAO
+  MN_IND:
+    role: procedure.maintained_vs_individual_establishment_flag
+    kind: category
+    model: mark
+    name: Estabelecimento Mantido / Individual
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - MANT_IND
+  MUNPAC:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio de residencia do paciente
+    years:
+    - 2008
+    - 2026
+  NAT_JUR:
+    role: procedure.establishment_legal_nature_concla
+    kind: category
+    model: mark
+    name: Natureza jurídica
+    years:
+    - 2011
+    - 2026
+  PROC_ID:
+    role: procedure.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Código do Procedimento Ambulatorial
+    years:
+    - 2008
+    - 2026
+  QT_APRES:
+    role: procedure.quantity_presented_produced
+    kind: number
+    model: mark
+    name: Quantidade Produzida (APRESENTADA)
+    years:
+    - 2008
+    - 2026
+  QT_APROV:
+    role: procedure.quantity_approved
+    kind: number
+    model: mark
+    name: Quantidade Aprovada do procedimento
+    years:
+    - 2008
+    - 2026
+  RACACOR:
+    role: procedure.race_colour
+    kind: category
+    model: mark
+    name: Raça/Cor
+    years:
+    - 2008
+    - 2026
+  SEXOPAC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - SEXO
+  SUBFIN:
+    role: procedure.production_financing_subtype
+    kind: category
+    model: mark
+    name: Subtipo de Financiamento da produção
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - TP_FINAN
+  TIPPRE:
+    role: procedure.provider_type_code
+    kind: category
+    model: mark
+    name: Tipo de Prestador
+    years:
+    - 2008
+    - 2026
+  TPFIN:
+    role: procedure.production_financing_type
+    kind: category
+    model: mark
+    name: Tipo de Financiamento da produção
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - FINANC
+  TPIDADEPAC:
+    role: procedure.age_unit_code
+    kind: category
+    model: mark
+    name: Tipo da Idade do paciente
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - IDADEDET
+  TPUPS:
+    role: procedure.establishment_type_code
+    kind: institution
+    model: institution
+    codelists:
+    - TP_ESTAB
+    name: Tipo de Estabelecimento
+    years:
+    - 2008
+    - 2026
+  UFDIF:
+    role: procedure.patient_uf_differs_from_facility_uf
+    kind: category
+    model: mark
+    name: Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento
+    years:
+    - 2008
+    - 2026
+    codelists:
+    - INVASAO
+  UFMUN:
+    role: procedure.establishments_municipality_ibge_code
+    kind: place
+    model: mark
+    codelists:
+    - AC_MUNICIP
+    name: UF+Municipio do estabelecimento
+    years:
+    - 2008
+    - 2026
+  VL_APRES:
+    role: procedure.value_presented_produced
+    kind: number
+    model: mark
+    name: Valor Produzido (APRESENTADO)
+    years:
+    - 2008
+    - 2026
+  VL_APROV:
+    role: procedure.value_approved
+    kind: number
+    model: mark
+    name: Valor Aprovado do procedimento
+    years:
+    - 2008
+    - 2026

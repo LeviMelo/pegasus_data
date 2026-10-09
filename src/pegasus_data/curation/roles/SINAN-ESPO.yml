@@ -2,28 +2,27 @@ dataset: SINAN-ESPO
 record: notification
 columns:
   C_D:
-    role: notification.c_d
+    role: epizootic.dogs_sick
     kind: number
     model: mark
-    review: draft
-    name: Coordenada geográfica - graus
+    name: Número de cães doentes
     years:
     - 2013
     - 2022
+    note: Number of sick dogs, if notified (Dicionario_de_dados_Epizootias_Esporotricose).
   C_M:
-    role: notification.c_m
+    role: epizootic.dogs_dead
     kind: number
     model: mark
-    review: draft
-    name: Contato com mordedura
+    name: Número de cães mortos
     years:
     - 2013
     - 2022
+    note: Number of dead dogs, if notified (same dictionary).
   DS_OUT_AMB:
-    role: notification.ds_out_amb
-    kind: number
-    model: mark
-    review: draft
+    role: epizootic.other_setting_description
+    kind: text
+    model: excluded
     name: Se outro ambiente, especificar
     years:
     - 2013
@@ -37,10 +36,9 @@ columns:
     - 2013
     - 2022
   DT_INI_EPI:
-    role: notification.dt_ini_epi
+    role: epizootic.start
     kind: date
-    model: mark
-    review: draft
+    model: when
     name: Data do início da epizootia
     years:
     - 2013
@@ -55,32 +53,32 @@ columns:
     - 2022
     note: role from the notification block
   ESPECIE:
-    role: notification.especie
-    kind: number
-    model: mark
-    review: draft
-    name: Espécie do animal envolvido
+    role: epizootic.species
+    kind: category
+    model: dimension
+    name: Espécie reportada na notificação
     years:
     - 2013
     - 2022
+    note: 1 cat, 2 dog, 3 both (same dictionary).
   G_D:
-    role: notification.g_d
+    role: epizootic.cats_sick
     kind: number
     model: mark
-    review: draft
-    name: Gatos doentes no domicílio
+    name: Número de gatos doentes
     years:
     - 2013
     - 2022
+    note: Number of sick cats, if notified (same dictionary).
   G_M:
-    role: notification.g_m
+    role: epizootic.cats_dead
     kind: number
     model: mark
-    review: draft
-    name: Gatos (contagem/faixa)
+    name: Número de gatos mortos
     years:
     - 2013
     - 2022
+    note: Number of dead cats, if notified (same dictionary).
   ID_MUNICIP:
     role: notification.municipality
     kind: place
@@ -143,19 +141,17 @@ columns:
     - 2022
     note: role from the notification block
   TP_AMB_OCO:
-    role: notification.tp_amb_oco
+    role: epizootic.setting
     kind: category
     model: mark
-    review: draft
     name: Ambiente de ocorrência
     years:
     - 2013
     - 2022
   TP_ZN_OCO:
-    role: notification.tp_zn_oco
-    kind: number
+    role: epizootic.zone
+    kind: category
     model: mark
-    review: draft
     name: Zona
     years:
     - 2013

@@ -171,14 +171,14 @@ columns:
     - 2010
     - 2026
   NU_LOTE:
-    role: notification.nu_lote
+    role: notification.batch_number
     kind: identifier
-    model: link_only
-    review: draft
+    model: excluded
     name: Número do lote
     years:
     - 2010
     - 2026
+    note: A transmission batch number, administrative.
   NU_LOTE_H:
     role: notification.batch_horizontal
     kind: identifier

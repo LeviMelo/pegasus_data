@@ -414,7 +414,7 @@ datasets:
       reason and the CPF/CNS and names of patient, responsible and director
       (identifiers, flagged). Each monthly self-extracting archive
       (ACAC0201.EXE) holds this table and its sibling blocks, published here
-      as SIA.CO, SIA.EX, SIA.OP, SIA.PC, SIA.PF, SIA.PQ, SIA.UD and SIA.UO;
+      as SIA.CO, SIA.EX, SIA.OP, SIA.PC, SIA.PF, SIA.PQ, SIA.PR, SIA.UD and SIA.UO;
       all join on the APAC number (*_NUM) or the unit (*_CODUNI) (ADR-0077).
       2007 files are dBase 7.
     confidence: medium
@@ -426,9 +426,10 @@ datasets:
     translated_name: APAC 2001-2007, billed procedures
     what_it_is: >
       The procedures billed under each APAC of SIA.AC: procedure code,
-      specialty, quantity and value presented and approved (COB_*). From 2005
-      the archives carry only this block. Named from its columns; no layout
-      document found yet.
+      specialty, quantity and value presented and approved (COB_*), with the
+      credit-assignment CNPJ and invoice (COB_CGC, COB_NF; the layout's
+      PAP_CGC/PAP_NF, sources/apac_layout1.txt). From 2005 the archives carry
+      only this block.
     confidence: medium
     observed_as: [CO]
 
@@ -445,7 +446,7 @@ datasets:
 
   SIA.OP:
     system: SIA
-    official_name: APAC 2001-2007, bloco de paciente de outros procedimentos
+    official_name: APAC - Outras Patologias (2001-2007)
     translated_name: APAC 2001-2007, other high-complexity procedure patients
     what_it_is: >
       Patient block for APACs outside renal therapy and oncology: birth date,
@@ -467,12 +468,14 @@ datasets:
 
   SIA.PF:
     system: SIA
-    official_name: APAC 2001-2007, bloco de paciente (variante F)
-    translated_name: APAC 2001-2007, patient block, variant F
+    official_name: APAC - Pacientes Medicamentos (2001-2007)
+    translated_name: APAC 2001-2007, high-cost medicines patients
     what_it_is: >
-      Same layout as SIA.PC (PAF_*); which programme the F variant covers is
-      not documented in the files. Named from its columns.
-    confidence: low
+      Patient block of the APACs of high-cost medicines (PAF_*), in the layout of
+      SIA.PC. Named by its tabulation file "PF- APAC - Pacientes Medicamentos.def"
+      in TAB_SIA_199911-200307.zip and TAB_SIA_200308-200712.zip (SIASUS/200801_/Auxiliar); the medicines variable part is in sources/apac_layout1.txt
+      (tipo de atendimento 36).
+    confidence: high
     observed_as: [PF]
 
   SIA.PQ:
@@ -480,11 +483,28 @@ datasets:
     official_name: APAC 2001-2007, bloco de paciente oncológico
     translated_name: APAC 2001-2007, oncology patients
     what_it_is: >
-      Patient block of oncology APACs: diagnosis, metastasis, diagnosis date,
-      treatment dates, stage and previous treatment (PAQ_*). The pre-2008
-      counterpart of SIA.AQ and SIA.AR. Named from its columns.
-    confidence: medium
+      Patient block of chemotherapy APACs: diagnosis, morphology, metastasis,
+      diagnosis date, treatment start, previous treatments, tumour state and
+      planned months (PAQ_*). The pre-2008 counterpart of SIA.AQ. Named by its
+      tabulation file "PQ- APAC - Pacientes Quimioterapia.def" in TAB_SIA_199911-200307.zip and TAB_SIA_200308-200712.zip (SIASUS/200801_/Auxiliar); fields
+      from the 1999-2007 APAC layout (sources/apac_layout1.txt, QUIMIO).
+    confidence: high
     observed_as: [PQ]
+
+  SIA.PR:
+    system: SIA
+    official_name: APAC - Pacientes Radioterapia (2001-2007)
+    translated_name: APAC 2001-2007, radiotherapy patients
+    what_it_is: >
+      Patient block of radiotherapy APACs: diagnosis, morphology, metastasis,
+      purpose, diagnosis date, previous treatments, tumour state, irradiated
+      areas and fields (PAR_*). The pre-2008 counterpart of SIA.AR. Named by its
+      tabulation file "PR- APAC - Pacientes Radioterapia.def" in TAB_SIA_199911-200307.zip and TAB_SIA_200308-200712.zip (SIASUS/200801_/Auxiliar); fields
+      from the 1999-2007 APAC layout (sources/apac_layout1.txt, RADIOTERAPIA).
+      Declared 2026-10-08: it was in the catalog but not declared, so query()
+      refused it.
+    confidence: high
+    observed_as: [PR]
 
   SIA.UD:
     system: SIA

@@ -1,0 +1,682 @@
+dataset: SIHSUS-BASE_AIH1
+record: admission
+columns:
+  CO_ATIVIDADE_ENSINO:
+    role: facility.teaching_activity
+    kind: category
+    model: mark
+    name: Atividade de ensino
+    years:
+    - 
+    - 
+  CO_CARATER_ATEND:
+    role: admission.admission_character
+    kind: category
+    model: mark
+    name: Caráter da internação
+    years:
+    - 
+    - 
+  CO_COMPLEXIDADE:
+    role: admission.complexity
+    kind: category
+    model: mark
+    name: Complexidade
+    years:
+    - 
+    - 
+  CO_COR_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor do paciente
+    years:
+    - 
+    - 
+  CO_DIAG_EXTERNO:
+    role: admission.external_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    name: Causa externa (CID-10)
+    years:
+    - 
+    - 
+  CO_DIAG_OBITO:
+    role: admission.death_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID da morte
+    years:
+    - 
+    - 
+  CO_DIAG_PRINCIPAL:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    codelists:
+    - ICD10
+    - S_CID
+    name: Código do diagnóstico principal
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_1:
+    role: admission.secondary_diagnosis_1
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 1
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_2:
+    role: admission.secondary_diagnosis_2
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 2
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_3:
+    role: admission.secondary_diagnosis_3
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 3
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_4:
+    role: admission.secondary_diagnosis_4
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 4
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_5:
+    role: admission.secondary_diagnosis_5
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 5
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_6:
+    role: admission.secondary_diagnosis_6
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 6
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_7:
+    role: admission.secondary_diagnosis_7
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 7
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_8:
+    role: admission.secondary_diagnosis_8
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 8
+    years:
+    - 
+    - 
+  CO_DIAG_SECUNDARIO_9:
+    role: admission.secondary_diagnosis_9
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário 9
+    years:
+    - 
+    - 
+  CO_ESTABELECIMENTO:
+    role: admission.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 
+    - 
+  CO_FINANCIAMENTO:
+    role: admission.funding_type
+    kind: category
+    model: mark
+    name: Tipo de financiamento
+    years:
+    - 
+    - 
+  CO_FXETARIA:
+    role: patient.age_band
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+    note: Undocumented in the variable notes; the name reads age band (faixa etária). Its codes stay 
+      undecoded.
+  CO_GESTAO:
+    role: admission.management_type
+    kind: category
+    model: mark
+    name: Gestão
+    years:
+    - 
+    - 
+    codelists:
+    - GESTAO
+  CO_IDADE_SIH:
+    role: patient.age_coded
+    kind: category
+    model: mark
+    codelists:
+    - IDADEDET
+    name: Idade (unidade e valor)
+    years:
+    - 
+    - 
+    note: The unit digit of COD_IDADE followed by the two-digit IDADE (470 = seventy years).
+  CO_IDENTIFICACAO:
+    role: admission.aih_identification
+    kind: category
+    model: mark
+    name: Identificação da AIH
+    years:
+    - 
+    - 
+  CO_LEITO:
+    role: admission.bed_specialty
+    kind: category
+    model: mark
+    name: Especialidade do Leito
+    years:
+    - 
+    - 
+  CO_MANTENEDORA:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 
+    - 
+  CO_MOTIVO_SAIDA:
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    name: Motivo de Saída/Permanência
+    years:
+    - 
+    - 
+  CO_MUNICIPIO_ESTAB:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do Estabelecimento
+    years:
+    - 
+    - 
+  CO_MUNICIPIO_GESTOR:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município Gestor
+    years:
+    - 
+    - 
+  CO_MUNICIPIO_RESID:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de Residência do Paciente
+    years:
+    - 
+    - 
+  CO_NAT_JURIDICA:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Natureza jurídica do Estabelecimento
+    years:
+    - 
+    - 
+  CO_PROCEDIMENTO_REALIZ:
+    role: admission.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    - TPROC
+    name: Procedimento realizado
+    years:
+    - 
+    - 
+  CO_PROCEDIMENTO_SOLIC:
+    role: admission.requested_procedure
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    - TPROC
+    name: Procedimento solicitado
+    years:
+    - 
+    - 
+  CO_REGRA_CONTRAT:
+    role: admission.contract_rule
+    kind: category
+    model: mark
+    name: Regra contratual
+    years:
+    - 
+    - 
+  CO_RUBRICA:
+    role: admission.budget_line
+    kind: category
+    model: mark
+    name: Rubrica
+    years:
+    - 
+    - 
+  CO_SEXO_SIH:
+    role: patient.sex
+    kind: category
+    model: stratum
+    codelists:
+    - SEXO
+    name: Sexo do paciente
+    years:
+    - 
+    - 
+  CO_STATUS:
+    role: admission.aih_status
+    kind: category
+    model: mark
+    name: Situação da AIH
+    years:
+    - 
+    - 
+  CO_TIPO_AIH:
+    role: admission.aih_type
+    kind: category
+    model: mark
+    name: Identificação do tipo da AIH
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_1:
+    role: admission.secondary_diagnosis_type_1
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 1
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_2:
+    role: admission.secondary_diagnosis_type_2
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 2
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_3:
+    role: admission.secondary_diagnosis_type_3
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 3
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_4:
+    role: admission.secondary_diagnosis_type_4
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 4
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_5:
+    role: admission.secondary_diagnosis_type_5
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 5
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_6:
+    role: admission.secondary_diagnosis_type_6
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 6
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_7:
+    role: admission.secondary_diagnosis_type_7
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 7
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_8:
+    role: admission.secondary_diagnosis_type_8
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 8
+    years:
+    - 
+    - 
+  CO_TIPO_DIAG_9:
+    role: admission.secondary_diagnosis_type_9
+    kind: category
+    model: mark
+    codelists:
+    - TP_DIAGSEC
+    name: Tipo de diagnóstico secundário 9
+    years:
+    - 
+    - 
+  CO_TIPO_ESTAB:
+    role: facility.type
+    kind: category
+    model: mark
+    codelists:
+    - CURATED.SIHSUS.CO_TIPO_ESTAB
+    name: Tipo de estabelecimento
+    years:
+    - 
+    - 
+  CO_TIPO_UI:
+    role: admission.intermediate_unit_type
+    kind: category
+    model: mark
+    name: Tipo de UCI utilizada pelo paciente
+    years:
+    - 
+    - 
+  CO_TIPO_UTI:
+    role: admission.icu_type
+    kind: category
+    model: mark
+    name: Tipo de UTI utilizada
+    years:
+    - 
+    - 
+  DT_COMPET:
+    role: admission.processing_competence
+    kind: date
+    model: when
+    name: Competência (ano/mês de processamento)
+    years:
+    - 
+    - 
+    note: The competence (ANO_CMPT and MES_CMPT of RD) as one value; numeric in the DuckDB header.
+  DT_INTERNACAO:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data de internação
+    years:
+    - 
+    - 
+  DT_NASCIMENTO:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento do paciente
+    years:
+    - 
+    - 
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 
+    - 
+  FONTE_ORC:
+    role: admission.budget_source
+    kind: category
+    model: mark
+    name: Fonte Orçamentária
+    codelists:
+    - FONTEREM
+    years:
+    - 
+    - 
+    note: role from SIH-RD
+  IN_FILANTROPICO:
+    role: facility.philanthropic
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+    note: Undocumented in the variable notes; the name reads a philanthropic-entity flag (numeric in the 
+      header).
+  NU_AIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 
+    - 
+  NU_IDADE_ANOS:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 
+    - 
+  NU_SEQUENCIA_AIH_CONT:
+    role: admission.long_stay_sequence
+    kind: identifier
+    model: link_only
+    name: Sequencial de longa permanência
+    years:
+    - 
+    - 
+  QT_AIH:
+    role: admission.aih_count
+    kind: number
+    model: mark
+    name: Quantidade de AIH
+    years:
+    - 
+    - 
+    note: '1 on every row (the variable note): a count for aggregation.'
+  QT_DIARIAS:
+    missing: []
+    role: admission.billed_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias
+    years:
+    - 
+    - 
+    note: role from SIH-RD
+  QT_DIAS_ACOMP:
+    role: admission.companion_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias de acompanhante
+    years:
+    - 
+    - 
+  QT_DIAS_PERM:
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    name: Dias de Permanência
+    years:
+    - 
+    - 
+  QT_DIAS_UI:
+    role: admission.intermediate_days
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+    note: Undocumented in the variable notes; the name and CO_TIPO_UI read days in an intermediate-care unit.
+  QT_DIAS_UTI:
+    role: admission.icu_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias em unidade intermediária (per layout text)
+    years:
+    - 
+    - 
+  QT_INTERNACAO:
+    role: admission.admission_count
+    kind: number
+    model: mark
+    name: Quantidade de internações
+    years:
+    - 
+    - 
+  QT_OBITO:
+    role: admission.death_count
+    kind: number
+    model: mark
+    name: Quantidade de óbitos
+    years:
+    - 
+    - 
+  VL_AIH:
+    role: admission.value_total
+    kind: number
+    model: mark
+    name: Valor total da AIH
+    years:
+    - 
+    - 
+  VL_SERVICO_HOSPITALAR:
+    role: admission.value_hospital_services
+    kind: number
+    model: mark
+    name: Valor de serviços hospitalares
+    years:
+    - 
+    - 
+  VL_SERVICO_PROFISSIONAL:
+    role: admission.value_professional_services
+    kind: number
+    model: mark
+    name: Valor de serviços profissionais
+    years:
+    - 
+    - 
+  VL_SH_FEDERAL:
+    role: admission.value_hospital_services_federal
+    kind: number
+    model: mark
+    name: Valor do complemento federal de serviços hospitalares
+    years:
+    - 
+    - 
+  VL_SH_GESTOR:
+    role: admission.value_hospital_services_manager
+    kind: number
+    model: mark
+    name: Valor do complemento do gestor de serviços hospitalares
+    years:
+    - 
+    - 
+  VL_SP_FEDERAL:
+    role: admission.value_professional_services_federal
+    kind: number
+    model: mark
+    name: Valor do complemento federal de serviços profissionais
+    years:
+    - 
+    - 
+  VL_SP_GESTOR:
+    role: admission.value_professional_services_manager
+    kind: number
+    model: mark
+    name: Valor do complemento do gestor de serviços profissionais
+    years:
+    - 
+    - 
+  VL_UI:
+    role: admission.value_intermediate_unit
+    kind: number
+    model: mark
+    name: Valor de UCI
+    years:
+    - 
+    - 
+  VL_UTI:
+    role: admission.value_icu
+    kind: number
+    model: mark
+    name: Valor de UTI
+    years:
+    - 
+    - 

@@ -358,13 +358,14 @@ columns:
     role: baby.ethnicity
     kind: category
     model: dimension
-    review: draft
     name: Código para etnia indígena
     years:
     - 1994
     - 1995
-    note: 1994-1995 layout, filled when RACACOR is indigenous; no codelist survives. Subject assumed to
-      be the newborn because it keys on RACACOR, which then described the newborn; not stated by the source.
+    note: 1994-1995 layout, filled when RACACOR is indigenous; no codelist survives. Subject assumed to be the
+      newborn because it keys on RACACOR, which then described the newborn; not stated by the source.
+    codelists:
+    - TABETNIA
   FIL_ABORT:
     role: pregnancy.previous_abortions
     kind: number
@@ -688,7 +689,7 @@ columns:
     - 2010
     - 2026
   SEXO:
-    missing: ['0', '3', '4', '5', '6', '7', '8', '9', 'I']
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9', I]
     # proposed from DATASUS's labels (2022): 0='Ignorado', 3='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado', I='Ignorado'
     role: baby.sex
     kind: category

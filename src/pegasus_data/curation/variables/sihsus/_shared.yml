@@ -1237,24 +1237,32 @@ variables:
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 10'
   SP_PF_DOC:
-    official_name: Documento de pessoa jurídica
-    translated_name: Legal-person document
-    description: Document identifying a party to the act. Despite the PF in its name it holds
-      the legal-person document, and SP_PJ_DOC holds the natural-person one — the two are
-      transposed, so check the value width before assuming which is which.
+    official_name: Documento de pessoa física
+    translated_name: Professional's CNS (natural-person document)
+    description: The Cartão Nacional de Saúde of the professional who performed the act, or
+      fifteen zeros where the act has none. A direct personal identifier; it passes through
+      unchanged.
     code_system: none
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 27'
+    notes: 'Two claims, recorded. The IT prints "Documento de pessoa jurídica", char(15). The
+      records (2026-06 RR, 22,631 rows) hold 15 digits, and every one of the 11,816 that are
+      not zeros passes the CNS mod-11 check (11,809 begin with 7, 7 with 8). A CNPJ has 14
+      digits. The name (PF = pessoa física) holds and the IT''s two descriptions are
+      transposed. Measured 2026-10-08 (corrects the earlier note, which followed the IT).'
   SP_PJ_DOC:
-    official_name: Documento de pessoa física
-    translated_name: Natural-person document
-    description: Document identifying a party to the act, holding the natural-person document
-      despite the PJ in its name. A direct personal identifier, and it passes through unchanged.
+    official_name: Documento de pessoa jurídica
+    translated_name: Establishment document (legal-person document)
+    description: A legal person's document, 14 characters wide (a CNPJ's width). In the
+      records it holds the establishment's CNES zero-filled to 14, equal to SP_CNES.
     code_system: none
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 28'
+    notes: 'The IT prints "Documento de pessoa física", char(14). The records (2026-06 RR):
+      00000002320681 on all 22,631 rows, the hospital''s CNES (SP_CNES 2320681). The name
+      (PJ = pessoa jurídica) holds; see SP_PF_DOC. Measured 2026-10-08.'
   SP_PROCREA:
     official_name: Procedimento principal realizado na AIH
     translated_name: Main procedure of the AIH

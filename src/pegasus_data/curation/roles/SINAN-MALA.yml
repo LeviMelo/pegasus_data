@@ -2,25 +2,27 @@ dataset: SINAN-MALA
 record: notification
 columns:
   AMALARIA:
-    role: notification.amalaria
-    kind: number
-    model: mark
-    review: draft
+    role: notification.p_malariae_test_result
+    kind: text
+    model: excluded
     name: Resultado de exame para Plasmodium malariae
     years:
     - 2004
     - 2006
+    note: 'Holds codes such as 03M, 02M, 1A: not a test result as the note reads; kept as text. 2000-2006 SINAN
+      Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET,
+      the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANO_NASC:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2026
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_DT_INV:
     role: notification.investigation_date
     kind: date
@@ -30,50 +32,55 @@ columns:
     - 2004
     - 2006
   ARTEI:
-    role: notification.artei
-    kind: number
+    role: notification.artemether_given
+    kind: category
     model: mark
-    review: draft
     name: Uso de arteméter
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ARTEM:
-    role: notification.artem
-    kind: number
+    role: notification.artemisinin_based_drug_used_flag_artem
+    kind: category
     model: mark
-    review: draft
     name: Artemeter/Artesunato
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ARTEMI:
-    role: notification.artemi
-    kind: number
+    role: notification.artemisinin_based_drug_used_flag_artemi
+    kind: category
     model: mark
-    review: draft
     name: Uso de artemisinina/derivado
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ARTESU:
-    role: notification.artesu
-    kind: number
+    role: notification.artesunate_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Uso de artesunato
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ASSINTOM:
-    role: notification.assintom
-    kind: number
+    role: notification.asymptomatic_case
+    kind: category
     model: mark
-    review: draft
     name: Caso assintomático
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   AT_ATIVIDA:
     missing: ['99']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='agricultura', 10='Viajante', 11='Outros', 2='Pecuária', 3='Doméstica', 4='Turismo', 5='Garimpagem', 6='Exploração vegetal', 7='caça/pesca', 8='construtor de estradas /barragens', 9='Mineração', 99='ignorado'; the tabulation: 99='Ignorado'; CONFLICT: the records use ['12'], which the form does not define
@@ -107,23 +114,26 @@ columns:
     - 2007
     - 2026
   CALAFRIO:
-    role: notification.calafrio
+    role: notification.chills
     kind: category
     model: mark
-    review: draft
     name: Calafrio
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CD_OUTRO:
-    role: notification.cd_outro
-    kind: number
-    model: mark
-    review: draft
+    role: notification.other_symptom_description
+    kind: text
+    model: excluded
     name: Outro medicamento - descrição
     years:
     - 2004
     - 2006
+    note: 'Holds symptoms (cefaleia 212 of 1,698), not drugs. 2000-2006 SINAN Windows layout: no dictionary for
+      it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable
+      note (the name); kind from the values; codes undecoded.'
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -140,50 +150,57 @@ columns:
     - 2007
     - 2026
   CLIND:
-    role: notification.clind
-    kind: number
+    role: notification.clindamycin_given
+    kind: category
     model: mark
-    review: draft
     name: Diagnóstico clínico
     years:
     - 2004
     - 2006
+    note: 'Pairs with CLINDI as ARTEI/ARTEM, CLOROQ/CLOROQI and QUININO/QUININOI pair; not the unconfirmed-diagnosis
+      flag its variable note reads. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched:
+      FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind
+      from the values; codes undecoded.'
   CLINDI:
-    role: notification.clindi
-    kind: number
+    role: notification.clindamycin_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Uso de clindamicina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_OUTRO:
-    role: notification.cli_outro
+    role: notification.other_clinical_finding
     kind: category
     model: mark
-    review: draft
     name: Outros sinais/sintomas
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLOROQ:
-    role: notification.cloroq
-    kind: number
+    role: notification.chloroquine_given
+    kind: category
     model: mark
-    review: draft
     name: Uso de cloroquina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLOROQI:
-    role: notification.cloroqi
-    kind: number
+    role: notification.chloroquine_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Cloroquina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   COMUNINF:
     role: case.infection_municipality
     kind: place
@@ -209,23 +226,25 @@ columns:
     - 2004
     - 2006
   CON_CONFIR:
-    role: notification.con_confir
-    kind: number
+    role: notification.lab_confirmed_case_flag
+    kind: category
     model: mark
-    review: draft
     name: Confirmação laboratorial
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DOENCA:
-    role: notification.con_doenca
-    kind: number
+    role: notification.final_diagnosed_disease_legacy
+    kind: category
     model: mark
-    review: draft
     name: Doença (bloco de conclusão legado)
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DT_ENC:
     role: notification.closing_date
     kind: date
@@ -368,23 +387,25 @@ columns:
     - 2004
     - 2026
   DINTERNA:
-    role: notification.dinterna
-    kind: number
+    role: notification.date_of_hospital_admission
+    kind: date
     model: mark
-    review: draft
     name: Data de internação
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DOXOCI:
-    role: notification.doxoci
-    kind: number
+    role: notification.doxycycline_given
+    kind: category
     model: mark
-    review: draft
     name: Uso de doxiciclina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DSTRAESQUE:
     role: treatment.regimen_text
     kind: text
@@ -402,14 +423,15 @@ columns:
     - 2004
     - 2026
   DTTRANSFU:
-    role: notification.dttransfu
+    role: notification.date_of_blood_transfusion
     kind: date
     model: mark
-    review: draft
     name: Data da transfusão
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DT_DIGITA:
     role: notification.entry_date
     kind: date
@@ -501,34 +523,37 @@ columns:
     - 2007
     - 2026
   FEBRE:
-    role: notification.febre
+    role: notification.fever_symptom_present
     kind: category
     model: mark
-    review: draft
     name: Febre
-    codelists:
-    - SIM_NAO
     years:
     - 2004
     - 2006
+    codelists:
+    - SIM_NAO
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   GESTANTE:
-    role: notification.gestante
-    kind: number
+    role: notification.pregnant_flag
+    kind: category
     model: mark
-    review: draft
     name: Gestante
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   HOSPITAL:
-    role: notification.hospital
+    role: notification.hospitalized
     kind: category
     model: mark
-    review: draft
     name: Ocorreu Hospitalização
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_AGRAVO:
     role: case.disease
     kind: code_tree
@@ -547,23 +572,25 @@ columns:
     - 2026
     note: role from the notification block
   ID_DG_NOT:
-    role: notification.id_dg_not
-    kind: number
+    role: notification.notification_record_control_code
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.id_ev_not
-    kind: number
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -665,14 +692,15 @@ columns:
     - 2026
     note: role from the notification block
   IN_VINCULA:
-    role: notification.in_vincula
+    role: notification.linked_record_flag
     kind: category
     model: mark
-    review: draft
     name: Vinculação
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LOC_INF:
     role: case.infection_locality_text
     kind: text
@@ -682,44 +710,50 @@ columns:
     - 2007
     - 2026
   MEFLOQ:
-    role: notification.mefloq
-    kind: number
+    role: notification.mefloquine_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Uso de mefloquina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   MINTERNA:
-    role: notification.minterna
-    kind: number
+    role: notification.hospitalization_municipality_legacy
+    kind: place
     model: mark
-    review: draft
     name: Unidade de internação (CNES)
     years:
     - 2004
     - 2006
-  MTRANSFU:
-    role: notification.mtransfu
-    kind: place
-    model: mark
-    review: draft
-    name: Município da transfusão
+    note: 'Holds seven-digit IBGE municipality codes (3550308 São Paulo: 71 of 848), not the CNES its variable note
+      reads. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
     codelists:
     - BR_MUNICIPALFA
-    - MUNIC_BR7
+  MTRANSFU:
+    role: notification.municipality_where_transfusion_occurred
+    kind: place
+    model: mark
+    name: Município da transfusão
     years:
     - 2004
     - 2006
+    codelists:
+    - BR_MUNICIPALFA
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   NDUPLIC:
-    role: notification.nduplic
+    role: notification.duplicate_record_flag
     kind: category
     model: mark
-    review: draft
     name: Não Listar/Não Contar
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   NU_ANO:
     role: notification.year
     kind: number
@@ -790,14 +824,15 @@ columns:
     - 2004
     - 2026
   PMALARIA:
-    role: notification.pmalaria
-    kind: number
+    role: notification.plasmodium_malariae_identified
+    kind: category
     model: mark
-    review: draft
     name: Plasmodium malariae identificado
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   PMM:
     role: case.parasite_density_mm3
     kind: number
@@ -807,50 +842,57 @@ columns:
     - 2004
     - 2026
   PRIMAQ:
-    role: notification.primaq
-    kind: number
+    role: notification.primaquine_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Primaquina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   PTRANSFU:
-    role: notification.ptransfu
-    kind: number
+    role: notification.transfusion_country_legacy
+    kind: category
     model: mark
-    review: draft
     name: Provável transfusional
     years:
     - 2004
     - 2006
+    note: 'Holds 800 (31 of 32) like the country columns of the same layout; not the flag its variable note reads.
+      2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   PUSUARIO:
-    role: notification.pusuario
-    kind: number
+    role: notification.pusuario_flag_legacy
+    kind: category
     model: mark
-    review: draft
     name: Peso do usuário
     years:
     - 2004
     - 2006
+    note: 'Holds 1, 2 and 9 (a flag), not the body weight its variable note reads; meaning unknown. 2000-2006 SINAN
+      Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET,
+      the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   QUININO:
-    role: notification.quinino
-    kind: number
+    role: notification.quinine_given
+    kind: category
     model: mark
-    review: draft
     name: Uso de quinino
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   QUININOI:
-    role: notification.quininoi
-    kind: number
+    role: notification.quinine_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Quinino
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   RESULT:
     missing: []
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='negativo', 10='O', 2='F', 3='F + FG', 4='V', 5='F+ V', 6='V + FG', 7='FG', 8='M', 9='F+ M'; the tabulation: no value labelled as not recorded
@@ -900,32 +942,35 @@ columns:
     - 2026
     note: role from the notification block
   SOUTROS:
-    role: notification.soutros
-    kind: number
+    role: notification.other_option_used_flag
+    kind: category
     model: mark
-    review: draft
     name: Se outros
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   SUDORESE:
-    role: notification.sudorese
-    kind: number
+    role: notification.sweating_flag
+    kind: category
     model: mark
-    review: draft
     name: Sudorese
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TETRAC:
-    role: notification.tetrac
-    kind: number
+    role: notification.tetracycline_given
+    kind: category
     model: mark
-    review: draft
     name: Uso de tetraciclina
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TPAUTOCTO:
     missing: []
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; the tabulation: no value labelled as not recorded
@@ -948,14 +993,15 @@ columns:
     - 2007
     - 2026
   TRANSFU:
-    role: notification.transfu
-    kind: number
+    role: notification.blood_transfusion_flag
+    kind: category
     model: mark
-    review: draft
     name: Transfusão
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TRA_ESQUEM:
     missing: []
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Infecções por Pv com Cloroquina em 3 dias e Primaquina em 7 dias', 10='Prevenção de recaída da malária por Pv com Cloroquina em dose única semanal durante 3 meses', 11='Malária grave e complicada', 2='Infecções por Pf com Quinina em 3 dias + Doxiciclina em 5 dias + primaquina no 6º dia', 3='Infecções mistas por Pv + Pf com Mefloquina em dose única e primaquina em 7 dias', 4='Infecções por Pm com cloroquina em 3 dias', 5='Infecções por Pv em crianças apresentando vômitos, com cápsulas retais de artesunato em 4 dias e Primaquina em 7 dias', 6='Infecções por Pf com Mefloquina em dose única e primaquina no segundo dia', 7='Infecções por Pf com Quinina em 7 dias', 8='Infecções por Pf de crianças com cápsulas retais de artesunato em 4 dias e dose única de Mefloquina no 3º dia e Primaquina no 5º ida', 9='Infecções mistas por Pv + Pf com Quinina em 3 dias, doxiciclina em 5 dias e Primaquina em 7 dias', 99='Outro esquema utilizado (por médico) - descrever:'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['12'], which the form does not define
@@ -967,32 +1013,37 @@ columns:
     - 2007
     - 2026
   UFINTERNA:
-    role: notification.ufinterna
-    kind: number
+    role: notification.state_of_hospitalization
+    kind: category
     model: mark
-    review: draft
     name: UF de internação
     years:
     - 2004
     - 2006
+    note: 'State abbreviations. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   UFTRANSFU:
-    role: notification.uftransfu
-    kind: number
+    role: notification.state_uf_of_the_transfusion
+    kind: category
     model: mark
-    review: draft
     name: UF da transfusão
     years:
     - 2004
     - 2006
+    note: 'State abbreviations. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   UTRANSFU:
-    role: notification.utransfu
-    kind: number
-    model: mark
-    review: draft
+    role: notification.transfusion_unit_code_legacy
+    kind: identifier
+    model: excluded
     name: Unidade da transfusão (CNES)
     years:
     - 2004
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   IDADE_anos:
     role: patient.age_years
     kind: number

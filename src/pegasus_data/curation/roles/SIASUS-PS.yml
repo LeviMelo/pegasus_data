@@ -1,0 +1,423 @@
+dataset: SIASUS-PS
+record: care
+columns:
+  CATEND:
+    role: care.type_of_care_episode
+    kind: category
+    model: mark
+    name: Carater de Atendimento
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - CARAT_AT
+  CIDASSOC:
+    role: care.associated_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Causas Associadas
+    years:
+    - 2012
+    - 2026
+  CIDPRI:
+    role: care.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: CID Principal
+    years:
+    - 2012
+    - 2026
+  CNES_ESF:
+    role: care.cnes_code_of_the_areas_family_health_unit
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da Família da região
+    years:
+    - 2012
+    - 2026
+  CNES_EXEC:
+    role: care.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código do SCNES do Estabelecimento de Saúde
+    years:
+    - 2012
+    - 2026
+  CNPJCPF:
+    role: care.executing_establishments_cnpj_cpf
+    kind: identifier
+    model: excluded
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 2012
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  CNPJMNT:
+    role: care.establishments_parent_organization_cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da Mantenedora
+    years:
+    - 2012
+    - 2026
+  CNS_PAC:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Numero do CNS do paciente
+    years:
+    - 2012
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+    also:
+    - patient.id
+  COB_ESF:
+    role: care.esf_coverage_indicator
+    kind: category
+    model: mark
+    name: Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - COBERTURA
+  CONDIC:
+    role: care.management_type_code
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestao
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - TP_GESTAO
+    - TP_GEST_C
+  DESTINOPAC:
+    role: care.patient_destination
+    kind: category
+    model: mark
+    name: Destino do paciente
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - DESTINO
+    - DEST_PSI
+  DTNASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 2012
+    - 2026
+  DT_ATEND:
+    role: care.month
+    kind: date
+    model: when
+    name: Ano e mes do Atendimento
+    years:
+    - 2012
+    - 2026
+  DT_FIM:
+    role: care.record_end_date
+    kind: date
+    model: mark
+    name: Data de Fim
+    years:
+    - 2012
+    - 2026
+  DT_INICIO:
+    role: treatment.start
+    kind: date
+    model: mark
+    name: Data de Início
+    years:
+    - 2012
+    - 2026
+  DT_MOTCOB:
+    role: care.date_of_discharge_transfer_death
+    kind: date
+    model: mark
+    name: Data da ocorrência no caso de alta, transferência ou óbito
+    years:
+    - 2012
+    - 2026
+  DT_PROCESS:
+    role: care.processing_month
+    kind: date
+    model: when
+    name: Ano e mes de Processamento
+    years:
+    - 2012
+    - 2026
+  ETNIA:
+    role: care.indigenous_ethnicity
+    kind: category
+    model: mark
+    name: Etnia
+    years:
+    - 2012
+    - 2026
+  FIM:
+    role: care.end
+    kind: date
+    model: mark
+    name: Data de Fim do Atendimento (DDMMAAAA)
+    years:
+    - 2012
+    - 2026
+  GESTAO:
+    role: care.managing_authority
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICGESTOR
+    name: Gestão
+    years:
+    - 2012
+    - 2026
+  IDADEPAC:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade do Paciente
+    years:
+    - 2012
+    - 2026
+  INICIO:
+    role: care.start
+    kind: date
+    model: mark
+    name: Data de Início do Atendimento (DDMMAAAA)
+    years:
+    - 2012
+    - 2026
+  LOC_REALIZ:
+    role: care.place_of_delivery
+    kind: category
+    model: mark
+    name: Local de Realização (C – CAPS, T - Território)
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - LOC_REALIZ
+  MN_IND:
+    role: care.maintained_vs_individual_establishment_flag
+    kind: category
+    model: mark
+    name: Estabelecimento Mantido / Individual
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - MANT_IND
+  MOT_COB:
+    role: care.reason_for_discharge_continuation
+    kind: category
+    model: mark
+    name: Motivo de Saída/Permanência
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - MOTSAIPE
+  MUNPAC:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: UF+Municipio de residencia do paciente
+    years:
+    - 2012
+    - 2026
+  NACION_PAC:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Nacionalidade do paciente
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - UFNACIO
+  NAT_JUR:
+    role: care.establishment_legal_nature_concla
+    kind: category
+    model: mark
+    name: Natureza jurídica
+    years:
+    - 2014
+    - 2026
+  ORIGEM_PAC:
+    role: care.patient_origin
+    kind: category
+    model: mark
+    name: Origem do paciente
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - ORIGEM
+    - ORIG_PSI
+  PA_CLASS_S:
+    role: care.service_classification
+    kind: category
+    model: mark
+    name: Classificação do Serviço
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - S_CLASSEN
+  PA_PROC_ID:
+    role: care.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Codigo do Procedimento Ambulatorial
+    years:
+    - 2012
+    - 2026
+  PA_QTDAPR:
+    role: care.approved_quantity
+    kind: number
+    model: mark
+    name: Quantidade Aprovada
+    years:
+    - 2012
+    - 2026
+  PA_QTDPRO:
+    role: care.submitted_presented_quantity
+    kind: number
+    model: mark
+    name: Quantidade Produzida (APRESENTADA)
+    years:
+    - 2012
+    - 2026
+  PA_SRV:
+    role: care.specialised_service
+    kind: category
+    model: mark
+    name: Serviço Especializado
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - S_CLASSEN
+  PERMANEN:
+    role: care.time_in_attendance
+    kind: number
+    model: mark
+    name: Permanência em Atendimento
+    years:
+    - 2012
+    - 2026
+  QTDATE:
+    role: care.number_of_attendances
+    kind: number
+    model: mark
+    name: Quantidade de Atendimentos
+    years:
+    - 2012
+    - 2026
+  QTDPCN:
+    role: care.number_of_patients
+    kind: number
+    model: mark
+    name: Quantidade de pacientes
+    years:
+    - 2012
+    - 2026
+  RACACOR:
+    role: care.race_colour
+    kind: category
+    model: mark
+    name: Raça/Cor
+    years:
+    - 2012
+    - 2026
+  SEXOPAC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - SEXO
+  SIT_RUA:
+    role: care.homelessness_status
+    kind: category
+    model: mark
+    name: Situação de Rua (S- SIM, N - NÃO)
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - SIT_RUA
+  TIPPRE:
+    role: care.provider_type_code
+    kind: category
+    model: mark
+    name: Tipo de Prestador
+    years:
+    - 2012
+    - 2026
+  TPIDADEPAC:
+    role: care.age_unit_code
+    kind: category
+    model: mark
+    name: Tipo da Idade do paciente
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - IDADEDET
+  TPUPS:
+    role: care.establishment_type_code
+    kind: institution
+    model: institution
+    codelists:
+    - TP_ESTAB
+    name: Tipo de Estabelecimento
+    years:
+    - 2012
+    - 2026
+  TP_DROGA:
+    role: care.drug_type
+    kind: category
+    model: mark
+    name: TIPO DE DROGA (A - Álcool, C - Crack, O - Outros)
+    years:
+    - 2012
+    - 2026
+    codelists:
+    - TP_DROGA
+  UFMUN:
+    role: care.establishments_municipality_ibge_code
+    kind: place
+    model: mark
+    codelists:
+    - AC_MUNICIP
+    name: UF+Municipio do estabelecimento
+    years:
+    - 2012
+    - 2026

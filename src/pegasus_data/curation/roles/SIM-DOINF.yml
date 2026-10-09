@@ -1,0 +1,1450 @@
+dataset: SIM-DOINF
+record: death
+columns:
+  ACIDTRAB:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.work_related
+    kind: category
+    model: mark
+    name: Acidente do trabalho
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  ALTCAUSA:
+    missing: []
+    role: death.cause_altered
+    kind: category
+    model: mark
+    name: Alteração da causa
+    codelists:
+    - SIMNAO1
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  AREARES:
+    role: deceased.residence_area_local
+    kind: category
+    model: excluded
+    name: Área de residência
+    years:
+    - 1979
+    - 1995
+    note: A sub-area code each state or municipality assigned (1979-1995); no national codelist.
+  ASSISTMED:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.medical_care
+    kind: category
+    model: mark
+    name: Recebeu assistência médica
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  ATESTADO:
+    role: death.certificate_codes
+    kind: text
+    model: mark
+    name: CIDs informados no atestado
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  ATESTANTE:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: certifier.condition
+    kind: category
+    model: mark
+    name: Condição do médico atestante
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  BAIRES:
+    role: deceased.residence_neighbourhood_local
+    kind: category
+    model: excluded
+    name: Bairro de residência
+    years:
+    - 1979
+    - 1995
+    note: A neighbourhood code each state or municipality assigned (1979-1995); no national codelist.
+  CARTORIO:
+    role: death.registry_office
+    kind: identifier
+    model: excluded
+    name: Cartório
+    years:
+    - 1979
+    - 1995
+  CAUSABAS:
+    role: death.cause
+    kind: code_tree
+    model: event_type
+    name: Causa básica do óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  CAUSABAS_O:
+    role: death.original_underlying_cause
+    kind: code_tree
+    model: event_type
+    name: Causa básica original
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  CAUSAMAT:
+    missing: []
+    role: death.maternal_external_cause
+    kind: category
+    model: mark
+    name: Causa externa associada a causa materna
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  CB_PRE:
+    role: death.prior_underlying_cause
+    kind: code_tree
+    model: mark
+    name: Causa básica informada antes da resseleção (localidade)
+    codelists:
+    - ICD10
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  CIRCOBITO:
+    missing:
+    - '0'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.violent_circumstance
+    kind: category
+    model: mark
+    name: Tipo de morte violenta
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  CIRURGIA:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.surgery
+    kind: category
+    model: mark
+    name: Realização de cirurgia
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  CODBAIOCOR:
+    role: death.neighborhood
+    kind: place
+    model: mark
+    name: Código do bairro de ocorrência
+    years:
+    - 2006
+    - 2010
+    note: role from SIM-DO
+  CODBAIRES:
+    role: deceased.residence_neighborhood
+    kind: place
+    model: mark
+    name: Código do bairro de residência
+    years:
+    - 1996
+    - 2010
+    note: role from SIM-DO
+  CODCART:
+    role: death.registry_office
+    kind: identifier
+    model: link_only
+    name: Código do cartório
+    years:
+    - 2012
+    - 2013
+    note: role from SIM-DO
+  CODESTAB:
+    role: death.facility
+    kind: institution
+    model: institution
+    name: Estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2001
+    - 2026
+    note: role from SIM-DO
+  CODIFICADO:
+    role: death.coded_flag
+    kind: category
+    model: excluded
+    name: Informa se formulário foi codificado
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  CODIGO:
+    role: death.facility_local_code
+    kind: identifier
+    model: excluded
+    name: Código do estabelecimento de ocorrência
+    years:
+    - 1979
+    - 1995
+  CODMUNCART:
+    role: death.registry_municipality
+    kind: place
+    model: mark
+    name: Código do município do cartório
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2012
+    - 2013
+    note: role from SIM-DO
+  CODMUNNATU:
+    role: deceased.birth_municipality
+    kind: place
+    model: dimension
+    name: Código do município de naturalidade
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  CODMUNOCOR:
+    role: death.municipality
+    kind: place
+    model: where
+    name: Município de ocorrência
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  CODMUNRES:
+    role: deceased.residence
+    kind: place
+    model: stratum
+    name: Município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  COMUNSVOIM:
+    role: death.svo_iml_municipality
+    kind: place
+    model: mark
+    name: Município do SVO ou IML
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  CONTADOR:
+    role: death.counter
+    kind: identifier
+    model: excluded
+    name: Contador
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  CRITICA:
+    role: death.edit_flag
+    kind: category
+    model: excluded
+    name: Crítica
+    years:
+    - 1979
+    - 1995
+  CRM:
+    role: certifier.crm
+    kind: identifier
+    model: link_only
+    name: CRM do médico atestante
+    years:
+    - 2014
+    - 2018
+    note: role from SIM-DO
+  CRSOCOR:
+    role: death.health_region_local
+    kind: category
+    model: excluded
+    name: CRS de ocorrência
+    years:
+    - 1979
+    - 1995
+  CRSRES:
+    role: deceased.residence_health_region_local
+    kind: category
+    model: excluded
+    name: CRS de residência
+    years:
+    - 1979
+    - 1995
+  DATANASC:
+    role: deceased.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 1979
+    - 1995
+    note: '1979-1995 layout: DDMMAAAA, some values a bare year (1945); 00000000 marks no date.'
+  DATAOBITO:
+    role: death.date
+    kind: date
+    model: when
+    name: Data do óbito
+    years:
+    - 1979
+    - 1995
+  DATAREG:
+    role: death.receipt_date
+    kind: date
+    model: mark
+    name: Data de registro
+    years:
+    - 1979
+    - 1995
+    note: 'Measured 1995 RR: six digits AAMMDD (950108), not the DDMMAAAA the layout prints.'
+  DIFDATA:
+    missing: []
+    domain:
+    - 0
+    - 999
+    role: death.receipt_delay_days
+    kind: number
+    model: excluded
+    name: Diferença entre data do óbito e recebimento
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  DTATESTADO:
+    role: death.certificate_date
+    kind: date
+    model: mark
+    name: Data do atestado
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  DTCADASTRO:
+    role: death.registration_date
+    kind: date
+    model: when
+    name: Data do cadastro
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  DTCADINF:
+    role: death.infant_investigation_registration_date
+    kind: date
+    model: mark
+    name: Data do cadastro da investigação de óbito infantil
+    years:
+    - 2009
+    - 2026
+    note: role from SIM-DO
+  DTCADINV:
+    role: death.investigation_registration_date
+    kind: date
+    model: mark
+    name: Data do cadastro de investigação
+    years:
+    - 2009
+    - 2026
+    note: role from SIM-DO
+  DTCONCASO:
+    role: death.case_conclusion_date
+    kind: date
+    model: mark
+    name: Data de conclusão do caso
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  DTCONINV:
+    role: death.investigation_conclusion_date
+    kind: date
+    model: mark
+    name: Data da conclusão da investigação
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  DTINVESTIG:
+    role: death.investigation_date
+    kind: date
+    model: mark
+    name: Data da investigação
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  DTNASC:
+    role: deceased.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  DTOBITO:
+    role: death.date
+    kind: date
+    model: when
+    name: Data do Óbito
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  DTRECEBIM:
+    role: death.receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  DTRECORIG:
+    role: death.original_receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento original
+    years:
+    - 2011
+    - 2013
+    note: role from SIM-DO
+  DTRECORIGA:
+    role: death.original_receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento original (tratada)
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  DTREGCART:
+    role: death.registry_date
+    kind: date
+    model: mark
+    name: Data do registro do cartório
+    years:
+    - 2012
+    - 2013
+    note: role from SIM-DO
+  ESC:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: deceased.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade em anos
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  ESC2010:
+    missing:
+    - '9'
+    role: deceased.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade 2010 - nível
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  ESCFALAGR1:
+    missing:
+    - 09
+    role: deceased.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade do falecido agregada
+    codelists:
+    - ESCAGR1
+    - ESCAGR2
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  ESCMAE:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: mother.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe em anos
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  ESCMAE2010:
+    missing:
+    - '9'
+    role: mother.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe 2010 - nível
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  ESCMAEAGR1:
+    missing:
+    - 09
+    role: mother.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe agregada
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  ESTABDESCR:
+    role: death.facility_description
+    kind: text
+    model: excluded
+    name: Descrição do estabelecimento
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  ESTCIV:
+    missing:
+    - '0'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: deceased.marital_status
+    kind: category
+    model: dimension
+    name: Situação conjugal
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  ESTCIVIL:
+    role: deceased.marital_status_legacy
+    kind: category
+    model: mark
+    name: Estado civil
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - ESTCIV
+  ETNIA:
+    role: deceased.indigenous_ethnicity
+    kind: category
+    model: mark
+    name: Código para etnia indígena
+    years:
+    - 1995
+    - 1995
+  EXAME:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.exam_performed
+    kind: category
+    model: mark
+    name: Realização de exame
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  EXPDIFDATA:
+    role: death.export_delay_days
+    kind: number
+    model: excluded
+    name: Diferença de datas (exportação)
+    years:
+    - 2012
+    - 2012
+    note: role from SIM-DO
+  FILHMORT:
+    role: pregnancy.previous_children_dead_legacy
+    kind: category
+    model: mark
+    name: Filhos mortos
+    years:
+    - 1979
+    - 1995
+    note: 'Same coding as FILHVIVOS: 0 ignored, XX none.'
+  FILHVIVOS:
+    role: pregnancy.previous_live_births_legacy
+    kind: category
+    model: mark
+    name: Filhos vivos
+    years:
+    - 1979
+    - 1995
+    note: 0 means ignored and XX means none (the variable note); a count only once those codes are declared.
+  FONTE:
+    missing:
+    - '0'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.information_source
+    kind: category
+    model: mark
+    name: Fonte de informação
+    codelists:
+    - FONTINFO
+    - FONTE
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  FONTEINV:
+    missing:
+    - '9'
+    role: death.investigation_source
+    kind: category
+    model: mark
+    name: Fonte de investigação
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  FONTES:
+    role: death.sources_consulted
+    kind: text
+    model: mark
+    name: Fontes consultadas
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  FONTESINF:
+    role: death.investigation_sources
+    kind: category
+    model: mark
+    name: Fontes de investigação (combinado)
+    years:
+    - 2014
+    - 2026
+  FONTINFO:
+    role: death.information_source_legacy
+    kind: category
+    model: mark
+    name: Fonte da informação
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - FONTINFO
+  GESTACAO:
+    missing:
+    - '0'
+    - '9'
+    role: pregnancy.gestation_band
+    kind: category
+    model: mark
+    name: Semanas de gestação (formulário antigo)
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  GRAVIDEZ:
+    missing:
+    - '0'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.plurality
+    kind: category
+    model: mark
+    also:
+    - death.plurality
+    name: Tipo de gravidez
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  HORAOBITO:
+    role: death.time
+    kind: number
+    model: mark
+    name: Hora do óbito
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  IDADE:
+    role: deceased.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    codelists:
+    - IDADE
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  IDADEMAE:
+    missing: []
+    domain:
+    - 1
+    - 99
+    role: mother.age
+    kind: number
+    model: mark
+    also:
+    - death.maternal_age
+    name: Idade da mãe
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  INSTRMAE:
+    role: mother.education_legacy
+    kind: category
+    model: mark
+    name: Instrução da mãe
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - INSTRUC
+  INSTRPAI:
+    role: father.education_legacy
+    kind: category
+    model: mark
+    name: Instrução do pai
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - INSTRUC
+  INSTRUCAO:
+    role: deceased.education_legacy
+    kind: category
+    model: dimension
+    name: Instrução
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - INSTRUC
+  LINHAA:
+    role: death.certificate_line_a
+    also:
+    - death.causes
+    kind: code_tree
+    model: mark
+    name: Linha A da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  LINHAB:
+    role: death.certificate_line_b
+    kind: code_tree
+    model: mark
+    name: Linha B da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  LINHAC:
+    role: death.certificate_line_c
+    kind: code_tree
+    model: mark
+    name: Linha C da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  LINHAD:
+    role: death.certificate_line_d
+    kind: code_tree
+    model: mark
+    name: Linha D da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  LINHAII:
+    role: death.certificate_part_ii
+    kind: code_tree
+    model: mark
+    name: Linha II da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  LOCACID:
+    role: death.accident_place_legacy
+    kind: category
+    model: mark
+    name: Local do acidente
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - LOCACID
+  LOCOCOR:
+    missing:
+    - '0'
+    - '7'
+    - '8'
+    - '9'
+    role: death.place
+    kind: category
+    model: mark
+    name: Local de ocorrência do óbito
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  MORTEPARTO:
+    missing:
+    - '9'
+    role: death.childbirth_relation_investigated
+    kind: category
+    model: mark
+    name: Morte em relação ao parto após investigação
+    years:
+    - 2009
+    - 2026
+    note: role from SIM-DO
+  MUNIOCOR:
+    role: death.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de ocorrência
+    years:
+    - 1979
+    - 1995
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
+  MUNIRES:
+    role: deceased.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de residência
+    years:
+    - 1979
+    - 1995
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
+  NATURAL:
+    role: deceased.birth_place
+    kind: place
+    model: dimension
+    name: Naturalidade
+    codelists:
+    - NATURALIDADE
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  NECROPSIA:
+    missing:
+    - '0'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.autopsy
+    kind: category
+    model: mark
+    name: Necrópsia
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  NUDIASINF:
+    role: death.investigation_days
+    kind: number
+    model: mark
+    measure: false
+    name: Day-count field, 2014 investigation-outcome block
+    years:
+    - 2014
+    - 2026
+  NUDIASOBCO:
+    missing: []
+    domain:
+    - 0
+    - 999
+    role: death.days_to_investigation_conclusion
+    kind: number
+    model: mark
+    name: Dias entre óbito e conclusão da investigação
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  NUDIASOBIN:
+    missing: []
+    domain:
+    - 0
+    - 999
+    role: death.days_to_investigation
+    kind: number
+    model: mark
+    name: Número de dias óbito-investigação
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  NUMEROLOTE:
+    role: death.batch_number
+    kind: number
+    model: excluded
+    name: Número do lote
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  NUMEXPORT:
+    role: death.export_batch
+    kind: identifier
+    model: excluded
+    name: Número de exportação
+    years:
+    - 1979
+    - 1995
+  NUMREGCART:
+    role: death.registry_number
+    kind: identifier
+    model: link_only
+    name: Número do registro do cartório
+    years:
+    - 2012
+    - 2013
+    note: role from SIM-DO
+  OBITOFE1:
+    role: deceased.pregnant_at_death_legacy
+    kind: category
+    model: mark
+    name: Óbito e gravidez (no momento)
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - OBITOFE1
+  OBITOFE2:
+    role: deceased.pregnant_within_12_months_legacy
+    kind: category
+    model: mark
+    name: Óbito e gravidez (12 meses antes)
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - OBITOFE2
+  OBITOGRAV:
+    missing:
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: deceased.pregnancy_status
+    kind: category
+    model: dimension
+    also:
+    - death.pregnancy
+    name: Óbito na gravidez
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  OBITOPARTO:
+    missing:
+    - '0'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: death.childbirth_relation
+    kind: category
+    model: mark
+    name: Morte em relação ao parto
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  OBITOPUERP:
+    missing:
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: deceased.puerperium_status
+    kind: category
+    model: dimension
+    also:
+    - death.puerperium
+    name: Óbito no puerpério
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  OCUP:
+    role: deceased.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação habitual
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  OCUPACAO:
+    role: deceased.occupation_legacy
+    kind: code_tree
+    model: mark
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
+    name: Ocupação
+    years:
+    - 1979
+    - 1995
+    note: Pre-2002 CBO, three digits; not CBO-2002.
+  OCUPMAE:
+    role: mother.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação habitual da mãe
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  OCUPPAI:
+    role: father.occupation_legacy
+    kind: code_tree
+    model: mark
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
+    name: Ocupação do pai
+    years:
+    - 1979
+    - 1995
+  ORIGEM:
+    role: death.record_origin
+    kind: category
+    model: excluded
+    name: Origem do registro
+    years:
+    - 2009
+    - 2026
+    note: role from SIM-DO
+  PARTO:
+    missing:
+    - '0'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    role: birth.delivery
+    kind: category
+    model: mark
+    also:
+    - death.delivery
+    name: Tipo de parto
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  PESO:
+    missing: []
+    domain:
+    - 1
+    - 8000
+    role: birth.weight
+    kind: number
+    model: mark
+    also:
+    - death.birth_weight
+    name: Peso ao nascer
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  PESONASC:
+    role: birth.weight
+    kind: number
+    model: mark
+    name: Peso ao nascer
+    years:
+    - 1979
+    - 1995
+    note: Grams, the same quantity as PESO from 1996.
+  QTDFILMORT:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: pregnancy.previous_fetal_losses
+    kind: number
+    model: mark
+    name: Número de perdas fetais/abortos
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  QTDFILVIVO:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: pregnancy.previous_live_births
+    kind: number
+    model: mark
+    name: Número de filhos vivos
+    years:
+    - 1996
+    - 2026
+    note: role from SIM-DO
+  RACACOR:
+    role: deceased.race
+    kind: category
+    model: stratum
+    name: Raça Cor
+    years:
+    - 1995
+    - 2026
+    note: role from SIM-DO
+  REGISTRO:
+    role: death.registry_number
+    kind: identifier
+    model: excluded
+    name: Registro
+    years:
+    - 1979
+    - 1995
+  SEMAGESTAC:
+    missing: []
+    domain:
+    - 0
+    - 98
+    role: birth.gestation_weeks
+    kind: number
+    model: mark
+    also:
+    - death.gestation_weeks
+    name: Nº de semanas de gestação
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  SEMANGEST:
+    role: pregnancy.gestation_band_legacy
+    kind: category
+    model: mark
+    name: Semanas de gestação
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - SEMANAS
+  SERIESCFAL:
+    missing: []
+    role: deceased.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar do falecido
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  SERIESCMAE:
+    missing: []
+    role: mother.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar da mãe
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  SEXO:
+    role: deceased.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  STCODIFICA:
+    role: death.coding_status
+    kind: category
+    model: excluded
+    name: Status de instalação codificadora
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  STDOEPIDEM:
+    role: death.epidemiological_status
+    kind: category
+    model: excluded
+    name: Status de DO epidemiológica
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  STDONOVA:
+    role: death.new_do_status
+    kind: category
+    model: excluded
+    name: Status de DO nova
+    years:
+    - 2011
+    - 2026
+    note: role from SIM-DO
+  TIPOACID:
+    role: death.accident_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de acidente
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - TIPOACID
+  TIPOBITO:
+    role: death.kind
+    kind: category
+    model: event_type
+    name: Tipo do óbito
+    years:
+    - 1979
+    - 2026
+    note: role from SIM-DO
+  TIPOGRAV:
+    role: birth.plurality_legacy
+    kind: category
+    model: mark
+    name: Tipo de gravidez
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - GRAVIDEZ
+  TIPOPARTO:
+    role: birth.delivery_legacy
+    kind: category
+    model: mark
+    name: Tipo de parto
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - PARTO
+  TIPOVIOL:
+    role: death.violence_type_legacy
+    kind: category
+    model: mark
+    name: Tipo de violência
+    years:
+    - 1979
+    - 1995
+    codelists:
+    - TIPOVIOL
+  TPASSINA:
+    role: death.certifier_signature_type
+    kind: category
+    model: mark
+    name: Tipo de assinatura
+    years:
+    - 2006
+    - 2008
+  TPMORTEOCO:
+    missing:
+    - '9'
+    role: death.pregnancy_relation
+    kind: category
+    model: mark
+    name: A morte ocorreu
+    years:
+    - 2012
+    - 2026
+    note: role from SIM-DO
+  TPNIVELINV:
+    missing: []
+    role: death.investigator_level
+    kind: category
+    model: mark
+    name: Tipo de nível investigador
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  TPOBITOCOR:
+    missing: []
+    role: death.timing_investigated
+    kind: category
+    model: mark
+    name: Momento do óbito após investigação
+    years:
+    - 2009
+    - 2026
+    note: role from SIM-DO
+  TPPOS:
+    missing: []
+    role: death.investigated
+    kind: category
+    model: mark
+    name: Óbito investigado
+    years:
+    - 2006
+    - 2026
+    note: role from SIM-DO
+  TPRESGINFO:
+    missing:
+    - '9'
+    role: death.information_recovery_type
+    kind: category
+    model: mark
+    name: Tipo de resgate de informação
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  UFINFORM:
+    role: death.reporting_state
+    kind: place
+    model: excluded
+    name: UF informante
+    codelists:
+    - UF_BR
+    years:
+    - 1979
+    - 2010
+    note: role from SIM-DO
+  VERSAOSCB:
+    role: death.cause_selector_version
+    kind: category
+    model: excluded
+    name: Versão do seletor de causa básica
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO
+  VERSAOSIST:
+    role: death.system_version
+    kind: category
+    model: excluded
+    name: Versão do sistema
+    years:
+    - 2014
+    - 2026
+    note: role from SIM-DO

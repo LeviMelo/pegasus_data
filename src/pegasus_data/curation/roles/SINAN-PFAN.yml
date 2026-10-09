@@ -5,14 +5,14 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2026
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   ANT_30_DIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.vaccinated_within_30_days_before_onset
     kind: category
     model: mark
@@ -45,6 +45,8 @@ columns:
     - 2007
     - 2026
   ANT_VACINA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.received_polio_vaccine
     kind: category
     model: mark
@@ -72,6 +74,8 @@ columns:
     - 2026
     note: "ICD-10 codes written with a dot (G61.0): they do not match ICD-10's widths and stay undecoded, visibly."
   ATE_HOSP:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalised
     kind: category
     model: mark
@@ -123,6 +127,8 @@ columns:
     - 2007
     - 2026
   CLI_AGUDA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.acute_onset
     kind: category
     model: mark
@@ -131,6 +137,8 @@ columns:
     - 2007
     - 2026
   CLI_AQ_D_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.right_ankle_reflex
     kind: category
     model: mark
@@ -139,6 +147,8 @@ columns:
     - 2007
     - 2026
   CLI_AQ_E_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.left_ankle_reflex
     kind: category
     model: mark
@@ -147,6 +157,8 @@ columns:
     - 2007
     - 2026
   CLI_ASCEND:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.ascending_progression
     kind: category
     model: mark
@@ -155,6 +167,8 @@ columns:
     - 2007
     - 2026
   CLI_ASSIME:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.asymmetric_paralysis
     kind: category
     model: mark
@@ -163,6 +177,8 @@ columns:
     - 2007
     - 2026
   CLI_A_FMID:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_acute_phase_right_leg
     kind: category
     model: mark
@@ -171,6 +187,8 @@ columns:
     - 2007
     - 2026
   CLI_A_FMIE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_acute_phase_left_leg
     kind: category
     model: mark
@@ -179,6 +197,8 @@ columns:
     - 2007
     - 2026
   CLI_A_FMSD:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_acute_phase_right_arm
     kind: category
     model: mark
@@ -187,6 +207,8 @@ columns:
     - 2007
     - 2026
   CLI_A_FMSE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_acute_phase_left_arm
     kind: category
     model: mark
@@ -195,6 +217,8 @@ columns:
     - 2007
     - 2026
   CLI_A_SMID:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_acute_phase_right_leg
     kind: category
     model: mark
@@ -203,6 +227,8 @@ columns:
     - 2007
     - 2026
   CLI_A_SMIE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_acute_phase_left_leg
     kind: category
     model: mark
@@ -211,6 +237,8 @@ columns:
     - 2007
     - 2026
   CLI_A_SMSD:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_acute_phase_right_arm
     kind: category
     model: mark
@@ -219,6 +247,8 @@ columns:
     - 2007
     - 2026
   CLI_A_SMSE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_acute_phase_left_arm
     kind: category
     model: mark
@@ -235,6 +265,8 @@ columns:
     - 2007
     - 2026
   CLI_A_TMID:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_right_leg
     kind: category
     model: mark
@@ -243,6 +275,8 @@ columns:
     - 2007
     - 2026
   CLI_A_TMIE:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_left_leg
     kind: category
     model: mark
@@ -251,6 +285,8 @@ columns:
     - 2007
     - 2026
   CLI_A_TMSD:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_right_arm
     kind: category
     model: mark
@@ -259,6 +295,8 @@ columns:
     - 2007
     - 2026
   CLI_A_TMSE:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_left_arm
     kind: category
     model: mark
@@ -267,6 +305,8 @@ columns:
     - 2007
     - 2026
   CLI_A_T_CE:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_neck
     kind: category
     model: mark
@@ -275,6 +315,8 @@ columns:
     - 2007
     - 2026
   CLI_A_T_FA:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_tone_acute_phase_face
     kind: category
     model: mark
@@ -283,6 +325,8 @@ columns:
     - 2007
     - 2026
   CLI_BICD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído 1. Ausente', 2='Normal', 3='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['4'], which the form does not define
     role: case.right_biceps_reflex
     kind: category
     model: mark
@@ -291,6 +335,8 @@ columns:
     - 2007
     - 2026
   CLI_BICE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.left_biceps_reflex
     kind: category
     model: mark
@@ -299,6 +345,8 @@ columns:
     - 2007
     - 2026
   CLI_BRUDZ:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Ausente', 2='Presente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.brudzinski_sign
     kind: category
     model: mark
@@ -307,6 +355,8 @@ columns:
     - 2007
     - 2026
   CLI_CEFALE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_headache
     kind: category
     model: mark
@@ -317,6 +367,8 @@ columns:
     - 2007
     - 2026
   CLI_CERVIC:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.neck_involvement
     kind: category
     model: mark
@@ -325,6 +377,8 @@ columns:
     - 2007
     - 2026
   CLI_CONTAT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.contact_with_or_ingestion_of_toxic_substances
     kind: category
     model: mark
@@ -341,6 +395,8 @@ columns:
     - 2007
     - 2026
   CLI_DESCEN:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.descending_progression
     kind: category
     model: mark
@@ -349,6 +405,8 @@ columns:
     - 2007
     - 2026
   CLI_DIARRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_diarrhoea
     kind: category
     model: mark
@@ -357,6 +415,8 @@ columns:
     - 2007
     - 2026
   CLI_DORES:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_pain
     kind: category
     model: mark
@@ -381,6 +441,8 @@ columns:
     - 2007
     - 2026
   CLI_EXT_D:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.plantar_reflex_extension_right
     kind: category
     model: mark
@@ -397,6 +459,8 @@ columns:
     - 2007
     - 2026
   CLI_FACE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.facial_paralysis
     kind: category
     model: mark
@@ -405,6 +469,8 @@ columns:
     - 2007
     - 2026
   CLI_FEBRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_fever
     kind: category
     model: mark
@@ -415,6 +481,8 @@ columns:
     - 2007
     - 2026
   CLI_FLACID:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.flaccid_paralysis
     kind: category
     model: mark
@@ -431,6 +499,8 @@ columns:
     - 2007
     - 2026
   CLI_FLE_E:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.plantar_reflex_flexion_left
     kind: category
     model: mark
@@ -439,6 +509,8 @@ columns:
     - 2007
     - 2026
   CLI_F_MID:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_right_leg
     kind: category
     model: mark
@@ -447,6 +519,8 @@ columns:
     - 2007
     - 2026
   CLI_F_MIE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_left_leg
     kind: category
     model: mark
@@ -463,6 +537,8 @@ columns:
     - 2007
     - 2026
   CLI_F_MSE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.muscle_strength_left_arm
     kind: category
     model: mark
@@ -471,6 +547,8 @@ columns:
     - 2007
     - 2026
   CLI_INJECA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.prior_intramuscular_injection
     kind: category
     model: mark
@@ -479,6 +557,8 @@ columns:
     - 2007
     - 2026
   CLI_KERNIG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Ausente', 2='Presente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_kernig
     kind: category
     model: mark
@@ -489,6 +569,8 @@ columns:
     - 2007
     - 2026
   CLI_LOCAL:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='MIE', 2='MSE', 3='MID', 4='MSD', 5='Glúteo E', 6='Glúteo D'; the tabulation: no value labelled as not recorded
     role: case.site_of_intramuscular_injection
     kind: category
     model: mark
@@ -497,6 +579,8 @@ columns:
     - 2007
     - 2026
   CLI_NUCA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Ausente', 2='Presente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.neck_stiffness
     kind: category
     model: mark
@@ -505,6 +589,8 @@ columns:
     - 2007
     - 2026
   CLI_OBSTIP:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.constipation
     kind: category
     model: mark
@@ -513,6 +599,8 @@ columns:
     - 2007
     - 2026
   CLI_OUTROS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_other
     kind: category
     model: mark
@@ -521,6 +609,8 @@ columns:
     - 2007
     - 2026
   CLI_PATD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.right_knee_reflex
     kind: category
     model: mark
@@ -529,6 +619,8 @@ columns:
     - 2007
     - 2026
   CLI_PATE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.left_knee_reflex
     kind: category
     model: mark
@@ -537,6 +629,8 @@ columns:
     - 2007
     - 2026
   CLI_PROGRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.motor_deficit_progressing_beyond_3_days
     kind: category
     model: mark
@@ -545,6 +639,8 @@ columns:
     - 2007
     - 2026
   CLI_RESPIR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_respiratory
     kind: category
     model: mark
@@ -553,6 +649,8 @@ columns:
     - 2007
     - 2026
   CLI_SINTOM:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.respiratory_symptoms
     kind: category
     model: mark
@@ -561,6 +659,8 @@ columns:
     - 2007
     - 2026
   CLI_TRID_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.right_triceps_reflex
     kind: category
     model: mark
@@ -569,6 +669,8 @@ columns:
     - 2007
     - 2026
   CLI_TRIE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.left_triceps_reflex
     kind: category
     model: mark
@@ -577,6 +679,8 @@ columns:
     - 2007
     - 2026
   CLI_VOMITO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_vomiting
     kind: category
     model: mark
@@ -598,6 +702,8 @@ columns:
     - 2026
     note: "ICD-10 codes written with a dot (G61.0): they do not match ICD-10's widths and stay undecoded, visibly."
   CRITERIO:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Laboratorial', 2='Clinico Epidemiológico', 3='Perda de Seguimento', 4='Óbito', 5='Evolução'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -775,6 +881,8 @@ columns:
     - 2007
     - 2026
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Cura com sequela', 2='Cura sem sequela', 3='Óbito por PFA/Pólio', 4='Óbito por outras causas', 9='Ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -798,6 +906,8 @@ columns:
     - 2007
     - 2026
   EVOR_A_MID:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Presente', 2='Ausente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.atrophy_at_reassessment_right_leg
     kind: category
     model: mark
@@ -806,6 +916,8 @@ columns:
     - 2007
     - 2026
   EVOR_A_MIE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.atrophy_at_reassessment_left_leg
     kind: category
     model: mark
@@ -814,6 +926,8 @@ columns:
     - 2007
     - 2026
   EVOR_A_MSD:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Presente', 2='Ausente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.atrophy_at_reassessment_right_arm
     kind: category
     model: mark
@@ -822,6 +936,8 @@ columns:
     - 2007
     - 2026
   EVOR_A_MSE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Presente', 2='Ausente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.atrophy_at_reassessment_left_arm
     kind: category
     model: mark
@@ -838,6 +954,8 @@ columns:
     - 2007
     - 2026
   EVOR_F_MID:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.strength_at_reassessment_right_leg
     kind: category
     model: mark
@@ -846,6 +964,8 @@ columns:
     - 2007
     - 2026
   EVOR_F_MIE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.strength_at_reassessment_left_leg
     kind: category
     model: mark
@@ -854,6 +974,8 @@ columns:
     - 2007
     - 2026
   EVOR_F_MSD:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.strength_at_reassessment_right_arm
     kind: category
     model: mark
@@ -862,6 +984,8 @@ columns:
     - 2007
     - 2026
   EVOR_F_MSE:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.strength_at_reassessment_left_arm
     kind: category
     model: mark
@@ -870,6 +994,8 @@ columns:
     - 2007
     - 2026
   EVOR_RC_ED:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.reflex_at_reassessment_right_upper
     kind: category
     model: mark
@@ -878,6 +1004,8 @@ columns:
     - 2007
     - 2026
   EVOR_RC_EE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.reflex_at_reassessment_left_upper
     kind: category
     model: mark
@@ -886,6 +1014,8 @@ columns:
     - 2007
     - 2026
   EVOR_RC_FD:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.reflex_at_reassessment_right_lower
     kind: category
     model: mark
@@ -894,6 +1024,8 @@ columns:
     - 2007
     - 2026
   EVOR_RC_FE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.reflex_at_reassessment_left_lower
     kind: category
     model: mark
@@ -902,6 +1034,8 @@ columns:
     - 2007
     - 2026
   EVOR_S_FAC:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_at_reassessment_face
     kind: category
     model: mark
@@ -910,6 +1044,8 @@ columns:
     - 2007
     - 2026
   EVOR_S_MID:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_at_reassessment_right_leg
     kind: category
     model: mark
@@ -918,6 +1054,8 @@ columns:
     - 2007
     - 2026
   EVOR_S_MIE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente 1- Normal 2- Parestesia', 3='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['4', '5'], which the form does not define
     role: case.sensation_at_reassessment_left_leg
     kind: category
     model: mark
@@ -926,6 +1064,8 @@ columns:
     - 2007
     - 2026
   EVOR_S_MSD:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_at_reassessment_right_arm
     kind: category
     model: mark
@@ -934,6 +1074,8 @@ columns:
     - 2007
     - 2026
   EVOR_S_MSE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_at_reassessment_left_arm
     kind: category
     model: mark
@@ -1063,6 +1205,8 @@ columns:
     - 2007
     - 2026
   LAB_CON_F:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Temperatura Adequada', 2='Temperatura Alterada'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.stool_sample_cold_chain_intact
     kind: category
     model: mark
@@ -1151,6 +1295,8 @@ columns:
     - 2007
     - 2026
   LAB_INTEST:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.intestinal_content_collected
     kind: category
     model: mark
@@ -1239,6 +1385,8 @@ columns:
     - 2007
     - 2026
   LAB_MEDULA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.spinal_cord_tissue_collected
     kind: category
     model: mark
@@ -1247,6 +1395,8 @@ columns:
     - 2007
     - 2026
   LAB_Q_F:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Suficiente', 2='Insuficiente'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.stool_sample_quantity_adequate
     kind: category
     model: mark
@@ -1255,6 +1405,8 @@ columns:
     - 2007
     - 2026
   LAB_RESULT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Compatível com poliomielite', 2='Não compatível com poliomielite'; the tabulation: no value labelled as not recorded
     role: case.anatomopathological_result
     kind: category
     model: mark
@@ -1263,6 +1415,8 @@ columns:
     - 2007
     - 2026
   LAB_RES_F1:
+    missing: ['0', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 01='P1 Vacinal', 02='P2 Vacinal', 03='P3 Vacinal', 04='P1 Selvagem', 05='P2 Selvagem', 06='P3 Selvagem', 07='Negativo', 08='Não Pólio', 09='Outros', 10='Inconclusivo', 11='PVDV 1', 12='PVDV 2 13 – PVDV 3'; the tabulation: 0='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['1', '3', '7'], which the form does not define
     role: case.first_stool_result
     kind: category
     model: mark
@@ -1287,6 +1441,8 @@ columns:
     - 2007
     - 2026
   LOCA_MID_N:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Distal', 2='Proximal', 3='Todo o membro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: case.paralysis_site_right_leg
     kind: category
     model: mark
@@ -1295,6 +1451,8 @@ columns:
     - 2007
     - 2026
   LOCA_MIE_N:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Distal', 2='Proximal', 3='Todo o membro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: case.paralysis_site_left_leg
     kind: category
     model: mark
@@ -1303,6 +1461,8 @@ columns:
     - 2007
     - 2026
   LOCA_MSD_N:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Distal', 2='Proximal', 3='Todo o membro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: case.paralysis_site_right_arm
     kind: category
     model: mark
@@ -1311,6 +1471,8 @@ columns:
     - 2007
     - 2026
   LOCA_MSE_N:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Distal', 2='Proximal', 3='Todo o membro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: case.paralysis_site_left_arm
     kind: category
     model: mark
@@ -1389,6 +1551,8 @@ columns:
     - 2007
     - 2026
   REFR_AQD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.ankle_reflex_at_reassessment_right
     kind: category
     model: mark
@@ -1397,6 +1561,8 @@ columns:
     - 2007
     - 2026
   REFR_AQE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.ankle_reflex_at_reassessment_left
     kind: category
     model: mark
@@ -1405,6 +1571,8 @@ columns:
     - 2007
     - 2026
   REFR_BID_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.biceps_reflex_at_reassessment_right
     kind: category
     model: mark
@@ -1413,6 +1581,8 @@ columns:
     - 2007
     - 2026
   REFR_BIE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.biceps_reflex_at_reassessment_left
     kind: category
     model: mark
@@ -1421,6 +1591,8 @@ columns:
     - 2007
     - 2026
   REFR_PAD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.knee_reflex_at_reassessment_right
     kind: category
     model: mark
@@ -1429,6 +1601,8 @@ columns:
     - 2007
     - 2026
   REFR_PAE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.knee_reflex_at_reassessment_left
     kind: category
     model: mark
@@ -1437,6 +1611,8 @@ columns:
     - 2007
     - 2026
   REFR_TRD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.triceps_reflex_at_reassessment_right
     kind: category
     model: mark
@@ -1445,6 +1621,8 @@ columns:
     - 2007
     - 2026
   REFR_TRE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuído', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.triceps_reflex_at_reassessment_left
     kind: category
     model: mark
@@ -1491,6 +1669,8 @@ columns:
     - 2026
     note: role from the notification block
   TONR_CER_N:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 9='Ignorado'
     role: case.cervical_muscle_tone_at_revisit
     kind: category
     model: mark
@@ -1499,6 +1679,8 @@ columns:
     - 2007
     - 2026
   TONR_FAC_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.tone_at_reassessment_face
     kind: category
     model: mark
@@ -1507,6 +1689,8 @@ columns:
     - 2007
     - 2026
   TONR_MID_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.tone_at_reassessment_right_leg
     kind: category
     model: mark
@@ -1515,6 +1699,8 @@ columns:
     - 2007
     - 2026
   TONR_MIE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.tone_at_reassessment_left_leg
     kind: category
     model: mark
@@ -1523,6 +1709,8 @@ columns:
     - 2007
     - 2026
   TONR_MSD_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.tone_at_reassessment_right_arm
     kind: category
     model: mark
@@ -1531,6 +1719,8 @@ columns:
     - 2007
     - 2026
   TONR_MSE_N:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Aumentado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.tone_at_reassessment_left_arm
     kind: category
     model: mark

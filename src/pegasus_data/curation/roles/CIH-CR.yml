@@ -1,0 +1,253 @@
+dataset: CIH-CR
+record: admission
+columns:
+  ANO_CMPT:
+    role: admission.processing_year
+    kind: date
+    model: when
+    name: Ano de competência
+    years:
+    - 2008
+    - 2011
+  CAR_INT:
+    role: admission.admission_character
+    kind: category
+    model: mark
+    name: Caráter da internação
+    years:
+    - 2008
+    - 2011
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CGC (CNPJ) do hospital
+    years:
+    - 2008
+    - 2011
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Código CNES do estabelecimento
+    years:
+    - 2008
+    - 2011
+  COBRANCA:
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    name: Motivo de saída/permanência
+    years:
+    - 2008
+    - 2011
+    codelists:
+    - SAIDAPERM
+    - SAIDAPERMC
+  COD_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    codelists:
+    - IDADEDET
+    name: Unidade de idade
+    years:
+    - 2008
+    - 2011
+  DIAG_PRINC:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico principal
+    years:
+    - 2008
+    - 2011
+  DIAG_SECUN:
+    role: admission.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - ICD10
+    - S_CID
+    name: Diagnóstico secundário
+    years:
+    - 2008
+    - 2011
+  DIAS_PERM:
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    name: Dias de permanência
+    years:
+    - 2008
+    - 2011
+  DT_INTER:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data de internação
+    years:
+    - 2008
+    - 2011
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 2008
+    - 2011
+  ESPEC:
+    role: admission.bed_specialty
+    kind: category
+    model: mark
+    name: Especialidade do leito/da internação
+    years:
+    - 2008
+    - 2011
+  FONTE:
+    role: admission.payment_source
+    kind: category
+    model: mark
+    name: Fonte da remuneração
+    years:
+    - 2008
+    - 2011
+  GESTAO:
+    role: admission.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    years:
+    - 2008
+    - 2011
+    codelists:
+    - GESTAO
+  HOMONIMO:
+    role: patient.homonym_flag
+    kind: category
+    model: link_only
+    name: Indicador de homônimo
+    years:
+    - 2008
+    - 2011
+  IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2008
+    - 2011
+  MES_CMPT:
+    role: admission.processing_month
+    kind: date
+    model: when
+    codelists:
+    - MESES
+    name: Mês de competência
+    years:
+    - 2008
+    - 2011
+  MORTE:
+    role: admission.death
+    kind: category
+    model: mark
+    name: Óbito (saída com morte)
+    years:
+    - 2008
+    - 2011
+    codelists:
+    - MORTES
+  MUNIC_MOV:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de internação (movimentação)
+    years:
+    - 2008
+    - 2011
+  MUNIC_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de residência
+    years:
+    - 2008
+    - 2011
+  NACIONAL:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Nacionalidade
+    years:
+    - 2008
+    - 2011
+    codelists:
+    - NACION3D
+  NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 2008
+    - 2011
+  NATUREZA:
+    role: facility.legal_nature_old
+    kind: category
+    model: mark
+    name: Natureza jurídica do estabelecimento
+    years:
+    - 2008
+    - 2011
+    codelists:
+    - NATUREZA
+    - NATUREZC
+  PROC_REA:
+    role: admission.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - SIGTAP
+    name: Procedimento realizado
+    years:
+    - 2008
+    - 2011
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    codelists:
+    - SEXO
+    name: Sexo do paciente
+    years:
+    - 2008
+    - 2011
+  UTI_INT_TO:
+    role: admission.intermediate_days
+    kind: number
+    model: mark
+    name: Diárias de UTI intermediária
+    years:
+    - 2008
+    - 2011
+  UTI_MES_TO:
+    role: admission.icu_days_month
+    kind: number
+    model: mark
+    name: Total de dias de UTI durante a internação
+    years:
+    - 2008
+    - 2011

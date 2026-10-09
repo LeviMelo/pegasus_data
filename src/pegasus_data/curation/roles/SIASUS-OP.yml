@@ -1,0 +1,136 @@
+dataset: SIASUS-OP
+record: procedure
+columns:
+  OPC_AIHNUM:
+    role: authorisation.hospital_admission_authorisation_number
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+  OPC_AIHPRO:
+    role: authorisation.aih_procedure_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+    note: Empty in every file read; kind from its variable note.
+  OPC_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    years:
+    - 2001
+    - 2007
+  OPC_CID:
+    role: authorisation.diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    years:
+    - 2001
+    - 2007
+  OPC_CODUNI:
+    role: authorisation.establishment_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    years:
+    - 2001
+    - 2007
+  OPC_CONDIC:
+    role: authorisation.management_arrangement
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  OPC_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  OPC_DATREF:
+    role: authorisation.reference_compet_ncia
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  OPC_DTTRAN:
+    role: authorisation.transplant_date
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  OPC_GESTAO:
+    role: authorisation.managing_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2001
+    - 2007
+  OPC_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2001
+    - 2007
+  OPC_NASCPC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    years:
+    - 2001
+    - 2007
+  OPC_NUM:
+    role: authorisation.apac_number
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+  OPC_PRIPAL:
+    role: authorisation.procedure
+    kind: code_tree
+    model: event_type
+    years:
+    - 2001
+    - 2007
+    codelists:
+    - PROC1199
+    - PROCSIA
+  OPC_RESULT:
+    role: authorisation.examination_result_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  OPC_SEXOPC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    years:
+    - 2001
+    - 2007
+  OPC_UFNASC:
+    role: patient.birth_state
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007

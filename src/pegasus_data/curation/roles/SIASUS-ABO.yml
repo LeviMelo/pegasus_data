@@ -1,0 +1,750 @@
+dataset: SIASUS-ABO
+record: procedure
+columns:
+  AB_ANOACOM:
+    role: authorisation.follow_up_year
+    kind: date
+    model: mark
+    name: Ano do acompanhamento
+    years:
+    - 2014
+    - 2026
+  AB_DTCIRG2:
+    role: authorisation.date_of_second_surgery
+    kind: date
+    model: mark
+    name: Data da segunda cirurgia
+    years:
+    - 2014
+    - 2026
+  AB_DTCIRUR:
+    role: authorisation.date_of_bariatric_surgery
+    kind: date
+    model: mark
+    name: Data da cirurgia bariátrica
+    years:
+    - 2014
+    - 2026
+  AB_IMC:
+    role: authorisation.body_mass_index
+    kind: number
+    model: mark
+    name: Índice de massa corporal
+    years:
+    - 2014
+    - 2026
+  AB_MESACOM:
+    role: authorisation.months_of_follow_up
+    kind: number
+    model: mark
+    name: Número em meses de acompanhamento
+    years:
+    - 2014
+    - 2026
+  AB_NUMAIH:
+    role: authorisation.hospital_admission_authorisation_number
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 2014
+    - 2026
+  AB_NUMAIH2:
+    role: authorisation.second_admission_authorisation_number
+    kind: identifier
+    model: link_only
+    name: Número da segunda AIH
+    years:
+    - 2014
+    - 2026
+  AB_PONTBAR:
+    role: authorisation.barros_score
+    kind: number
+    model: mark
+    name: Pontuação de Barros
+    years:
+    - 2014
+    - 2026
+  AB_PRCAIH2:
+    role: authorisation.aih_procedure_2
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Segundo procedimento da AIH
+    years:
+    - 2014
+    - 2026
+  AB_PRCAIH3:
+    role: authorisation.aih_procedure_3
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Terceiro procedimento da AIH
+    years:
+    - 2014
+    - 2026
+  AB_PRCAIH4:
+    role: authorisation.aih_procedure_4
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Quarto procedimento da AIH
+    years:
+    - 2014
+    - 2026
+  AB_PRCAIH5:
+    role: authorisation.aih_procedure_5
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Quinto procedimento da AIH
+    years:
+    - 2014
+    - 2026
+  AB_PRCAIH6:
+    role: authorisation.aih_procedure_6
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Sexto procedimento da AIH
+    years:
+    - 2014
+    - 2026
+  AB_PROCAIH:
+    role: authorisation.principal_aih_procedure
+    kind: code_tree
+    model: mark
+    codelists:
+    - SIGTAP
+    name: Procedimento principal da AIH
+    years:
+    - 2014
+    - 2026
+  AB_TABBARR:
+    role: authorisation.baros_outcome_score
+    kind: category
+    model: mark
+    name: Classificação BAROS
+    years:
+    - 2014
+    - 2026
+  AB_T_PRC2:
+    role: authorisation.post_bariatric_follow_up_field_2_probably_months_since_surge
+    kind: number
+    model: mark
+    name: Campo AB_T_PRC2 (rótulo não documentado)
+    years:
+    - 2014
+    - 2026
+  AB_T_PRC3:
+    role: authorisation.post_bariatric_follow_up_field_3_probably_months_since_surge
+    kind: number
+    model: mark
+    name: Campo AB_T_PRC3 (rótulo não documentado)
+    years:
+    - 2014
+    - 2026
+  AB_T_PRC4:
+    role: authorisation.post_bariatric_follow_up_field_4_probably_months_since_surge
+    kind: number
+    model: mark
+    name: Campo AB_T_PRC4 (rótulo não documentado)
+    years:
+    - 2014
+    - 2026
+  AB_T_PRC5:
+    role: authorisation.post_bariatric_follow_up_field_5_probably_months_since_surge
+    kind: number
+    model: mark
+    name: Campo AB_T_PRC5 (rótulo não documentado)
+    years:
+    - 2014
+    - 2026
+  AB_T_PRC6:
+    role: authorisation.post_bariatric_follow_up_field_6_probably_months_since_surge
+    kind: number
+    model: mark
+    name: Campo AB_T_PRC6 (rótulo não documentado)
+    years:
+    - 2014
+    - 2026
+  AP_ADESAO:
+    role: authorisation.adherence_to_treatment
+    kind: category
+    model: mark
+    name: Adesão ao tratamento
+    years:
+    - 2014
+    - 2026
+  AP_ALTA:
+    role: authorisation.discharge
+    kind: category
+    model: mark
+    name: Indicador de Alta
+    codelists:
+    - ALTA
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_APACAN:
+    role: authorisation.previous_apac_number
+    kind: identifier
+    model: link_only
+    name: Número da APAC anterior
+    years:
+    - 2014
+    - 2026
+  AP_ATV_FIS:
+    role: authorisation.physical_activity
+    kind: category
+    model: mark
+    name: Prática de atividade física
+    years:
+    - 2014
+    - 2026
+  AP_AUTORIZ:
+    role: authorisation.number
+    kind: identifier
+    model: link_only
+    name: Numero da APAC
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CATEND:
+    role: authorisation.admission_character
+    kind: category
+    model: mark
+    name: Carater do Atendimento
+    codelists:
+    - CARAT_AT
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: CEP do endereco do paciente
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CIDCAS:
+    role: authorisation.associated_cause
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID Causas Associadas
+    years:
+    - 2014
+    - 2026
+  AP_CID_C1:
+    role: authorisation.comorbidity_1
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade 1
+    years:
+    - 2014
+    - 2026
+  AP_CID_C2:
+    role: authorisation.comorbidity_2
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade 2
+    years:
+    - 2014
+    - 2026
+  AP_CID_C3:
+    role: authorisation.comorbidity_3
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade 3
+    years:
+    - 2014
+    - 2026
+  AP_CID_C4:
+    role: authorisation.comorbidity_4
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade 4
+    years:
+    - 2014
+    - 2026
+  AP_CID_C5:
+    role: authorisation.comorbidity_5
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade 5
+    years:
+    - 2014
+    - 2026
+  AP_CID_CO:
+    role: authorisation.comorbidity_icd_10_code
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID de comorbidade
+    years:
+    - 2014
+    - 2026
+  AP_CMP:
+    role: authorisation.competence
+    kind: date
+    model: when
+    name: Data de Atendimento ao paciente / Competencia
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CNPJCPF:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento executante
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CNPJMNT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    name: CNPJ da Mantenedora do estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CNSPCN:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Numero do CNS do paciente
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CODEMI:
+    role: authorisation.issuer
+    kind: category
+    model: mark
+    name: Codigo do Orgao emissor
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_CODUNI:
+    role: authorisation.facility
+    kind: institution
+    model: institution
+    name: Codigo do Estabelecimento no CNES
+    codelists:
+    - CADGERBR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_COIDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    name: Codigo da Idade do paciente
+    codelists:
+    - IDADEDET
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_COMORB:
+    role: authorisation.comorbidity_present
+    kind: category
+    model: mark
+    name: Comorbidade
+    years:
+    - 2014
+    - 2026
+  AP_CONDIC:
+    role: authorisation.management_condition
+    kind: category
+    model: mark
+    name: Sigla do Tipo de Gestao
+    codelists:
+    - TPGEST_C
+    - TP_GESTAO
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_DTAUT:
+    role: authorisation.authorised
+    kind: date
+    model: when
+    name: Data da Autorizacao
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_DTFIM:
+    role: authorisation.end
+    kind: date
+    model: when
+    name: Data de FIM validade
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_DTINIC:
+    role: authorisation.start
+    kind: date
+    model: when
+    name: Data de INICIO validade
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_DTOOCOR:
+    role: authorisation.date_of_the_event
+    kind: date
+    model: mark
+    name: Data da ocorrência
+    years:
+    - 2014
+    - 2026
+  AP_DTSOLIC:
+    role: authorisation.requested
+    kind: date
+    model: when
+    name: Data da Solicitacao
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_ENCERR:
+    role: authorisation.closure
+    kind: category
+    model: mark
+    name: Indicador de Encerramento
+    codelists:
+    - ENCERRAM
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia do paciente
+    codelists:
+    - ETNIA
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_GESTAO:
+    role: authorisation.management_municipality
+    kind: place
+    model: mark
+    name: Codigo da UF+Municipio de Gestao
+    codelists:
+    - BR_MUNICGESTOR
+    - MUNICBR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_MEDICAM:
+    role: authorisation.taking_medication
+    kind: category
+    model: mark
+    name: Uso de medicamentos
+    years:
+    - 2014
+    - 2026
+  AP_MNDIF:
+    role: authorisation.municipality_mismatch_flag
+    kind: category
+    model: excluded
+    name: Municipio de residencia diferente do estabelecimento
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_MN_IND:
+    role: facility.maintained_or_individual
+    kind: category
+    model: mark
+    name: Estabelecimento Mantido / Individual
+    codelists:
+    - MANT_IND
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_MOTSAI:
+    role: authorisation.exit_reason
+    kind: category
+    model: mark
+    name: Motivo de Saida e Permanencia
+    codelists:
+    - MOTSAIPE
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: UF+Municipio de Residencia do paciente
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_MVM:
+    role: authorisation.processing_month
+    kind: date
+    model: when
+    name: Data de Processamento / Movimento
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_NATJUR:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Codigo da Natureza Juridica
+    codelists:
+    - NATJUR
+    - NATJURC
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_NUIDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Numero da Idade
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_OBITO:
+    role: authorisation.death
+    kind: category
+    model: mark
+    name: Indicador de Obito
+    codelists:
+    - OBITO
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_PERMAN:
+    role: authorisation.continuation
+    kind: category
+    model: mark
+    name: Indicador de Permanencia
+    codelists:
+    - PERMANEN
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_POLIVIT:
+    role: authorisation.taking_multivitamins
+    kind: category
+    model: mark
+    name: Uso de polivitamínico
+    years:
+    - 2014
+    - 2026
+  AP_PRIPAL:
+    role: authorisation.procedure
+    kind: code_tree
+    model: event_type
+    name: Procedimento Principal da APAC
+    codelists:
+    - SIGTAP
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raca/Cor do paciente
+    codelists:
+    - RACA_COR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_REG_PES:
+    role: authorisation.weight_regain
+    kind: category
+    model: mark
+    name: Reganho de peso
+    years:
+    - 2014
+    - 2026
+  AP_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_TPAPAC:
+    role: authorisation.apac_type
+    kind: category
+    model: event_type
+    name: Tipo de APAC
+    codelists:
+    - TP_APAC
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_TPATEND:
+    role: authorisation.apac_type
+    kind: category
+    model: mark
+    name: Tipo de atendimento da APAC
+    years:
+    - 2014
+    - 2026
+  AP_TPPRE:
+    role: authorisation.provider_type
+    kind: category
+    model: mark
+    name: Tipo de prestador
+    years:
+    - 2014
+    - 2026
+  AP_TPUPS:
+    role: facility.type
+    kind: category
+    model: mark
+    name: Tipo de Estabelecimento
+    codelists:
+    - TP_ESTAB
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_TRANSF:
+    role: authorisation.transfer
+    kind: category
+    model: mark
+    name: Indicador de Transferencia
+    codelists:
+    - TRANSFER
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_UFDIF:
+    role: authorisation.state_mismatch
+    kind: category
+    model: mark
+    name: UF de residencia diferente da UF do estabelecimento
+    codelists:
+    - INVASAO
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_UFMUN:
+    role: authorisation.facility_municipality
+    kind: place
+    model: where
+    name: UF+Municipio do Estabelecimento
+    codelists:
+    - AC_MUNICIP
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_UFNACIO:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Codigo da Nacionalidade do paciente
+    codelists:
+    - UFNACIO
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_UNISOL:
+    role: authorisation.requesting_facility
+    kind: institution
+    model: institution
+    name: Codigo CNES do Estabelecimento Solicitante
+    codelists:
+    - CADGERBR
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  AP_VL_AP:
+    role: authorisation.approved_value
+    kind: number
+    model: mark
+    name: Valor Total da APAC Aprovado
+    years:
+    - 2014
+    - 2026
+    note: role from SIASUS-AN
+  CO_CIDPRIM:
+    role: authorisation.primary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID primário
+    years:
+    - 2014
+    - 2026
+  CO_CIDSEC:
+    role: authorisation.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    name: CID secundário
+    years:
+    - 2014
+    - 2026

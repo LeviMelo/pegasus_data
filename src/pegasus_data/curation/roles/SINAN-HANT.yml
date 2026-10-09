@@ -12,81 +12,90 @@ columns:
     - 2007
     - 2026
   ANO_DT_SIN:
-    role: notification.ano_dt_sin
+    role: notification.symptom_onset_year
     kind: number
     model: mark
-    review: draft
     name: Ano da data dos primeiros sintomas
     years:
     - 2006
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANO_NASC:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 1999
     - 2026
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_ARAGEM:
-    role: notification.ant_aragem
-    kind: number
+    role: notification.exposure_plowing_tilling_soil
+    kind: category
     model: mark
-    review: draft
     name: Antecedente de aragem
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_ARRUMO:
-    role: notification.ant_arrumo
-    kind: number
+    role: notification.cleaned_tidied_an_enclosed_space_antecedent
+    kind: category
     model: mark
-    review: draft
     name: Antecedente - arrumação de local fechado
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_COLHEI:
-    role: notification.ant_colhei
-    kind: number
+    role: notification.harvesting_activity_in_the_last_30_days_flag
+    kind: category
     model: mark
-    review: draft
     name: Atividade de colheita nos últimos 30 dias
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_CONTAT:
-    role: notification.ant_contat
+    role: notification.exposure_contact_legacy
     kind: category
     model: mark
-    review: draft
     name: Tratamento anti-rábico anterior
-    codelists:
-    - SIM_NAO
     years:
     - 1999
     - 2006
+    codelists:
+    - SIM_NAO
+    note: 'The variable note reads prior anti-rabies treatment, a meaning borrowed from another form; on the hantavirus
+      form it is one of the exposure antecedents (ANT_*). 2000-2006 SINAN Windows layout: no dictionary for it is
+      published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable
+      note (the name); kind from the values; codes undecoded.'
   ANT_CORTE:
-    role: notification.ant_corte
-    kind: number
+    role: notification.history_of_brush_cutting_activity
+    kind: category
     model: mark
-    review: draft
     name: Antecedente de corte de mato/roçagem
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_DESMAT:
-    role: notification.ant_desmat
-    kind: number
+    role: notification.exposure_clearing_forest_brush
+    kind: category
     model: mark
-    review: draft
     name: Antecedente de desmatamento
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_DT_INV:
     role: notification.investigation_date
     kind: date
@@ -96,68 +105,76 @@ columns:
     - 1999
     - 2006
   ANT_EXPOSI:
-    role: notification.ant_exposi
-    kind: number
+    role: notification.risk_area_exposure_antecedent
+    kind: category
     model: mark
-    review: draft
     name: Antecedente - exposição em área de risco
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_LAZER:
-    role: notification.ant_lazer
-    kind: number
+    role: notification.recreational_activity_in_risk_area_flag
+    kind: category
     model: mark
-    review: draft
     name: Atividade de lazer em área de risco nos últimos 30 dias
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_LIMPEZ:
-    role: notification.ant_limpez
-    kind: number
+    role: notification.history_of_cleaning_an_enclosed_structure
+    kind: category
     model: mark
-    review: draft
     name: Antecedente de limpeza de local fechado
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_MOAGEM:
-    role: notification.ant_moagem
-    kind: number
+    role: notification.exposure_grain_milling_threshing
+    kind: category
     model: mark
-    review: draft
     name: Antecedente de moagem de grãos
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_OCUPAC:
-    role: notification.ant_ocupac
-    kind: number
+    role: notification.occupational_exposure_code_legacy
+    kind: category
     model: mark
-    review: draft
     name: Antecedente ocupacional
     years:
     - 1999
     - 2006
+    note: 'Three-digit codes (639, 991, 994): plausibly a pre-2002 CBO group; not verified, so undecoded. 2000-2006
+      SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET,
+      the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_PLANTI:
-    role: notification.ant_planti
-    kind: number
+    role: notification.farming_planting_activity_antecedent
+    kind: category
     model: mark
-    review: draft
     name: Antecedente - atividade de plantio
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ANT_ROEDOR:
-    role: notification.ant_roedor
-    kind: number
+    role: notification.rodent_contact_in_the_last_30_days_flag
+    kind: category
     model: mark
-    review: draft
     name: Contato com roedores nos últimos 30 dias
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -186,14 +203,15 @@ columns:
     - 1999
     - 2026
   CLI_ANGUST:
-    role: notification.cli_angust
-    kind: number
+    role: notification.respiratory_distress
+    kind: category
     model: mark
-    review: draft
     name: Angústia respiratória
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_ASTENI:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -205,15 +223,15 @@ columns:
     - 2007
     - 2026
   CLI_CARDIA:
-    role: notification.cli_cardia
+    role: notification.clinical_sign_cardiac_involvement
     kind: category
     model: mark
-    review: draft
     name: Alterações cardíacas
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes'
     years:
     - 2007
     - 2026
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes Reviewed against
+      the values.'
   CLI_CEFALE:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -237,15 +255,15 @@ columns:
     - 2007
     - 2026
   CLI_DIARRE:
-    role: notification.cli_diarre
+    role: notification.clinical_sign_diarrhea
     kind: category
     model: mark
-    review: draft
     name: Diarreia
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes'
     years:
     - 2007
     - 2026
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes Reviewed against
+      the values.'
   CLI_DISPNE:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -259,15 +277,14 @@ columns:
     - 1999
     - 2026
   CLI_DT_ATE:
-    role: notification.cli_dt_ate
+    role: notification.date_of_clinical_care
     kind: date
     model: mark
-    review: draft
     name: Data de atendimento
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type date'
     years:
     - 1999
     - 2026
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type date Reviewed against the values.'
   CLI_FEBRE:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -281,23 +298,25 @@ columns:
     - 1999
     - 2026
   CLI_GARGAN:
-    role: notification.cli_gargan
-    kind: number
+    role: notification.sore_throat_clinical_sign
+    kind: category
     model: mark
-    review: draft
     name: Dor de garganta
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_H:
-    role: notification.cli_h
-    kind: number
+    role: notification.clinical_sign_h_coded
+    kind: category
     model: mark
-    review: draft
     name: Quadro clínico - sinal (H)
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_HEMO:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -337,23 +356,25 @@ columns:
     - 2007
     - 2026
   CLI_MIALGI:
-    role: notification.cli_mialgi
+    role: notification.myalgia
     kind: category
     model: mark
-    review: draft
     name: Mialgia
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_MIAL_D:
-    role: notification.cli_mial_d
-    kind: number
-    model: mark
-    review: draft
+    role: notification.myalgia_additional_detail
+    kind: text
+    model: excluded
     name: Mialgia - detalhamento
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_MIAL_G:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -365,17 +386,17 @@ columns:
     - 2007
     - 2026
   CLI_MUNICI:
-    role: notification.cli_munici
+    role: notification.municipality_of_clinical_care
     kind: place
     model: mark
-    review: draft
     name: Município do atendimento clínico
-    codelists:
-    - BR_MUNICIPALFA
-    - MUNIC_BR7
     years:
     - 1999
     - 2006
+    codelists:
+    - MUNIC_BR7
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_NEUROL:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -389,15 +410,15 @@ columns:
     - 1999
     - 2026
   CLI_OUTROS:
-    role: notification.cli_outros
+    role: notification.clinical_sign_other_unlisted_masculine_form
     kind: category
     model: mark
-    review: draft
     name: Sinais e sintomas – outros
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes'
     years:
     - 1999
     - 2026
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 3 codes Reviewed against
+      the values.'
   CLI_OUT_D:
     role: case.sign_other_text
     kind: text
@@ -439,14 +460,15 @@ columns:
     - 2007
     - 2026
   CLI_RINORR:
-    role: notification.cli_rinorr
-    kind: number
+    role: notification.runny_nose_rhinorrhea_clinical_sign
+    kind: category
     model: mark
-    review: draft
     name: Rinorreia
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CLI_TONTUR:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -512,36 +534,38 @@ columns:
     - 2007
     - 2026
   CONF_INF_M:
-    role: notification.conf_inf_m
+    role: notification.municipality_of_infection_confirmation
     kind: place
     model: mark
-    review: draft
     name: Município de confirmação da infecção
-    codelists:
-    - BR_MUNICIPALFA
-    - MUNIC_BR7
     years:
     - 1999
     - 2006
+    codelists:
+    - MUNIC_BR7
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CONF_INF_U:
-    role: notification.conf_inf_u
-    kind: number
-    model: mark
-    review: draft
+    role: notification.state_uf_of_probable_infection
+    kind: text
+    model: excluded
     name: UF provável de infecção
     years:
     - 1999
     - 2006
+    note: 'State abbreviations. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP
+      SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
+      the values; codes undecoded.'
   CON_AMBIEN:
-    role: notification.con_ambien
+    role: notification.setting_of_infection
     kind: category
     model: mark
-    review: draft
     name: Ambiente da infecção
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 5 codes'
     years:
     - 1999
     - 2026
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 1, 5 codes Reviewed against
+      the values.'
   CON_AMB_DE:
     role: case.infection_setting_text
     kind: text
@@ -551,14 +575,15 @@ columns:
     - 2007
     - 2026
   CON_AREA:
-    role: notification.con_area
+    role: notification.probable_infection_area
     kind: category
     model: mark
-    review: draft
     name: Área provável de infecção
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_AUTOPS:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -572,41 +597,45 @@ columns:
     - 1999
     - 2026
   CON_CRITER:
-    role: notification.con_criter
+    role: notification.confirmation_criterion
     kind: category
     model: mark
-    review: draft
     name: Critério de confirmação
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DIAGNO:
-    role: notification.con_diagno
-    kind: number
+    role: notification.diagnostic_confirmation_criterion
+    kind: category
     model: mark
-    review: draft
     name: Critério de confirmação diagnóstica
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DIAG_D:
-    role: notification.con_diag_d
-    kind: number
+    role: notification.diagnosis_confirmation_flag_truncated_field_name
+    kind: category
     model: mark
-    review: draft
     name: Confirmação diagnóstica (nome truncado)
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DOENCA:
-    role: notification.con_doenca
-    kind: number
+    role: notification.final_diagnosed_disease_legacy
+    kind: category
     model: mark
-    review: draft
     name: Doença (bloco de conclusão legado)
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   CON_DT_ENC:
     role: notification.closing_date
     kind: date
@@ -642,14 +671,16 @@ columns:
     - 2007
     - 2026
   CON_INF_PA:
-    role: notification.con_inf_pa
-    kind: number
+    role: notification.infection_country_legacy
+    kind: category
     model: mark
-    review: draft
     name: País de infecção
     years:
     - 1999
     - 2006
+    note: 'Holds 800 (180 of 188). 2000-2006 SINAN Windows layout: no dictionary for it is published (searched:
+      FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind
+      from the values; codes undecoded.'
   CON_LOCAL2:
     missing: []
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sul', 2='Norte', 3='Leste', 4='Oeste'; the tabulation: no value labelled as not recorded
@@ -742,14 +773,14 @@ columns:
     - 2026
     note: role from the notification block
   CS_MENING:
-    role: notification.cs_mening
-    kind: number
+    role: notification.meningitis_classification
+    kind: category
     model: mark
-    review: draft
     name: Classificação da meningite
     years:
     - 2007
     - 2026
+    note: Not printed by the form's dictionary; meaning read from the variable note, kind from the values.
   CS_RACA:
     role: patient.race
     kind: category
@@ -775,14 +806,14 @@ columns:
     - 2026
     note: role from the notification block
   CS_SUSPEIT:
-    role: notification.cs_suspeit
+    role: notification.type_of_suspected_case
     kind: category
     model: mark
-    review: draft
     name: Suspeita do agravo
     years:
     - 2007
     - 2026
+    note: Not printed by the form's dictionary; meaning read from the variable note, kind from the values.
   DESMATA_N:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -816,14 +847,14 @@ columns:
     - 2007
     - 2026
   DTDIASINAC:
-    role: notification.dtdiasinac
+    role: notification.date_incapacity_leave_began
     kind: date
     model: mark
-    review: draft
     name: Data de início da inatividade
     years:
     - 2007
     - 2026
+    note: Not printed by the form's dictionary; meaning read from the variable note, kind from the values.
   DT_COL_IGM:
     role: case.igm_sample_date
     kind: date
@@ -984,23 +1015,25 @@ columns:
     - 2026
     note: role from the notification block
   ID_DG_NOT:
-    role: notification.id_dg_not
-    kind: number
+    role: notification.notification_record_control_code
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.id_ev_not
-    kind: number
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: mark
-    review: draft
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -1102,14 +1135,14 @@ columns:
     - 2026
     note: role from the notification block
   IN_AIDS:
-    role: notification.in_aids
+    role: notification.aids_indicated
     kind: category
     model: mark
-    review: draft
     name: Indicação de AIDS
     years:
     - 2007
     - 2026
+    note: Not printed by the form's dictionary; meaning read from the variable note, kind from the values.
   LAB_ATIPIC:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1121,23 +1154,24 @@ columns:
     - 1999
     - 2026
   LAB_BILATE:
-    role: notification.lab_bilate
-    kind: number
+    role: notification.bilateral_pulmonary_infiltrates_flag
+    kind: category
     model: mark
-    review: draft
     name: Radiografia - infiltrado bilateral
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_COLHEU:
-    role: notification.lab_colheu
+    role: notification.biological_sample_collected_flag
     kind: category
     model: mark
-    review: draft
     name: Colheu material (amostra)
     years:
     - 2007
     - 2026
+    note: Not printed by the form's dictionary; meaning read from the variable note, kind from the values.
   LAB_DERRAM:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1159,14 +1193,15 @@ columns:
     - 2007
     - 2026
   LAB_HEMATO:
-    role: notification.lab_hemato
-    kind: number
+    role: notification.hematocrit_result_category
+    kind: category
     model: mark
-    review: draft
     name: Hematócrito
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_HEMA_N:
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1178,41 +1213,45 @@ columns:
     - 2007
     - 2026
   LAB_HISTOP:
-    role: notification.lab_histop
+    role: notification.histopathology
     kind: category
     model: mark
-    review: draft
     name: Histopatologia
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGG:
-    role: notification.lab_igg
-    kind: number
+    role: notification.igg_serology_result_lab_igg
+    kind: category
     model: mark
-    review: draft
     name: Resultado da sorologia IgG
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGG_R:
-    role: notification.lab_igg_r
-    kind: number
+    role: notification.igg_serology_result_lab_igg_r
+    kind: category
     model: mark
-    review: draft
     name: Resultado de sorologia IgG
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGM:
-    role: notification.lab_igm
-    kind: number
+    role: notification.igm_serology_result
+    kind: category
     model: mark
-    review: draft
     name: Sorologia IgM
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_IGM_R:
     missing: ['0', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='reagente', 2='não reagente', 3='inconclusivo', 4='não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1234,14 +1273,15 @@ columns:
     - 2007
     - 2026
   LAB_LEUC_N:
-    role: notification.lab_leuc_n
-    kind: number
+    role: notification.leukocyte_count_result_category
+    kind: category
     model: mark
-    review: draft
     name: Leucócitos
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_LOCAL:
     role: case.xray_localised_infiltrate
     kind: category
@@ -1251,68 +1291,75 @@ columns:
     - 2007
     - 2026
   LAB_L_C_DE:
-    role: notification.lab_l_c_de
-    kind: number
+    role: notification.supplementary_laboratory_test_result
+    kind: category
     model: mark
-    review: draft
     name: Resultado de exame laboratorial complementar
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_L_OUT:
-    role: notification.lab_l_out
-    kind: text
+    role: notification.site_of_an_additional_lab_test_performed
+    kind: category
     model: excluded
-    review: draft
     name: Local de outro exame
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_L_S_DE:
-    role: notification.lab_l_s_de
-    kind: number
+    role: notification.leukocytosis_with_left_shift_flag
+    kind: category
     model: mark
-    review: draft
     name: Leucocitose com desvio à esquerda
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_MICRON:
-    role: notification.lab_micron
-    kind: number
+    role: notification.microscopic_lab_finding
+    kind: category
     model: mark
-    review: draft
     name: Achado laboratorial microscópico
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_OUTRO:
-    role: notification.lab_outro
-    kind: number
+    role: notification.other_laboratory_test_result
+    kind: category
     model: mark
-    review: draft
     name: Resultado de outro exame laboratorial
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_OUT_D:
-    role: notification.lab_out_d
-    kind: number
-    model: mark
-    review: draft
+    role: notification.additional_lab_test_description
+    kind: text
+    model: excluded
     name: Outro exame - descrição
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_OUT_E:
-    role: notification.lab_out_e
-    kind: number
+    role: notification.other_lab_exam_performed_flag
+    kind: category
     model: mark
-    review: draft
     name: Outro exame laboratorial
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_RADIOL:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1324,14 +1371,15 @@ columns:
     - 2007
     - 2026
   LAB_REALIZ:
-    role: notification.lab_realiz
-    kind: number
+    role: notification.laboratory_exam_performed_flag
+    kind: category
     model: mark
-    review: draft
     name: Exame laboratorial realizado
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_RES_B:
     missing: ['0', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Normais', 2='Aumenta dos COM desvio a esquerda', 3='Diminuídos (Leucope nia)', 4='Aumenta dos SEM desvio à esquerda', 5='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1608,14 +1656,15 @@ columns:
     - 2007
     - 2026
   TRA_DT_ALT:
-    role: notification.tra_dt_alt
-    kind: number
+    role: notification.discharge_date
+    kind: date
     model: mark
-    review: draft
     name: Data de alta
     years:
     - 1999
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TRA_DT_INT:
     role: case.hospital_admission_date
     kind: date
@@ -1651,17 +1700,17 @@ columns:
     - 1999
     - 2026
   TRA_MUNICI:
-    role: notification.tra_munici
+    role: notification.treatment_municipality
     kind: place
     model: mark
-    review: draft
     name: Município onde se realiza o tratamento
-    codelists:
-    - BR_MUNICIPALFA
-    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 6'
     years:
     - 1999
     - 2026
+    codelists:
+    - BR_MUNICIPALFA
+    note: 'typed by the form (hantavirose__DIC_DADOS_Hantavirose_v5.pdf): type text, width 6 Reviewed against the
+      values.'
   TRA_TRATAM:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'

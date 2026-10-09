@@ -64,8 +64,8 @@ columns:
     name: UF de Residência
     codelists:
     - UF_BR
-    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension because
-      `residence_state` is not a population-account property name.'
+    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension
+      because `residence_state` is not a population-account property name.'
   SG_UF_NOT:
     role: notification.state
     kind: place
@@ -149,8 +149,8 @@ columns:
     kind: number
     model: mark
     name: Idade
-    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is the derived
-      IDADE_anos.
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
+      is the derived IDADE_anos.
   IDADE_anos:
     role: patient.age_years
     kind: number
@@ -161,7 +161,5 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name fits a
-      birth year, so model is provisional.'
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.

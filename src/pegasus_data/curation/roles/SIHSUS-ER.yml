@@ -1,0 +1,133 @@
+dataset: SIHSUS-ER
+record: admission
+columns:
+  AIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: AIH number (error file)
+    years:
+    - 2011
+    - 2026
+  ANO:
+    role: admission.processing_year
+    kind: date
+    model: when
+    name: Ano processamento
+    years:
+    - 2011
+    - 2026
+    codelists:
+    - ANO
+    - ANOMES
+    - ANOMESC
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  CO_ERRO:
+    role: admission.rejection_reason
+    kind: category
+    model: event_type
+    codelists:
+    - MOTERRO
+    name: Motivo da Rejeição
+    years:
+    - 2011
+    - 2026
+  DT_INTER:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data de internação
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  MES:
+    role: admission.processing_month
+    kind: date
+    model: when
+    codelists:
+    - MESES
+    name: Mês processamento
+    years:
+    - 2011
+    - 2026
+  MUN_MOV:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Municipality of the establishment (error file)
+    years:
+    - 2011
+    - 2026
+  MUN_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Municipality of the patient's residence (error file)
+    years:
+    - 2011
+    - 2026
+  REMESSA:
+    role: admission.batch_number
+    kind: identifier
+    model: excluded
+    name: Número da remessa
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  SEQUENCIA:
+    role: admission.batch_sequence
+    kind: identifier
+    model: excluded
+    name: Sequencial da AIH na remessa
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD
+  UF_RES:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: State of residence (error file)
+    years:
+    - 2011
+    - 2026
+  UF_ZI:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    name: Município Gestor
+    codelists:
+    - BR_MUNICGESTOR
+    years:
+    - 2011
+    - 2026
+    note: role from SIH-RD

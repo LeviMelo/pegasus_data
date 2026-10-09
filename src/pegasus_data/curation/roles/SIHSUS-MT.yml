@@ -1,0 +1,159 @@
+dataset: SIHSUS-MT
+record: act
+columns:
+  ANO_MES:
+    role: act.processing_competence
+    kind: date
+    model: when
+    name: Processing year-month (professional-acts file)
+    years:
+    - 1995
+    - 1997
+    note: YYYYMM of processing.
+  ATO_PROF:
+    role: act.procedure
+    kind: code_tree
+    model: event_type
+    codelists:
+    - TPROC
+    name: Professional-act (procedure) code
+    years:
+    - 1995
+    - 1997
+    note: Eight-digit SIH procedure codes (1995-1997), before SIGTAP.
+  CGC_CPF:
+    role: act.provider_document
+    kind: identifier
+    model: link_only
+    name: Professional's or entity's CGC/CPF
+    years:
+    - 1995
+    - 1997
+    note: A CGC (legal entity) or a CPF (person) as ID_CGC_CPF says; a CPF is a direct personal identifier and
+      passes through unchanged.
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 1995
+    - 1997
+    note: role from SIH-RD
+  ESPEC:
+    missing: []
+    role: admission.bed_specialty
+    kind: category
+    model: mark
+    name: Especialidade do Leito
+    years:
+    - 1995
+    - 1997
+    note: role from SIH-RD
+  ID_CGC_CPF:
+    role: act.provider_document_type
+    kind: category
+    model: mark
+    name: CGC-vs-CPF indicator
+    years:
+    - 1995
+    - 1997
+  NUM_PROC:
+    role: admission.process_number
+    kind: identifier
+    model: excluded
+    name: Número do processo
+    years:
+    - 1995
+    - 1997
+    note: role from SIH-RD
+  N_AIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 1995
+    - 1997
+    note: role from SIH-RD
+  QTD_ATO:
+    role: act.quantity
+    kind: number
+    model: mark
+    name: Quantity of the act
+    years:
+    - 1995
+    - 1997
+  RATEIO:
+    role: act.apportioned
+    kind: category
+    model: mark
+    name: Apportionment flag/code
+    years:
+    - 1995
+    - 1997
+  SP_PONTO:
+    role: act.points
+    kind: number
+    model: mark
+    name: Professional-service points
+    years:
+    - 1995
+    - 1997
+  TIPO:
+    role: act.record_type
+    kind: category
+    model: mark
+    name: Record-type code (1995-1997 professional-acts file)
+    years:
+    - 1995
+    - 1997
+  TIPO_ATO:
+    role: act.type
+    kind: category
+    model: mark
+    name: Type of professional act
+    years:
+    - 1995
+    - 1997
+  UF_DOM:
+    role: professional.domicile_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: State of the professional's domicile
+    years:
+    - 1995
+    - 1997
+  UF_VINC:
+    role: professional.link_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: State of the professional's institutional link
+    years:
+    - 1995
+    - 1997
+  UF_ZI:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    name: Município Gestor
+    codelists:
+    - BR_MUNICGESTOR
+    years:
+    - 1995
+    - 1997
+    note: role from SIH-RD
+  VAL_ATO:
+    role: act.value
+    kind: number
+    model: mark
+    name: Value of the act
+    years:
+    - 1995
+    - 1997

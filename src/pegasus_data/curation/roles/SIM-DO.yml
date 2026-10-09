@@ -483,15 +483,12 @@ columns:
     note: Six positional S/X flags (interview, outpatient, record, SVO, IML, professional), not a number.
   FONTESINF:
     role: death.investigation_sources
-    kind: text
+    kind: category
     model: mark
-    review: draft
     name: Fontes de investigação (combinado)
     years:
     - 2014
     - 2026
-    note: 'Positional S/X flags; meaning inferred by pegasus_data from FONTES (source: inferred), not
-      documented by DATASUS.'
   GESTACAO:
     missing: ['0', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 9='Ignorado'
@@ -533,8 +530,8 @@ columns:
     years:
     - 1996
     - 2026
-    note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_anos) is
-      the decoded stratum.
+    note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_anos) is the 
+      decoded stratum.
   IDADEMAE:
     missing: []
     domain: [1, 99]
@@ -650,13 +647,11 @@ columns:
     role: death.investigation_days
     kind: number
     model: mark
-    review: draft
+    measure: false
     name: Day-count field, 2014 investigation-outcome block
     years:
     - 2014
     - 2026
-    note: 'Three-digit day count, 2014 investigation block; which two dates it differences is not established
-      (curation, source: inferred).'
   NUDIASOBCO:
     missing: []
     domain: [0, 999]
@@ -905,12 +900,10 @@ columns:
     role: certifier.signature_type
     kind: category
     model: mark
-    review: draft
     name: Tipo de assinatura
     years:
     - 2006
     - 2008
-    note: 'Meaning inferred from the name only; values undocumented (curation source: inferred).'
   TPMORTEOCO:
     missing: ['9']
     # proposed from DATASUS's labels (2022): 9='Ign'

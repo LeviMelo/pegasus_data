@@ -71,6 +71,8 @@ columns:
     - 2007
     - 2024
   ANT_PERINA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não foi transmissão vertical', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.transmission_perinatal
     kind: category
     model: mark
@@ -113,6 +115,8 @@ columns:
     - 2007
     - 2024
   CLICDCCA_N:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.cdc_criterion_met
     kind: category
     model: mark
@@ -131,6 +135,8 @@ columns:
     - 2007
     - 2024
   CLI_CANDIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.cdc_oral_candidiasis
     kind: category
     model: mark
@@ -459,6 +465,8 @@ columns:
     - 2007
     - 2024
   CLI_HERPEG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.cdc_recurrent_herpetic_gingivostomatitis
     kind: category
     model: mark
@@ -557,6 +565,8 @@ columns:
     - 2007
     - 2024
   CLI_OTITE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.cdc_recurrent_otitis_sinusitis
     kind: category
     model: mark
@@ -682,6 +692,8 @@ columns:
     - 2007
     - 2024
   CS_ESCOL_N:
+    missing: ['09', '9', '99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='Analfabeto', 1='1ª a 4ª série incompleta do EF', 10='Não se aplica', 2='4ª série completa do EF (antigo 1° grau)', 3='5ª à 8ª série incompleta do EF (antigo ginásio ou 1° grau)', 4='Ensino fundamental completo (antigo ginásio ou 1° grau)', 5='Ensino médio incompleto (antigo colegial ou 2° grau)', 6='Ensino médio completo (antigo colegial ou 2° grau)', 7='Educação superior incompleta', 8='Educação superior completa', 9='Ignorado'; the tabulation: 09='Ign/Branco', 99='Ign/Branco'; CONFLICT: the records use ['00', '01', '02', '03', '04'], which the form does not define
     role: patient.education
     kind: category
     model: dimension
@@ -793,6 +805,8 @@ columns:
     - 2007
     - 2024
   ESC_MAE_N:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='Analfabeto', 1='Até 4ª série incompleta do EF', 2='Até 4ª série completa do EF', 3='5 a 8ª série incompleta do EF', 4='Ensino fundamental completo', 5='Ensino médio incompleto', 6='Ensino médio completo', 7='Educação superior incompleta', 8='Educação superior completa', 9='Ignorada'; the tabulation: 9='Ign/Branco'
     role: mother.education
     kind: category
     model: dimension
@@ -1002,6 +1016,8 @@ columns:
     - 2024
     note: role from the notification block
   ORIGEM:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sinan', 2='SIM', 3='Siscel/Siclom'; the tabulation: no value labelled as not recorded
     role: notification.record_origin
     kind: category
     model: mark

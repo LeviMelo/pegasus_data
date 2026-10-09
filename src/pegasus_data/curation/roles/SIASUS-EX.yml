@@ -1,0 +1,99 @@
+dataset: SIASUS-EX
+record: procedure
+columns:
+  EXA_CODUNI:
+    role: authorisation.establishment_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    years:
+    - 2001
+    - 2007
+  EXA_CONDIC:
+    role: authorisation.management_arrangement_code
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  EXA_DATREF:
+    role: authorisation.reference_year_month
+    kind: date
+    model: when
+    years:
+    - 2001
+    - 2007
+  EXA_GESTAO:
+    role: authorisation.managing_authority
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 2001
+    - 2007
+  EXA_HBSAG:
+    role: authorisation.hepatitis_b_surface_antigen_result
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_HEPAT:
+    role: authorisation.anti_hcv_hepatitis_c_result
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_HIV:
+    role: authorisation.hiv_test_result
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_HLA:
+    role: authorisation.hla_typing_done
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_INDCRE:
+    role: authorisation.serum_creatinine
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_INDUPR:
+    role: authorisation.pre_dialysis_urea
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_INDUPS:
+    role: authorisation.post_dialysis_urea
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  EXA_NUM:
+    role: authorisation.apac_number
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007

@@ -257,6 +257,8 @@ columns:
     - 2007
     - 2025
   TPCONFIRMA:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não reagente', 3='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.confirmatory_test
     kind: category
     model: mark
@@ -265,6 +267,8 @@ columns:
     - 2007
     - 2025
   TPESQPAR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='penicilina g benzatina', 2='400.000ui 2 - penicilina g benzatina', 3='penicilina g benzatina', 4='800.000ui', 5='não realizado', 7='200..000ui 4 - outro esquema', 9='ignorado'; the tabulation: no value labelled as not recorded
     role: treatment.partner_regimen
     kind: category
     model: mark
@@ -274,6 +278,8 @@ columns:
     - 2007
     - 2025
   TPESQUEMA:
+    missing: ['0', '6', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Penicilina G benzatina', 2='400.000UI 2 - Penicilina G benzatina', 3='Penicilina G benzatina', 4='800.000UI', 5='Não realizado', 7='200..000UI 4 - Outro esquema', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['7']
     role: treatment.regimen
     kind: category
     model: mark
@@ -282,6 +288,8 @@ columns:
     - 2007
     - 2025
   TPEVIDENCI:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Primária', 2='Secundária', 3='Terciária', 4='Latente', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.clinical_stage
     kind: category
     model: mark
@@ -299,6 +307,8 @@ columns:
     - 2007
     - 2025
   TPTESTE1:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 2='Não reagente', 3='Não realizado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['1'], which the form does not define
     role: case.first_test
     kind: category
     model: mark
@@ -315,6 +325,8 @@ columns:
     - 2007
     - 2025
   TRATPARC:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: no value labelled as not recorded
     role: treatment.partner_treated
     kind: category
     model: mark

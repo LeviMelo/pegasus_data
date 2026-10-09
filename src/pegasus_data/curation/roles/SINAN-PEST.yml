@@ -5,13 +5,11 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2018
     - 2025
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -44,6 +42,8 @@ columns:
     - 2007
     - 2025
   COM_PEST:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_match_the_case_definition
     kind: category
     model: mark
@@ -92,6 +92,8 @@ columns:
     - 2007
     - 2025
   CO_FOCAL:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.focal_control_instituted
     kind: category
     model: mark
@@ -100,6 +102,8 @@ columns:
     - 2007
     - 2025
   CO_RISCO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.occurrence_meets_basic_risk_conditions
     kind: category
     model: mark
@@ -108,6 +112,8 @@ columns:
     - 2007
     - 2025
   CRITERIO:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Laboratorial', 2='Clínico', 3='Indeterminado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['3']
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -169,6 +175,8 @@ columns:
     - 2025
     note: role from the notification block
   DOENCA_TRA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.work_related
     kind: category
     model: mark
@@ -293,6 +301,8 @@ columns:
     - 2018
     - 2025
   ELISA1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Reagente', 2='Não-Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.elisa_result_1st_sample
     kind: category
     model: mark
@@ -301,6 +311,8 @@ columns:
     - 2007
     - 2025
   ELISA2:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Reagente', 2='Não-Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.elisa_result_2nd_sample
     kind: category
     model: mark
@@ -309,6 +321,8 @@ columns:
     - 2007
     - 2025
   EPI_PESTE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.case_linked_to_epidemiologically_important_plague_events
     kind: category
     model: mark
@@ -317,6 +331,8 @@ columns:
     - 2007
     - 2025
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Cura', 2='Óbito por peste', 3='Obito por outras causas', 9='Ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -332,6 +348,8 @@ columns:
     - 2007
     - 2025
   HEMO_IGG:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Reagente', 2='Não-Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hemagglutination_result_igg
     kind: category
     model: mark
@@ -340,6 +358,8 @@ columns:
     - 2007
     - 2025
   HEMO_IGM:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Reagente', 2='Não-Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hemagglutination_result_igm
     kind: category
     model: mark
@@ -481,6 +501,8 @@ columns:
     - 2007
     - 2025
   LAB_ESFR:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.smear_microscopy_result
     kind: category
     model: mark
@@ -489,6 +511,8 @@ columns:
     - 2007
     - 2025
   LAB_HEMO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.blood_bubo_culture_result
     kind: category
     model: mark
@@ -569,6 +593,8 @@ columns:
     - 2025
     note: role from the notification block
   SIN_GANG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.bubo_swollen_lymph_node
     kind: category
     model: mark
@@ -603,6 +629,8 @@ columns:
     - 2007
     - 2025
   TRATADO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.treated_flag
     kind: category
     model: mark

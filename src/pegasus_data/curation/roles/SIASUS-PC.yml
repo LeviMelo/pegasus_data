@@ -1,0 +1,162 @@
+dataset: SIASUS-PC
+record: procedure
+columns:
+  PAC_CEPPCN:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    years:
+    - 2001
+    - 2007
+  PAC_CODUNI:
+    role: authorisation.establishment_code
+    kind: institution
+    model: institution
+    codelists:
+    - SIA_UPS_BR
+    years:
+    - 2001
+    - 2007
+  PAC_CONDIC:
+    role: authorisation.management_arrangement
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_CPFPCN:
+    role: patient.cpf
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+    note: A direct personal identifier, passed through unchanged.
+  PAC_DATREF:
+    role: authorisation.reference_compet_ncia
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_DIAGPR:
+    role: authorisation.cause_of_renal_failure_icd_10
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    years:
+    - 2001
+    - 2007
+  PAC_DIAGSE:
+    role: authorisation.renal_failure_diagnosis_icd_10
+    kind: code_tree
+    model: mark
+    codelists:
+    - S_CID
+    years:
+    - 2001
+    - 2007
+  PAC_DTINSC:
+    role: authorisation.transplant_waiting_list_enrolment_date
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_DTTRS1:
+    role: authorisation.date_of_first_kidney_transplant
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_DTTRS2:
+    role: authorisation.date_of_second_kidney_transplant
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_DTTRS3:
+    role: authorisation.date_of_third_kidney_transplant
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_GESTAO:
+    role: authorisation.managing_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2001
+    - 2007
+  PAC_INDTRA:
+    role: authorisation.indicated_for_transplant
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_INITRA:
+    role: authorisation.treatment_start_year_month
+    kind: date
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_INSTRA:
+    role: authorisation.enrolled_for_transplant
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_MUNPCN:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2001
+    - 2007
+  PAC_NASCPC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    years:
+    - 2001
+    - 2007
+  PAC_NUM:
+    role: authorisation.apac_number
+    kind: identifier
+    model: link_only
+    years:
+    - 2001
+    - 2007
+  PAC_SEXOPC:
+    role: patient.sex
+    kind: category
+    model: stratum
+    years:
+    - 2001
+    - 2007
+  PAC_SITTRA:
+    role: authorisation.number_of_transplants_performed
+    kind: number
+    model: mark
+    years:
+    - 2001
+    - 2007
+  PAC_UFNASC:
+    role: patient.birth_state
+    kind: category
+    model: mark
+    years:
+    - 2001
+    - 2007

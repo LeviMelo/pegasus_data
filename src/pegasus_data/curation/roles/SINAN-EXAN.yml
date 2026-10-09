@@ -5,13 +5,11 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2026
+    note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   CLASSI_FIN:
     role: case.classification
     kind: category
@@ -94,6 +92,8 @@ columns:
     - 2007
     - 2026
   CRITERIO:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Laboratorial', 2='Vínculo Epidemiológico', 3='Clínico', 4='Data da última dose da vacina'; the tabulation: 0='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; the form overrules the tabulation on ['4']
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -138,6 +138,8 @@ columns:
     - 2007
     - 2026
   CS_FONTE:
+    missing: ['0', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Domicílio', 2='Vizinhança', 3='Trabalho', 4='Creche/escol a', 5='Posto de saúde/hospital', 6='Outro Estado /Município', 7='Sem história de contato', 8='Outro País', 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'
     role: case.probable_infection_place
     kind: category
     model: mark
@@ -189,6 +191,8 @@ columns:
     - 2007
     - 2026
   CS_VACINA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: patient.vaccinated
     kind: category
     model: mark
@@ -197,6 +201,8 @@ columns:
     - 2007
     - 2026
   CS_VACINAL:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 3='Não, todos vacinados', 4='Não, sem história de contato', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.control_vaccination_blockade
     kind: category
     model: mark
@@ -423,6 +429,8 @@ columns:
     - 2007
     - 2026
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='cura', 2='óbito por doença exantemática', 3='óbito por outras causas', 9='ignorado'; the tabulation: 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -463,6 +471,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_ARTRALG:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_arthralgia
     kind: category
     model: mark
@@ -471,6 +481,8 @@ columns:
     - 2007
     - 2026
   ID_CONJUNT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_conjunctivitis
     kind: category
     model: mark
@@ -479,6 +491,8 @@ columns:
     - 2007
     - 2026
   ID_CORIZA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_coryza
     kind: category
     model: mark
@@ -487,6 +501,8 @@ columns:
     - 2007
     - 2026
   ID_ETIOLOG:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Vírus Sarampo Selvagem', 10='Não detectado', 2='Vírus Sarampo Vacinal', 3='Vírus Rubéola Selvagem', 4='Vírus Rubéola Vacinal', 5='Dengue', 6='Herpes Vírus Tipo 6', 7='Parvovírus B19', 8='Enterovírus', 9='Outras'; the tabulation: no value labelled as not recorded
     role: case.viral_etiology
     kind: category
     model: mark
@@ -495,6 +511,8 @@ columns:
     - 2007
     - 2026
   ID_GANGLIO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_lymphadenopathy
     kind: category
     model: mark
@@ -503,6 +521,8 @@ columns:
     - 2007
     - 2026
   ID_HOSPIT:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.hospitalised
     kind: category
     model: mark
@@ -511,6 +531,8 @@ columns:
     - 2007
     - 2026
   ID_LIQUOR:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sample_csf
     kind: category
     model: mark
@@ -590,6 +612,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_RETRO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_retroauricular_nodes
     kind: category
     model: mark
@@ -598,6 +622,8 @@ columns:
     - 2007
     - 2026
   ID_RE_IGG:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measles_igg_retest
     kind: category
     model: mark
@@ -608,6 +634,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_RE_IGG_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rubella_igg_retest
     kind: category
     model: mark
@@ -618,6 +646,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_RE_IGM:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'; CONFLICT: the records use ['3', '4'], which the form does not define
     role: case.measles_igm_retest
     kind: category
     model: mark
@@ -628,6 +658,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_RE_IGM_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rubella_igm_retest
     kind: category
     model: mark
@@ -638,6 +670,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_RE_IG_1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igm_retest
     kind: category
     model: mark
@@ -648,6 +682,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_RE_IG_2:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igg_retest
     kind: category
     model: mark
@@ -670,6 +706,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_S1_IGG:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measles_igg_1
     kind: category
     model: mark
@@ -680,6 +718,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S1_IGG_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rubella_igg_1
     kind: category
     model: mark
@@ -690,6 +730,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S1_IGM:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measles_igm_1
     kind: category
     model: mark
@@ -700,6 +742,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S1_IGM_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rubella_igm_1
     kind: category
     model: mark
@@ -710,6 +754,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S1_IG_1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igm_1
     kind: category
     model: mark
@@ -720,6 +766,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S1_IG_2:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igg_1
     kind: category
     model: mark
@@ -730,6 +778,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IGG:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measles_igg_2
     kind: category
     model: mark
@@ -740,6 +790,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IGG_:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.rubella_igg_2
     kind: category
     model: mark
@@ -750,6 +802,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IGM:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.measles_igm_2
     kind: category
     model: mark
@@ -770,6 +824,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IG_1:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igm_2
     kind: category
     model: mark
@@ -780,6 +836,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IG_2:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Reagente', 2='Não Reagente', 3='Inconclusivo', 4='Não realizado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.other_exanthem_igg_2
     kind: category
     model: mark
@@ -790,6 +848,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_SANGUE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sample_blood
     kind: category
     model: mark
@@ -798,6 +858,8 @@ columns:
     - 2007
     - 2026
   ID_SECRECA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sample_nasopharynx
     kind: category
     model: mark
@@ -806,6 +868,8 @@ columns:
     - 2007
     - 2026
   ID_TOSSE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sign_cough
     kind: category
     model: mark
@@ -831,6 +895,8 @@ columns:
     - 2026
     note: role from the notification block
   ID_URINA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='sim', 2='não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sample_urine
     kind: category
     model: mark
@@ -839,6 +905,8 @@ columns:
     - 2007
     - 2026
   INT_TEMPO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Em até 72 horas', 2='Após 72 horas', 9='Ignorado'; the tabulation: 0='Ign/branco', 3='Ign/branco', 4='Ign/branco', 5='Ign/branco', 6='Ign/branco', 7='Ign/branco', 8='Ign/branco', 9='Ign/branco'
     role: case.control_blockade_timeliness
     kind: category
     model: mark
@@ -996,6 +1064,8 @@ columns:
     - 2026
     note: role from the notification block
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['3'], which the form does not define
     role: case.autochthonous
     kind: category
     model: mark

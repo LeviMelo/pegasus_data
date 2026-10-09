@@ -24,14 +24,13 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   AREARES:
-    role: death.areares
+    role: deceased.residence_area_local
     kind: category
-    model: mark
-    review: draft
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: A sub-area code each state or municipality assigned (1979-1995); no national codelist.
   ASSISTMED:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     role: death.medical_care
@@ -62,23 +61,20 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   BAIRES:
-    role: death.baires
+    role: deceased.residence_neighbourhood_local
     kind: category
-    model: mark
-    review: draft
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: A neighbourhood code each state or municipality assigned (1979-1995); no national codelist.
   CARTORIO:
-    role: death.cartorio
-    kind: category
-    model: mark
-    review: draft
+    role: death.registry_office
+    kind: identifier
+    model: excluded
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   CAUSABAS:
     role: death.cause
     kind: code_tree
@@ -192,14 +188,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   CODIGO:
-    role: death.codigo
-    kind: category
-    model: mark
-    review: draft
+    role: death.facility_local_code
+    kind: identifier
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   CODMUNCART:
     role: death.registry_municipality
     kind: place
@@ -268,14 +262,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   CRITICA:
-    role: death.critica
+    role: death.edit_flag
     kind: category
-    model: mark
-    review: draft
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   CRM:
     role: certifier.crm
     kind: identifier
@@ -286,50 +278,42 @@ columns:
     - 2018
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   CRSOCOR:
-    role: death.crsocor
+    role: death.health_region_local
     kind: category
-    model: mark
-    review: draft
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   CRSRES:
-    role: death.crsres
+    role: deceased.residence_health_region_local
     kind: category
-    model: mark
-    review: draft
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   DATANASC:
-    role: death.datanasc
-    kind: category
-    model: mark
-    review: draft
+    role: deceased.birth_date
+    kind: date
+    model: stratum
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: '1979-1995 layout: DDMMAAAA, some values a bare year (1945); 00000000 marks no date.'
   DATAOBITO:
-    role: death.dataobito
-    kind: category
-    model: mark
-    review: draft
+    role: death.date
+    kind: date
+    model: when
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   DATAREG:
-    role: death.datareg
-    kind: category
+    role: death.receipt_date
+    kind: date
     model: mark
-    review: draft
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: 'Measured 1995 RR: six digits AAMMDD (950108), not the DDMMAAAA the layout prints.'
   DIFDATA:
     missing: []
     domain: [0, 999]
@@ -541,23 +525,19 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   ESTCIVIL:
-    role: death.estcivil
+    role: deceased.marital_status_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   ETNIA:
-    role: death.etnia
+    role: deceased.indigenous_ethnicity
     kind: category
     model: mark
-    review: draft
     years:
     - 1995
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   EXAME:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     role: death.exam_performed
@@ -569,23 +549,21 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   FILHMORT:
-    role: death.filhmort
+    role: pregnancy.previous_children_dead_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: 'Same coding as FILHVIVOS: 0 ignored, XX none.'
   FILHVIVOS:
-    role: death.filhvivos
+    role: pregnancy.previous_live_births_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: 0 means ignored and XX means none (the variable note); a count only once those codes are declared.
   FONTE:
     missing: ['0', '5', '6', '7', '8', '9']
     role: death.information_source
@@ -620,23 +598,19 @@ columns:
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   FONTESINF:
     role: death.investigation_sources
-    kind: text
+    kind: category
     model: mark
-    review: draft
     name: Fontes de investigação (combinado)
     years:
     - 2014
     - 2026
-    note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   FONTINFO:
-    role: death.fontinfo
+    role: death.information_source_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   GESTACAO:
     missing: ['0', '9']
     role: pregnancy.gestation_band
@@ -693,32 +667,26 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   INSTRMAE:
-    role: death.instrmae
+    role: mother.education_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   INSTRPAI:
-    role: death.instrpai
+    role: father.education_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   INSTRUCAO:
-    role: death.instrucao
+    role: deceased.education_legacy
     kind: category
-    model: mark
-    review: draft
+    model: dimension
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   LINHAA:
     role: death.certificate_line_a
     also:
@@ -734,14 +702,16 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   LINHAA_O:
-    role: death.linhaa_o
-    kind: category
+    role: death.certificate_line_a_original
+    kind: code_tree
     model: mark
-    review: draft
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    codelists:
+    - ICD10
+    note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
+      (variable note).
   LINHAB:
     role: death.certificate_line_b
     kind: code_tree
@@ -755,14 +725,16 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   LINHAB_O:
-    role: death.linhab_o
-    kind: category
+    role: death.certificate_line_b_original
+    kind: code_tree
     model: mark
-    review: draft
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    codelists:
+    - ICD10
+    note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
+      (variable note).
   LINHAC:
     role: death.certificate_line_c
     kind: code_tree
@@ -776,14 +748,16 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   LINHAC_O:
-    role: death.linhac_o
-    kind: category
+    role: death.certificate_line_c_original
+    kind: code_tree
     model: mark
-    review: draft
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    codelists:
+    - ICD10
+    note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
+      (variable note).
   LINHAD:
     role: death.certificate_line_d
     kind: code_tree
@@ -797,14 +771,16 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   LINHAD_O:
-    role: death.linhad_o
-    kind: category
+    role: death.certificate_line_d_original
+    kind: code_tree
     model: mark
-    review: draft
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    codelists:
+    - ICD10
+    note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
+      (variable note).
   LINHAII:
     role: death.certificate_part_ii
     kind: code_tree
@@ -818,23 +794,23 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   LINHAII_O:
-    role: death.linhaii_o
-    kind: category
+    role: death.certificate_part_ii_original
+    kind: code_tree
     model: mark
-    review: draft
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    codelists:
+    - ICD10
+    note: Empty in every file read (2026 BR); the original entry before the automatic cause selection 
+      (variable note).
   LOCACID:
-    role: death.locacid
+    role: death.accident_place_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   LOCOCOR:
     missing: ['0', '7', '8', '9']
     role: death.place
@@ -846,14 +822,14 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   MEDICO:
-    role: death.medico
-    kind: category
-    model: mark
-    review: draft
+    role: certifier.name
+    kind: identifier
+    model: excluded
     years:
     - 2014
     - 2026
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: "The certifying physician's name (variable note): a direct personal identifier, passed through unchanged;
+      empty in 2026."
   MORTEPARTO:
     missing: ['9']
     role: death.childbirth_relation_investigated
@@ -865,23 +841,25 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   MUNIOCOR:
-    role: death.muniocor
-    kind: category
-    model: mark
-    review: draft
+    role: death.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
   MUNIRES:
-    role: death.munires
-    kind: category
-    model: mark
-    review: draft
+    role: deceased.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: Seven-digit IBGE codes (with the check digit) in the 1979-1995 layout; geography reads both widths.
   NATURAL:
     role: deceased.birth_place
     kind: place
@@ -907,12 +885,11 @@ columns:
     role: death.investigation_days
     kind: number
     model: mark
-    review: draft
+    measure: false
     name: Day-count field, 2014 investigation-outcome block
     years:
     - 2014
     - 2026
-    note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   NUDIASOBCO:
     missing: []
     domain: [0, 999]
@@ -945,14 +922,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   NUMEXPORT:
-    role: death.numexport
-    kind: category
-    model: mark
-    review: draft
+    role: death.export_batch
+    kind: identifier
+    model: excluded
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   NUMREGCART:
     role: death.registry_number
     kind: identifier
@@ -963,23 +938,19 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   OBITOFE1:
-    role: death.obitofe1
+    role: deceased.pregnant_at_death_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   OBITOFE2:
-    role: death.obitofe2
+    role: deceased.pregnant_within_12_months_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   OBITOGRAV:
     missing: ['3', '4', '5', '6', '7', '8', '9']
     role: deceased.pregnancy_status
@@ -1027,14 +998,16 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   OCUPACAO:
-    role: death.ocupacao
-    kind: category
+    role: deceased.occupation_legacy
+    kind: code_tree
     model: mark
-    review: draft
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: Pre-2002 CBO, three digits; not CBO-2002.
   OCUPMAE:
     role: mother.occupation
     kind: code_tree
@@ -1048,14 +1021,15 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   OCUPPAI:
-    role: death.ocuppai
-    kind: category
+    role: father.occupation_legacy
+    kind: code_tree
     model: mark
-    review: draft
+    codelists:
+    - GRUPOCUP
+    - SGRPOCUP
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   ORIGEM:
     role: death.record_origin
     kind: category
@@ -1091,14 +1065,13 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   PESONASC:
-    role: death.pesonasc
-    kind: category
+    role: birth.weight
+    kind: number
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
+    note: Grams, the same quantity as PESO from 1996.
   QTDFILMORT:
     missing: []
     domain: [0, 98]
@@ -1131,14 +1104,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   REGISTRO:
-    role: death.registro
-    kind: category
-    model: mark
-    review: draft
+    role: death.registry_number
+    kind: identifier
+    model: excluded
     years:
     - 1979
     - 1995
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   SEMAGESTAC:
     missing: []
     domain: [0, 98]
@@ -1153,14 +1124,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   SEMANGEST:
-    role: death.semangest
+    role: pregnancy.gestation_band_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   SERIESCFAL:
     missing: []
     role: deceased.education_grade
@@ -1218,14 +1187,12 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   TIPOACID:
-    role: death.tipoacid
+    role: death.accident_type_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   TIPOBITO:
     role: death.kind
     kind: category
@@ -1236,42 +1203,34 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   TIPOGRAV:
-    role: death.tipograv
+    role: birth.plurality_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   TIPOPARTO:
-    role: death.tipoparto
+    role: birth.delivery_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1996
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   TIPOVIOL:
-    role: death.tipoviol
+    role: death.violence_type_legacy
     kind: category
     model: mark
-    review: draft
     years:
     - 1979
     - 1998
-    note: 'A pre-1996 layout column (ICD-9 era): left a draft (low priority, 2026-10-06).'
   TPASSINA:
-    role: certifier.signature_type
+    role: death.certifier_signature_type
     kind: category
     model: mark
-    review: draft
     name: Tipo de assinatura
     years:
     - 2008
     - 2008
-    note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   TPMORTEOCO:
     missing: ['9']
     role: death.pregnancy_relation

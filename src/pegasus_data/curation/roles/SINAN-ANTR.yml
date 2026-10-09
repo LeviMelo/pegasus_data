@@ -17,13 +17,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2006
     - 2026
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANT_ARRANH:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -264,17 +264,17 @@ columns:
     - 2026
     note: role from the notification block
   DOSES:
-    role: notification.doses
-    kind: number
+    role: notification.doses_legacy
+    kind: category
     model: mark
-    review: draft
     name: Número de doses de vacina anti-rábica recebidas no tratamento anterior
-    note: "The form's 'Número de doses aplicadas' (number(2)); the records' most frequent values are 13, 24 and
-      31 (2021: 8,609, 3,421, 3,027 of 20,880), which no dose count is: left a draft until the field's content is
-      known (2026-10-08)."
     years:
     - 2006
     - 2026
+    note: "Values 20, 10, 16, 2 (2026): not plausible dose counts; undecoded until a source declares them. The form's
+      'Número de doses aplicadas' (number(2)); the records' most frequent values are 13, 24 and 31 (2021: 8,609,
+      3,421, 3,027 of 20,880), which no dose count is: left a draft until the field's content is known (2026-10-08).
+      Not printed by the form's dictionary; meaning read from the variable note, kind from the values."
   DT_DIGITA:
     role: notification.entry_date
     kind: date

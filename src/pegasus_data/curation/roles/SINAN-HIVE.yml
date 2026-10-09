@@ -32,6 +32,8 @@ columns:
     - 2015
     - 2024
   CS_ESCOL_N:
+    missing: ['09', '9', '99']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='Analfabeto', 1='1ª a 4ª série incompleta do EF', 10='Não se aplica', 2='4ª série completa do EF (antigo 1° grau)', 3='5ª à 8ª série incompleta do EF (antigo ginásio ou 1° grau)', 4='Ensino fundamental completo (antigo ginásio ou 1° grau)', 5='Ensino médio incompleto (antigo colegial ou 2° grau)', 6='Ensino médio completo (antigo colegial ou 2° grau)', 7='Educação superior incompleta', 8='Educação superior completa', 9='Ignorado'; the tabulation: 09='Ign/Branco', 9='Ign/Branco', 99='Ign/Branco'; CONFLICT: the records use ['00', '01', '02', '03', '04', '05', '06', '07', '08'], which the form does not define
     role: patient.education
     kind: category
     model: dimension
@@ -300,6 +302,8 @@ columns:
     - 2024
     note: role from the notification block
   TP_NOT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Negativa', 2='Individual', 3='Surto', 4='Agregado'; the tabulation: no value labelled as not recorded
     role: notification.type
     kind: category
     model: mark

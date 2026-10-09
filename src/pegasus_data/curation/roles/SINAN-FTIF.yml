@@ -15,13 +15,13 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
-    review: draft
     name: Ano de Nascimento
-    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
-      fits a birth year, so model is provisional.'
     years:
     - 2007
     - 2026
+    note: "Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional. Not printed by the form's dictionary; meaning read from the variable
+      note, kind from the values."
   ANTIBIOTIC:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -1182,18 +1182,16 @@ columns:
     - 2007
     - 2026
   UF:
-    role: notification.uf
-    kind: place
+    role: notification.state_uf_where_the_patient_was_hospitalized
+    kind: category
     model: mark
-    review: draft
     name: UF de hospitalização
-    codelists:
-    - UF_BR
-    note: 'A state column the typhoid dictionary does not name: which place it records (hospital, infection) is
-      not documented; left a draft (2026-10-08).'
     years:
     - 2007
     - 2026
+    note: "State abbreviations. A state column the typhoid dictionary does not name: which place it records (hospital,
+      infection) is not documented; left a draft (2026-10-08). Not printed by the form's dictionary; meaning read
+      from the variable note, kind from the values."
   URINA:
     missing: ['9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded

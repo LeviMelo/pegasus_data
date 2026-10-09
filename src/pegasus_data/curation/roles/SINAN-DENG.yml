@@ -124,7 +124,8 @@ columns:
     role: case.pcr_sampled
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Amostra para RT-PCR
     years:
     - 2000
@@ -180,7 +181,8 @@ columns:
     role: case.sign_ascites
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Ascite
     years:
     - 2000
@@ -338,9 +340,7 @@ columns:
     kind: category
     model: mark
     note: Legacy WHO 1997 DHF grade I-IV.
-    name: 'Classificação/Conduta — Grau da FHD
-
-      '
+    name: "Classificação/Conduta — Grau da FHD\n"
     codelists:
     - CON_FHD
     years:
@@ -485,16 +485,15 @@ columns:
     - 2000
     - 2026
   DENGUE:
-    role: case.dengue_flag
+    role: case.dengue_case_flag
     kind: category
     model: mark
-    review: draft
-    note: 'Unresolved: single-letter checkbox in a rare legacy schema, meaning undocumented (curation infers it
-      from the column name only).'
     name: Dengue
     years:
     - 2000
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   DIABETES:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
@@ -785,24 +784,23 @@ columns:
     - 2007
     - 2026
   DURACAO:
-    role: case.duration
+    role: case.duration_days_legacy
     kind: number
     model: mark
-    review: draft
-    note: 'Unresolved: the unit (days/weeks) and what is measured are undocumented.'
     name: Duração
     years:
     - 2000
     - 2006
+    note: 'Values 1-7 (3: 74,355): a number of days, its subject unstated. 2000-2006 SINAN Windows layout: no dictionary
+      for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the
+      variable note (the name); kind from the values; codes undecoded.'
   EPISTAXE:
     missing: ['9']
     # proposed from DATASUS's labels (2010-2012): 9='Ignorado'
     role: case.sign_epistaxis
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Epistaxe
-
-      '
+    name: "Sinais e Sintomas — Epistaxe\n"
     codelists:
     - EPISTAXE
     years:
@@ -871,9 +869,7 @@ columns:
     role: case.sign_gum_bleeding
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Gengivorragia
-
-      '
+    name: "Sinais e Sintomas — Gengivorragia\n"
     codelists:
     - GENGIVO
     years:
@@ -1045,9 +1041,7 @@ columns:
     role: case.sign_hematuria
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Hematúria
-
-      '
+    name: "Sinais e Sintomas — Hematúria\n"
     codelists:
     - HEMATURA
     years:
@@ -1104,7 +1098,8 @@ columns:
     role: case.sign_postural_hypotension
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Hipotensão postural
     years:
     - 2000
@@ -1142,7 +1137,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
-    note: An ordinary coded column (CID-10 based agravo list), not a record identifier; draft typed it identifier.
+    note: An ordinary coded column (CID-10 based agravo list), not a record identifier; draft typed it 
+      identifier.
     name: Agravo/doença
     codelists:
     - ICD10
@@ -1156,26 +1152,25 @@ columns:
     - 2007
     - 2026
   ID_DG_NOT:
-    role: notification.general_block_id
-    kind: identifier
+    role: notification.notification_record_control_code
+    kind: category
     model: excluded
-    review: draft
-    note: 'Unresolved: undocumented internal code whose width differs across agravos (C1/C11/N1); excluded as presumed
-      bookkeeping.'
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_EV_NOT:
-    role: notification.evolution_block_id
-    kind: identifier
+    role: notification.notification_record_control_code_evolution_block
+    kind: category
     model: excluded
-    review: draft
-    note: 'Unresolved: sibling of ID_DG_NOT, undocumented; excluded as presumed bookkeeping.'
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
     role: patient.residence
     kind: place
@@ -1294,22 +1289,22 @@ columns:
     role: case.sign_organ_failure
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Insuficiência de órgãos
     years:
     - 2000
     - 2006
   IN_AIDS:
-    role: case.aids_indication
+    role: case.aids_indicated
     kind: category
     model: mark
-    review: draft
-    note: 'Unresolved: the curation describes the occupational-exposure meaning (source patient has AIDS); undocumented
-      for DENG.'
     name: Indicação de AIDS
     years:
     - 2000
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   IN_VINCULA:
     role: notification.linked_flag
     kind: category
@@ -1354,7 +1349,8 @@ columns:
     role: case.sign_hemorrhagic_manifestations
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Manifestações hemorrágicas
     years:
     - 2000
@@ -1373,7 +1369,8 @@ columns:
     role: case.specimen_type
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Material coletado
     years:
     - 2000
@@ -1384,9 +1381,7 @@ columns:
     role: case.sign_metrorrhagia
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Metrorragia
-
-      '
+    name: "Sinais e Sintomas — Metrorragia\n"
     codelists:
     - METRO
     years:
@@ -1416,7 +1411,8 @@ columns:
     role: case.sign_myocarditis
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Miocardite
     years:
     - 2000
@@ -1484,8 +1480,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
-    note: Legacy 2000-2006 packed age, unit digit then value, same layout as NU_IDADE_N. The age stratum is the
-      derived IDADE_anos.
+    note: Legacy 2000-2006 packed age, unit digit then value, same layout as NU_IDADE_N. The age stratum is 
+      the derived IDADE_anos.
     name: Idade
     years:
     - 2000
@@ -1494,8 +1490,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
-    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
-      the derived IDADE_anos.
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
+      is the derived IDADE_anos.
     name: Idade
     years:
     - 2007
@@ -1504,27 +1500,29 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
-    note: Legacy 2000-2006 field, undocumented, declared width varies (5 or 11) across files; coding scheme unverified,
-      code_tree assumed from ID_OCUPA_N.
+    note: Legacy 2000-2006 field, undocumented, declared width varies (5 or 11) across files; coding scheme 
+      unverified, code_tree assumed from ID_OCUPA_N.
     name: Ocupação
     years:
     - 2000
     - 2006
   OUTROS:
-    role: case.sign_other_sign
+    role: case.outros_legacy
     kind: category
     model: mark
-    review: draft
-    note: 'Unresolved: in other series OUTROS is an other-signs flag or a stool result; undocumented for DENG 2000-2006.'
     name: Outros
     years:
     - 2000
     - 2006
+    note: 'The variable note reads a stool exam, a meaning borrowed from another form; a 1/2/9 flag whose subject
+      is unknown. 2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   OUTROS_M:
     role: case.sign_other_manifestation
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Outras manifestações
     years:
     - 2000
@@ -1569,7 +1567,8 @@ columns:
     role: case.sign_pericardial_effusion
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Derrame pericárdico
     years:
     - 2000
@@ -1599,9 +1598,7 @@ columns:
     role: case.platelets_min
     kind: number
     model: mark
-    name: 'Menor Contagem de Plaquetas
-
-      '
+    name: "Menor Contagem de Plaquetas\n"
     years:
     - 2000
     - 2026
@@ -1619,7 +1616,8 @@ columns:
     role: case.sign_pleural_effusion
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Derrame pleural
     years:
     - 2000
@@ -1657,12 +1655,12 @@ columns:
     role: case.other_test_result
     kind: category
     model: mark
-    review: draft
-    note: 'Unresolved: catch-all result of an unnamed test, undocumented; draft typed it text.'
     name: Resultado de outro exame
     years:
     - 2000
     - 2006
+    note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
+      TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   RESUL_PCR:
     role: case.pcr_result
     kind: category
@@ -1803,9 +1801,7 @@ columns:
     role: case.sign_bleeding
     kind: category
     model: mark
-    name: 'Sinais e Sintomas — Sangramento
-
-      '
+    name: "Sinais e Sintomas — Sangramento\n"
     codelists:
     - SANGRAM
     years:
@@ -1871,7 +1867,8 @@ columns:
     role: case.serum2_collected
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Coleta do 2º soro
     years:
     - 2000
@@ -1890,7 +1887,8 @@ columns:
     role: case.tissue_collected
     kind: category
     model: mark
-    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
+      flag.
     name: Coleta de tecidos
     years:
     - 2000

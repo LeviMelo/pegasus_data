@@ -100,6 +100,27 @@ DICTIONARIES: dict[str, tuple[str, ...]] = {
     "lerdort_dic": ("LERD", "LER"),
     "DIC_DADOS_SRC_v5": ("SRC",),
     "mental_dic": ("MENT",),
+    # DATASUS's own tabulation package, SINAN/DOCS/Docs_TAB_SINAN.zip (fetched 2026-10-08): a dictionary for every
+    # agravo, those the portal does not publish included (exanthematous, PFA, foodborne outbreaks, plague, neonatal
+    # tetanus, the four HIV forms, sporotrichosis epizootics)
+    "tabsinan__ACBION": ("ACBI",), "tabsinan__ACGRN": ("ACGR",), "tabsinan__AIDSAN": ("AIDA",),
+    "tabsinan__AIDSCN": ("AIDC",), "tabsinan__ANIMPN": ("ANIM",), "tabsinan__BOTUN": ("BOTU",),
+    "tabsinan__CANCN": ("CANC",), "tabsinan__CHAGAN": ("CHAG",), "tabsinan__COLEN": ("COLE",),
+    "tabsinan__COQUEN": ("COQU",), "tabsinan__DENGON": ("DENG",), "tabsinan__DERMN": ("DERM",),
+    "tabsinan__Dicionario_de_dados_Epizootias_Esporotricose": ("ESPO",),
+    "tabsinan__DIC_DADOS_Intoxicacao_Exogena": ("IEXO",), "tabsinan__DIC_DADOS_ROTA_NET": ("ROTA",),
+    "tabsinan__DIFTEN": ("DIFT",), "tabsinan__ESQUIN": ("ESQU",), "tabsinan__EXANT": ("EXAN",),
+    "tabsinan__FAMARN": ("FAMA",), "tabsinan__FMACUN": ("FMAC",), "tabsinan__FTIFON": ("FTIF",),
+    "tabsinan__HANSN": ("HANS",), "tabsinan__HANTAN": ("HANT",), "tabsinan__HEPANET": ("HEPA",),
+    "tabsinan__HIVAN": ("HIVA",), "tabsinan__HIVCN": ("HIVC",), "tabsinan__HIVCR": ("HIVE",),
+    "tabsinan__HIVG": ("HIVG",), "tabsinan__IEXOGN": ("IEXO",), "tabsinan__LEISHN": ("LEIV",),
+    "tabsinan__LEPTON": ("LEPT",), "tabsinan__LERDN": ("LERD", "LER"), "tabsinan__LTAN": ("LTAN",),
+    "tabsinan__MALAN": ("MALA",), "tabsinan__MENIN": ("MENI",), "tabsinan__MENTN": ("MENT",),
+    "tabsinan__PAIRN": ("PAIR",), "tabsinan__PESTEN": ("PEST",), "tabsinan__PFAN": ("PFAN",),
+    "tabsinan__PNEUN": ("PNEU",), "tabsinan__RAIVAN": ("RAIV",), "tabsinan__SDTA": ("SDTA",),
+    "tabsinan__SIFICN": ("SIFC",), "tabsinan__SIFIGEN": ("SIFG",), "tabsinan__SRCN": ("SRC",),
+    "tabsinan__TETACN": ("TETA",), "tabsinan__TETANN": ("TETN",), "tabsinan__TUBEN": ("TUBE",),
+    "tabsinan__VIOLEN": ("VIOL",),
 }
 
 _WIDTH = re.compile(r"(?:varchar2?|char|caractere|num[eé]rico|number)\s*\(\s*(\d+)\s*\)?", re.I)
@@ -284,6 +305,14 @@ def _parse_row(row: list[str]) -> tuple[str, dict] | None:
         label = cells[0] if cells[0] and name != cells[0].split()[0] else ""
         width = int(m.group(2)) if m and m.group(2) else int(w.group(1)) if w else None
         return name, _entry(label, cell, width, following)
+    # The epizootics dictionary (sporotrichosis): | DBF | description | categories |, no type cell; the description is
+    # the label, the categories a code list where they read as one
+    if len(cells) == 3 and _DBF.fullmatch(cells[0]) and cells[1]:
+        entry: dict = {"label": re.sub(r"\s+", " ", cells[1]).strip()}
+        codes = _categories(row[2]) if row[2].strip() else {}
+        if len(codes) >= 2 and _fits(codes, max(len(c) for c in codes)):
+            entry["codes"] = codes
+        return cells[0], entry
     # SINAN Online's dictionaries (dengue, chikungunya): no type or width cell, the categories in the first cell that
     # reads as codes, the DBF name last (``| 33- Sinais clínicos (Cefaleia) | | | 1 – Sim / 2 – Não | … | CEFALEIA |``);
     # an accent the DBF name cannot carry is dropped (ÁCIDO_PEPT is the column ACIDO_PEPT). Every other check holds
