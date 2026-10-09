@@ -198,6 +198,13 @@ variables:
     code_system: none
     depends_on:
     - COD_IDADE
+    derived:
+    - name: IDADE_anos
+      from:
+      - IDADE
+      - COD_IDADE
+      encoding: cih
+      rule: fractional years (ADR-0070); COD_IDADE 2 days, 3 months, 4 years, 0 ignored, 5 'anos (para maiores de 100 anos)' with IDADE in decades, 10 x IDADE the decade's first year (measured 2026-10-08 on MG and PR 2021, OQ-74). One converter, _age.years_column
     notes: 'Reading IDADE as "years" unconditionally is wrong whenever COD_IDADE is 2 or 3
       (age recorded in days or months - typically newborns/infants under one year). The project''s
       open gap semantics.cod_idade_units names this exact ambiguity as unresolved for SIH''s

@@ -22,6 +22,8 @@ columns:
     codelists:
     - ANO
   CEFALEIA:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.headache_flag
     kind: category
     model: mark
@@ -32,6 +34,8 @@ columns:
     codelists:
     - OUTSINT
   CLASSIFIN:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Confirmado', 2='Provável', 3='Em investigação', 4='Inconclusivo', 5='Descartado', 6='Excluído'; the tabulation: no value labelled as not recorded
     role: notification.final_case_classification
     kind: category
     model: mark
@@ -42,6 +46,8 @@ columns:
     codelists:
     - CLASSIFIN
   CLASS_FETO:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Pré-Termo (menor que 37 semanas de gestação)', 2='A Termo (idade gestacional entre 37 e 41 semanas e 6 dias)', 3='Pós-Termo (idade gestacional igual ou maior que 42 semanas)'; the tabulation: no value labelled as not recorded
     role: notification.gestational_term_classification_at_delivery
     kind: category
     model: mark
@@ -82,6 +88,8 @@ columns:
     - 2015
     - 2024
   CONJUNTIV:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.conjunctival_hyperemia_flag
     kind: category
     model: mark
@@ -110,6 +118,8 @@ columns:
     codelists:
     - CRITERIO
   DEF_AUDIT:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.hearing_deficiency_flag
     kind: category
     model: mark
@@ -120,6 +130,8 @@ columns:
     codelists:
     - SIM_NAO
   DEF_NEURO:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.neurological_deficiency_flag
     kind: category
     model: mark
@@ -130,6 +142,8 @@ columns:
     codelists:
     - SIM_NAO
   DEF_VISUAL:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.visual_deficiency_flag
     kind: category
     model: mark
@@ -148,6 +162,8 @@ columns:
     - 2015
     - 2024
   DOR_ARTIC:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.joint_pain_flag
     kind: category
     model: mark
@@ -158,6 +174,8 @@ columns:
     codelists:
     - OUTSINT
   DOR_MUSC:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.muscle_pain_flag
     kind: category
     model: mark
@@ -248,6 +266,8 @@ columns:
     - 2015
     - 2024
   EDEMA:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.joint_edema_flag
     kind: category
     model: mark
@@ -258,6 +278,8 @@ columns:
     codelists:
     - OUTSINT
   ETIOLOGIA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Vírus Zika', 2='STORCH', 3='Coinfecção (STORCH + Zika)', 4='Etiologia desconhecida', 9='Ignorado'; the tabulation: 9='Ignorado'
     role: notification.etiology
     kind: category
     model: mark
@@ -266,6 +288,8 @@ columns:
     - 2015
     - 2024
   EXAME_RS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Resultado Normal', 2='Resultado alterado, sugestivo de infecção congênita', 3='Resultado alterado, com outras alterações', 4='Resultado indeterminado', 5='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.mri_result
     kind: category
     model: mark
@@ -276,6 +300,8 @@ columns:
     codelists:
     - REXAME
   EXAME_TC:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Resultado Normal', 2='Resultado alterado, sugestivo de infecção congênita', 3='Resultado alterado, com outras alterações', 4='Resultado indeterminado', 5='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.ct_scan_result
     kind: category
     model: mark
@@ -286,6 +312,8 @@ columns:
     codelists:
     - REXAME
   EXAME_USS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Resultado Normal', 2='Resultado alterado, sugestivo de infecção congênita', 3='Resultado alterado, com outras alterações', 4='Resultado indeterminado', 5='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.prenatal_ultrasound_result
     kind: category
     model: mark
@@ -296,6 +324,8 @@ columns:
     codelists:
     - REXAME
   EXANT_GES:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim, no 1º trimestre', 2='Sim, no 2º trimestre', 3='Sim, no 3º trimestre', 4='Sim, mas não lembra a data ou período gestacional', 5='Não apresentou exantema', 9='Não sabe'; the tabulation: no value labelled as not recorded
     role: notification.rash_exanthema_during_pregnancy
     kind: category
     model: mark
@@ -306,6 +336,8 @@ columns:
     codelists:
     - EXANT_GES
   EXA_TORSCH:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.storch_panel_testing_flag
     kind: category
     model: mark
@@ -316,6 +348,8 @@ columns:
     codelists:
     - SIM_NAO
   EXA_TRANSF:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Resultado Normal', 2='Resultado alterado, sugestivo de infecção congênita', 3='Resultado alterado, com outras alterações', 4='Resultado indeterminado', 5='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.transfontanellar_ultrasound_result
     kind: category
     model: mark
@@ -326,6 +360,8 @@ columns:
     codelists:
     - REXAME
   FEBRE_GES:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.fever_during_pregnancy
     kind: category
     model: mark
@@ -345,6 +381,9 @@ columns:
     - 2024
     note: A tabulation helper the variable note describes (1 on each record).
   GEST_DIAG:
+    missing: []
+    domain: [0, 99]
+    # proposed (2016): the range DATASUS's tabulation bands label as values; outside it 0 of 6765 values in 2016 (none)
     role: pregnancy.weeks_at_detection
     kind: number
     model: mark
@@ -355,6 +394,8 @@ columns:
     codelists:
     - SEMAGESTAC
   GRAVIDEZ:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Única', 2='Dupla', 3='Tripla ou mais', 9='Ignorado'; the tabulation: 0='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: notification.pregnancy_type
     kind: category
     model: mark
@@ -365,6 +406,8 @@ columns:
     codelists:
     - GRAVIDEZ
   HIPERT_GAN:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.lymph_node_enlargement_flag
     kind: category
     model: mark
@@ -375,6 +418,8 @@ columns:
     codelists:
     - OUTSINT
   HIST_ARBOV:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Dengue', 2='Chikungunya', 3='Dengue e Chikungunya', 4='Sem histórico de doença', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.recent_other_arbovirus_infection_history
     kind: category
     model: mark
@@ -385,6 +430,8 @@ columns:
     codelists:
     - HIST_ARBOV
   HIST_MALFO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.family_history_of_congenital_malformation
     kind: category
     model: mark
@@ -395,6 +442,9 @@ columns:
     codelists:
     - SIM_NAO
   IDADEGES:
+    missing: []
+    domain: [10, 60]
+    # proposed (2016): the range DATASUS's tabulation bands label as values; outside it 0 of 8156 values in 2016 (none)
     role: mother.age
     kind: number
     model: mark
@@ -414,6 +464,8 @@ columns:
     - 2015
     - 2024
   MICROCEFAL:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Microcefalia apenas', 2='Microcefalia com alteração do SNC', 3='Microcefalia com outras alterações congênitas', 4='Alterações congênitas sem microcefalia'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['9'], which the form does not define
     role: notification.congenital_alteration_type_microcephaly_classification
     kind: category
     model: mark
@@ -424,6 +476,8 @@ columns:
     codelists:
     - MICROCEFAL
   NEUROLOG:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.neurological_involvement_flag
     kind: category
     model: mark
@@ -434,6 +488,8 @@ columns:
     codelists:
     - OUTSINT
   PCR_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_pcr_result_mother
     kind: category
     model: mark
@@ -450,6 +506,9 @@ columns:
     - 2015
     - 2024
   PESO:
+    missing: []
+    domain: [1, 8999]
+    # proposed (2016): the range DATASUS's tabulation bands label as values; outside it 0 of 6814 values in 2016 (none)
     role: patient.birth_weight
     kind: number
     model: mark
@@ -460,6 +519,8 @@ columns:
     codelists:
     - PESO
   PRURIDO:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não'; the tabulation: no value labelled as not recorded
     role: notification.itching_flag
     kind: category
     model: mark
@@ -500,6 +561,8 @@ columns:
     - 2015
     - 2024
   RESUL_C:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.cytomegalovirus_cmv_laboratory_result_mother
     kind: category
     model: mark
@@ -508,6 +571,8 @@ columns:
     - 2015
     - 2024
   RESUL_H:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.herpes_virus_laboratory_result_mother
     kind: category
     model: mark
@@ -516,6 +581,8 @@ columns:
     - 2015
     - 2024
   RESUL_S:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.syphilis_laboratory_result
     kind: category
     model: mark
@@ -524,6 +591,8 @@ columns:
     - 2015
     - 2024
   RESUL_TO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.toxoplasmosis_laboratory_result
     kind: category
     model: mark
@@ -532,6 +601,8 @@ columns:
     - 2015
     - 2024
   RESUL_Z:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 0='Não', 1='Sim'; the tabulation: no value labelled as not recorded
     role: notification.zika_virus_laboratory_result
     kind: category
     model: mark
@@ -540,6 +611,8 @@ columns:
     - 2015
     - 2024
   RNEXA_TORS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.storch_panel_testing_flag_newborn
     kind: category
     model: mark
@@ -550,6 +623,8 @@ columns:
     codelists:
     - SIM_NAO
   RNPCR_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_pcr_result_newborn
     kind: category
     model: mark
@@ -558,6 +633,8 @@ columns:
     - 2015
     - 2024
   RNRESUL_C:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.cytomegalovirus_cmv_laboratory_result_newborn
     kind: category
     model: mark
@@ -566,6 +643,8 @@ columns:
     - 2015
     - 2024
   RNRESUL_H:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.herpes_virus_laboratory_result_newborn
     kind: category
     model: mark
@@ -574,6 +653,8 @@ columns:
     - 2015
     - 2024
   RNRESUL_S:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.syphilis_laboratory_result_newborn
     kind: category
     model: mark
@@ -582,6 +663,8 @@ columns:
     - 2015
     - 2024
   RNRESUL_TO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.toxoplasmosis_laboratory_result_newborn
     kind: category
     model: mark
@@ -590,6 +673,8 @@ columns:
     - 2015
     - 2024
   RNRESUL_Z:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 0='Não', 1='Sim'; the tabulation: no value labelled as not recorded
     role: notification.zika_positive_flag_newborn
     kind: category
     model: mark
@@ -598,6 +683,8 @@ columns:
     - 2015
     - 2024
   RNSO_IGG_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igg_serology_result_newborn
     kind: category
     model: mark
@@ -606,6 +693,8 @@ columns:
     - 2015
     - 2024
   RNSO_IGM_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igm_serology_result_newborn
     kind: category
     model: mark
@@ -614,6 +703,8 @@ columns:
     - 2015
     - 2024
   RNTR_IGG_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igg_rapid_test_result_newborn
     kind: category
     model: mark
@@ -622,6 +713,8 @@ columns:
     - 2015
     - 2024
   RNTR_IGM_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igm_rapid_test_result_newborn
     kind: category
     model: mark
@@ -640,6 +733,8 @@ columns:
     codelists:
     - SEXO
   SO_IGG_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igg_serology_result_mother
     kind: category
     model: mark
@@ -648,6 +743,8 @@ columns:
     - 2015
     - 2024
   SO_IGM_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igm_serology_result_mother
     kind: category
     model: mark
@@ -656,6 +753,8 @@ columns:
     - 2015
     - 2024
   STATUS_NOT:
+    missing: []
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Ativo', 2='Reativado', 3='Inativo'; the tabulation: no value labelled as not recorded
     role: notification.record_status
     kind: category
     model: mark
@@ -666,6 +765,8 @@ columns:
     codelists:
     - STATUS_NOT
   ST_OBITO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.death_outcome_flag
     kind: category
     model: mark
@@ -676,6 +777,8 @@ columns:
     codelists:
     - SIM_NAO
   TPDETECCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Intrauterino (na gestação)', 2='Pós-Parto', 3='Não detectada', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.timing_of_congenital_alteration_detection
     kind: category
     model: mark
@@ -694,6 +797,8 @@ columns:
     codelists:
     - TP_NOTIFIC
   TR_IGG_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igg_rapid_test_result_mother
     kind: category
     model: mark
@@ -702,6 +807,8 @@ columns:
     - 2015
     - 2024
   TR_IGM_Z:
+    missing: ['9']
+    # declared from DATASUS's own sources (2016): the form's dictionary: 1='Reagente/Positivo', 2='Não reagente/Negativo', 3='Indetectável/ Indeterminado', 4='Não realizado', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: notification.zika_igm_rapid_test_result_mother
     kind: category
     model: mark

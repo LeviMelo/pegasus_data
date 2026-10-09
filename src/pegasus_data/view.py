@@ -1326,10 +1326,10 @@ def _apply_derived(
             from ._age import AgeDimension, years_column
 
             encoding = str(recipe.get("encoding") or "")
-            if encoding not in ("sih", "sim", "sinan", "years"):
+            if encoding not in ("sih", "cih", "sim", "sinan", "years"):
                 report.warnings.append(
                     f"{column_name}: the curated recipe declares no age encoding "
-                    "(sih|sim|sinan|years), so it cannot be derived"
+                    "(sih|cih|sim|sinan|years), so it cannot be derived"
                 )
                 continue
             derived_column = years_column(

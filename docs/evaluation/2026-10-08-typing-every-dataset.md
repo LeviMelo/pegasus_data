@@ -138,3 +138,18 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
 - **Eleven datasets now:** the five DBF series; the five CSV exam series (`SISCAN.SISCAN_CITO_COLO`…, one row per exam); and their `_PACNT` counterparts.
 - **PACNT is per patient, not a dimension.** The PACNT files carry the patient (`CO_PACIENTE`) and a summary result, and no exam key. In 2024's first rows about 97% of rows are distinct patients (CITO_COLO 72,956 of 75,497). PACNT is TabNet's "pacientes" beside the exam files' "exames"; it had been declared a patient dimension joined to the exams.
 - **Read after the split:** SISCAN-SISCAN_CITO_MAMA 2013 gives 604 exams, 50 columns.
+
+**Missing codes and ages for the new event datasets** (`scripts/propose_missing.py`, logs in `data/probes/p3/`).
+- **DOREXT and DNEX:** nothing new to declare; their categories carry SIM-DO's and SINASC-DN's declarations.
+- **RESP:** declared from its own form (DIC_DADOS_RESP), written by `--write` (107 lines).
+- **Painel Oncologia:** declared from `Dicionario_Painel_Oncologia.pdf` (painel_oncologia/Doc):
+  - TRATAMENTO 5, ESTADIAM 9, IDADE 999 and TEMPO_TRAT 99999 are not recorded;
+  - TEMPO_TRAT is signed days.
+  - On records, ESTADIAM is Ignorado on exactly the 157,330 rows whose TRATAMENTO is "sem informação de tratamento" (2026, of 213,834): stage is not recorded where no treatment is.
+- **CIH-CR:** declared from its form, the FQA in the TAB_CIH kit: COD_IDADE 0 ignorada; MORTE and GESTAO have no missing code. COBRANCA, NATUREZA and FONTE name tables the FQA does not print, and stay undeclared.
+- **DCCR (e-SUS Notifica):** its dictionary gives category labels without codes, so no code can be called "not recorded" from it, and nothing is declared. Its tabulation alone labels `000`-`009` Ign/Branco, which is not a reading of a 1-character field.
+- **The age unit 5 in CIH and CIHA is decades (OQ-74 answered).**
+  - IDADE 10 measures 100.0–109.9 years against NASC and the admission date, 11 measures 110–119 and 12 measures 120–126. That holds on CIH 2009–2010 (1,422 records) and CIHA MG and PR 2021.
+  - SIH's unit 5 is 100 + value (SP 2015-06: 4 = 104.0–104.7).
+  - The new `cih` encoding in `_age` reads 10 × IDADE, the decade's first year: a lower bound.
+  - CIHA now has its age stratum and runs in PegaSUS (31 columns, 14 read); its rows without an age are its 128,261 consolidated outpatient rows (MODALIDADE 00, PR 2021), which carry no patient.

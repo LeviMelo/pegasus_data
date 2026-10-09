@@ -70,6 +70,9 @@ columns:
     years:
     - 2013
     - 2026
+    missing: []
+    note: 'The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): 1 Neoplasias malignas (Lei 12.732/12),
+      2 in situ, 3 comportamento incerto ou desconhecido, 4 C44 e C73.'
   DIAG_DETH:
     role: case.diagnosis
     kind: code_tree
@@ -113,6 +116,10 @@ columns:
     years:
     - 2013
     - 2026
+    missing:
+    - '9'
+    note: 'The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): 0-4 the stage, 5 Não se aplica (a
+      value), 9 Ignorado.'
   IDADE:
     role: patient.age
     kind: number
@@ -121,7 +128,10 @@ columns:
     years:
     - 2013
     - 2026
-    note: Plain years at diagnosis, three digits (062), unlike SIM's and SIH's coded ages.
+    note: "The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): 000 to 999, 999 idade ignorada. Plain
+      years at diagnosis, three digits (062), unlike SIM's and SIH's coded ages."
+    missing:
+    - '999'
   MUN_DIAG:
     role: case.diagnosis_municipality
     kind: place
@@ -160,14 +170,20 @@ columns:
     years:
     - 2013
     - 2026
+    missing: []
+    note: 'The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): F, M.'
   TEMPO_TRAT:
-    role: case.time_to_treatment
-    kind: category
+    role: case.days_to_treatment
+    kind: number
     model: mark
     name: Tempo até o tratamento
     years:
     - 2013
     - 2026
+    missing:
+    - '99999'
+    note: 'The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): a sign (+ treatment after the diagnosis
+      report, - before) and four digits of days; 99999 sem informação de tratamento.'
   TRATAMENTO:
     role: case.treatment_type
     kind: category
@@ -176,6 +192,10 @@ columns:
     years:
     - 2013
     - 2026
+    missing:
+    - '5'
+    note: 'The form (Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)): 1 Cirurgia, 2 Quimioterapia, 3 Radioterapia,
+      4 Quimioterapia + Radioterapia, 5 Sem informação de tratamento.'
   UF_DIAGN:
     role: case.state_of_diagnosis
     kind: place

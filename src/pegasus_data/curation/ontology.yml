@@ -1100,10 +1100,25 @@ datasets:
 
   IBGE.ESCA:
     system: IBGE
-    official_name: Escolaridade
-    translated_name: Educational attainment
-    what_it_is: Population by years of schooling. ESCB is the second breakdown.
-    observed_as: [ESCA, ESCB]
+    official_name: Escolaridade, população de 15 anos ou mais
+    translated_name: Educational attainment, population aged 15 and over
+    what_it_is: >
+      Census population by years of schooling (IBGE/censo/ESCABRaa.zip, 1991, 2000,
+      2010), by municipality, sex, race and urban/rural. Its totals are the
+      population aged 15 and over: 95.35, 119.56 and 143.98 million. The age is
+      read from the totals; no layout found states it. Until 2026-10-08 ESCB was
+      an alias, so a query summed the two (2010: 167.7 million).
+    observed_as: [ESCA]
+
+  IBGE.ESCB:
+    system: IBGE
+    official_name: Escolaridade, população de 18 a 24 anos
+    translated_name: Educational attainment, population aged 18 to 24
+    what_it_is: >
+      The same breakdown for a younger population (IBGE/censo/ESCBBRaa.zip): totals
+      19.30, 23.37 and 23.71 million in 1991, 2000 and 2010, the population aged
+      18 to 24 in each census. Inside ESCA's population; never added to it.
+    observed_as: [ESCB]
 
   IBGE.RENDA:
     system: IBGE

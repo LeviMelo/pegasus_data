@@ -359,8 +359,8 @@ variables:
       from:
       - IDADE
       - COD_IDADE
-      encoding: sih
-      rule: fractional years (ADR-0070), SIH's rule; COD_IDADE 2 days, 3 months, 4 years (the FQA's table), 0 ignored. One converter, _age.years_column
+      encoding: cih
+      rule: fractional years (ADR-0070); COD_IDADE 2 days, 3 months, 4 years, 0 ignored (the FQA's table), 5 'anos (mais de 100)' with IDADE in decades, 10 x IDADE the decade's first year (measured, _age._scaled). One converter, _age.years_column
     source: layout_doc
     source_ref: 'Ficha de Qualificação ''FQA CIH 180610.doc'' (DATASUS, 06/2010), layout
       CR*.dbf, in the TAB_CIH kit — local: sources/tab_cih_extract/FQA CIH 180610.doc

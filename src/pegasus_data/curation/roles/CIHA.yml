@@ -294,3 +294,10 @@ columns:
     years:
     - 2011
     - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    name: Idade em anos (derivada de IDADE e COD_IDADE)
+    note: Fractional years by CIH's rule (unit 5 in decades, OQ-74 resolved 2026-10-08).

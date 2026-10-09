@@ -58,6 +58,10 @@ columns:
     years:
     - 2008
     - 2011
+    missing:
+    - '0'
+    note: 'the form, FQA CIH 180610.doc (TAB_CIH kit; sources/tab_cih_extract/fqa_strings.txt): 0 ignorada, 2 dias,
+      3 meses, 4 anos, 5 anos (mais de 100).'
   DIAG_PRINC:
     role: admission.diagnosis
     kind: code_tree
@@ -130,6 +134,9 @@ columns:
     - 2011
     codelists:
     - GESTAO
+    missing: []
+    note: 'the form, FQA CIH 180610.doc (TAB_CIH kit; sources/tab_cih_extract/fqa_strings.txt): 0 gestão estadual,
+      1 gestão municipal.'
   HOMONIMO:
     role: patient.homonym_flag
     kind: category
@@ -166,6 +173,8 @@ columns:
     - 2011
     codelists:
     - MORTES
+    missing: []
+    note: 'the form, FQA CIH 180610.doc (TAB_CIH kit; sources/tab_cih_extract/fqa_strings.txt): 0 não, 1 sim.'
   MUNIC_MOV:
     role: admission.facility_municipality
     kind: place

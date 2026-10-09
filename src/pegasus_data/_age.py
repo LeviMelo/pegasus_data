@@ -82,13 +82,13 @@ def parse_age_dimension(body: Any) -> AgeDimension | None:
     if not body:
         return None
     encoding = str(body.get("encoding") or "")
-    if encoding not in ("sih", "sim", "sinan", "years"):
+    if encoding not in ("sih", "cih", "sim", "sinan", "years"):
         raise ValueError(
-            f"age_dimension.encoding must be sih|sim|sinan|years, got {encoding!r}"
+            f"age_dimension.encoding must be sih|cih|sim|sinan|years, got {encoding!r}"
         )
     fields = tuple(str(f) for f in (body.get("fields") or ()))
-    if encoding == "sih" and len(fields) != 2:
-        raise ValueError("sih age needs [value_field, unit_field]")
+    if encoding in ("sih", "cih") and len(fields) != 2:
+        raise ValueError(f"{encoding} age needs [value_field, unit_field]")
     if encoding in ("sim", "sinan", "years") and len(fields) != 1:
         raise ValueError(f"{encoding} age needs exactly one field")
     bands = tuple(int(b) for b in (body.get("bands") or DEFAULT_BANDS))
@@ -122,11 +122,16 @@ UNITS: dict[str, dict[str, float]] = {
     "sih": {"2": _DAY, "3": _MONTH, "4": _YEAR},
     "sim": {"0": _MINUTE, "1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
     "sinan": {"1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
+    # CIH and CIHA: SIH's units, but unit 5 holds the age in decades (below, `_scaled`)
+    "cih": {"2": _DAY, "3": _MONTH, "4": _YEAR},
 }
 
 
-def _scaled(value: Any, unit: Any, table: dict[str, float]) -> Any:
-    """value x years-per-unit, 100 + value for unit 5, null for anything else."""
+def _scaled(value: Any, unit: Any, table: dict[str, float], decades: bool = False) -> Any:
+    """value x years-per-unit, null for anything else; unit 5 is 100 + value (SIH, SIM, SINAN), or with ``decades``
+    10 x value, the first year of the decade the two-character field holds (CIH, CIHA: IDADE 10 is 100.0-109.9 years
+    measured against NASC and the admission, 11 is 110-119, 12 is 120-126; 1,422 CIH records of 2009-2010 and OQ-74's
+    1,576 CIHA records of 2021). A lower bound, never a guess inside the decade."""
     import pyarrow as pa
     import pyarrow.compute as pc
 
@@ -135,7 +140,7 @@ def _scaled(value: Any, unit: Any, table: dict[str, float]) -> Any:
         conditions.append(pc.equal(unit, code))
         choices.append(pc.multiply(value, per))
     conditions.append(pc.equal(unit, "5"))
-    choices.append(pc.add(value, 100.0))
+    choices.append(pc.multiply(value, 10.0) if decades else pc.add(value, 100.0))
     return pc.case_when(pc.make_struct(*conditions), *choices, pa.scalar(None, pa.float64()))
 
 
@@ -153,8 +158,9 @@ def years_column(age: AgeDimension, table: Any) -> Any:
 
     if age.encoding == "years":
         return _digits_to_years(text_of(age.fields[0]))
-    if age.encoding == "sih":
-        return _scaled(_digits_to_years(text_of(age.fields[0])), text_of(age.fields[1]), UNITS["sih"])
+    if age.encoding in ("sih", "cih"):
+        return _scaled(_digits_to_years(text_of(age.fields[0])), text_of(age.fields[1]), UNITS[age.encoding],
+                       decades=age.encoding == "cih")
 
     packed = text_of(age.fields[0])
     unit = pc.utf8_slice_codeunits(packed, 0, 1)

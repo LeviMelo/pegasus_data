@@ -1256,11 +1256,21 @@ datasets:
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.ESCA
-    what_one_row_is: population by years of schooling for one area in one year
+    what_one_row_is: the population aged 15 and over in one schooling band, for one area, sex, race and situation, in one census year
     unit_of_analysis: area-year
     gotchas:
-      - ESCB is the second breakdown of the same population. Adding the two double-counts.
+      - IBGE.ESCB is the population aged 18 to 24, inside this one. Adding the two double-counts the young adults.
       - Schooling bands are not constant across census rounds, so a series needs the bands reconciled before it is comparable.
+  IBGE.ESCB:
+    system: IBGE
+    series: ESCB
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: the files' totals (1991, 2000, 2010) against the census population aged 18 to 24
+    what_one_row_is: the population aged 18 to 24 in one schooling band, for one area, sex, race and situation, in one census year
+    unit_of_analysis: area-year
+    gotchas:
+      - Inside IBGE.ESCA's population (15 and over); never added to it.
   IBGE.IDOSO:
     system: IBGE
     series: IDOSO
