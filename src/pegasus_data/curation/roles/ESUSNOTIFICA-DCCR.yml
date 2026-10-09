@@ -2,6 +2,8 @@ dataset: ESUSNOTIFICA-DCCR
 record: notification
 columns:
   AC_NOT:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.follow_up_unit_same_as_notifying_unit
     kind: category
     model: mark
@@ -10,6 +12,8 @@ columns:
     - 2023
     - 2025
   ADVERS_BNZ:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Sem reacoes')
     role: notification.benznidazole_no_adverse_reaction
     kind: category
     model: mark
@@ -18,6 +22,8 @@ columns:
     - 2023
     - 2025
   ADVERS_NFX:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Sem reacoes')
     role: notification.nifurtimox_no_adverse_reaction
     kind: category
     model: mark
@@ -26,6 +32,9 @@ columns:
     - 2023
     - 2025
   ANO_DIAG:
+    missing: []
+    domain: [1, 2026]
+    # proposed (2025): the range DATASUS's tabulation bands label as values; outside it 0 of 8217 values in 2025 (none)
     role: notification.probable_year_of_diagnosis
     kind: number
     model: mark
@@ -52,6 +61,8 @@ columns:
     - 2025
     note: A municipality name (51 rows, 18 names, 2025).
   ANT_UF_ESP:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Bahia', 'Ceara', 'Distrito Federal', 'Goias', 'Mato Grosso do Sul', 'Minas Gerais', 'Parana', 'Pernambuco', 'Rio Grande do Sul', 'Rio de Janeiro', 'Santa Catarina', 'Sao Paulo' …)
     role: notification.state_of_the_new_specialised_unit
     kind: category
     model: mark
@@ -60,6 +71,8 @@ columns:
     - 2023
     - 2025
   BNZ_ARTRAL:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Artralgias')
     role: notification.benznidazole_arthralgia
     kind: category
     model: mark
@@ -68,6 +81,8 @@ columns:
     - 2023
     - 2025
   BNZ_AUGESI:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Ageusia')
     role: notification.benznidazole_ageusia
     kind: category
     model: mark
@@ -92,6 +107,8 @@ columns:
     - 2023
     - 2025
   BNZ_GASTRO:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Intolerancia gastrointestinal')
     role: notification.benznidazole_gastrointestinal_intolerance
     kind: category
     model: mark
@@ -100,6 +117,8 @@ columns:
     - 2023
     - 2025
   BNZ_GRAVE:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Dermopatia grave')
     role: notification.benznidazole_severe_dermopathy
     kind: category
     model: mark
@@ -108,6 +127,8 @@ columns:
     - 2023
     - 2025
   BNZ_LEVE:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Dermopatia leve/moderada')
     role: notification.benznidazole_mild_moderate_dermopathy
     kind: category
     model: mark
@@ -124,6 +145,8 @@ columns:
     - 2023
     - 2025
   BNZ_PAREST:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Parestesias')
     role: notification.benznidazole_paraesthesia
     kind: category
     model: mark
@@ -140,6 +163,8 @@ columns:
     - 2023
     - 2025
   BUSCAATIVA:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.active_case_finding_performed
     kind: category
     model: mark
@@ -148,6 +173,8 @@ columns:
     - 2023
     - 2025
   CARDIOPAT:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_heart_disease_of_other_aetiology
     kind: category
     model: mark
@@ -300,6 +327,8 @@ columns:
     - 2023
     - 2025
   CS_ESCOL_N:
+    missing: ['Ignorado']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('EF Completo', 'EF Incompleto', 'EM Completo', 'EM Incompleto', 'Ignorado', 'Nao se Aplica', 'Nao se aplica', 'Nenhuma', 'Superior')
     role: patient.education
     kind: category
     model: dimension
@@ -309,6 +338,8 @@ columns:
     - 2025
     note: As across SINAN forms (55 of 55).
   CS_GESTANT:
+    missing: ['Ignorado']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('1º Trimestre', '2º Trimestre', '3º Trimestre', 'Idade gestacional ignorada', 'Ignorado', 'Nao', 'Nao se aplica')
     role: patient.pregnant
     kind: category
     model: mark
@@ -335,6 +366,8 @@ columns:
     - 2025
     note: As across SINAN forms (56 of 56).
   DIABETES:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_diabetes
     kind: category
     model: mark
@@ -394,6 +427,8 @@ columns:
     - 2025
     note: As across SINAN forms (43 of 43).
   ECOCARDIO:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.echocardiogram_result
     kind: category
     model: mark
@@ -402,6 +437,8 @@ columns:
     - 2023
     - 2025
   EIE_IGG:
+    missing: ['Sem informacao']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Inconclusivo', 'Nao realizado', 'Nao-reagente', 'Reagente', 'Sem informacao')
     role: notification.elisa_igg_serology_result
     kind: category
     model: mark
@@ -410,6 +447,8 @@ columns:
     - 2023
     - 2025
   ELETROCARD:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.electrocardiogram_result
     kind: category
     model: mark
@@ -434,6 +473,8 @@ columns:
     - 2023
     - 2025
   FORMA:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Cardiaca avancada', 'Cardiaca leve/moderada', 'Cardiodigestiva', 'Digestiva', 'Em investigacao', 'Indeterminada')
     role: notification.clinical_form
     kind: category
     model: mark
@@ -442,6 +483,8 @@ columns:
     - 2023
     - 2025
   HAI_IGG:
+    missing: ['Sem informacao']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Inconclusivo', 'Nao realizado', 'Nao-reagente', 'Reagente', 'Sem informacao')
     role: notification.indirect_haemagglutination_igg_result
     kind: category
     model: mark
@@ -450,6 +493,8 @@ columns:
     - 2023
     - 2025
   HEPATITE:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_chronic_hepatitis
     kind: category
     model: mark
@@ -458,6 +503,8 @@ columns:
     - 2023
     - 2025
   HIPERTEN:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_hypertension
     kind: category
     model: mark
@@ -466,6 +513,8 @@ columns:
     - 2023
     - 2025
   HIST_BNZ:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.prior_benznidazole_treatment
     kind: category
     model: mark
@@ -483,6 +532,8 @@ columns:
     - 2023
     - 2025
   HIV:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_hiv_aids
     kind: category
     model: mark
@@ -491,6 +542,8 @@ columns:
     - 2023
     - 2025
   HOSP_ESP:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.followed_at_a_specialised_hospital_or_service
     kind: category
     model: mark
@@ -499,6 +552,8 @@ columns:
     - 2023
     - 2025
   ID_ESTRANG:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.foreign_national
     kind: category
     model: mark
@@ -531,6 +586,8 @@ columns:
     - 2023
     - 2025
   ID_PAIS:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Bolivia', 'Brasil', 'Guatemala', 'Paraguai')
     role: notification.country_of_origin
     kind: category
     model: mark
@@ -539,6 +596,8 @@ columns:
     - 2023
     - 2025
   IFI_IGG:
+    missing: ['Sem informacao']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Inconclusivo', 'Nao realizado', 'Nao-reagente', 'Reagente', 'Sem informacao')
     role: notification.indirect_immunofluorescence_igg_result
     kind: category
     model: mark
@@ -558,6 +617,8 @@ columns:
     - CADGERBR
     note: '0 on all 8,256 rows of 2025: a flag, not a CNES code.'
   LEISHMANIA:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao')
     role: notification.comorbidity_leishmaniasis
     kind: category
     model: mark
@@ -574,6 +635,8 @@ columns:
     - 2023
     - 2025
   MO_SUSPEIT:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Banco de sangue', 'Busca ativa a partir do triatomineo na UD', 'Busca ativa de familiares', 'Busca ativa em registros (prontuarios, etc.)', 'Comite investigacao de obito', 'Demanda espontanea - UBS', 'Demanda espontanea: Hospital ou servico especializado', 'Outros', 'Pre-Natal', 'Rastreamento na APS', 'Rastreamento/Busca ativa', 'Receptor em transplante de orgaos/tecidos' …)
     role: notification.route_of_case_detection
     kind: category
     model: mark
@@ -582,6 +645,8 @@ columns:
     - 2023
     - 2025
   MUD_UBS_AC:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.change_of_follow_up_primary_care_unit
     kind: category
     model: mark
@@ -623,6 +688,8 @@ columns:
     - 2023
     - 2025
   NEOPLASIA:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_neoplasia_or_other_immunosuppression
     kind: category
     model: mark
@@ -639,6 +706,8 @@ columns:
     - 2023
     - 2025
   NFX_ARTRAL:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Artralgias')
     role: notification.nifurtimox_arthralgia
     kind: category
     model: mark
@@ -655,6 +724,8 @@ columns:
     - 2023
     - 2025
   NFX_GASTRO:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Intolerancia gastrointestinal')
     role: notification.nifurtimox_gastrointestinal_intolerance
     kind: category
     model: mark
@@ -671,6 +742,8 @@ columns:
     - 2023
     - 2025
   NFX_LEVE:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Dermopatia leve/moderada')
     role: notification.nifurtimox_mild_moderate_dermopathy
     kind: category
     model: mark
@@ -711,6 +784,8 @@ columns:
     - 2023
     - 2025
   NOVO_ESPEC:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.change_of_specialised_service_or_hospital
     kind: category
     model: mark
@@ -734,6 +809,8 @@ columns:
     - FXRIPSA6ESUS
     note: As across SINAN forms (56 of 56).
   OUTRO_EXAM:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.other_complementary_exam_result
     kind: category
     model: mark
@@ -742,6 +819,8 @@ columns:
     - 2023
     - 2025
   OUTRO_POSI:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.other_positive_chagas_tests
     kind: category
     model: mark
@@ -750,6 +829,8 @@ columns:
     - 2023
     - 2025
   OUT_COMORB:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.comorbidity_other
     kind: category
     model: mark
@@ -758,6 +839,8 @@ columns:
     - 2023
     - 2025
   PCR:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Nao Realizado', 'Sim')
     role: notification.pcr_detectable
     kind: category
     model: mark
@@ -766,6 +849,8 @@ columns:
     - 2023
     - 2025
   QUIMIO_IGG:
+    missing: ['Sem informacao']
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Inconclusivo', 'Nao realizado', 'Nao-reagente', 'Reagente', 'Sem informacao')
     role: notification.chemiluminescence_igg_result
     kind: category
     model: mark
@@ -774,6 +859,8 @@ columns:
     - 2023
     - 2025
   REAC_BNZ:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Outras')
     role: notification.benznidazole_other_adverse_reaction
     kind: category
     model: mark
@@ -782,6 +869,8 @@ columns:
     - 2023
     - 2025
   REAC_NFX:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Outras')
     role: notification.nifurtimox_other_adverse_reaction
     kind: category
     model: mark
@@ -790,6 +879,8 @@ columns:
     - 2023
     - 2025
   REATIVACAO:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.reactivation_episode_occurred
     kind: category
     model: mark
@@ -798,6 +889,8 @@ columns:
     - 2023
     - 2025
   RX_COLON:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.colon_x_ray_result
     kind: category
     model: mark
@@ -806,6 +899,8 @@ columns:
     - 2023
     - 2025
   RX_ESOFAGO:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.oesophagus_x_ray_result
     kind: category
     model: mark
@@ -814,6 +909,8 @@ columns:
     - 2023
     - 2025
   RX_TORAX:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alterado', 'Nao realizado', 'Normal')
     role: notification.chest_x_ray_result
     kind: category
     model: mark
@@ -822,6 +919,8 @@ columns:
     - 2023
     - 2025
   SG_PAIS:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Bolivia', 'Brasil', 'Guatemala')
     role: notification.country_of_residence
     kind: category
     model: mark
@@ -854,6 +953,8 @@ columns:
     - 2023
     - 2025
   ST_ENCERRA:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Abandono', 'Em aberto', 'Obito por d. Chagas', 'Obito por outras causas', 'Permanece em acompanhamento clinico')
     role: notification.case_closure_status
     kind: category
     model: mark
@@ -862,6 +963,8 @@ columns:
     - 2023
     - 2025
   TF_RESIDEN:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.change_of_residence_during_follow_up
     kind: category
     model: mark
@@ -870,6 +973,8 @@ columns:
     - 2023
     - 2025
   TRAT_BNZ:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.benznidazole_prescribed_now
     kind: category
     model: mark
@@ -878,6 +983,8 @@ columns:
     - 2023
     - 2025
   TRAT_NFX:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Nao', 'Sim')
     role: notification.nifurtimox_prescribed_now
     kind: category
     model: mark
@@ -902,6 +1009,8 @@ columns:
     - 2023
     - 2025
   UF_NOV_AC:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alagoas', 'Bahia', 'Distrito Federal', 'Goias', 'Minas Gerais', 'Parana', 'Pernambuco', 'Rondonia', 'Sao Paulo')
     role: notification.state_of_the_new_follow_up_primary_care_unit
     kind: category
     model: mark
@@ -910,6 +1019,8 @@ columns:
     - 2023
     - 2025
   UF_RESI_TF:
+    missing: []
+    # declared from DATASUS's own sources (2023-2025): no code table: the records hold the labels themselves ('Alagoas', 'Bahia', 'Ceara', 'Distrito Federal', 'Goias', 'Mato Grosso', 'Mato Grosso do Sul', 'Minas Gerais', 'Paraiba', 'Parana', 'Pernambuco', 'Rio Grande do Sul' …)
     role: notification.new_state_of_residence
     kind: category
     model: mark

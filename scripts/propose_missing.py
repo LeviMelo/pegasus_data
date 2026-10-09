@@ -40,8 +40,11 @@ import pegasus_data as pg
 from pegasus_data.semantics import column_roles
 from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 
+#: whole labels only: a phrase ending in "ignorado" names its own subject, which may not be the column's ("Idade
+#: gestacional ignorada" is a pregnancy of unknown age, not an unknown pregnancy status; SIA's MNDIF 9 "município de
+#: residência ignorado" is declared by hand)
 NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|n[ãa]o preenchid[oa]|sem informa[çc][ãa]o|não declarad[oa]"
-                          r"|desconhecid[oa]|.*\s+ignorad[oa]s?)\s*$", re.IGNORECASE)  # a phrase ending in "ignorado": SIA's MNDIF 9 "município de residência ignorado"     # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
+                          r"|desconhecid[oa])\s*$", re.IGNORECASE)  # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
 NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
 
 
@@ -187,6 +190,12 @@ def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
                 and lab.get("2", "").startswith(("não", "nao"))):
             return (["9"] if "9" in seen or "9" in miss else []), (f"no form dictionary; the tabulation labels 1 Sim, "
                     f"2 Não and the records hold only {sorted(seen)}; {YES_NO_NINE}"), False
+        if seen and all(re.search(r"[a-zà-ú]", v) for v in seen):
+            # the records hold the labels themselves (e-SUS Notifica's DCCR: "Sim", "Nao", "EF Completo", "Ignorado"): a
+            # value that reads as not recorded is not recorded by its own wording, and no other is
+            text = sorted(v for v in seen if NOT_RECORDED.match(v) or NOT_CLASSIFIED.match(v))
+            return text, (f"no code table: the records hold the labels themselves ({', '.join(repr(v) for v in sorted(seen)[:12])}"
+                          f"{' …' if len(seen) > 12 else ''})"), False
         if _code_table(seen, lab):
             return miss, (f"no form dictionary; the table names every code the records use, each with its own label "
                           f"({', '.join(f'{c}={lab[c]!r}' for c in sorted(seen))}): a code table, not a catch-all; "

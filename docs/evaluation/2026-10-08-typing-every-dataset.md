@@ -203,7 +203,7 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
 
 **SIA's production families' missing codes; every event dataset readable (2026-10-09).** `propose_missing.py --sample UF:YYYY-MM` reads one state-month instead of a national year: a national PA year is ~400 M rows, and the codelists supply the codes a sample lacks.
 - Code tables were declared for PA (23 columns, AC 2023-01), PS (14), BI (10) and SAD (9, TO 2015-10): RACACOR 99 'sem informação' and TIPPRE 00 'não preenchido'.
-- PA_MNDIF and PA_UFDIF 9 'município de residência ignorado' had been written `missing: []`, because NOT_RECORDED matched whole labels only. A label ending in "ignorado/a" now counts as not recorded. These were the only two such labels among the declared code tables.
+- PA_MNDIF and PA_UFDIF 9 'município de residência ignorado' had been written `missing: []`, because NOT_RECORDED matched whole labels only. Both are now declared by hand, and they were the only two such labels among the declared code tables. *(Corrected 2026-10-09: f719e4e also let any label ending in "ignorado/a" count as not recorded. That was withdrawn the same day: it took DCCR's CS_GESTANT "Idade gestacional ignorada", a pregnancy of unknown age, for an unknown pregnancy status. A phrase names its own subject, which may not be the column's. Nothing written in between used it.)*
 - PegaSUS's coverage could not run on five event datasets.
   - RESP had no age column. It now derives `IDADE_anos` from DT_NASC and DT_NOTIFIC (ADR-0070 addendum).
   - SINAN COLE and TETN lacked the `IDADE_anos` stratum the other forms carry. TETN 2016's one case is 9 days old; COLE's files are published empty.
@@ -223,4 +223,5 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
   - No other harvested dictionary cites an annex.
 - `pegasus-core coverage`: 3,727 of 6,137 columns read, up from 3,556; 594 columns still lack missing codes.
 - The form decides even where no record can be read. SINAN COLE's files are published empty, and TETN's hold a case or two a year. A column with no value read now takes its form's own not-recorded codes (`propose_missing.py`, logs `SINAN-COLE.form.log` and `SINAN-TETN.form.log`): COLE 26 columns, TETN 27; coverage 3,783 of 6,137. A measurement needs records to test its band and stays undeclared.
+- e-SUS Notifica's DCCR (chronic Chagas) records its labels as the values ("Sim", "Nao", "EF Completo", "Ignorado"), and its dictionary (`sources/dic_chagas.txt`) has labels but no codes. A column whose records hold only written words (lowercase letters) now declares the values that read as not recorded by their own wording, and no others. 54 columns are declared (2023–2025; coverage 3,838 of 6,137): CS_ESCOL_N and CS_GESTANT 'Ignorado'; EIE, HAI, IFI and QUIMIO IgG 'Sem informacao'; the rest `[]`. PCR 'Nao Realizado', FORMA 'Indeterminada' (a clinical form of Chagas) and 'Em investigacao' are values.
 
