@@ -275,6 +275,12 @@ def _resolve(target: str, onto: Ontology) -> str:
         found = onto.resolve(candidate)
         if found and found[0] == "dataset":
             break
+    if found and found[0] == "system":
+        # a system with one dataset names it: links.yml's "CIHA" is CIHA.CIHA (every CIHA link failed on 2026-10-09
+        # with "'CIHA' is not a dataset ... Did you mean: CIHA, CIHA.CIHA")
+        own = [d for d in onto.datasets.values() if d.system == found[1].code]
+        if len(own) == 1:
+            found = ("dataset", own[0])
     if not found or found[0] != "dataset":
         near = onto.suggest(target)
         hint = f" Did you mean: {', '.join(near)}?" if near else ""

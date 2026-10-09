@@ -89,3 +89,6 @@ links), 3,085 reach the same birth and 76 a different one (97.6% agreement).
   stored unpadded women's-death runs under the padded spec's digest (`deterministic_BR_<year>_19e582a3254c`, 2,099,610
   mothers: one year's). Both now read `engine.raw_links()`, one snapshot per process. The mislabelled runs are keyed
   by the unpadded period, which no reader asks for any more.
+- **The CIHA links failed to start (2026-10-09):** "'CIHA' is not a dataset in the ontology. Did you mean: CIHA,
+  CIHA.CIHA". `links.yml` names the side by its system, and `_availability._resolve` wanted a dataset. A system with
+  one dataset now names it (CIHA → CIHA.CIHA, CIH → CIH.CR); SIM, with several, still asks which.
