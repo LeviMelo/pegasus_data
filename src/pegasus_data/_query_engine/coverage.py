@@ -187,7 +187,10 @@ def _coverage(
         # axis. Requiring a curated declaration as well left all but five
         # datasets (CNES.EP, CNES.EQ, CIH.CR …) refusing `geography=` although
         # they are published per state (the all-dataset sweep, 2026-09-28).
-        measured_uf = any(value not in {"", "BR"} for value in observed_geo)
+        # A year with no publication at all says nothing about the axis: the dataset's other years do, so a UF asked
+        # of SIA-SAD in 2023 (published 2012-2018) ends in NothingPublished, not in "UF is not a partition".
+        axis_geo = observed_geo or [str(row.get("geo_code") or "") for row in publications]
+        measured_uf = any(value not in {"", "BR"} for value in axis_geo)
         physical_uf = measured_uf or (declared_physical_uf and not observed_geo)
         wanted_ufs = set(geography.ufs) if physical_uf and geography else set()
         national_ufs: tuple[str, ...] = ()

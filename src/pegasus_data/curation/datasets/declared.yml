@@ -714,8 +714,23 @@ datasets:
   SIA.SAD:
     system: SIA
     series: SAD
+    event_types:
+      - name: procedure
+        kind: procedure
+        grain: one RAAS home-care line, a quantity of one procedure for one patient
+        weight:
+          column: PA_QTDAPR
+          evidence: >-
+            SAD is PA's RAAS home-care rows (PA_DOCORIG A): AC 2014-01 holds 289 rows and 289 approved procedures in
+            both, TO 2015-10 1,631 rows and 1,656. QTDATE counts attendances (21 and 44), not procedures.
+        classifiers:
+          - {column: PA_PROC_ID, role: primary, structure: SIGTAP}
+          - {column: CIDPRI, role: alternative, structure: ICD10}
+        note: >-
+          Published 2012-2018 only (1,088 files, 19 in 2018); later home care is in PA's A rows alone. Never pooled
+          with PA's event, which holds the same rows.
     asserted_by: pegasus_data
-    what_one_row_is: one home-care action under the Melhor em Casa programme
+    what_one_row_is: a quantity of one home-care procedure under the Melhor em Casa programme (PA's RAAS-AD rows)
     unit_of_analysis: care action
     known_biases: >
       Only municipalities that joined the programme report, so absence usually

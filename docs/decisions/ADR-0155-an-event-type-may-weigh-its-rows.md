@@ -17,8 +17,9 @@ events.
 
 **Declared.**
 - SIA PA, weighted by PA_QTDAPR, the approved quantity (PA_QTDPRO, the presented one, differs).
-- BI, weighted by QT_APROV, and PS, weighted by PA_QTDAPR. They are PA's I and B rows republished with the patient's
-  fields, row for row in AC 2023-01, so they are never pooled with PA.
+- BI, weighted by QT_APROV, and PS and SAD, weighted by PA_QTDAPR. They are PA's I, B and A rows republished with the
+  patient's fields, row for row (BI and PS in AC 2023-01; SAD in AC 2014-01 and TO 2015-10, published 2012-2018), so
+  they are never pooled with PA.
 - Classified by procedure (SIGTAP), with the diagnosis (ICD-10) as the alternative.
 - The consolidated BPA records no residence or sex, so a count by residence leaves it unallocated.
 - PA's age stratum is PA_IDADE: years, with 998 and 999 missing by its own table. BI, PS and SAD derive `IDADE_anos`
