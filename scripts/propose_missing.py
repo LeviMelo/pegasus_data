@@ -125,6 +125,20 @@ def main(dataset: str, spec: str, write: bool) -> None:
 YES_NO_NINE = "SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado"
 
 
+def _code_table(seen: set[str] | None, labels: dict[str, str]) -> bool:
+    """Whether a bound table names each code the records use individually: every seen code labelled, no two seen codes
+    sharing a label, and no label a catch-all (Ign/Branco). SIA's tables are such (ALTA 0 'Nao foi dado ALTA', 1 'Sim';
+    CARAT_AT 00 'NÃO INFORMADO'); SINAN's tabulations, whose 'Ign/Branco' spans every undefined code, are not, which
+    is why a tabulation alone declares nothing there."""
+    if not seen:
+        return False
+    named = [labels.get(c, "") for c in seen]
+    # any catch-all in the table, a code the records did not use included, makes it a tabulation (SINAN's 3-8 are
+    # 'Ign/Branco' there and 'não se aplica' in many forms)
+    return (all(named) and len(set(named)) == len(named)
+            and not any(re.search(r"ign\.?\s*/\s*branco|^branco$", str(n or "")) for n in labels.values()))
+
+
 def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
             seen: set[str] | None = None, labels: dict | None = None) -> tuple[list[str], str, bool]:
     """The column's not-recorded codes by the rule above, from the tabulation's ``miss`` and the form's dictionary:
@@ -138,6 +152,10 @@ def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
                 and lab.get("2", "").startswith(("não", "nao"))):
             return (["9"] if "9" in seen or "9" in miss else []), (f"no form dictionary; the tabulation labels 1 Sim, "
                     f"2 Não and the records hold only {sorted(seen)}; {YES_NO_NINE}"), False
+        if _code_table(seen, lab):
+            return miss, (f"no form dictionary; the table names every code the records use, each with its own label "
+                          f"({', '.join(f'{c}={lab[c]!r}' for c in sorted(seen))}): a code table, not a catch-all; "
+                          f"{tabnet}"), False
         return miss, f"the tabulation only: {tabnet}", True     # one source: left undeclared, said
     form_miss = {c for c, lab in form.items() if NOT_RECORDED.match(str(lab)) or NOT_CLASSIFIED.match(str(lab))}
     overruled = sorted(c for c in miss if c in form and c not in form_miss)

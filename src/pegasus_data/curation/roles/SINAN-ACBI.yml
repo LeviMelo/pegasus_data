@@ -51,6 +51,8 @@ columns:
     - 2006
     - 2026
   AVENTAL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_gown
     kind: category
     model: mark
@@ -79,6 +81,8 @@ columns:
     - 2006
     - 2026
   AZT3TC_NFV:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.pep_azt_3tc_nelfinavir
     kind: category
     model: mark
@@ -87,6 +91,8 @@ columns:
     - 2006
     - 2026
   BOTA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_boots
     kind: category
     model: mark
@@ -215,6 +221,8 @@ columns:
     - 2006
     - 2026
   FACIAL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_face_shield
     kind: category
     model: mark
@@ -410,6 +418,8 @@ columns:
     - 2006
     - 2026
   LUVA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_gloves
     kind: category
     model: mark
@@ -418,6 +428,8 @@ columns:
     - 2006
     - 2026
   MASCARA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_mask
     kind: category
     model: mark
@@ -500,6 +512,8 @@ columns:
     - 2026
     note: role from the notification block
   OCULOS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.ppe_eyewear
     kind: category
     model: mark
@@ -508,6 +522,8 @@ columns:
     - 2006
     - 2026
   OUTRO_ARV:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.pep_other
     kind: category
     model: mark

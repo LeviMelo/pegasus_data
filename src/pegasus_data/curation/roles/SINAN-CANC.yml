@@ -51,6 +51,8 @@ columns:
     - 2007
     - 2026
   BERILIO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.exposure_beryllium
     kind: category
     model: mark
@@ -433,6 +435,8 @@ columns:
     - 2007
     - 2026
   NAO_IONIZA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.exposure_non_ionising_radiation
     kind: category
     model: mark
@@ -451,6 +455,8 @@ columns:
     - 2007
     - 2026
   NIQUEL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.exposure_nickel
     kind: category
     model: mark
@@ -658,6 +664,8 @@ columns:
     - 2007
     - 2026
   TP_NOT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (2='individual'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.type
     kind: category
     model: mark
@@ -676,6 +684,8 @@ columns:
     - 2007
     - 2026
   TRAB_DOE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.other_workers_same_disease
     kind: category
     model: mark

@@ -163,3 +163,14 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
 - PNI.DPNI and CPNI: the IG and UF variants are not read with the municipal files (DPNI SP 2015 reads DPNISP15 only).
 - RESP: RESPBR is not read with the state files (PE 2016 reads RESPPE16 only).
 - The SIA APAC republications are the same files under Dados_Abertos.
+
+**Two rules for columns without a form dictionary** (`scripts/propose_missing.py`, logs in `data/probes/p4/`).
+- **SINAN's yes/no convention.**
+  - Of the 1,128 harvested SINAN tables with 1 Sim and 2 Não, the 943 that define 9 all define it as Ignorado. Codes 3 and 8 vary from form to form (não se aplica, indeterminado, não realizado).
+  - So a form-less SINAN column, labelled 1 Sim / 2 Não by its tabulation and whose records hold only 1, 2 and 9, declares 9.
+  - Run on the forms with the most candidates: VIOL 25, ACBI 8, CANC 4, TUBE 3, HANT 2, PFAN 2 and SIFC columns declared; MENI, CHIK and DENG none (their records use other codes).
+  - The full sweep was stopped: about 10 minutes a form for a few columns each.
+- **A code table is not a tabulation.**
+  - "The tabulation alone declares nothing" was decided for SINAN, whose tabulations spread "Ign/Branco" over every undefined code.
+  - A bound table that names each code the records use with its own label, and has no catch-all label anywhere, is a code table and now speaks for those codes.
+  - Examples: SIA's ALTA (0 não, 1 sim); CIH's NATUREZA (01-13) and SAIDAPERM (11-24); SIFC's 1 sim, 2 não, 3 não se aplica, 9 ignorado, where only 9 is declared missing.

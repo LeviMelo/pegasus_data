@@ -20,7 +20,9 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - Each column is decided from its evidence sheet (`scripts/role_evidence.py`): its variable note, its form's layout, its values.
   - Also done: CNES (13), Dados Abertos (13), PNI (6), SISCAN (15), SIH-CM, IBGE (9), RESP (2), SINAN COLE and TETN, e-SUS Notifica, Painel Oncologia, PCE, SISPRENATAL.
   - Event types for 71 datasets (from 67): DOREXT, DNEX, CIH-CR, Painel Oncologia, RESP, DCCR; eleven name-guessed dataset declarations corrected (DOR, DOREXT, DORIG, DNR, DNEX, DNRIG, NTRA, TRAC, ESPO, SIH MT, BASE_AIH1).
-  - Next: missing codes for the newly typed systems (the proposer covers SINAN); a weight for quantity rows (SIA PA, BI, PS, SAD); an `exam` kind for SISCAN.
+  - Declarations corrected by testing them on records: IBGE POP/POPS/POPT and ESCA/ESCB were summed; SISCAN's CSVs and the SI-PNI residence extracts were unreachable behind other declarations; SIH's CM files sat under SISCAN.
+  - Missing codes: RESP, Painel Oncologia and CIH from their own forms; SINAN's yes/no convention (9 = Ignorado in 943 of 943 harvested tables) for form-less flag columns. CIH/CIHA age unit 5 is decades (OQ-74 resolved); CIHA runs in PegaSUS.
+  - Next: events that carry a quantity (OQ-75: SIA PA, BI, PS, SAD); SIA APAC families' missing codes (34-39 columns each undeclared); CNES-ST's flag grids as their two axes (attendance type × payer, level × management).
 - **Missing codes.** The form decides where its dictionary is harvested, and the tabulation speaks only where the form is silent.
   - A code the records use that neither defines is written as a CONFLICT (evaluation 2026-10-08-declarations-by-form).
   - Two dictionary errors were corrected by supplement, with both claims cited.

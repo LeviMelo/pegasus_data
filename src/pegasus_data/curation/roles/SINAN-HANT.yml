@@ -223,6 +223,8 @@ columns:
     - 2007
     - 2026
   CLI_CARDIA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: notification.clinical_sign_cardiac_involvement
     kind: category
     model: mark
@@ -255,6 +257,8 @@ columns:
     - 2007
     - 2026
   CLI_DIARRE:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: notification.clinical_sign_diarrhea
     kind: category
     model: mark
@@ -410,6 +414,8 @@ columns:
     - 1999
     - 2026
   CLI_OUTROS:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: notification.clinical_sign_other_unlisted_masculine_form
     kind: category
     model: mark
@@ -557,6 +563,8 @@ columns:
       SINAN/DOCS, Docs_TAB_SINAN, TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from
       the values; codes undecoded.'
   CON_AMBIEN:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Domiciliar', 2='Trabalho', 3='Lazer', 4='Outro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: notification.setting_of_infection
     kind: category
     model: mark
@@ -1283,6 +1291,8 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   LAB_LOCAL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.xray_localised_infiltrate
     kind: category
     model: mark
@@ -1628,6 +1638,8 @@ columns:
     - 2007
     - 2026
   TRA_ANTIVI:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.antivirals
     kind: category
     model: mark

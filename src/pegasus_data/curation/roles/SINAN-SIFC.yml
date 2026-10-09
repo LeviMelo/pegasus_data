@@ -96,6 +96,8 @@ columns:
     - 2007
     - 2025
   CLI_OSTEO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não', 3='não se aplica', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.sign_osteo
     kind: category
     model: mark
@@ -124,6 +126,8 @@ columns:
     - 2007
     - 2025
   CLI_RINITE:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não', 3='não se aplica', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.sign_rinite
     kind: category
     model: mark
@@ -494,6 +498,8 @@ columns:
     - 2007
     - 2025
   LESOES:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não', 3='não se aplica', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.skin_lesions
     kind: category
     model: mark
@@ -575,6 +581,8 @@ columns:
     - 2007
     - 2025
   TP_NOT:
+    missing: []
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (2='individual'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.type
     kind: category
     model: mark
@@ -621,6 +629,8 @@ columns:
     - 2007
     - 2025
   TRA_ESQU_1:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the table names every code the records use, each with its own label (1='penicilina g cristalina', 2='procaína', 3='benzatina', 4='outro esquema', 5='não realizado', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: treatment.child_regimen
     kind: category
     model: mark

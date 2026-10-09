@@ -451,6 +451,8 @@ columns:
     - 2007
     - 2026
   CLI_EXT_E:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.plantar_reflex_extension_left
     kind: category
     model: mark
@@ -491,6 +493,8 @@ columns:
     - 2007
     - 2026
   CLI_FLE_D:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.plantar_reflex_flexion_right
     kind: category
     model: mark
@@ -1197,6 +1201,8 @@ columns:
     - 2026
     note: role from the notification block
   LAB_CELEBR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019-2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.brain_tissue_collected
     kind: category
     model: mark
