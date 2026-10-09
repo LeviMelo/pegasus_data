@@ -431,6 +431,64 @@ def field_coverage(
     }
 
 
+def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, **query_kwargs: object):
+    """How much of each year a column FILLS (OPEN_QUESTIONS 71): per (year, field) the records, those holding a value
+    (not empty, not one of the column's declared missing codes in its roles), and their share. Presence is not fill:
+    SIH-RD's CID_MORTE and CID_ASSO are present every year and hold 0000 in every record from 2015, and SIM-DO's CB_PRE
+    is present from 2014 and empty (DATA_SOURCES §1.9); `field_available` says "present" for all of them. A field the
+    year's files lack has records but no filled ones, and a year with no publication is left out. Reads through
+    `query` (the lake when built), every field of a year in one read."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    from ._query_engine.executor import query
+    from ._request import NothingPublished, PublishedEmpty
+    from .semantics import column_roles
+
+    wanted = [fields] if isinstance(fields, str) else list(fields)
+    wanted = [f.upper() for f in wanted]
+    try:
+        roles = {r.column: r for r in column_roles.load_column_roles().get(dataset.upper().replace(".", "-"), ())}
+    except Exception:  # noqa: BLE001 - a dataset without roles has no declared missing codes
+        roles = {}
+    out = {"year": [], "field": [], "records": [], "filled": [], "share": []}
+    for year in years:
+        cols = list(wanted)
+        table = None
+        while cols:
+            try:
+                table = query(dataset, period=int(year), select=cols, present="codes", **query_kwargs)
+                break
+            except (NothingPublished, PublishedEmpty):
+                table = None
+                break
+            except Exception as exc:  # noqa: BLE001 - a column absent this year: read the others
+                import re
+
+                gone = set(re.findall(r"'([A-Z0-9_]+)' is not present", str(exc)))
+                if not gone & set(cols):
+                    raise
+                cols = [c for c in cols if c not in gone]
+        if table is None:
+            continue
+        n = table.num_rows
+        for f in wanted:
+            filled = 0
+            if f in table.column_names:
+                v = pc.utf8_trim_whitespace(pc.cast(table.column(f), pa.string()))
+                ok = pc.and_(pc.is_valid(v), pc.not_equal(v, ""))
+                miss = [str(m) for m in (roles[f].missing or ())] if f in roles and roles[f].missing else []
+                if miss:
+                    ok = pc.and_(ok, pc.invert(pc.is_in(v, value_set=pa.array(miss, pa.string()))))
+                filled = int(pc.sum(pc.fill_null(ok, False).cast(pa.int64())).as_py() or 0)
+            out["year"].append(int(year))
+            out["field"].append(f)
+            out["records"].append(n)
+            out["filled"].append(filled)
+            out["share"].append(round(filled / n, 6) if n else None)
+    return pa.table(out)
+
+
 def field_available(
     dataset: str,
     field: str,

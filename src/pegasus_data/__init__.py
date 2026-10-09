@@ -72,6 +72,7 @@ _EXPORTS: dict[str, str] = {
     "availability": "._availability",
     "field_available": "._availability",
     "field_coverage": "._availability",
+    "field_fill": "._availability",
     "Availability": "._availability",
     "FieldWindow": "._availability",
     "gaps": "._unknowns",
