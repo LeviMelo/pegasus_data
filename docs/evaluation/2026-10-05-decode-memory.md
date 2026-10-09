@@ -58,3 +58,22 @@ manifest checksum and `translate()` were updated; the seed was not regenerated.
 `scripts/profile_hotpaths.py {query|stream|narrow}` measures a national `query` (peak process-tree RSS), the per-UF
 streaming alternative (same row/group checksum) and dictionary-encoding of the same columns. First reading, SIM.DO 2022,
 5 columns: 61 MB plain -> 29 MB dictionary-encoded; whole run 1.0 GB, of which the table is 6%.
+## 2026-10-09: a reader ladder that filled the disk
+
+When a reader fails, the ladder hands the payload to the next reader. On 2026-10-08 a 1.55 MB payload reached the
+`.dbc` reader. Its first bytes, read as a DBF header, promised 47.8 GB, which `dbc_file_to_dbf` pre-allocated and
+inflated into `%TEMP%/pegasus_dbc_*`. The disk went from 61.5 GB free to 17 GB. Later decodes failed with "No space
+left on device", among them PegaSUS's Roraima re-score and SINAN-ZIKA 2025.
+
+- **Why it reached the ladder.** Dados_Abertos' `ZIKABR25.parquet.zip` (25,764 rows) holds `ZIKABR25.parquet`. The
+  Parquet reader staged it to a temp file and read it there. Deleting the staging directory failed on Windows
+  (WinError 32), because the open `ParquetFile` behind the reader's closure still held the file. So the attempt
+  failed, the DBC reader got the bytes, and the DBF reader accepted them as 88 records with a zero-width field.
+- **Fixes.**
+  - Parquet is read from memory (`read_parquet(bytes)`), with nothing staged.
+  - `_native._check_header` refuses a payload before inflating a byte unless its header is a DBF's: known version
+    byte, typed 32-byte descriptors of positive width, record length = 1 + widths. The header must also promise no
+    more than 300 times its stream: DCL's longest copy is 518 bytes, so no stream inflates past about 260 times.
+  - `DbfHeader` refuses zero-width fields, and widths that exceed the record.
+- **Checked.** All 7,270 cached `.dbc` and 7,429 cached `.dbf`/`.dbc` headers pass. The Parquet bytes are refused
+  ("version byte 0x50"; "width 0"). SINAN-ZIKA 2025 reads its 25,764 rows. 44.5 GB of leaked staging was removed.

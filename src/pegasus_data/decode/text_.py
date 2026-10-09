@@ -195,9 +195,13 @@ def read_xml_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
     )
 
 
-def read_parquet(path: str | Path, *, member: str = "", row_limit: int | None = None) -> DecodedTable:
+def read_parquet(path: str | Path | bytes, *, member: str = "", row_limit: int | None = None) -> DecodedTable:
+    """A Parquet file, or its bytes: read from memory, a member needs no staged copy (a staged file the open reader still
+    held could not be removed on Windows, so the attempt failed and the ladder handed the bytes to the DBF reader:
+    Dados_Abertos' ZIKABR25.parquet.zip, 2026-10-09)."""
+    in_memory = isinstance(path, (bytes, bytearray, memoryview))
     try:
-        pf = pq.ParquetFile(str(path))
+        pf = pq.ParquetFile(pa.BufferReader(path) if in_memory else str(path))
     except Exception as exc:
         raise DecodeError(f"parquet open failed for {path}: {exc}") from exc
     schema = pf.schema_arrow
@@ -214,7 +218,7 @@ def read_parquet(path: str | Path, *, member: str = "", row_limit: int | None = 
                 return
 
     return DecodedTable(
-        path=str(path),
+        path="" if in_memory else str(path),
         member=member,
         reader="parquet",
         fields=fields,

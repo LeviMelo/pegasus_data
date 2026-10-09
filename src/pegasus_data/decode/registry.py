@@ -303,9 +303,8 @@ class ReaderRegistry:
         return ([read_xml_bytes(data, path=path, row_limit=self.row_limit)], [])
 
     def _read_parquet(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        with _staged(data, ".parquet") as staged:
-            table = read_parquet(staged, row_limit=self.row_limit)
-            materialised = table.to_table()
+        table = read_parquet(data, row_limit=self.row_limit)     # from memory: nothing staged to outlive
+        materialised = table.to_table()
         from .base import batches_from_table
 
         table.path = path

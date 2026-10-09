@@ -67,6 +67,12 @@ class DbfHeader:
             pos += size
         if not self.fields:
             raise DecodeError("DBF header declares no fields")
+        # a payload of another format read as a header (Parquet's PAR1, 2026-10-09: 88 "records" and a zero-width field
+        # that crashed the batch): every field has a width, and the widths fit in the record after its deletion byte
+        if any(not f.width for f in self.fields):
+            raise DecodeError("a DBF field has width 0: not a DBF")
+        if sum(f.width or 0 for f in self.fields) + 1 > self.record_len:
+            raise DecodeError(f"the fields' widths exceed the record length {self.record_len}: not a DBF")
 
     @property
     def field_offsets(self) -> list[int]:

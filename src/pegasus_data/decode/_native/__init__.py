@@ -310,6 +310,43 @@ def explode(data: bytes, outcap: int) -> bytes:
 # -------------------------------------------------------------- the container
 
 
+#: DBF version bytes (dBase III/IV/V, FoxPro, Visual FoxPro, with or without memo)
+_DBF_VERSIONS = frozenset({0x02, 0x03, 0x04, 0x05, 0x30, 0x31, 0x32, 0x43, 0x63, 0x7B, 0x83, 0x8B, 0x8E, 0xCB, 0xE5, 0xF5,
+                           0xFB})
+_DBF_TYPES = frozenset(b"CNDLFMBGPYTIVO@+0W")
+#: PKWare DCL's longest copy is 518 bytes, coded in no fewer than about two bytes: no stream inflates past ~260 times
+#: its size, so a header promising more is not this container's
+MAX_EXPANSION = 300
+
+
+def _check_header(header: bytes, n_records: int, header_len: int, record_len: int, stream_len: int) -> None:
+    """Refuse a payload whose stored header is not a DBF's before a byte is inflated (2026-10-09): the reader ladder
+    hands a .dbc reader whatever an earlier reader refused, and a Parquet file's bytes read as a header promising
+    47.8 GB filled the disk (`pegasus_dbc_*`, a 1.55 MB payload). A DBF header has a known version byte, 32-byte field
+    descriptors of a known type and a positive width ending in 0x0D (0x00 in the container's stored copy), and a record
+    length of one deletion byte plus the widths; and the stream must be able to hold what the header promises."""
+    if header[0] not in _DBF_VERSIONS:
+        raise DbcError(f"version byte 0x{header[0]:02X} is not a DBF's — not a .dbc")
+    widths, off = 0, 32
+    while off + 32 <= header_len and header[off] not in (0x0D, 0x00):
+        d = header[off:off + 32]
+        name = d[:11].split(b"\0", 1)[0]
+        if not name.strip() or not all(32 <= c < 127 for c in name) or d[11] not in _DBF_TYPES:
+            raise DbcError(f"field descriptor at {off} is not a DBF field — not a .dbc")
+        width = d[16] + (d[17] << 8 if d[11] == ord("C") else 0)
+        if width <= 0:
+            raise DbcError(f"field {name.decode('ascii')} has width 0 — not a .dbc")
+        widths += width
+        off += 32
+    if off == 32:
+        raise DbcError("no field descriptor — not a .dbc")
+    if widths + 1 != record_len:
+        raise DbcError(f"record length {record_len} is not 1 + the fields' widths ({widths}) — not a .dbc")
+    if n_records * record_len > MAX_EXPANSION * max(stream_len, 1) + record_len:
+        raise DbcError(f"the header promises {n_records} records of {record_len} from a {stream_len}-byte stream, "
+                       f"more than {MAX_EXPANSION} times its size — not a .dbc")
+
+
 def dbc_to_dbf_bytes(data: bytes) -> bytes:
     """One .dbc's bytes -> the DBF it contains.
 
@@ -326,6 +363,7 @@ def dbc_to_dbf_bytes(data: bytes) -> bytes:
         raise DbcError("stored header length is impossible — not a .dbc")
     body_cap = n_records * max(record_len, 1) + 1  # records + optional 0x1A EOF
     stream = data[header_len + 4 :]  # skip the 4-byte CRC after the header
+    _check_header(data[:header_len], n_records, header_len, record_len, len(stream))
     body = explode(stream, body_cap)
     if len(body) < n_records * max(record_len, 1):
         raise DbcError(
@@ -369,6 +407,7 @@ def dbc_file_to_dbf(src: str | Path, dst: str | Path) -> None:
         header = bytearray(fh.read(header_len))
         fh.seek(header_len + 4)  # skip the 4-byte CRC after the header
         stream = fh.read()
+    _check_header(bytes(header), n_records, header_len, record_len, len(stream))
     expected = n_records * max(record_len, 1)
     body_cap = expected + 1  # records + optional 0x1A EOF
     header[header_len - 1] = 0x0D  # see dbc_to_dbf_bytes
