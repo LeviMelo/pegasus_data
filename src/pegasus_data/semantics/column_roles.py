@@ -28,6 +28,9 @@ from typing import Any
 KINDS = frozenset({"category", "code_tree", "number", "date", "place", "institution", "identifier", "text"})
 MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where", "institution",
                     "link_only", "excluded"})
+#: The keys a column's declaration may carry.
+KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
+                  "also", "derived", "measure", "unfilled", "review"})
 #: The properties a population account carries, the only admissible strata.
 STRATA = frozenset({"age", "birth_date", "sex", "race", "residence"})
 _ROLE = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
@@ -64,6 +67,9 @@ class ColumnRole:
     #: Why the sources cannot decide the "not recorded" codes (``missing`` stays undeclared): a column examined, not a
     #: column waiting (P1's coverage names the reason instead of a gap)
     missing_unknown: str | None = None
+    #: Years inside ``years`` in which the column is present but fills no record (`field_fill`): a span cannot hold
+    #: SIM-DO's DTCONCASO, filled 2012-2013 and from 2017, or SINASC's CODPAISRES, empty in 2014, 2015 and 2017
+    unfilled: tuple[int, ...] = ()
 
     @property
     def entity(self) -> str:
@@ -80,7 +86,8 @@ class ColumnRole:
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
                 "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
                 "domain": None if self.domain is None else list(self.domain),
-                **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {})}
+                **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {}),
+                **({"unfilled": list(self.unfilled)} if self.unfilled else {})}
 
 
 def roles_dir() -> Path:
@@ -117,6 +124,9 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     def bad(message: str) -> ValueError:
         return ValueError(f"{where}: {column}: {message}")
 
+    unknown_keys = set(spec) - KEYS
+    if unknown_keys:
+        raise bad(f"unknown keys {sorted(unknown_keys)}: a misspelt key would be silently ignored")
     role, kind, model = str(spec.get("role", "")), str(spec.get("kind", "")), str(spec.get("model", ""))
     if not _ROLE.match(role):
         raise bad(f"role {role!r} is not <entity>.<property>")
@@ -149,11 +159,15 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad("missing codes are declared or unknown, not both")
     if unknown is not None and not str(unknown).strip():
         raise bad("missing_unknown states why the sources cannot decide")
+    unfilled = tuple(sorted(int(y) for y in spec.get("unfilled") or ()))
+    lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
+    if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
+        raise bad(f"unfilled years {list(unfilled)} lie outside its years {list(years)}")
     return ColumnRole(dataset, column, role, kind, model, also, spec.get("name"),
                       tuple(str(c) for c in spec.get("codelists") or ()),
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
                       spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure, missing,
-                      domain, str(unknown).strip() if unknown is not None else None)
+                      domain, str(unknown).strip() if unknown is not None else None, unfilled)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

@@ -279,9 +279,10 @@ columns:
     model: mark
     name: Data de conclusão do caso
     years:
-    - 2017
+    - 2012
     - 2026
-    note: 'Filled 2012-2013 and from 2017 (24-30 thousand records a year), empty 2014-2016 (field_fill, 2026-10-09); the span is the years filled without a gap.'
+    unfilled: [2014, 2015, 2016]
+    note: 'Filled 2012-2013 and from 2017 (24-30 thousand records a year), empty 2014-2016 (field_fill, 2026-10-09).'
   DTCONINV:
     role: death.investigation_conclusion_date
     kind: date

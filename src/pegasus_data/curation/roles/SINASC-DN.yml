@@ -159,6 +159,8 @@ columns:
     years:
     - 2010
     - 2026
+    unfilled: [2014, 2015, 2017]
+    note: 'Fills no record in 2014, 2015 and 2017 and 2.5-2.9 M a year otherwise, 2010-2023 (field_fill, 2026-10-09).'
   CODUFNATU:
     role: mother.birth_state
     kind: place
@@ -294,7 +296,8 @@ columns:
     years:
     - 2014
     - 2026
-    note: Calculated version of DTRECORIG.
+    note: 'Calculated version of DTRECORIG. Present from 2014 and fills no record in any year to 2023 (field_fill, 2026-10-09).'
+    unfilled: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
   DTREGCART:
     role: birth.registry_date
     kind: date
@@ -500,8 +503,9 @@ columns:
     codelists:
     - NATURALIDADE
     years:
-    - 2010
+    - 2011
     - 2026
+    note: 'Fills no record in 2010 and 1.6 of 2.9 M in 2011, then 2.5-3.0 M a year to 2023 (field_fill, 2026-10-09).'
   NUMEROLOTE:
     role: birth.batch_number
     kind: number

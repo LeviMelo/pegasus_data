@@ -84,3 +84,16 @@ dataset's roles.
   - The ESPO (animal epizootics) and NTRA (survey batches) recipes are withdrawn: they have no person and no residence.
 - **The check.** `sinan_hepa_municipality_month` builds for 2019 with 40,874 notifications. TRAC's 2019 file was not
   cached and the FTP was unreachable, so it was not built.
+
+## SINASC-DN's declared years against fill, and years a span cannot hold
+
+`field_fill` on PegaSUS's data root, which holds every year: the repo's home lacks them, and the FTP was unreachable.
+- **CODPAISRES** fills 2.5–2.9 M records a year, but none in 2014, 2015 and 2017.
+- **NATURALMAE** fills none in 2010 and 1.6 of 2.9 M in 2011.
+- **DTRECORIGA** fills no record in any year from 2014 to 2023.
+
+**What changed.** A role may now list `unfilled:` years inside its span. They were declared for CODPAISRES (2014,
+2015, 2017), DTRECORIGA (2014–2023) and SIM-DO's DTCONCASO (2014–2016, its span restored to 2012–2026). NATURALMAE
+starts in 2011.
+- **Misspelt keys.** A role key the loader does not know now raises. A misspelt `fill:` had been ignored silently.
+
