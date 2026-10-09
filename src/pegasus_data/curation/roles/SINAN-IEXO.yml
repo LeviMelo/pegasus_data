@@ -521,6 +521,8 @@ columns:
     - 2006
     - 2026
   INTOX_CHUM:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: case.lead_poisoning
     kind: category
     model: mark
@@ -529,6 +531,8 @@ columns:
     - 2007
     - 2026
   INTOX_MERC:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: case.mercury_poisoning
     kind: category
     model: mark
@@ -537,6 +541,8 @@ columns:
     - 2007
     - 2026
   INTOX_META:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: case.methanol_poisoning
     kind: category
     model: mark

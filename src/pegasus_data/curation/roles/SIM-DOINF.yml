@@ -591,6 +591,8 @@ columns:
     - 2026
     note: role from SIM-DO
   ESTCIVIL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='solteiro', 2='casado', 4='separado jud', 5='u.estável'): a code table, not a catch-all; 0='Ignorado'
     role: deceased.marital_status_legacy
     kind: category
     model: mark
@@ -701,6 +703,8 @@ columns:
     - 2014
     - 2026
   FONTINFO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='boletim ocorrência', 2='hospital', 3='família', 4='outra'): a code table, not a catch-all; 0='Ign'
     role: death.information_source_legacy
     kind: category
     model: mark
@@ -1163,6 +1167,9 @@ columns:
     - 2026
     note: role from SIM-DO
   PESO:
+    missing: []
+    domain: [1, 8000]
+    # proposed (2021): the range DATASUS's tabulation bands label as values; outside it 1 of 28405 values in 2021 (0000: 1)
     role: birth.weight
     kind: number
     model: mark
@@ -1346,6 +1353,8 @@ columns:
     codelists:
     - PARTO
   TIPOVIOL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='acidente', 2='suicídio', 3='homicidio', 4='outros'): a code table, not a catch-all; 0='Ign'
     role: death.violence_type_legacy
     kind: category
     model: mark

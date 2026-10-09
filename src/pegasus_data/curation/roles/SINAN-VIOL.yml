@@ -699,6 +699,8 @@ columns:
     - 2009
     - 2025
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the table names every code the records use, each with its own label (1='vivo', 2='óbito pelo agravo notificado', 3='óbito por outra causa', 4='óbito em investigação', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark

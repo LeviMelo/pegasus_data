@@ -2,6 +2,8 @@ dataset: DADOS_ABERTOS-APAC_PS
 record: procedure
 columns:
   CATEND:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='eletivo'): a code table, not a catch-all; no value labelled as not recorded
     role: care.type_of_care_episode
     kind: category
     model: mark
@@ -90,6 +92,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   COB_ESF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: care.esf_coverage_indicator
     kind: category
     model: mark
@@ -101,6 +105,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (EP='ep estado pleno', PG='pg pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: care.management_type_code
     kind: category
     model: mark
@@ -113,6 +119,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   DESTINOPAC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='00-permanência', 01='01-alta clínica', 02='02-encaminhamento ad1', 03='03-alta administrativa', 04='04-admissão na urgência'): a code table, not a catch-all; no value labelled as not recorded
     role: care.patient_destination
     kind: category
     model: mark
@@ -226,6 +234,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   LOC_REALIZ:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (C='caps', T='território'): a code table, not a catch-all; no value labelled as not recorded
     role: care.place_of_delivery
     kind: category
     model: mark
@@ -248,6 +258,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   MOT_COB:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 14='alta a pedido', 15='alta com previsão de retorno p/ acompan. do pacient', 16='alta por evasão', 18='alta por outros motivos', 21='permanência por características próprias da doença', 22='permanência por intercorrência', 23='permanência por impossibilidade sócio-familiar', 27='permanência por reoperação', 28='permanência por outros motivos', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 42='óbito com declaração de óbito fornecida pelo i.m.l', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: care.reason_for_discharge_continuation
     kind: category
     model: mark
@@ -282,6 +294,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1031='103-1 órgão público do poder executivo municipal', 1112='111-2 autarquia estadual ou do distrito federal', 1120='112-0 autarquia municipal', 1155='115-5 fundação pública de direito público municipal', 1210='121-0 consórcio público de direito público (associação pública)', 1244='124-4 município', 1279='127-9 fundação pública de direito privado municipal', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: care.establishment_legal_nature_concla
     kind: category
     model: mark
@@ -291,6 +305,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   ORIGEM_PAC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='01-serviço de urgência', 02='02-atenção básica', 03='03-internação hospitalar', 04='04-centro oncológico', 05='05-outros', 06='hopital psiquiatrico'): a code table, not a catch-all; no value labelled as not recorded
     role: care.patient_origin
     kind: category
     model: mark
@@ -343,6 +359,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   PA_SRV:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (115='115 servico de atencao psicossocial'): a code table, not a catch-all; no value labelled as not recorded
     role: care.specialised_service
     kind: category
     model: mark
@@ -381,6 +399,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   RACACOR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='branca', 02='preta', 03='parda', 04='amarela', 05='indigena'): a code table, not a catch-all; no value labelled as not recorded
     role: care.race_colour
     kind: category
     model: mark
@@ -401,6 +421,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   SIT_RUA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: care.homelessness_status
     kind: category
     model: mark
@@ -412,6 +434,8 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: care.provider_type_code
     kind: category
     model: mark

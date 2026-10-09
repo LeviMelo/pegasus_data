@@ -775,6 +775,9 @@ columns:
     - 1996
     - 2026
   PESO:
+    missing: []
+    domain: [1, 8000]
+    # proposed (SP 2008): the range DATASUS's tabulation bands label as values; outside it 0 of 6360 values in SP 2008 (none)
     role: birth.weight
     kind: number
     model: mark

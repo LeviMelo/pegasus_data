@@ -2,6 +2,8 @@ dataset: CNES-PF
 record: professional
 columns:
   ATIVIDAD:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='unidade universitária', 02='unidade escola superior isolada', 03='unidade auxiliar de ensino', 04='unidade sem atividade de ensino', 05='hospital de ensino'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
@@ -33,6 +35,8 @@ columns:
     - 2005
     - 2026
   CLIENTEL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento de demanda espontânea', 02='atendimento de demanda referenciada', 03='atendimento de demanda espontânea e referenciada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
@@ -92,6 +96,8 @@ columns:
     - 2026
     note: YYYYMM of the monthly CNES snapshot.
   CONSELHO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (10='ssp - secretaria de seguranca publica', 12='oab', 15='cr biomedicina', 17='cr fonoaudiologia', 18='cr biologia', 19='cr educacao fisica', 20='cr economia', 22='cr fisica', 23='cr radiologia', 24='cr pedagogo', 25='cr de opticos', 26='cr de tecnicos de radiologia', 40='organismos militares', 41='comando da aeronautica ex min aeronautica', 42='comando do exercito ex min exercito', 43='comando da marinha ex min marinha', 44='policia federal', 60='carteira de identidade classista', 61='administracao conselho regional', 62='assistencia social conselho regional', 63='biblioteconomia conselho regional', 64='contabilidade conselho regional', 65='corretores de imoveis conselho regional', 66='enfermagem conselho regional', 67='engenharia,arq e agronomia - conselho regional', 68='estatistica conselho regional', 69='farmacia conselho regional', 70='fisioterapia e terapia ocup conselho regional', 71='medicina conselho regional', 72='medicina veterinaria conselho regional', 73='musicos do brasil ordem', 74='nutricao conselho regional', 75='odontologia conselho regional', 76='relacoes publicas conselho regional', 77='psicologia conselho regional', 78='quimica conselho regional', 79='representantes comerciais conselho regional', 80='advogados do brasil ordem', 81='outros emissores', 82='documento estrangeiro', 83='registro no ministerio da saude - programa mais medicos', 99='-'): a code table, not a catch-all; no value labelled as not recorded
     role: professional.professional_council_code
     kind: category
     model: mark
@@ -196,6 +202,8 @@ columns:
     - 2005
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1015='órgão público do poder executivo federal', 1023='órgão público do poder executivo estadual ou do distrito federal', 1031='órgão público do poder executivo municipal', 1058='órgão público do poder legislativo estadual ou do distrito federal', 1066='órgão público do poder legislativo municipal', 1074='órgão público do poder judiciário federal', 1082='órgão público do poder judiciário estadual', 1104='autarquia federal', 1112='autarquia estadual ou do distrito federal', 1120='autarquia municipal', 1139='fundação pública de direito público federal', 1147='fundação pública de direito público estadual ou do distrito federal', 1155='fundação pública de direito público municipal', 1210='consórcio público de direito público (associação pública)', 1244='município', 1279='fundação pública de direito privado municipal', 2011='empresa pública', 2038='sociedade de economia mista', 2046='sociedade anônima aberta', 2054='sociedade anônima fechada', 2062='sociedade empresária limitada', 2127='sociedade em conta de participação', 2135='empresário (individual)', 2143='cooperativa', 2151='consórcio de sociedades', 2216='empresa domiciliada no exterior', 2232='sociedade simples pura', 2240='sociedade simples limitada', 2259='sociedade simples em nome coletivo', 2305='empresa individual de responsabilidade limitada (de natureza empresária)', 2313='empresa individual de responsabilidade limitada (de natureza simples)', 2321='sociedade unipessoal de advogados', 2348='2. entidades empresariais', 3069='fundação privada', 3077='serviço social autônomo', 3085='condomínio edilício', 3131='entidade sindical', 3220='organização religiosa', 3301='3. entidades sem fins lucrativos', 3999='associação privada', 4000='pessoas físicas', 4014='empresa individual imobiliária'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legal_nature
     kind: category
     model: mark
@@ -207,6 +215,8 @@ columns:
     - NAT_JUR
     - NATJUR
   NIV_DEP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='individual', 3='mantido'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
@@ -236,6 +246,8 @@ columns:
     - 2026
     note: "The professional's name: a direct personal identifier, passed through unchanged."
   PF_PJ:
+    missing: ['0', '2']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='pessoa física', 3='pessoa jurídica'): a code table, not a catch-all; 0='Não informado', 2='Não informado'
     role: establishment.person_type
     kind: category
     model: mark
@@ -298,6 +310,8 @@ columns:
     codelists:
     - TERCEIRO
   TPGESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (E='estadual', M='municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.management_type
     kind: category
     model: mark
@@ -319,6 +333,8 @@ columns:
     - 2005
     - 2026
   TURNO_AT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento turnos intermitentes', 02='atendimento contínuo 24 horas/dia (pl sab dom fer)', 03='atendimento turnos manhã/tarde/noite', 04='atendimento somente pela manhã', 05='atendimento somente à tarde', 06='atendimento turnos manhã/tarde', 07='atendimento somente à noite'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark
@@ -340,6 +356,8 @@ columns:
     - 2005
     - 2026
   VINCULAC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (010101='01 vinculo empregaticio / 01 estatutario / 01 servidor proprio', 010102='01 vinculo empregaticio / 01 estatutario / 02 servidor cedido', 010202='01 vinculo empregaticio / 02 emprego publico / 02 proprio', 010203='01 vinculo empregaticio / 02 emprego publico / 03 cedido', 010301='01 vinculo empregaticio / 03 contrato por prazo determinado / 01 publico', 010302='01 vinculo empregaticio / 03 contrato por prazo determinado / 02 privado', 010403='01 vinculo empregaticio / 04 cargo comissionado / 03 servidor publico proprio', 010404='01 vinculo empregaticio / 04 cargo comissionado / 04 servidor publico cedido', 010405='01 vinculo empregaticio / 04 cargo comissionado / 05 sem vinculo com o setor publico', 010500='01 vinculo empregaticio / 05 celetista / 00 nao se aplica', 020900='02 autonomo / 09 pessoa juridica / 00 nao se aplica', 021000='02 autonomo / 10 pessoa fisica / 00 nao se aplica', 021100='02 autonomo / 11 cooperado / 00 nao se aplica', 050101='05 residencia / 01 residente / 01 proprio', 050102='05 residencia / 01 residente / 02 subsidiado por outro ente/entidade', 060101='06 estagio / 01 estagiario / 01 proprio', 060102='06 estagio / 01 estagiario / 02 subsidiado por outro ente/entidade', 070101='07 bolsa / 01 bolsista / 01 proprio', 070102='07 bolsa / 01 bolsista / 02 subsidiado por outro ente/entidade', 080100='08 intermediado / 01 empregado publico celetista / 00 nao se aplica', 080200='08 intermediado / 02 contratado temporario ou por prazo/tempo determinado / 00 nao se aplica', 080300='08 intermediado / 03 cargo comissionado / 00 nao se aplica', 080400='08 intermediado / 04 celetista / 00 nao se aplica', 080501='08 intermediado / 05 autonomo / 01 pessoa juridica', 080502='08 intermediado / 05 autonomo / 02 pessoa fisica', 080600='08 intermediado / 06 cooperado / 00 nao se aplica', 080701='08 intermediado — nível 07 / 01 não consta da tabela vinculo', 090100='09 informal / 01 contratado verbalmente / 00 nao se aplica', 090200='09 informal / 02 voluntariado / 00 nao se aplica', 100100='10 servidor publico cedido para iniciativa privada / 01 servidor cedido / 00 nao se aplica', 100200='10 servidor publico cedido para iniciativa privada / 02 empregado publico celetista / 00 nao se apli', 100300='10 servidor publico cedido para iniciativa privada / 03 cargo comissionado / 00 nao se aplica'): a code table, not a catch-all; no value labelled as not recorded
     role: professional.professionals_employment_link
     kind: category
     model: mark

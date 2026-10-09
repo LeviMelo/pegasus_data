@@ -135,6 +135,8 @@ columns:
     - 2026
     note: Empty in 2021; a field of the shared header the rotavirus form does not use.
   DIARREIA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.sign_diarrhoea
     kind: category
     model: mark
@@ -593,6 +595,8 @@ columns:
     - 2009
     - 2026
   ROTA_R:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.rotavirus_result
     kind: category
     model: mark
@@ -709,6 +713,8 @@ columns:
     - 2009
     - 2026
   VOP_VORH:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: patient.opv_same_day
     kind: category
     model: mark

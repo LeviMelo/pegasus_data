@@ -686,6 +686,8 @@ columns:
     - 2026
     note: role from SIH-RD
   ST_BLOQ:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='aih autorizada', 2='bloqueio aih', 4='cancelamento aih', 5='liberação bloqueio aih'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.block_status
     kind: category
     model: mark
@@ -706,6 +708,8 @@ columns:
     codelists:
     - MOTBLOQUEIO
   ST_SITUAC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1='aih rejeitada'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.rejection_status
     kind: category
     model: mark

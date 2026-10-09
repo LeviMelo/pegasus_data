@@ -53,9 +53,40 @@ SAMPLE: tuple[str, str] | None = None
 
 
 def _read(dataset: str, year: int, columns: list[str], **kwargs):
-    """One year of the columns, nationally, or the ``--sample`` state-month."""
+    """One year of the columns, nationally, or the ``--sample`` state-month (up to 4 GiB of new files: SISCAN's national
+    exam CSVs are 1.6 GiB a year)."""
     uf, month = SAMPLE if SAMPLE else ("BR", year)
+    kwargs.setdefault("max_download", 4 * 1024**3)
     return pg.query(dataset, period=month, geography=uf, select=columns, present="codes", **kwargs)
+
+
+def _read_present(dataset: str, year: int, columns: list[str], **kwargs):
+    """`_read` of the columns the year's files carry: an absent column is dropped and said (RESP's FREQUENCIA, declared
+    and in no generation of the files), an empty or absent publication returns (None, [])."""
+    while columns:
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                table = _read(dataset, year, columns, **kwargs)
+            # a derived column whose inputs the year lacks comes back absent, not as an error (SINAN's IDADE_anos
+            # before NU_IDADE_N): it is dropped like an absent one
+            gone = [c for c in columns if c not in table.column_names]
+            if gone:
+                print(f"absent in {year}: {sorted(gone)}")
+            return table, [c for c in columns if c in table.column_names]
+        except Exception as exc:  # noqa: BLE001 - a column absent this year
+            if type(exc).__name__ in ("PublishedEmpty", "NothingPublished"):
+                print(f"no records in {year}: {type(exc).__name__}")
+                return None, []
+            absent = set(re.findall(r"'([A-Z0-9_]+)' is not present|Field \"([A-Z0-9_]+)\" does not exist", str(exc)))
+            absent = {a or b for a, b in absent} | set(
+                re.findall(r"also absent: ([A-Z0-9_, ]+)\)", str(exc))[0].replace(" ", "").split(",")
+                if "also absent" in str(exc) else [])
+            if not absent or not any(c in absent for c in columns):
+                raise
+            print(f"absent in {year}: {sorted(absent)}")
+            columns = [c for c in columns if c not in absent]
+    return None, []
 
 
 def main(dataset: str, spec: str, write: bool) -> None:
@@ -72,24 +103,9 @@ def main(dataset: str, spec: str, write: bool) -> None:
     seen: dict[str, set] = {}       # every value each column took in any year read: a rare code is seen in some year
     for y in years:
         mine = [r for r in rows if (r.years[0] or 0) <= y <= (r.years[1] or 9999)]
-        while mine:                 # columns the year's files do not carry are dropped, and said so
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    table = _read(dataset, y, [r.column for r in mine])
-                break
-            except Exception as exc:  # noqa: BLE001 - a column absent this year
-                if type(exc).__name__ in ("PublishedEmpty", "NothingPublished"):
-                    print(f"no records in {y}: {type(exc).__name__}")
-                    mine = []
-                    break
-                absent = set(re.findall(r"'([A-Z0-9_]+)' is not present", str(exc))) | set(
-                    re.findall(r"also absent: ([A-Z0-9_, ]+)\)", str(exc))[0].replace(" ", "").split(",")
-                    if "also absent" in str(exc) else [])
-                if not absent or not any(r.column in absent for r in mine):
-                    raise
-                print(f"absent in {y}: {sorted(absent)}")
-                mine = [r for r in mine if r.column not in absent]
+        # columns the year's files do not carry are dropped, and said so
+        table, kept = _read_present(dataset, y, [r.column for r in mine])
+        mine = [r for r in mine if r.column in kept]
         if not mine:                # no column of the year's roles, or every one absent from its files
             continue
         for r in mine:
@@ -171,8 +187,11 @@ def _code_table(seen: set[str] | None, labels: dict[str, str]) -> bool:
     if not seen:
         return False
     named = [labels.get(c, "") for c in seen]
+    if any("(?)" in str(n or "") for n in named):       # undecoded tokens of a multi-valued code are no label (RESP CRITERIO)
+        return False
     # any catch-all in the table, a code the records did not use included, makes it a tabulation (SINAN's 3-8 are
-    # 'Ign/Branco' there and 'não se aplica' in many forms)
+    # 'Ign/Branco' there and 'não se aplica' in many forms). Several codes the table itself calls not recorded are not
+    # one (CNES PF_PJ 0 and 2 'Não informado'; RESP TP_NOTIFIC 0, 7, 8, 9 'Ignorado'): the records' codes are named apart
     return (all(named) and len(set(named)) == len(named)
             and not any(re.search(r"ign\.?\s*/\s*branco|^branco$", str(n or "")) for n in labels.values()))
 
@@ -223,11 +242,11 @@ def numbers(dataset: str, year: int, write: bool) -> None:
     system = {"SIH": "SIHSUS"}.get(system, system)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        try:
-            table = _read(dataset, year, [r.column for r in rows])
-        except (pg.PublishedEmpty, pg.NothingPublished) as exc:
-            print(f"measurements: no records in {read} to test a band against ({type(exc).__name__})  [left undeclared]")
+        table, kept = _read_present(dataset, year, [r.column for r in rows])
+        if table is None:
+            print(f"measurements: no records in {read} to test a band against  [left undeclared]")
             return
+        rows = [r for r in rows if r.column in kept]
     proposals = {}
     for r in rows:
         counts = {x["values"]: x["counts"] for x in pc.value_counts(pc.cast(table[r.column], "string")).to_pylist()

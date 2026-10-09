@@ -274,6 +274,8 @@ columns:
     codelists:
     - UFNACIO
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2017-12): no form dictionary; the table names every code the records use, each with its own label (1244='124-4 município'): a code table, not a catch-all; no value labelled as not recorded
     role: care.establishment_legal_nature_concla
     kind: category
     model: mark
@@ -361,6 +363,8 @@ columns:
     codelists:
     - S_CLASSEN
   PA_TP_EQP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-12): no form dictionary; the table names every code the records use, each with its own label (22='emad - equipe multidisciplinar de atencao domiciliar', 23='emap - equipe multidisciplinar de apoio'): a code table, not a catch-all; no value labelled as not recorded
     role: care.team_type
     kind: category
     model: mark

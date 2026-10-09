@@ -375,6 +375,9 @@ columns:
     - 1994
     - 1995
   FIL_MORTOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 262615 of 997404 values in 1995 (99: 262543, .: 33, -: 21, +-: 5)
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
@@ -383,6 +386,9 @@ columns:
     - 1994
     - 1995
   FIL_VIVOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 132843 of 1656740 values in 1995 (99: 132805, .: 22, +: 4, .0: 3)
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -431,6 +437,9 @@ columns:
     - 1994
     - 2026
   IDADEPAI:
+    missing: []
+    domain: [10, 99]
+    # proposed (SP 2011): the range DATASUS's tabulation bands label as values; outside it 0 of 69825 values in SP 2011 (none)
     role: father.age
     kind: number
     model: mark
@@ -606,6 +615,9 @@ columns:
     - 2010
     - 2026
   QTDPARTCES:
+    missing: []
+    domain: [0, 30]
+    # proposed (SP 2011): the range DATASUS's tabulation bands label as values; outside it 6 of 103505 values in SP 2011 (99: 6)
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
@@ -646,6 +658,8 @@ columns:
     - 2010
     - 2026
   RACACORN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2013): no form dictionary; the table names every code the records use, each with its own label (1='branca', 2='preta', 3='amarela', 4='parda', 5='indígena'): a code table, not a catch-all; no value labelled as not recorded
     role: baby.race
     kind: category
     model: mark
@@ -654,6 +668,8 @@ columns:
     - 2013
     note: Newborn race in 2012-2013 files; coalesce with RACACOR and RACACOR_RN for a series.
   RACACOR_RN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2011): no form dictionary; the table names every code the records use, each with its own label (1='branca', 2='preta', 3='amarela', 4='parda', 5='indígena'): a code table, not a catch-all; no value labelled as not recorded
     role: baby.race
     kind: category
     model: mark

@@ -2,6 +2,8 @@ dataset: CNES-IN
 record: establishment
 columns:
   ATIVIDAD:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='unidade universitária', 02='unidade escola superior isolada', 03='unidade auxiliar de ensino', 04='unidade sem atividade de ensino', 05='hospital de ensino'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
@@ -12,6 +14,8 @@ columns:
     codelists:
     - ATIV_ENS
   CLIENTEL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento de demanda espontânea', 02='atendimento de demanda referenciada', 03='atendimento de demanda espontânea e referenciada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
@@ -154,6 +158,8 @@ columns:
     - 2007
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1023='órgão público do poder executivo estadual ou do distrito federal', 1031='órgão público do poder executivo municipal', 1112='autarquia estadual ou do distrito federal', 1120='autarquia municipal', 1155='fundação pública de direito público municipal', 1210='consórcio público de direito público (associação pública)', 1244='município', 1279='fundação pública de direito privado municipal', 2054='sociedade anônima fechada', 2062='sociedade empresária limitada', 2240='sociedade simples limitada', 3069='fundação privada', 3999='associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legal_nature
     kind: category
     model: mark
@@ -165,6 +171,8 @@ columns:
     - NAT_JUR
     - NATJUR
   NIV_DEP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='individual', 3='mantido'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
@@ -185,6 +193,8 @@ columns:
     codelists:
     - NIV_HIER
   PF_PJ:
+    missing: ['0', '2']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (3='pessoa jurídica'): a code table, not a catch-all; 0='Não informado', 2='Não informado'
     role: establishment.person_type
     kind: category
     model: mark
@@ -221,6 +231,8 @@ columns:
     codelists:
     - RETENCAO
   SGRUPHAB:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (8101='8101-integrasus nivel a', 8102='8102-integrasus nivel b', 8103='8103-integrasus nivel c', 8104='8104-iae-pi', 8105='8105-ceo', 8107='8107-nasf', 8112='8112-academia da saude em municipios com nasf', 8116='8116-drc categoria i', 8117='8117-drc categoria ii', 8119='8119-hospital sem fins lucrativos 100% sus', 8121='8121-qualificacao em doacao e transplantes-ifq-dot i', 8122='8122-qualificacao em doacao e transplantes-ifq-dot ii', 8123='8123-qualificacao em doacao e transplantes-ifq-dot iii', 8124='8124-qualificacao em doacao e transplantes-ifq-dot iv', 8201='8201-upa i qualificada', 8202='8202-upa ii qualificada', 8203='8203-upa iii qualificada', 8204='8204-upa i reformada e ampliada', 8205='8205-upa ii reformada e ampliada', 8206='8206-upa iii reformada e ampliada', 8209='8209-leito gestacao de alto risco (gar)', 8210='8210-leito de cuidado integral ao paciente com avc', 8212='8212-porta de entrada hospitalar de urgencia (pehu)-hospital ge', 8213='8213-porta de entrada hospitalar de urgencia (pehu)-hospital es', 8214='8214-porta de entrada hospitalar de urgencia (pehu)-hospital es', 8223='8223-centro especializado em reabilitacao ii (cer ii)', 8224='8224-centro especializado em reabilitacao iii (cer iii)', 8225='8225-centro especializado em reabilitacao iv (cer iv)', 8226='8226-residencia terapeutica tipo i', 8227='8227-residencia terapeutica tipo ii', 8228='8228-ua adulto', 8229='8229-ua infantojuvenil', 8231='8231-ceo-i-rede de cuidados \x91 pessoa com deficiencia', 8232='8232-ceo-ii-rede de cuidados \x91 pessoa com deficiencia', 8233='8233-ceo-iii-rede de cuidados \x91 pessoa com deficiencia', 8234='8234-oficina ortopedica fixa', 8238='8238-cerest estadual', 8239='8239-cerest municipal', 8240='8240-cerest regional', 8241='8241-upa i nova', 8242='8242-upa ii nova', 8243='8243-upa iii nova', 8245='8245-central de regulacao das urgencias samu 192', 8248='8248-unidade movel de atendimento pre-hospitalar motol\x8fncia samu', 8249='8249-unidade movel de atendimento pre-hospitalar usa samu 192', 8250='8250-unidade movel de atendimento pre-hospitalar usb samu 192', 8251='8251-central de regulacao das urgencias samu 192 qualificada', 8252='8252-organizacao de procura de orgaos e tecidos', 8253='8253-indice de valorizacao hospitalar de emergencia (ivh-e)', 8254='8254-centro de informacao e assistencia toxicologica (ciatox)', 8255='8255-leito de cuidado ao paciente com avc agudo', 8258='8258-qualificacao upa 24h nova opcao iv', 8259='8259-qualificacao upa 24h nova opcao vi', 8260='8260-qualificacao upa 24h nova opcao vii', 8263='8263-upa 24h ampliada opcao iv', 8267='8267-upa 24h nova opcao ii', 8268='8268-upa 24h nova opcao iv', 8269='8269-upa 24h nova opcao vi', 8270='8270-upa 24h nova opcao vii', 8271='8271-enfermaria clinica de retaguarda-novos', 8272='8272-enfermaria clinica de retaguarda-qualificados', 8273='8273-uti adulto rue tipo ii-novos', 8274='8274-uti adulto rue tipo ii-qualificados', 8275='8275-uti pediatrico rue tipo ii-novos', 8276='8276-uti pediatrico rue tipo ii-qualificados', 8277='8277-uti adulto rue tipo iii-novos', 8278='8278-uti adulto rue tipo iii-qualificados', 8279='8279-uti pediatrico rue tipo iii-novos', 8280='8280-uti pediatrico rue tipo iii-qualificados', 8285='8285-atencao especializada ao seguimento do recem-nascido e criancas egressos de unidades neonatais (aneo)', 8290='8290-nucleo de atencao a crianca e adolescente com transtorno do espectro autista', 8291='8291-incentivo de 20% no custeio do cer habilitado com a modalidade de reabilitacao intelectual'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.habilita_o_sus_accreditation_group_code
     kind: category
     model: mark
@@ -246,6 +258,8 @@ columns:
     codelists:
     - TERCEIRO
   TPGESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (E='estadual', M='municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.management_type
     kind: category
     model: mark
@@ -257,6 +271,8 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_PREST:
+    missing: ['99']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (99='não preenchido'): a code table, not a catch-all; 99='Não preenchido'
     role: establishment.provider_ownership_legal_nature_classification
     kind: category
     model: mark
@@ -267,6 +283,8 @@ columns:
     codelists:
     - TIPOPRES
   TP_UNID:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='posto de saude', 02='centro de saude/unidade basica de saude', 04='policlinica', 05='hospital geral', 07='hospital especializado', 22='consultorio', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 42='unidade movel de nivel pre-hosp-urgencia/emergencia', 68='secretaria de saude', 70='centro de atenção psicossocial-caps', 71='centro de apoio a saúde da família-casf', 73='pronto antedimento', 74='academia da saúde', 76='central de regulação médica das urgências', 82='central de notif,capt. e distrib de orgaos estad'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.type
     kind: category
     model: mark
@@ -277,6 +295,8 @@ columns:
     - 2007
     - 2026
   TURNO_AT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento turnos intermitentes', 02='atendimento contínuo 24 horas/dia (pl sab dom fer)', 03='atendimento turnos manhã/tarde/noite', 04='atendimento somente pela manhã', 05='atendimento somente à tarde', 06='atendimento turnos manhã/tarde'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark
@@ -287,6 +307,8 @@ columns:
     codelists:
     - TURNOSAT
   VINC_SUS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='estabelecimento sem vínculo sus', 1='estabelecimento com vínculo sus'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.sus_linked
     kind: category
     model: mark

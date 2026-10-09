@@ -2,6 +2,8 @@ dataset: CNES-SR
 record: service
 columns:
   AMB_NSUS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: service.outpatient_care_outside_sus
     kind: category
     model: mark
@@ -18,6 +20,8 @@ columns:
     - 2005
     - 2026
   ATIVIDAD:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='unidade universitária', 02='unidade escola superior isolada', 03='unidade auxiliar de ensino', 04='unidade sem atividade de ensino', 05='hospital de ensino'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
@@ -28,6 +32,8 @@ columns:
     codelists:
     - ATIV_ENS
   CARACTER:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='própio'): a code table, not a catch-all; no value labelled as not recorded
     role: service.service_arrangement
     kind: category
     model: mark
@@ -46,6 +52,8 @@ columns:
     codelists:
     - S_CLASSEN
   CLIENTEL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento de demanda espontânea', 02='atendimento de demanda referenciada', 03='atendimento de demanda espontânea e referenciada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
@@ -182,6 +190,8 @@ columns:
     - 2005
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1015='órgão público do poder executivo federal', 1023='órgão público do poder executivo estadual ou do distrito federal', 1031='órgão público do poder executivo municipal', 1058='órgão público do poder legislativo estadual ou do distrito federal', 1074='órgão público do poder judiciário federal', 1104='autarquia federal', 1112='autarquia estadual ou do distrito federal', 1120='autarquia municipal', 1139='fundação pública de direito público federal', 1147='fundação pública de direito público estadual ou do distrito federal', 1155='fundação pública de direito público municipal', 1210='consórcio público de direito público (associação pública)', 1244='município', 1279='fundação pública de direito privado municipal', 2011='empresa pública', 2046='sociedade anônima aberta', 2054='sociedade anônima fechada', 2062='sociedade empresária limitada', 2135='empresário (individual)', 2143='cooperativa', 2232='sociedade simples pura', 2240='sociedade simples limitada', 2259='sociedade simples em nome coletivo', 2305='empresa individual de responsabilidade limitada (de natureza empresária)', 2313='empresa individual de responsabilidade limitada (de natureza simples)', 2348='2. entidades empresariais', 3069='fundação privada', 3077='serviço social autônomo', 3131='entidade sindical', 3301='3. entidades sem fins lucrativos', 3999='associação privada', 4000='pessoas físicas', 4014='empresa individual imobiliária'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legal_nature
     kind: category
     model: mark
@@ -193,6 +203,8 @@ columns:
     - NAT_JUR
     - NATJUR
   NIV_DEP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='individual', 3='mantido'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
@@ -213,6 +225,8 @@ columns:
     codelists:
     - NIV_HIER
   PF_PJ:
+    missing: ['0', '2']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='pessoa física', 3='pessoa jurídica'): a code table, not a catch-all; 0='Não informado', 2='Não informado'
     role: establishment.person_type
     kind: category
     model: mark
@@ -271,6 +285,8 @@ columns:
     codelists:
     - TERCEIRO
   TPGESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (E='estadual', M='municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.management_type
     kind: category
     model: mark
@@ -292,6 +308,8 @@ columns:
     - 2005
     - 2026
   TURNO_AT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento turnos intermitentes', 02='atendimento contínuo 24 horas/dia (pl sab dom fer)', 03='atendimento turnos manhã/tarde/noite', 04='atendimento somente pela manhã', 05='atendimento somente à tarde', 06='atendimento turnos manhã/tarde', 07='atendimento somente à noite'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark

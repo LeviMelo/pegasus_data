@@ -91,6 +91,8 @@ columns:
     - 2023
     - 2025
   BNZ_DEPRE:
+    missing: []
+    # declared from DATASUS's own sources (2024): no code table: the records hold the labels themselves ('Depressao medula ossea')
     role: notification.benznidazole_bone_marrow_suppression
     kind: category
     model: mark
@@ -698,6 +700,8 @@ columns:
     - 2023
     - 2025
   NFX_AGEUSI:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Ageusia')
     role: notification.nifurtimox_ageusia
     kind: category
     model: mark
@@ -734,6 +738,8 @@ columns:
     - 2023
     - 2025
   NFX_GRAVE:
+    missing: []
+    # declared from DATASUS's own sources (2024): no code table: the records hold the labels themselves ('Dermopatia grave')
     role: notification.nifurtimox_severe_dermopathy
     kind: category
     model: mark
@@ -768,6 +774,8 @@ columns:
     - 2023
     - 2025
   NFX_PAREST:
+    missing: []
+    # declared from DATASUS's own sources (2025): no code table: the records hold the labels themselves ('Parestesias')
     role: notification.nifurtimox_paraesthesia
     kind: category
     model: mark

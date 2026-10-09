@@ -525,6 +525,8 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   ESTCIVIL:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado'): a code table, not a catch-all; 0='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: deceased.marital_status_legacy
     kind: category
     model: mark
@@ -605,6 +607,8 @@ columns:
     - 2014
     - 2026
   FONTINFO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='boletim ocorrência', 2='hospital', 3='família'): a code table, not a catch-all; 0='Ign'
     role: death.information_source_legacy
     kind: category
     model: mark
@@ -667,6 +671,8 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   INSTRMAE:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: mother.education_legacy
     kind: category
     model: mark
@@ -681,6 +687,8 @@ columns:
     - 1979
     - 1998
   INSTRUCAO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign'): a code table, not a catch-all; 0='Ign'
     role: deceased.education_legacy
     kind: category
     model: dimension
@@ -1215,6 +1223,8 @@ columns:
     - 1979
     - 1996
   TIPOVIOL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='acidente', 2='suicídio', 3='homicidio'): a code table, not a catch-all; 0='Ign'
     role: death.violence_type_legacy
     kind: category
     model: mark

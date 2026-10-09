@@ -2,6 +2,8 @@ dataset: CNES-LT
 record: bed
 columns:
   ATIVIDAD:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='unidade universitária', 02='unidade escola superior isolada', 03='unidade auxiliar de ensino', 04='unidade sem atividade de ensino', 05='hospital de ensino'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
@@ -12,6 +14,8 @@ columns:
     codelists:
     - ATIV_ENS
   CLIENTEL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento de demanda espontânea', 02='atendimento de demanda referenciada', 03='atendimento de demanda espontânea e referenciada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
@@ -122,6 +126,8 @@ columns:
     - 2005
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1015='órgão público do poder executivo federal', 1023='órgão público do poder executivo estadual ou do distrito federal', 1031='órgão público do poder executivo municipal', 1104='autarquia federal', 1112='autarquia estadual ou do distrito federal', 1120='autarquia municipal', 1155='fundação pública de direito público municipal', 1210='consórcio público de direito público (associação pública)', 1244='município', 1279='fundação pública de direito privado municipal', 2011='empresa pública', 2046='sociedade anônima aberta', 2054='sociedade anônima fechada', 2062='sociedade empresária limitada', 2135='empresário (individual)', 2143='cooperativa', 2232='sociedade simples pura', 2240='sociedade simples limitada', 3069='fundação privada', 3999='associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legal_nature
     kind: category
     model: mark
@@ -133,6 +139,8 @@ columns:
     - NAT_JUR
     - NATJUR
   NIV_DEP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='individual', 3='mantido'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
@@ -153,6 +161,8 @@ columns:
     codelists:
     - NIV_HIER
   PF_PJ:
+    missing: ['0', '2']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (3='pessoa jurídica'): a code table, not a catch-all; 0='Não informado', 2='Não informado'
     role: establishment.person_type
     kind: category
     model: mark
@@ -223,6 +233,8 @@ columns:
     codelists:
     - TERCEIRO
   TPGESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (E='estadual', M='municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.management_type
     kind: category
     model: mark
@@ -234,6 +246,8 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_LEITO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='1-cirúrgico', 2='2-clínico', 3='3-complementar', 4='4-obstétrico', 5='5-pediátrico', 6='6-outras especialidades', 7='7-hospital/dia'): a code table, not a catch-all; no value labelled as not recorded
     role: bed.bed_type
     kind: category
     model: mark
@@ -242,6 +256,8 @@ columns:
     - 2005
     - 2026
   TP_UNID:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (05='hospital geral', 07='hospital especializado', 15='unidade mista', 20='pronto socorro geral', 21='pronto socorro especializado', 36='clinica especializada/ambulatorio especializado', 61='centro de parto normal', 62='hospital dia', 69='centro de atenção hemoterápica e/ou hematológica', 70='centro de atenção psicossocial-caps', 73='pronto antedimento', 78='unidade de atencao em regime residencial', 83='polo de prevencao de doencas e agravos e promocao da saude'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.type
     kind: category
     model: mark
@@ -252,6 +268,8 @@ columns:
     - 2005
     - 2026
   TURNO_AT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (02='atendimento contínuo 24 horas/dia (pl sab dom fer)', 03='atendimento turnos manhã/tarde/noite', 04='atendimento somente pela manhã', 05='atendimento somente à tarde', 06='atendimento turnos manhã/tarde'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark

@@ -10,6 +10,8 @@ columns:
     - 2009
     - 2015
   CANMEXAPR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (2='nunca examinadas', 3='sim', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.prior_clinical_breast_exam
     kind: category
     model: mark
@@ -18,6 +20,8 @@ columns:
     - 2009
     - 2015
   CANMMAMOGR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='não', 2='não sabe', 3='sim', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.elevated_breast_cancer_risk_flag
     kind: category
     model: mark
@@ -28,6 +32,8 @@ columns:
     codelists:
     - RISCOELEVADO
   CANMPACANC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='não', 2='não sabe', 3='sim', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.high_breast_cancer_risk
     kind: category
     model: mark
@@ -36,6 +42,8 @@ columns:
     - 2009
     - 2015
   CATBIRADS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='categoria 0', 2='categoria 1', 3='categoria 2', 4='categoria 3', 5='categoria 4', 6='categoria 5', 7='categoria 6', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.bi_rads_category
     kind: category
     model: mark
@@ -296,6 +304,8 @@ columns:
     - 2009
     - 2015
   CO_FX_ETAR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (00='ate 10 anos', 61='entre 11 a 14 anos', 62='entre 15 a 19 anos', 63='entre 20 a 24 anos', 64='entre 25 a 29 anos', 65='entre 30 a 34 anos', 66='entre 35 a 39 anos', 67='entre 40 a 44 anos', 68='entre 45 a 49 anos', 69='entre 50 a 54 anos', 70='entre 55 a 59 anos', 71='entre 60 a 64 anos', 72='entre 65 a 69 anos', 73='acima de 70 anos', 99='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.age_band
     kind: category
     model: mark
@@ -316,6 +326,8 @@ columns:
     - 2009
     - 2015
   CO_PAC_ESC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='ignorado/em branco', 1='analfabeto(a)', 2='ensino fundamental incompleto', 3='ensino fundamental completo', 4='ensino múdio completo', 5='ensino superior completo', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.education
     kind: category
     model: dimension
@@ -429,6 +441,8 @@ columns:
     - 2009
     - 2015
   DINTRESULT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 10 dias', 2='11 - 20 dias', 3='21 - 30 dias', 4='> 30 dias', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.interval_to_result_banded
     kind: category
     model: mark
@@ -439,6 +453,8 @@ columns:
     codelists:
     - INTRESULTADO
   DINTSOLICT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 10 dias', 2='11 - 20 dias', 3='21 - 30 dias', 4='> 30 dias', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.interval_request_to_examination
     kind: category
     model: mark
@@ -447,6 +463,8 @@ columns:
     - 2009
     - 2015
   DINTTEMPEX:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 30 dias', 2='31 - 60 dias', 3='> 60 dias', 9='informação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.exam_turnaround_banded
     kind: category
     model: mark
@@ -465,6 +483,8 @@ columns:
     - 2009
     - 2015
   INDICLINIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='mamog. diagnostica', 2='mamog. rastreamento', 9='infomação inconsistente'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.clinical_indication
     kind: category
     model: mark
@@ -577,6 +597,8 @@ columns:
     - 2009
     - 2015
   TEMPOMAMOG:
+    missing: ['6']
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='mesmo ano', 1='1 ano', 2='2 ano', 3='3 ano', 4='>= 4 ano', 5='não se aplica', 6='sem informação', 9='informação inconsistente'): a code table, not a catch-all; 6='Sem informação'
     role: exam.time_since_previous_mammogram
     kind: category
     model: mark

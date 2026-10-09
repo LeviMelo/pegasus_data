@@ -57,6 +57,8 @@ columns:
     - 2007
     - 2026
   ANT_LOCA_1:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (01='cabeça', 02='braço', 03='ante-braço', 04='mão', 05='dedo da mão', 06='tronco', 07='coxa', 08='perna', 09='pé', 10='dedo do pé', 99='ign/em branco'): a code table, not a catch-all; no value labelled as not recorded
     role: case.bite_site
     kind: category
     model: mark
@@ -96,6 +98,8 @@ columns:
     - 2026
     note: "IBGE state codes: the form's width 2, and 27 distinct two-digit codes in 2021."
   CLI_DOR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.sign_local_pain
     kind: category
     model: mark
@@ -250,6 +254,8 @@ columns:
     - 2007
     - 2026
   COM_COMPOR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.complication_compartment_syndrome
     kind: category
     model: mark

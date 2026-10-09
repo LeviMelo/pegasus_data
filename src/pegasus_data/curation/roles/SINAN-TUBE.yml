@@ -90,6 +90,8 @@ columns:
     - 2001
     - 2025
   ANT_RETRO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.antiretroviral
     kind: category
     model: mark
@@ -292,6 +294,8 @@ columns:
     - 2001
     - 2025
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.work_related
     kind: category
     model: mark
@@ -414,6 +418,8 @@ columns:
     - 2001
     - 2025
   ESTREPTOMI:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.streptomycin
     kind: category
     model: mark
@@ -424,6 +430,8 @@ columns:
     - 2001
     - 2025
   ETAMBUTOL:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.ethambutol
     kind: category
     model: mark
@@ -434,6 +442,8 @@ columns:
     - 2001
     - 2025
   ETIONAMIDA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.ethionamide
     kind: category
     model: mark
@@ -642,6 +652,8 @@ columns:
     - 2001
     - 2025
   ISONIAZIDA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.isoniazid
     kind: category
     model: mark
@@ -716,6 +728,8 @@ columns:
     - 2001
     - 2025
   OUTRAS:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.other_drugs
     kind: category
     model: mark
@@ -733,6 +747,8 @@ columns:
     - 2001
     - 2018
   PIRAZINAMI:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.pyrazinamide
     kind: category
     model: mark
@@ -801,6 +817,8 @@ columns:
     - 2001
     - 2025
   RIFAMPICIN:
+    missing: ['9']
+    # declared from DATASUS's own sources (2024): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: treatment.rifampicin
     kind: category
     model: mark
@@ -850,6 +868,8 @@ columns:
     - 2001
     - 2025
   SITUA_12_M:
+    missing: []
+    # declared from DATASUS's own sources (2024): no form dictionary; the table names every code the records use, each with its own label (5='transferência p/ mesmo município'): a code table, not a catch-all; no value labelled as not recorded
     role: treatment.status_month_12
     kind: category
     model: mark

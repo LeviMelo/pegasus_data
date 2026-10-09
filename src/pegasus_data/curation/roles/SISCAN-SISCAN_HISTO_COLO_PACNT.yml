@@ -141,6 +141,8 @@ columns:
     - 2013
     - 2025
   ST_OUTRA_NEOPLASIA_MALIGNA:
+    missing: []
+    # declared from DATASUS's own sources (2022): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.other_malignant_neoplasm
     kind: category
     model: mark

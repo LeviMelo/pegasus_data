@@ -175,6 +175,8 @@ columns:
     - 1995
     note: 'Measured 1995 RR: six digits AAMMDD (950108), not the DDMMAAAA the layout prints.'
   ESTCIVIL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='solteiro', 2='casado', 3='viúvo', 4='separado jud', 5='u.estável'): a code table, not a catch-all; 0='Ignorado'
     role: deceased.marital_status_legacy
     kind: category
     model: mark
@@ -229,6 +231,8 @@ columns:
     - 1995
     note: 0 means ignored and XX means none (the variable note); a count only once those codes are declared.
   FONTINFO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='boletim ocorrência', 2='hospital', 4='outra'): a code table, not a catch-all; 0='Ign'
     role: death.information_source_legacy
     kind: category
     model: mark
@@ -265,6 +269,8 @@ columns:
     - 1995
     note: role from SIM-DO
   INSTRMAE:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03'): a code table, not a catch-all; 0='Ign'
     role: mother.education_legacy
     kind: category
     model: mark
@@ -275,6 +281,8 @@ columns:
     codelists:
     - INSTRUC
   INSTRPAI:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 2='01-03', 3='04-07'): a code table, not a catch-all; 0='Ign'
     role: father.education_legacy
     kind: category
     model: mark
@@ -285,6 +293,8 @@ columns:
     codelists:
     - INSTRUC
   INSTRUCAO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: deceased.education_legacy
     kind: category
     model: dimension
@@ -433,6 +443,9 @@ columns:
     - 1995
     - 1995
   PESONASC:
+    missing: []
+    domain: [1, 8000]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 5 of 8 values in 1995 (00: 3, 0: 1, 0000: 1)
     role: birth.weight
     kind: number
     model: mark
@@ -459,6 +472,8 @@ columns:
     - 1995
     - 1995
   SEMANGEST:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 3='28 a 31'): a code table, not a catch-all; 0='Ignorado'
     role: pregnancy.gestation_band_legacy
     kind: category
     model: mark
@@ -497,6 +512,8 @@ columns:
     - 1995
     note: role from SIM-DO
   TIPOGRAV:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='única', 2='dupla'): a code table, not a catch-all; 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality_legacy
     kind: category
     model: mark
@@ -507,6 +524,8 @@ columns:
     codelists:
     - GRAVIDEZ
   TIPOPARTO:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='vaginal', 2='cesário'): a code table, not a catch-all; 0='Ignorado'
     role: birth.delivery_legacy
     kind: category
     model: mark
@@ -517,6 +536,8 @@ columns:
     codelists:
     - PARTO
   TIPOVIOL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='acidente', 2='suicídio', 3='homicidio'): a code table, not a catch-all; 0='Ign'
     role: death.violence_type_legacy
     kind: category
     model: mark

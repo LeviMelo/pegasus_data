@@ -117,6 +117,8 @@ columns:
     - 1991
     - 2010
   SITUACAO:
+    missing: ['3', 'I']
+    # declared from DATASUS's own sources (2010): no form dictionary; the table names every code the records use, each with its own label (I='ignorado'): a code table, not a catch-all; 3='Ignorado', I='Ignorado'
     role: population.urban_rural
     kind: category
     model: dimension

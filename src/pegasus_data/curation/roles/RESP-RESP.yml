@@ -793,6 +793,8 @@ columns:
     - 2015
     - 2024
   TP_NOTIFIC:
+    missing: ['0', '7', '8', '9']
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='recém-nascido com microcefalia (<= 28 dias)', 2='criança com microcef e/ou altera snc (> 28 dias)'): a code table, not a catch-all; 0='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: notification.notification_type_case_category
     kind: category
     model: mark

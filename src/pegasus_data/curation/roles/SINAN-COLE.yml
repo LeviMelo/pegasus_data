@@ -283,6 +283,8 @@ columns:
     - 2007
     - 2025
   CS_NEG_ESP:
+    missing: []
+    # declared from DATASUS's own sources (2016): no code table: the records hold the labels themselves ('16. Escherichia coli-EagEC')
     role: case.if_negative_specify
     kind: category
     model: mark

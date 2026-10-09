@@ -93,6 +93,9 @@ columns:
     - 2011
     - 2026
   DIAS_PERM:
+    missing: []
+    domain: [0, 9999]
+    # proposed (SP 2026-07): the range DATASUS's tabulation bands label as values; outside it 0 of 282405 values in SP 2026-07 (none)
     role: admission.length_of_stay
     kind: number
     model: mark
@@ -126,6 +129,8 @@ columns:
     - 2011
     - 2026
   FONTE:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='convenio plano privado', 02='particular pessoa fisica', 03='gratuito', 04='financiado/ses', 05='financiado/sms', 06='convenio plano publico', 09='particular pessoa juridica', 10='pronon', 11='pronas/pcd', 13='consorcio'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.payer
     kind: category
     model: mark
@@ -136,6 +141,8 @@ columns:
     - 2011
     - 2026
   GESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (E='estadual plena', M='municipal plena assist'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.management_type
     kind: category
     model: mark
@@ -173,6 +180,8 @@ columns:
     - 2011
     - 2026
   MODALIDADE:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='atendimentos ambulatoriais consolidados', 01='atendimentos ambulatoriais individualizados', 02='internações'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.modality
     kind: category
     model: mark
@@ -183,6 +192,8 @@ columns:
     - 2011
     - 2026
   MORTE:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='sem óbito', 1='com óbito'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.death
     kind: category
     model: mark

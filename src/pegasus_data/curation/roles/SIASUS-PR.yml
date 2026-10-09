@@ -51,6 +51,8 @@ columns:
     - 2001
     - 2007
   PAR_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2007-12): no form dictionary; the table names every code the records use, each with its own label (EP='gestao estadual plena', MN='gestao plena do sistema municipal (noas)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_type_code
     kind: category
     model: mark

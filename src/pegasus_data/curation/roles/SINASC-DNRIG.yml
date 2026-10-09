@@ -127,6 +127,9 @@ columns:
     - 1995
     - 1995
   FIL_ABORT:
+    missing: []
+    domain: [0, 98]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 0 of 634 values in 1995 (none)
     role: pregnancy.previous_abortions
     kind: number
     model: mark
@@ -136,6 +139,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   FIL_MORTOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 0 of 647 values in 1995 (none)
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
@@ -145,6 +151,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   FIL_VIVOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 0 of 662 values in 1995 (none)
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -166,6 +175,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   IDADE_MAE:
+    missing: []
+    domain: [1, 65]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 19 of 708 values in 1995 (99: 19)
     role: mother.age
     kind: number
     model: stratum
@@ -174,6 +186,8 @@ columns:
     - 1995
     - 1995
   INSTR_MAE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (1='nenhuma', 2='01-03', 3='04-07', 4='08-11', 5='12 e+', 9='ign'): a code table, not a catch-all; 0='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: mother.education_legacy
     kind: category
     model: dimension
@@ -184,6 +198,8 @@ columns:
     codelists:
     - INSTRUC
   LOCAL_OCOR:
+    missing: ['0', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (1='hospital', 4='outros'): a code table, not a catch-all; 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.place_legacy
     kind: category
     model: mark
@@ -238,6 +254,8 @@ columns:
     - 1995
     note: role from SINASC-DN
   PRE_NATAL:
+    missing: ['0', '5', '6', '7', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (1='nenhuma', 2='1-3 consultas', 3='4-6 consultas', 9='ignorado'): a code table, not a catch-all; 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 9='Ignorado'
     role: pregnancy.prenatal_visits_band
     kind: category
     model: mark
@@ -278,6 +296,8 @@ columns:
     - 1995
     note: role from SINASC-DN
   TIPO_GRAV:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (1='única', 2='dupla', 9='ignorado'): a code table, not a catch-all; 0='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality_legacy
     kind: category
     model: mark
@@ -289,6 +309,8 @@ columns:
     - GRAVIDEZ
     note: Holds 4 (1995 RR), which GRAVIDEZ's 1996+ table does not define.
   TIPO_PARTO:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (1='vaginal', 2='cesário', 9='ign'): a code table, not a catch-all; 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: birth.delivery_legacy
     kind: category
     model: mark

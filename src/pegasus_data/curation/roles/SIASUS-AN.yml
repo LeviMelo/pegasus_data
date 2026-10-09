@@ -31,6 +31,8 @@ columns:
     - 2008
     - 2014
   AN_CNCDO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2014-09): no form dictionary; the table names every code the records use, each with its own label (N='não'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.cncdo
     kind: category
     model: mark
@@ -63,6 +65,9 @@ columns:
     - 2008
     - 2014
   AN_HB:
+    missing: []
+    domain: [1, 2]
+    # proposed (SP 2014-09): the range DATASUS's tabulation bands label as values; outside it 12 of 12 values in SP 2014-09 (00: 3, 14: 2, 09: 2, 10: 1)
     role: authorisation.hb
     kind: number
     model: mark
@@ -592,6 +597,8 @@ columns:
     - 2008
     - 2014
   AP_UFNACIO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2014-09): no form dictionary; the table names every code the records use, each with its own label (010='brasil'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.nationality
     kind: category
     model: dimension

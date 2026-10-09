@@ -10,6 +10,8 @@ columns:
     - 2005
     - 2026
   AP01CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_the_sus_public_
     kind: category
     model: mark
@@ -20,6 +22,8 @@ columns:
     codelists:
     - AP01CV01
   AP01CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_out_of_pocket_p
     kind: category
     model: mark
@@ -28,6 +32,8 @@ columns:
     - 2005
     - 2026
   AP01CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_the_establishme
     kind: category
     model: mark
@@ -38,6 +44,8 @@ columns:
     codelists:
     - AP01CV03
   AP01CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_a_third_partys_
     kind: category
     model: mark
@@ -46,6 +54,8 @@ columns:
     - 2005
     - 2026
   AP01CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_a_public_health
     kind: category
     model: mark
@@ -54,6 +64,8 @@ columns:
     - 2005
     - 2026
   AP01CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_admission_internacao_offered_under_a_private_healt
     kind: category
     model: mark
@@ -70,6 +82,8 @@ columns:
     - 2019
     - 2026
   AP02CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_s
     kind: category
     model: mark
@@ -80,6 +94,8 @@ columns:
     codelists:
     - AP02CV01
   AP02CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_out_o
     kind: category
     model: mark
@@ -88,6 +104,8 @@ columns:
     - 2005
     - 2026
   AP02CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_e
     kind: category
     model: mark
@@ -98,6 +116,8 @@ columns:
     codelists:
     - AP02CV03
   AP02CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_thi
     kind: category
     model: mark
@@ -106,6 +126,8 @@ columns:
     - 2005
     - 2026
   AP02CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pub
     kind: category
     model: mark
@@ -114,6 +136,8 @@ columns:
     - 2005
     - 2026
   AP02CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pri
     kind: category
     model: mark
@@ -130,6 +154,8 @@ columns:
     - 2019
     - 2026
   AP03CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_s
     kind: category
     model: mark
@@ -140,6 +166,8 @@ columns:
     codelists:
     - AP03CV01
   AP03CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_out_o
     kind: category
     model: mark
@@ -148,6 +176,8 @@ columns:
     - 2005
     - 2026
   AP03CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_e
     kind: category
     model: mark
@@ -158,6 +188,8 @@ columns:
     codelists:
     - AP03CV03
   AP03CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_thi
     kind: category
     model: mark
@@ -166,6 +198,8 @@ columns:
     - 2005
     - 2026
   AP03CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pub
     kind: category
     model: mark
@@ -174,6 +208,8 @@ columns:
     - 2005
     - 2026
   AP03CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pri
     kind: category
     model: mark
@@ -190,6 +226,8 @@ columns:
     - 2019
     - 2026
   AP04CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_the_sus_public_
     kind: category
     model: mark
@@ -200,6 +238,8 @@ columns:
     codelists:
     - AP04CV01
   AP04CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_out_of_pocket_p
     kind: category
     model: mark
@@ -208,6 +248,8 @@ columns:
     - 2005
     - 2026
   AP04CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_the_establishme
     kind: category
     model: mark
@@ -218,6 +260,8 @@ columns:
     codelists:
     - AP04CV03
   AP04CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_third_partys_
     kind: category
     model: mark
@@ -226,6 +270,8 @@ columns:
     - 2005
     - 2026
   AP04CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_public_health
     kind: category
     model: mark
@@ -234,6 +280,8 @@ columns:
     - 2005
     - 2026
   AP04CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_private_healt
     kind: category
     model: mark
@@ -250,6 +298,8 @@ columns:
     - 2019
     - 2026
   AP05CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_the_sus_public_system
     kind: category
     model: mark
@@ -260,6 +310,8 @@ columns:
     codelists:
     - AP05CV01
   AP05CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_out_of_pocket_private_pay_pa
     kind: category
     model: mark
@@ -268,6 +320,8 @@ columns:
     - 2005
     - 2026
   AP05CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_the_establishments_own_compa
     kind: category
     model: mark
@@ -278,6 +332,8 @@ columns:
     codelists:
     - AP05CV03
   AP05CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_a_third_partys_company_healt
     kind: category
     model: mark
@@ -286,6 +342,8 @@ columns:
     - 2005
     - 2026
   AP05CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_a_public_health_plan_plano_d
     kind: category
     model: mark
@@ -294,6 +352,8 @@ columns:
     - 2005
     - 2026
   AP05CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.other_care_outros_offered_under_a_private_health_plan_plano_
     kind: category
     model: mark
@@ -310,6 +370,8 @@ columns:
     - 2019
     - 2026
   AP06CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_su
     kind: category
     model: mark
@@ -320,6 +382,8 @@ columns:
     codelists:
     - AP06CV01
   AP06CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_out_of
     kind: category
     model: mark
@@ -328,6 +392,8 @@ columns:
     - 2005
     - 2026
   AP06CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_es
     kind: category
     model: mark
@@ -338,6 +404,8 @@ columns:
     codelists:
     - AP06CV03
   AP06CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_thir
     kind: category
     model: mark
@@ -346,6 +414,8 @@ columns:
     - 2005
     - 2026
   AP06CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_publ
     kind: category
     model: mark
@@ -354,6 +424,8 @@ columns:
     - 2005
     - 2026
   AP06CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_priv
     kind: category
     model: mark
@@ -370,6 +442,8 @@ columns:
     - 2019
     - 2026
   AP07CV01:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_the_s
     kind: category
     model: mark
@@ -380,6 +454,8 @@ columns:
     codelists:
     - AP07CV01
   AP07CV02:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_out_o
     kind: category
     model: mark
@@ -388,6 +464,8 @@ columns:
     - 2005
     - 2026
   AP07CV03:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_the_e
     kind: category
     model: mark
@@ -398,6 +476,8 @@ columns:
     codelists:
     - AP07CV03
   AP07CV04:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_a_thi
     kind: category
     model: mark
@@ -406,6 +486,8 @@ columns:
     - 2005
     - 2026
   AP07CV05:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_a_pub
     kind: category
     model: mark
@@ -414,6 +496,8 @@ columns:
     - 2005
     - 2026
   AP07CV06:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.regulation_referral_management_regulacao_offered_under_a_pri
     kind: category
     model: mark
@@ -438,6 +522,8 @@ columns:
     - 2005
     - 2026
   ATEND_PR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.any_service_provided_flag
     kind: category
     model: mark
@@ -446,6 +532,8 @@ columns:
     - 2005
     - 2026
   ATIVIDAD:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='unidade universitária', 02='unidade escola superior isolada', 03='unidade auxiliar de ensino', 04='unidade sem atividade de ensino', 05='hospital de ensino'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
@@ -464,6 +552,8 @@ columns:
     - 2005
     - 2026
   CLIENTEL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento de demanda espontânea', 02='atendimento de demanda referenciada', 03='atendimento de demanda espontânea e referenciada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
@@ -759,6 +849,8 @@ columns:
     - 2005
     - 2026
   GESPRG3E:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legacy_state_level_internacao_general_inpatient_management_i
     kind: category
     model: mark
@@ -767,6 +859,8 @@ columns:
     - 2005
     - 2026
   GESPRG3M:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legacy_municipal_level_internacao_general_inpatient_manageme
     kind: category
     model: mark
@@ -775,6 +869,8 @@ columns:
     - 2005
     - 2026
   GESPRG4E:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.state_level_management_of_outpatient_high_complexity_care
     kind: category
     model: mark
@@ -783,6 +879,8 @@ columns:
     - 2005
     - 2026
   GESPRG4M:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.municipal_level_management_of_outpatient_high_complexity_car
     kind: category
     model: mark
@@ -791,6 +889,8 @@ columns:
     - 2005
     - 2026
   GESPRG6E:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.state_level_management_of_inpatient_high_complexity_care
     kind: category
     model: mark
@@ -799,6 +899,8 @@ columns:
     - 2005
     - 2026
   GESPRG6M:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.municipal_level_management_of_inpatient_high_complexity_care
     kind: category
     model: mark
@@ -847,6 +949,8 @@ columns:
     - 2005
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1015='órgão público do poder executivo federal', 1023='órgão público do poder executivo estadual ou do distrito federal', 1031='órgão público do poder executivo municipal', 1112='autarquia estadual ou do distrito federal', 1120='autarquia municipal', 1147='fundação pública de direito público estadual ou do distrito federal', 1210='consórcio público de direito público (associação pública)', 1244='município', 1279='fundação pública de direito privado municipal', 2046='sociedade anônima aberta', 2054='sociedade anônima fechada', 2062='sociedade empresária limitada', 2135='empresário (individual)', 2143='cooperativa', 2240='sociedade simples limitada', 3069='fundação privada', 3999='associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.legal_nature
     kind: category
     model: mark
@@ -858,6 +962,8 @@ columns:
     - NAT_JUR
     - NATJUR
   NIVATE_A:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.outpatient_ambulatorial_care_tier_exists_for_this_establishm
     kind: category
     model: mark
@@ -866,6 +972,8 @@ columns:
     - 2005
     - 2026
   NIVATE_H:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='não', 1='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.inpatient_hospitalar_care_tier_exists_for_this_establishment
     kind: category
     model: mark
@@ -874,6 +982,8 @@ columns:
     - 2005
     - 2026
   NIV_DEP:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (1='individual', 3='mantido'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
@@ -934,6 +1044,8 @@ columns:
     - 2005
     - 2026
   PF_PJ:
+    missing: ['0', '2']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (3='pessoa jurídica'): a code table, not a catch-all; 0='Não informado', 2='Não informado'
     role: establishment.person_type
     kind: category
     model: mark
@@ -1386,6 +1498,8 @@ columns:
     - 2005
     - 2026
   TPGESTAO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (E='estadual', M='municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.management_type
     kind: category
     model: mark
@@ -1397,6 +1511,8 @@ columns:
     - NIVELDEP
     - TPGESTAO
   TP_PREST:
+    missing: ['99']
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (99='não preenchido'): a code table, not a catch-all; 99='Não preenchido'
     role: establishment.provider_ownership_legal_nature_classification
     kind: category
     model: mark
@@ -1407,6 +1523,8 @@ columns:
     codelists:
     - TIPOPRES
   TP_UNID:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (02='centro de saude/unidade basica de saude', 04='policlinica', 05='hospital geral', 07='hospital especializado', 22='consultorio', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 62='hospital dia', 69='centro de atenção hemoterápica e/ou hematológica', 73='pronto antedimento', 80='laboratorio de saude publica'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.type
     kind: category
     model: mark
@@ -1417,6 +1535,8 @@ columns:
     - 2005
     - 2026
   TURNO_AT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (01='atendimento turnos intermitentes', 02='atendimento contínuo 24 horas/dia (pl sab dom fer)', 03='atendimento turnos manhã/tarde/noite', 04='atendimento somente pela manhã', 05='atendimento somente à tarde', 06='atendimento turnos manhã/tarde'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark
@@ -1435,6 +1555,8 @@ columns:
     - 2005
     - 2026
   VINC_SUS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-08): no form dictionary; the table names every code the records use, each with its own label (0='estabelecimento sem vínculo sus', 1='estabelecimento com vínculo sus'): a code table, not a catch-all; no value labelled as not recorded
     role: establishment.sus_linked
     kind: category
     model: mark

@@ -612,6 +612,8 @@ columns:
     - 2026
     note: role from the notification block
   LAB_SORO:
+    missing: []
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Instituo Butantan', 2='Instituto Vital Brasil', 3='Aventis Pasteur', 4='Outro(Especificar)'; no value of the column was read in 2022
     role: treatment.antiserum_manufacturer
     kind: category
     model: mark
@@ -628,6 +630,8 @@ columns:
     - 2006
     - 2026
   LAB_VACINA:
+    missing: []
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Instituto Butantan', 2='Instituto Vital Brasil', 3='Aventis Pasteur', 4='Outro (Especificar)'; no value of the column was read in 2022
     role: treatment.vaccine_manufacturer
     kind: category
     model: mark
@@ -686,6 +690,8 @@ columns:
     - 2006
     - 2010
   OBSERVACAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.animal_observable
     kind: category
     model: mark

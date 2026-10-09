@@ -175,6 +175,8 @@ columns:
     - 1995
     note: 'Measured 1995 RR: six digits AAMMDD (950108), not the DDMMAAAA the layout prints.'
   ESTCIVIL:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='solteiro', 2='casado', 3='viúvo', 4='separado jud', 5='u.estável'): a code table, not a catch-all; 0='Ignorado'
     role: deceased.marital_status_legacy
     kind: category
     model: mark
@@ -229,6 +231,8 @@ columns:
     - 1995
     note: 0 means ignored and XX means none (the variable note); a count only once those codes are declared.
   FONTINFO:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='boletim ocorrência', 2='hospital', 3='família', 4='outra'): a code table, not a catch-all; 0='Ign'
     role: death.information_source_legacy
     kind: category
     model: mark
@@ -265,6 +269,8 @@ columns:
     - 1995
     note: role from SIM-DO
   INSTRMAE:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: mother.education_legacy
     kind: category
     model: mark
@@ -275,6 +281,8 @@ columns:
     codelists:
     - INSTRUC
   INSTRPAI:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: father.education_legacy
     kind: category
     model: mark
@@ -285,6 +293,8 @@ columns:
     codelists:
     - INSTRUC
   INSTRUCAO:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: deceased.education_legacy
     kind: category
     model: dimension
@@ -459,6 +469,8 @@ columns:
     - 1979
     - 1995
   SEMANGEST:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ignorado', 1='menos 22', 2='22 a 27', 3='28 a 31', 6='42 e +'): a code table, not a catch-all; 0='Ignorado'
     role: pregnancy.gestation_band_legacy
     kind: category
     model: mark
@@ -517,6 +529,8 @@ columns:
     codelists:
     - PARTO
   TIPOVIOL:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='acidente', 2='suicídio', 3='homicidio'): a code table, not a catch-all; 0='Ign'
     role: death.violence_type_legacy
     kind: category
     model: mark

@@ -219,6 +219,8 @@ columns:
     - 2008
     - 2026
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acora¡nes)', 0058='guarani kaiowa (pai tavytera)', 0059="guarani m'bya", 0143='makuxi (macuxi, machusi, pemon)', 0172='pankarare (pancarare)', 0195='suriana', 0207='terena'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension

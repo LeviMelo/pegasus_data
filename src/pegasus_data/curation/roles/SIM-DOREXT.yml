@@ -871,6 +871,9 @@ columns:
     - 2026
     note: role from SIM-DO
   PESO:
+    missing: []
+    domain: [1, 8000]
+    # proposed (2023): the range DATASUS's tabulation bands label as values; outside it 0 of 43 values in 2023 (none)
     role: birth.weight
     kind: number
     model: mark

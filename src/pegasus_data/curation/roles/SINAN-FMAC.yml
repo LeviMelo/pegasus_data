@@ -507,6 +507,8 @@ columns:
     - 2007
     - 2026
   FOI_MATA:
+    missing: ['0', '3', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: 0='Ign/Branco', 3='Ign/Branco', 4='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.forest_visit
     kind: category
     model: mark
@@ -1013,6 +1015,8 @@ columns:
     - 2007
     - 2026
   ZONA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Urbana', 2='Rural', 3='Peri-Urbana', 9='Ignorado'; no value of the column was read in 2022
     role: case.infection_zone
     kind: category
     model: mark

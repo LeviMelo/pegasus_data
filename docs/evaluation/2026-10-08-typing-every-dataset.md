@@ -226,3 +226,27 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
 - e-SUS Notifica's DCCR (chronic Chagas) records its labels as the values ("Sim", "Nao", "EF Completo", "Ignorado"), and its dictionary (`sources/dic_chagas.txt`) has labels but no codes. A column whose records hold only written words (lowercase letters) now declares the values that read as not recorded by their own wording, and no others. 54 columns are declared (2023–2025; coverage 3,838 of 6,137): CS_ESCOL_N and CS_GESTANT 'Ignorado'; EIE, HAI, IFI and QUIMIO IgG 'Sem informacao'; the rest `[]`. PCR 'Nao Realizado', FORMA 'Indeterminada' (a clinical form of Chagas) and 'Em investigacao' are values.
 - Two harvester faults hid a form's codes. TUBE's 2020 NET dictionary ends some rows in empty cells after the DBF name (TRATAMENTO, NU_PRONTUA), so the name is now read from the last non-empty cell. Its type-less rows put an internal name before the codes (BENEF_GOV: `tp-benef_gov`), so the codes are now looked for past it. The re-harvest added 40 fields over 13 forms, 13 of them with codes, and changed none. PFAN's CLI_A_S_FA 9 read "gnorado", the text layer having lost the capital; a supplement restores 'Ignorado', as its sibling fields print it. TUBE declares TRANSF 9, BENEF_GOV 9 and TRATAMENTO none: 4 "Não Sabe" is a category the form keeps apart from Ignorado.
 
+**The sweep over every dataset (2026-10-09).** `propose_missing.py --write` over every dataset with undeclared
+categories, in two passes (driver scripts in the session scratchpad; logs `data/probes/p4/sweep/` and `sweep2/`):
+- The first pass read one year per dataset: a state-month sample where publication is by state, otherwise the
+  median-sized of the last eight years. 157 datasets, all succeeding after the fixes below.
+- The second read each column inside its own years: the fewest years covering every undeclared column's span (a
+  greedy cover, preferring the year with most data). 159 runs, the eight failures retried.
+
+What they wrote: 1,014 missing-code declarations and 25 domains over 122 role files. Most came from the code-table
+rule (904); the rest from SINAN's yes/no convention, the forms' dictionaries, a form alone where no value was read,
+and records that hold their own labels. `pegasus-core coverage` reads 3,954 of 6,137 columns, with 367 left without
+missing codes (from 478).
+
+Fixed on the way:
+- **The proposer** now drops a column absent from its year (a declared RESP column in no generation; a derived age
+  whose inputs an old SINAN form lacks), allows SISCAN's 1.6 GiB exam CSVs (4 GiB budget), and treats a label of
+  undecoded tokens ("n (?) | …") as no label.
+- **SINAN-SIFA (acquired syphilis) read as Python bytes literals.** Dados_Abertos' CSV, JSON and XML exports for
+  2018–2020 hold `b'2',b'A539',b'1 '` where the DBC holds 2, A539, '1 '. The sweep had declared three columns from
+  those strings as "records holding their labels". The text readers now unwrap a column whose every value is a bytes
+  literal, naming it in the table's warnings: SIFA 2019 reads 9, 1, 3 and A539 over its 166,317 records. The three
+  declarations were withdrawn and re-proposed, and now stand undeclared: SIFA has no form of its own (it is notified
+  on the individual notification form, whose Anexo I, rev. Nov/2018, lists no acquired syphilis). Searched: sources/,
+  the notification dictionary, the web.
+

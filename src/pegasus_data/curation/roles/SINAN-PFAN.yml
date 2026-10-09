@@ -257,6 +257,8 @@ columns:
     - 2007
     - 2026
   CLI_A_S_FA:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Diminuída', 2='Ausente', 3='Normal', 4='Parestesia', 5='Prejudicado', 9='Ignorado'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: case.sensation_acute_phase_face
     kind: category
     model: mark

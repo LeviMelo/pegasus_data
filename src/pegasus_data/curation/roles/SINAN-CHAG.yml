@@ -123,6 +123,8 @@ columns:
     - 2007
     - 2025
   CEFALEIA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2005): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: notification.headache_symptom_present
     kind: category
     model: mark
@@ -1182,6 +1184,8 @@ columns:
     - 2007
     - 2025
   NDUPLIC:
+    missing: []
+    # declared from DATASUS's own sources (2005): no form dictionary; the table names every code the records use, each with its own label (0='não identificado de duplicidade', 1='não é duplicidade (não listar)'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.duplicate_record_flag
     kind: category
     model: mark
@@ -1336,6 +1340,8 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   RAIOX:
+    missing: ['9']
+    # declared from DATASUS's own sources (2005): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: notification.diagnostic_confirmation_chest_x_ray
     kind: category
     model: mark

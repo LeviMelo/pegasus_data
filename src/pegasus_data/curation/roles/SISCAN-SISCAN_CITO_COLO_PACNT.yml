@@ -106,6 +106,8 @@ columns:
     - 2013
     - 2025
   CO_ESCOLARIDADE:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='analfabeto(a)', 2='ensino fundamental incompleto', 3='ensino fundamental completo', 4='ensino médio completo', 5='ensino superior completo'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.education
     kind: category
     model: dimension
@@ -608,6 +610,8 @@ columns:
     - 2013
     - 2025
   ST_DENTRO_LIMITE_NORMALIDADE:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.result_within_normal_limits_dln_flag
     kind: category
     model: mark
@@ -616,6 +620,8 @@ columns:
     - 2013
     - 2025
   ST_OUTRA_NEOPLASIA_MALIGNA:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.other_malignant_neoplasm
     kind: category
     model: mark
@@ -624,6 +630,8 @@ columns:
     - 2013
     - 2025
   ST_REPRESENTATI_ZONA_TRANSFORM:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.transformation_zone_representativity_flag
     kind: category
     model: mark
@@ -632,6 +640,8 @@ columns:
     - 2013
     - 2025
   ST_SCREENING_REALIZADO:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.screening_done_by_cytotechnician
     kind: category
     model: mark
@@ -640,6 +650,8 @@ columns:
     - 2013
     - 2025
   ST_SINAL_SUGESTIVO_DST:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.sign_suggestive_of_an_std_flag
     kind: category
     model: mark

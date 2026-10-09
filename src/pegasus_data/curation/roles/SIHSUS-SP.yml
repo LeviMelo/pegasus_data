@@ -13,6 +13,8 @@ columns:
     - 2026
     note: role from SIH-RD
   IN_TP_VAL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1='valor sh', 2='valor sp', 3='valor do complemento federal - sh', 4='valor do complemento federal - sp'): a code table, not a catch-all; no value labelled as not recorded
     role: act.value_type
     kind: category
     model: mark
@@ -39,6 +41,8 @@ columns:
     - 2026
     note: role from SIH-RD
   SERV_CLA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (000000='nenhum serviço/classificação registrado', 105000='105 servico de atencao em neurologia — nível 000 não consta da tabela s_classen', 105001='105 servico de atencao em neurologia / neurocirurgia / 001 neurocirurgia do trauma e anomalias do de', 105002='105 servico de atencao em neurologia / neurocirurgia / 002 coluna e nervos perifericos', 105003='105 servico de atencao em neurologia / neurocirurgia / 003 tumores do sistema nervoso', 105004='105 servico de atencao em neurologia / neurocirurgia / 004 neurocirurgia vascular', 105005='105 servico de atencao em neurologia / neurocirurgia / 005 tratamento neurocirurgico da dor funciona', 105006='105 servico de atencao em neurologia / neurocirurgia / 006 investigacao e cirurgia de epilepsia', 105007='105 servico de atencao em neurologia / neurocirurgia / 007 tratamento endovascular', 105008='105 servico de atencao em neurologia / neurocirurgia / 008 neurocirurgia funcional estereotaxica', 105009='105 servico de atencao em neurologia / neurocirurgia / 009 polissonografia', 107008='107 servico de atencao a saude auditiva / 008 atencao especializada as pessoas com deficiencia audit', 113001='113 servico de atencao domiciliar / 001 assistencia domiciliar', 113002='113 servico de atencao domiciliar / 002 internacao domiciliar', 113003='113 servico de atencao domiciliar / 003 equipe multidisciplinar de atenção domiciliar - emad', 113004='113 servico de atencao domiciliar / 004 equipe multidisciplinar de apoio - emap', 114006='114 servico de atencao em saude bucal / 006 cirurgia bucomaxilofacial', 114018='114 servico de atencao em saude bucal — nível 018 não consta da tabela s_classen', 115000='115 servico de atencao psicossocial — nível 000 não consta da tabela s_classen', 115001='115 servico de atencao psicossocial / 001 residencia terapeutica em saude mental', 115003='115 servico de atencao psicossocial / 003 servico hospitalar para atencao a saude mental', 116000='116 servico de atencao cardiovascular — nível 000 não consta da tabela s_classen', 116002='116 servico de atencao cardiovascular / cardiologia / 002 cirurgia cardiovascular (adulto)', 116003='116 servico de atencao cardiovascular / cardiologia / 003 cirurgia cardiovascular (pediatrico)', 116004='116 servico de atencao cardiovascular / cardiologia / 004 cirurgia vascular', 116005='116 servico de atencao cardiovascular / cardiologia / 005 cardiologia intervencionista (hemodinamica', 117001='117 servico de cirurgia reparadora / 001 tratamento da lipodistrofia do portador de hivaids', 117002='117 servico de cirurgia reparadora / 002 tratamento em queimados', 120001='120 servico de diagnostico por anatomia patologica eou citopato / 001 exames anatomopatologicos', 120002='120 servico de diagnostico por anatomia patologica eou citopato / 002 exames citopatologicos', 120005='120 servico de diagnostico por anatomia patologica eou citopato — nível 005 não consta da tabela s_classen', 121000='121 servico de diagnostico por imagem / 000 sem classificacao', 121001='121 servico de diagnostico por imagem / 001 radiologia', 121002='121 servico de diagnostico por imagem / 002 ultrasonografia', 121003='121 servico de diagnostico por imagem / 003 tomografia computadorizada', 121004='121 servico de diagnostico por imagem / 004 ressonancia magnetica', 121006='121 servico de diagnostico por imagem / 006 radiologia intervencionista', 121007='121 servico de diagnostico por imagem / 007 radiologia por telemedicina', 121008='121 servico de diagnostico por imagem / 008 ultra-sonografia por telemedicina', 121009='121 servico de diagnostico por imagem / 009 tomografia computadorizada por telemedicina', 121010='121 servico de diagnostico por imagem / 010 ressonancia magnetica por telemedicina', 121011='121 servico de diagnostico por imagem / 011 radiologia intervencionista por telemedicina', 122003='122 servico de diagnostico por metodos graficos dinamicos / 003 exame  eletrocardiografico', 122007='122 servico de diagnostico por metodos graficos dinamicos / 007 exame eletrocardiografico por teleme', 125000='125 servico de farmacia — nível 000 não consta da tabela s_classen', 125006='125 servico de farmacia / 006 farmacia hospitalar', 126000='126 servico de fisioterapia — nível 000 não consta da tabela s_classen', 126001='126 servico de fisioterapia / 001 assistencia fisioterapeutica em alteracoes obstetricas neon', 126002='126 servico de fisioterapia / 002 assistencia fisioterapeutica em alteracoes oncologicas', 126003='126 servico de fisioterapia / 003 assistencia fisioterapeutica em oftalmologia', 126004='126 servico de fisioterapia / 004 assistencia fisioterapeutica cardiovasculares e pneumofunci', 126005='126 servico de fisioterapia / 005 assistencia fisioterapeutica nas disfuncoes musculo esquelet', 126006='126 servico de fisioterapia / 006 assistencia fisioterapeutica em queimados', 126007='126 servico de fisioterapia / 007 assistencia fisioterapeutica nas alteracoes em neurologia', 126008='126 servico de fisioterapia / 008 diagnostico cinetico funcional', 127001='127 servico de atencao a obesidade / 001 trat. clinico cirur. reparador e acomp paciente c/ obesidad', 128000='128 servico de hemoterapia / 000 sem classificacao', 128002='128 servico de hemoterapia / 002 diagnostico em hemoterapia', 128003='128 servico de hemoterapia / 003 procedimentos especiais em hemoterapia', 128004='128 servico de hemoterapia / 004 medicina transfusional', 131000='131 servico de oftalmologia / 000 sem classificacao', 131001='131 servico de oftalmologia / 001 diagnostico em oftalmologia', 131002='131 servico de oftalmologia / 002 tratamento clinico do aparelho da visao', 131003='131 servico de oftalmologia / 003 tratamento cirurgico do aparelho da visao', 132000='132 servico de oncologia — nível 000 não consta da tabela s_classen', 132001='132 servico de oncologia / 001 oncologia pediatrica', 132002='132 servico de oncologia / 002 hematologia', 132003='132 servico de oncologia / 003 oncologia clinica', 132004='132 servico de oncologia / 004 radioterapia', 132005='132 servico de oncologia / 005 oncologia cirurgica', 133002='133 servico de pneumologia / 002 diagnostico em pneumologia', 135003='135 servico de reabilitacao / 003 reabilitacao fisica', 135005='135 servico de reabilitacao / 005 reabilitacao auditiva', 135010='135 servico de reabilitacao / 010 atencao fonoaudiologica', 135011='135 servico de reabilitacao / 011 atencao fisioterapeutica', 140000='140 servico de urgencia e emergencia / 000 sem classificacao', 140005='140 servico de urgencia e emergencia / 005 atendimento ao paciente com acidente vascular cerebral (a', 140006='140 servico de urgencia e emergencia / 006 pronto atendimento clinico', 140012='140 servico de urgencia e emergencia / 012 pronto socorro pediatrico', 140019='140 servico de urgencia e emergencia / 019 pronto socorro geral/clinico', 142000='142 servico de endoscopia — nível 000 não consta da tabela s_classen', 142001='142 servico de endoscopia / 001 do aparelho digestivo', 142002='142 servico de endoscopia / 002 do aparelho respiratorio', 142003='142 servico de endoscopia / 003 do aparelho urinario', 142004='142 servico de endoscopia / 004 do aparelho ginecologico', 145000='145 servico de diagnostico de laboratorio clinico / 000 sem classificacao', 145001='145 servico de diagnostico de laboratorio clinico / 001 exames bioquimicos', 145002='145 servico de diagnostico de laboratorio clinico / 002 exames hematologicos e hemostasia', 145003='145 servico de diagnostico de laboratorio clinico / 003 exames sorologicos e imunologicos', 145004='145 servico de diagnostico de laboratorio clinico / 004 exames coprologicos', 145005='145 servico de diagnostico de laboratorio clinico / 005 exames de uroanalise', 145008='145 servico de diagnostico de laboratorio clinico / 008 exames toxicologicos ou de monitorizacao ter', 145011='145 servico de diagnostico de laboratorio clinico / 011 exames de genetica', 149000='149 transplante — nível 000 não consta da tabela s_classen', 149015='149 transplante / 015 acoes para doacao e captacao de orgaos e tecidos', 151001='151 medicina nuclear / 001 medicina nuclear in vivo', 151003='151 medicina nuclear / 003 medicina nuclear in vivo por telemedicina', 153002='153 atencao especializada no processo transexualizador / 002 cirurgia e acompanhamento pre e pos-ope', 154001='154 servico de banco de tecidos / 001 banco de valvula cardiaca humana', 154002='154 servico de banco de tecidos / 002 banco de tecido musculo esqueletico', 155001='155 servico de traumatologia e ortopedia / 001 servico de traumatologia e ortopedia', 155002='155 servico de traumatologia e ortopedia / 002 servico de traumatologia e ortopedia pediatrica(ate 2', 155003='155 servico de traumatologia e ortopedia / 003 servico de traumatologia e ortopedia de urgencia', 169002='169 atencao em urologia / 002 litotripsia'): a code table, not a catch-all; no value labelled as not recorded
     role: act.service_classification
     kind: category
     model: mark
@@ -112,6 +116,8 @@ columns:
     - 2006
     - 2026
   SP_COMPLEX:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (02='média complexidade', 03='alta complexidade'): a code table, not a catch-all; no value labelled as not recorded
     role: act.complexity
     kind: category
     model: mark
@@ -122,6 +128,8 @@ columns:
     codelists:
     - COMPLEX2
   SP_CO_FAEC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (040024='cirurgia do aparelho digestivo, orgãos anexos e parede abdominal(inclui pré e pós operatório)', 040028='outras cirurgias plásticas/reparadoras', 040032='transplantes de orgãos, tecidos e células', 040033='medicamentos para transplante', 040041='central nacional de regulação de alta complexidade (cnrac)', 040044='redesignação e acompanhamento', 040049='implementar cirg. cv pediátrica', 040062='doenças raras', 040067='atenção especializada em saúde auditiva', 040071='diagnóstico/tratamento em oncologia', 040072='diagnóstico de trombofilia em gestante', 040076='hemodinâmica em atendimento de urgência', 040077='exames sorológicos e imunológicos', 040079='pré-cirúrgico em cirurgias prioritárias', 040080='programa agora tem especialistas - componente cirúrgico (antigo reduçäo das filas)', 040082='alta complexidade em cardiologia', 040083='cirurgia da face e do sistema estomatognático', 040084='neurocirurgias', 040085='exames coprológicos', 040087='saúde bucal', 040088='radioterapia'): a code table, not a catch-all; no value labelled as not recorded
     role: act.faec_subtype
     kind: category
     model: mark
@@ -142,6 +150,8 @@ columns:
     note: A CNES, CPF or CNPJ by its width; a CPF is a direct personal identifier and passes through 
       unchanged.
   SP_DES_HOS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='mesma uf do hospital', 1='uf de residência diferente da do hospital'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.cross_state_facility
     kind: category
     model: mark
@@ -150,6 +160,8 @@ columns:
     - 2008
     - 2026
   SP_DES_PAC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='mesmo município do hospital', 1='município de residência diferente do do hospital'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.cross_municipality
     kind: category
     model: mark
@@ -174,6 +186,8 @@ columns:
     - 1997
     - 2026
   SP_FINANC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='01 atenção básica (pab)', 04='04 fundo de ações estratégicas e compensações faec', 05='05 incentivo - mac', 06='06 média e alta complexidade (mac)', 07='07 vigilância em saúde'): a code table, not a catch-all; no value labelled as not recorded
     role: act.funding_type
     kind: category
     model: mark
@@ -350,6 +364,8 @@ columns:
     - 1997
     - 2026
   SP_U_AIH:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='registro adicional da mesma aih', 1='registro que conta a aih'): a code table, not a catch-all; no value labelled as not recorded
     role: act.unique_aih_marker
     kind: category
     model: mark

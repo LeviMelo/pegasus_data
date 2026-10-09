@@ -220,6 +220,8 @@ columns:
     - 2014
     - 2026
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acora¡nes)', 0060='guarani nandeva (avakatuete, chiripa, nhandewa, av', 0181='pataxo', 0207='terena', 0247='xeta'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -408,6 +410,8 @@ columns:
     - 2014
     - 2026
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024-12): no form dictionary; the table names every code the records use, each with its own label (04='policlinica', 05='hospital geral', 07='hospital especializado', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -593,6 +597,8 @@ columns:
     - 2014
     - 2026
   ATD_MAISNE:
+    missing: ['0', 'I']
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='não preenchido', I='ignorado', N='não', S='sim'): a code table, not a catch-all; 0='Não preenchido', I='Ignorado'
     role: authorisation.maisne
     kind: category
     model: mark
@@ -629,6 +635,8 @@ columns:
     - 2014
     - 2026
   ATD_SITINI:
+    missing: ['0', 'I']
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='não preenchido', A='ambulatorial', H='hospital', I='ignorado'): a code table, not a catch-all; 0='Não preenchido', I='Ignorado'
     role: authorisation.sitini
     kind: category
     model: mark

@@ -16,6 +16,8 @@ columns:
     - 
     - 
   CEFALEIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.headache_flag
     kind: category
     model: mark
@@ -23,6 +25,8 @@ columns:
     - 
     - 
   CLASSIFIN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (3='em investigação', 5='descartado', 6='excluído'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.final_case_classification
     kind: category
     model: mark
@@ -30,6 +34,8 @@ columns:
     - 
     - 
   CLASS_FETO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='pré-termo (menor que 37 semanas de gestação)', 2='a termo (idade gest entre 37 e 41 semanas e 6 dias)', 3='pós-termo (idade gest igual/maior que 42 semanas)'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.gestational_term_classification_at_delivery
     kind: category
     model: mark
@@ -64,6 +70,8 @@ columns:
     - 
     - 
   CONJUNTIV:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.conjunctival_hyperemia_flag
     kind: category
     model: mark
@@ -85,6 +93,8 @@ columns:
     - 
     - 
   DEF_AUDIT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.hearing_deficiency_flag
     kind: category
     model: mark
@@ -92,6 +102,8 @@ columns:
     - 
     - 
   DEF_NEURO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.neurological_deficiency_flag
     kind: category
     model: mark
@@ -99,6 +111,8 @@ columns:
     - 
     - 
   DEF_VISUAL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.visual_deficiency_flag
     kind: category
     model: mark
@@ -113,6 +127,8 @@ columns:
     - 
     - 
   DOR_ARTIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.joint_pain_flag
     kind: category
     model: mark
@@ -120,6 +136,8 @@ columns:
     - 
     - 
   DOR_MUSC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.muscle_pain_flag
     kind: category
     model: mark
@@ -197,6 +215,8 @@ columns:
     - 
     - 
   EDEMA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.joint_edema_flag
     kind: category
     model: mark
@@ -204,6 +224,8 @@ columns:
     - 
     - 
   ETIOLOGIA:
+    missing: ['9']
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='vírus zika', 4='etiologia desconhecida', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: notification.etiology
     kind: category
     model: mark
@@ -211,6 +233,8 @@ columns:
     - 
     - 
   EXAME_RS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='resultado alterado, sugestivo de infecção congênita', 5='não realizado', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.mri_result
     kind: category
     model: mark
@@ -218,6 +242,8 @@ columns:
     - 
     - 
   EXAME_TC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='resultado normal', 2='resultado alterado, sugestivo de infecção congênita', 3='resultado alterado, com outras alterações', 5='não realizado', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.ct_scan_result
     kind: category
     model: mark
@@ -225,6 +251,8 @@ columns:
     - 
     - 
   EXAME_USS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='resultado normal', 2='resultado alterado, sugestivo de infecção congênita', 3='resultado alterado, com outras alterações', 5='não realizado', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.prenatal_ultrasound_result
     kind: category
     model: mark
@@ -232,6 +260,8 @@ columns:
     - 
     - 
   EXANT_GES:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (5='não apresentou exantema', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.rash_exanthema_during_pregnancy
     kind: category
     model: mark
@@ -239,6 +269,8 @@ columns:
     - 
     - 
   EXA_TORSCH:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao', 9='não informado / ingnorado'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.storch_panel_testing_flag
     kind: category
     model: mark
@@ -246,6 +278,8 @@ columns:
     - 
     - 
   EXA_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='resultado normal', 2='resultado alterado, sugestivo de infecção congênita', 3='resultado alterado, com outras alterações', 4='resultado indeterminado', 5='não realizado', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.transfontanellar_ultrasound_result
     kind: category
     model: mark
@@ -253,6 +287,8 @@ columns:
     - 
     - 
   FEBRE_GES:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao', 9='não informado / ingnorado'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.fever_during_pregnancy
     kind: category
     model: mark
@@ -268,6 +304,9 @@ columns:
     - 
     note: A tabulation helper the variable note describes (1 on each record).
   GEST_DIAG:
+    missing: []
+    domain: [0, 99]
+    # proposed (SP 2024): the range DATASUS's tabulation bands label as values; outside it 0 of 56 values in SP 2024 (none)
     role: pregnancy.weeks_at_detection
     kind: number
     model: mark
@@ -275,6 +314,8 @@ columns:
     - 
     - 
   GRAVIDEZ:
+    missing: ['0', '4', '5', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='única', 2='dupla', 9='ignorado'): a code table, not a catch-all; 0='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: notification.pregnancy_type
     kind: category
     model: mark
@@ -282,6 +323,8 @@ columns:
     - 
     - 
   HIPERT_GAN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.lymph_node_enlargement_flag
     kind: category
     model: mark
@@ -289,6 +332,8 @@ columns:
     - 
     - 
   HIST_ARBOV:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (4='sem histórico de doença', 9='não informado/ignorado'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.recent_other_arbovirus_infection_history
     kind: category
     model: mark
@@ -296,6 +341,8 @@ columns:
     - 
     - 
   HIST_MALFO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao', 9='não informado / ingnorado'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.family_history_of_congenital_malformation
     kind: category
     model: mark
@@ -303,6 +350,9 @@ columns:
     - 
     - 
   IDADEGES:
+    missing: []
+    domain: [10, 60]
+    # proposed (SP 2024): the range DATASUS's tabulation bands label as values; outside it 0 of 60 values in SP 2024 (none)
     role: mother.age
     kind: number
     model: mark
@@ -320,6 +370,8 @@ columns:
     - 
     - 
   MICROCEFAL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='microcefalia apenas', 2='microcefalia com alteração do snc', 3='microcefalia com outras alterações congênitas', 9='não inf/ign'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.congenital_alteration_type_microcephaly_classification
     kind: category
     model: mark
@@ -327,6 +379,8 @@ columns:
     - 
     - 
   NEUROLOG:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.neurological_involvement_flag
     kind: category
     model: mark
@@ -348,6 +402,9 @@ columns:
     - 
     - 
   PESO:
+    missing: []
+    domain: [1, 8999]
+    # proposed (SP 2024): the range DATASUS's tabulation bands label as values; outside it 0 of 48 values in SP 2024 (none)
     role: patient.birth_weight
     kind: number
     model: mark
@@ -355,6 +412,8 @@ columns:
     - 
     - 
   PRURIDO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.itching_flag
     kind: category
     model: mark
@@ -422,6 +481,8 @@ columns:
     - 
     - 
   RNEXA_TORS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='nao', 9='não informado / ingnorado'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.storch_panel_testing_flag_newborn
     kind: category
     model: mark
@@ -520,6 +581,8 @@ columns:
     - 
     - 
   STATUS_NOT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='ativo', 3='inativo'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.record_status
     kind: category
     model: mark
@@ -527,6 +590,8 @@ columns:
     - 
     - 
   ST_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.death_outcome_flag
     kind: category
     model: mark
@@ -541,6 +606,8 @@ columns:
     - 
     - 
   TP_NOTIFIC:
+    missing: ['0', '7', '8', '9']
+    # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (1='recém-nascido com microcefalia (<= 28 dias)', 2='criança com microcef e/ou altera snc (> 28 dias)'): a code table, not a catch-all; 0='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: notification.notification_type_case_category
     kind: category
     model: mark

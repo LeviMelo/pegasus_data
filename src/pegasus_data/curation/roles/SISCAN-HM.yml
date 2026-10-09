@@ -106,6 +106,8 @@ columns:
     - 2009
     - 2015
   CCLIDIAGIM:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='não classificados', 1='microcalcificação', 2='distorção', 3='nódulo', 4='assimetria'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.imaging_diagnosis
     kind: category
     model: mark
@@ -114,6 +116,8 @@ columns:
     - 2009
     - 2015
   CCLILOCA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (00='não classificados', 01='qsl', 02='qil', 03='qsm', 04='qim', 05='uqlat', 06='uqsup', 07='uqmed', 08='uqinf', 09='rra', 10='pa'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.lesion_location
     kind: category
     model: mark
@@ -130,6 +134,8 @@ columns:
     - 2009
     - 2015
   CCLITANT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='não classificados.......', 1='não', 3='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.prior_breast_cancer_treatment
     kind: category
     model: mark
@@ -138,6 +144,8 @@ columns:
     - 2009
     - 2015
   CCLITPEXA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='revisão de lâmina', 2='imunohistoquímica', 3='biópsia/peça'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.type_of_histopathological_exam
     kind: category
     model: mark
@@ -154,6 +162,8 @@ columns:
     - 2009
     - 2015
   CHISRECES:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='não classificados', 1='negativo', 2='nr', 3='positivo'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.estrogen_receptor
     kind: category
     model: mark
@@ -162,6 +172,8 @@ columns:
     - 2009
     - 2015
   CHISRECPR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='não classificados', 1='negativo', 2='nr', 3='positivo'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.progesterone_receptor
     kind: category
     model: mark
@@ -170,6 +182,8 @@ columns:
     - 2009
     - 2015
   CMICMICRCA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='não', 3='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.microcalcifications
     kind: category
     model: mark
@@ -186,6 +200,8 @@ columns:
     - 2009
     - 2015
   CO_CLI_MAM:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='mama direita', 2='mama esquerda'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.breast_examined
     kind: category
     model: mark
@@ -194,6 +210,8 @@ columns:
     - 2009
     - 2015
   CO_CLI_TAM:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='sem informação', 1='< 2cm', 2='2 a 5cm', 3='> 5 a 10cm', 4='> 10cm', 5='não palpável'): a code table, not a catch-all; 0='Sem Informação'
     role: exam.clinical_tumour_size
     kind: category
     model: mark
@@ -212,6 +230,8 @@ columns:
     - 2009
     - 2015
   CO_FX_ETAR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (00='ate 10 anos', 62='entre 15 a 19 anos', 63='entre 20 a 24 anos', 64='entre 25 a 29 anos', 65='entre 30 a 34 anos', 66='entre 35 a 39 anos', 67='entre 40 a 44 anos', 68='entre 45 a 49 anos', 69='entre 50 a 54 anos', 70='entre 55 a 59 anos', 71='entre 60 a 64 anos', 72='entre 65 a 69 anos', 73='acima de 70 anos'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.age_band
     kind: category
     model: mark
@@ -222,6 +242,8 @@ columns:
     codelists:
     - FETARIA
   CO_HIS_GRA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='informação inconsistente', 1='i', 2='ii', 3='iii', 4='não avaliável'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.histological_grade
     kind: category
     model: mark
@@ -230,6 +252,8 @@ columns:
     - 2009
     - 2015
   CO_HIS_MAR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='informação inconsistente', 1='livres', 2='não avaliável', 3='comprometidas'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.surgical_margins
     kind: category
     model: mark
@@ -238,6 +262,8 @@ columns:
     - 2009
     - 2015
   CO_PAC_ESC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='ignorado/em branco', 1='analfabeto(a)', 2='ensino fundamental incompleto', 3='ensino fundamental completo', 4='ensino múdio completo', 5='ensino superior completo'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.education
     kind: category
     model: dimension
@@ -297,6 +323,8 @@ columns:
     - 2009
     - 2015
   CO_TAM_TUM:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='sem informação', 1='< 2cm', 2='2 - 5cm', 3='> 5cm', 4='não avaliável'): a code table, not a catch-all; 0='Sem Informação'
     role: exam.pathological_tumour_size
     kind: category
     model: mark
@@ -335,6 +363,8 @@ columns:
     - 2009
     - 2015
   CRESPROCIR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (01='biópsia incisional', 02='biópsia excisional', 03='biópsia por agulha grossa', 04='biópsia estereotáxica', 05='ressecção segmentar', 07='mastectomia glandular', 08='ressecção segmentar com esvaziamento axilar', 09='mastectomia simples', 10='mastectomia radical e radical modificada'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.surgical_procedure_performed
     kind: category
     model: mark
@@ -343,6 +373,8 @@ columns:
     - 2009
     - 2015
   C_CLI_DETE:
+    missing: ['0']
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='sem informação', 1='exame clínico da mama (palpável)', 2='imagem (não palpável)'): a code table, not a catch-all; 0='Sem Informação'
     role: exam.how_the_lesion_was_detected
     kind: category
     model: mark
@@ -351,6 +383,8 @@ columns:
     - 2009
     - 2015
   C_CLI_LINF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (0='informação inconsistente', 1='não', 3='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.palpable_axillary_node
     kind: category
     model: mark
@@ -359,6 +393,8 @@ columns:
     - 2009
     - 2015
   C_CLI_TCAN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='não', 2='não sabe', 3='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.high_risk_for_breast_cancer
     kind: category
     model: mark
@@ -375,6 +411,8 @@ columns:
     - 2009
     - 2015
   DINTCOLETA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 10 dias', 2='11 - 20 dias', 3='21 - 30 dias', 4='> 30 dias'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.collection_to_laboratory_interval_banded
     kind: category
     model: mark
@@ -385,6 +423,8 @@ columns:
     codelists:
     - INTCOLETA
   DINTRESULT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 10 dias', 2='11 - 20 dias', 3='21 - 30 dias', 4='> 30 dias'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.interval_to_result_banded
     kind: category
     model: mark
@@ -395,6 +435,8 @@ columns:
     codelists:
     - INTRESULTADO
   DINTTEMPEX:
+    missing: []
+    # declared from DATASUS's own sources (SP 2015-06): no form dictionary; the table names every code the records use, each with its own label (1='0 - 30 dias', 2='31 - 60 dias', 3='> 60 dias'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.exam_turnaround_banded
     kind: category
     model: mark

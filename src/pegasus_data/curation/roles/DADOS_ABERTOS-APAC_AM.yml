@@ -11,6 +11,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AM_GESTANT:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (N='nao - (o paciente ú gestante)', S='sim - (o paciente ú gestante)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.pregnancy_indicator
     kind: category
     model: mark
@@ -40,6 +42,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AM_TRANSPL:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (N='nao - (o paciente não é transplantado)', S='sim - (o paciente é transplantado)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transplant_indicator
     kind: category
     model: mark
@@ -51,6 +55,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.discharge
     kind: category
     model: mark
@@ -80,6 +86,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='eletivo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.admission_character
     kind: category
     model: mark
@@ -203,6 +211,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (EP='estado pleno'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_condition
     kind: category
     model: mark
@@ -260,6 +270,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.closure
     kind: category
     model: mark
@@ -271,6 +283,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acora¡nes)', 0002='aikana (aikana, mas saka,tubarao)', 0003='ajuru', 0005='amanaye', 0006='amondawa', 0007='anambe', 0008='aparai (apalai)', 0013='arapaso (arapaco)', 0017='arara do para (ukaragma, ukaramma)', 0020='arikem (ariquen, ariqueme, arikeme)', 0022='arua', 0027='atikum (aticum)', 0035='bare', 0036='bororo (boe)', 0039='cassupa', 0041='chiquitano (xiquitano)', 0042='cikiyana (sikiana)', 0058='guarani kaiowa (pai tavytera)', 0059="guarani m'bya", 0068='jarawara', 0076='kaimbe (caimbe)', 0077='kaingang (caingangue)', 0119='kinikinawa (guan, koinukoen, kinikinao)', 0120='kiriri', 0159='nahukwa (nafuqua)', 0164='nawa (naua)', 0166='ofaie (ofaye-xavante)', 0173='pankararu (pancararu)', 0176='pankaru (pancaru)', 0177='parakana (paracana, apiterewa, awaete)', 0180='patamona (kapon)', 0182='pataxo ha-ha-hae', 0188='potiguara', 0204='taurepang (taulipang, pemon, arekuna, pa¡geyn)', 0207='terena', 0208='ticuna (tikuna, tukuna, maguta)', 0221='tupari', 0222='tupinamba', 0223='tupiniquim', 0228='umutina (omotina, barbados)', 0247='xeta', 0248='xipaia (shipaya, xipaya)', 0251='xukuru (xucuru)', 0259='yawanawa (iauanaua)', 0264='zuruaha (sorowaha, suruwaha)'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -303,6 +317,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -314,6 +330,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 16='alta por evasão', 18='alta por outros motivos', 21='permanência por características próprias da doença', 28='permanência por outros motivos', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.exit_reason
     kind: category
     model: mark
@@ -346,6 +364,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_NATJUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1023='102-3 órgão público do poder executivo estadual ou do distrito federal'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -367,6 +387,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.death
     kind: category
     model: mark
@@ -378,6 +400,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.continuation
     kind: category
     model: mark
@@ -422,6 +446,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: facility.provider_type
     kind: category
     model: mark
@@ -446,6 +472,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_TPATEN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (06='medicamentos'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.care_type
     kind: category
     model: mark
@@ -457,6 +485,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (05='hospital geral', 36='clinica especializada/ambulatorio especializado', 43='farmacia'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -468,6 +498,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transfer
     kind: category
     model: mark
@@ -479,6 +511,8 @@ columns:
     - 
     note: As in SIASUS-AM (the same file republished).
   AP_UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.state_mismatch
     kind: category
     model: mark

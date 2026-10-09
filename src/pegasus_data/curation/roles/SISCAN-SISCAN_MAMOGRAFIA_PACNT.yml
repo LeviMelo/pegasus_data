@@ -18,6 +18,8 @@ columns:
     - 2013
     - 2025
   CO_ESCOLARIDADE:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='analfabeto(a)', 2='ensino fundamental incompleto', 3='ensino fundamental completo', 4='ensino médio completo', 5='ensino superior completo'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.education
     kind: category
     model: dimension
@@ -245,6 +247,8 @@ columns:
     - 2013
     - 2025
   TP_RECOMENDACAO_DIREITA:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='complementação com ultrassonografia', 2='mamografia em 2 anos', 3='mamografia em 1 ano', 4='controle radiológico em 6 meses', 5='controle radiológico em 1 ano', 6='cito/histopatológico', 7='terapêutica específica'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.right_breast_follow_up_recommendation
     kind: category
     model: mark
@@ -253,6 +257,8 @@ columns:
     - 2013
     - 2025
   TP_RECOMENDACAO_ESQUERDA:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (1='complementação com ultrassonografia', 2='mamografia em 2 anos', 3='mamografia em 1 ano', 4='controle radiológico em 6 meses', 5='controle radiológico em 1 ano', 6='cito/histopatológico', 7='terapêutica específica'): a code table, not a catch-all; no value labelled as not recorded
     role: exam.left_breast_follow_up_recommendation
     kind: category
     model: mark

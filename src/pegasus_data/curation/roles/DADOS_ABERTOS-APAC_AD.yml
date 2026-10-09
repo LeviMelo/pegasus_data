@@ -2,6 +2,8 @@ dataset: DADOS_ABERTOS-APAC_AD
 record: procedure
 columns:
   AP_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.discharge
     kind: category
     model: mark
@@ -31,6 +33,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito', 06='outros tipos lesões/envenenamentos(agent.fis./quim.'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.admission_character
     kind: category
     model: mark
@@ -154,6 +158,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (EP='estado pleno', PG='pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.management_condition
     kind: category
     model: mark
@@ -211,6 +217,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento', 1='sim (motivo de saída-encerramento)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.closure
     kind: category
     model: mark
@@ -222,6 +230,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acora¡nes)', 0059="guarani m'bya", 0173='pankararu (pancararu)', 0181='pataxo', 0182='pataxo ha-ha-hae', 0207='terena', 0255='yanomami ninam (ianomami, ianoama, xiria¡na)'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -254,6 +264,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -265,6 +277,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 12='alta melhorado', 14='alta a pedido', 15='alta com previsão de retorno p/ acompan. do pacient', 16='alta por evasão', 18='alta por outros motivos', 21='permanência por características próprias da doença', 22='permanência por intercorrência', 23='permanência por impossibilidade sócio-familiar', 25='perman. por processo-doação de órgãos-doador morto', 26='permanência por mudança de procedimento', 28='permanência por outros motivos', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 42='óbito com declaração de óbito fornecida pelo i.m.l', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.exit_reason
     kind: category
     model: mark
@@ -297,6 +311,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_NATJUR:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1031='103-1 órgão público do poder executivo municipal', 1112='111-2 autarquia estadual ou do distrito federal', 1120='112-0 autarquia municipal', 1228='122-8 consórcio público de direito privado', 1244='124-4 município', 1279='127-9 fundação pública de direito privado municipal', 2054='205-4 sociedade anônima fechada', 2062='206-2 sociedade empresária limitada', 2143='214-3 cooperativa', 2240='224-0 sociedade simples limitada', 3069='306-9 fundação privada', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -318,6 +334,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.death
     kind: category
     model: mark
@@ -329,6 +347,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.continuation
     kind: category
     model: mark
@@ -373,6 +393,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: facility.provider_type
     kind: category
     model: mark
@@ -397,6 +419,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_TPATEN:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='laudo geral'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.care_type
     kind: category
     model: mark
@@ -408,6 +432,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (SP 2012-12): no form dictionary; the table names every code the records use, each with its own label (04='policlinica', 05='hospital geral', 07='hospital especializado', 20='pronto socorro geral', 22='consultorio', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 62='hospital dia', 70='centro de atenção psicossocial-caps'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -419,6 +445,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.transfer
     kind: category
     model: mark
@@ -430,6 +458,8 @@ columns:
     - 
     note: As in SIASUS-AD (the same file republished).
   AP_UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: authorisation.state_mismatch
     kind: category
     model: mark

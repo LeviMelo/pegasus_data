@@ -594,6 +594,8 @@ columns:
     - 2001
     - 2026
   TPALTA_N:
+    missing: ['0']
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='cura', 2='transf. para o mesmo município', 3='transf. para outro município', 4='transf. para o outro estado', 5='transf. para outro pais', 6='óbito', 7='abandono', 8='erro diagnóstico', 9='trans. não especificada'): a code table, not a catch-all; 0='Não preenchido'
     role: treatment.exit_type
     kind: category
     model: mark

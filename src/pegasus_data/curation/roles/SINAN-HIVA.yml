@@ -303,6 +303,8 @@ columns:
     - 2007
     - 2024
   ANT_ISOPOR:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.cdc_isosporiasis
     kind: category
     model: mark
@@ -563,6 +565,8 @@ columns:
     - 2024
     note: role from the notification block
   DEF_DIAGNO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.death_certificate_criterion
     kind: category
     model: mark
@@ -855,6 +859,8 @@ columns:
     - 2007
     - 2024
   TRA_UF:
+    missing: []
+    # declared from DATASUS's own sources (2019): no form dictionary; the table names every code the records use, each with its own label (AC='acre', AL='alagoas', AM='amazonas', AP='amapá', BA='bahia', CE='ceará', DF='distrito federal', ES='espírito santo', GO='goiás', MA='maranhão', MG='minas gerais', MS='mato grosso do sul', MT='mato grosso', PA='pará', PB='paraíba', PE='pernambuco', PI='piauí', PR='paraná', RJ='rio de janeiro', RN='rio grande do norte', RO='rondônia', RR='roraima', RS='rio grande do sul', SC='santa catarina', SE='sergipe', SP='são paulo', TO='tocantins'): a code table, not a catch-all; no value labelled as not recorded
     role: case.treatment_state
     kind: category
     model: mark

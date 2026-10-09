@@ -60,6 +60,8 @@ columns:
     - 2007
     - 2025
   CON_GRAVID:
+    missing: []
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Benigno/ambulatorial', 2='Moderado', 3='Grave'; no value of the column was read in 2022
     role: case.severity
     kind: category
     model: mark
@@ -615,6 +617,8 @@ columns:
     - 2007
     - 2025
   SIN_PULM:
+    missing: ['9']
+    # declared from DATASUS's own sources (2022): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['2']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.pulmonary_signs_flag
     kind: category
     model: mark
@@ -623,6 +627,8 @@ columns:
     - 2007
     - 2025
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2022): the form's dictionary: 1='Sim', 2='Não', 3='Indeterminado'; no value of the column was read in 2022
     role: case.autochthonous
     kind: category
     model: mark

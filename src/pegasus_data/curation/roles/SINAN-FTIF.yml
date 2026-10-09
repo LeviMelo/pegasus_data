@@ -1196,6 +1196,8 @@ columns:
     - 2007
     - 2026
   UF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (AC='acre', AL='alagoas', AM='amazonas', AP='amapá', BA='bahia', DF='distrito federal', ES='espírito santo', GO='goiás', MG='minas gerais', PA='pará', PE='pernambuco', PR='paraná', RN='rio grande do norte', RO='rondônia', RR='roraima', RS='rio grande do sul', SC='santa catarina', SP='são paulo', TO='tocantins'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.state_uf_where_the_patient_was_hospitalized
     kind: category
     model: mark

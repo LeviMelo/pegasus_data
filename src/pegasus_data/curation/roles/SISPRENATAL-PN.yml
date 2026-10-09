@@ -2,6 +2,8 @@ dataset: SISPRENATAL-PN
 record: pregnancy
 columns:
   CO_ESC_GP:
+    missing: ['99']
+    # declared from DATASUS's own sources (SP 2014-12): no form dictionary; the table names every code the records use, each with its own label (01='01 - doutorado', 02='02 - especialização/residencia', 03='03 - mestrado', 04='04 - não sabe ler e escrever', 05='05 - nível fundamental completo', 06='06 - nível fundamental imcompleto', 07='07 - nível médio completo magistério', 08='08 - nível médio completo magistério indígena', 09='09 - nível médio completo', 10='10 - nível médio imcompleto', 11='11 - pós doutorado', 12='12 - sem informação', 13='13 - superior completo', 14='14 - superior incompleto', 99='ignorado'): a code table, not a catch-all; 99='Ignorado'
     role: mother.education
     kind: category
     model: dimension
@@ -49,6 +51,8 @@ columns:
     - 2012
     - 2014
   CO_RAC_GP:
+    missing: ['99']
+    # declared from DATASUS's own sources (SP 2014-12): no form dictionary; the table names every code the records use, each with its own label (01='branca', 02='preta', 03='parda', 04='amarela', 05='indigena', 99='sem informação'): a code table, not a catch-all; 99='SEM INFORMAÇÃO'
     role: mother.race
     kind: category
     model: dimension
@@ -67,6 +71,8 @@ columns:
     - 2012
     - 2014
   CO_TPO_GRA:
+    missing: ['4']
+    # declared from DATASUS's own sources (SP 2014-12): no form dictionary; the table names every code the records use, each with its own label (1='única', 2='gemelar', 3='tripla ou mais', 4='ignorado'): a code table, not a catch-all; 4='Ignorado'
     role: pregnancy.pregnancy_type_singleton_multiple
     kind: category
     model: mark
@@ -152,6 +158,9 @@ columns:
     - 2012
     - 2014
   NU_IDADE:
+    missing: []
+    domain: [10, 60]
+    # proposed (SP 2014-12): the range DATASUS's tabulation bands label as values; outside it 0 of 33899 values in SP 2014-12 (none)
     role: mother.age
     kind: number
     model: mark
@@ -210,6 +219,9 @@ columns:
     - 2012
     - 2014
   QT_CONSULT:
+    missing: []
+    domain: [1, 99]
+    # proposed (SP 2014-12): the range DATASUS's tabulation bands label as values; outside it 0 of 33899 values in SP 2014-12 (none)
     role: pregnancy.number_of_consultations_categorised
     kind: number
     model: mark

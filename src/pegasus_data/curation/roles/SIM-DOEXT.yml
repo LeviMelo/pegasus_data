@@ -776,6 +776,8 @@ columns:
     - 2026
     note: role from SIM-DO
   INSTRMAE:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: mother.education_legacy
     kind: category
     model: mark
@@ -786,6 +788,8 @@ columns:
     codelists:
     - INSTRUC
   INSTRPAI:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='nenhuma', 2='01-03', 3='04-07', 4='08-11'): a code table, not a catch-all; 0='Ign'
     role: father.education_legacy
     kind: category
     model: mark
@@ -1163,6 +1167,9 @@ columns:
     - 2026
     note: role from SIM-DO
   PESO:
+    missing: []
+    domain: [1, 8000]
+    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 759 values in 2022 (none)
     role: birth.weight
     kind: number
     model: mark
@@ -1174,6 +1181,9 @@ columns:
     - 2026
     note: role from SIM-DO
   PESONASC:
+    missing: []
+    domain: [1, 8000]
+    # proposed (1995): the range DATASUS's tabulation bands label as values; outside it 18119 of 18386 values in 1995 (0: 8976, 00: 8857, 0000: 281, 0 00: 5)
     role: birth.weight
     kind: number
     model: mark
@@ -1346,6 +1356,8 @@ columns:
     codelists:
     - PARTO
   TIPOVIOL:
+    missing: ['0']
+    # declared from DATASUS's own sources (1995): no form dictionary; the table names every code the records use, each with its own label (0='ign', 1='acidente', 2='suicídio', 3='homicidio', 4='outros'): a code table, not a catch-all; 0='Ign'
     role: death.violence_type_legacy
     kind: category
     model: mark

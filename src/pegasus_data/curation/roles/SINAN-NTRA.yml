@@ -231,6 +231,8 @@ columns:
     - 2026
     note: role from the notification block
   TPUNINOT:
+    missing: []
+    # declared from DATASUS's own sources (2010): no form dictionary; the table names every code the records use, each with its own label (01='01 posto de saúde', 02='02 centro de saúde/unidade básica', 04='04 policlínica', 05='05 hospital geral', 07='07 hospital especializado', 15='15 unidade mista', 20='20 pronto socorro geral', 22='22 consultório isolado', 36='36 clínica especializada/amb. de especialidade', 39='39 unid.de apoio diagnose e terapia (sadt isolado)', 50='50 unidade de vigilânci em saúde', 62='62 hospital/dia - isolado', 68='68 secretaria de saúde', 73='73 pronto atendimento'): a code table, not a catch-all; no value labelled as not recorded
     role: notification.unit_type
     kind: category
     model: mark

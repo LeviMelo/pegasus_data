@@ -757,6 +757,8 @@ columns:
     - 2026
     note: role from SINAN-ACBI
   ZUMBIDO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2023): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.sign_tinnitus
     kind: category
     model: mark

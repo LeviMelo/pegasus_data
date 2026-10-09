@@ -53,6 +53,8 @@ columns:
     - 2022
     note: role from the notification block
   ESPECIE:
+    missing: []
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Gato', 2='Cão', 3='Gato e Cão'; the tabulation: no value labelled as not recorded
     role: epizootic.species
     kind: category
     model: dimension
@@ -141,6 +143,8 @@ columns:
     - 2022
     note: role from the notification block
   TP_AMB_OCO:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Domicílio', 2='Parque, praça ou zoológico', 3='Área Silvestre', 4='Reserva ecológica', 5='Outro'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     role: epizootic.setting
     kind: category
     model: mark
@@ -149,6 +153,8 @@ columns:
     - 2013
     - 2022
   TP_ZN_OCO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2019): the form's dictionary: 1='Urbana', 2='Rural', 3='Periurbana', 9='Ignorado'; the tabulation: no value labelled as not recorded
     role: epizootic.zone
     kind: category
     model: mark

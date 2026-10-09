@@ -136,6 +136,8 @@ columns:
     - 2026
     note: role from the notification block
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2021): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.work_related
     kind: category
     model: mark
@@ -199,6 +201,8 @@ columns:
     - 2026
     note: role from the notification block
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='vivo', 2='óbito pelo agravo notificado', 3='óbito por outra causa', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -405,6 +409,8 @@ columns:
     - 2026
     note: role from the notification block
   TPAUTOCTO:
+    missing: []
+    # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='sim', 2='não', 3='indeterminado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.autochthonous
     kind: category
     model: mark

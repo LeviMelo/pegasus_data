@@ -20,6 +20,8 @@ columns:
     - 2025
     note: Seven-digit IBGE codes; geography reads both widths.
   IDADE:
+    missing: []
+    # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (000='menos que 1 ano de idade', 001='1 ano', 002='2 anos', 003='3 anos', 004='4 anos', 005='5 anos', 006='6 anos', 007='7 anos', 008='8 anos', 009='9 anos', 010='10 anos', 011='11 anos', 012='12 anos', 013='13 anos', 014='14 anos', 015='15 anos', 016='16 anos', 017='17 anos', 018='18 anos', 019='19 anos', 020='20 anos', 021='21 anos', 022='22 anos', 023='23 anos', 024='24 anos', 025='25 anos', 026='26 anos', 027='27 anos', 028='28 anos', 029='29 anos', 030='30 anos', 031='31 anos', 032='32 anos', 033='33 anos', 034='34 anos', 035='35 anos', 036='36 anos', 037='37 anos', 038='38 anos', 039='39 anos', 040='40 anos', 041='41 anos', 042='42 anos', 043='43 anos', 044='44 anos', 045='45 anos', 046='46 anos', 047='47 anos', 048='48 anos', 049='49 anos', 050='50 anos', 051='51 anos', 052='52 anos', 053='53 anos', 054='54 anos', 055='55 anos', 056='56 anos', 057='57 anos', 058='58 anos', 059='59 anos', 060='60 anos', 061='61 anos', 062='62 anos', 063='63 anos', 064='64 anos', 065='65 anos', 066='66 anos', 067='67 anos', 068='68 anos', 069='69 anos', 070='70 anos', 071='71 anos', 072='72 anos', 073='73 anos', 074='74 anos', 075='75 anos', 076='76 anos', 077='77 anos', 078='78 anos', 079='79 anos', 080='80 anos e mais'): a code table, not a catch-all; no value labelled as not recorded
     role: population.age_band
     kind: category
     model: dimension

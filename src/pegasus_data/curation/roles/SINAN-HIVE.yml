@@ -89,6 +89,8 @@ columns:
     - 2024
     note: role from the notification block
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2018): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; no value of the column was read in 2018
     role: case.work_related
     kind: category
     model: mark

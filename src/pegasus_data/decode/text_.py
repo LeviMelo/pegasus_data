@@ -51,6 +51,34 @@ def _sniff_delimiter(sample: str) -> str:
         return best if counts[best] else ","
 
 
+_BYTES_LITERAL = r"^b'[^']*'$|^b\"[^\"]*\"$"
+
+
+def _unwrap_bytes_literals(table: pa.Table) -> tuple[pa.Table, list[str]]:
+    """DATASUS's text exports sometimes write a column's values as Python bytes literals: Dados_Abertos'
+    Sifilis_adquirida CSV, JSON and XML for 2018-2020 hold b'2', b'A539', b'1 ' where the DBC holds 2, A539, '1 '
+    (2026-10-09). A column whose every non-empty value is such a literal is unwrapped to the value inside, each
+    distinct value once (`ast.literal_eval`, decoded as Latin-1, the DBFs' encoding); the raw value is the inner one,
+    and the columns are named in the table's warnings."""
+    import ast
+
+    import pyarrow.compute as pc
+
+    out, fixed = table, []
+    for i, name in enumerate(table.schema.names):
+        col = table.column(name)
+        if not pa.types.is_string(col.type) or col.null_count == len(col):
+            continue
+        hits = pc.match_substring_regex(col, _BYTES_LITERAL)
+        if pc.sum(pc.fill_null(hits, True).cast(pa.int64())).as_py() != len(col):
+            continue
+        enc = pc.dictionary_encode(col.combine_chunks())
+        values = [None if v is None else ast.literal_eval(v).decode("latin-1") for v in enc.dictionary.to_pylist()]
+        out = out.set_column(i, name, pc.take(pa.array(values, pa.string()), enc.indices))
+        fixed.append(name)
+    return out, fixed
+
+
 def read_csv_bytes(data: bytes, *, path: str, member: str = "", row_limit: int | None = None) -> DecodedTable:
     text, encoding = _decode_text(data)
     if not text.strip():
@@ -78,6 +106,7 @@ def read_csv_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
         for i, n in enumerate(table.schema.names)
     ]
     table = table.rename_columns([f.name for f in fields])
+    table, unwrapped = _unwrap_bytes_literals(table)
     return DecodedTable(
         path=path,
         member=member,
@@ -85,7 +114,8 @@ def read_csv_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
         fields=fields,
         batches=batches_from_table(table),
         row_count=table.num_rows,
-        warnings=[f"encoding:{encoding}", f"delimiter:{delimiter!r}"],
+        warnings=[f"encoding:{encoding}", f"delimiter:{delimiter!r}"]
+        + ([f"bytes literals unwrapped: {','.join(unwrapped)}"] if unwrapped else []),
     )
 
 
@@ -131,8 +161,9 @@ def read_json_bytes(data: bytes, *, path: str, member: str = "", row_limit: int 
         name: pa.array([_stringify(r.get(name) if name in r else r.get(name.lower())) for r in rows], type=pa.string())
         for name in names
     }
-    table = pa.table(columns)
+    table, unwrapped = _unwrap_bytes_literals(pa.table(columns))
     return DecodedTable(
+        warnings=[f"bytes literals unwrapped: {','.join(unwrapped)}"] if unwrapped else [],
         path=path,
         member=member,
         reader="json",
@@ -184,8 +215,10 @@ def read_xml_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
         for key in row:
             if key not in names:
                 names.append(key)
-    table = pa.table({n: pa.array([r.get(n) for r in rows], type=pa.string()) for n in names})
+    table, unwrapped = _unwrap_bytes_literals(
+        pa.table({n: pa.array([r.get(n) for r in rows], type=pa.string()) for n in names}))
     return DecodedTable(
+        warnings=[f"bytes literals unwrapped: {','.join(unwrapped)}"] if unwrapped else [],
         path=path,
         member=member,
         reader="xml",

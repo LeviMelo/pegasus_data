@@ -135,6 +135,9 @@ columns:
     - 1994
     - 1995
   FIL_ABORT:
+    missing: []
+    domain: [0, 98]
+    # proposed (SP 1995): the range DATASUS's tabulation bands label as values; outside it 275 of 416 values in SP 1995 (99: 275)
     role: pregnancy.previous_abortions
     kind: number
     model: mark
@@ -144,6 +147,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   FIL_MORTOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (SP 1995): the range DATASUS's tabulation bands label as values; outside it 269 of 389 values in SP 1995 (99: 269)
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
@@ -153,6 +159,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   FIL_VIVOS:
+    missing: []
+    domain: [0, 98]
+    # proposed (SP 1995): the range DATASUS's tabulation bands label as values; outside it 137 of 662 values in SP 1995 (99: 137)
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -174,6 +183,9 @@ columns:
     - 1995
     note: role from SINASC-DN
   IDADE_MAE:
+    missing: []
+    domain: [1, 65]
+    # proposed (SP 1995): the range DATASUS's tabulation bands label as values; outside it 5291 of 691370 values in SP 1995 (99: 5291)
     role: mother.age
     kind: number
     model: stratum
@@ -182,6 +194,8 @@ columns:
     - 1994
     - 1995
   INSTR_MAE:
+    missing: ['0', '6', '7', '8', '9']
+    # declared from DATASUS's own sources (SP 1995): no form dictionary; the table names every code the records use, each with its own label (1='nenhuma', 2='01-03', 3='04-07', 4='08-11', 5='12 e+', 9='ign'): a code table, not a catch-all; 0='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: mother.education_legacy
     kind: category
     model: dimension

@@ -36,6 +36,8 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   DOSE:
+    missing: []
+    # declared from DATASUS's own sources (SP 2009): no form dictionary; the table names every code the records use, each with its own label (01='1ª dose', 02='2ª dose', 03='3ª dose', 04='dose única', 05='1º reforço', 06='2º reforço', 07='4ª dose'): a code table, not a catch-all; no value labelled as not recorded
     role: vaccination.dose
     kind: category
     model: dimension
@@ -63,6 +65,8 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   FX_ETARIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2009): no form dictionary; the table names every code the records use, each with its own label (01='gestantes 15 a 49 anos', 03='gestantes 12 a 14 anos', 04='não gestantes 12 a 14 anos', 05='60 a 64 anos', 06='homens 12 a 14 anos', 07='homens 15 a 49 anos', 09='50 a 59 anos', 11='7 anos e mais', 12='2 a 4 anos', 13='5 a 8 anos', 14='9 a 12 anos', 15='13 a 19 anos', 16='20 a 59 anos', 17='1 a 2 anos', 18='3 a 8 anos', 20='15 a 19 anos', 21='5 a 10 anos', 22='11 a 14 anos', 23='homens 12 a 49 anos', 25='7 a 17 anos', 26='18 a 19 anos', 27='12 anos', 28='13 a 14 anos', 29='15 a 16 anos', 30='17 a 19 anos', 31='20 a 24 anos', 32='25 a 29 anos', 33='30 a 34 anos', 34='35 a 39 anos', 35='40 a 44 anos', 36='45 a 49 anos', 50='menor de 1 ano', 51='1 ano', 52='2 anos', 53='3 anos', 54='4 anos', 55='5 a 6 anos', 56='7 a 14 anos', 57='15 a 59 anos', 59='1 a 4 anos', 61='não gestantes 15 a 49 anos', 63='5 anos e mais', 64='7 a 11 anos', 67='5 a 9 anos', 68='10 a 14 anos', 69='60 anos e mais', 72='2 meses', 73='3 meses', 74='4 meses', 75='5 meses', 81='65 a 69 anos', 82='70 a 74 anos', 83='75 a 79 anos', 84='80 a 84 anos', 85='85 a 89 anos', 86='90 anos e mais'): a code table, not a catch-all; no value labelled as not recorded
     role: vaccination.age_band
     kind: category
     model: dimension
@@ -74,6 +78,8 @@ columns:
     - 2010
     note: As in PNI-DPNI (the same file republished).
   IMUNO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2009): no form dictionary; the table names every code the records use, each with its own label (02='bcg (bcg)', 04='dupla adulto (dt)', 05='dupla infantil (dt)', 06='febre amarela (fa)', 07='febre tifóide (ft)', 08='hepatite b (hb)', 09='haemophilus influenzae tipo b (hib)', 11='meningococo b/c (mnbc)', 13='meningococo a/c (mnac)', 14='influenza (inf)', 15='pneumocócica polissacarídica 23 valente (pn23)', 16='oral poliomielite (vop)', 19='tríplice bacteriana (dtp)', 21='tríplice viral (scr)', 22='influenza (campanha) (inf)', 23='dupla viral (rotina) (sr)', 26='tetravalente (dtp/hib) (tetra)', 27='imunoglobulina humana anti-hepatite b (ighahb)', 28='imunoglobulina humana anti-tetânica (ighat)', 29='imunoglobulina humana anti-rábica (ighr)', 30='imunoglobulina humana anti-varicela zóster (ighvz)', 31='soro anti-tetânico (sat)', 32='soro anti-diftérico (sad)', 33='soro anti-rábico (rb)', 34='soro anti-botrópico-crotálico (bc)', 35='soro anti-botrópico-laquético (bl)', 36='soro anti-botrópico (bo)', 37='soro anti-crotálico (cr)', 38='soro anti-elapídico (lp)', 39='soro anti-aracnídico (ac)', 40='soro anti-escorpiônico (es)', 42='soro anti-latrodectus (lt)', 43='soro anti-lonomia (ln)', 45='hepatite a (ha)', 46='varicela', 47='raiva - cultivo celular/diplóide (rc)', 48='tríplice acelular (dtpa)', 49='poliomielite inativada (vip)', 50='oral poliomielite 1ª etapa campanha (vop)', 51='oral poliomielite 2ª etapa campanha (vop)', 52='pentavalente (dtp+hb+hib) (penta)', 53='meningocócica conjugada - c (mncc)', 54='pneumocócica conjugada 7 valente (pnc7)', 55='dupla viral (mulheres idade fértil) (sr)', 57='tríplice viral (mulheres idade fértil) (scr)', 58='raiva - cultivo celular/vero (rv)', 59='soro anti-botulínico (btu)', 60='hexavalente (hx)', 61='oral de rotavírus humano (vorh)', 63='influenza (gestantes) (inf)', 67='hepatite b não soroconversão', 70='tríplice viral (homens) (scr)', 71='dupla viral (homens) (sr)', 73='hepatite b', 74='poliomielite', 75='tetra bacteriana (dtp+hib)', 80='penta'): a code table, not a catch-all; no value labelled as not recorded
     role: vaccination.vaccine
     kind: category
     model: dimension

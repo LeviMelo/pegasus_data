@@ -219,6 +219,8 @@ columns:
     - 2008
     - 2026
   AP_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (SP 2018-12): no form dictionary; the table names every code the records use, each with its own label (0181='pataxo'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -456,6 +458,8 @@ columns:
     - 2008
     - 2026
   AP_UFNACIO:
+    missing: []
+    # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (010='brasil', 021='argentina', 022='bolivia', 035='espanha', 092='venezuela', 243='bahrein'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.nationality
     kind: category
     model: dimension
