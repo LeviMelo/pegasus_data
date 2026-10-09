@@ -1,0 +1,1039 @@
+dataset: SISCAN-HC
+record: exam
+columns:
+  ADENCARCIN:
+    role: exam.adenocarcinoma
+    kind: category
+    model: mark
+    name: Adenocarcinoma
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ADENOINSUT:
+    role: exam.referring_cytology_adenocarcinoma_in_situ
+    kind: category
+    model: mark
+    name: Adenocarcinoma "in situ" (citopatológico de encaminhamento)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ANO_COMP:
+    role: exam.competence_year
+    kind: date
+    model: mark
+    name: Ano de Competência
+    years:
+    - 2006
+    - 2015
+  CBENALTER:
+    role: exam.benign_hpv_compatible_cyto_architectural_changes
+    kind: category
+    model: mark
+    name: 'Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral (HPV)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CBENCERVI:
+    role: exam.benign_chronic_non_specific_cervicitis
+    kind: category
+    model: mark
+    name: 'Lesões de caráter benigno: Cervicite crônica inespecífica'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CCOLANORMA:
+    role: exam.colposcopy_abnormal
+    kind: category
+    model: mark
+    name: Colposcopia anormal
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CCOLDEFAUL:
+    role: exam.hc_file_field_meaning_not_established
+    kind: category
+    model: mark
+    name: HC file field (meaning not established)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CCOLINSATI:
+    role: exam.colposcopy_unsatisfactory
+    kind: category
+    model: mark
+    name: Colposcopia insatisfatória
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CCOLNORMAL:
+    role: exam.colposcopy_normal
+    kind: category
+    model: mark
+    name: Colposcopia normal
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CDIEXAMINS:
+    role: exam.examination_unsatisfactory
+    kind: category
+    model: mark
+    name: Exame insatisfatório
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CDIFGRAU:
+    role: exam.degree_of_differentiation
+    kind: category
+    model: mark
+    name: Grau de diferenciação
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CDIFINDFER:
+    role: exam.undifferentiated
+    kind: category
+    model: mark
+    name: 'Grau de diferenciação: Indiferenciado (Grau IV)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CDIFMODDIF:
+    role: exam.moderately_differentiated
+    kind: category
+    model: mark
+    name: 'Grau de diferenciação: Moderadamente diferenciado (Grau II)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CDIFPOUDIF:
+    role: exam.poorly_differentiated
+    kind: category
+    model: mark
+    name: 'Grau de diferenciação: Pouco diferenciado (Grau III)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CITINDALGR:
+    role: exam.referring_cytology_undefined_origin_atypia_cannot_exclude_hi
+    kind: category
+    model: mark
+    name: 'Células atípicas de origem indefinida: não se pode afastar lesão de alto grau (citopatológico de encaminhamento)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CIT_OUTNEO:
+    role: exam.referring_cytology_other_malignant_neoplasm
+    kind: category
+    model: mark
+    name: Outras neoplasias malignas (citopatológico de encaminhamento)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CLABCID:
+    role: exam.diagnosis_free_text
+    kind: category
+    model: mark
+    name: Descrição do diagnóstico
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CLABIBGE:
+    role: exam.laboratory_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município do prestador de serviço
+    years:
+    - 2006
+    - 2015
+  CLABUF:
+    role: exam.laboratory_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prestador de serviço
+    years:
+    - 2006
+    - 2015
+  CMARCOMPRO:
+    role: exam.surgical_margins_involved
+    kind: category
+    model: mark
+    name: 'Margens cirúrgicas: Comprometidas'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CMARIMPAVA:
+    role: exam.surgical_margins_not_assessable
+    kind: category
+    model: mark
+    name: 'Margens cirúrgicas: Impossível de serem avaliadas'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CMARLIVRE:
+    role: exam.surgical_margins_clear
+    kind: category
+    model: mark
+    name: 'Margens cirúrgicas: Livres'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_BEN_ALT:
+    role: exam.benign_change_present
+    kind: category
+    model: mark
+    name: Alteração benigna
+    years:
+    - 2006
+    - 2015
+  CO_BEN_CER:
+    role: exam.benign_change_cervicitis
+    kind: category
+    model: mark
+    name: Alteração benigna — cervicite
+    years:
+    - 2006
+    - 2015
+  CO_BEN_MET:
+    role: exam.benign_finding_metaplasia
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Metaplasia escamosa'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_BEN_POL:
+    role: exam.benign_endocervical_polyp
+    kind: category
+    model: mark
+    name: 'Lesões de caráter benigno: Pólipo Endocervical'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_CIT_ESC:
+    role: exam.prior_cytology_squamous_atypia
+    kind: category
+    model: mark
+    name: Citologia anterior, atipias escamosas
+    years:
+    - 2006
+    - 2015
+  CO_CIT_GLA:
+    role: exam.prior_cytology_glandular_atypia
+    kind: category
+    model: mark
+    name: Citologia anterior, atipias glandulares
+    years:
+    - 2006
+    - 2015
+  CO_CIT_IND:
+    role: exam.prior_cytology_atypia_of_undefined_origin
+    kind: category
+    model: mark
+    name: Citologia anterior, atipias de origem indefinida
+    years:
+    - 2006
+    - 2015
+  CO_CNES:
+    role: exam.laboratory_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador de serviço (CNES)
+    years:
+    - 2006
+    - 2015
+  CO_COLP:
+    role: exam.colposcopy_finding
+    kind: category
+    model: mark
+    name: Achado colposcópico
+    years:
+    - 2006
+    - 2015
+  CO_COLP_BI:
+    role: exam.procedure_cold_knife_biopsy
+    kind: category
+    model: mark
+    name: 'Procedimento: Biópsia a frio'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_COLP_CU:
+    role: exam.procedure_curettage
+    kind: category
+    model: mark
+    name: 'Procedimento: Curetagem'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_COLP_EX:
+    role: exam.procedure_extended_leep_caf_excision
+    kind: category
+    model: mark
+    name: 'Procedimento: CAF alargada'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_COLP_PO:
+    role: exam.colposcopy_related_field_hc_file
+    kind: category
+    model: mark
+    name: Colposcopy-related field (HC file)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_COLP_RE:
+    role: exam.procedure_leep_caf_excision_including_the_canal
+    kind: category
+    model: mark
+    name: 'Procedimento: CAF com retirada do canal'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_CTRL_BL:
+    role: exam.histological_representation_control_blocks
+    kind: category
+    model: mark
+    name: 'Controle de representação histológica: Blocos'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_CTRL_FR:
+    role: exam.histological_representation_control_fragments
+    kind: category
+    model: mark
+    name: 'Controle de representação histológica: Fragmentos'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_DIF_GRA:
+    role: exam.differentiation_grade
+    kind: category
+    model: mark
+    name: Grau de diferenciação
+    years:
+    - 2006
+    - 2015
+  CO_EXTEN_C:
+    role: exam.extens_o_field_hc_file_variant_c
+    kind: category
+    model: mark
+    name: Extensão field, HC file (variant C)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_EXTEN_L:
+    role: exam.extens_o_field_hc_file_variant_l
+    kind: category
+    model: mark
+    name: Extensão field, HC file (variant L)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_EXTEN_P:
+    role: exam.extens_o_field_hc_file_variant_p
+    kind: category
+    model: mark
+    name: Extensão field, HC file (variant P)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_EXTEN_V:
+    role: exam.extens_o_field_hc_file_variant_v
+    kind: category
+    model: mark
+    name: Extensão field, HC file (variant V)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_FX_ETAR:
+    role: exam.age_band
+    kind: category
+    model: mark
+    name: Faixa Etária
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - FETARIA
+  CO_MARG:
+    role: exam.surgical_margin_status
+    kind: category
+    model: mark
+    name: Margens cirúrgicas
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - MARGEM
+  CO_MAT_INS:
+    role: exam.unsatisfactory_material_flag
+    kind: category
+    model: mark
+    name: Material insatisfatório
+    years:
+    - 2006
+    - 2015
+  CO_NEO_ADE:
+    role: exam.adenocarcinoma_category_code_histopathology
+    kind: category
+    model: mark
+    name: Codigo de adenocarcinoma (histopatologia)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_NEO_NIC:
+    role: exam.nic_grade_code
+    kind: category
+    model: mark
+    name: Codigo de grau da neoplasia intraepitelial cervical (NIC)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_PAC_ESC:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - ESCOLARIDADE
+  CO_PAC_IBG:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência
+    years:
+    - 2006
+    - 2015
+  CO_PAC_IDA:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade do paciente
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_PAC_RAC:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Cor/raça
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - RACACOR
+  CO_PAC_UF:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2006
+    - 2015
+  CO_RES_FRA:
+    role: exam.number_of_biopsy_fragments_received
+    kind: number
+    model: mark
+    name: Número de fragmentos (biópsia)
+    years:
+    - 2006
+    - 2015
+  CO_RES_LOC:
+    role: exam.tumour_location_on_the_cervix
+    kind: category
+    model: mark
+    name: Localizacao do tumor no colo
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - LOCALIZACAO
+  CO_RES_MAR:
+    role: exam.distance_to_the_nearest_surgical_margin_mm
+    kind: category
+    model: mark
+    name: Distância da margem mais próxima
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_RES_TAM:
+    role: exam.cervical_tumour_size_first_dimension_mm
+    kind: category
+    model: mark
+    name: Tamanho do tumor (histopatologia colo) — dimensão 1
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_RES_TIP:
+    role: exam.surgical_procedure_type_code
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CO_US:
+    role: exam.health_unit_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de coleta (CNES)
+    years:
+    - 2006
+    - 2015
+  CO_US_IBGE:
+    role: exam.health_unit_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município da unidade de coleta
+    years:
+    - 2006
+    - 2015
+  CO_US_UF:
+    role: exam.health_unit_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da unidade de coleta
+    years:
+    - 2006
+    - 2015
+  CRESBIOPSI:
+    role: exam.surgical_procedure_flag_biopsia
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico - biopsia
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESCONIZA:
+    role: exam.surgical_procedure_flag_conizacao
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico - conizacao
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESECTO:
+    role: exam.tumour_location_flag_ectocervice
+    kind: category
+    model: mark
+    name: Localizacao do tumor - ectocervice
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESENDO:
+    role: exam.tumour_location_flag_endocervice
+    kind: category
+    model: mark
+    name: Localizacao do tumor - endocervice
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESHISSIM:
+    role: exam.surgical_procedure_flag_histerectomia_simples
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico - histerectomia simples
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESJUNC:
+    role: exam.tumour_location_flag_juncao_escamo_colunar
+    kind: category
+    model: mark
+    name: Localizacao do tumor - juncao escamo-colunar
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESOUTROS:
+    role: exam.surgical_procedure_flag_outros
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico - outros
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  CRESPANHIS:
+    role: exam.surgical_procedure_flag_histerectomia_com_anexectomia_uni_ou
+    kind: category
+    model: mark
+    name: Tipo de procedimento cirurgico - histerectomia com anexectomia
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  C_EXT_CORP:
+    role: exam.count_of_exams_with_tumour_extension_into_the_uterine_corpus
+    kind: number
+    model: mark
+    name: Extensão do tumor — corpo uterino (contagem)
+    years:
+    - 2006
+    - 2015
+  C_EXT_PARA:
+    role: exam.tumour_extension_flag_parametrial
+    kind: category
+    model: mark
+    name: Extensao do tumor - parametrial
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  C_EXT_PERI:
+    role: exam.tumour_extension_flag_peri_neural
+    kind: category
+    model: mark
+    name: Extensao do tumor - peri-neural
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  C_EXT_VAGI:
+    role: exam.tumour_extension_flag_vagina
+    kind: category
+    model: mark
+    name: Extensao do tumor - vagina
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  C_EXT_VASC:
+    role: exam.tumour_extension_flag_vascular
+    kind: category
+    model: mark
+    name: Extensao do tumor - invasao vascular
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  DINTCOLETA:
+    role: exam.collection_to_laboratory_interval_banded
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTCOLETA
+  DINTRESULT:
+    role: exam.interval_to_result_banded
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTRESULTADO
+  DINTTEMPEX:
+    role: exam.exam_turnaround_banded
+    kind: category
+    model: mark
+    name: Tempo exame
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTTEMPOEXAME
+  DS_NEO_OUT:
+    role: exam.other_malignant_neoplasm_free_text_description
+    kind: category
+    model: mark
+    name: Descricao de outras neoplasias malignas (histopatologia)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  DT_HIS_EXA:
+    role: exam.cervical_histopathology_collection_date
+    kind: date
+    model: mark
+    name: Data da coleta (histopatologia colo)
+    years:
+    - 2006
+    - 2015
+  DT_HIS_REC:
+    role: exam.date_the_cervical_specimen_was_received_by_the_laboratory
+    kind: date
+    model: mark
+    name: Data de recebimento no laboratório (histopatologia colo)
+    years:
+    - 2006
+    - 2015
+  DT_ID_COMP:
+    role: exam.competence_year_month
+    kind: date
+    model: when
+    name: Mês/Ano de Competência
+    years:
+    - 2006
+    - 2015
+  DT_PAC_NAS:
+    role: exam.patient_date_of_birth_cervical_histopathology_record
+    kind: date
+    model: mark
+    name: Data de nascimento da paciente (histopatologia colo)
+    years:
+    - 2006
+    - 2015
+  ESCAMOSA:
+    role: exam.squamous_atypia_undetermined_favor_non_neoplastic
+    kind: category
+    model: mark
+    name: Esc.Indet não neop
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ESCCARINVA:
+    role: exam.referring_cytology_invasive_squamous_carcinoma
+    kind: category
+    model: mark
+    name: Carcinoma epidermóide invasor (citopatológico de encaminhamento)
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ESCIEMCINV:
+    role: exam.high_grade_squamous_lesion_cannot_exclude_microinvasion
+    kind: category
+    model: mark
+    name: Les.IEAG mic.inv
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ESCINALT:
+    role: exam.high_grade_squamous_intraepithelial_lesion
+    kind: category
+    model: mark
+    name: Les.IE Alto Grau
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  ESCLIPBX:
+    role: exam.low_grade_squamous_intraepithelial_lesion_biopsy
+    kind: category
+    model: mark
+    name: Les.IE Baixo Grau
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  GNALTGRAU:
+    role: exam.glandular_atypia_undetermined_favor_high_grade
+    kind: category
+    model: mark
+    name: Gla.Indet alto grau
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  GPNNEOP:
+    role: exam.referring_cytology_atypical_glandular_cells_possibly_non_neo
+    kind: category
+    model: mark
+    name: 'Células glandulares atípicas: possivelmente não neoplásicas (citopatológico de encaminhamento)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  INDPNAONEO:
+    role: exam.referring_cytology_undefined_origin_atypia_possibly_non_neop
+    kind: category
+    model: mark
+    name: 'Células atípicas de origem indefinida: possivelmente não neoplásicas (citopatológico de encaminhamento)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NEOINSUTU:
+    role: exam.adenocarcinoma_in_situ_flag
+    kind: category
+    model: mark
+    name: 'Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NEOMUCINO:
+    role: exam.mucinous_adenocarcinoma
+    kind: category
+    model: mark
+    name: Adenocarcinoma mucinoso
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NEOVILOGL:
+    role: exam.villoglandular_adenocarcinoma
+    kind: category
+    model: mark
+    name: Adenocarcinoma viloglandular
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICCARCMIN:
+    role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_microin
+    kind: category
+    model: mark
+    name: Carcinoma epidermoide microinvasivo
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICDACENT:
+    role: exam.displasia_acentuada_carcinoma_in_situ_histopathology_microsc
+    kind: category
+    model: mark
+    name: NIC III / displasia acentuada / carcinoma in situ
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICDLEVE:
+    role: exam.displasia_leve_histopathology_microscopy_flag_nic_i_displasi
+    kind: category
+    model: mark
+    name: NIC I / displasia leve
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICDMODE:
+    role: exam.displasia_moderada_histopathology_microscopy_flag_nic_ii_dis
+    kind: category
+    model: mark
+    name: NIC II / displasia moderada
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICEPIINVA:
+    role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_invasiv
+    kind: category
+    model: mark
+    name: Carcinoma epidermoide invasivo
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICIMPAVAL:
+    role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_impossi
+    kind: category
+    model: mark
+    name: Carcinoma epidermoide, impossivel avaliar invasao
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICNAOCERA:
+    role: exam.non_keratinising_squamous_carcinoma
+    kind: category
+    model: mark
+    name: Carcinoma epidermóide não ceratinizante
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  NICVERRUCO:
+    role: exam.verrucous_carcinoma
+    kind: category
+    model: mark
+    name: Carcinoma epidermóide verrucoso
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  O_CIT_ESCA:
+    role: exam.squamous_cell_abnormality_result_code
+    kind: category
+    model: mark
+    name: Resultado - atipias em celulas escamosas
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - ATICELESC
+  O_CIT_GLAN:
+    role: exam.referral_cytology_result_glandular_cell_atypia
+    kind: category
+    model: mark
+    name: Encaminhamento — atipia de células glandulares (citologia prévia)
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - ATICELGLAN
+  O_COLP_BIO:
+    role: exam.count_of_colposcopy_guided_procedures_that_were_a_biopsy
+    kind: number
+    model: mark
+    name: Achados colposcópicos — procedimento biópsia (contagem)
+    years:
+    - 2006
+    - 2015
+  O_COLP_POS:
+    role: exam.count_of_transformation_zone_excisions_performed_after_a_pri
+    kind: number
+    model: mark
+    name: Achados colposcópicos — EZT pós-biópsia (contagem)
+    years:
+    - 2006
+    - 2015
+  O_EXTEN_LI:
+    role: exam.lymph_node_involvement_flag_code
+    kind: category
+    model: mark
+    name: Extensao para linfonodos
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  O_EXTEN_PA:
+    role: exam.tumour_extension_flag_parametrium
+    kind: category
+    model: mark
+    name: Extensão do tumor — paramétrio
+    years:
+    - 2006
+    - 2015
+  O_EXTEN_PE:
+    role: exam.tumour_extension_flag_perineural_invasion
+    kind: category
+    model: mark
+    name: Extensão do tumor — peri-neural
+    years:
+    - 2006
+    - 2015
+  O_EXTEN_VA:
+    role: exam.tumour_extension_flag_vaginal_involvement
+    kind: category
+    model: mark
+    name: Extensão do tumor — vagina
+    years:
+    - 2006
+    - 2015
+  O_RES_TAM2:
+    role: exam.tumour_size_dimension_2
+    kind: category
+    model: mark
+    name: Tamanho do tumor - dimensao 2
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  PNEOPLA:
+    role: exam.referring_cytology_asc_h
+    kind: category
+    model: mark
+    name: 'Células escamosas atípicas: não se pode afastar lesão de alto grau (ASC-H) (citopatológico de encaminhamento)'
+    years:
+    - 2006
+    - 2015
+    note: Empty in every file read; kind from its variable note.
+  QTDEXA:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2006
+    - 2015
+  REGLAB:
+    role: exam.laboratory_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região do laboratório
+    years:
+    - 2006
+    - 2015
+  REGRESID:
+    role: exam.region_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região de residência
+    years:
+    - 2006
+    - 2015
+  REGUS:
+    role: exam.health_unit_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região da unidade de coleta
+    years:
+    - 2006
+    - 2015

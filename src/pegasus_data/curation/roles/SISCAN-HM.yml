@@ -1,0 +1,480 @@
+dataset: SISCAN-HM
+record: exam
+columns:
+  ANO_COMP:
+    role: exam.competence_year
+    kind: date
+    model: mark
+    name: Ano de Competência
+    years:
+    - 2009
+    - 2015
+  CBENADENOS:
+    role: exam.benign_lesion_count_adenosis_not_otherwise_specified
+    kind: number
+    model: mark
+    name: Lesão benigna — adenose, SOE
+    years:
+    - 2009
+    - 2015
+  CBENESDERO:
+    role: exam.radial_sclerosing_lesion_flag
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Lesão esclerosante radial'
+    years:
+    - 2009
+    - 2015
+  CBENFIBROA:
+    role: exam.benign_breast_lesion_fibroadenoma
+    kind: category
+    model: mark
+    name: Lesao benigna (histopatologia mama) - Fibroadenoma
+    years:
+    - 2009
+    - 2015
+  CBENFIBROC:
+    role: exam.benign_breast_lesion_condicao_fibrocistica
+    kind: category
+    model: mark
+    name: Lesao benigna (histopatologia mama) - Condicao fibrocistica
+    years:
+    - 2009
+    - 2015
+  CBENFLORID:
+    role: exam.benign_breast_lesion_papilomatose_florida_do_mamilo
+    kind: category
+    model: mark
+    name: Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo
+    years:
+    - 2009
+    - 2015
+  CBENHIPCAT:
+    role: exam.benign_lesion_count_ductal_hyperplasia_with_atypia
+    kind: number
+    model: mark
+    name: 'Lesão de caráter benigno: Hiperplasia ductal com atipias'
+    years:
+    - 2009
+    - 2015
+  CBENHIPSAT:
+    role: exam.benign_lesion_count_ductal_hyperplasia_without_atypia
+    kind: number
+    model: mark
+    name: Lesão benigna — hiperplasia ductal sem atipias
+    years:
+    - 2009
+    - 2015
+  CBENLOBCAT:
+    role: exam.benign_lobular_hyperplasia_with_atypia
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Hiperplasia lobular com atipias'
+    years:
+    - 2009
+    - 2015
+  CBENMASTIT:
+    role: exam.benign_mastitis
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Mastite'
+    years:
+    - 2009
+    - 2015
+  CBENMULTI:
+    role: exam.benign_multiple_papillomas
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Papiloma múltiplo'
+    years:
+    - 2009
+    - 2015
+  CBENOUTROS:
+    role: exam.benign_other
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Outros'
+    years:
+    - 2009
+    - 2015
+  CBENSOLITA:
+    role: exam.benign_solitary_papilloma
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Papiloma solitário'
+    years:
+    - 2009
+    - 2015
+  CCLIDIAGIM:
+    role: exam.imaging_diagnosis
+    kind: category
+    model: mark
+    name: Diagnóstico de Imagem
+    years:
+    - 2009
+    - 2015
+  CCLILOCA:
+    role: exam.lesion_location
+    kind: category
+    model: mark
+    name: Localização da Lesão
+    years:
+    - 2009
+    - 2015
+  CCLIMATPRO:
+    role: exam.how_the_specimen_was_obtained
+    kind: category
+    model: mark
+    name: Procedimento de obtenção do material
+    years:
+    - 2009
+    - 2015
+  CCLITANT:
+    role: exam.prior_breast_cancer_treatment
+    kind: category
+    model: mark
+    name: Tratam anterior Câncer Mama
+    years:
+    - 2009
+    - 2015
+  CCLITPEXA:
+    role: exam.type_of_histopathological_exam
+    kind: category
+    model: mark
+    name: Tipo Exame Histopatológico
+    years:
+    - 2009
+    - 2015
+  CHISLINFCO:
+    role: exam.compromised_axillary_lymph_nodes
+    kind: category
+    model: mark
+    name: Linfonodo Comprometido (inferido)
+    years:
+    - 2009
+    - 2015
+  CHISRECES:
+    role: exam.estrogen_receptor
+    kind: category
+    model: mark
+    name: Receptor de Estrógeno
+    years:
+    - 2009
+    - 2015
+  CHISRECPR:
+    role: exam.progesterone_receptor
+    kind: category
+    model: mark
+    name: Receptor de Progesterona
+    years:
+    - 2009
+    - 2015
+  CMICMICRCA:
+    role: exam.microcalcifications
+    kind: category
+    model: mark
+    name: Microcalcificações
+    years:
+    - 2009
+    - 2015
+  CNEOMALIG:
+    role: exam.malignant_neoplastic_lesion_count
+    kind: number
+    model: mark
+    name: Lesão de caráter neoplásico maligno
+    years:
+    - 2009
+    - 2015
+  CO_CLI_MAM:
+    role: exam.breast_examined
+    kind: category
+    model: mark
+    name: Mama examinada
+    years:
+    - 2009
+    - 2015
+  CO_CLI_TAM:
+    role: exam.clinical_tumour_size
+    kind: category
+    model: mark
+    name: Tamanho clínico do tumor
+    years:
+    - 2009
+    - 2015
+  CO_CNES:
+    role: exam.laboratory_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador de serviço (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_FX_ETAR:
+    role: exam.age_band
+    kind: category
+    model: mark
+    name: Faixa Etária
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - FETARIA
+  CO_HIS_GRA:
+    role: exam.histological_grade
+    kind: category
+    model: mark
+    name: Grau histológico
+    years:
+    - 2009
+    - 2015
+  CO_HIS_MAR:
+    role: exam.surgical_margins
+    kind: category
+    model: mark
+    name: Margens cirúrgicas
+    years:
+    - 2009
+    - 2015
+  CO_PAC_ESC:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - ESCOLARIDADE
+  CO_PAC_IBG:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência
+    years:
+    - 2009
+    - 2015
+  CO_PAC_RAC:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Cor/raça
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - RACACOR
+  CO_PAC_SEX:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - SEXO
+  CO_PAC_UF:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2009
+    - 2015
+  CO_RES_ADE:
+    role: exam.result_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do resultado
+    years:
+    - 2009
+    - 2015
+  CO_TAM_TUM:
+    role: exam.pathological_tumour_size
+    kind: category
+    model: mark
+    name: Tamanho patológico do tumor
+    years:
+    - 2009
+    - 2015
+  CO_US:
+    role: exam.health_unit_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de coleta (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_US_IBGE:
+    role: exam.health_unit_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CO_US_UF:
+    role: exam.health_unit_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CRESPROCIR:
+    role: exam.surgical_procedure_performed
+    kind: category
+    model: mark
+    name: Procedimento cirúrgico realizado
+    years:
+    - 2009
+    - 2015
+  C_CLI_DETE:
+    role: exam.how_the_lesion_was_detected
+    kind: category
+    model: mark
+    name: Forma de detecção da lesão
+    years:
+    - 2009
+    - 2015
+  C_CLI_LINF:
+    role: exam.palpable_axillary_node
+    kind: category
+    model: mark
+    name: Linfonodo axilar palpável
+    years:
+    - 2009
+    - 2015
+  C_CLI_TCAN:
+    role: exam.high_risk_for_breast_cancer
+    kind: category
+    model: mark
+    name: Risco elevado para câncer de mama
+    years:
+    - 2009
+    - 2015
+  C_NEO_MALI:
+    role: exam.malignant_neoplasm
+    kind: category
+    model: mark
+    name: Neoplasia maligna
+    years:
+    - 2009
+    - 2015
+  DINTCOLETA:
+    role: exam.collection_to_laboratory_interval_banded
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTCOLETA
+  DINTRESULT:
+    role: exam.interval_to_result_banded
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTRESULTADO
+  DINTTEMPEX:
+    role: exam.exam_turnaround_banded
+    kind: category
+    model: mark
+    name: Tempo exame
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTTEMPOEXAME
+  DT_ID_COMP:
+    role: exam.competence_year_month
+    kind: date
+    model: when
+    name: Mês/Ano de Competência
+    years:
+    - 2009
+    - 2015
+  LESBENIGIN:
+    role: exam.benign_lesion
+    kind: category
+    model: mark
+    name: Lesão benigna
+    years:
+    - 2009
+    - 2015
+  PRESTMUN:
+    role: exam.provider_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do prestador de serviço
+    years:
+    - 2009
+    - 2015
+  PRESTUF:
+    role: exam.provider_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prestador
+    years:
+    - 2009
+    - 2015
+  QUANTEXAME:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2009
+    - 2015
+  REGLAB:
+    role: exam.laboratory_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região do laboratório
+    years:
+    - 2009
+    - 2015
+  REGRESID:
+    role: exam.region_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região de residência
+    years:
+    - 2009
+    - 2015
+  REGUS:
+    role: exam.health_unit_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região da unidade de coleta
+    years:
+    - 2009
+    - 2015

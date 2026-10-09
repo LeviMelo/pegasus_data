@@ -1,0 +1,858 @@
+dataset: SISCAN-CC
+record: exam
+columns:
+  ADENCARCIN:
+    role: exam.adenocarcinoma
+    kind: category
+    model: mark
+    name: Adenocarcinoma
+    years:
+    - 2006
+    - 2015
+  ALTERADO:
+    role: exam.abnormal_exams_count
+    kind: number
+    model: mark
+    name: Exames Alterados
+    years:
+    - 2006
+    - 2015
+  AMOSREJALH:
+    role: exam.rejected_causes_outside_the_laboratory
+    kind: category
+    model: mark
+    name: Amostra rejeitada por causas alheias ao laboratório
+    years:
+    - 2006
+    - 2015
+  AMOSREJAUS:
+    role: exam.rejected_missing_or_wrong_identification
+    kind: category
+    model: mark
+    name: Amostra rejeitada por ausência ou erro na identificação da lâmina, frasco ou formulário
+    years:
+    - 2006
+    - 2015
+  AMOSREJDAN:
+    role: exam.rejected_slide_damaged_or_missing
+    kind: category
+    model: mark
+    name: Amostra rejeitada por lâmina danificada ou ausente
+    years:
+    - 2006
+    - 2015
+  AMOSREJOUT:
+    role: exam.rejected_other_reason
+    kind: category
+    model: mark
+    name: Amostra rejeitada por outras causas
+    years:
+    - 2006
+    - 2015
+  ANO_COMP:
+    role: exam.competence_year
+    kind: date
+    model: mark
+    name: Ano de Competência
+    years:
+    - 2006
+    - 2015
+  CARCINO:
+    role: exam.invasive_squamous_carcinoma
+    kind: category
+    model: mark
+    name: Carcinoma epidermóide invasor
+    years:
+    - 2006
+    - 2015
+  CBEMATROF:
+    role: exam.benign_change_atrophy_with_inflammation
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Atrofia com inflamação'
+    years:
+    - 2006
+    - 2015
+  CBEMINFLA:
+    role: exam.benign_change_inflammation
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Inflamação'
+    years:
+    - 2006
+    - 2015
+  CBEMMETAS:
+    role: exam.benign_change_immature_squamous_metaplasia
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Metaplasia escamosa imatura'
+    years:
+    - 2006
+    - 2015
+  CBEMOUT:
+    role: exam.benign_change_other
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Outros'
+    years:
+    - 2006
+    - 2015
+  CBEMRADI:
+    role: exam.benign_change_radiation_effect
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Radiação'
+    years:
+    - 2006
+    - 2015
+  CBEMREPAR:
+    role: exam.benign_change_repair
+    kind: category
+    model: mark
+    name: 'Alterações celulares benignas reativas ou reparativas: Reparação'
+    years:
+    - 2006
+    - 2015
+  CLABIBGE:
+    role: exam.laboratory_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município do prestador de serviço
+    years:
+    - 2006
+    - 2015
+  CLABUF:
+    role: exam.laboratory_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prestador de serviço
+    years:
+    - 2006
+    - 2015
+  CMICACTI:
+    role: exam.actinomyces_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Actinomyces sp'
+    years:
+    - 2006
+    - 2015
+  CMICBACI:
+    role: exam.other_bacilli_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Outros bacilos'
+    years:
+    - 2006
+    - 2015
+  CMICCAND:
+    role: exam.candida_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Candida sp'
+    years:
+    - 2006
+    - 2015
+  CMICCHLA:
+    role: exam.suggestive_of_chlamydia
+    kind: category
+    model: mark
+    name: 'Microbiologia: Sugestivo de Chlamydia sp'
+    years:
+    - 2006
+    - 2015
+  CMICCOCO:
+    role: exam.cocci_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Cocos'
+    years:
+    - 2006
+    - 2015
+  CMICGARD:
+    role: exam.supracytoplasmic_bacilli_gardnerella_mobiluncus_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Bacilos supracitoplasmáticos (sugestivos de Gardnerella/Mobiluncus)'
+    years:
+    - 2006
+    - 2015
+  CMICHERP:
+    role: exam.herpes_cytopathic_effect_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Efeito citopático compatível com vírus do grupo Herpes'
+    years:
+    - 2006
+    - 2015
+  CMICLACT:
+    role: exam.lactobacilli_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Lactobacillus sp'
+    years:
+    - 2006
+    - 2015
+  CMICOUT:
+    role: exam.other_organism_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Outros'
+    years:
+    - 2006
+    - 2015
+  CMICTRICO:
+    role: exam.trichomonas_seen
+    kind: category
+    model: mark
+    name: 'Microbiologia: Trichomonas vaginalis'
+    years:
+    - 2006
+    - 2015
+  CO_ADEQ_MA:
+    role: exam.specimen_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do material
+    years:
+    - 2006
+    - 2015
+  CO_AMOSTRA:
+    role: exam.sample_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade da amostra
+    years:
+    - 2006
+    - 2015
+  CO_ANM_PRE:
+    role: exam.previous_cytology_abnormal
+    kind: category
+    model: mark
+    name: Exame citopatológico anterior alterado
+    years:
+    - 2006
+    - 2015
+  CO_ATI_ESC:
+    role: exam.atypical_squamous_cells
+    kind: category
+    model: mark
+    name: Atipias em células escamosas
+    years:
+    - 2006
+    - 2015
+  CO_ATI_GLA:
+    role: exam.atypical_glandular_cells
+    kind: category
+    model: mark
+    name: Atipias em células glandulares
+    years:
+    - 2006
+    - 2015
+  CO_ATI_IND:
+    role: exam.atypical_cells_of_undefined_origin
+    kind: category
+    model: mark
+    name: Atipias de origem indefinida
+    years:
+    - 2006
+    - 2015
+  CO_BEN_ATR:
+    role: exam.benign_change_atrophy
+    kind: category
+    model: mark
+    name: Alteração benigna — atrofia
+    years:
+    - 2006
+    - 2015
+  CO_BEN_INF:
+    role: exam.benign_change_inflammation
+    kind: category
+    model: mark
+    name: Alteração benigna — inflamação
+    years:
+    - 2006
+    - 2015
+  CO_BEN_MET:
+    role: exam.benign_finding_metaplasia
+    kind: category
+    model: mark
+    name: 'Lesão de caráter benigno: Metaplasia escamosa'
+    years:
+    - 2006
+    - 2015
+  CO_BEN_OUT:
+    role: exam.benign_change_other
+    kind: category
+    model: mark
+    name: Alteração benigna — outras
+    years:
+    - 2006
+    - 2015
+  CO_BEN_RAD:
+    role: exam.benign_change_radiation_effect
+    kind: category
+    model: mark
+    name: Alteração benigna — radiação
+    years:
+    - 2006
+    - 2015
+  CO_BEN_REP:
+    role: exam.benign_change_repair
+    kind: category
+    model: mark
+    name: Alteração benigna — reparação
+    years:
+    - 2006
+    - 2015
+  CO_CEL_ESC:
+    role: exam.squamous_cell_atypia
+    kind: category
+    model: mark
+    name: Atipias em células escamosas
+    years:
+    - 2006
+    - 2015
+  CO_CEL_GLA:
+    role: exam.glandular_neoplasia
+    kind: category
+    model: mark
+    name: Atipias em células glandulares, neoplasia
+    years:
+    - 2006
+    - 2015
+  CO_CNES:
+    role: exam.laboratory_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador de serviço (CNES)
+    years:
+    - 2006
+    - 2015
+  CO_EPI_MET:
+    role: exam.metaplastic_epithelium_present
+    kind: category
+    model: mark
+    name: 'Epitélios representados na amostra: Metaplásico'
+    years:
+    - 2006
+    - 2015
+  CO_FX_ETAR:
+    role: exam.age_band
+    kind: category
+    model: mark
+    name: Faixa Etária
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - FETARIA
+  CO_INSA_AC:
+    role: exam.unsatisfactory_acellular_hypocellular_material
+    kind: category
+    model: mark
+    name: Insatisf.Mat.Acelul
+    years:
+    - 2006
+    - 2015
+  CO_INSA_AR:
+    role: exam.unsatisfactory_drying_artifact
+    kind: category
+    model: mark
+    name: Insatisf.dessecam.
+    years:
+    - 2006
+    - 2015
+  CO_INSA_CO:
+    role: exam.unsatisfactory_external_contaminants
+    kind: category
+    model: mark
+    name: Insatisf.cont.ext.
+    years:
+    - 2006
+    - 2015
+  CO_INSA_OU:
+    role: exam.unsatisfactory_other_reason
+    kind: category
+    model: mark
+    name: Insatisf.outras
+    years:
+    - 2006
+    - 2015
+  CO_INSA_PI:
+    role: exam.unsatisfactory_pus_cells_present
+    kind: category
+    model: mark
+    name: Insatisf.pres.pióc.
+    years:
+    - 2006
+    - 2015
+  CO_INSA_SA:
+    role: exam.unsatisfactory_blood_present
+    kind: category
+    model: mark
+    name: Insatisf.pres.sang.
+    years:
+    - 2006
+    - 2015
+  CO_INSA_SU:
+    role: exam.unsatisfactory_cell_overlap
+    kind: category
+    model: mark
+    name: Insatisf.superp.cel
+    years:
+    - 2006
+    - 2015
+  CO_MIC_ACT:
+    role: exam.microbiology_actinomyces_sp
+    kind: category
+    model: mark
+    name: Mic.actinomyces sp
+    years:
+    - 2006
+    - 2015
+  CO_MIC_BAC:
+    role: exam.microbiology_other_bacilli
+    kind: category
+    model: mark
+    name: Mic.outros bacilos
+    years:
+    - 2006
+    - 2015
+  CO_MIC_CAN:
+    role: exam.microbiology_candida_sp
+    kind: category
+    model: mark
+    name: Mic.CANDIDA sp
+    years:
+    - 2006
+    - 2015
+  CO_MIC_CHL:
+    role: exam.microbiology_suggestive_of_chlamydia
+    kind: category
+    model: mark
+    name: Mic.sug.chlamydia
+    years:
+    - 2006
+    - 2015
+  CO_MIC_COC:
+    role: exam.microbiology_cocci
+    kind: category
+    model: mark
+    name: Mic.cocos
+    years:
+    - 2006
+    - 2015
+  CO_MIC_GAR:
+    role: exam.microbiology_bacilli_suggestive_of_gardnerella_mobiluncus
+    kind: category
+    model: mark
+    name: Mic.bacil supracit.
+    years:
+    - 2006
+    - 2015
+  CO_MIC_HER:
+    role: exam.microbiology_herpes_group_viral_effect
+    kind: category
+    model: mark
+    name: Mic.vir gr.herpes
+    years:
+    - 2006
+    - 2015
+  CO_MIC_LAC:
+    role: exam.microbiology_lactobacillus_sp
+    kind: category
+    model: mark
+    name: Mic.lactobacillus
+    years:
+    - 2006
+    - 2015
+  CO_MIC_OUT:
+    role: exam.microbiology_other_organism
+    kind: category
+    model: mark
+    name: Mic.outros
+    years:
+    - 2006
+    - 2015
+  CO_MIC_TRI:
+    role: exam.trichomonas_vaginalis_flag_cervical_cytology
+    kind: category
+    model: mark
+    name: Codigo de microrganismo - Trichomonas vaginalis
+    years:
+    - 2006
+    - 2015
+  CO_NEO_MAL:
+    role: exam.other_malignant_neoplasm_flag_cervical_cytology
+    kind: category
+    model: mark
+    name: Codigo de outras neoplasias malignas (citologia)
+    years:
+    - 2006
+    - 2015
+  CO_PAC_ESC:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - ESCOLARIDADE
+  CO_PAC_IBG:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência
+    years:
+    - 2006
+    - 2015
+  CO_PAC_IDA:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade do paciente
+    years:
+    - 2006
+    - 2015
+  CO_PAC_RAC:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Cor/raça
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - RACACOR
+  CO_PAC_UF:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2006
+    - 2015
+  CO_RES_NOR:
+    role: exam.cytology_result_within_normal_limits
+    kind: category
+    model: mark
+    name: Resultado dentro dos limites da normalidade
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - LIMITENORM
+  CO_US:
+    role: exam.health_unit_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de coleta (CNES)
+    years:
+    - 2006
+    - 2015
+  CO_US_IBGE:
+    role: exam.health_unit_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município da unidade de coleta
+    years:
+    - 2006
+    - 2015
+  CO_US_UF:
+    role: exam.health_unit_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da unidade de coleta
+    years:
+    - 2006
+    - 2015
+  CVCIONAL:
+    role: exam.conventional_slide_collection_method_flag
+    kind: category
+    model: mark
+    name: Coleta - meio convencional
+    years:
+    - 2006
+    - 2015
+  C_EPI_ESCA:
+    role: exam.squamous_epithelium_present_in_sample
+    kind: category
+    model: mark
+    name: Epitelio escamoso representado na amostra
+    years:
+    - 2006
+    - 2015
+  C_EPI_GLAN:
+    role: exam.glandular_epithelium_present_in_sample
+    kind: category
+    model: mark
+    name: Epitelio glandular representado na amostra
+    years:
+    - 2006
+    - 2015
+  DENCARCINV:
+    role: exam.invasive_squamous_carcinoma_flag_cytology
+    kind: category
+    model: mark
+    name: Carcinoma epidermoide invasor (citologia)
+    years:
+    - 2006
+    - 2015
+  DINTCOLETA:
+    role: exam.collection_to_laboratory_interval_banded
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTCOLETA
+  DINTRESULT:
+    role: exam.interval_to_result_banded
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTRESULTADO
+  DINTTEMPEX:
+    role: exam.exam_turnaround_banded
+    kind: category
+    model: mark
+    name: Tempo exame
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - INTTEMPOEXAME
+  DT_ANM_PRE:
+    role: exam.year_of_previously_reported_pap_smear
+    kind: date
+    model: mark
+    name: Ano do exame preventivo anterior informado na anamnese
+    years:
+    - 2006
+    - 2015
+  DT_ID_COMP:
+    role: exam.competence_year_month
+    kind: date
+    model: when
+    name: Mês/Ano de Competência
+    years:
+    - 2006
+    - 2015
+  INSATSFAC:
+    role: exam.unsatisfactory_sample_flag_cytology
+    kind: category
+    model: mark
+    name: Amostra insatisfatoria para avaliacao oncotica
+    years:
+    - 2006
+    - 2015
+  LAGRAU:
+    role: exam.high_grade_squamous_lesion_family_flag
+    kind: category
+    model: mark
+    name: Lesao intraepitelial de alto grau (familia)
+    years:
+    - 2006
+    - 2015
+  LAGRAUMI:
+    role: exam.count_of_high_grade_lesion_cytology_results_that_cannot_excl
+    kind: number
+    model: mark
+    name: Lesão intra-epitelial de alto grau, não podendo excluir microinvasão (citologia)
+    years:
+    - 2006
+    - 2015
+  LBGRAU:
+    role: exam.low_grade_squamous_intraepithelial_lesion_lsil_flag
+    kind: category
+    model: mark
+    name: Lesao intraepitelial de baixo grau
+    years:
+    - 2006
+    - 2015
+  LESALTGRA:
+    role: exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion_asc
+    kind: category
+    model: mark
+    name: 'Células escamosas atípicas de significado indeterminado: não se pode afastar lesão de alto grau (ASC-H)'
+    years:
+    - 2006
+    - 2015
+  MEIOLIQU:
+    role: exam.liquid_based_collection_method_flag
+    kind: category
+    model: mark
+    name: Coleta - meio liquido
+    years:
+    - 2006
+    - 2015
+  NALTGRA:
+    role: exam.atypical_cells_of_undefined_origin_cannot_exclude_high_grade
+    kind: category
+    model: mark
+    name: 'Células atípicas de origem indefinida: não se pode afastar lesão de alto grau'
+    years:
+    - 2006
+    - 2015
+  NLSALTGRA:
+    role: exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion
+    kind: category
+    model: mark
+    name: 'Células glandulares atípicas de significado indeterminado: não se pode afastar lesão de alto grau'
+    years:
+    - 2006
+    - 2015
+  OUTNEO:
+    role: exam.other_malignant_neoplasm_flag_cytology_alternate_encoding
+    kind: category
+    model: mark
+    name: Outras neoplasias malignas (citologia)
+    years:
+    - 2006
+    - 2015
+  POSNAONEO:
+    role: exam.atypical_squamous_cells_possibly_non_neoplastic_asc_us
+    kind: category
+    model: mark
+    name: 'Células escamosas atípicas de significado indeterminado: possivelmente não neoplásicas (ASC-US)'
+    years:
+    - 2006
+    - 2015
+  PSNAONPLA:
+    role: exam.atypical_glandular_cells_possibly_non_neoplastic
+    kind: category
+    model: mark
+    name: 'Células glandulares atípicas de significado indeterminado: possivelmente não neoplásicas'
+    years:
+    - 2006
+    - 2015
+  PSNNPLA:
+    role: exam.atypical_cells_of_undefined_origin_possibly_non_neoplastic
+    kind: category
+    model: mark
+    name: 'Células atípicas de origem indefinida: possivelmente não neoplásicas'
+    years:
+    - 2006
+    - 2015
+  QTDEXA:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2006
+    - 2015
+  QUANTEXAME:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2011
+    - 2015
+  REGLAB:
+    role: exam.laboratory_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região do laboratório
+    years:
+    - 2006
+    - 2015
+  REGRESID:
+    role: exam.region_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região de residência
+    years:
+    - 2006
+    - 2015
+  REGUS:
+    role: exam.health_unit_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região da unidade de coleta
+    years:
+    - 2006
+    - 2015
+  REJEITADA:
+    role: exam.rejected_sample_flag_cytology
+    kind: category
+    model: mark
+    name: Amostra rejeitada
+    years:
+    - 2006
+    - 2015
+  REPREZT:
+    role: exam.transformation_zone_represented_count
+    kind: number
+    model: mark
+    name: Representatividade da Zona de Transformação
+    years:
+    - 2006
+    - 2015
+  RESNORM:
+    role: exam.normal_benign_result_flag
+    kind: category
+    model: mark
+    name: Resultado normal/benigno
+    years:
+    - 2006
+    - 2015
+  SATISFACT:
+    role: exam.count_of_satisfactory_cytology_exams
+    kind: number
+    model: mark
+    name: Exames satisfatórios (citologia)
+    years:
+    - 2006
+    - 2015
+  ST_MON_EXT:
+    role: exam.selected_for_external_quality_monitoring
+    kind: category
+    model: mark
+    name: Selecionado para monitoramento externo
+    years:
+    - 2006
+    - 2015
+  TEMPCITANT:
+    role: exam.time_since_previous_pap_smear
+    kind: category
+    model: mark
+    name: Tempo desde a citologia anterior
+    years:
+    - 2006
+    - 2015
+    codelists:
+    - TEMPO

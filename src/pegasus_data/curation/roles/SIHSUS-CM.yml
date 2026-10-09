@@ -1,0 +1,29 @@
+dataset: SIHSUS-CM
+record: maintainer
+columns:
+  CNPJ_MANT:
+    role: maintainer.cnpj
+    kind: institution
+    model: institution
+    codelists:
+    - CNPJ_BR
+    name: CNPJ da mantenedora
+    years:
+    - 2019
+    - 2026
+  COMPET:
+    role: maintainer.competence
+    kind: date
+    model: when
+    years:
+    - 2019
+    - 2026
+    note: YYYYMM of the monthly register.
+  RAZAO:
+    role: maintainer.legal_name
+    kind: text
+    model: excluded
+    name: Establishment legal name (razão social)
+    years:
+    - 2019
+    - 2026

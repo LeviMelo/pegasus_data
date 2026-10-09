@@ -31,6 +31,18 @@ from .systems import (
 )
 
 
+def _republication_trees() -> frozenset[str]:
+    """The crawled names of the ontology's republication trees (`republishes: true`: Dados_Abertos), where a file's
+    name, not its directory, says which system it belongs to."""
+    from ..ontology import Ontology
+
+    try:
+        ontology = Ontology.load()
+    except Exception:  # noqa: BLE001 - without the declaration the path stays authoritative everywhere
+        return frozenset()
+    return frozenset(alias for s in ontology.systems.values() if s.republishes for alias in (s.code, *s.crawled_as))
+
+
 def _descriptive_tails(parsed_by_path: dict[str, ParsedName], by_directory: dict[str, list[str]]) -> None:
     """Undo a state reading of a descriptive tail when a sibling shows it is a type."""
     for paths in by_directory.values():
@@ -118,6 +130,7 @@ def build_inventory(
         ),
     )
     learned = load_prefix_systems(catalog)
+    republications = _republication_trees()
 
     facts: list[tuple[Any, ...]] = []
     disagreements: list[tuple[str, str | None, str, str, str]] = []
@@ -127,7 +140,8 @@ def build_inventory(
         resolved = apply_convention(parsed, convention, epoch=epochs.get(directory, "pivot"))
         by_path = system_from_path(path, base_path)
         system, disagreed = resolve_system(
-            series_prefix=resolved.series_prefix, system_by_path=by_path, learned=learned
+            series_prefix=resolved.series_prefix, system_by_path=by_path, learned=learned,
+            republications=republications,
         )
         if disagreed and system:
             disagreements.append((path, resolved.series_prefix, system, disagreed, system))

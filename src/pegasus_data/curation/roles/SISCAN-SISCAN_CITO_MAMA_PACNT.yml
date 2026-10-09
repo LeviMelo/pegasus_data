@@ -1,0 +1,238 @@
+dataset: SISCAN-SISCAN_CITO_MAMA_PACNT
+record: exam
+columns:
+  CO_ANO_RESULTADO:
+    role: exam.year_of_result
+    kind: date
+    model: mark
+    name: Ano de resultado
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_FAIXA_ETARIA_PACIENTE:
+    role: exam.age_bracket
+    kind: category
+    model: mark
+    name: Faixa etária
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_COLETA:
+    role: exam.collection_interval
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_EXAME:
+    role: exam.result_interval
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_PACIENTE:
+    role: exam.patient_code
+    kind: identifier
+    model: link_only
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_RISCO_ELEVADO:
+    role: exam.elevated_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco elevado
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_CITO_MAMA_PACNT:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_TEM_NODULO:
+    role: exam.reported_breast_lump
+    kind: category
+    model: mark
+    name: Tem nódulo ou caroço na mama
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_COMPETENCIA:
+    role: exam.year_of_compet_ncia_billing_period
+    kind: date
+    model: mark
+    name: Ano de competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_MES_COMPETENCIA:
+    role: exam.year_month_of_compet_ncia_billing_period
+    kind: date
+    model: when
+    name: Mês/Ano competência
+    years:
+    - 2013
+    - 2025
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  SG_UF_RESIDENCIA:
+    role: exam.state_of_residence_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência (sigla)
+    years:
+    - 2013
+    - 2025
+  TP_ADEQUABILIDAD_MATERIAL:
+    role: exam.material_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do material
+    years:
+    - 2013
+    - 2025
+  TP_DESCARGA_PAPILAR:
+    role: exam.nipple_discharge_type
+    kind: category
+    model: mark
+    name: Descarga papilar
+    years:
+    - 2013
+    - 2025
+  TP_LATERALIDADE_MAMA:
+    role: exam.breast_side_sampled
+    kind: category
+    model: mark
+    name: Mama
+    years:
+    - 2013
+    - 2025
+  TP_LAUDO_CITOP:
+    role: exam.type_of_cytology_report
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  TP_MATERIAL:
+    role: exam.material_submitted
+    kind: category
+    model: mark
+    name: Material Enviado
+    years:
+    - 2013
+    - 2025
+  TP_NODULO:
+    role: exam.nodule_type
+    kind: category
+    model: mark
+    name: Tipo Nódulo
+    years:
+    - 2013
+    - 2025
+  TP_PADRAO_CITOPATOL_AMOST:
+    role: exam.cytology_pattern_for_discharge_cyst_material
+    kind: category
+    model: mark
+    name: Padrão citopatológico da amostra
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_MALIG_INDET:
+    role: exam.indeterminate_malignancy_pattern
+    kind: category
+    model: mark
+    name: Malignid Indeterm
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_POSI_MALIG:
+    role: exam.positive_for_malignancy_pattern
+    kind: category
+    model: mark
+    name: Positivo malignid
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_SUSP_MALIG:
+    role: exam.suspicious_for_malignancy_pattern
+    kind: category
+    model: mark
+    name: Suspeito malignid
+    years:
+    - 2013
+    - 2025
+  TP_PROC_BENI_NEGA_MALI_COMPATI:
+    role: exam.benign_negative_pattern_compatible_diagnosis
+    kind: category
+    model: mark
+    name: Proc Ben Neg mal
+    years:
+    - 2013
+    - 2025
+  TP_RESULTA_PUNCAO_ASPIRATIVA:
+    role: exam.fine_needle_aspiration_result
+    kind: category
+    model: mark
+    name: Resultado PAAF
+    years:
+    - 2013
+    - 2025

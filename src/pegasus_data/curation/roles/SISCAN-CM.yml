@@ -1,0 +1,500 @@
+dataset: SISCAN-CM
+record: exam
+columns:
+  ANO_COMP:
+    role: exam.competence_year
+    kind: date
+    model: mark
+    name: Ano de Competência
+    years:
+    - 2009
+    - 2015
+  CANMPACANC:
+    role: exam.high_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco elevado para câncer de mama
+    years:
+    - 2009
+    - 2015
+  CCLIMATDPC:
+    role: exam.specimen_collection_method_code
+    kind: category
+    model: mark
+    name: Material enviado
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CCLIMATDPC
+  CCLIMATMAM:
+    role: exam.breast_laterality_of_specimen
+    kind: category
+    model: mark
+    name: Mama
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CCLIMATMAM
+  CO_CLI_DES:
+    role: exam.nipple_discharge_characteristic_clinical_finding
+    kind: category
+    model: mark
+    name: Descarga papilar (achado clínico)
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CCLIDESC
+  CO_CLI_NOD:
+    role: exam.palpable_nodule_characteristic_clinical_finding
+    kind: category
+    model: mark
+    name: Nódulo/tumor (achado clínico)
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CCLINODU
+  CO_CNES:
+    role: exam.laboratory_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador de serviço (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_FX_ETAR:
+    role: exam.age_band
+    kind: category
+    model: mark
+    name: Faixa Etária
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - FETARIA
+  CO_PAC_ESC:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - ESCOLARIDADE
+  CO_PAC_IBG:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência
+    years:
+    - 2009
+    - 2015
+  CO_PAC_RAC:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Cor/raça
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - RACACOR
+  CO_PAC_SEX:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - SEXO
+  CO_PAC_UF:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2009
+    - 2015
+  CO_RES_ADE:
+    role: exam.result_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do resultado
+    years:
+    - 2009
+    - 2015
+  CO_US:
+    role: exam.health_unit_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de coleta (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_US_IBGE:
+    role: exam.health_unit_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CO_US_UF:
+    role: exam.health_unit_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CRESBENIG:
+    role: exam.paaf_result_category_processos_benignos_negativo_para_malign
+    kind: category
+    model: mark
+    name: Resultado da puncao aspirativa - Processos Benignos. Negativo para malignidade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CRESBENIG
+  CRESDERPAP:
+    role: exam.nipple_discharge_cystic_content_specimen_result_flag
+    kind: category
+    model: mark
+    name: Resultado — descarga papilar / conteúdo cístico
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CRESDERPAP
+  CRESMALIIN:
+    role: exam.paaf_result_category_malignidade_indeterminada_compativel
+    kind: category
+    model: mark
+    name: Resultado da puncao aspirativa - Malignidade Indeterminada Compativel
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CRESMALIIN
+  CRESPOSMAL:
+    role: exam.paaf_result_category_positivo_para_malignidade
+    kind: category
+    model: mark
+    name: Resultado da puncao aspirativa - Positivo para Malignidade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CRESPOSMAL
+  CRESSUSMAL:
+    role: exam.paaf_result_category_suspeito_para_malignidade
+    kind: category
+    model: mark
+    name: Resultado da puncao aspirativa - Suspeito para Malignidade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CRESSUSMAL
+  C_ANM_TCAN:
+    role: exam.known_elevated_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco Elevado (anamnese)
+    years:
+    - 2009
+    - 2011
+  DELESMALIG:
+    role: exam.nipple_discharge_cystic_result_consistent_with_papillary_les
+    kind: category
+    model: mark
+    name: Consistente com lesão papilar
+    years:
+    - 2009
+    - 2015
+  DEMALIINDT:
+    role: exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad
+    kind: category
+    model: mark
+    name: Descarga papilar - Padrao citopatologico de malignidade indeterminada
+    years:
+    - 2009
+    - 2015
+  DEMATACELU:
+    role: exam.nipple_discharge_finding_material_acelular
+    kind: category
+    model: mark
+    name: Descarga papilar - Material acelular
+    years:
+    - 2009
+    - 2015
+  DENEGMALIG:
+    role: exam.nipple_discharge_finding_negativo_para_malignidade
+    kind: category
+    model: mark
+    name: Descarga papilar - Negativo para malignidade
+    years:
+    - 2009
+    - 2015
+  DEPOSMALIG:
+    role: exam.nipple_discharge_finding_positivo_para_malignidade
+    kind: category
+    model: mark
+    name: Descarga papilar - Positivo para malignidade
+    years:
+    - 2009
+    - 2015
+  DEPROCINFL:
+    role: exam.nipple_discharge_finding_consistente_com_processo_inflamator
+    kind: category
+    model: mark
+    name: Descarga papilar - Consistente com processo inflamatorio
+    years:
+    - 2009
+    - 2015
+  DINTCOLETA:
+    role: exam.collection_to_laboratory_interval_banded
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTCOLETA
+  DINTRESULT:
+    role: exam.interval_to_result_banded
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTRESULTADO
+  DINTTEMPEX:
+    role: exam.exam_turnaround_banded
+    kind: category
+    model: mark
+    name: Tempo exame
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTTEMPOEXAME
+  DT_ID_COMP:
+    role: exam.competence_year_month
+    kind: date
+    model: when
+    name: Mês/Ano de Competência
+    years:
+    - 2009
+    - 2015
+  PBENABSUBA:
+    role: exam.benign_paaf_finding_abscesso_subareolar_recorrente
+    kind: category
+    model: mark
+    name: PAAF benigno - Abscesso subareolar recorrente
+    years:
+    - 2009
+    - 2015
+  PBENCONDFI:
+    role: exam.benign_paaf_finding_condicao_fibrocistica_mamaria
+    kind: category
+    model: mark
+    name: PAAF benigno - Condicao fibrocistica mamaria
+    years:
+    - 2009
+    - 2015
+  PBENFIBROA:
+    role: exam.benign_paaf_finding_fibroadenoma
+    kind: category
+    model: mark
+    name: PAAF benigno - Fibroadenoma
+    years:
+    - 2009
+    - 2015
+  PBENLESEPI:
+    role: exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se
+    kind: category
+    model: mark
+    name: PAAF benigno - Lesao epitelial benigna proliferativa sem atipias
+    years:
+    - 2009
+    - 2015
+  PBENMASTIT:
+    role: exam.benign_paaf_finding_mastite
+    kind: category
+    model: mark
+    name: PAAF benigno - Mastite
+    years:
+    - 2009
+    - 2015
+  PBENNECGOR:
+    role: exam.benign_paaf_finding_necrose_gordurosa
+    kind: category
+    model: mark
+    name: PAAF benigno - Necrose gordurosa
+    years:
+    - 2009
+    - 2015
+  PBENOUTRAS:
+    role: exam.benign_paaf_finding_outros_exclusivamente_benignos
+    kind: category
+    model: mark
+    name: PAAF benigno - Outros (exclusivamente benignos)
+    years:
+    - 2009
+    - 2015
+  PMALINOUTR:
+    role: exam.indeterminate_malignancy_paaf_finding_outros
+    kind: category
+    model: mark
+    name: PAAF malignidade indeterminada - Outros
+    years:
+    - 2009
+    - 2015
+  PMALINTUMF:
+    role: exam.indeterminate_malignancy_paaf_finding_tumor_filoide
+    kind: category
+    model: mark
+    name: PAAF malignidade indeterminada - Tumor filoide
+    years:
+    - 2009
+    - 2015
+  PMALINTUMP:
+    role: exam.indeterminate_malignancy_paaf_finding_tumor_papilar
+    kind: category
+    model: mark
+    name: PAAF malignidade indeterminada - Tumor papilar
+    years:
+    - 2009
+    - 2015
+  PPOSMACDUC:
+    role: exam.malignant_paaf_finding_carcinoma_ductal
+    kind: category
+    model: mark
+    name: PAAF positivo malignidade - Carcinoma ductal
+    years:
+    - 2009
+    - 2015
+  PPOSMACLOB:
+    role: exam.malignant_paaf_finding_carcinoma_lobular
+    kind: category
+    model: mark
+    name: PAAF positivo malignidade - Carcinoma lobular
+    years:
+    - 2009
+    - 2015
+  PPOSMACOUT:
+    role: exam.malignant_paaf_finding_outros_exclusivamente_malignos
+    kind: category
+    model: mark
+    name: PAAF positivo malignidade - Outros (exclusivamente malignos)
+    years:
+    - 2009
+    - 2015
+  PRESTMUN:
+    role: exam.provider_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do prestador de serviço
+    years:
+    - 2009
+    - 2015
+  PRESTUF:
+    role: exam.provider_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prestador
+    years:
+    - 2009
+    - 2015
+  PRESULPAAF:
+    role: exam.overall_fna_paaf_result_code
+    kind: category
+    model: mark
+    name: Resultado geral da puncao aspirativa
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - PRESULPAAF
+  PSUSLEJPCA:
+    role: exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with
+    kind: category
+    model: mark
+    name: PAAF suspeito malignidade - lesao epitelial proliferativa com atipias
+    years:
+    - 2009
+    - 2015
+  PSUSOUTROS:
+    role: exam.suspicious_paaf_finding_other
+    kind: category
+    model: mark
+    name: PAAF suspeito malignidade - outros
+    years:
+    - 2009
+    - 2015
+  QUANTEXAME:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2009
+    - 2015
+  REGLAB:
+    role: exam.laboratory_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região do laboratório
+    years:
+    - 2009
+    - 2015
+  REGRESID:
+    role: exam.region_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região de residência
+    years:
+    - 2009
+    - 2015
+  REGUS:
+    role: exam.health_unit_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região da unidade de coleta
+    years:
+    - 2009
+    - 2015

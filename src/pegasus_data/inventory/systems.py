@@ -157,13 +157,16 @@ def resolve_system(
     series_prefix: str | None,
     system_by_path: str | None,
     learned: dict[str, PrefixSystem],
+    republications: frozenset[str] = frozenset(),
 ) -> tuple[str | None, str | None]:
     """Decide the system, returning ``(resolved, disagreement_or_None)``.
 
-    The filename wins where its prefix is a trustworthy identifier. Where it is
-    not — an ambiguous prefix, an unparsed name, a prefix seen only a handful of
-    times — the path stays authoritative, because a weak signal must not
-    override a working one.
+    The filename wins where its prefix is a trustworthy identifier and the path is a republication tree
+    (``republications``: the ontology's systems of kind ``reference``, Dados_Abertos) or names no system. Inside a data
+    system's own tree the path wins: two systems can share a prefix, and SIH's `CMBR1901.dbc` (SIHSUS/200801_/Dados)
+    was filed under SISCAN because SISMAMA's CM files taught that prefix (42 files, 2026-10-08). Where the prefix is
+    not trustworthy (ambiguous, unparsed, seen only a handful of times) the path stays authoritative too, because a
+    weak signal must not override a working one.
     """
     by_name = None
     if series_prefix:
@@ -173,6 +176,9 @@ def resolve_system(
 
     if by_name is None:
         return (system_by_path.upper() if system_by_path else None), None
+    if system_by_path and by_name != system_by_path.upper() and system_by_path.upper() not in republications:
+        # a data system's own tree: the path is authoritative, the shared prefix is the finding
+        return system_by_path.upper(), by_name
     if system_by_path and by_name != system_by_path.upper():
         # The name is authoritative, but the disagreement is the interesting part.
         return by_name, system_by_path.upper()

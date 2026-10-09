@@ -1,0 +1,286 @@
+dataset: SISCAN-SISCAN_MAMOGRAFIA_PACNT
+record: exam
+columns:
+  CO_ANO_MES_RESULTADO:
+    role: exam.year_month_of_result
+    kind: date
+    model: mark
+    name: Mês/Ano Resultado
+    years:
+    - 2013
+    - 2025
+  CO_ANO_RESULTADO:
+    role: exam.year_of_result
+    kind: date
+    model: mark
+    name: Ano de resultado
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_FAIXA_ETARIA_PACIENTE:
+    role: exam.age_bracket
+    kind: category
+    model: mark
+    name: Faixa etária
+    years:
+    - 2013
+    - 2025
+  CO_IND_CLINICA:
+    role: exam.clinical_indication
+    kind: category
+    model: mark
+    name: Indicação clínica
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_RESULTADO:
+    role: exam.result_turnaround_interval
+    kind: category
+    model: mark
+    name: Intervalo do resultado
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_SOLICITACAO:
+    role: exam.scheduling_wait_interval
+    kind: category
+    model: mark
+    name: Intervalo da solicitação
+    years:
+    - 2013
+    - 2025
+  CO_LAUDO:
+    role: exam.mammography_report_identifier
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_PACIENTE:
+    role: exam.patient_code
+    kind: identifier
+    model: link_only
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_RECOMENDACAO:
+    role: exam.recommended_follow_up_action
+    kind: category
+    model: mark
+    name: Recomendação de conduta
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_MAMOGRAFIA_PACNT:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_MAMO_ANTERIOR:
+    role: exam.prior_mammogram_history
+    kind: category
+    model: mark
+    name: Fez mamografia alguma vez
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_COMPETENCIA:
+    role: exam.year_of_compet_ncia_billing_period
+    kind: date
+    model: mark
+    name: Ano de competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_MES_COMPETENCIA:
+    role: exam.year_month_of_compet_ncia_billing_period
+    kind: date
+    model: when
+    name: Mês/Ano competência
+    years:
+    - 2013
+    - 2025
+  NU_TAMANHO_NODULO:
+    role: exam.nodule_size_band
+    kind: number
+    model: mark
+    name: Tamanho do nódulo
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  REQ:
+    role: exam.exam_request_order_number
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  SG_UF_RESIDENCIA:
+    role: exam.state_of_residence_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência (sigla)
+    years:
+    - 2013
+    - 2025
+  TP_LINFONODO_DIR:
+    role: exam.right_axillary_lymph_node_finding
+    kind: category
+    model: mark
+    name: Linfonodo axilar mama direita
+    years:
+    - 2013
+    - 2025
+  TP_LINFONODO_ESQ:
+    role: exam.left_axillary_lymph_node_finding
+    kind: category
+    model: mark
+    name: Linfonodo axilar mama esquerda
+    years:
+    - 2013
+    - 2025
+  TP_MAMA_DIR:
+    role: exam.right_breast_composition
+    kind: category
+    model: mark
+    name: Composição da mama direita
+    years:
+    - 2013
+    - 2025
+  TP_MAMA_ESQ:
+    role: exam.left_breast_composition
+    kind: category
+    model: mark
+    name: Composição da mama esquerda
+    years:
+    - 2013
+    - 2025
+  TP_MAMA_PELE_DIR:
+    role: exam.right_breast_skin_appearance
+    kind: category
+    model: mark
+    name: Mama dir pele
+    years:
+    - 2013
+    - 2025
+  TP_MAMA_PELE_ESQ:
+    role: exam.left_breast_skin_appearance
+    kind: category
+    model: mark
+    name: Mama esq pele
+    years:
+    - 2013
+    - 2025
+  TP_MAMOGRAFIA_RASTREAMENT:
+    role: exam.screening_mammogram_type
+    kind: category
+    model: mark
+    name: Tipo Mamo rast
+    years:
+    - 2013
+    - 2025
+  TP_NODULO_CAROCO_MAMA:
+    role: exam.reported_lump_on_requisition
+    kind: category
+    model: mark
+    name: Nódulo_requis
+    years:
+    - 2013
+    - 2025
+  TP_RECOMENDACAO_DIREITA:
+    role: exam.right_breast_follow_up_recommendation
+    kind: category
+    model: mark
+    name: Recomendação - mama direita
+    years:
+    - 2013
+    - 2025
+  TP_RECOMENDACAO_ESQUERDA:
+    role: exam.left_breast_follow_up_recommendation
+    kind: category
+    model: mark
+    name: Recomendação - mama esquerda
+    years:
+    - 2013
+    - 2025
+  TP_RESP_ANT_MAMA_EXA_PROF_SAUD:
+    role: exam.prior_clinical_breast_exam
+    kind: category
+    model: mark
+    name: Ex Clin Ant
+    years:
+    - 2013
+    - 2025
+  TP_RESP_APRES_RISC_ELEV_CANCER:
+    role: exam.elevated_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco elevado
+    years:
+    - 2013
+    - 2025
+  TP_RESP_FEZ_MAMOGRA_ALGUMA_VEZ:
+    role: exam.ever_had_a_mammogram_before
+    kind: category
+    model: mark
+    name: Mamog. Anterior
+    years:
+    - 2013
+    - 2025

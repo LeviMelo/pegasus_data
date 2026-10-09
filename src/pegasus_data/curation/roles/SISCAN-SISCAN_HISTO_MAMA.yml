@@ -1,0 +1,373 @@
+dataset: SISCAN-SISCAN_HISTO_MAMA
+record: exam
+columns:
+  CO_ANO_MES_RESULTADO:
+    role: exam.year_month_of_result
+    kind: date
+    model: mark
+    name: Mês/Ano Resultado
+    years:
+    - 2013
+    - 2025
+  CO_ANO_RESULTADO:
+    role: exam.year_of_result
+    kind: date
+    model: mark
+    name: Ano de resultado
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_IDADE_PACIENTE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_COLETA:
+    role: exam.collection_interval
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_EXAME:
+    role: exam.result_interval
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_HISTO_MAMA_RESID:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  NU_ADENOSE_SOE:
+    role: exam.count_of_adenosis_diagnoses_not_otherwise_specified
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_ANO_COMPETENCIA:
+    role: exam.year_of_compet_ncia_billing_period
+    kind: date
+    model: mark
+    name: Ano de competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_MES_COMPETENCIA:
+    role: exam.year_month_of_compet_ncia_billing_period
+    kind: date
+    model: when
+    name: Mês/Ano competência
+    years:
+    - 2013
+    - 2025
+  NU_CONDICAO_FIBROCISTICA:
+    role: exam.count_of_fibrocystic_change_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_FIBROADENOMA:
+    role: exam.count_of_fibroadenoma_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_HIPERPLAS_DUCTAL_COM_ATIP:
+    role: exam.count_of_atypical_ductal_hyperplasia_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_HIPERPLAS_DUCTAL_SEM_ATIP:
+    role: exam.count_of_usual_ductal_hyperplasia_diagnoses_without_atypia
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_HIPERPLAS_LOBULAR_COM_ATIP:
+    role: exam.count_of_atypical_lobular_hyperplasia_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_LESAO_ESCLEROSANTE_RADIAL:
+    role: exam.count_of_radial_scar_complex_sclerosing_lesion_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_MASTITE:
+    role: exam.count_of_mastitis_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_OUTROS:
+    role: exam.count_of_other_benign_lesions
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAPILOMATOSE_FLORIDA_DO_MAM:
+    role: exam.count_of_florid_papillomatosis_of_the_nipple_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAPILOMA_MULTIPLO:
+    role: exam.count_of_multiple_intraductal_papilloma_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAPILOMA_SOLITARIO:
+    role: exam.count_of_solitary_intraductal_papilloma_diagnoses
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  SG_UF_RESIDENCIA:
+    role: exam.state_of_residence_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência (sigla)
+    years:
+    - 2013
+    - 2025
+  ST_MICROCALCIFICACAO:
+    role: exam.microcalcifications_present
+    kind: category
+    model: mark
+    name: Microcalcificações
+    years:
+    - 2013
+    - 2025
+  ST_OUTRO_ESTUDO_IMUNOLO_HISTOQ:
+    role: exam.additional_immunohistochemistry_study_flag
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  TP_ADEQUABILIDAD_MATERIAL:
+    role: exam.material_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do material
+    years:
+    - 2013
+    - 2025
+  TP_DETECCAO_LESAO:
+    role: exam.how_the_lesion_was_detected
+    kind: category
+    model: mark
+    name: Detecção da lesão
+    years:
+    - 2013
+    - 2025
+  TP_DIAGNOSTICO_IMAGEM:
+    role: exam.imaging_finding
+    kind: category
+    model: mark
+    name: Diagnóstico de imagem
+    years:
+    - 2013
+    - 2025
+  TP_EXAME_HISTOPATOLOGICO:
+    role: exam.type_of_histopathology_exam
+    kind: category
+    model: mark
+    name: Tipo de exame histopatológico
+    years:
+    - 2013
+    - 2025
+  TP_GRAU_HISTOLOGICO:
+    role: exam.histological_grade
+    kind: category
+    model: mark
+    name: Grau histológico
+    years:
+    - 2013
+    - 2025
+  TP_LATERALIDADE_LESAO:
+    role: exam.lesion_laterality
+    kind: category
+    model: mark
+    name: Mama
+    years:
+    - 2013
+    - 2025
+  TP_LESAO:
+    role: exam.lesion_type
+    kind: category
+    model: mark
+    name: Tipo lesão
+    years:
+    - 2013
+    - 2025
+  TP_LESAO_CARAT_NEOPL_MALI:
+    role: exam.malignant_neoplasia_subtype
+    kind: category
+    model: mark
+    name: Lesão de caráter neoplásico maligno
+    years:
+    - 2013
+    - 2025
+  TP_LINFONODO_AXILAR_PALPAVEL:
+    role: exam.palpable_axillary_lymph_node
+    kind: category
+    model: mark
+    name: Linfonodo axilar palpável
+    years:
+    - 2013
+    - 2025
+  TP_MARGEM_CIRURGICA:
+    role: exam.surgical_margin
+    kind: category
+    model: mark
+    name: Margens cirúrgicas
+    years:
+    - 2013
+    - 2025
+  TP_MATER_ENVIA_PROCEDENTE:
+    role: exam.materials_procedural_origin
+    kind: category
+    model: mark
+    name: Proc. Material
+    years:
+    - 2013
+    - 2025
+  TP_PROCEDIMENTO_CIRURGICO:
+    role: exam.breast_surgical_procedure_type
+    kind: category
+    model: mark
+    name: Proc. Cirúrgico
+    years:
+    - 2013
+    - 2025
+  TP_RECEPTOR_HORMONAL_ESTROG:
+    role: exam.estrogen_receptor_er_status
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  TP_RECEPTOR_HORMONAL_PROGES:
+    role: exam.progesterone_receptor_pr_status
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  TP_RISCO_ELEVADO:
+    role: exam.elevated_breast_cancer_risk_histopathology_form
+    kind: category
+    model: mark
+    name: Risco elevado (histopatológico de mama)
+    years:
+    - 2013
+    - 2025
+  TP_TAMANHO_LESAO:
+    role: exam.lesion_size_on_requisition
+    kind: category
+    model: mark
+    name: Tam_lesão_req
+    years:
+    - 2013
+    - 2025
+  TP_TAMANHO_TUMOR:
+    role: exam.pathologic_tumor_size
+    kind: category
+    model: mark
+    name: Tamanho_tumor
+    years:
+    - 2013
+    - 2025

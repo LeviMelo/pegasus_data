@@ -1,0 +1,720 @@
+dataset: SISCAN-SISCAN_CITO_COLO_PACNT
+record: exam
+columns:
+  CO_ALT_CEL_ATROFIA:
+    role: exam.benign_atrophic_cellular_change
+    kind: category
+    model: mark
+    name: Alt. ben:Atr. inflam
+    years:
+    - 2013
+    - 2025
+  CO_ALT_CEL_INFLAMACAO:
+    role: exam.benign_changes_inflammation
+    kind: category
+    model: mark
+    name: Alt.ben.inflamação
+    years:
+    - 2013
+    - 2025
+  CO_ALT_CEL_METAPLASIA:
+    role: exam.benign_changes_immature_squamous_metaplasia
+    kind: category
+    model: mark
+    name: Alt.ben.metap.esca
+    years:
+    - 2013
+    - 2025
+  CO_ALT_CEL_OUT:
+    role: exam.benign_changes_other_cause
+    kind: category
+    model: mark
+    name: Alt.ben.outros
+    years:
+    - 2013
+    - 2025
+  CO_ALT_CEL_RADIACAO:
+    role: exam.benign_changes_radiation
+    kind: category
+    model: mark
+    name: Alt.ben.radiação
+    years:
+    - 2013
+    - 2025
+  CO_ALT_CEL_REPARACAO:
+    role: exam.benign_changes_repair
+    kind: category
+    model: mark
+    name: Alt.ben.reparação
+    years:
+    - 2013
+    - 2025
+  CO_ANO_LIBERACAO:
+    role: exam.year_of_report_release
+    kind: date
+    model: mark
+    name: Ano de liberação (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_ANO_MES_LIBERACAO:
+    role: exam.year_month_of_report_release
+    kind: date
+    model: when
+    name: Mês/Ano de liberação (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_ANO_MES_RESULTADO:
+    role: exam.year_month_of_result
+    kind: date
+    model: mark
+    name: Mês/Ano Resultado
+    years:
+    - 2013
+    - 2025
+  CO_ANO_RESULTADO:
+    role: exam.year_of_result
+    kind: date
+    model: mark
+    name: Ano de resultado
+    years:
+    - 2013
+    - 2025
+  CO_EPIT_ESCAMOSO:
+    role: exam.squamous_epithelium_present
+    kind: category
+    model: mark
+    name: Epitélio escamoso
+    years:
+    - 2013
+    - 2025
+  CO_EPIT_GLANDULAR:
+    role: exam.glandular_epithelium_present
+    kind: category
+    model: mark
+    name: Epitélio glandular
+    years:
+    - 2013
+    - 2025
+  CO_EPIT_METAPLAS:
+    role: exam.metaplastic_epithelium_present
+    kind: category
+    model: mark
+    name: Epitélio metaplas.
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia
+    years:
+    - 2013
+    - 2025
+  CO_IDADE_PACIENTE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2013
+    - 2025
+  CO_INS_ARTEF_DES:
+    role: exam.unsatisfactory_drying_artifact
+    kind: category
+    model: mark
+    name: Ins. pres.art.desec.
+    years:
+    - 2013
+    - 2025
+  CO_INS_CONTAM_EXTERNOS:
+    role: exam.unsatisfactory_external_contaminants
+    kind: category
+    model: mark
+    name: Ins. pres.cont.exte
+    years:
+    - 2013
+    - 2025
+  CO_INS_INTENSA_SUPER:
+    role: exam.unsatisfactory_cell_overlap
+    kind: category
+    model: mark
+    name: Ins. pres.sup.celul
+    years:
+    - 2013
+    - 2025
+  CO_INS_MAT_CELULAR:
+    role: exam.unsatisfactory_scanty_cellular_material
+    kind: category
+    model: mark
+    name: Ins. mat. acelular
+    years:
+    - 2013
+    - 2025
+  CO_INS_OUTROS:
+    role: exam.unsatisfactory_other_cause
+    kind: category
+    model: mark
+    name: Ins. Outros
+    years:
+    - 2013
+    - 2025
+  CO_INS_PIOCITOS:
+    role: exam.unsatisfactory_pus_cells
+    kind: category
+    model: mark
+    name: Ins. pres. piócitos
+    years:
+    - 2013
+    - 2025
+  CO_INS_SANGUE:
+    role: exam.unsatisfactory_blood
+    kind: category
+    model: mark
+    name: Ins. pres. sangue
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_COLETA:
+    role: exam.collection_interval
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_EXAME:
+    role: exam.result_interval
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2013
+    - 2025
+  CO_LAUDO_CITOPATOLOGICO:
+    role: exam.overall_cytopathology_result
+    kind: category
+    model: mark
+    name: Laudo citopatológico (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_ACTINOMYCES:
+    role: exam.microbiology_actinomyces_sp
+    kind: category
+    model: mark
+    name: Mic.actinomyces sp (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_BACILOS_SUPRA:
+    role: exam.microbiology_supracytoplasmic_bacilli
+    kind: category
+    model: mark
+    name: Mic.bacil supracit. (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_CANDIDA:
+    role: exam.microbiology_candida_sp
+    kind: category
+    model: mark
+    name: Mic.CANDIDA sp (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_COCOS:
+    role: exam.microbiology_cocci
+    kind: category
+    model: mark
+    name: Mic.cocos (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_EFEITO_CITOPATICO:
+    role: exam.microbiology_herpes_group_viral_effect
+    kind: category
+    model: mark
+    name: Mic.vir gr.herpes (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_LACTOBACILLUS:
+    role: exam.microbiology_lactobacillus_sp
+    kind: category
+    model: mark
+    name: Mic.lactobacillus (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_OUTROS:
+    role: exam.microbiology_other_organism
+    kind: category
+    model: mark
+    name: Mic.outros (inferido)
+    years:
+    - 2013
+    - 2025
+  CO_MIC_OUTROS_BACILOS:
+    role: exam.microbiology_other_bacilli
+    kind: category
+    model: mark
+    name: Outros bacilos
+    years:
+    - 2013
+    - 2025
+  CO_MIC_SUGEST_CHLAMYDIA:
+    role: exam.microbiology_suggestive_of_chlamydia_sp
+    kind: category
+    model: mark
+    name: Sugestivo de Chlamydia sp.
+    years:
+    - 2013
+    - 2025
+  CO_MIC_TRICHOMONAS:
+    role: exam.microbiology_trichomonas_vaginalis
+    kind: category
+    model: mark
+    name: Trichomonas vaginalis
+    years:
+    - 2013
+    - 2025
+  CO_MUN_PREST_SERVICO:
+    role: exam.providers_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do prestador de serviço
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_MUN_UNIDADE_SAUDE:
+    role: exam.requesting_units_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município da unidade de saúde
+    years:
+    - 2013
+    - 2025
+  CO_PACIENTE:
+    role: exam.patient_code
+    kind: identifier
+    model: link_only
+    years:
+    - 2013
+    - 2025
+  CO_PERIODO_PREVENTIVO:
+    role: exam.time_since_previous_pap_test
+    kind: category
+    model: mark
+    name: Período do preventivo
+    years:
+    - 2013
+    - 2025
+  CO_PREST_SERVICO:
+    role: exam.service_provider
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador do serviço
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_REJ_AUSENCIA:
+    role: exam.rejected_slide_vial_identification_missing
+    kind: category
+    model: mark
+    name: Rejeitada id. lâmin
+    years:
+    - 2013
+    - 2025
+  CO_REJ_CAUSA_ALHEIA:
+    role: exam.rejected_cause_external_to_the_laboratory
+    kind: category
+    model: mark
+    name: Rej. causas alheias
+    years:
+    - 2013
+    - 2025
+  CO_REJ_LAMINA:
+    role: exam.rejected_slide_damaged_or_missing
+    kind: category
+    model: mark
+    name: Rej. lâmina danif
+    years:
+    - 2013
+    - 2025
+  CO_REJ_OUT_CAUSAS:
+    role: exam.rejected_other_cause
+    kind: category
+    model: mark
+    name: 'Rejeitada: Outros'
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_CITO_COLO_PACNT:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_UF_PREST_SERVICO:
+    role: exam.providers_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prest.serviço
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  CO_UF_UNIDADE_SAUDE:
+    role: exam.collecting_units_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da un.saúde
+    years:
+    - 2013
+    - 2025
+  CO_UNIDADE_SAUDE:
+    role: exam.collecting_health_unit
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de saúde
+    years:
+    - 2013
+    - 2025
+  IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  NU_ADENOCAR_INS_SITU:
+    role: exam.adenocarcinoma_in_situ_count
+    kind: number
+    model: mark
+    name: Adenocarc in situ
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_ADENOCAR_INVASOR:
+    role: exam.invasive_adenocarcinoma_count
+    kind: number
+    model: mark
+    name: Adenocarc invasor
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_AMOSTRA_REJEITADA:
+    role: exam.sample_rejected_count
+    kind: number
+    model: mark
+    name: Adequabilidade - Rejeitada
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_AMOSTRA_SATISFATORIA:
+    role: exam.sample_satisfactory_count
+    kind: number
+    model: mark
+    name: Adequabilidade - Satisfatória
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CARC_EPIDERM_INV:
+    role: exam.invasive_squamous_carcinoma_count
+    kind: number
+    model: mark
+    name: Carc. Epiderm. Inv
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_ESCAMOSA_N_AF_LESAO_AG:
+    role: exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion
+    kind: number
+    model: mark
+    name: ASC-H
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_ESCAMOSA_P_NAO_NEOPLAST:
+    role: exam.atypical_squamous_cells_probably_non_neoplastic
+    kind: number
+    model: mark
+    name: ASC-US
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_GLANDULAR_NAO_NEOPL:
+    role: exam.atypical_glandular_cells_probably_non_neoplastic
+    kind: number
+    model: mark
+    name: At. Glan.Ind.Não Neo
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_GLANDULA_N_AF_LESAO_AG:
+    role: exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion
+    kind: number
+    model: mark
+    name: At.Glan.Ind. Alto Grau
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_IND_NAO_LESAO:
+    role: exam.atypical_cells_of_indefinite_origin_cannot_exclude_high_grad
+    kind: number
+    model: mark
+    name: Ori. Indef. Alto Grau
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_CA_ORIGEM_IND_NAO_NEOPLAST:
+    role: exam.atypical_cells_of_indefinite_origin_probably_non_neoplastic
+    kind: number
+    model: mark
+    name: Ori. Indef. Não Neo
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_LESAO_IE_ALTO_GRAU:
+    role: exam.high_grade_squamous_intraepithelial_lesion_count
+    kind: number
+    model: mark
+    name: Les IEp Alto Grau
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_LESAO_IE_BAIXO_GRAU:
+    role: exam.low_grade_squamous_intraepithelial_lesion_count
+    kind: number
+    model: mark
+    name: Les IE Baixo Grau
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_LES_IE_ALTO_GRAU_N_MIC_INV:
+    role: exam.high_grade_lesion_cannot_exclude_microinvasion
+    kind: number
+    model: mark
+    name: Les IE AG Mic. Inv
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_LIMITE_NORMALIDADE:
+    role: exam.within_normal_limits_count
+    kind: number
+    model: mark
+    name: Dentro da Normalidade
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_OUTRAS_NEOPLASIAS:
+    role: exam.other_malignant_neoplasms_count
+    kind: number
+    model: mark
+    name: Outras Neoplasias
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  ST_CELULA_ENDOMETRIAL_PRESENTE:
+    role: exam.endometrial_cells_present
+    kind: category
+    model: mark
+    name: Presença de células endometriais
+    years:
+    - 2013
+    - 2025
+  ST_DENTRO_LIMITE_NORMALIDADE:
+    role: exam.result_within_normal_limits_dln_flag
+    kind: category
+    model: mark
+    name: Dentro dos limites da normalidade no material examinado
+    years:
+    - 2013
+    - 2025
+  ST_OUTRA_NEOPLASIA_MALIGNA:
+    role: exam.other_malignant_neoplasm
+    kind: category
+    model: mark
+    name: Outras neoplasias malignas
+    years:
+    - 2013
+    - 2025
+  ST_REPRESENTATI_ZONA_TRANSFORM:
+    role: exam.transformation_zone_representativity_flag
+    kind: category
+    model: mark
+    name: Representatividade da Zona de Transformação
+    years:
+    - 2013
+    - 2025
+  ST_SCREENING_REALIZADO:
+    role: exam.screening_done_by_cytotechnician
+    kind: category
+    model: mark
+    name: Screening pelo citotécnico
+    years:
+    - 2013
+    - 2025
+  ST_SINAL_SUGESTIVO_DST:
+    role: exam.sign_suggestive_of_an_std_flag
+    kind: category
+    model: mark
+    name: Sinais sugestivos de doenças sexualmente transmissíveis
+    years:
+    - 2013
+    - 2025
+  TP_ATIPIA_CELULAR_ESCAMOS:
+    role: exam.squamous_cell_atypia
+    kind: category
+    model: mark
+    name: Atipias em células escamosas
+    years:
+    - 2013
+    - 2025
+  TP_ATIPIA_CELULAR_GLANDUL:
+    role: exam.glandular_cell_atypia
+    kind: category
+    model: mark
+    name: Atipias em células glandulares
+    years:
+    - 2013
+    - 2025
+  TP_AVALIACAO_AMOSTRA:
+    role: exam.sample_evaluation
+    kind: category
+    model: mark
+    name: Adequabilidade da amostra
+    years:
+    - 2013
+    - 2025
+  TP_CEL_ESCAM_SIGN_INDETER:
+    role: exam.squamous_cells_of_undetermined_significance
+    kind: category
+    model: mark
+    name: Células escamosas atípicas de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_CEL_GLAND_SIGNIF_INDET:
+    role: exam.glandular_cells_of_undetermined_significance
+    kind: category
+    model: mark
+    name: Células glandulares atípicas de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_CEL_ORIG_INF_SIGN_INDE:
+    role: exam.cells_of_undetermined_origin
+    kind: category
+    model: mark
+    name: Células de origem indefinida, de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_INSPECAO_COLO:
+    role: exam.type_of_cervical_visual_inspection
+    kind: category
+    model: mark
+    years:
+    - 2013
+    - 2025
+  TP_MOTIVO_EXAME:
+    role: exam.reason_for_the_exam_type
+    kind: category
+    model: mark
+    name: Motivo do exame
+    years:
+    - 2013
+    - 2025
+  TP_RESP_EXAME_PREVENTIVO_REALI:
+    role: exam.previous_pap_test_reported
+    kind: category
+    model: mark
+    name: 'Resposta: exame preventivo realizado'
+    years:
+    - 2013
+    - 2025

@@ -70,3 +70,13 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
     - doses: 236,140,984 rows, starting 2026-01, by sex, race, age, strategy and source system.
 - **PNI (6).** Published aggregates. Coverage and dropout rates are finished rates (`measure: false`), never summed. The municipality is the place of application by its variable note, while the open-data republication is named for residence; both claims are recorded.
 - **More documentation found on the FTP, outside the crawled tree.** `/cnes/Download` holds the SCNES glossary (`GLOSSARIO_SCNES_Geral.xls`), the TXT layout notebooks for SIA, SIH, CIHA and CIH, and the CBO-service glossary. `/territorio/doc` holds the territorial base documents (`data/probes/ftp_outside_rest.txt`).
+
+**Third batch.** 150 role files.
+- **SISCAN (15).** The SISCOLO and SISMAMA DBFs (2006–2015) and the SISCAN CSVs (2013–2025) are typed apart: their layouts share no column names. The ontology binds both to one dataset, so `query()` on a CSV series read the DBFs, and its sheets were built from the CSVs' first 20 MB, read over FTP (the mirror carries no SISCAN). Every column has a variable note.
+  - The person's attributes are on `patient` (residence as stratum, sex, race, age, education).
+  - The `NU_` result columns are 0/1 on each exam: summing one counts the exams with that finding.
+- **SIH's maintainer register (`CMBRaamm.dbc`, 42 files from 2019) was filed under SISCAN.**
+  - The learned prefix CM (SISMAMA's 1,670 files) outvoted the SIHSUS directory the files sit in.
+  - The filename now overrides the path only in a republication tree (`republishes: true` in the ontology: Dados_Abertos). Every one of the 1,972 recorded name-versus-path disagreements but these 42 lies there.
+  - SIH.CM is declared, and SIH.CH corrected: it was said retired, but its files run to 2026.
+  - `inventory`, `schemas --system SIHSUS` and `families` were re-run: 166 datasets.

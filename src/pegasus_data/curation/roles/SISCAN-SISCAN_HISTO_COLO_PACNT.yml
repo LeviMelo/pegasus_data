@@ -1,0 +1,262 @@
+dataset: SISCAN-SISCAN_HISTO_COLO_PACNT
+record: exam
+columns:
+  CO_ANO_MES_RESULTADO:
+    role: exam.year_month_of_result
+    kind: date
+    model: mark
+    name: Mês/Ano Resultado
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_IDADE_PACIENTE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_COLETA:
+    role: exam.collection_interval
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_EXAME:
+    role: exam.result_interval
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_PACIENTE:
+    role: exam.patient_code
+    kind: identifier
+    model: link_only
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_HISTO_COLO_PACNT:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_COMPETENCIA:
+    role: exam.year_of_compet_ncia_billing_period
+    kind: date
+    model: mark
+    name: Ano de competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_MES_COMPETENCIA:
+    role: exam.year_month_of_compet_ncia_billing_period
+    kind: date
+    model: when
+    name: Mês/Ano competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_RESULTADO:
+    role: exam.year_of_the_result
+    kind: date
+    model: mark
+    years:
+    - 2013
+    - 2025
+  NU_LAUDO_HISTOP:
+    role: exam.histopathology_report_number
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  SG_UF_RESIDENCIA:
+    role: exam.state_of_residence_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência (sigla)
+    years:
+    - 2013
+    - 2025
+  ST_OUTRA_NEOPLASIA_MALIGNA:
+    role: exam.other_malignant_neoplasm
+    kind: category
+    model: mark
+    name: Outras neoplasias malignas
+    years:
+    - 2013
+    - 2025
+  TP_ACHADO_COLPOSCOPICO:
+    role: exam.colposcopic_finding
+    kind: category
+    model: mark
+    name: Achado colposcópico
+    years:
+    - 2013
+    - 2025
+  TP_ATIPIA_CELULAR_ESCAMOS:
+    role: exam.squamous_cell_atypia
+    kind: category
+    model: mark
+    name: Atipias em células escamosas
+    years:
+    - 2013
+    - 2025
+  TP_ATIPIA_CELULAR_GLANDUL:
+    role: exam.glandular_cell_atypia
+    kind: category
+    model: mark
+    name: Atipias em células glandulares
+    years:
+    - 2013
+    - 2025
+  TP_AVALIACAO_AMOSTRA:
+    role: exam.sample_evaluation
+    kind: category
+    model: mark
+    name: Adequabilidade da amostra
+    years:
+    - 2013
+    - 2025
+  TP_CEL_ESCAM_SIGN_INDETER:
+    role: exam.squamous_cells_of_undetermined_significance
+    kind: category
+    model: mark
+    name: Células escamosas atípicas de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_CEL_GLAND_SIGNIF_INDET:
+    role: exam.glandular_cells_of_undetermined_significance
+    kind: category
+    model: mark
+    name: Células glandulares atípicas de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_CEL_ORIG_INF_SIGN_INDE:
+    role: exam.cells_of_undetermined_origin
+    kind: category
+    model: mark
+    name: Células de origem indefinida, de significado indeterminado
+    years:
+    - 2013
+    - 2025
+  TP_ENCAMINHAMENTO:
+    role: exam.referral_reason
+    kind: category
+    model: mark
+    name: Tipo de encaminhamento
+    years:
+    - 2013
+    - 2025
+  TP_GRAU_DIFERENCIACAO:
+    role: exam.tumor_differentiation_grade
+    kind: category
+    model: mark
+    name: Grau de diferenciação
+    years:
+    - 2013
+    - 2025
+  TP_LESAO_CARAT_NEOP_PRENEO:
+    role: exam.squamous_neoplastic_pre_neoplastic_result
+    kind: category
+    model: mark
+    name: Res_Neopl_Preneo_Escam
+    years:
+    - 2013
+    - 2025
+  TP_LESAO_CARAT_NEOP_PREN_AD:
+    role: exam.glandular_neoplastic_result
+    kind: category
+    model: mark
+    name: Res_Neopl_Glandular
+    years:
+    - 2013
+    - 2025
+  TP_MARGEM_CIRURGICA:
+    role: exam.surgical_margin
+    kind: category
+    model: mark
+    name: Margens cirúrgicas
+    years:
+    - 2013
+    - 2025
+  TP_PROCEDIMENTO:
+    role: exam.cervical_specimen_procedure_type
+    kind: category
+    model: mark
+    name: Tipo de procedimento (mat. enviado)
+    years:
+    - 2013
+    - 2025
+  TP_ZONA_TRANSF_ADEQUABILIDADE:
+    role: exam.transformation_zone_adequacy
+    kind: category
+    model: mark
+    name: Adequab Zona de Transformação
+    years:
+    - 2013
+    - 2025

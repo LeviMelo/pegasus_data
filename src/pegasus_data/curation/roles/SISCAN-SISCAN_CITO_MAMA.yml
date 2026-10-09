@@ -1,0 +1,407 @@
+dataset: SISCAN-SISCAN_CITO_MAMA
+record: exam
+columns:
+  CO_ANO_MES_RESULTADO:
+    role: exam.year_month_of_result
+    kind: date
+    model: mark
+    name: Mês/Ano Resultado
+    years:
+    - 2013
+    - 2025
+  CO_ANO_RESULTADO:
+    role: exam.year_of_result
+    kind: date
+    model: mark
+    name: Ano de resultado
+    years:
+    - 2013
+    - 2025
+  CO_ESCOLARIDADE:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2013
+    - 2025
+  CO_FAIXA_ETARIA_PACIENTE:
+    role: exam.age_bracket
+    kind: category
+    model: mark
+    name: Faixa etária
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_COLETA:
+    role: exam.collection_interval
+    kind: category
+    model: mark
+    name: Intervalo de coleta
+    years:
+    - 2013
+    - 2025
+  CO_INTERVALO_EXAME:
+    role: exam.result_interval
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2013
+    - 2025
+  CO_MUN_RESIDENCIA:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Munic. de residência
+    years:
+    - 2013
+    - 2025
+  CO_RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    years:
+    - 2013
+    - 2025
+  CO_RISCO_ELEVADO:
+    role: exam.elevated_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco elevado
+    years:
+    - 2013
+    - 2025
+  CO_SEQ_SISCAN_CITO_MAMA_RESID:
+    role: exam.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 2013
+    - 2025
+  CO_TEMPO_EXAME:
+    role: exam.total_exam_turnaround
+    kind: category
+    model: mark
+    name: Tempo Exame
+    years:
+    - 2013
+    - 2025
+  CO_TEM_NODULO:
+    role: exam.reported_breast_lump
+    kind: category
+    model: mark
+    name: Tem nódulo ou caroço na mama
+    years:
+    - 2013
+    - 2025
+  CO_UF_RESIDENCIA:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_COMPETENCIA:
+    role: exam.year_of_compet_ncia_billing_period
+    kind: date
+    model: mark
+    name: Ano de competência
+    years:
+    - 2013
+    - 2025
+  NU_ANO_MES_COMPETENCIA:
+    role: exam.year_month_of_compet_ncia_billing_period
+    kind: date
+    model: when
+    name: Mês/Ano competência
+    years:
+    - 2013
+    - 2025
+  NU_PAAF_B_ABC_SUBARE:
+    role: exam.count_of_benign_fna_results_subareolar_abscess
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_COM_FIB_MAM:
+    role: exam.count_of_benign_fna_results_fibrocystic_breast_condition
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_FIBROAD:
+    role: exam.count_of_benign_fna_results_fibroadenoma
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_L_E_P:
+    role: exam.count_of_benign_fna_results_proliferative_epithelial_lesion_
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_MASTITE:
+    role: exam.count_of_benign_fna_results_mastitis
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_NECR_GORDUR:
+    role: exam.count_of_benign_fna_results_fat_necrosis
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_B_OUTRAS:
+    role: exam.count_of_other_benign_fna_results
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_M_IND_OUTROS:
+    role: exam.count_of_fna_results_of_indeterminate_malignancy_other
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_M_IND_TUMF:
+    role: exam.count_of_fna_results_of_indeterminate_malignancy_phyllodes_t
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_M_IND_TUMPA:
+    role: exam.count_of_fna_results_of_indeterminate_malignancy_papillary_t
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_P_M_CARC_DUC:
+    role: exam.count_of_malignant_fna_results_ductal_carcinoma
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_P_M_CARC_LOB:
+    role: exam.count_of_malignant_fna_results_lobular_carcinoma
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_P_M_OUTROS:
+    role: exam.count_of_malignant_fna_results_other_type
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_SUSM_OUTROS:
+    role: exam.count_of_suspicious_fna_results_other
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_PAAF_SUS_L_E_P:
+    role: exam.count_of_suspicious_fna_results_proliferative_epithelial_les
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_LES_PAPIL:
+    role: exam.count_of_nipple_discharge_cytology_results_papillary_lesion
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_MALIG_INDT:
+    role: exam.count_of_nipple_discharge_cytology_results_indeterminate_mal
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_MAT_ACELULAR:
+    role: exam.count_of_nipple_discharge_cytology_results_acellular_materia
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_NEG_MALIG:
+    role: exam.count_of_nipple_discharge_cytology_results_negative_for_mali
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_POS_MALIG:
+    role: exam.count_of_nipple_discharge_cytology_results_positive_for_mali
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  NU_QDESC_PROC_INFL:
+    role: exam.count_of_nipple_discharge_cytology_results_inflammatory_proc
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+    note: '0 or 1 on each exam: summing it counts the exams with this finding.'
+  QT_EXAME:
+    role: exam.total_exam_count
+    kind: number
+    model: mark
+    years:
+    - 2013
+    - 2025
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2013
+    - 2025
+  SG_UF_RESIDENCIA:
+    role: exam.state_of_residence_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência (sigla)
+    years:
+    - 2013
+    - 2025
+  TP_ADEQUABILIDAD_MATERIAL:
+    role: exam.material_adequacy
+    kind: category
+    model: mark
+    name: Adequabilidade do material
+    years:
+    - 2013
+    - 2025
+  TP_DESCARGA_PAPILAR:
+    role: exam.nipple_discharge_type
+    kind: category
+    model: mark
+    name: Descarga papilar
+    years:
+    - 2013
+    - 2025
+  TP_LATERALIDADE_MAMA:
+    role: exam.breast_side_sampled
+    kind: category
+    model: mark
+    name: Mama
+    years:
+    - 2013
+    - 2025
+  TP_MATERIAL:
+    role: exam.material_submitted
+    kind: category
+    model: mark
+    name: Material Enviado
+    years:
+    - 2013
+    - 2025
+  TP_NODULO:
+    role: exam.nodule_type
+    kind: category
+    model: mark
+    name: Tipo Nódulo
+    years:
+    - 2013
+    - 2025
+  TP_PADRAO_CITOPATOL_AMOST:
+    role: exam.cytology_pattern_for_discharge_cyst_material
+    kind: category
+    model: mark
+    name: Padrão citopatológico da amostra
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_MALIG_INDET:
+    role: exam.indeterminate_malignancy_pattern
+    kind: category
+    model: mark
+    name: Malignid Indeterm
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_POSI_MALIG:
+    role: exam.positive_for_malignancy_pattern
+    kind: category
+    model: mark
+    name: Positivo malignid
+    years:
+    - 2013
+    - 2025
+  TP_PADR_CITO_SUSP_MALIG:
+    role: exam.suspicious_for_malignancy_pattern
+    kind: category
+    model: mark
+    name: Suspeito malignid
+    years:
+    - 2013
+    - 2025
+  TP_PROC_BENI_NEGA_MALI_COMPATI:
+    role: exam.benign_negative_pattern_compatible_diagnosis
+    kind: category
+    model: mark
+    name: Proc Ben Neg mal
+    years:
+    - 2013
+    - 2025
+  TP_RESULTA_PUNCAO_ASPIRATIVA:
+    role: exam.fine_needle_aspiration_result
+    kind: category
+    model: mark
+    name: Resultado PAAF
+    years:
+    - 2013
+    - 2025

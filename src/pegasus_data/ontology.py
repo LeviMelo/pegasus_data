@@ -112,6 +112,8 @@ class SystemNode:
     #: Names the crawler files this system under, when they differ from ``code``
     #: (the tree says SIHSUS; the institution says SIH).
     crawled_as: tuple[str, ...] = ()
+    #: A republication tree (Dados_Abertos): its files belong to the systems their names say, not to its directory.
+    republishes: bool = False
 
     @property
     def is_data(self) -> bool:
@@ -504,6 +506,7 @@ class Ontology:
                 what_it_is=_clean(body.get("what_it_is")),
                 authority=body.get("authority"),
                 crawled_as=tuple(str(x).upper() for x in (body.get("crawled_as") or ())),
+                republishes=bool(body.get("republishes", False)),
             )
 
         datasets: dict[str, DatasetNode] = {}

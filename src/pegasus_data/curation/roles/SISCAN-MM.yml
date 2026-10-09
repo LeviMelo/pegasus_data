@@ -1,0 +1,594 @@
+dataset: SISCAN-MM
+record: exam
+columns:
+  ANO_COMP:
+    role: exam.competence_year
+    kind: date
+    model: mark
+    name: Ano de Competência
+    years:
+    - 2009
+    - 2015
+  CANMEXAPR:
+    role: exam.prior_clinical_breast_exam
+    kind: category
+    model: mark
+    name: Exame clínico anterior
+    years:
+    - 2009
+    - 2015
+  CANMMAMOGR:
+    role: exam.elevated_breast_cancer_risk_flag
+    kind: category
+    model: mark
+    name: Risco elevado para cancer de mama
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - RISCOELEVADO
+  CANMPACANC:
+    role: exam.high_breast_cancer_risk
+    kind: category
+    model: mark
+    name: Risco elevado para câncer de mama
+    years:
+    - 2009
+    - 2015
+  CATBIRADS:
+    role: exam.bi_rads_category
+    kind: category
+    model: mark
+    name: Categoria BI-RADS
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - CATBIRADS
+  CCALCASPBD:
+    role: exam.benign_appearing_calcifications_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Calcificações de aspecto benigno, mama direita'
+    years:
+    - 2009
+    - 2015
+  CCALCASPBE:
+    role: exam.benign_appearing_calcifications_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Calcificações de aspecto benigno, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CCALCVASCD:
+    role: exam.vascular_calcifications_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Calcificações vasculares, mama direita'
+    years:
+    - 2009
+    - 2015
+  CCALCVASCE:
+    role: exam.vascular_calcifications_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Calcificações vasculares, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CCONRECOM:
+    role: exam.recommended_follow_up
+    kind: category
+    model: mark
+    name: Conduta recomendada
+    years:
+    - 2009
+    - 2015
+  CCONRECOMD:
+    role: exam.recommended_management_right_breast
+    kind: category
+    model: mark
+    name: Recomendação de conduta, mama direita
+    years:
+    - 2009
+    - 2015
+  CCONRECOME:
+    role: exam.recommended_management_left_breast
+    kind: category
+    model: mark
+    name: Recomendação de conduta, mama esquerda
+    years:
+    - 2009
+    - 2015
+  CDISARQCID:
+    role: exam.architectural_distortion_from_surgery_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Distorção arquitetural por cirurgia, mama direita'
+    years:
+    - 2009
+    - 2015
+  CDISARQCIE:
+    role: exam.architectural_distortion_from_surgery_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Distorção arquitetural por cirurgia, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CIMPINTEGD:
+    role: exam.implant_intact_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Implantes íntegros, mama direita'
+    years:
+    - 2009
+    - 2015
+  CIMPINTEGE:
+    role: exam.implant_intact_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Implantes íntegros, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CIMPSINRUD:
+    role: exam.implant_with_signs_of_rupture_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Implantes com sinais de ruptura, mama direita'
+    years:
+    - 2009
+    - 2015
+  CIMPSINRUE:
+    role: exam.implant_with_signs_of_rupture_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Implantes com sinais de ruptura, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CIRURGANTD:
+    role: exam.previous_surgery_right_breast
+    kind: category
+    model: mark
+    name: Fez cirurgia anterior, mama direita
+    years:
+    - 2009
+    - 2015
+  CIRURGANTE:
+    role: exam.previous_surgery_left_breast
+    kind: category
+    model: mark
+    name: Fez cirurgia anterior, mama esquerda
+    years:
+    - 2009
+    - 2015
+  CLINFAUXD:
+    role: exam.axillary_nodes_right
+    kind: category
+    model: mark
+    name: Linfonodos axilares, direita
+    years:
+    - 2009
+    - 2015
+  CLINFAUXDI:
+    role: exam.axillary_lymph_nodes_right_count
+    kind: number
+    model: mark
+    name: Linfonodos axilares, mama direita
+    years:
+    - 2009
+    - 2015
+  CLINFAUXE:
+    role: exam.axillary_nodes_left
+    kind: category
+    model: mark
+    name: Linfonodos axilares, esquerda
+    years:
+    - 2009
+    - 2015
+  CLINFAUXEI:
+    role: exam.axillary_lymph_nodes_left_count
+    kind: number
+    model: mark
+    name: Linfonodos axilares, mama esquerda
+    years:
+    - 2009
+    - 2015
+  CLINFINTRD:
+    role: exam.intramammary_lymph_node_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Linfonodo intramamário, mama direita'
+    years:
+    - 2009
+    - 2015
+  CLINFINTRE:
+    role: exam.intramammary_lymph_node_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Linfonodo intramamário, mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CNODCALD:
+    role: exam.calcified_nodule_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo calcificado (sugere fibroadenoma), mama direita'
+    years:
+    - 2009
+    - 2015
+  CNODCALE:
+    role: exam.calcified_nodule_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo calcificado (sugere fibroadenoma), mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CNODDEND:
+    role: exam.fat_density_nodule_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo com densidade de gordura (sugere lipoma), mama direita'
+    years:
+    - 2009
+    - 2015
+  CNODDENE:
+    role: exam.fat_density_nodule_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo com densidade de gordura (sugere lipoma), mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CNODDENHED:
+    role: exam.heterogeneous_density_nodule_right_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo com densidade heterogênea (sugere fibroadenolipoma), mama direita'
+    years:
+    - 2009
+    - 2015
+  CNODDENHEE:
+    role: exam.heterogeneous_density_nodule_left_breast
+    kind: category
+    model: mark
+    name: 'Outros achados: Nódulo com densidade heterogênea (sugere fibroadenolipoma), mama esquerda'
+    years:
+    - 2009
+    - 2015
+  CNODTAMD:
+    role: exam.nodule_size_right_breast
+    kind: category
+    model: mark
+    name: Tamanho do nódulo, mama direita
+    years:
+    - 2009
+    - 2015
+  CNODTAME:
+    role: exam.nodule_size_left_breast
+    kind: category
+    model: mark
+    name: Tamanho do nódulo, mama esquerda
+    years:
+    - 2009
+    - 2015
+  CO_CLI_DIA:
+    role: exam.breast_examined_diagnostic_mammogram
+    kind: category
+    model: mark
+    name: Mama examinada na mamografia diagnóstica
+    years:
+    - 2009
+    - 2015
+  CO_CNES:
+    role: exam.laboratory_cnes_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Prestador de serviço (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_FX_ETAR:
+    role: exam.age_band
+    kind: category
+    model: mark
+    name: Faixa Etária
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - FETARIA
+  CO_IBGE:
+    role: exam.provider_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do prestador de serviço
+    years:
+    - 2009
+    - 2015
+  CO_PAC_ESC:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - ESCOLARIDADE
+  CO_PAC_IBG:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município de residência
+    years:
+    - 2009
+    - 2015
+  CO_PAC_RAC:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Cor/raça
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - RACACOR
+  CO_PAC_SEX:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - SEXO
+  CO_PAC_UF:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2009
+    - 2015
+  CO_US:
+    role: exam.health_unit_code
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade de coleta (CNES)
+    years:
+    - 2009
+    - 2015
+  CO_US_IBGE:
+    role: exam.health_unit_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    name: Município da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CO_US_UF:
+    role: exam.health_unit_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  CRADCOMPCD:
+    role: exam.parenchyma_composition_right_breast
+    kind: category
+    model: mark
+    name: Composição do parênquima, mama direita
+    years:
+    - 2009
+    - 2015
+  CRADCOMPCE:
+    role: exam.parenchyma_composition_left_breast
+    kind: category
+    model: mark
+    name: Composição do parênquima, mama esquerda
+    years:
+    - 2009
+    - 2015
+  CRADPELED:
+    role: exam.skin_right_breast
+    kind: category
+    model: mark
+    name: Pele, mama direita
+    years:
+    - 2009
+    - 2015
+  CRADPELEE:
+    role: exam.skin_left_breast
+    kind: category
+    model: mark
+    name: Pele, mama esquerda
+    years:
+    - 2009
+    - 2015
+  DINTRESULT:
+    role: exam.interval_to_result_banded
+    kind: category
+    model: mark
+    name: Intervalo de resultado
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTRESULTADO
+  DINTSOLICT:
+    role: exam.interval_request_to_examination
+    kind: category
+    model: mark
+    name: Intervalo entre solicitação e coleta
+    years:
+    - 2009
+    - 2015
+  DINTTEMPEX:
+    role: exam.exam_turnaround_banded
+    kind: category
+    model: mark
+    name: Tempo exame
+    years:
+    - 2009
+    - 2015
+    codelists:
+    - INTTEMPOEXAME
+  DT_ID_COMP:
+    role: exam.competence_year_month
+    kind: date
+    model: when
+    name: Mês/Ano de Competência
+    years:
+    - 2009
+    - 2015
+  INDICLINIC:
+    role: exam.clinical_indication
+    kind: category
+    model: mark
+    name: Indicação clínica da mamografia
+    years:
+    - 2009
+    - 2015
+  MICRODIR:
+    role: exam.microcalcifications_right_breast
+    kind: category
+    model: mark
+    name: Microcalcificações, mama direita
+    years:
+    - 2009
+    - 2015
+  MICROESQ:
+    role: exam.microcalcifications_left_breast
+    kind: category
+    model: mark
+    name: Microcalcificações, mama esquerda
+    years:
+    - 2009
+    - 2015
+  NAOFZCIANT:
+    role: exam.no_previous_breast_surgery_count
+    kind: number
+    model: mark
+    name: Não fez cirurgia de mama
+    years:
+    - 2009
+    - 2015
+  NODULODIR:
+    role: exam.nodule_right_breast
+    kind: category
+    model: mark
+    name: Nódulo, mama direita
+    years:
+    - 2009
+    - 2015
+  NODULOESQ:
+    role: exam.nodule_left_breast
+    kind: category
+    model: mark
+    name: Nódulo, mama esquerda
+    years:
+    - 2009
+    - 2015
+  PRESNOD:
+    role: exam.nodule_reported
+    kind: category
+    model: mark
+    name: Presença de Nódulo (inferido)
+    years:
+    - 2009
+    - 2015
+  PRESTUF:
+    role: exam.provider_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do prestador
+    years:
+    - 2009
+    - 2015
+  QUANTEXAME:
+    role: exam.number_of_exams
+    kind: number
+    model: mark
+    name: Quantidade de exames
+    years:
+    - 2009
+    - 2015
+  REGLAB:
+    role: exam.laboratory_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região do laboratório
+    years:
+    - 2009
+    - 2015
+  REGRESID:
+    role: exam.region_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região de residência
+    years:
+    - 2009
+    - 2015
+  REGUS:
+    role: exam.health_unit_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    name: Região da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  SEMACHADOS:
+    role: exam.without_findings
+    kind: category
+    model: mark
+    name: Sem Achados
+    years:
+    - 2009
+    - 2015
+  TEMPOMAMOG:
+    role: exam.time_since_previous_mammogram
+    kind: category
+    model: mark
+    name: Tempo desde a mamografia anterior
+    years:
+    - 2009
+    - 2015
+  TIPMAMDIAG:
+    role: exam.type_of_diagnostic_mammogram
+    kind: category
+    model: mark
+    name: Tipo Mamog Diagn
+    years:
+    - 2009
+    - 2015

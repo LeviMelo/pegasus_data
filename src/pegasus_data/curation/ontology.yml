@@ -226,6 +226,7 @@ systems:
     official_name: Dados Abertos
     translated_name: Open Data
     kind: reference
+    republishes: true
     what_it_is: >
       Not a system in its own right — a republication tree. It carries the same
       datasets as the legacy trees under clearer names, and its record layouts
@@ -279,10 +280,23 @@ datasets:
     official_name: Cadastro Hospitalar
     translated_name: Hospital register
     what_it_is: >
-      The hospital register that accompanied the older SIH generations, before
-      CNES took over as the establishment reference.
+      The monthly national register of the hospitals billing SIH (CHBRaamm.dbc,
+      2019 onward): competence, CNES, CNPJ, maintainer's CNPJ, municipality,
+      trade and legal names. Corrected 2026-10-08: this entry said retired,
+      before CNES; the files run to 2026 (3,785 hospitals in 2026-03).
     observed_as: [CH]
-    status: retired
+
+  SIH.CM:
+    system: SIH
+    official_name: Cadastro de Mantenedoras
+    translated_name: Maintainer register
+    what_it_is: >
+      The monthly national register of the entities maintaining SIH's hospitals
+      (CMBRaamm.dbc, SIHSUS/200801_/Dados, 2019 onward): competence, the
+      maintainer's CNPJ and legal name, joined to SIH.CH by CNPJ_MANT. Filed
+      under SISCAN until 2026-10-08, because SISMAMA's CM files taught that
+      prefix (inventory/systems.py).
+    observed_as: [CM]
 
   SIH.MT:
     system: SIH
