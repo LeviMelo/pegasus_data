@@ -254,6 +254,16 @@ variables:
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
     depends_on:
     - TP_NOTIFIC
+    - DT_NOTIFIC
+    derived:
+    - name: IDADE_anos
+      from:
+      - DT_NASC
+      - DT_NOTIFIC
+      encoding: dates
+      rule: the child's age at notification in fractional years, DT_NOTIFIC - DT_NASC (DDMMYYYY), null where either is
+        empty or the notification precedes the birth; a stillbirth or abortion has no DT_NASC, so no age. One
+        converter, _age.years_column
   DT_NASCMAE:
     official_name: Data de nascimento da gestante/mae
     translated_name: Mother's date of birth

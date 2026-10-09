@@ -712,6 +712,12 @@ columns:
     years:
     - 2014
     - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).
   NU_IDADE_N:
     role: patient.age_coded
     kind: number

@@ -48,3 +48,9 @@ completed years). **Amends:** ADR-0058 (age banded in aggregates).
 
 **What would reverse it.** A vintage whose unit codes differ from the measured
 tables. The same measurement, run on an older year, would show it.
+
+**Addendum (2026-10-09): age from two dates.** A dataset that records no age has encoding `dates`: `[birth, reference]`.
+It gives the years between the two dates, and null where either date is missing or the reference precedes the birth.
+RESP's newborns carry DT_NASC and DT_NOTIFIC and no age column: PE 2016 gives live births a median of 3 days at
+notification, and its stillbirths have no birth date and so no age. A dataset that publishes an age keeps it (ADR-0070
+above); `dates` is not a second definition beside it.

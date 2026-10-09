@@ -200,3 +200,14 @@ ESCB is now its own dataset. The ages are read from the totals; no layout found 
 - Two documented claims were wrong and are corrected. `SIA.PA` said "no patient exists in it at all". `SIA.BI` said smaller municipalities report "through the aggregate PA instead": BI *is* PA's BPA-I rows.
 - SAD equals PA's A rows: 289 rows and 289 approved in AC 2014-01, 1,631 and 1,656 in TO 2015-10. It was published 2012–2018 only (1,088 files, 19 in 2018). Its event counts 1,656 in TO 2015-10.
 - A state asked of SAD for 2023 used to fail with "requested UF is not a source/publication partition". The UF axis was measured on the requested years' files, and there were none. A year with no publication now takes the axis from the dataset's other years, so the answer is NothingPublished. A state asked of SINAN, which is published nationally, is still refused.
+
+**SIA's production families' missing codes; every event dataset readable (2026-10-09).** `propose_missing.py --sample UF:YYYY-MM` reads one state-month instead of a national year: a national PA year is ~400 M rows, and the codelists supply the codes a sample lacks.
+- Code tables were declared for PA (23 columns, AC 2023-01), PS (14), BI (10) and SAD (9, TO 2015-10): RACACOR 99 'sem informação' and TIPPRE 00 'não preenchido'.
+- PA_MNDIF and PA_UFDIF 9 'município de residência ignorado' had been written `missing: []`, because NOT_RECORDED matched whole labels only. A label ending in "ignorado/a" now counts as not recorded. These were the only two such labels among the declared code tables.
+- PegaSUS's coverage could not run on five event datasets.
+  - RESP had no age column. It now derives `IDADE_anos` from DT_NASC and DT_NOTIFIC (ADR-0070 addendum).
+  - SINAN COLE and TETN lacked the `IDADE_anos` stratum the other forms carry. TETN 2016's one case is 9 days old; COLE's files are published empty.
+  - TRAC's ID_MUNI_RE ("Município de residência") was a mark and is now the residence stratum (2015: 24,852 records, all with an age).
+  - SDTA is one foodborne outbreak per row. It had inherited SINAN's person-level notification event and now declares none; OQ-76 holds the counting of its cases, which are columns by sex and age band.
+- `pegasus-core coverage`: 74 of 74 event datasets now run, with 3,556 of 6,137 columns read. Before this branch's last three commits, 70 of 75 ran with 3,374 of 5,847 read.
+

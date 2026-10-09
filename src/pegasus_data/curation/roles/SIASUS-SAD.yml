@@ -2,6 +2,8 @@ dataset: SIASUS-SAD
 record: care
 columns:
   CATEND:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (01='eletivo'): a code table, not a catch-all; no value labelled as not recorded
     role: care.type_of_care_episode
     kind: category
     model: mark
@@ -82,6 +84,8 @@ columns:
     - 2018
     note: A direct personal identifier, passed through unchanged.
   COB_ESF:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (N='não', S='sim'): a code table, not a catch-all; no value labelled as not recorded
     role: care.esf_coverage_indicator
     kind: category
     model: mark
@@ -92,6 +96,8 @@ columns:
     codelists:
     - COBERTURA
   CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (PG='pg pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: care.management_type_code
     kind: category
     model: mark
@@ -113,6 +119,8 @@ columns:
     codelists:
     - INE_EQUIPE_BR
   DESTINOPAC:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (00='00-permanência', 01='01-alta clínica', 03='03-alta administrativa'): a code table, not a catch-all; no value labelled as not recorded
     role: care.patient_destination
     kind: category
     model: mark
@@ -221,6 +229,8 @@ columns:
     - 2012
     - 2018
   MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: care.maintained_vs_individual_establishment_flag
     kind: category
     model: mark
@@ -231,6 +241,8 @@ columns:
     codelists:
     - MANT_IND
   MOT_COB:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (11='alta curado', 18='alta por outros motivos', 21='permanência por características próprias da doença'): a code table, not a catch-all; no value labelled as not recorded
     role: care.reason_for_discharge_continuation
     kind: category
     model: mark
@@ -270,6 +282,8 @@ columns:
     - 2014
     - 2018
   ORIGEM_PAC:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (01='01-serviço de urgência', 02='02-atenção básica', 03='03-internação hospitalar', 05='05-outros'): a code table, not a catch-all; no value labelled as not recorded
     role: care.patient_origin
     kind: category
     model: mark
@@ -335,6 +349,8 @@ columns:
     - 2012
     - 2018
   PA_SRV:
+    missing: []
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (113='113 servico de atencao domiciliar'): a code table, not a catch-all; no value labelled as not recorded
     role: care.specialised_service
     kind: category
     model: mark
@@ -377,6 +393,8 @@ columns:
     - 2012
     - 2018
   RACACOR:
+    missing: ['99']
+    # declared from DATASUS's own sources (TO 2015-10): no form dictionary; the table names every code the records use, each with its own label (01='branca', 02='preta', 03='parda'): a code table, not a catch-all; 99='SEM INFORMAÇÃO'
     role: care.race_colour
     kind: category
     model: mark

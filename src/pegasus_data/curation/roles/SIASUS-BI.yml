@@ -10,6 +10,8 @@ columns:
     - 2008
     - 2026
   CATEND:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito', 06='outros tipos lesões/envenenamentos(agent.fis./quim.'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.type_of_care_episode
     kind: category
     model: mark
@@ -96,6 +98,8 @@ columns:
     - 2008
     - 2026
   COMPLEX:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='0-não se aplica', 1='1-atenção básica', 2='2-média complexidade', 3='3-alta complexidade'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.care_complexity
     kind: category
     model: mark
@@ -106,6 +110,8 @@ columns:
     codelists:
     - COMPLEX
   CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (EP='ep estado pleno', PG='pg pacto de gestão'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.management_type_code
     kind: category
     model: mark
@@ -174,6 +180,8 @@ columns:
     - 2008
     - 2026
   MNDIF:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.patient_municipality_differs_from_facility_municipality
     kind: category
     model: mark
@@ -185,6 +193,8 @@ columns:
     codelists:
     - INVASAO
   MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.maintained_vs_individual_establishment_flag
     kind: category
     model: mark
@@ -206,6 +216,8 @@ columns:
     - 2008
     - 2026
   NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1147='114-7 fundação pública de direito público estadual ou do distrito federal', 1244='124-4 município', 2062='206-2 sociedade empresária limitada', 2240='224-0 sociedade simples limitada', 3069='306-9 fundação privada', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.establishment_legal_nature_concla
     kind: category
     model: mark
@@ -240,6 +252,8 @@ columns:
     - 2008
     - 2026
   RACACOR:
+    missing: ['99']
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (01='branca', 02='preta', 03='parda', 04='amarela', 05='indigena', 99='sem informação'): a code table, not a catch-all; 99='SEM INFORMAÇÃO'
     role: procedure.race_colour
     kind: category
     model: mark
@@ -268,6 +282,8 @@ columns:
     codelists:
     - TP_FINAN
   TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: procedure.provider_type_code
     kind: category
     model: mark
@@ -276,6 +292,8 @@ columns:
     - 2008
     - 2026
   TPFIN:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (01='01 atenção básica (pab)', 04='04 fundo de ações estratégicas e compensações faec', 05='05 incentivo - mac', 06='06 média e alta complexidade (mac)', 07='07 vigilância em saúde'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.production_financing_type
     kind: category
     model: mark
@@ -306,6 +324,8 @@ columns:
     - 2008
     - 2026
   UFDIF:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='não houve invasão', 1='sim (houve invasão)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.patient_uf_differs_from_facility_uf
     kind: category
     model: mark

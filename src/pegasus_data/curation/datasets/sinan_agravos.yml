@@ -827,6 +827,9 @@ datasets:
   SINAN_SDTA:
     system: SINAN
     series: SDTA
+    # an outbreak, not a person: SINAN's shared notification event does not hold (its cases are counted by sex and age
+    # band in columns, NU_1_4_TOT ... NU_10_19_M; OPEN_QUESTIONS 76)
+    event_types: []
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SDTA

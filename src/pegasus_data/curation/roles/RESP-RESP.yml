@@ -441,6 +441,12 @@ columns:
     - 2024
     codelists:
     - SIM_NAO
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: The child's age at notification, derived from DT_NASC and DT_NOTIFIC (encoding dates); none for a stillbirth or abortion.
   IDADEGES:
     missing: []
     domain: [10, 60]

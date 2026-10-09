@@ -57,7 +57,7 @@ class AgeDimension:
     """
 
     name: str
-    encoding: str  # "sih" | "sim" | "sinan"
+    encoding: str  # "sih" | "cih" | "sim" | "sinan" | "years" | "dates"
     fields: tuple[str, ...]
     bands: tuple[int, ...] = DEFAULT_BANDS
     label: str = "Faixa etária"
@@ -77,18 +77,25 @@ class AgeDimension:
         return out
 
 
+#: the age conventions `years_column` decodes; "dates" is the years from a birth date to a reference date (RESP's
+#: newborns carry DT_NASC and DT_NOTIFIC and no age)
+ENCODINGS = ("sih", "cih", "sim", "sinan", "years", "dates")
+
+
 def parse_age_dimension(body: Any) -> AgeDimension | None:
     """The spec's ``age_dimension:`` block, validated."""
     if not body:
         return None
     encoding = str(body.get("encoding") or "")
-    if encoding not in ("sih", "cih", "sim", "sinan", "years"):
+    if encoding not in ENCODINGS:
         raise ValueError(
-            f"age_dimension.encoding must be sih|cih|sim|sinan|years, got {encoding!r}"
+            f"age_dimension.encoding must be {'|'.join(ENCODINGS)}, got {encoding!r}"
         )
     fields = tuple(str(f) for f in (body.get("fields") or ()))
     if encoding in ("sih", "cih") and len(fields) != 2:
         raise ValueError(f"{encoding} age needs [value_field, unit_field]")
+    if encoding == "dates" and len(fields) != 2:
+        raise ValueError("dates age needs [birth_date_field, reference_date_field]")
     if encoding in ("sim", "sinan", "years") and len(fields) != 1:
         raise ValueError(f"{encoding} age needs exactly one field")
     bands = tuple(int(b) for b in (body.get("bands") or DEFAULT_BANDS))
@@ -144,6 +151,23 @@ def _scaled(value: Any, unit: Any, table: dict[str, float], decades: bool = Fals
     return pc.case_when(pc.make_struct(*conditions), *choices, pa.scalar(None, pa.float64()))
 
 
+def _date_of(text: Any) -> Any:
+    """A string column of dates in the forms DATASUS writes (ISO, YYYYMMDD, DDMMYYYY, DD/MM/YYYY) -> timestamp[s],
+    null where none gives a date in 1880-2035. No eight-digit string is a date both ways inside that window (one
+    reading puts the year outside it or the month above 12)."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    head = pc.utf8_slice_codeunits(text, 0, 10)
+    out = pa.nulls(len(text), pa.timestamp("s"))
+    for fmt in ("%Y-%m-%d", "%Y%m%d", "%d%m%Y", "%d/%m/%Y"):
+        d = pc.strptime(head, format=fmt, unit="s", error_is_null=True)
+        year = pc.year(d)
+        inside = pc.and_(pc.greater_equal(year, 1880), pc.less_equal(year, 2035))
+        out = pc.coalesce(out, pc.if_else(pc.fill_null(inside, False), d, pa.scalar(None, pa.timestamp("s"))))
+    return out
+
+
 def years_column(age: AgeDimension, table: Any) -> Any:
     """Age in fractional years as float64, null where undecodable. Vectorised."""
     import pyarrow as pa
@@ -158,6 +182,11 @@ def years_column(age: AgeDimension, table: Any) -> Any:
 
     if age.encoding == "years":
         return _digits_to_years(text_of(age.fields[0]))
+    if age.encoding == "dates":
+        born, then = _date_of(text_of(age.fields[0])), _date_of(text_of(age.fields[1]))
+        days = pc.divide(pc.cast(pc.cast(pc.subtract(then, born), pa.int64()), pa.float64()), 86400.0)
+        years = pc.divide(days, 365.25)
+        return pc.if_else(pc.fill_null(pc.less(years, 0.0), True), pa.scalar(None, pa.float64()), years)
     if age.encoding in ("sih", "cih"):
         return _scaled(_digits_to_years(text_of(age.fields[0])), text_of(age.fields[1]), UNITS[age.encoding],
                        decades=age.encoding == "cih")

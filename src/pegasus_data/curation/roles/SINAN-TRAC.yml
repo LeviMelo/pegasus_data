@@ -170,9 +170,9 @@ columns:
     - 2026
     note: role from the notification block
   ID_MUNI_RE:
-    role: patient.residence_municipality
+    role: patient.residence
     kind: place
-    model: mark
+    model: stratum
     name: Município de residência
     codelists:
     - BR_MUNICIPALFA

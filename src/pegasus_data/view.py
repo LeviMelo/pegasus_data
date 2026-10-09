@@ -1323,13 +1323,14 @@ def _apply_derived(
             # unit column's LABELS for words like "meses" and divide, a second
             # converter that disagreed with the aggregate path's and produced
             # nothing when the unit column had no codelist (SIH's COD_IDADE).
+            from ._age import ENCODINGS as AGE_ENCODINGS
             from ._age import AgeDimension, years_column
 
             encoding = str(recipe.get("encoding") or "")
-            if encoding not in ("sih", "cih", "sim", "sinan", "years"):
+            if encoding not in AGE_ENCODINGS:
                 report.warnings.append(
                     f"{column_name}: the curated recipe declares no age encoding "
-                    "(sih|cih|sim|sinan|years), so it cannot be derived"
+                    f"({'|'.join(AGE_ENCODINGS)}), so it cannot be derived"
                 )
                 continue
             derived_column = years_column(

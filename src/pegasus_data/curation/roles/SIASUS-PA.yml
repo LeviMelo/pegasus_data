@@ -34,6 +34,8 @@ columns:
     - 2008
     - 2026
   PA_ALTA:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='nao foi dado alta ao paciente', 1='sim (motivo de saída-alta)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.discharge_indicator
     kind: category
     model: mark
@@ -53,6 +55,8 @@ columns:
     - 2008
     - 2026
   PA_CATEND:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (01='eletivo', 02='urgência', 03='acidente no local trabalho ou a serviço da empresa', 04='acidente no trajeto para o trabalho', 05='outros tipos de acidente de trânsito', 06='outros tipos lesões/envenenamentos(agent.fis./quim.', 99='informação inexistente (bpa-c)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.admission_character
     kind: category
     model: mark
@@ -199,6 +203,8 @@ columns:
     - 1994
     - 2026
   PA_CONDIC:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (EP='gestao estadual plena', PG='pacto de gestão municipal'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.management_type_code
     kind: category
     model: mark
@@ -238,6 +244,8 @@ columns:
     - 2008
     - 2026
   PA_DOCORIG:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (B='raas - psicossocial', C='bpa-c', I='bpa-i', P='apac - procedimento principal', S='apac - procedimento secundário'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.source_instrument_code
     kind: category
     model: mark
@@ -251,6 +259,8 @@ columns:
     - DO_ORIGC
     - PA_DOCORIG
   PA_ENCERR:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='nao houve encerramento', 1='sim (motivo de saída-encerramento)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.closure_indicator
     kind: category
     model: mark
@@ -262,6 +272,8 @@ columns:
     - ENCERRAM
     - PA_ENCERR
   PA_ETNIA:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0001='acona (wakonas, naconas, jakona, acoranes)', 0002='aikana (aikana, mas saka,tubarao)', 0003='ajuru', 0005='amanaye', 0011='apurina (aporina, ipurina, ipurina, ipurinan)', 0015='arara do acre (shawanaua, amawaka)', 0024='ashaninka (kampa)', 0026='asurini do xingu (awaete)', 0068='jarawara', 0078='kaixana (caixana)', 0108='katukina (peda djapa)', 0109='katukina do acre', 0110='kaxarari (caxarari)', 0111='kaxinawa (huni-kuin, cashinaua, caxinaua)', 0114='kayapo (caiapo)', 0131='kulina pano (culina)', 0132='kulina/madiha (culina, madija, madiha)', 0136='machineri (manchineri, manxineri)', 0145='marubo', 0164='nawa (naua)', 0165='nukini (nuquini, nukuini)', 0189='poyanawa (poianaua)', 0193='shanenawa (katukina)', 0254='yaminawa (jaminawa, iaminawa)', 0259='yawanawa (iauanaua)', X276='arara apolima', X307='kampa', X335='manchineri'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.ethnicity
     kind: category
     model: dimension
@@ -280,6 +292,8 @@ columns:
     - 2008
     - 2026
   PA_FLIDADE:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='idade não exigida', 1='idade compativel com o sigtap', 3='idade inexistente'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.age_eligibility_compatibility_flag
     kind: category
     model: mark
@@ -339,6 +353,8 @@ columns:
     - 2026
     note: The patient's age stratum, in years (layout). 999 marks age not recorded (141,475 of 4,813,028 in 2026-04 PR) and 998 an age entered in error; no real age reaches either.
   PA_INCOUT:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0000='sem incremento'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.other_increment_code
     kind: category
     model: mark
@@ -350,6 +366,8 @@ columns:
     - INCREMENTO
     - PA_INCOUT
   PA_INCURG:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0000='sem incremento'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.urgency_increment_code
     kind: category
     model: mark
@@ -361,6 +379,8 @@ columns:
     - INCREMENTO
     - PA_INCURG
   PA_INDICA:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='não aprovado', 5='aprovado totalmente', 6='aprovado parcialmente'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.approval_status_indicator
     kind: category
     model: mark
@@ -383,6 +403,9 @@ columns:
     - 2026
     note: The CNES team (INE) that produced it; links to CNES-EQ.
   PA_MNDIF:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources (AC 2023-01): the table names every code the records use, each with its own label; 9='município de residência ignorado' is the residence not recorded
     role: procedure.patient_vs_establishment_municipality_mismatch_flag
     kind: category
     model: mark
@@ -394,6 +417,8 @@ columns:
     - INVASAO
     - PA_MNDIF
   PA_MN_IND:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (I='individual', M='mantida'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.maintained_or_individual
     kind: category
     model: mark
@@ -414,6 +439,8 @@ columns:
     - 2007
     note: CID-O morphology (variable note); 0 on all recorded rows of 2007-11 AP.
   PA_MOTSAI:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (00='produção sem motivo de saída (bpa-c / bpa-i)', 11='alta curado', 12='alta melhorado', 15='alta com previsão de retorno p/ acompan. do pacient', 21='permanência por características próprias da doença', 31='transferido para outro estabelecimento', 41='óbito com declaração de óbito fornec. médico assist', 51='encerramento adminstrativo'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.exit_reason_code
     kind: category
     model: mark
@@ -454,6 +481,8 @@ columns:
     - 2008
     - 2026
   PA_NAT_JUR:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (1023='102-3 órgão público do poder executivo estadual ou do distrito federal', 1147='114-7 fundação pública de direito público estadual ou do distrito federal', 1244='124-4 município', 2062='206-2 sociedade empresária limitada', 2240='224-0 sociedade simples limitada', 3069='306-9 fundação privada', 3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -473,6 +502,8 @@ columns:
     - 2002
     - 2007
   PA_NIVCPL:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='0-não se aplica', 1='1-atenção básica', 2='2-média complexidade', 3='3-alta complexidade'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.procedure_complexity_level
     kind: category
     model: mark
@@ -492,6 +523,8 @@ columns:
     - 1994
     - 2007
   PA_OBITO:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.death_indicator
     kind: category
     model: mark
@@ -503,6 +536,8 @@ columns:
     - OBITO
     - PA_OBITO
   PA_PERMAN:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='nao houve a permanência do paciente na unidade', 1='sim (motivo de saída-permanência)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.continuation_indicator
     kind: category
     model: mark
@@ -589,6 +624,8 @@ columns:
     codelists:
     - SEXO
   PA_SRV_C:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (113001='113 servico de atencao domiciliar / 001 assistencia domiciliar', 113003='113 servico de atencao domiciliar / 003 equipe multidisciplinar de atenção domiciliar - emad', 114007='114 servico de atencao em saude bucal / 007 atendimento a pessoa com deficiencia', 115002='115 servico de atencao psicossocial / 002 atendimento psicossocial', 115006='115 servico de atencao psicossocial / 006 ua adulto', 116005='116 servico de atencao cardiovascular / cardiologia / 005 cardiologia intervencionista (hemodinamica', 117002='117 servico de cirurgia reparadora / 002 tratamento em queimados', 120001='120 servico de diagnostico por anatomia patologica eou citopato / 001 exames anatomopatologicos', 120002='120 servico de diagnostico por anatomia patologica eou citopato / 002 exames citopatologicos', 121001='121 servico de diagnostico por imagem / 001 radiologia', 121002='121 servico de diagnostico por imagem / 002 ultrasonografia', 121003='121 servico de diagnostico por imagem / 003 tomografia computadorizada', 121004='121 servico de diagnostico por imagem / 004 ressonancia magnetica', 121012='121 servico de diagnostico por imagem / 012 mamografia', 125001='125 servico de farmacia / 001 disp. de med. comp. especializado da assist. farmaceutica', 126004='126 servico de fisioterapia / 004 assistencia fisioterapeutica cardiovasculares e pneumofunci', 126005='126 servico de fisioterapia / 005 assistencia fisioterapeutica nas disfuncoes musculo esquelet', 126007='126 servico de fisioterapia / 007 assistencia fisioterapeutica nas alteracoes em neurologia', 127001='127 servico de atencao a obesidade / 001 trat. clinico cirur. reparador e acomp paciente c/ obesidad', 128002='128 servico de hemoterapia / 002 diagnostico em hemoterapia', 128004='128 servico de hemoterapia / 004 medicina transfusional', 130001='130 atencao a doenca renal cronica / 001 tratamento dialitico-hemodialise', 130005='130 atencao a doenca renal cronica / 005 tratamento dialitico-peritoneal', 132001='132 servico de oncologia / 001 oncologia pediatrica', 132002='132 servico de oncologia / 002 hematologia', 132003='132 servico de oncologia / 003 oncologia clinica', 132004='132 servico de oncologia / 004 radioterapia', 133001='133 servico de pneumologia / 001 tratamento de doencas das vias aereas inferiores', 135002='135 servico de reabilitacao / 002 reabilitacao intelectual', 135003='135 servico de reabilitacao / 003 reabilitacao fisica', 135004='135 servico de reabilitacao / 004 reabilitacao visual / mental / multiplas deficiencias', 135005='135 servico de reabilitacao / 005 reabilitacao auditiva', 135010='135 servico de reabilitacao / 010 atencao fonoaudiologica', 135012='135 servico de reabilitacao / 012 atencao a saude das pessoas ostomizadas i', 141001='141 servico de vigilancia em saude / 001 vigilancia epidemiologica', 142001='142 servico de endoscopia / 001 do aparelho digestivo', 142002='142 servico de endoscopia / 002 do aparelho respiratorio', 142003='142 servico de endoscopia / 003 do aparelho urinario', 145003='145 servico de diagnostico de laboratorio clinico / 003 exames sorologicos e imunologicos', 145012='145 servico de diagnostico de laboratorio clinico / 012 exames para triagem neonatal', 149014='149 transplante / 014 acompanhamento de paciente transplantado', 150001='150 cirurgia vascular / 001 fistula arteriovenosa sem enxerto', 151001='151 medicina nuclear / 001 medicina nuclear in vivo', 157001='157 servico de laboratorio de protese dentaria / 001 laboratorio regional de protese dentaria', 164001='164 servico de orteses, proteses e mat especiais em reabilitacao / 001 dispensacao de opm auxiliares', 164003='164 servico de orteses, proteses e mat especiais em reabilitacao / 003 dispensacao de opm ortopedica', 164004='164 servico de orteses, proteses e mat especiais em reabilitacao / 004 manutencao e adaptacao de opm', 164005='164 servico de orteses, proteses e mat especiais em reabilitacao / 005 dispensacao de opm auditiva', 164009='164 servico de orteses, proteses e mat especiais em reabilitacao / 009 substituicao/troca de opm', 169002='169 atencao em urologia / 002 litotripsia'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.specialised_service
     kind: category
     model: mark
@@ -617,6 +654,8 @@ columns:
     - 1994
     - 2007
   PA_TIPPRE:
+    missing: ['00']
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (00='não preenchido'): a code table, not a catch-all; 00='Não preenchido'
     role: facility.provider_type
     kind: category
     model: mark
@@ -640,6 +679,8 @@ columns:
     - 1994
     - 2007
   PA_TPFIN:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (01='01 atenção básica (pab)', 02='02 assistência farmacêutica', 04='04 fundo de ações estratégicas e compensações faec', 05='05 incentivo - mac', 06='06 média e alta complexidade (mac)', 07='07 vigilância em saúde'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.production_financing_type
     kind: category
     model: mark
@@ -651,6 +692,8 @@ columns:
     - FINANC
     - TP_FINAN
   PA_TPUPS:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (02='centro de saude/unidade basica de saude', 04='policlinica', 05='hospital geral', 07='hospital especializado', 15='unidade mista', 36='clinica especializada/ambulatorio especializado', 39='unidade de servico de apoio de diagnose e terapia', 42='unidade movel de nivel pre-hosp-urgencia/emergencia', 43='farmacia', 50='unidade de vigilancia em saude', 62='hospital dia', 68='secretaria de saude', 69='centro de atenção hemoterápica e/ou hematológica', 70='centro de atenção psicossocial-caps', 73='pronto antedimento', 76='central de regulação médica das urgências', 80='orio de saude publica', 81='central de regualação', 85='centro de imunização'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.type
     kind: category
     model: mark
@@ -662,6 +705,8 @@ columns:
     - TP_ESTAB
     - TP_UNID
   PA_TRANSF:
+    missing: []
+    # declared from DATASUS's own sources (AC 2023-01): no form dictionary; the table names every code the records use, each with its own label (0='nao houve transferência do paciente', 1='sim (motivo de saída-transferência)'): a code table, not a catch-all; no value labelled as not recorded
     role: procedure.transfer_indicator
     kind: category
     model: mark
@@ -672,6 +717,9 @@ columns:
     codelists:
     - TRANSFER
   PA_UFDIF:
+    missing:
+    - '9'
+    # declared from DATASUS's own sources (AC 2023-01): the table names every code the records use, each with its own label; 9='município de residência ignorado' is the residence not recorded
     role: procedure.patient_uf_differs_from_facility_uf
     kind: category
     model: mark

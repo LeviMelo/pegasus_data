@@ -2,6 +2,9 @@
 
     python scripts/propose_missing.py DATASET YEAR[-YEAR] [--write]
     python scripts/propose_missing.py DATASET YEAR --check [--write]   # re-read the declared codes by the rule below
+    python scripts/propose_missing.py DATASET YEAR --sample UF:YYYY-MM [--write]   # one state-month for YEAR (SIA PA:
+                                                                      # a national year is ~400 M rows; the codelists
+                                                                      # supply the codes a sample lacks)
 
 For every reviewed `category` column (model mark or dimension) of DATASET's roles file that declares no `missing`,
 the distinct values of YEAR are labelled (`translate`), and every other code of the codelists the catalog binds to the
@@ -38,14 +41,24 @@ from pegasus_data.semantics import column_roles
 from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 
 NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|n[ãa]o preenchid[oa]|sem informa[çc][ãa]o|não declarad[oa]"
-                          r"|desconhecid[oa])\s*$", re.IGNORECASE)     # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
+                          r"|desconhecid[oa]|.*\s+ignorad[oa]s?)\s*$", re.IGNORECASE)  # a phrase ending in "ignorado": SIA's MNDIF 9 "município de residência ignorado"     # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
 NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
+
+
+#: ``--sample UF:YYYY-MM``: read that state-month in place of each national year
+SAMPLE: tuple[str, str] | None = None
+
+
+def _read(dataset: str, year: int, columns: list[str], **kwargs):
+    """One year of the columns, nationally, or the ``--sample`` state-month."""
+    uf, month = SAMPLE if SAMPLE else ("BR", year)
+    return pg.query(dataset, period=month, geography=uf, select=columns, present="codes", **kwargs)
 
 
 def main(dataset: str, spec: str, write: bool) -> None:
     lo, _, hi = spec.partition("-")
     years = list(range(int(lo), int(hi or lo) + 1))
-    year = spec                                     # the comments name the years read
+    year = f"{SAMPLE[0]} {SAMPLE[1]}" if SAMPLE else spec    # the comments name what was read
     key = dataset.upper().replace(".", "-")
     rows = [r for r in column_roles.load_column_roles()[key]
             if r.kind == "category" and r.model in ("mark", "dimension") and r.reviewed and r.missing is None]
@@ -60,7 +73,7 @@ def main(dataset: str, spec: str, write: bool) -> None:
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    table = pg.query(dataset, period=y, geography="BR", select=[r.column for r in mine], present="codes")
+                    table = _read(dataset, y, [r.column for r in mine])
                 break
             except Exception as exc:  # noqa: BLE001 - a column absent this year
                 absent = set(re.findall(r"'([A-Z0-9_]+)' is not present", str(exc))) | set(
@@ -177,6 +190,7 @@ def by_form(system: str, series: str, column: str, miss: list[str], tabnet: str,
 
 def numbers(dataset: str, year: int, write: bool) -> None:
     """The measurements' domains from the tabulation bands DATASUS binds to them (the module's docstring)."""
+    read = f"{SAMPLE[0]} {SAMPLE[1]}" if SAMPLE else str(year)
     key = dataset.upper().replace(".", "-")
     rows = [r for r in column_roles.load_column_roles()[key] if r.kind == "number" and r.measure and r.reviewed
             and r.missing is None and (r.years[0] or 0) <= year <= (r.years[1] or 9999)]
@@ -186,7 +200,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
     system = {"SIH": "SIHSUS"}.get(system, system)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = pg.query(dataset, period=year, geography="BR", select=[r.column for r in rows], present="codes")
+        table = _read(dataset, year, [r.column for r in rows])
     proposals = {}
     for r in rows:
         counts = {x["values"]: x["counts"] for x in pc.value_counts(pc.cast(table[r.column], "string")).to_pylist()
@@ -204,7 +218,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
                 print(f"{r.column}: a linear CNV (L), a display format with no range  [left undeclared]")
                 continue
             if not counts:
-                print(f"{r.column}: no value in {year} to test the band against  [left undeclared]")
+                print(f"{r.column}: no value in {read} to test the band against  [left undeclared]")
                 continue
             lo, hi, why = min(valid), max(valid), "the range DATASUS's tabulation bands label as values"
             held: dict[int, int] = {}
@@ -220,7 +234,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
         n = sum(counts.values())
         out = {c: k for c, k in counts.items() if not (c.strip().lstrip("-").isdigit() and lo <= int(c) <= hi)}
         top = ", ".join(f"{c}: {k}" for c, k in sorted(out.items(), key=lambda kv: -kv[1])[:4])
-        evidence = f"{why}; outside it {sum(out.values())} of {n} values in {year} ({top or 'none'})"
+        evidence = f"{why}; outside it {sum(out.values())} of {n} values in {read} ({top or 'none'})"
         proposals[r.column] = (r.domain is None, lo, hi, evidence)
         print(f"{r.column}: domain [{lo:g}, {hi:g}] ({evidence})")
     if write:
@@ -232,7 +246,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
                 print(f"  {col}: not found once in {path.name}, skipped")
                 continue
             decl = ("    missing: []\n" + (f"    domain: [{lo:g}, {hi:g}]\n" if new else "") +
-                    f"    # proposed ({year}): {evidence}\n")
+                    f"    # proposed ({read}): {evidence}\n")
             text = text.replace(head, head + decl)
         path.write_text(text, encoding="utf-8")
         print(f"written {path}")
@@ -293,7 +307,7 @@ def check(dataset: str, year: int, write: bool = False) -> None:
     system = {"SIH": "SIHSUS"}.get(system, system)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = pg.query(dataset, period=year, geography="BR", select=[r.column for r in rows], present="codes",
+        table = _read(dataset, year, [r.column for r in rows],
                          allow_partial=True)
     series = dataset.replace(".", "-").split("-", 1)[1] if "-" in dataset.replace(".", "-") else ""
     bad, fixes = 0, {}
@@ -340,6 +354,9 @@ def check(dataset: str, year: int, write: bool = False) -> None:
 
 
 if __name__ == "__main__":
+    if "--sample" in sys.argv:
+        uf, _, month = sys.argv[sys.argv.index("--sample") + 1].partition(":")
+        SAMPLE = (uf.upper(), month)
     if "--check" in sys.argv:
         check(sys.argv[1], int(sys.argv[2]), "--write" in sys.argv[3:])
     else:
