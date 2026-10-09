@@ -300,23 +300,31 @@ datasets:
 
   SIH.MT:
     system: SIH
-    official_name: Mudança de Procedimento
-    translated_name: Procedure change
+    official_name: Atos profissionais (1995-1997)
+    translated_name: Professional acts, 1995-1997
     what_it_is: >
-      Records where the billed procedure changed during the admission. Small
-      and rarely used; kept because it explains discrepancies in RD.
+      One row per professional act billed under an AIH, 1995-1997, national
+      monthly files (4,057,795 rows in 1997-02): the act's procedure (ATO_PROF,
+      eight-digit SIH codes), its type, quantity, points and value, and the
+      CGC or CPF of the professional or entity paid. The predecessor of SIH.SP.
+      Corrected 2026-10-08: this entry read the name as procedure changes; the
+      expansion of MT is not documented anywhere found.
     observed_as: [MT]
-    confidence: low
+    confidence: medium
 
   SIH.BASE_AIH1:
     system: SIH
-    official_name: Base AIH
-    translated_name: AIH base file
+    official_name: Base AIH (DuckDB)
+    translated_name: AIH base, one DuckDB database
     what_it_is: >
-      A consolidated AIH base file published outside the monthly competência
-      cycle. Not part of the regular series.
+      SIHSUS/base_aih1.duck (12 GB): every approved AIH from 2008-01 in one
+      star schema, a fact table stg_aih of 221.5 million rows and 74 columns with
+      twelve dimension tables (municipalities, establishments, procedures, ICD
+      subcategories with CSAP groups...). The same admissions as SIH.RD in
+      another layout, not a supplementary file; never pooled with SIH.RD.
+      Corrected 2026-10-08.
     observed_as: [BASE_AIH1]
-    confidence: low
+    confidence: high
 
   # ---------------------------------------------------------------- SIA
   SIA.PA:
@@ -600,31 +608,45 @@ datasets:
 
   SIM.DOR:
     system: SIM
-    official_name: Declaração de Óbito, base retificada
-    translated_name: Death certificate, corrected base
+    official_name: Óbitos não fetais por UF de residência (CID-9)
+    translated_name: Non-foetal deaths by state of residence, 1979-1995
     what_it_is: >
-      A corrected republication of the DO base. Later and more accurate than the
-      original for the same period, which matters when a year is reused.
+      The ICD-9-era death base: one file per state of residence and year
+      (SIM/CID9/DORES/DORuuaa.dbc, 1979-1995 on the tree), non-foetal deaths only
+      ("Arquivos contendo os óbitos não fetais, para cada ano e Unidade da
+      Federação de residência", MORT98.HLP (ftp.datasus.gov.br/dissemin/publicos/SIM/CID9/DOCS; local sources/sim_cid9_docs)). The predecessor of SIM.DO, not a
+      corrected republication of it (that reading, from the name, was wrong;
+      corrected 2026-10-08).
     observed_as: [DOR]
-    confidence: low
+    confidence: high
 
   SIM.DOREXT:
     system: SIM
-    official_name: Óbitos por Causas Externas, base retificada
-    translated_name: External-cause deaths, corrected base
-    what_it_is: The corrected counterpart to DOEXT.
+    official_name: Óbitos de residentes no exterior
+    translated_name: Deaths in Brazil of residents abroad
+    what_it_is: >
+      Deaths occurring in Brazil of people resident abroad, every cause, one
+      national file a year from 2013 (SIM/CID10/DOFET/DOREXTaa.dbc). Measured on
+      2022: 451 deaths, every residence code 90..., a country of residence in
+      CODPAISRES (126, 68, 32...), occurrence mostly in border states (PR 94, MS 68).
+      Not in SIM.DO, whose files are by state of residence (DO PR 2022: 0 of
+      89,808 resident abroad); deaths in Brazil are the DO files plus this one.
+      The CID-10 continuation of SIM.DORIG. Corrected 2026-10-08 (was read from
+      the name as a corrected external-cause base).
     observed_as: [DOREXT]
-    confidence: low
+    confidence: high
 
   SIM.DORIG:
     system: SIM
-    official_name: Declaração de Óbito, base original
-    translated_name: Death certificate, original base
+    official_name: Óbitos não fetais de residentes no exterior ou de residência ignorada (CID-9)
+    translated_name: Non-foetal deaths of residents abroad or of unknown residence, 1995
     what_it_is: >
-      The base as first published, kept alongside the corrected version so the
-      two can be compared.
+      SIM/CID9/DOIGN/DORIGaa.dbc: "os óbitos não fetais de residentes no exterior
+      ou de residência ignorada, para cada ano a partir de 1995" (MORT98.HLP (ftp.datasus.gov.br/dissemin/publicos/SIM/CID9/DOCS; local sources/sim_cid9_docs)). The
+      complement of SIM.DOR's state-of-residence files, not an original version
+      of them. Corrected 2026-10-08.
     observed_as: [DORIG]
-    confidence: low
+    confidence: high
 
   # ---------------------------------------------------------------- SINASC
   SINASC.DN:
@@ -636,27 +658,42 @@ datasets:
 
   SINASC.DNR:
     system: SINASC
-    official_name: Nascidos Vivos, base retificada
-    translated_name: Live births, corrected base
-    what_it_is: The corrected republication of DN.
+    official_name: Nascimentos por UF de residência (1994-1995)
+    translated_name: Live births by state of residence, 1994-1995
+    what_it_is: >
+      SINASC's first published years, one file per state of residence and year
+      (SINASC/1994_1995/Dados/DNRES/DNRuuaaaa.dbc): "Arquivos contendo os
+      nascimentos, para cada ano e Unidade da Federação de residência" (NASC98.HLP (ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc; local sources/sim_cid9_docs)).
+      The predecessor of SINASC.DN, not a corrected republication of it
+      (corrected 2026-10-08; that reading came from the name).
     observed_as: [DNR]
-    confidence: low
+    confidence: high
 
   SINASC.DNEX:
     system: SINASC
-    official_name: Nascidos Vivos, base externa
-    translated_name: Live births, external base
-    what_it_is: Births registered outside the ordinary flow.
+    official_name: Nascimentos de residentes no exterior
+    translated_name: Live births in Brazil to mothers resident abroad
+    what_it_is: >
+      Live births occurring in Brazil to mothers resident abroad, one national
+      file a year from 2014 (SINASC/1996_/Dados/DNRES/DNEXaaaa.dbc). Measured on
+      2022: 684 births, every residence code 90..., a country in CODPAISRES,
+      born mostly in border states (PR 224, MS 193, RR 85). The complement of
+      SINASC.DN's state-of-residence files, and the continuation of
+      SINASC.DNRIG. Corrected 2026-10-08.
     observed_as: [DNEX]
-    confidence: low
+    confidence: high
 
   SINASC.DNRIG:
     system: SINASC
-    official_name: Nascidos Vivos, base original
-    translated_name: Live births, original base
-    what_it_is: The base as first published, kept beside the corrected version.
+    official_name: Nascimentos de residentes no exterior ou de residência ignorada (1995)
+    translated_name: Live births to residents abroad or of unknown residence, 1995
+    what_it_is: >
+      SINASC/1994_1995/Dados/DNIGN/DNRIGaaaa.dbc: "os nascimentos de residentes
+      no exterior ou de residência ignorada, para cada ano a partir de 1995"
+      (NASC98.HLP (ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc; local sources/sim_cid9_docs)). The complement of SINASC.DNR's state files, not an original version
+      of them. Corrected 2026-10-08.
     observed_as: [DNRIG]
-    confidence: low
+    confidence: high
 
   # ---------------------------------------------------------------- CNES
   CNES.ST:
@@ -1123,20 +1160,27 @@ datasets:
 
   SINAN.ESPO:
     system: SINAN
-    official_name: Esporotricose
-    translated_name: Sporotrichosis
+    official_name: Esporotricose (epizootia)
+    translated_name: Sporotrichosis epizootics
     what_it_is: >
-      One notified case of sporotrichosis, the fungal infection transmitted
-      largely by cats, notifiable in some states before it was nationally.
+      One notified animal epizootic of sporotrichosis, from Sinan Net's epizootics
+      base: zone and setting, species (cats, dogs) and the numbers of sick and
+      dead cats and dogs (Dicionario_de_dados_Epizootias_Esporotricose.pdf,
+      SINAN/DOCS/Docs_TAB_SINAN.zip). Not human cases. Corrected 2026-10-08.
     observed_as: [ESPO]
-    confidence: medium
+    confidence: high
 
   SINAN.TRAC:
     system: SINAN
-    official_name: Tracoma
-    translated_name: Trachoma
-    what_it_is: One notified case of trachoma, found through school screening surveys.
+    official_name: Tracoma — acompanhamento de casos
+    translated_name: Trachoma, case follow-up
+    what_it_is: >
+      One trachoma case found in a survey, from the follow-up sheet (RQ002
+      "Planilha para Acompanhamento de Agregados" of DIC_DADOS_Tracoma_v5.pdf (portalsinan; local sources/portalsinan)): case number,
+      residence, age, sex, clinical forms (TF, TI, TS, TT, CO) and referral to
+      surgery. The cases behind SINAN.NTRA's survey counts.
     observed_as: [TRAC]
+    confidence: high
 
   SINAN.DCRJ:
     system: SINAN
@@ -1167,13 +1211,16 @@ datasets:
 
   SINAN.NTRA:
     system: SINAN
-    official_name: Notificação de acidente de trabalho
-    translated_name: Work accident notification
+    official_name: Tracoma — inquérito (notificação)
+    translated_name: Trachoma survey
     what_it_is: >
-      One notified occupational accident. Sits alongside the more specific
-      ACGR (severe) and ACBI (biological material) channels.
+      One trachoma survey batch, school or household (CS_INQUERI), with the
+      numbers examined and positive (NU_CASOEXA, NU_CASOPOS), from the
+      notification part of DIC_DADOS_Tracoma_v5.pdf (portalsinan; local sources/portalsinan). Corrected 2026-10-08: this entry read NTRA as
+      occupational-accident notifications; the columns and the dictionary are
+      trachoma's.
     observed_as: [NTRA]
-    confidence: low
+    confidence: high
 
   # ------------------------------------------------- republication and residue
 

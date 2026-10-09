@@ -73,6 +73,8 @@ DICTIONARIES: dict[str, tuple[str, ...]] = {
     "Esquistossomose_v5": ("ESQU",),
     "Febre_Maculosa": ("FMAC",),
     "Febre_Tifoide": ("FTIF",),
+    # the notification is a survey batch (NTRA); its RQ002 sheet follows each case (TRAC)
+    "Tracoma_v5": ("TRAC", "NTRA"),
     "Gestante_HIV": ("HIVG",),
     "Hanseniase": ("HANS",),
     "Hantavirose_v5": ("HANT",),

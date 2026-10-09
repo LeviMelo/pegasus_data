@@ -86,7 +86,10 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
             body = body or {}
             own = list(body.get("event_types") or ())
             names = {str(s.get("name")) for s in own}
-            for spec in own + [s for s in shared if str(s.get("name")) not in names]:
+            # `event_types: []` declares that the dataset has none, the shared ones included (SINAN's ESPO
+            # records animal epizootics and NTRA survey batches, not notified people)
+            inherited = [] if "event_types" in body and not own else [s for s in shared if str(s.get("name")) not in names]
+            for spec in own + inherited:
                 event = _event(str(key).upper(), body, spec, path.name)
                 out.setdefault(f"{event.system}-{event.series}", []).append(event)
     return {k: tuple(v) for k, v in out.items()}

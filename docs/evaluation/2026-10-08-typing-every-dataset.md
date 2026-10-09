@@ -93,3 +93,23 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
 - **Painel Oncologia** diagnoses are three-character ICD-10, the case's event type. **PCE's** `ID_LOC` is a 12-digit locality code that no municipal table matches; it is never cut to make one.
 
 **CNES counts.** 38 CNES count columns had been typed as categories (ST's `QTLEIT##` and `QTLEITP#`, `QTINST32`-`37`; DC's `QT_*`). They are numbers. QTLEITP1 holds 6, 129, 22 surgical beds; the SCNES installations table gives `QTLEIT##` as the beds of installation ##. Found while reading the SCNES layout notebook (DATA_SOURCES).
+
+**Dataset declarations read from their names, tested against the records.** Every `confidence: low` or `medium` declaration in `ontology.yml` was a name guess. Eleven were wrong:
+- **SIM**
+  - **DOR** is the 1979–1995 base, filed by state of residence, not a corrected republication (`MORT98.HLP`, SIM/CID9/DOCS).
+  - **DORIG** is the deaths of residents abroad or of unknown residence, 1995, not an original version.
+  - **DOREXT** is the deaths in Brazil of residents abroad, from 2013, every cause; it is not a corrected external-cause base. In 2022 it holds 451 deaths, all with residence code 90…, mostly occurring in PR and MS.
+  - DO's files are by state of residence and hold none of these (DO PR 2022: 0 of 89,808). DOREXT and DORIG are DO's *complement*: the declaration had warned that pooling them double-counts.
+- **SINASC** follows the same pattern, from `NASC98.HLP`:
+  - DNR is the 1994–1995 base by residence;
+  - DNRIG is births to residents abroad or of unknown residence, 1995;
+  - DNEX is births in Brazil to mothers resident abroad, from 2014 (684 in 2022).
+  - A gotcha calling DNR "the denominator most published rates use" had no source and is gone.
+- **SINAN**
+  - **NTRA** is trachoma survey batches (school or household, numbers examined and positive), not occupational accidents.
+  - **TRAC** is the trachoma case follow-up sheet. Both come from DIC_DADOS_Tracoma_v5, now harvested.
+  - **ESPO** is animal epizootics.
+  - NTRA and ESPO no longer inherit SINAN's shared *notification* event type: `event_types: []` now declares a dataset without one.
+- **SIH**
+  - **MT** is the 1995–1997 professional acts, not procedure changes.
+  - **BASE_AIH1** is every approved AIH from 2008 in one DuckDB file, not a side file.

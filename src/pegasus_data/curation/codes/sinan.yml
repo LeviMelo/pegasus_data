@@ -16521,6 +16521,114 @@ series:
       width: 2
       label: UF
       source_ref: drt-transtorno-mental__DIC_DADOS_DRT_TranstornosMentais_v5.pdf
+  NTRA:
+    CS_SEXO:
+      type: text
+      width: 1
+      label: Sexo
+      codes: &id035
+        M: Masculino
+        F: Feminino
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    CS_ZONA:
+      type: text
+      width: 1
+      label: Zona
+      codes: &id036
+        '1': Urbana
+        '2': Rural
+        '3': Periurbano
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ENCAMINHA:
+      type: text
+      width: 1
+      label: Encaminhamen to para cirurgia
+      codes: &id037
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_CO:
+      type: text
+      width: 1
+      label: Forma clínica CO
+      codes: &id038
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TF:
+      type: text
+      width: 1
+      label: Forma clínica TF
+      codes: &id039
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TI:
+      type: text
+      width: 1
+      label: Forma clínica TI
+      codes: &id040
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TS:
+      type: text
+      width: 1
+      label: Forma clínica TS
+      codes: &id041
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TT:
+      type: text
+      width: 1
+      label: Forma clínica TT
+      codes: &id042
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_BAIRRO:
+      type: text
+      width: 8
+      label: Bairro Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_DISTRIT:
+      type: text
+      width: 4
+      label: Distrito Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_MUNI_RE:
+      type: text
+      width: 6
+      label: Município Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NM_BAIRRO:
+      type: text
+      width: 60
+      label: Bairro Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: Ano da notificação (campo interno)
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_IDADE_N:
+      type: number
+      width: 4
+      label: Idade
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    UF:
+      type: text
+      width: 2
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
   PAIR:
     AFASTAMENT:
       type: text
@@ -21340,6 +21448,89 @@ series:
         '2': Não
         '3': Indeterminado
       source_ref: tabsinan__TETANN_DIC_DADOS.pdf
+  TRAC:
+    CS_SEXO:
+      type: text
+      width: 1
+      label: Sexo
+      codes: *id035
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    CS_ZONA:
+      type: text
+      width: 1
+      label: Zona
+      codes: *id036
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ENCAMINHA:
+      type: text
+      width: 1
+      label: Encaminhamen to para cirurgia
+      codes: *id037
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_CO:
+      type: text
+      width: 1
+      label: Forma clínica CO
+      codes: *id038
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TF:
+      type: text
+      width: 1
+      label: Forma clínica TF
+      codes: *id039
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TI:
+      type: text
+      width: 1
+      label: Forma clínica TI
+      codes: *id040
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TS:
+      type: text
+      width: 1
+      label: Forma clínica TS
+      codes: *id041
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    FORMA_TT:
+      type: text
+      width: 1
+      label: Forma clínica TT
+      codes: *id042
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_BAIRRO:
+      type: text
+      width: 8
+      label: Bairro Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_DISTRIT:
+      type: text
+      width: 4
+      label: Distrito Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    ID_MUNI_RE:
+      type: text
+      width: 6
+      label: Município Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NM_BAIRRO:
+      type: text
+      width: 60
+      label: Bairro Residência
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_ANO:
+      type: text
+      width: 4
+      label: Ano da notificação (campo interno)
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    NU_IDADE_N:
+      type: number
+      width: 4
+      label: Idade
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
+    UF:
+      type: text
+      width: 2
+      source_ref: tracoma__DIC_DADOS_Tracoma_v5.pdf
   TUBE:
     AGRAVAIDS:
       type: text

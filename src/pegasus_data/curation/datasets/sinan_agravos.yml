@@ -704,12 +704,14 @@ datasets:
     gotchas:
       - A row is a notification, not a confirmed case. Confirmation is frequently post-mortem, so the outcome settles long after the notification date.
   SINAN_ESPO:
+    # animal epizootics, not notified people: SINAN's shared notification event does not hold
+    event_types: []
     system: SINAN
     series: ESPO
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.ESPO
-    what_one_row_is: one notified case of sporotrichosis
+    what_one_row_is: one notified sporotrichosis epizootic (cats, dogs)
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
@@ -810,16 +812,18 @@ datasets:
       - Attribution to work is a judgement recorded on the form, not a finding, and it varies by notifying service.
       - Occupational notification tracks formal employment, so informal workers are largely absent.
   SINAN_NTRA:
+    # a survey batch with counts, not a notified person: SINAN's shared notification event does not hold
+    event_types: []
     system: SINAN
     series: NTRA
     asserted_by: pegasus_data
-    source: manual
-    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.NTRA
-    what_one_row_is: one notified occupational accident
-    unit_of_analysis: notification
+    source: layout_doc
+    source_ref: DIC_DADOS_Tracoma_v5.pdf (portalsinan), notification part
+    what_one_row_is: one trachoma survey batch (school or household) with the numbers examined and positive
+    unit_of_analysis: survey batch
     gotchas:
-      - Overlaps ACGR (severe accidents) and ACBI (biological exposure). Summing the three counts some accidents more than once.
-      - Occupational notification tracks formal employment, so informal workers are largely absent.
+      - Sum NU_CASOPOS over batches for cases found, NU_CASOEXA for people examined; a row is not a case.
+      - The cases themselves are in SINAN.TRAC.
   SINAN_SDTA:
     system: SINAN
     series: SDTA
@@ -878,7 +882,7 @@ datasets:
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.TRAC
-    what_one_row_is: one notified case of trachoma
+    what_one_row_is: one trachoma case found in a survey, from the follow-up sheet
     unit_of_analysis: notification
     gotchas:
       - Cases are found through school screening surveys, so counts follow where surveys were run rather than where disease is.

@@ -884,9 +884,11 @@ datasets:
       - Self-reported notifications are included, with a different reliability from laboratory-confirmed ones.
 
   # ==================================================================== SIM
-  # The mortality variants. Every one of these is a SUBSET or a REPUBLICATION
-  # of the DO base, which is the trap: pooling any of them with SIM.DO counts
-  # the same death twice.
+  # The mortality variants. DOEXT, DOINF and DOMAT are SUBSETS of the DO base:
+  # pooling them with SIM.DO counts the same death twice. DOREXT (residents
+  # abroad, 2013-) and DORIG (residents abroad or unknown, 1995) are its
+  # COMPLEMENT: DO's files are by state of residence and hold neither. DOR is the
+  # 1979-1995 base itself. DOFET is foetal deaths, never pooled with any.
   SIM.DOEXT:
     system: SIM
     series: DOEXT
@@ -966,38 +968,37 @@ datasets:
     system: SIM
     series: DOR
     asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as SIM.DOR
-    what_one_row_is: one death certificate, from the corrected republication of the base
+    source: layout_doc
+    source_ref: MORT98.HLP (SIM/CID9/DOCS), directory DORES
+    what_one_row_is: one non-foetal death certificate, 1979-1995, filed by state of residence
     unit_of_analysis: death
     known_biases: >
-      Later and more accurate than the original for the same deaths. The
-      corrections are not uniform: they concentrate on cause coding and on the
-      records investigation committees revisited.
+      The ICD-9 era: causes are ICD-9 (CID9WHO), and the 1979-1995 layout codes
+      residence with seven-digit municipality codes and its own category tables.
     gotchas:
-      - The same deaths as SIM.DO for the years it covers. Pooling the two counts every death twice.
-      - Prefer this over the original where both exist, and say which was used, because published figures differ depending on the choice.
+      - The predecessor of SIM.DO, not a republication of it; the two cover different years.
+      - Deaths of residents abroad or of unknown residence are in SIM.DORIG (1995), not here.
   SIM.DOREXT:
     system: SIM
     series: DOREXT
     asserted_by: pegasus_data
     source: manual
-    source_ref: identity declared in curation/ontology.yml as SIM.DOREXT
-    what_one_row_is: one external-cause death certificate, from the corrected republication
+    source_ref: the records (2022, 451 deaths) and SIM.DORIG's description in MORT98.HLP
+    what_one_row_is: one death in Brazil of a person resident abroad
     unit_of_analysis: death
     gotchas:
-      - The corrected counterpart to DOEXT and a subset of DOR. Pooling any two of the three counts the same deaths repeatedly.
+      - Not a subset of SIM.DO. DO's files are by state of residence and hold no residents abroad; deaths in Brazil are DO plus DOREXT.
+      - Every cause, not only external ones. DOEXT is the external-cause subset of DO.
   SIM.DORIG:
     system: SIM
     series: DORIG
     asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as SIM.DORIG
-    what_one_row_is: one death certificate, as first published, before correction
+    source: layout_doc
+    source_ref: MORT98.HLP (SIM/CID9/DOCS), directory DOIGN
+    what_one_row_is: one non-foetal death of a resident abroad or of unknown residence, 1995
     unit_of_analysis: death
     gotchas:
-      - Kept beside the corrected version so the two can be compared. It is the wrong choice for analysis and the right one for auditing what changed.
-      - Never pool with SIM.DOR. They are the same deaths at two moments of the same pipeline.
+      - The complement of SIM.DOR's state files for 1995, not an original version of them.
 
   # ================================================================= SINASC
   SINASC.DNEX:
@@ -1005,33 +1006,33 @@ datasets:
     series: DNEX
     asserted_by: pegasus_data
     source: manual
-    source_ref: identity declared in curation/ontology.yml as SINASC.DNEX
-    what_one_row_is: one live birth registered outside the ordinary flow
+    source_ref: the records (2022, 684 births) and SINASC.DNRIG's description in NASC98.HLP
+    what_one_row_is: one live birth in Brazil to a mother resident abroad
     unit_of_analysis: live birth
     gotchas:
-      - Not a sample and not a correction. These are births the ordinary flow did not capture, so they are additional to DN rather than a subset of it.
+      - Not a subset of SINASC.DN, whose files are by state of residence; births in Brazil are DN plus DNEX.
       - Published as national files. There is no per-state file, so a state filter matches nothing.
   SINASC.DNR:
     system: SINASC
     series: DNR
     asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as SINASC.DNR
-    what_one_row_is: one live birth, from the corrected republication of the base
+    source: layout_doc
+    source_ref: NASC98.HLP (SINASC/1994_1995/Doc), directory DNRES
+    what_one_row_is: one live birth, 1994-1995, filed by state of residence
     unit_of_analysis: live birth
     gotchas:
-      - The same births as SINASC.DN for the years it covers. Pooling the two counts every birth twice.
-      - This is the denominator most published infant and maternal rates use. Using DN instead changes the rate.
+      - The predecessor of SINASC.DN, not a republication of it; the two cover different years.
+      - The 1994-1995 layout has its own codes (TIPO_PARTO holds 3 and 4, which PARTO does not define).
   SINASC.DNRIG:
     system: SINASC
     series: DNRIG
     asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as SINASC.DNRIG
-    what_one_row_is: one live birth, as first published, before correction
+    source: layout_doc
+    source_ref: NASC98.HLP (SINASC/1994_1995/Doc), directory DNIGN
+    what_one_row_is: one live birth to a mother resident abroad or of unknown residence, 1995
     unit_of_analysis: live birth
     gotchas:
-      - Kept beside the corrected version for comparison. Never pool with SINASC.DNR.
+      - The complement of SINASC.DNR's state files for 1995, not an original version of them.
 
   # ==================================================================== SIH
   SIH.CH:
