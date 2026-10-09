@@ -139,8 +139,15 @@ def padded_period(period: object, side: Side) -> object:
 
 
 @lru_cache(maxsize=1)
+def raw_links() -> dict[str, Any]:
+    """`links.yml` as one process read it: the specs a run uses and the digest its store key carries come from this one
+    snapshot (a file edited while a run was going stored old specs under the new digest, 2026-10-09)."""
+    return read_yaml(links_file())
+
+
+@lru_cache(maxsize=1)
 def load_links() -> dict[str, LinkSpec]:
-    data = read_yaml(links_file())
+    data = raw_links()
     out: dict[str, LinkSpec] = {}
     for name, body in (data.get("links") or {}).items():
         passes = tuple(

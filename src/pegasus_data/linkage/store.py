@@ -17,8 +17,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from ..semantics.curation import read_yaml
-from .engine import links_file
+from .engine import raw_links
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for
@@ -28,7 +27,7 @@ _NOT_LINKING = ("person", "same_event", "sensitivity")
 
 
 def _spec_digest(name: str) -> str:
-    body = dict((read_yaml(links_file()).get("links") or {}).get(name) or {})
+    body = dict((raw_links().get("links") or {}).get(name) or {})
     for key in _NOT_LINKING:
         body.pop(key, None)
     return hashlib.sha256(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()[:12]

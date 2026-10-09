@@ -84,3 +84,8 @@ links), 3,085 reach the same birth and 76 a different one (97.6% agreement).
 - `entities.triangles(period, geography)`: each stored person link against the persons the other links make. Of its pairs whose left record another route also reaches a right record for, it counts how many reach the same record and how many another. 2021 (PegaSUS's root, 4 links stored): SIH deaths → SIM, 1,826 of 1,826 routed pairs agree; maternal deaths → SIH, 1,826 of 1,829 (99.84 %). The infant and delivery links have no second route in 2021, because the newborn-admission run is not stored. `build_entities(exclude=)` leaves links out.
 - `side_counts(persons=)`: a side record the direct link missed counts as paired when its person reaches the other side's kind by another route. A record the link paired keeps its p_match, so merging whole edges does not turn p < 1 into 1. On infant deaths in 2021 it adds nothing yet (25,592.5 of 31,674), for the same reason.
 - `sim_women_deaths_to_sinasc_mothers` declares `pad_years: [4, 0]`. Without it, a year's run read only that year's births, and PegaSUS's person links found 2010–2018 all not viable (one pass, 91 % chance agreement). The race bridge's own runs (scope 2012–Y) remain under their old digest.
+- **One snapshot of the link specs per process.** A run's specs came from `load_links()`, cached at the first read,
+  and its store digest from a fresh read of `links.yml` at save time. Editing the file while PegaSUS's links job ran
+  stored unpadded women's-death runs under the padded spec's digest (`deterministic_BR_<year>_19e582a3254c`, 2,099,610
+  mothers: one year's). Both now read `engine.raw_links()`, one snapshot per process. The mislabelled runs are keyed
+  by the unpadded period, which no reader asks for any more.
