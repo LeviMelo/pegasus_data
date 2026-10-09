@@ -17,6 +17,8 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   holds up to 95,404 on one row), with its evidence; or a ``grid`` of columns,
   each the events of one (sex, age band), where the row is a group of people
   the form counts (SINAN-SDTA's foodborne outbreak, OQ-76);
+* ``persons: false``: the row is a group, not a person (a foodborne outbreak): its events have no sex or age, and
+  are exposed by the whole population of their place;
 * ``evidence``: where the rule comes from.
 
 :func:`count_events` applies status, consolidation and weight to a query, so a
@@ -76,6 +78,8 @@ class EventType:
     grid_total: str | None = None
     grid_margin: str | None = None
     marks: tuple[str, ...] = ()
+    #: False when the row is a group (an outbreak), not a person: no sex or age, the whole population exposed
+    persons: bool = True
     evidence: str | None = None
     note: str | None = None
 
@@ -93,10 +97,11 @@ class EventType:
                       "sex": GRID_SEX, "age": GRID_AGE}
                      if self.grid else None),
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
+            **({} if self.persons else {"persons": False}),
         }
 
 
-KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case",
+KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case", "outbreak",
                    "authorisation", "procedure"})
 
 
@@ -118,7 +123,10 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
             names = {str(s.get("name")) for s in own}
             # `event_types: []` declares that the dataset has none, the shared ones included (SINAN's ESPO
             # records animal epizootics and NTRA survey batches, not notified people)
-            inherited = [] if "event_types" in body and not own else [s for s in shared if str(s.get("name")) not in names]
+            # `shared_event_types: false` declares that none of them hold beside its own (SDTA's row is an outbreak: its
+            # `case` and `outbreak` events, never SINAN's person notification)
+            inherited = ([] if ("event_types" in body and not own) or body.get("shared_event_types") is False
+                         else [s for s in shared if str(s.get("name")) not in names])
             for spec in own + inherited:
                 event = _event(str(key).upper(), body, spec, path.name)
                 out.setdefault(f"{event.system}-{event.series}", []).append(event)
@@ -156,7 +164,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
-        marks=tuple(str(m).upper() for m in spec.get("marks") or ()),
+        marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
     )
 

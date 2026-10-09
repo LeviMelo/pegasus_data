@@ -160,7 +160,10 @@ def main(dataset: str, spec: str, write: bool) -> None:
         text = path.read_text(encoding="utf-8")
         for col, (miss, evidence, unlabelled) in proposals.items():
             if unlabelled:
-                continue                    # no form dictionary to rest on: the column stays undeclared
+                # no form dictionary to rest on: the column stays undeclared, and says why (P1: a column examined)
+                text = _unknown(text, col, f"no form dictionary is harvested for it, and DATASUS's tabulation alone does "
+                                           f"not declare ({evidence.removeprefix('the tabulation only: ')}; {year})")
+                continue
             head = f"  {col}:\n"
             if text.count(head) != 1:
                 print(f"  {col}: not found once in {path.name}, skipped")
@@ -248,6 +251,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
             return
         rows = [r for r in rows if r.column in kept]
     proposals = {}
+    unknown: dict[str, str] = {}
     for r in rows:
         counts = {x["values"]: x["counts"] for x in pc.value_counts(pc.cast(table[r.column], "string")).to_pylist()
                   if x["values"] not in (None, "")}
@@ -259,9 +263,11 @@ def numbers(dataset: str, year: int, write: bool) -> None:
                 NOT_RECORDED.match(lab) or NOT_CLASSIFIED.match(lab))]
             if not valid:
                 print(f"{r.column}: no tabulation band  [left undeclared]")
+                unknown[r.column] = "no codelist or tabulation band bounds it, and its form names no code for not recorded"
                 continue
             if "L" in labels:
                 print(f"{r.column}: a linear CNV (L), a display format with no range  [left undeclared]")
+                unknown[r.column] = "its only tabulation is a linear CNV (L), a display format with no range"
                 continue
             if not counts:
                 print(f"{r.column}: no value in {read} to test the band against  [left undeclared]")
@@ -276,6 +282,8 @@ def numbers(dataset: str, year: int, write: bool) -> None:
                 edge = [f"{e}: {held[e]} beside {v}: {held[v]}" for e, v in across]
                 print(f"{r.column}: band [{lo}, {hi}] continued by the records ({', '.join(edge)}): a display width, "
                       f"not the column's  [left undeclared]")
+                unknown[r.column] = (f"its tabulation band [{lo}, {hi}] is continued by the records ({', '.join(edge)}, "
+                                     f"{read}): a display width, not the column's range")
                 continue
         n = sum(counts.values())
         out = {c: k for c, k in counts.items() if not (c.strip().lstrip("-").isdigit() and lo <= int(c) <= hi)}
@@ -294,8 +302,23 @@ def numbers(dataset: str, year: int, write: bool) -> None:
             decl = ("    missing: []\n" + (f"    domain: [{lo:g}, {hi:g}]\n" if new else "") +
                     f"    # proposed ({read}): {evidence}\n")
             text = text.replace(head, head + decl)
+        for col, why in unknown.items():
+            text = _unknown(text, col, why)
         path.write_text(text, encoding="utf-8")
         print(f"written {path}")
+
+
+def _unknown(text: str, column: str, why: str) -> str:
+    """``missing_unknown: why`` written under a column that declares neither it nor ``missing``: the sources were read
+    and cannot decide (P1's coverage names the reason instead of a gap)."""
+    head = f"  {column}:\n"
+    if text.count(head) != 1:
+        return text
+    body = text.split(head, 1)[1].split("\n  ", 1)[0]
+    if "    missing" in body:
+        return text
+    quoted = why.replace("'", "''")
+    return text.replace(head, head + f"    missing_unknown: '{quoted}'\n")
 
 
 def _codelist_labels(system: str, column: str, seen: dict[str, str | None] | None = None) -> dict[str, str]:

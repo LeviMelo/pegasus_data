@@ -61,6 +61,9 @@ class ColumnRole:
     #: one; None: not yet declared, and the measurement is not to be modelled), and its documented domain [lo, hi].
     missing: tuple[str, ...] | None = None
     domain: tuple[float, float] | None = None
+    #: Why the sources cannot decide the "not recorded" codes (``missing`` stays undeclared): a column examined, not a
+    #: column waiting (P1's coverage names the reason instead of a gap)
+    missing_unknown: str | None = None
 
     @property
     def entity(self) -> str:
@@ -76,7 +79,8 @@ class ColumnRole:
                 "name": self.name, "codelists": list(self.codelists), "first_year": self.years[0],
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
                 "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
-                "domain": None if self.domain is None else list(self.domain)}
+                "domain": None if self.domain is None else list(self.domain),
+                **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {})}
 
 
 def roles_dir() -> Path:
@@ -140,11 +144,16 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     if dom is not None and (len(dom) != 2 or float(dom[0]) > float(dom[1])):
         raise bad(f"domain {dom!r} is not [lo, hi]")
     domain = (float(dom[0]), float(dom[1])) if dom is not None else None
+    unknown = spec.get("missing_unknown")
+    if unknown is not None and missing is not None:
+        raise bad("missing codes are declared or unknown, not both")
+    if unknown is not None and not str(unknown).strip():
+        raise bad("missing_unknown states why the sources cannot decide")
     return ColumnRole(dataset, column, role, kind, model, also, spec.get("name"),
                       tuple(str(c) for c in spec.get("codelists") or ()),
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
                       spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure, missing,
-                      domain)
+                      domain, str(unknown).strip() if unknown is not None else None)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

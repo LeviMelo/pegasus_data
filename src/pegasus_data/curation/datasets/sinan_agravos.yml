@@ -828,7 +828,8 @@ datasets:
     system: SINAN
     series: SDTA
     # an outbreak, not a person: SINAN's shared notification event does not hold. Its ill are counted by sex and age
-    # band in columns (OQ-76, ADR-0156)
+    # band in columns (OQ-76, ADR-0156); SINAN's shared person notification does not hold beside them
+    shared_event_types: false
     event_types:
       - name: case
         kind: case
@@ -872,6 +873,14 @@ datasets:
           The place is the outbreak's (ID_MUNI_RE, the form's field 11, "município de ocorrência do surto"), not the
           residence of the ill. The ill beyond the grid (NU_TOT less the grid's sum) are counted with sex and age
           unknown; an outbreak with neither grid nor total is a group whose ill were not counted, never zero.
+      - name: outbreak
+        kind: outbreak
+        grain: one foodborne outbreak, the unit its ill arrive in
+        persons: false
+        evidence: >-
+          A row is one outbreak (the form's own unit; Nota Técnica Surtos de DTA §2.1: two or more ill, one for botulism
+          and cholera). Its ill come in clusters, so counted as people they fit with φ 0.066 (PegaSUS OPEN_QUESTIONS 14):
+          the outbreak is the unit a change in their occurrence is read on, with its ill (NU_TOT) as its size.
     semantic_axes:
       default_geography: occurrence
       geography:
