@@ -1,0 +1,324 @@
+dataset: PCE-PCE
+record: survey
+columns:
+  CS_FASE:
+    role: survey.program_phase_category
+    kind: category
+    model: mark
+    name: Fase da atividade (categoria)
+    years:
+    - 2024
+    - 2026
+  DT_COMP:
+    role: survey.reporting_period_month_year_of_activity
+    kind: date
+    model: when
+    name: Competência (mês/ano) da atividade
+    years:
+    - 1995
+    - 2026
+    codelists:
+    - ANO
+    - DT_COMP
+  ID_DISTR:
+    role: survey.health_district_region_code
+    kind: category
+    model: mark
+    name: Código do Distrito/Regional de Saúde
+    years:
+    - 1995
+    - 2026
+  ID_DRS:
+    role: survey.regional_health_department_drs_code
+    kind: category
+    model: mark
+    name: Código do Departamento Regional de Saúde (DRS)
+    years:
+    - 2024
+    - 2026
+  ID_LOC:
+    role: survey.locality
+    kind: category
+    model: mark
+    name: Código da localidade (UF + município + localidade)
+    years:
+    - 1995
+    - 2026
+    note: Twelve digits, state + municipality + locality (270040900006); no municipal table matches that width
+      and it is never cut to make one.
+  ID_UF:
+    role: survey.state
+    kind: place
+    model: where
+    codelists:
+    - UF_BR
+    name: UF de execução da atividade (código)
+    years:
+    - 1995
+    - 2026
+  NU_FASE:
+    role: survey.work_cycle_number
+    kind: number
+    model: mark
+    name: Número do ciclo de trabalho
+    years:
+    - 2024
+    - 2026
+  QT_17:
+    role: survey.positives_17_eggs
+    kind: number
+    model: mark
+    name: Positivos, 17 ou mais ovos
+    years:
+    - 1995
+    - 2026
+  QT_1A4:
+    role: survey.positives_1_4_eggs
+    kind: number
+    model: mark
+    name: Positivos, 1 a 4 ovos
+    years:
+    - 1995
+    - 2026
+  QT_5A16:
+    role: survey.positives_5_16_eggs
+    kind: number
+    model: mark
+    name: Positivos, 5 a 16 ovos
+    years:
+    - 1995
+    - 2026
+  QT_ANC:
+    role: survey.positive_for_hookworm_ancylostoma_duodenale
+    kind: number
+    model: mark
+    name: Positivos para Ancylostoma duodenale
+    years:
+    - 1995
+    - 2026
+  QT_ASC:
+    role: survey.positive_for_ascaris_lumbricoides
+    kind: number
+    model: mark
+    name: Positivos para Ascaris lumbricoides
+    years:
+    - 1995
+    - 2026
+  QT_ATRAT:
+    role: survey.scheduled_for_treatment
+    kind: number
+    model: mark
+    name: Previstos para tratamento
+    years:
+    - 1995
+    - 2026
+  QT_AUS:
+    role: survey.untreated_absent
+    kind: number
+    model: mark
+    name: Não tratados por ausência
+    years:
+    - 1995
+    - 2026
+  QT_BGLA:
+    role: survey.captured_biomphalaria_glabrata
+    kind: number
+    model: mark
+    name: Capturados, Biomphalaria glabrata
+    years:
+    - 1995
+    - 2026
+  QT_BSTR:
+    role: survey.captured_biomphalaria_straminea
+    kind: number
+    model: mark
+    name: Capturados, Biomphalaria straminea
+    years:
+    - 1995
+    - 2026
+  QT_BTEN:
+    role: survey.captured_biomphalaria_tenagophila
+    kind: number
+    model: mark
+    name: Capturados, Biomphalaria tenagophila
+    years:
+    - 1995
+    - 2026
+  QT_CAP:
+    role: survey.snails_captured_total
+    kind: number
+    model: mark
+    name: Caramujos capturados (total)
+    years:
+    - 1995
+    - 2026
+  QT_CI:
+    role: survey.untreated_due_to_contraindication
+    kind: number
+    model: mark
+    name: Não tratados por contraindicação
+    years:
+    - 1995
+    - 2026
+  QT_EV:
+    role: survey.positive_for_enterobius_vermicularis
+    kind: number
+    model: mark
+    name: Positivos para Enterobius vermicularis
+    years:
+    - 1995
+    - 2026
+  QT_EXAM:
+    role: survey.stool_exams_performed
+    kind: number
+    model: mark
+    name: Exames realizados
+    years:
+    - 1995
+    - 2026
+  QT_HN:
+    role: survey.positive_for_hymenolepis_nana
+    kind: number
+    model: mark
+    name: Positivos para Hymenolepis nana
+    years:
+    - 1995
+    - 2026
+  QT_NRECOL:
+    role: survey.containers_not_collected_back
+    kind: number
+    model: mark
+    name: Recipientes não recolhidos
+    years:
+    - 1995
+    - 2026
+  QT_OUT:
+    role: survey.positive_for_other_intestinal_worms
+    kind: number
+    model: mark
+    name: Positivos para outras verminoses
+    years:
+    - 1995
+    - 2026
+  QT_OUT1:
+    role: survey.captured_other_snail_species
+    kind: number
+    model: mark
+    name: Capturados, outras espécies de caramujo
+    years:
+    - 1995
+    - 2026
+  QT_PESQ:
+    role: survey.sites_water_collections_surveyed
+    kind: number
+    model: mark
+    name: Estações pesquisadas
+    years:
+    - 1995
+    - 2026
+  QT_POP:
+    role: survey.population_worked_people_given_a_collection_container
+    kind: number
+    model: mark
+    name: População trabalhada
+    years:
+    - 1995
+    - 2026
+  QT_POS:
+    role: survey.total_positives
+    kind: number
+    model: mark
+    name: Total de positivos
+    years:
+    - 1995
+    - 2026
+  QT_POSBGLA:
+    role: survey.positive_biomphalaria_glabrata
+    kind: number
+    model: mark
+    name: Positivos, Biomphalaria glabrata
+    years:
+    - 1995
+    - 2026
+  QT_POSBSTR:
+    role: survey.positive_biomphalaria_straminea
+    kind: number
+    model: mark
+    name: Positivos, Biomphalaria straminea
+    years:
+    - 1995
+    - 2026
+  QT_POSBTEN:
+    role: survey.positive_biomphalaria_tenagophila
+    kind: number
+    model: mark
+    name: Positivos, Biomphalaria tenagophila
+    years:
+    - 1995
+    - 2026
+  QT_POSOUT:
+    role: survey.positive_other_snail_species
+    kind: number
+    model: mark
+    name: Positivos, outras espécies de caramujo
+    years:
+    - 1995
+    - 2026
+  QT_PRED:
+    role: survey.buildings_households_visited
+    kind: number
+    model: mark
+    name: Prédios/domicílios visitados
+    years:
+    - 1995
+    - 2026
+  QT_REC:
+    role: survey.untreated_refused
+    kind: number
+    model: mark
+    name: Não tratados por recusa
+    years:
+    - 1995
+    - 2026
+  QT_SE:
+    role: survey.positive_for_strongyloides_stercoralis
+    kind: number
+    model: mark
+    name: Positivos para Strongyloides stercoralis
+    years:
+    - 1995
+    - 2026
+  QT_TAE:
+    role: survey.positive_for_taenia_sp
+    kind: number
+    model: mark
+    name: Positivos para Taenia sp.
+    years:
+    - 1995
+    - 2026
+  QT_TRAT:
+    role: survey.treated
+    kind: number
+    model: mark
+    name: Tratados
+    years:
+    - 1995
+    - 2026
+  QT_TT:
+    role: survey.positive_for_trichuris_trichiura
+    kind: number
+    model: mark
+    name: Positivos para Trichuris trichiura
+    years:
+    - 1995
+    - 2026
+  SG_UF:
+    role: survey.state_uf_where_the_activity_was_carried_out_abbreviation
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de execução da atividade (sigla)
+    years:
+    - 1995
+    - 2023

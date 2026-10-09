@@ -1,0 +1,581 @@
+dataset: RESP-RESPBR
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  ANO_NOT:
+    role: notification.year
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  CEFALEIA:
+    role: notification.headache_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  CLASSIFIN:
+    role: notification.final_case_classification
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  CLASS_FETO:
+    role: notification.gestational_term_classification_at_delivery
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  CODMUNNOT:
+    role: notification.notifying_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICBR
+    years:
+    - 
+    - 
+  CODMUNRES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 
+    - 
+    note: The mother's residence, the case's.
+  COMPRIMENT:
+    role: notification.birth_length
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  CONJUNTIV:
+    role: notification.conjunctival_hyperemia_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  CO_SEQ:
+    role: notification.record_sequence
+    kind: identifier
+    model: excluded
+    years:
+    - 
+    - 
+  CRITERIO:
+    role: notification.final_classification_criteria_multi_select
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DEF_AUDIT:
+    role: notification.hearing_deficiency_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DEF_NEURO:
+    role: notification.neurological_deficiency_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DEF_VISUAL:
+    role: notification.visual_deficiency_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DIAMCEFAL:
+    role: patient.intrauterine_head_diameter
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  DOR_ARTIC:
+    role: notification.joint_pain_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DOR_MUSC:
+    role: notification.muscle_pain_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    years:
+    - 
+    - 
+  DT_NASCMAE:
+    role: mother.birth_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    years:
+    - 
+    - 
+  DT_OBITO:
+    role: notification.date_of_death
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_RS:
+    role: notification.mri_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_SINTOMA:
+    role: notification.probable_symptom_onset_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_TC:
+    role: notification.ct_scan_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_TRANSF:
+    role: notification.transfontanellar_ultrasound_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_ULT_ALT:
+    role: notification.last_update_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  DT_USS:
+    role: notification.prenatal_ultrasound_date
+    kind: date
+    model: mark
+    years:
+    - 
+    - 
+  EDEMA:
+    role: notification.joint_edema_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  ETIOLOGIA:
+    role: notification.etiology
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXAME_RS:
+    role: notification.mri_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXAME_TC:
+    role: notification.ct_scan_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXAME_USS:
+    role: notification.prenatal_ultrasound_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXANT_GES:
+    role: notification.rash_exanthema_during_pregnancy
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXA_TORSCH:
+    role: notification.storch_panel_testing_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  EXA_TRANSF:
+    role: notification.transfontanellar_ultrasound_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  FEBRE_GES:
+    role: notification.fever_during_pregnancy
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  FREQUENCIA:
+    role: notification.frequency
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+    note: A tabulation helper the variable note describes (1 on each record).
+  GEST_DIAG:
+    role: pregnancy.weeks_at_detection
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  GRAVIDEZ:
+    role: notification.pregnancy_type
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  HIPERT_GAN:
+    role: notification.lymph_node_enlargement_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  HIST_ARBOV:
+    role: notification.recent_other_arbovirus_infection_history
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  HIST_MALFO:
+    role: notification.family_history_of_congenital_malformation
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  IDADEGES:
+    role: mother.age
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  ID_MN_RESI:
+    role: patient.residence_alias
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 
+    - 
+  MICROCEFAL:
+    role: notification.congenital_alteration_type_microcephaly_classification
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  NEUROLOG:
+    role: notification.neurological_involvement_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  PCR_Z:
+    role: notification.zika_pcr_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  PERIMCEFAL:
+    role: notification.head_circumference_at_birth
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  PESO:
+    role: patient.birth_weight
+    kind: number
+    model: mark
+    years:
+    - 
+    - 
+  PRURIDO:
+    role: notification.itching_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RACACOR:
+    role: patient.race
+    kind: category
+    model: stratum
+    years:
+    - 
+    - 
+  REGIAONOT:
+    role: notification.notifying_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    years:
+    - 
+    - 
+  REGIAORES:
+    role: patient.residence_region
+    kind: place
+    model: mark
+    codelists:
+    - REGIAO
+    years:
+    - 
+    - 
+  RESUL_C:
+    role: notification.cytomegalovirus_cmv_laboratory_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RESUL_H:
+    role: notification.herpes_virus_laboratory_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RESUL_S:
+    role: notification.syphilis_laboratory_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RESUL_TO:
+    role: notification.toxoplasmosis_laboratory_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RESUL_Z:
+    role: notification.zika_virus_laboratory_result
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNEXA_TORS:
+    role: notification.storch_panel_testing_flag_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNPCR_Z:
+    role: notification.zika_pcr_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNRESUL_C:
+    role: notification.cytomegalovirus_cmv_laboratory_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNRESUL_H:
+    role: notification.herpes_virus_laboratory_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNRESUL_S:
+    role: notification.syphilis_laboratory_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNRESUL_TO:
+    role: notification.toxoplasmosis_laboratory_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNRESUL_Z:
+    role: notification.zika_positive_flag_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNSO_IGG_Z:
+    role: notification.zika_igg_serology_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNSO_IGM_Z:
+    role: notification.zika_igm_serology_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNTR_IGG_Z:
+    role: notification.zika_igg_rapid_test_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  RNTR_IGM_Z:
+    role: notification.zika_igm_rapid_test_result_newborn
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    years:
+    - 
+    - 
+  SO_IGG_Z:
+    role: notification.zika_igg_serology_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  SO_IGM_Z:
+    role: notification.zika_igm_serology_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  STATUS_NOT:
+    role: notification.record_status
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  ST_OBITO:
+    role: notification.death_outcome_flag
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  TPDETECCAO:
+    role: notification.timing_of_congenital_alteration_detection
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  TP_NOTIFIC:
+    role: notification.notification_type_case_category
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  TR_IGG_Z:
+    role: notification.zika_igg_rapid_test_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  TR_IGM_Z:
+    role: notification.zika_igm_rapid_test_result_mother
+    kind: category
+    model: mark
+    years:
+    - 
+    - 
+  UFNOT:
+    role: notification.notifying_state_uf
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    years:
+    - 
+    - 
+  UFRES:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    years:
+    - 
+    - 

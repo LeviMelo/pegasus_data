@@ -86,3 +86,10 @@ variables:
     source: web
     source_ref: 'Ministério da Saúde vaccination-by-residence panel description
       (infoms.saude.gov.br): "atualizado diariamente."'
+  NU_IMUNO:
+    official_name: 'Imunobiológico'
+    translated_name: 'Vaccine (name)'
+    description: 'The vaccine the coverage is for, as its name in text (BCG, Febre Amarela, Hepatite B (<= 30 dias)), not a code: 27 values in the rows read.'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'

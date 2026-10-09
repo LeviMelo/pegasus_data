@@ -1,0 +1,126 @@
+dataset: IBGE-RENDA
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1991
+    - 2010
+  CORRACA:
+    role: population.race
+    kind: category
+    model: stratum
+    name: Race/color
+    years:
+    - 1991
+    - 2010
+  DENCRIREND:
+    role: population.child_poverty_denominator
+    kind: number
+    model: mark
+    name: Child-poverty rate denominator
+    years:
+    - 1991
+    - 2010
+  DENDESOCUP:
+    role: population.unemployment_denominator
+    kind: number
+    model: mark
+    name: Unemployment rate denominator
+    years:
+    - 1991
+    - 2010
+  DENRENDA:
+    role: population.income_denominator
+    kind: number
+    model: mark
+    name: Income/poverty rate denominator
+    years:
+    - 1991
+    - 2010
+  DENTRABINF:
+    role: population.child_labour_denominator
+    kind: number
+    model: mark
+    name: Child-labor rate denominator
+    years:
+    - 1991
+    - 2010
+  MUNCOD:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Municipality code (6-digit)
+    years:
+    - 1991
+    - 2010
+  NUMCRIPOB:
+    role: population.children_below_half_minimum_wage
+    kind: number
+    model: mark
+    name: Children below half minimum wage
+    years:
+    - 1991
+    - 2010
+  NUMCRIPOBX:
+    role: population.children_below_quarter_minimum_wage
+    kind: number
+    model: mark
+    name: Children below quarter minimum wage
+    years:
+    - 1991
+    - 2010
+  NUMDESOCUP:
+    role: population.unemployed
+    kind: number
+    model: mark
+    name: Unemployed population
+    years:
+    - 1991
+    - 2010
+  NUMPOBRES:
+    role: population.below_half_minimum_wage
+    kind: number
+    model: mark
+    name: Population below half minimum wage
+    years:
+    - 1991
+    - 2010
+  NUMPOBRESX:
+    role: population.below_quarter_minimum_wage
+    kind: number
+    model: mark
+    name: Population below quarter minimum wage
+    years:
+    - 1991
+    - 2010
+  NUMRENDA:
+    role: population.per_capita_income_sum
+    kind: number
+    model: mark
+    name: Sum of per-capita household income
+    years:
+    - 1991
+    - 2010
+    note: A sum of per-capita household income (BRL), the numerator of the mean; never a finished mean.
+  NUMTRABINF:
+    role: population.child_labourers
+    kind: number
+    model: mark
+    name: Child laborers
+    years:
+    - 1991
+    - 2010
+  SITUACAO:
+    role: population.urban_rural
+    kind: category
+    model: dimension
+    name: Situação de domicílio
+    years:
+    - 1991
+    - 2010

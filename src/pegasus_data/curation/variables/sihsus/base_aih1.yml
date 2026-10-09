@@ -958,3 +958,24 @@ variables:
     source: inferred
     reasoning: 'Measured 1 on 4,363 of 100,000 sampled rows (2026-10-04), the in-hospital death rate of
       SIH-RD''s MORTE.'
+  CO_FXETARIA:
+    official_name: 'Faixa etária'
+    translated_name: 'Age band'
+    description: 'The patient''s age band as a code: A0004 for 0-4 years, A0509 for 5-9 (base_aih1.duck stg_aih, first 100,000 rows). No dimension table of the database decodes it, so its codes stay undecoded.'
+    code_system: internal
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'
+  IN_FILANTROPICO:
+    official_name: 'Indicador de filantropia'
+    translated_name: 'Philanthropic-entity flag'
+    description: 'A numeric flag, read from the name as whether the establishment is philanthropic; 0 on the rows read. No dimension table decodes it.'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'
+  QT_DIAS_UI:
+    official_name: 'Quantidade de diárias em UI'
+    translated_name: 'Days in an intermediate-care unit'
+    description: 'Days in an intermediate-care unit (unidade intermediária), beside CO_TIPO_UI and VL_UI; the counterpart of QT_DIAS_UTI. Read from the name and its siblings.'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'

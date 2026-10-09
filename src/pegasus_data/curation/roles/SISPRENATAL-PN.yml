@@ -1,0 +1,307 @@
+dataset: SISPRENATAL-PN
+record: pregnancy
+columns:
+  CO_ESC_GP:
+    role: mother.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2012
+    - 2014
+    codelists:
+    - ESCOLA
+  CO_ETN_GP:
+    role: mother.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia Indígena
+    years:
+    - 2012
+    - 2014
+    codelists:
+    - ETNIA
+  CO_GESTANT:
+    role: pregnancy.record_number
+    kind: identifier
+    model: link_only
+    name: Número da Gestante no SISPRENATAL
+    years:
+    - 2012
+    - 2014
+  CO_MUN_UBS:
+    role: pregnancy.health_unit_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: Município da UBS
+    years:
+    - 2012
+    - 2014
+  CO_PAIS:
+    role: pregnancy.country_nationality_code
+    kind: category
+    model: mark
+    name: País (nacionalidade)
+    years:
+    - 2012
+    - 2014
+  CO_RAC_GP:
+    role: mother.race
+    kind: category
+    model: dimension
+    name: Raça / Cor
+    years:
+    - 2012
+    - 2014
+    codelists:
+    - RACA_COR
+  CO_STF_GP:
+    role: pregnancy.household_family_living_situation_grouped
+    kind: category
+    model: mark
+    name: Situação Familiar (agrupada)
+    years:
+    - 2012
+    - 2014
+  CO_TPO_GRA:
+    role: pregnancy.pregnancy_type_singleton_multiple
+    kind: category
+    model: mark
+    name: Tipo de Gravidez
+    years:
+    - 2012
+    - 2014
+    codelists:
+    - CO_TPO_GRA
+  CO_UF_IBGE:
+    role: pregnancy.state_uf_of_the_pregnant_woman
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF da Gestante
+    years:
+    - 2012
+    - 2014
+  DS_ZONA:
+    role: pregnancy.residential_zone
+    kind: category
+    model: mark
+    name: Zona
+    years:
+    - 2012
+    - 2014
+  DT_ATEND:
+    role: pregnancy.consultation_month
+    kind: date
+    model: when
+    name: Ano/Mês de Atendimento
+    years:
+    - 2012
+    - 2014
+  DT_DPP:
+    role: pregnancy.expected_delivery_date_edd
+    kind: date
+    model: mark
+    name: Data Provável do Parto
+    years:
+    - 2012
+    - 2014
+  DT_DUM:
+    role: pregnancy.last_menstrual_period_date_lmp
+    kind: date
+    model: mark
+    name: Data da Última Menstruação (DUM)
+    years:
+    - 2012
+    - 2014
+  DT_INC:
+    role: pregnancy.registration_inclusion_date
+    kind: date
+    model: mark
+    name: Data de Inclusão
+    years:
+    - 2012
+    - 2014
+  NU_ANO_GES:
+    role: pregnancy.record_year
+    kind: number
+    model: mark
+    name: Ano da Gestação
+    years:
+    - 2012
+    - 2014
+  NU_CNS:
+    role: mother.cns
+    kind: identifier
+    model: link_only
+    name: Número do Cartão Nacional de Saúde
+    years:
+    - 2012
+    - 2014
+    note: A direct personal identifier, passed through unchanged.
+  NU_GESTA:
+    role: pregnancy.number_of_pregnancies_gravidity
+    kind: number
+    model: mark
+    name: Número de Gestações
+    years:
+    - 2012
+    - 2014
+  NU_IDADE:
+    role: mother.age
+    kind: number
+    model: mark
+    name: Idade da Gestante
+    years:
+    - 2012
+    - 2014
+  NU_NIS:
+    role: mother.nis
+    kind: identifier
+    model: link_only
+    name: Número do NIS
+    years:
+    - 2012
+    - 2014
+    note: 'The social programme number (NIS): a direct personal identifier, passed through unchanged.'
+  NU_NIS_REP:
+    role: family.representative_nis
+    kind: identifier
+    model: excluded
+    name: Nº NIS do Representante Familiar
+    years:
+    - 2012
+    - 2014
+    note: A direct personal identifier, passed through unchanged.
+  QT_AB_ECT:
+    role: pregnancy.ectopic_pregnancy_count_obstetric_history
+    kind: number
+    model: mark
+    name: Quantidade de Abortos Ectópicos
+    years:
+    - 2012
+    - 2014
+  QT_AB_GER:
+    role: pregnancy.abortion_count_general_other
+    kind: number
+    model: mark
+    name: Quantidade de Abortos (Geral)
+    years:
+    - 2012
+    - 2014
+  QT_AB_MOL:
+    role: pregnancy.molar_pregnancy_count_obstetric_history
+    kind: number
+    model: mark
+    name: Quantidade de Abortos Molares
+    years:
+    - 2012
+    - 2014
+  QT_CONS:
+    role: pregnancy.consultation_count_summable
+    kind: number
+    model: mark
+    name: Qt Consultas
+    years:
+    - 2012
+    - 2014
+  QT_CONSULT:
+    role: pregnancy.number_of_consultations_categorised
+    kind: number
+    model: mark
+    name: Consultas
+    years:
+    - 2012
+    - 2014
+  QT_MOR_APS:
+    role: pregnancy.early_death_count_before_completing_1_week
+    kind: number
+    model: mark
+    name: Óbitos de Nascidos Vivos até 1 Semana
+    years:
+    - 2012
+    - 2014
+  QT_MOR_PS:
+    role: pregnancy.later_death_count_after_1_week
+    kind: number
+    model: mark
+    name: Óbitos de Nascidos Vivos após 1 Semana
+    years:
+    - 2012
+    - 2014
+  QT_NSC_MOR:
+    role: pregnancy.stillbirth_count_obstetric_history
+    kind: number
+    model: mark
+    name: Quantidade de Nascidos Mortos
+    years:
+    - 2012
+    - 2014
+  QT_NSC_VIV:
+    role: pregnancy.live_birth_count_obstetric_history
+    kind: number
+    model: mark
+    name: Quantidade de Nascidos Vivos
+    years:
+    - 2012
+    - 2014
+  QT_PRT_CIR:
+    role: pregnancy.surgical_cesarean_delivery_count
+    kind: number
+    model: mark
+    name: Quantidade de Partos Cirúrgicos
+    years:
+    - 2012
+    - 2014
+  QT_PRT_FOR:
+    role: pregnancy.forceps_delivery_count
+    kind: number
+    model: mark
+    name: Quantidade de Partos Fórceps
+    years:
+    - 2012
+    - 2014
+  QT_PRT_VAG:
+    role: pregnancy.vaginal_delivery_count
+    kind: number
+    model: mark
+    name: Quantidade de Partos Vaginais
+    years:
+    - 2012
+    - 2014
+  ST_AUX_DSL:
+    role: pregnancy.needs_transportation_assistance_flag
+    kind: category
+    model: mark
+    name: Precisa de Auxílio Deslocamento
+    years:
+    - 2012
+    - 2014
+  ST_GESTAC:
+    role: pregnancy.pregnancy_case_status
+    kind: category
+    model: mark
+    name: Status da Gestação
+    years:
+    - 2012
+    - 2014
+  ST_GRA_ANT:
+    role: pregnancy.previous_pregnancy_ended_under_a_year_ago_flag
+    kind: category
+    model: mark
+    name: Final da Gestação Anterior, menos de 1 Ano
+    years:
+    - 2012
+    - 2014
+  ST_GRA_PLA:
+    role: pregnancy.planned_pregnancy_flag
+    kind: category
+    model: mark
+    name: Gravidez Planejada
+    years:
+    - 2012
+    - 2014

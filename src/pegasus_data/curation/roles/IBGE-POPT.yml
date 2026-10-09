@@ -1,0 +1,28 @@
+dataset: IBGE-POPT
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1992
+    - 2025
+  MUNIC_RES:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 1992
+    - 2025
+  POPULACAO:
+    role: population.count
+    kind: number
+    model: mark
+    name: Population count
+    years:
+    - 1992
+    - 2025

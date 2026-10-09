@@ -913,9 +913,33 @@ datasets:
     official_name: População Residente
     translated_name: Resident population
     what_it_is: >
-      Resident population by municipality — the denominator for most rates
-      computed against the health systems.
-    observed_as: [POP, POPS, POPT]
+      Resident population by municipality, sex and age (IBGE/POP: censuses and
+      intercensal estimates) — the denominator for most rates computed against
+      the health systems. One publication: until 2026-10-08 POPS and POPT were
+      declared its aliases too, so a query summed three publications (2015:
+      404.8 million in POP plus 204.5 million in POPULACAO).
+    observed_as: [POP]
+
+  IBGE.POPS:
+    system: IBGE
+    official_name: População residente — estimativas SVS
+    translated_name: Resident population, SVS estimates
+    what_it_is: >
+      The Ministry of Health's (SVS) population estimates by municipality, sex
+      and age, 2000-2025 (IBGE/POPSVS/POPSBRaa.zip). Another estimate of the same
+      population as IBGE.POP and IBGE.POPT; never added to them.
+    observed_as: [POPS]
+
+  IBGE.POPT:
+    system: IBGE
+    official_name: População residente — estimativas TCU
+    translated_name: Resident population, TCU estimates
+    what_it_is: >
+      The estimates IBGE sends the Tribunal de Contas da União each year
+      (IBGE/POPTCU/POPTBRaa.zip): total resident population by municipality, no
+      sex or age. Another estimate of the same population; never added to the
+      others.
+    observed_as: [POPT]
 
   IBGE.PROJUF:
     system: IBGE

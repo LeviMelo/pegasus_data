@@ -1,7 +1,7 @@
 {
   "resource_schema_version": 2,
   "resource_content_version": "2026-10-09",
-  "built_at": "2026-10-09T01:26:16Z",
+  "built_at": "2026-10-09T01:40:06Z",
   "source_build_id": "2026-10-09T01:13:46+00:00",
   "crawled_at": "2026-10-09T01:13:46+00:00",
   "counts": {
@@ -9,7 +9,7 @@
     "systems": 17,
     "families": 394,
     "columns": 4593,
-    "variables_described": 4752,
+    "variables_described": 4759,
     "bindings": 10790
   },
   "budgets": {
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19868011,
-      "rows": 930619,
-      "sha256": "189c8c5a0ec1bfbeead417f545b3e3b13b6559fcb50a365f9ab507ca4d112521"
+      "bytes": 19869460,
+      "rows": 930626,
+      "sha256": "a170098e913355d88c46c2d5f1286c637fb9e2840b25d612704ed647864fbbb9"
     },
     "banks": {
       "file": "banks.parquet",

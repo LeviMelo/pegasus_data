@@ -367,6 +367,8 @@ variables:
       campo 33 (Sinais e sintomas – Palidez)
   DS_TRANS_3:
     official_name: 'Meio de transporte 3'
+    translated_name: 'Travel - means of transport 3'
+    description: 'Free-text means of transport used on trip 3. Not a transmission site despite the column name.'
     code_system: none
     source: layout_doc
     asserted_by: pegasus_data

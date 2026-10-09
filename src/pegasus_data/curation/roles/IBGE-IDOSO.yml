@@ -1,0 +1,63 @@
+dataset: IBGE-IDOSO
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1991
+    - 2010
+  CORRACA:
+    role: population.race
+    kind: category
+    model: stratum
+    name: Race/color
+    years:
+    - 1991
+    - 2010
+  IDADE:
+    role: population.age_band
+    kind: category
+    model: dimension
+    name: Age
+    years:
+    - 1991
+    - 2010
+    note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
+  MUNCOD:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Municipality code (6-digit)
+    years:
+    - 1991
+    - 2010
+  POPDEPEND:
+    role: population.dependent_age
+    kind: number
+    model: mark
+    name: População dependente
+    years:
+    - 1991
+    - 2010
+  POPTOT:
+    role: population.total
+    kind: number
+    model: mark
+    name: Total population (indicator base)
+    years:
+    - 1991
+    - 2010
+  SEXO:
+    role: population.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 1991
+    - 2010
+    note: Coded M/F in some tables and 1/2 in others (the variable note).

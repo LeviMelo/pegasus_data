@@ -1,0 +1,927 @@
+dataset: ESUSNOTIFICA-DCCR
+record: notification
+columns:
+  AC_NOT:
+    role: notification.follow_up_unit_same_as_notifying_unit
+    kind: category
+    model: mark
+    name: A Unidade de Saúde de acompanhamento é a mesma de notificação?
+    years:
+    - 2023
+    - 2025
+  ADVERS_BNZ:
+    role: notification.benznidazole_no_adverse_reaction
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Sem reações
+    years:
+    - 2023
+    - 2025
+  ADVERS_NFX:
+    role: notification.nifurtimox_no_adverse_reaction
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Sem reações
+    years:
+    - 2023
+    - 2025
+  ANO_DIAG:
+    role: notification.probable_year_of_diagnosis
+    kind: number
+    model: mark
+    name: Ano provável do diagnóstico
+    years:
+    - 2023
+    - 2025
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    name: Ano de Nascimento
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (45 of 45).
+  ANT_MUN:
+    role: notification.new_specialised_unit_municipality_text
+    kind: text
+    model: excluded
+    name: Município da nova unidade
+    years:
+    - 2023
+    - 2025
+    note: A municipality name (51 rows, 18 names, 2025).
+  ANT_UF_ESP:
+    role: notification.state_of_the_new_specialised_unit
+    kind: category
+    model: mark
+    name: Estado da nova unidade
+    years:
+    - 2023
+    - 2025
+  BNZ_ARTRAL:
+    role: notification.benznidazole_arthralgia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Artralgias
+    years:
+    - 2023
+    - 2025
+  BNZ_AUGESI:
+    role: notification.benznidazole_ageusia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Ageusia
+    years:
+    - 2023
+    - 2025
+  BNZ_DEPRE:
+    role: notification.benznidazole_bone_marrow_suppression
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Depressão med. óssea
+    years:
+    - 2023
+    - 2025
+  BNZ_DIAS:
+    role: notification.benznidazole_treatment_days
+    kind: number
+    model: mark
+    name: Benznidazol (BNZ) - Nº dias de tratamento
+    years:
+    - 2023
+    - 2025
+  BNZ_GASTRO:
+    role: notification.benznidazole_gastrointestinal_intolerance
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Intolerância gastrointestinal
+    years:
+    - 2023
+    - 2025
+  BNZ_GRAVE:
+    role: notification.benznidazole_severe_dermopathy
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Dermopatia grave
+    years:
+    - 2023
+    - 2025
+  BNZ_LEVE:
+    role: notification.benznidazole_mild_moderate_dermopathy
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Dermopatia leve/moderada
+    years:
+    - 2023
+    - 2025
+  BNZ_OUTRAS:
+    role: notification.benznidazole_other_reaction_described_text
+    kind: text
+    model: excluded
+    name: Apresentou reações adversas ao BNZ? Outras - descrever
+    years:
+    - 2023
+    - 2025
+  BNZ_PAREST:
+    role: notification.benznidazole_paraesthesia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Parestesias
+    years:
+    - 2023
+    - 2025
+  BNZ_TOT_CP:
+    role: notification.benznidazole_tablets_prescribed
+    kind: number
+    model: mark
+    name: Benznidazol (BNZ) - Total de comprimidos
+    years:
+    - 2023
+    - 2025
+  BUSCAATIVA:
+    role: notification.active_case_finding_performed
+    kind: category
+    model: mark
+    name: Realizada busca ativa?
+    years:
+    - 2023
+    - 2025
+  CARDIOPAT:
+    role: notification.comorbidity_heart_disease_of_other_aetiology
+    kind: category
+    model: mark
+    name: Comorbidades - Cardiopatia de outra etiologia
+    years:
+    - 2023
+    - 2025
+  CD_ANT_MUN:
+    role: notification.ibge_code_municipality_of_the_new_specialised_unit
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município da nova unidade
+    years:
+    - 2023
+    - 2025
+  CD_COMUNIN:
+    role: notification.ibge_code_municipality_of_probable_infection
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município Provável de Infecção
+    years:
+    - 2023
+    - 2025
+  CD_MN_RES0:
+    role: notification.ibge_code_new_municipality_of_residence
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE – Município de transferência
+    years:
+    - 2023
+    - 2025
+  CD_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município de Residência
+    years:
+    - 2023
+    - 2025
+  CD_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município da Notificação
+    years:
+    - 2023
+    - 2025
+  CD_MUN_ESP:
+    role: notification.ibge_code_municipality_of_the_specialised_service
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município Hospital/Serviço Especializado
+    years:
+    - 2023
+    - 2025
+  CD_MUN_NAS:
+    role: notification.ibge_code_municipality_of_birth
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município de Nascimento do paciente
+    years:
+    - 2023
+    - 2025
+  CD_MUN_NOV:
+    role: notification.ibge_code_municipality_of_the_new_follow_up_unit
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE – Município de nova UBS
+    years:
+    - 2023
+    - 2025
+  CD_MUN_UBS:
+    role: notification.ibge_code_municipality_of_the_follow_up_primary_care_unit
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    name: COD IBGE - Município da UBS de acompanhamento do caso
+    years:
+    - 2023
+    - 2025
+  CNES:
+    role: notification.facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: CNES do estabelecimento notificante
+    years:
+    - 2023
+    - 2025
+  COMORBID:
+    role: notification.any_comorbidity_present_text
+    kind: text
+    model: excluded
+    name: Comorbidades
+    years:
+    - 2023
+    - 2025
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    name: Município Provável de Infecção
+    years:
+    - 2023
+    - 2025
+    codelists:
+    - BR_MUNICIPALFA
+    note: As across SINAN forms (21 of 22).
+  CONF_FAMIL:
+    role: notification.relatives_confirmed_after_active_case_finding
+    kind: category
+    model: mark
+    name: Nº de Familiares confirmados para doença de Chagas, após busca ativa
+    years:
+    - 2023
+    - 2025
+  COUFINF:
+    role: notification.state_of_probable_infection_text
+    kind: text
+    model: excluded
+    name: UF de Infecção (provável da fonte de infecção)
+    years:
+    - 2023
+    - 2025
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (55 of 55).
+  CS_GESTANT:
+    role: patient.pregnant
+    kind: category
+    model: mark
+    name: Gestante (no ano de notificação)
+    years:
+    - 2023
+    - 2025
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/cor
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (54 of 54).
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo ao nascimento
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (56 of 56).
+  DIABETES:
+    role: notification.comorbidity_diabetes
+    kind: category
+    model: mark
+    name: Comorbidades - Diabetes
+    years:
+    - 2023
+    - 2025
+  DIAG_FAMIL:
+    role: notification.relatives_identified_without_a_prior_diagnosis
+    kind: category
+    model: mark
+    name: Nº de Familiares com história epidemiológica SEM diagnóstico prévio de doença de Chagas
+    years:
+    - 2023
+    - 2025
+  DT_CRIACAO:
+    role: notification.record_creation_date
+    kind: date
+    model: mark
+    name: Criação
+    years:
+    - 2023
+    - 2025
+  DT_DIGITAC:
+    role: notification.data_entry_date
+    kind: date
+    model: mark
+    name: Digitação
+    years:
+    - 2023
+    - 2025
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data do Encerramento
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (38 of 38).
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (59 of 59).
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data do Óbito
+    years:
+    - 2023
+    - 2025
+    note: As across SINAN forms (43 of 43).
+  ECOCARDIO:
+    role: notification.echocardiogram_result
+    kind: category
+    model: mark
+    name: Exames complementares – Ecocardiograma
+    years:
+    - 2023
+    - 2025
+  EIE_IGG:
+    role: notification.elisa_igg_serology_result
+    kind: category
+    model: mark
+    name: Sorologia (IgG) – Ensaio Imunoenzimático (EIE) (ELISA)
+    years:
+    - 2023
+    - 2025
+  ELETROCARD:
+    role: notification.electrocardiogram_result
+    kind: category
+    model: mark
+    name: Exames complementares – Eletrocardiograma
+    years:
+    - 2023
+    - 2025
+  EXAME_DESC:
+    role: notification.other_complementary_exam_described_text
+    kind: text
+    model: excluded
+    name: Exames complementares – Outros - descrever
+    years:
+    - 2023
+    - 2025
+  EXAM_FAMIL:
+    role: notification.relatives_tested_after_active_case_finding
+    kind: category
+    model: mark
+    name: Nº de Familiares com realização de exames para doença de Chagas, após busca ativa
+    years:
+    - 2023
+    - 2025
+  FORMA:
+    role: notification.clinical_form
+    kind: category
+    model: mark
+    name: Forma Clínica
+    years:
+    - 2023
+    - 2025
+  HAI_IGG:
+    role: notification.indirect_haemagglutination_igg_result
+    kind: category
+    model: mark
+    name: Sorologia (IgG) – HAI-Hemaglutinação
+    years:
+    - 2023
+    - 2025
+  HEPATITE:
+    role: notification.comorbidity_chronic_hepatitis
+    kind: category
+    model: mark
+    name: Comorbidades - Hepatite crônica
+    years:
+    - 2023
+    - 2025
+  HIPERTEN:
+    role: notification.comorbidity_hypertension
+    kind: category
+    model: mark
+    name: Comorbidades - Hipertensão
+    years:
+    - 2023
+    - 2025
+  HIST_BNZ:
+    role: notification.prior_benznidazole_treatment
+    kind: category
+    model: mark
+    name: Tem histórico de tratamento anterior com Benznidazol?
+    years:
+    - 2023
+    - 2025
+  HIST_EPID:
+    role: notification.living_relatives_already_diagnosed_with_chagas
+    kind: category
+    model: mark
+    name: Nº de Familiares (vivos) com história epidemiológica COM diagnóstico prévio e confirmado de doença 
+      de Chagas
+    years:
+    - 2023
+    - 2025
+  HIV:
+    role: notification.comorbidity_hiv_aids
+    kind: category
+    model: mark
+    name: Comorbidades - HIV/aids
+    years:
+    - 2023
+    - 2025
+  HOSP_ESP:
+    role: notification.followed_at_a_specialised_hospital_or_service
+    kind: category
+    model: mark
+    name: Está sendo acompanhado em Hospital/Serviço especializado?
+    years:
+    - 2023
+    - 2025
+  ID_ESTRANG:
+    role: notification.foreign_national
+    kind: category
+    model: mark
+    name: Estrangeiro
+    years:
+    - 2023
+    - 2025
+  ID_MN_RESI:
+    role: notification.municipality_of_residence_text
+    kind: text
+    model: excluded
+    name: Município de Residência
+    years:
+    - 2023
+    - 2025
+  ID_MUNICIP:
+    role: notification.municipality_of_notification_text
+    kind: text
+    model: excluded
+    name: Município da Notificação
+    years:
+    - 2023
+    - 2025
+  ID_OCUPA_N:
+    role: notification.occupation_cbo_text
+    kind: text
+    model: excluded
+    name: Ocupação (CBO)
+    years:
+    - 2023
+    - 2025
+  ID_PAIS:
+    role: notification.country_of_origin
+    kind: category
+    model: mark
+    name: País de origem
+    years:
+    - 2023
+    - 2025
+  IFI_IGG:
+    role: notification.indirect_immunofluorescence_igg_result
+    kind: category
+    model: mark
+    name: Sorologia (IgG) – IFI-Imunofluorescência
+    years:
+    - 2023
+    - 2025
+  LAB_CNES:
+    role: notification.laboratory_cnes_flag
+    kind: category
+    model: mark
+    name: CNES do laboratório
+    years:
+    - 2023
+    - 2025
+    codelists:
+    - CADGERBR
+    note: '0 on all 8,256 rows of 2025: a flag, not a CNES code.'
+  LEISHMANIA:
+    role: notification.comorbidity_leishmaniasis
+    kind: category
+    model: mark
+    name: Comorbidades - Leishmaniose
+    years:
+    - 2023
+    - 2025
+  MN_RESI_TF:
+    role: notification.new_municipality_of_residence
+    kind: category
+    model: mark
+    name: Novo Município de Residência
+    years:
+    - 2023
+    - 2025
+  MO_SUSPEIT:
+    role: notification.route_of_case_detection
+    kind: category
+    model: mark
+    name: Modo de suspeição
+    years:
+    - 2023
+    - 2025
+  MUD_UBS_AC:
+    role: notification.change_of_follow_up_primary_care_unit
+    kind: category
+    model: mark
+    name: Mudança de UBS de acompanhamento?
+    years:
+    - 2023
+    - 2025
+  MUN_ESP:
+    role: notification.municipality_of_the_specialised_hospital_or_service_text
+    kind: text
+    model: excluded
+    name: Município Hospital/Serviço Especializado
+    years:
+    - 2023
+    - 2025
+  MUN_NASC:
+    role: notification.municipality_of_birth_text
+    kind: text
+    model: excluded
+    name: Município de Nascimento do paciente
+    years:
+    - 2023
+    - 2025
+  MUN_NOV_AC:
+    role: notification.new_follow_up_unit_municipality_text
+    kind: text
+    model: excluded
+    name: Município da nova UBS de acompanhamento do caso
+    years:
+    - 2023
+    - 2025
+    note: A municipality name (37 rows, 16 names, 2025).
+  MUN_UBS_AC:
+    role: notification.municipality_of_the_follow_up_primary_care_unit_text
+    kind: text
+    model: excluded
+    name: Município da UBS de acompanhamento do caso
+    years:
+    - 2023
+    - 2025
+  NEOPLASIA:
+    role: notification.comorbidity_neoplasia_or_other_immunosuppression
+    kind: category
+    model: mark
+    name: Comorbidades - Neoplasias/Outras condições de imunossupressão
+    years:
+    - 2023
+    - 2025
+  NFX_AGEUSI:
+    role: notification.nifurtimox_ageusia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Ageusia
+    years:
+    - 2023
+    - 2025
+  NFX_ARTRAL:
+    role: notification.nifurtimox_arthralgia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Artralgias
+    years:
+    - 2023
+    - 2025
+  NFX_DIAS:
+    role: notification.nifurtimox_treatment_days
+    kind: category
+    model: mark
+    name: Nifurtimox (NFX) - Nº dias de tratamento
+    years:
+    - 2023
+    - 2025
+  NFX_GASTRO:
+    role: notification.nifurtimox_gastrointestinal_intolerance
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Intolerância gastrointestinal
+    years:
+    - 2023
+    - 2025
+  NFX_GRAVE:
+    role: notification.nifurtimox_severe_dermopathy
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Dermopatia grave
+    years:
+    - 2023
+    - 2025
+  NFX_LEVE:
+    role: notification.nifurtimox_mild_moderate_dermopathy
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Dermopatia leve/moderada
+    years:
+    - 2023
+    - 2025
+  NFX_MEDULA:
+    role: notification.nifurtimox_bone_marrow_suppression
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Depressão medula óssea
+    years:
+    - 2023
+    - 2025
+  NFX_OUTRAS:
+    role: notification.nifurtimox_other_reaction_described_text
+    kind: text
+    model: excluded
+    name: Apresentou reações adversas ao NFX? Outras - descrever
+    years:
+    - 2023
+    - 2025
+  NFX_PAREST:
+    role: notification.nifurtimox_paraesthesia
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Parestesias
+    years:
+    - 2023
+    - 2025
+  NFX_TOT_CP:
+    role: notification.nifurtimox_tablets_prescribed
+    kind: category
+    model: mark
+    name: Nifurtimox (NFX) - Total de comprimidos
+    years:
+    - 2023
+    - 2025
+  NOVO_ESPEC:
+    role: notification.change_of_specialised_service_or_hospital
+    kind: category
+    model: mark
+    name: Houve Alteração de Ambulatório Especializado ou Hospital?
+    years:
+    - 2023
+    - 2025
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2023
+    - 2025
+    codelists:
+    - IDADEDETESUS
+    - FXIDAD5ESUS
+    - FXIDAD9ESUS
+    - FXIDAD13ESUS
+    - FXRIPSA6ESUS
+    note: As across SINAN forms (56 of 56).
+  OUTRO_EXAM:
+    role: notification.other_complementary_exam_result
+    kind: category
+    model: mark
+    name: Exames complementares – Outros
+    years:
+    - 2023
+    - 2025
+  OUTRO_POSI:
+    role: notification.other_positive_chagas_tests
+    kind: category
+    model: mark
+    name: Outros exames positivos?
+    years:
+    - 2023
+    - 2025
+  OUT_COMORB:
+    role: notification.comorbidity_other
+    kind: category
+    model: mark
+    name: Comorbidades - Outras
+    years:
+    - 2023
+    - 2025
+  PCR:
+    role: notification.pcr_detectable
+    kind: category
+    model: mark
+    name: PCR detectável?
+    years:
+    - 2023
+    - 2025
+  QUIMIO_IGG:
+    role: notification.chemiluminescence_igg_result
+    kind: category
+    model: mark
+    name: Sorologia (IgG) – Quimioluminescência
+    years:
+    - 2023
+    - 2025
+  REAC_BNZ:
+    role: notification.benznidazole_other_adverse_reaction
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao BNZ? Outras
+    years:
+    - 2023
+    - 2025
+  REAC_NFX:
+    role: notification.nifurtimox_other_adverse_reaction
+    kind: category
+    model: mark
+    name: Apresentou reações adversas ao NFX? Outras
+    years:
+    - 2023
+    - 2025
+  REATIVACAO:
+    role: notification.reactivation_episode_occurred
+    kind: category
+    model: mark
+    name: Ocorreu episódio de reativação (reagudização)
+    years:
+    - 2023
+    - 2025
+  RX_COLON:
+    role: notification.colon_x_ray_result
+    kind: category
+    model: mark
+    name: Exames complementares – RX cólon
+    years:
+    - 2023
+    - 2025
+  RX_ESOFAGO:
+    role: notification.oesophagus_x_ray_result
+    kind: category
+    model: mark
+    name: Exames complementares – RX Esôfago
+    years:
+    - 2023
+    - 2025
+  RX_TORAX:
+    role: notification.chest_x_ray_result
+    kind: category
+    model: mark
+    name: Exames complementares – RX tórax
+    years:
+    - 2023
+    - 2025
+  SG_PAIS:
+    role: notification.country_of_residence
+    kind: category
+    model: mark
+    name: País de residência
+    years:
+    - 2023
+    - 2025
+  SG_UF:
+    role: notification.state_of_residence_text
+    kind: text
+    model: excluded
+    name: Estado de Residência
+    years:
+    - 2023
+    - 2025
+  SG_UF_NOT:
+    role: notification.state_of_notification_text
+    kind: text
+    model: excluded
+    name: Estado da Notificação
+    years:
+    - 2023
+    - 2025
+  SITUACAO:
+    role: notification.record_cancellation_flag
+    kind: category
+    model: mark
+    name: Situação
+    years:
+    - 2023
+    - 2025
+  ST_ENCERRA:
+    role: notification.case_closure_status
+    kind: category
+    model: mark
+    name: Situação de encerramento
+    years:
+    - 2023
+    - 2025
+  TF_RESIDEN:
+    role: notification.change_of_residence_during_follow_up
+    kind: category
+    model: mark
+    name: Transferência de residência?
+    years:
+    - 2023
+    - 2025
+  TRAT_BNZ:
+    role: notification.benznidazole_prescribed_now
+    kind: category
+    model: mark
+    name: Prescrições atuais - Tratamento específico 1ª linha, Benznidazol (BNZ)
+    years:
+    - 2023
+    - 2025
+  TRAT_NFX:
+    role: notification.nifurtimox_prescribed_now
+    kind: category
+    model: mark
+    name: Prescrições atuais - Tratamento específico 2ª linha, Nifurtimox (NFX)
+    years:
+    - 2023
+    - 2025
+  UF_HOSPESP:
+    role: notification.state_of_the_specialised_hospital_or_service_text
+    kind: text
+    model: excluded
+    name: Estado Hospital/Serviço Especializado
+    years:
+    - 2023
+    - 2025
+  UF_NASC:
+    role: notification.state_of_birth_text
+    kind: text
+    model: excluded
+    name: UF de Nascimento do paciente
+    years:
+    - 2023
+    - 2025
+  UF_NOV_AC:
+    role: notification.state_of_the_new_follow_up_primary_care_unit
+    kind: category
+    model: mark
+    name: UF da nova UBS de acompanhamento do caso
+    years:
+    - 2023
+    - 2025
+  UF_RESI_TF:
+    role: notification.new_state_of_residence
+    kind: category
+    model: mark
+    name: Novo Estado de Residência
+    years:
+    - 2023
+    - 2025
+  UF_UBS_AC:
+    role: notification.state_of_the_follow_up_primary_care_unit_text
+    kind: text
+    model: excluded
+    name: UF da UBS de acompanhamento do caso
+    years:
+    - 2023
+    - 2025

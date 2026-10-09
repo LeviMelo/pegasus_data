@@ -1,0 +1,48 @@
+dataset: IBGE-PROJUF
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 2000
+    - 2070
+  IDADE:
+    role: population.age_band
+    kind: category
+    model: dimension
+    name: Age
+    years:
+    - 2000
+    - 2070
+    note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
+  POPULACAO:
+    role: population.count
+    kind: number
+    model: mark
+    name: Population count
+    years:
+    - 2000
+    - 2070
+  SEXO:
+    role: population.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2000
+    - 2070
+    note: Coded M/F in some tables and 1/2 in others (the variable note).
+  UFCOD:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - UF_BR
+    name: Unidade da Federação
+    years:
+    - 2000
+    - 2070
+    note: "The projections' only place: a state."

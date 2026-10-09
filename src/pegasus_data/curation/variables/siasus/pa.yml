@@ -1046,3 +1046,10 @@ variables:
     description: Additional incentive/increment amount paid on top of the base procedure value,
       in reais (distinct from PA_VL_CF and PA_VL_CL, which are the federal and local complements).
     code_system: none
+  PA_VL_CRD:
+    official_name: 'Valor de crédito (nome)'
+    translated_name: 'Credit value (read from the name)'
+    description: 'A value column added in 2025, read from the name as a credit amount; 0.00 on all 4,813,028 rows of 2026-04 PR. No layout found names it (the 2019 Informe Técnico predates it; the FTP''s /siasus/Documentos holds no later layout).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'

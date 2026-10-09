@@ -218,3 +218,10 @@ variables:
     source: web
     source_ref: 'Ministério da Saúde vaccination-by-residence panel description
       (infoms.saude.gov.br): "atualizado diariamente."'
+  CO_TRANSCRICAO:
+    official_name: 'Transcrição'
+    translated_name: 'Transcribed record'
+    description: 'Sim or Não: whether the dose was registered by transcription (from a card, after the fact) rather than at application; 10,387 of 200,000 rows Sim (2026-01). Read from the name and values.'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'

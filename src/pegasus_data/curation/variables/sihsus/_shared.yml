@@ -1760,3 +1760,10 @@ variables:
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 70'
+  COMPET:
+    official_name: 'Competência'
+    translated_name: 'Competence (year-month)'
+    description: 'YYYYMM of the monthly maintainer register CMBRaamm.dbc (202603 on all 1,175 rows of 2026-03).'
+    code_system: none
+    source: inferred
+    reasoning: 'Documented 2026-10-08 from the values read and the name; no source names it.'

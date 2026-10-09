@@ -1,0 +1,46 @@
+dataset: IBGE-POPS
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 2000
+    - 2025
+  COD_MUN:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2000
+    - 2025
+    note: Seven-digit IBGE codes; geography reads both widths.
+  IDADE:
+    role: population.age_band
+    kind: category
+    model: dimension
+    name: Age
+    years:
+    - 2000
+    - 2025
+    note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
+  POP:
+    role: population.count
+    kind: number
+    model: mark
+    years:
+    - 2000
+    - 2025
+  SEXO:
+    role: population.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 2000
+    - 2025
+    note: Coded M/F in some tables and 1/2 in others (the variable note).

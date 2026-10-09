@@ -1,0 +1,912 @@
+dataset: SINAN-COLE
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    name: Ano de Nascimento
+    years:
+    - 2020
+    - 2025
+    note: role from the notification block
+  ANTIB_DES:
+    role: case.antibiotic_used_in_treatment
+    kind: category
+    model: mark
+    name: Utilizou antibióticos - Caso afirmativo, qual
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    name: Classificação Final
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (31 of 31).
+  CODISINF:
+    role: case.infection_district_code
+    kind: category
+    model: mark
+    name: Código do distrito de infecção
+    years:
+    - 2007
+    - 2025
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    name: Município Provável da Fonte de Infecção
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (19 of 20).
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: mark
+    codelists:
+    - PAISNET
+    name: País Provável da Fonte de Infecção
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (19 of 20).
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    name: UF Provável da Fonte de Infecção
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (19 of 20).
+  CO_UF_DES1:
+    role: case.state_uf_of_travel_exposure_location_1st_episode
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Deslocamento – UF 1
+    years:
+    - 2007
+    - 2025
+  CO_UF_DES2:
+    role: case.state_uf_of_travel_exposure_location_2nd_episode
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Deslocamento – UF 2
+    years:
+    - 2007
+    - 2025
+  CO_UF_DES3:
+    role: case.state_uf_of_travel_exposure_location_3rd_episode
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: Deslocamento – UF 3
+    years:
+    - 2007
+    - 2025
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    name: Critério de Confirmação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (31 of 32).
+  CS_ANTIB:
+    role: case.antibiotic_before_specimen_collection
+    kind: category
+    model: mark
+    name: Uso de antibiótico antes da coleta do material
+    years:
+    - 2007
+    - 2025
+  CS_ANTIB_T:
+    role: case.treated_with_antibiotics
+    kind: category
+    model: mark
+    name: Utilizou antibióticos (tratamento)
+    years:
+    - 2007
+    - 2025
+  CS_ASSINTO:
+    role: case.asymptomatic
+    kind: category
+    model: mark
+    name: Assintomático
+    years:
+    - 2007
+    - 2025
+  CS_CAIMBRA:
+    role: case.cramps
+    kind: category
+    model: mark
+    name: Cãibras
+    years:
+    - 2007
+    - 2025
+  CS_CHOQUE:
+    role: case.hypovolaemic_shock
+    kind: category
+    model: mark
+    name: Choque hipovolêmico
+    years:
+    - 2007
+    - 2025
+  CS_DESIT:
+    role: case.dehydration
+    kind: category
+    model: mark
+    name: Desidratação
+    years:
+    - 2007
+    - 2025
+  CS_DIARRE:
+    role: case.diarrhoea
+    kind: category
+    model: mark
+    name: Diarreia
+    years:
+    - 2007
+    - 2025
+  CS_DOR:
+    role: case.abdominal_pain
+    kind: category
+    model: mark
+    name: Dor abdominal
+    years:
+    - 2007
+    - 2025
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  CS_FEBRE:
+    role: case.fever
+    kind: category
+    model: mark
+    name: Febre
+    years:
+    - 2007
+    - 2025
+  CS_FREQUEN:
+    role: case.stool_frequency
+    kind: category
+    model: mark
+    name: Frequência das evacuações
+    years:
+    - 2007
+    - 2025
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  CS_MATERIA:
+    role: case.specimen_collected
+    kind: category
+    model: mark
+    name: Coleta de material
+    years:
+    - 2007
+    - 2025
+  CS_MUCO:
+    role: case.mucus_in_stool
+    kind: category
+    model: mark
+    name: Muco nas fezes
+    years:
+    - 2007
+    - 2025
+  CS_NEG_ESP:
+    role: case.if_negative_specify
+    kind: category
+    model: mark
+    name: Caso negativo, especificar
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  CS_POSITIV:
+    role: case.serotype_isolated
+    kind: category
+    model: mark
+    name: Sorotipo isolado
+    years:
+    - 2007
+    - 2025
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  CS_REIDRAT:
+    role: case.rehydration_route
+    kind: category
+    model: mark
+    name: Via de reidratação
+    years:
+    - 2007
+    - 2025
+  CS_RESULTA:
+    role: case.test_result_flag_virus_type_result
+    kind: category
+    model: mark
+    name: "Resultado\n"
+    years:
+    - 2007
+    - 2025
+    codelists:
+    - POSNEGIG
+  CS_SANGUE:
+    role: case.blood_related_sign_or_specimen_flag
+    kind: category
+    model: mark
+    name: "Sangue\n"
+    years:
+    - 2007
+    - 2025
+    codelists:
+    - SIM_NAO
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  CS_TIPO:
+    role: case.care_setting
+    kind: category
+    model: mark
+    name: Local de atendimento
+    years:
+    - 2007
+    - 2025
+  CS_VOMITO:
+    role: case.vomiting
+    kind: category
+    model: mark
+    name: Vômito
+    years:
+    - 2007
+    - 2025
+  CS_VOMITOS:
+    role: case.vomiting_sign
+    kind: category
+    model: mark
+    name: "Sinais e Sintomas — Vômitos\n"
+    years:
+    - 2007
+    - 2025
+    codelists:
+    - SIM_NAO
+  DOENCA_TRA:
+    role: case.work_related
+    kind: category
+    model: mark
+    codelists:
+    - SIM_NAO
+    name: Doença Relacionada ao Trabalho
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (26 of 26).
+  DS_TRANS1:
+    role: case.municipality_of_transmission_1
+    kind: category
+    model: mark
+    name: Município de transmissão (1)
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  DS_TRANS2:
+    role: case.municipality_of_transmission_2
+    kind: category
+    model: mark
+    name: Município de transmissão (2)
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  DS_TRANS3:
+    role: case.municipality_of_transmission_3
+    kind: category
+    model: mark
+    name: Município de transmissão (3)
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  DT_ATENDIM:
+    role: case.date_of_care
+    kind: date
+    model: mark
+    name: Data do atendimento
+    years:
+    - 2007
+    - 2025
+  DT_COLETA:
+    role: case.referral_sample_date
+    kind: date
+    model: mark
+    name: Data da coleta
+    years:
+    - 2007
+    - 2025
+    note: role from SINAN-HEPA
+  DT_DESC1:
+    role: case.date_of_travel_exposure_episode_1st
+    kind: date
+    model: mark
+    name: Deslocamento – Data 1
+    years:
+    - 2007
+    - 2025
+  DT_DESC2:
+    role: case.date_of_travel_exposure_episode_2nd
+    kind: date
+    model: mark
+    name: Deslocamento – Data 2
+    years:
+    - 2007
+    - 2025
+  DT_DESC3:
+    role: case.date_of_travel_exposure_episode_3rd
+    kind: date
+    model: mark
+    name: Deslocamento – Data 3
+    years:
+    - 2007
+    - 2025
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (36 of 40).
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (36 of 36).
+  DT_INTERNA:
+    role: case.hospitalization_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2007
+    - 2025
+    note: role from SINAN-CHIK
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (33 of 33).
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de Nascimento
+    years:
+    - 2007
+    - 2019
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (41 of 41).
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (28 of 30).
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (24 of 26).
+  DT_TRANSRS:
+    role: notification.transfer_date_state_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2020
+    - 2025
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (28 of 30).
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (27 of 29).
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (28 of 30).
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    name: Evolução do Caso
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (44 of 44).
+  FC_CONTATO:
+    role: case.location_of_contact_with_a_similar_case
+    kind: category
+    model: mark
+    name: "Local do Contato\n"
+    years:
+    - 2007
+    - 2025
+    codelists:
+    - LOCALCONCNET
+  FC_CONT_DE:
+    role: case.other_contact_text
+    kind: text
+    model: excluded
+    name: Contato com caso suspeito ou confirmado de cólera - Outros (especificar)
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    name: Ocupação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (46 of 46).
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2020
+    - 2025
+    note: role from the notification block
+  MUN_DES1:
+    role: case.municipality_of_travel_exposure_location_1st_episode
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Deslocamento – Município 1
+    years:
+    - 2007
+    - 2025
+  MUN_DES2:
+    role: case.municipality_of_travel_exposure_location_2nd_episode
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Deslocamento – Município 2
+    years:
+    - 2007
+    - 2025
+  MUN_DES3:
+    role: case.municipality_of_travel_exposure_location_3rd_episode
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Deslocamento – Município 3
+    years:
+    - 2007
+    - 2025
+  NM_ANTIBIO:
+    role: case.antibiotic_before_collection_text
+    kind: text
+    model: excluded
+    name: Uso de antibiótico antes da coleta do material - Caso afirmativo, qual
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  NM_MUNIC_H:
+    role: case.hospital_municipality
+    kind: place
+    model: mark
+    codelists:
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    name: "Município do Hospital (nome)\n"
+    years:
+    - 2007
+    - 2025
+    note: "Six characters: a municipality code, despite (nome) in its name (the form's layout)."
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (25 of 25).
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2020
+    - 2025
+    note: As across SINAN forms (25 of 25).
+  OUT_VINCUL:
+    role: case.other_link_text
+    kind: text
+    model: excluded
+    name: Sugestão de vínculo - Se outros, especificar
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  PA_DES1:
+    role: case.country_of_travel_exposure_location_1st_episode
+    kind: category
+    model: mark
+    name: Deslocamento – País 1
+    years:
+    - 2007
+    - 2025
+  PA_DES2:
+    role: case.country_of_travel_exposure_location_2nd_episode
+    kind: category
+    model: mark
+    name: Deslocamento – País 2
+    years:
+    - 2007
+    - 2025
+  PA_DES3:
+    role: case.country_of_travel_exposure_location_3rd_episode
+    kind: category
+    model: mark
+    name: Deslocamento – País 3
+    years:
+    - 2007
+    - 2025
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (46 of 48).
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (28 of 32).
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+    note: role from the notification block
+  TIP_DIARRE:
+    role: case.stool_character
+    kind: category
+    model: mark
+    name: Característica da diarreia
+    years:
+    - 2007
+    - 2025
+  TPAUTOCTO:
+    role: case.autochthonous
+    kind: category
+    model: mark
+    codelists:
+    - AUTOCTONE
+    name: Caso é Autóctone da Residência?
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (20 of 20).
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2025
+    note: As across SINAN forms (53 of 53).
+  UF_HOSPITA:
+    role: case.state_of_hospitalization
+    kind: category
+    model: mark
+    name: UF de internação
+    years:
+    - 2007
+    - 2025
+    note: Empty in every file read; kind from its variable note.
+  VINCULO:
+    role: case.suggested_epidemiological_link
+    kind: category
+    model: mark
+    name: Vínculo epidemiológico sugerido
+    years:
+    - 2007
+    - 2025

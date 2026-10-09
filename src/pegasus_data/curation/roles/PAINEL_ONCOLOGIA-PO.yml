@@ -1,0 +1,207 @@
+dataset: PAINEL_ONCOLOGIA-PO
+record: case
+columns:
+  ANOMES_DIA:
+    role: case.diagnosis_month
+    kind: date
+    model: mark
+    name: Ano e mês do diagnóstico
+    years:
+    - 2013
+    - 2026
+  ANOMES_TRA:
+    role: case.treatment_month
+    kind: date
+    model: mark
+    name: Ano e mês do tratamento
+    years:
+    - 2013
+    - 2026
+  ANO_DIAGN:
+    role: case.diagnosis_year
+    kind: number
+    model: mark
+    name: Ano do diagnóstico
+    years:
+    - 2013
+    - 2026
+  ANO_TRATAM:
+    role: case.treatment_year
+    kind: number
+    model: mark
+    name: Ano do tratamento
+    years:
+    - 2013
+    - 2026
+  CNES_DIAG:
+    role: case.diagnosis_facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: CNES do estabelecimento de diagnóstico
+    years:
+    - 2013
+    - 2026
+  CNES_TRAT:
+    role: case.treatment_facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: CNES do estabelecimento de tratamento
+    years:
+    - 2013
+    - 2026
+  CNS_PAC:
+    role: patient.cns
+    kind: identifier
+    model: link_only
+    name: Cartão Nacional de Saúde do paciente
+    years:
+    - 2013
+    - 2026
+    note: A direct personal identifier, passed through unchanged.
+  DIAGNOSTIC:
+    role: case.diagnosis_group
+    kind: category
+    model: dimension
+    name: Grupo diagnóstico
+    years:
+    - 2013
+    - 2026
+  DIAG_DETH:
+    role: case.diagnosis
+    kind: code_tree
+    model: event_type
+    name: Diagnóstico detalhado
+    years:
+    - 2013
+    - 2026
+    codelists:
+    - ICD10
+    note: Three-character ICD-10 (D48, C44, C50 in 2026).
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: when
+    name: Data do diagnóstico
+    years:
+    - 2013
+    - 2026
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 2013
+    - 2026
+  DT_TRAT:
+    role: case.treatment_start_date
+    kind: date
+    model: mark
+    name: Data detalhada do primeiro tratamento registrado
+    years:
+    - 2013
+    - 2026
+  ESTADIAM:
+    role: case.stage_at_diagnosis
+    kind: category
+    model: mark
+    name: Estadiamento
+    years:
+    - 2013
+    - 2026
+  IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2013
+    - 2026
+  MUN_DIAG:
+    role: case.diagnosis_municipality
+    kind: place
+    model: where
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do diagnóstico
+    years:
+    - 2013
+    - 2026
+  MUN_RESID:
+    role: patient.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município de residência
+    years:
+    - 2013
+    - 2026
+  MUN_TRATAM:
+    role: case.treatment_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município do tratamento
+    years:
+    - 2013
+    - 2026
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    years:
+    - 2013
+    - 2026
+  TEMPO_TRAT:
+    role: case.time_to_treatment
+    kind: category
+    model: mark
+    name: Tempo até o tratamento
+    years:
+    - 2013
+    - 2026
+  TRATAMENTO:
+    role: case.treatment_type
+    kind: category
+    model: mark
+    name: Tipo de tratamento
+    years:
+    - 2013
+    - 2026
+  UF_DIAGN:
+    role: case.state_of_diagnosis
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do diagnóstico
+    years:
+    - 2013
+    - 2026
+  UF_RESID:
+    role: patient.residence_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF de residência
+    years:
+    - 2013
+    - 2026
+  UF_TRATAM:
+    role: case.state_of_treatment
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    name: UF do tratamento
+    years:
+    - 2013
+    - 2026

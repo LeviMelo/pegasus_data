@@ -37,9 +37,10 @@ def _columns(conn: sqlite3.Connection, system: str, series: str) -> dict[str, li
     return out
 
 
-def _sample(conn: sqlite3.Connection, system: str, series: str,
-            year: int | None = None) -> tuple[str | None, int | None, int | None]:
-    """The cheapest file of the latest year that has one (or of ``year``): (geography, year, month)."""
+def _sample(conn: sqlite3.Connection, system: str, series: str, year: int | None = None,
+            skip: int = 0) -> tuple[str | None, int | None, int | None]:
+    """The cheapest file of the latest year that has one (or of ``year``), past the ``skip`` cheapest:
+    (geography, year, month)."""
     rows = conn.execute(
         f"""SELECT fa.geo_code, fa.year, fa.normalized_date, f.size FROM family_files ff
            JOIN families fam ON fam.family_id = ff.family_id
@@ -47,7 +48,8 @@ def _sample(conn: sqlite3.Connection, system: str, series: str,
            JOIN file_facts fa ON fa.path = ff.path
            WHERE fam.system = ? AND fam.series = ? AND fa.year IS NOT NULL AND f.size > 2000
            {"AND fa.year = ?" if year else ""}
-           ORDER BY fa.year DESC, f.size ASC LIMIT 1""", (system, series, *([year] if year else []))).fetchall()
+           ORDER BY fa.year DESC, f.size ASC LIMIT 1 OFFSET ?""",
+        (system, series, *([year] if year else []), skip)).fetchall()
     if not rows:
         return None, None, None
     geo, year, nd, _ = rows[0]
@@ -60,7 +62,8 @@ def _profile(col: pa.ChunkedArray) -> str:
     if not vals:
         return f"{col.type}: empty"
     cnt = Counter(vals)
-    date = sum(1 for v in vals if re.fullmatch(r"(19|20)\d{6}|\d{4}-\d\d-\d\d.*|\d{2}/\d{2}/\d{4}", v)) / len(vals)
+    date = sum(1 for v in vals if re.fullmatch(r"(19|20)\d{6}|(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])(19|20)\d\d"
+                                               r"|\d{4}-\d\d-\d\d.*|\d{2}/\d{2}/\d{4}.*", v)) / len(vals)
     num = sum(1 for v in vals if re.fullmatch(r"-?\d+([.,]\d+)?", v)) / len(vals)
     top = ", ".join(f"{k[:24]}:{n}" for k, n in cnt.most_common(8))
     return f"{col.type}: n={len(vals)}/{len(col)} distinct={len(cnt)} date={date:.2f} num={num:.2f} top={top}"
@@ -92,8 +95,10 @@ def main() -> int:
     finally:
         store.close()
     table, why = None, ""
-    # a latest file that will not read (published empty, undecodable) gives way to the year before, three times at most
-    for _ in range(3):
+    # a latest file that will not read (published empty, undecodable) gives way to the next file of its year, then to
+    # the year before: six tries at most
+    tried_in_year = 0
+    for _ in range(6):
         if not period:
             break
         try:
@@ -105,9 +110,14 @@ def main() -> int:
             why = f"{why}; " * bool(why) + f"{period} {geo}: {type(exc).__name__}: {str(exc)[:160]}"
             if args.period or year is None:
                 break
-            g, year, month = _sample(conn, system, series, year - 1)
-            if year is None:
+            tried_in_year += 1
+            g, y2, m2 = _sample(conn, system, series, year, skip=tried_in_year) if tried_in_year < 3 else (None, None, None)
+            if y2 is None:
+                tried_in_year = 0
+                g, y2, m2 = _sample(conn, system, series, year - 1)
+            if y2 is None:
                 break
+            year, month = y2, m2
             period, geo = (f"{year}-{month:02d}" if month else str(year)), (args.geo or g or "BR")
     names = {c.upper(): c for c in (table.column_names if table is not None else [])}
     profiles = {n: f"{_profile(table.column(c))} [{period} {geo}]" for n, c in names.items()} if table is not None else {}

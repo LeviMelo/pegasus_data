@@ -1,4 +1,4 @@
-# Typing every dataset: roles for SIM, SINASC, SIH, CIH and SIA, the SINAN Windows layouts, and the FTP's own documentation
+# Typing every dataset: all 166 catalog datasets carry roles and every column a note
 
 **Date and regime.** 2026-10-08; branch pegasus-core-fixes, on the repo's own data home.
 - Evidence: `scripts/role_evidence.py <DATASET>` writes one sheet per dataset under `data/probes/review/`. Each column's sheet holds its variable note, its form layout and a value profile. The profile reads the latest file. A column absent there is read from its own last year; a file that will not read gives way to the year before.
@@ -77,6 +77,17 @@ Still to do: CNES (18 datasets), SISCAN (15), DADOS_ABERTOS (13), IBGE (9), PNI 
   - The `NU_` result columns are 0/1 on each exam: summing one counts the exams with that finding.
 - **SIH's maintainer register (`CMBRaamm.dbc`, 42 files from 2019) was filed under SISCAN.**
   - The learned prefix CM (SISMAMA's 1,670 files) outvoted the SIHSUS directory the files sit in.
-  - The filename now overrides the path only in a republication tree (`republishes: true` in the ontology: Dados_Abertos). Every one of the 1,972 recorded name-versus-path disagreements but these 42 lies there.
+  - The filename now overrides the path only in a republication tree (`republishes: true` in the ontology: Dados_Abertos). Every one of the other 2,221 recorded name-versus-path disagreements lies there.
   - SIH.CM is declared, and SIH.CH corrected: it was said retired, but its files run to 2026.
   - `inventory`, `schemas --system SIHSUS` and `families` were re-run: 166 datasets.
+
+**Fourth batch: every dataset.**
+- **The count.** 166 of 166 catalog datasets carry roles: 10,456 columns, no drafts, every role file loading. All but the derived columns have a variable note: the last 8 were written from their values and names, and say so.
+- **IBGE.POP was declared over three publications.**
+  - POP (censuses and intercensal estimates), POPS (SVS estimates) and POPT (TCU totals) were all aliases of one dataset, so `query("IBGE-POP", 2015)` summed them: 404.8 million in POP plus 204.5 million in POPULACAO.
+  - Each is now its own dataset. POP and POPS give 202,403,642 for 2015 (the same SVS estimate) and POPT gives 204,482,459.
+  - The population lake (`population`, POPSVS and POPTCU) never read through this declaration.
+- **RESP:** the cheapest file of each year is published empty, so the sheet sampled the largest state-year (PE 2016, 1,174 records). Its dates are DDMMYYYY, which `role_evidence` now recognises.
+- **SINAN COLE and TETN:** cholera's files are about 3 KB each. Their shared blocks take the role every other SINAN form gives the column, where at least 5 forms agree at 80% or more (23 and 22 columns).
+- **e-SUS Notifica (chronic Chagas):** SINAN's names, but `ID_MN_RESI`, `ID_MUNICIP` and the like hold municipality names, and the codes sit in `CD_*`. The SINAN convention was applied only where the kind agrees.
+- **Painel Oncologia** diagnoses are three-character ICD-10, the case's event type. **PCE's** `ID_LOC` is a 12-digit locality code that no municipal table matches; it is never cut to make one.

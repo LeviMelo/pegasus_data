@@ -1,0 +1,818 @@
+dataset: SINAN-TETN
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    name: Ano de Nascimento
+    years:
+    - 2021
+    - 2026
+    note: role from the notification block
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    name: Classificação Final
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (31 of 31).
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    name: Município Provável da Fonte de Infecção
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (19 of 20).
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: mark
+    codelists:
+    - PAISNET
+    name: País Provável da Fonte de Infecção
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (19 of 20).
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    name: UF Provável da Fonte de Infecção
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (19 of 20).
+  COUNIDINF:
+    role: case.infection_facility
+    kind: institution
+    model: institution
+    codelists:
+    - CADGERBR
+    name: Unidade (provável da fonte de infecção)
+    years:
+    - 2014
+    - 2026
+  CS_ABDOMEN:
+    role: case.rigid_abdomen
+    kind: category
+    model: mark
+    name: Abdome rígido
+    years:
+    - 2014
+    - 2026
+  CS_ANALISE:
+    role: case.measure_taken_analysis_of_tetanus_vaccine_coverage_in_women_
+    kind: category
+    model: mark
+    name: Medidas adotadas – análise da cobertura vacinal e vacinação discriminada em MIF contra o tétano
+    years:
+    - 2014
+    - 2026
+  CS_ATEND_N:
+    role: case.who_attended_the_birth
+    kind: category
+    model: mark
+    name: Quem atendeu o parto
+    years:
+    - 2014
+    - 2026
+  CS_BUSCAAT:
+    role: case.active_case_search_performed
+    kind: category
+    model: mark
+    name: Medidas adotadas – busca ativa de outros casos
+    years:
+    - 2014
+    - 2026
+  CS_CADASTR:
+    role: case.measure_taken_registration_and_training_of_midwives
+    kind: category
+    model: mark
+    name: Medidas adotadas – cadastro e capacitação de parteiras atuantes
+    years:
+    - 2014
+    - 2026
+  CS_CHORO:
+    role: case.excessive_crying
+    kind: category
+    model: mark
+    name: Choro excessivo
+    years:
+    - 2014
+    - 2026
+  CS_COBERTU:
+    role: case.residence_covered_by_primary_care_programme
+    kind: category
+    model: mark
+    name: Local de residência coberto pelo
+    years:
+    - 2014
+    - 2026
+  CS_CRISE:
+    role: case.contracture_crises
+    kind: category
+    model: mark
+    name: Crises de Contraturas
+    years:
+    - 2014
+    - 2026
+  CS_DIVULGA:
+    role: case.case_disclosed_reported_flag
+    kind: category
+    model: mark
+    name: Medidas adotadas – divulgação do problema para autoridades e profissionais de saúde
+    years:
+    - 2014
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2020
+    - 2026
+    note: role from the notification block
+  CS_HOSPITA:
+    role: case.hospitalised
+    kind: category
+    model: mark
+    name: Ocorreu hospitalização?
+    years:
+    - 2014
+    - 2026
+  CS_INF_COT:
+    role: case.umbilical_stump_infection
+    kind: category
+    model: mark
+    name: Infecção do coto umbilical
+    years:
+    - 2014
+    - 2026
+  CS_MAMAR:
+    role: case.difficulty_feeding
+    kind: category
+    model: mark
+    name: Dificuldade de mamar
+    years:
+    - 2014
+    - 2026
+  CS_MEMBROS:
+    role: case.limb_rigidity
+    kind: category
+    model: mark
+    name: Rigidez de Membros
+    years:
+    - 2014
+    - 2026
+  CS_NASCIDO:
+    role: case.birth_setting
+    kind: category
+    model: mark
+    name: Local de ocorrência do parto
+    years:
+    - 2014
+    - 2026
+  CS_NUCA:
+    role: case.neck_stiffness
+    kind: category
+    model: mark
+    name: Rigidez de Nuca
+    years:
+    - 2014
+    - 2026
+  CS_OPISTOT:
+    role: case.opisthotonus
+    kind: category
+    model: mark
+    name: Opistótono
+    years:
+    - 2014
+    - 2026
+  CS_ORIENTA:
+    role: case.measure_taken_umbilical_stump_care_guidance
+    kind: category
+    model: mark
+    name: Medidas adotadas – orientação às parturientes quanto aos cuidados com o coto umbilical
+    years:
+    - 2014
+    - 2026
+  CS_ORIGEM:
+    role: case.how_the_case_was_found
+    kind: category
+    model: mark
+    name: Origem da notificação
+    years:
+    - 2014
+    - 2026
+  CS_OUTRAS:
+    role: case.other_control_measures_taken
+    kind: category
+    model: mark
+    name: Medidas adotadas – outras
+    years:
+    - 2014
+    - 2026
+    note: Empty in every file read; kind from its variable note.
+  CS_OUTROS:
+    role: case.other_sign_neonatal_tetanus
+    kind: category
+    model: mark
+    name: Outro sinal
+    years:
+    - 2014
+    - 2026
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  CS_RISO:
+    role: case.sardonic_smile
+    kind: category
+    model: mark
+    name: Riso Sardônico
+    years:
+    - 2014
+    - 2026
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2020
+    - 2026
+    note: role from the notification block
+  CS_SUGOU:
+    role: case.baby_suckled_normally_at_birth_flag
+    kind: category
+    model: mark
+    name: Sugou normalmente após o nascimento
+    years:
+    - 2014
+    - 2026
+  CS_TRISMO:
+    role: case.trismus
+    kind: category
+    model: mark
+    name: Trismo
+    years:
+    - 2014
+    - 2026
+  CS_VACINAC:
+    role: case.mother_vaccinated
+    kind: category
+    model: mark
+    name: Mãe vacinada
+    years:
+    - 2014
+    - 2026
+  CS_VACTETA:
+    role: case.mother_vaccinated_against_tetanus
+    kind: category
+    model: mark
+    name: Antecedentes vacinais contra tétano (mãe)
+    years:
+    - 2014
+    - 2026
+  DS_INF_LOC:
+    role: case.infection_place_type
+    kind: category
+    model: mark
+    name: Local provável da fonte de infecção
+    years:
+    - 2014
+    - 2026
+  DS_INF_OUT:
+    role: case.other_infection_place_text
+    kind: text
+    model: excluded
+    name: Local provável da fonte de infecção – outro, especificar
+    years:
+    - 2014
+    - 2026
+  DT_1_DOSE:
+    role: case.date_of_mothers_first_dose
+    kind: date
+    model: mark
+    name: Data da 1ª dose
+    years:
+    - 2014
+    - 2026
+  DT_2_DOSE:
+    role: case.date_of_mothers_second_dose
+    kind: date
+    model: mark
+    name: Data da 2ª dose
+    years:
+    - 2014
+    - 2026
+  DT_3_DOSE:
+    role: case.date_of_mothers_third_dose
+    kind: date
+    model: mark
+    name: Data da 3ª dose
+    years:
+    - 2014
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (36 of 40).
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (36 of 36).
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (33 of 33).
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de Nascimento
+    years:
+    - 2014
+    - 2020
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (41 of 41).
+  DT_REFORCO:
+    role: case.date_of_mothers_booster
+    kind: date
+    model: mark
+    name: Data do último reforço
+    years:
+    - 2014
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (28 of 30).
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (24 of 26).
+  DT_TRANSRS:
+    role: case.transfer_date_state_regional_level
+    kind: date
+    model: mark
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2022
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (28 of 30).
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (27 of 29).
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (28 of 30).
+  DT_TRISMO:
+    role: case.trismus_onset_date
+    kind: date
+    model: mark
+    name: Data do trismo
+    years:
+    - 2014
+    - 2026
+  ESCOLMAE_N:
+    role: mother.education
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe
+    years:
+    - 2014
+    - 2026
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    name: Evolução do Caso
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (44 of 44).
+  IDADE_MAE:
+    role: mother.age
+    kind: number
+    model: mark
+    name: Idade da mãe
+    years:
+    - 2014
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    name: Ocupação
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (46 of 46).
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  NM_OUT_SIN:
+    role: case.other_sign_text
+    kind: text
+    model: excluded
+    name: Outros Sinais e Sintomas (Especificar)
+    years:
+    - 2014
+    - 2026
+  NO_ATENOUT:
+    role: case.birth_attended_by_other_text
+    kind: text
+    model: excluded
+    name: Parto atendido por – se outro, especificar
+    years:
+    - 2014
+    - 2026
+  NO_COBOUTR:
+    role: case.other_programme_text
+    kind: text
+    model: excluded
+    name: Local de residência coberto pelo – se outros, especificar
+    years:
+    - 2014
+    - 2026
+  NO_OUPARTO:
+    role: case.other_birthplace_text
+    kind: text
+    model: excluded
+    name: Local de ocorrência do parto – outro, especificar
+    years:
+    - 2014
+    - 2026
+  NO_OUTRAS:
+    role: case.other_measures_text
+    kind: text
+    model: excluded
+    name: Medidas adotadas – se outras, especificar
+    years:
+    - 2014
+    - 2026
+  NUM_CON_N:
+    role: pregnancy.prenatal_visits_band
+    kind: category
+    model: mark
+    name: Número de consultas de pré-natal
+    years:
+    - 2014
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  NU_GESTA:
+    role: mother.pregnancies
+    kind: number
+    model: mark
+    name: Número de gestações
+    years:
+    - 2014
+    - 2026
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (25 of 25).
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (17 of 18).
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2022
+    - 2026
+    note: As across SINAN forms (25 of 25).
+  NU_NOTIFIC:
+    role: notification.number
+    kind: identifier
+    model: link_only
+    name: Nº da notificação
+    years:
+    - 2020
+    - 2020
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (46 of 48).
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (28 of 32).
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2014
+    - 2026
+    note: role from the notification block
+  TPAUTOCTO:
+    role: case.autochthonous
+    kind: category
+    model: mark
+    codelists:
+    - AUTOCTONE
+    name: Caso é Autóctone da Residência?
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (20 of 20).
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2014
+    - 2026
+    note: As across SINAN forms (53 of 53).

@@ -144,7 +144,9 @@ def build_inventory(
             republications=republications,
         )
         if disagreed and system:
-            disagreements.append((path, resolved.series_prefix, system, disagreed, system))
+            # resolve_system returns the losing reading: the path's when the name won, the name's when the path did
+            by_name = disagreed if by_path and system == by_path.upper() else system
+            disagreements.append((path, resolved.series_prefix, by_name, by_path.upper() if by_path else disagreed, system))
         facts.append(
             (
                 path,

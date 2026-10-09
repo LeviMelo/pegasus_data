@@ -1,0 +1,82 @@
+dataset: IBGE-POP
+record: population
+columns:
+  ANO:
+    role: population.year
+    kind: date
+    model: when
+    name: Ano
+    years:
+    - 1980
+    - 2025
+  COD_MUN:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: Município
+    years:
+    - 2000
+    - 2025
+    note: Seven-digit IBGE codes; geography reads both widths.
+  FXETARIA:
+    role: population.age_band_legacy
+    kind: category
+    model: dimension
+    name: Faixa Etária detalhada
+    years:
+    - 1980
+    - 1999
+  IDADE:
+    role: population.age_band
+    kind: category
+    model: dimension
+    name: Age
+    years:
+    - 2000
+    - 2025
+    note: 'An age or a band as the table codes it: single years (000), bands (2559 = 25-59), or A0000.'
+  MUNIC_RES:
+    role: population.residence
+    kind: place
+    model: stratum
+    codelists:
+    - BR_MUNICIPALFA
+    name: código do município
+    years:
+    - 1980
+    - 1999
+  POP:
+    role: population.count
+    kind: number
+    model: mark
+    name: População residente
+    years:
+    - 2000
+    - 2025
+  POPULACAO:
+    role: population.count
+    kind: number
+    model: mark
+    name: Population count
+    years:
+    - 1980
+    - 1999
+  SEXO:
+    role: population.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 1980
+    - 2025
+    note: Coded M/F in some tables and 1/2 in others (the variable note).
+  SITUACAO:
+    role: population.urban_rural
+    kind: category
+    model: dimension
+    name: Situação de domicílio
+    years:
+    - 1980
+    - 1999

@@ -15,11 +15,11 @@ continues on branch **`linkage`**: record linkage across systems, planned in
 ## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
 
 Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels across schema generations).
-- **Roles.** 150 of the catalog's 166 datasets have role files (16 to go), none left a draft (evaluation 2026-10-08-typing-every-dataset; CNES's five template "series" removed, SIH's CM files moved from SISCAN to SIH).
+- **Roles.** All 166 catalog datasets have role files: 10,456 columns, no drafts, and a variable note on every column (evaluation 2026-10-08-typing-every-dataset). CNES's five template "series" removed; SIH's CM files moved from SISCAN to SIH; IBGE's three population publications no longer summed as one.
   - Done: every SINAN form with records but COLE and TETN, SIM's and SINASC's ten sub-series (legacy layouts on their 1996+ roles), SIH's seven, CIH, and SIA's twenty (PA among them; SIA.PR newly declared).
   - Each column is decided from its evidence sheet (`scripts/role_evidence.py`): its variable note, its form's layout, its values.
-  - Also done: CNES (13), Dados Abertos (13), PNI (6), SISCAN (15), SIH-CM.
-  - To do: IBGE (9), RESP (2), SINAN COLE and TETN, e-SUS Notifica, Painel Oncologia, PCE, SISPRENATAL.
+  - Also done: CNES (13), Dados Abertos (13), PNI (6), SISCAN (15), SIH-CM, IBGE (9), RESP (2), SINAN COLE and TETN, e-SUS Notifica, Painel Oncologia, PCE, SISPRENATAL.
+  - Next: missing codes for the newly typed systems (the proposer covers SINAN), and event types where PegaSUS needs them.
 - **Missing codes.** The form decides where its dictionary is harvested, and the tabulation speaks only where the form is silent.
   - A code the records use that neither defines is written as a CONFLICT (evaluation 2026-10-08-declarations-by-form).
   - Two dictionary errors were corrected by supplement, with both claims cited.
