@@ -131,3 +131,10 @@ PegaSUS's data root had no record lake, so every raw read in a new process decod
   - The labelled output of AC 2017 is identical cell for cell before and after.
 - **Correction.** The earlier SINASC measurement (labels about 44 s of a link year) was a single national read; CIHA's
   side is read state by state, chunk by chunk, where the cost was.
+- **A link year after the lake and the labelling fix.** Births to CIHA delivery, 2016: 688 s, against 4,547 s for
+  2015 on the old code and 19,623 s for 2014 under the admission floor.
+- **SIM's lake.** 2009–2023: 52 partitions, 21.9 M records, no errors. A national SIM year now reads in 4.9 s; earlier
+  the same day one state of a year took 178 s, decoding the national file.
+- **SIH-RD's lake.** 2010–2023: 2,112 files decoded, 86.9 M admissions, 176 partitions written and 202 kept, no errors.
+  A national SIH year (2019, 12.4 M admissions) now reads in 6.2 s. Free disk afterwards: 19.6 GB.
+- **2017.** The link year took 817 s.

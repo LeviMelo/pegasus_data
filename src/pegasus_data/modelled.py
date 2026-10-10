@@ -16,6 +16,13 @@ written and read only through this module, which enforces what makes it one:
 * it never takes the name of an official series: POPSVS stays served as
   published (``load_population``), and an estimate of it is a different
   product.
+
+Estimates are floats whose low bits are model noise, which zstd cannot shrink
+alone (the population account stored at 0.94 of its raw size): float columns
+are written in BYTE_STREAM_SPLIT, which groups each byte position of the
+values so the exponent and high mantissa bytes compress (one year of
+population-account-6: 0.77 of the size, lossless; 2026-10-10). `reencode`
+rewrites a version written before, value for value.
 """
 
 from __future__ import annotations
@@ -82,7 +89,7 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
     target.mkdir(parents=True)
     meta = {b"tier": b"modelled", b"product": manifest.product.encode(), b"version": manifest.version.encode()}
     schema = table.schema.with_metadata({**(table.schema.metadata or {}), **meta})
-    with pq.ParquetWriter(target / "estimates.parquet", schema, compression="zstd") as writer:
+    with pq.ParquetWriter(target / "estimates.parquet", schema, **_encoding(schema)) as writer:
         writer.write_table(table.replace_schema_metadata(schema.metadata))
         for chunk in rest or ():
             writer.write_table(chunk.replace_schema_metadata(schema.metadata))
@@ -101,3 +108,35 @@ def read_modelled(product: str, version: str | None = None, *, settings: Any) ->
     folder = base / chosen
     manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     return pq.read_table(folder / "estimates.parquet"), manifest
+
+
+def _encoding(schema: pa.Schema) -> dict[str, Any]:
+    """Parquet writer options: zstd; floats in BYTE_STREAM_SPLIT, every other column dictionary-encoded."""
+    floats = [f.name for f in schema if pa.types.is_floating(f.type)]
+    return {"compression": "zstd", "compression_level": 9, "use_byte_stream_split": floats or False,
+            "use_dictionary": [f.name for f in schema if f.name not in floats]}
+
+
+def reencode(product: str, version: str, *, settings: Any) -> dict[str, Any]:
+    """Rewrite a version's estimates with `_encoding`, row group by row group; the new file replaces the old only when
+    every row group reads back equal to the one it was written from. The version's content is unchanged."""
+    import os
+
+    path = _root(settings) / product / version / "estimates.parquet"
+    src = pq.ParquetFile(path)
+    tmp = path.with_name(f"estimates.{os.getpid()}.parquet.tmp")
+    before = path.stat().st_size
+    with pq.ParquetWriter(tmp, src.schema_arrow, **_encoding(src.schema_arrow)) as writer:
+        for g in range(src.num_row_groups):
+            writer.write_table(src.read_row_group(g))
+    new = pq.ParquetFile(tmp)
+    if new.metadata.num_rows != src.metadata.num_rows or new.num_row_groups != src.num_row_groups:
+        tmp.unlink()
+        raise ValueError(f"{version}: the rewrite does not have the rows of the original")
+    for g in range(src.num_row_groups):
+        if not new.read_row_group(g).equals(src.read_row_group(g)):
+            tmp.unlink()
+            raise ValueError(f"{version}: row group {g} differs after the rewrite")
+    del new, src
+    tmp.replace(path)
+    return {"version": version, "bytes_before": before, "bytes_after": path.stat().st_size}

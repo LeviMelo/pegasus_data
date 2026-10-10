@@ -230,6 +230,23 @@ def prune(
         catalog.close()
 
 
+@app.command(name="reencode-modelled", rich_help_panel="MAINTENANCE")
+def reencode_modelled(
+    product: Annotated[str, typer.Argument(help="Modelled product, e.g. population_account")],
+    versions: Annotated[list[str] | None, typer.Argument(help="Versions to rewrite; all with a file when omitted")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Rewrite modelled versions with the current encoding (floats in BYTE_STREAM_SPLIT), value for value."""
+    from ..modelled import reencode
+
+    settings = _settings(root)
+    base = Path(settings.lake_dir) / "modelled" / product
+    names = versions or sorted(p.name for p in base.iterdir() if (p / "estimates.parquet").is_file())
+    for name in names:
+        _emit(reencode(product, name, settings=settings), as_json, f"reencode {name}")
+
+
 @app.command(name="catalog-rebuild", rich_help_panel="MAINTENANCE")
 def catalog_rebuild(
     table: Annotated[str, typer.Option("--table", help="Table to recreate from the shipped schema")],

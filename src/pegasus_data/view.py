@@ -1266,7 +1266,18 @@ def _apply_derived(
             inputs = [str(c).upper() for c in (recipe.get("from") or [])]
             if not inputs:
                 continue
-            absent = [c for c in inputs if c not in source.schema.names]
+            # an input null-filled for a layout that does not carry it is absent: a system may hold one derived
+            # name with a recipe per layout (SIA's IDADE_anos from AP_NUIDADE in the APACs, from IDADEPAC elsewhere),
+            # and the recipe that applies is the one whose inputs this layout has
+            absent = [c for c in inputs if c not in source.schema.names
+                      or (source.num_rows and source.column(c).null_count == source.num_rows
+                          and pa.types.is_null(source.column(c).type))]
+            if absent and any(
+                    all(str(x).upper() in source.schema.names and not pa.types.is_null(source.column(str(x).upper()).type)
+                        for x in (other.get("from") or []))
+                    for d in docs.values() for other in (d.derived or [])
+                    if str(other.get("name") or "") == column_name and other is not recipe):
+                continue                        # another recipe of this name applies to this layout
             if absent:
                 # SAY SO. A caller who explicitly asked for this derived column
                 # and used a narrow columns= projection got no column and no

@@ -406,7 +406,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   AQ chemotherapy (5,979, 2008-, 62.1 M, 4.32 M, 74), AR radiotherapy (5,465, 2008-, 4.07 M, 0.15 M, 74), AN pre-dialysis
   nephrology (2,145, **2008-2014**, 6.53 M, 60), ATD dialysis (3,884, 2014-, 16.5 M, 1.49 M, 65), ACF vascular access
   (3,768, 2014-, 0.41 M, 56), AM specialised medicines (5,957, 2008-, 387.8 M, 29.75 M, 51), AD various (6,019, 2008-,
-  60.9 M, 3.62 M, 46), AB bariatric surgery (635, 2008-2025, 0.23 M, 58) and ABO follow-up (1,607, 2014-, 0.55 M, 78),
+  60.9 M, 3.62 M, 46), AB follow-up after gastroplasty (635, 2008-2017 and 2025, 0.23 M, 58; written "bariatric surgery" here until
+  2026-10-10: every row read carries 0301120056, ACOMPANHAMENTO DE PACIENTE POS-GASTROPLASTIA, and the surgery is an
+  AIH) and ABO, the same follow-up from 2014 (1,607, 2014-, 0.55 M, 78),
   AMP (891, 2016-, 0.20 M, 65). PS (4,394, 2012-, 170 M) and SAD (1,088, 2012-2018, 3.5 M) are person-level but not APAC.
   The 2001-2007 `AC` (self-extracting `.exe`) is the old dialysis APAC (§1.10).
 - **A row is an APAC-month, not an APAC.** An APAC (`AP_AUTORIZ`) lasts up to three months and has one row per competence

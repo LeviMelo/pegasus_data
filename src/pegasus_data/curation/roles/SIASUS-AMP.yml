@@ -662,3 +662,14 @@ columns:
     - 2016
     - 2026
     note: role from SIASUS-AN
+  IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years from AP_NUIDADE and AP_COIDADE (ADR-0070)
+    name: Idade em anos
+    years:
+    - 2016
+    - 2026

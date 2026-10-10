@@ -814,13 +814,17 @@ def _strata_for(
 
 
 def _derived_inputs(docs: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
-    """``DERIVED NAME (upper) -> input columns`` for every curated recipe."""
+    """``DERIVED NAME (upper) -> input columns`` for every curated recipe. A name may have a recipe per layout (SIA's
+    IDADE_anos: AP_NUIDADE and AP_COIDADE in the APACs, IDADEPAC and TPIDADEPAC elsewhere): its inputs are every
+    recipe's, so a narrow projection reads whichever the layout carries (keeping only the last recipe's lost the
+    APAC age, 2026-10-10)."""
     out: dict[str, tuple[str, ...]] = {}
     for doc in docs.values():
         for recipe in getattr(doc, "derived", None) or []:
             name = str(recipe.get("name") or "").upper()
             if name:
-                out[name] = tuple(str(c).upper() for c in (recipe.get("from") or []))
+                inputs = tuple(str(c).upper() for c in (recipe.get("from") or []))
+                out[name] = tuple(dict.fromkeys((*out.get(name, ()), *inputs)))
     return out
 
 

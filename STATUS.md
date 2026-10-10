@@ -36,6 +36,7 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - Two dictionary errors were corrected by supplement, with both claims cited.
 - **Labels.** The label pack chose a vintage before a system, which left SIH 2008–2010 and 378 system-codelists unlabelled in the pack fallback. Fixed (OQ-73); the SIH 2010 links are being recomputed.
 - **Throughput.** `translate` takes 0.1 s a call (from 22 s).
+- **2026-10-10.** Event types for 81 datasets: SIA's AB, ABO, ACF, AD, AM and AMP, each count equal to its APACs (evaluation 2026-10-10-sia-apac-events); SIA.AB is follow-up after gastroplasty, not the surgery; a derived name with a recipe per layout lost the APAC age on narrow reads (fixed). Storage: 68 GB free from 16; modelled floats in BYTE_STREAM_SPLIT (`reencode-modelled`); `_record_key` and the catalog's `source_ref` are the remaining large levers (evaluation 2026-10-10-storage-and-compression).
 
 ## Record linkage (branch `linkage`, ADR-0107 to ADR-0124)
 
