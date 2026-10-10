@@ -276,6 +276,7 @@ columns:
     - 2026
     note: role from the notification block
   DOSES:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.doses_legacy
     kind: category
     model: mark
@@ -884,6 +885,7 @@ columns:
     - 2006
     - 2026
   TRA_PESO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.weight_kg
     kind: number
     model: mark
@@ -892,6 +894,7 @@ columns:
     - 2006
     - 2026
   TRA_QTD_SO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.antiserum_ml
     kind: number
     model: mark
@@ -900,6 +903,7 @@ columns:
     - 2006
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

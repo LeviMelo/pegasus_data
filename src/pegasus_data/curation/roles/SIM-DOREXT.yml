@@ -757,6 +757,7 @@ columns:
     - 2021
     - 2021
   NUMEROLOTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: death.batch_number
     kind: number
     model: excluded
@@ -1078,6 +1079,7 @@ columns:
     - 2026
     note: role from SIM-DO
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: deceased.age_years
     kind: number
     model: stratum

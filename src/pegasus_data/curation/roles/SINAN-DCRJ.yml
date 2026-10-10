@@ -66,6 +66,8 @@ columns:
     - 2007
     - 2024
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='laboratorial', 2='clínico-epidemiológico'): a code table, not a catch-all; no value labelled as not recorded
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -449,6 +451,7 @@ columns:
     - 2007
     - 2024
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

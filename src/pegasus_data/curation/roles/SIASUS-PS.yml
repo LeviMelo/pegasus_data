@@ -172,6 +172,7 @@ columns:
     - 2012
     - 2026
   ETNIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: care.indigenous_ethnicity
     kind: category
     model: mark
@@ -198,6 +199,7 @@ columns:
     - 2012
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum
@@ -205,6 +207,7 @@ columns:
     name: Idade em anos (derivada de IDADEPAC e TPIDADEPAC)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.
   IDADEPAC:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: mark
@@ -268,6 +271,7 @@ columns:
     - 2012
     - 2026
   NACION_PAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: patient.nationality
     kind: category
     model: dimension
@@ -301,6 +305,7 @@ columns:
     - ORIGEM
     - ORIG_PSI
   PA_CLASS_S:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: care.service_classification
     kind: category
     model: mark
@@ -321,6 +326,7 @@ columns:
     - 2012
     - 2026
   PA_QTDAPR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: care.approved_quantity
     kind: number
     model: mark
@@ -329,6 +335,7 @@ columns:
     - 2012
     - 2026
   PA_QTDPRO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: care.submitted_presented_quantity
     kind: number
     model: mark
@@ -349,6 +356,7 @@ columns:
     codelists:
     - S_CLASSEN
   PERMANEN:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: care.time_in_attendance
     kind: number
     model: mark
@@ -357,6 +365,7 @@ columns:
     - 2012
     - 2026
   QTDATE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: care.number_of_attendances
     kind: number
     model: mark
@@ -365,6 +374,7 @@ columns:
     - 2012
     - 2026
   QTDPCN:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: care.number_of_patients
     kind: number
     model: mark
@@ -415,6 +425,7 @@ columns:
     - 2012
     - 2026
   TPIDADEPAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: care.age_unit_code
     kind: category
     model: mark

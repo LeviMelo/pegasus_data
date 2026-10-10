@@ -165,6 +165,7 @@ columns:
     - 2026
     note: role from SINASC-DN
   DIFDATA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: birth.receipt_delay_days
     kind: number
     model: excluded
@@ -343,6 +344,7 @@ columns:
     - 2026
     note: role from SINASC-DN
   IDADEPAI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: father.age
     kind: number
     model: mark
@@ -422,6 +424,7 @@ columns:
     - 2026
     note: role from SINASC-DN
   NUMEROLOTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: birth.batch_number
     kind: number
     model: excluded
@@ -521,6 +524,7 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDPARTCES:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: pregnancy.previous_cesareans
     kind: number
     model: mark

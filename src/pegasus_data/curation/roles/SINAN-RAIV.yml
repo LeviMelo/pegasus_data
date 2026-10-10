@@ -273,6 +273,7 @@ columns:
     - 2007
     - 2026
   DOSES_A:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.vaccine_doses_current
     kind: number
     model: mark
@@ -745,6 +746,7 @@ columns:
     - 2007
     - 2026
   NUM_DOSES:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.vaccine_doses_previous
     kind: number
     model: mark
@@ -839,6 +841,7 @@ columns:
     - 2007
     - 2026
   QUANTID:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.serum_ml
     kind: number
     model: mark
@@ -978,6 +981,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

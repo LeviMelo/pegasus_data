@@ -746,6 +746,7 @@ columns:
     - 2026
     note: 'A magnitude whose unit is TP_TEMP_FU: not a measurement on its own.'
   TERCEIRIZA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: patient.employer_subcontractor
     kind: category
     model: mark
@@ -787,6 +788,8 @@ columns:
     - 2006
     - 2026
   TPTEMPORIS:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (2='dias', 3='meses', 4='anos'): a code table, not a catch-all; no value labelled as not recorded
     role: case.risk_exposure_time_unit
     kind: category
     model: mark
@@ -807,6 +810,8 @@ columns:
     - 2006
     - 2026
   TP_TEMP_FU:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (4='anos'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.smoking_duration_unit
     kind: category
     model: mark
@@ -854,6 +859,7 @@ columns:
     - 2006
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

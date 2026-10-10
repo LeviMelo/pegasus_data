@@ -154,6 +154,7 @@ columns:
     - 2006
     - 2026
   COAGTOXMA1:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.agent_code_1
     kind: category
     model: mark
@@ -162,6 +163,7 @@ columns:
     - 2006
     - 2026
   COAGTOXMA2:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.agent_code_2
     kind: category
     model: mark
@@ -170,6 +172,7 @@ columns:
     - 2006
     - 2026
   COAGTOXMA3:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.agent_code_3
     kind: category
     model: mark
@@ -551,6 +554,7 @@ columns:
     - 2007
     - 2026
   LAVOURA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.pesticide_crop
     kind: category
     model: mark
@@ -609,6 +613,7 @@ columns:
     - 2006
     - 2026
   NUTEMPO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.occupation_tenure
     kind: number
     model: mark
@@ -738,6 +743,7 @@ columns:
     - 2006
     - 2026
   SIT_TRAB:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (99=''Ign/Branco''; 2023)'
     role: patient.employment_status
     kind: category
     model: dimension
@@ -864,6 +870,7 @@ columns:
     - 2006
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

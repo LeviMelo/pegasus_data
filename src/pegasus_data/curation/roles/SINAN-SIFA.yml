@@ -17,6 +17,8 @@ columns:
     - 2010
     - 2025
   CRITERIO:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='laboratorial', 2='clínico-epidemiológico'): a code table, not a catch-all; no value labelled as not recorded
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -84,6 +86,8 @@ columns:
     - 2010
     - 2025
   DOENCA_TRA:
+    missing: ['9']
+    # declared from DATASUS's own sources (2023): no form dictionary; the tabulation labels 1 Sim, 2 Não and the records hold only ['1', '2', '9']; SINAN's yes/no table, where every one of the 943 harvested forms that define 9 define it as Ignorado
     role: case.work_related
     kind: category
     model: mark
@@ -134,6 +138,8 @@ columns:
     - 2010
     - 2025
   EVOLUCAO:
+    missing: ['9']
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='vivo', 2='óbito pelo agravo notificado', 3='óbito por outra causa', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     role: case.outcome
     kind: category
     model: mark
@@ -305,6 +311,7 @@ columns:
     - 2010
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

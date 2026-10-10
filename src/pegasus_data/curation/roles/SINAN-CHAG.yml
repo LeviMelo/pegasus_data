@@ -1471,6 +1471,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   TEMPO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.days
     kind: number
     model: mark
@@ -1551,6 +1552,7 @@ columns:
     - 2000
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

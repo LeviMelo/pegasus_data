@@ -323,6 +323,7 @@ columns:
     - 2015
     - 2024
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

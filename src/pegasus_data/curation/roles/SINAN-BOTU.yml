@@ -631,6 +631,7 @@ columns:
     - 2007
     - 2026
   NUATEND:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.visits_until_suspicion
     kind: number
     model: mark
@@ -639,6 +640,7 @@ columns:
     - 2007
     - 2026
   NUCONSOME:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.people_who_ate_suspect_food
     kind: number
     model: mark
@@ -656,6 +658,7 @@ columns:
     - 2026
     note: role from the notification block
   NU_CELULA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.csf_cells_mm3
     kind: number
     model: mark
@@ -689,6 +692,7 @@ columns:
     - 2009
     - 2026
   NU_PROTEI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.csf_protein_mg
     kind: number
     model: mark
@@ -1315,6 +1319,7 @@ columns:
     - 2007
     - 2026
   ST_ALI2RES:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.result_food_2
     kind: category
     model: mark
@@ -1485,6 +1490,7 @@ columns:
     - 2007
     - 2026
   UF_ING:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.state_uf_where_food_was_ingested
     kind: category
     model: mark
@@ -1493,6 +1499,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

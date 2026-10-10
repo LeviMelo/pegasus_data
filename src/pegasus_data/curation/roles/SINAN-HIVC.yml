@@ -979,6 +979,7 @@ columns:
     - 2007
     - 2024
   LAB_PCR_2:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: case.hiv_nucleic_acid_test_2
     kind: category
     model: mark
@@ -1065,6 +1066,7 @@ columns:
     - 2024
     note: role from the notification block
   TIPO_INVES:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.investigation_type
     kind: category
     model: mark
@@ -1136,6 +1138,7 @@ columns:
     - 2024
     note: Few records; its code system is not read.
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

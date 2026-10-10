@@ -613,6 +613,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOLAS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antibothropic
     kind: number
     model: mark
@@ -621,6 +622,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_1:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_anticrotalic
     kind: number
     model: mark
@@ -629,6 +631,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_3:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antilonomic
     kind: number
     model: mark
@@ -637,6 +640,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_4:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antielapidic
     kind: number
     model: mark
@@ -645,6 +649,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_6:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antibothropic_lachetic
     kind: number
     model: mark
@@ -653,6 +658,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_8:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antiarachnidic
     kind: number
     model: mark
@@ -661,6 +667,7 @@ columns:
     - 2007
     - 2026
   NU_AMPOL_9:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antiscorpion
     kind: number
     model: mark
@@ -669,6 +676,7 @@ columns:
     - 2007
     - 2026
   NU_AMPO_5:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antibothropic_crotalic
     kind: number
     model: mark
@@ -677,6 +685,7 @@ columns:
     - 2007
     - 2026
   NU_AMPO_7:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules_antiloxoscelic
     kind: number
     model: mark
@@ -771,6 +780,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

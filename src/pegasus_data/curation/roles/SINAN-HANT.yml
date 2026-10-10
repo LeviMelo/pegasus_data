@@ -700,6 +700,7 @@ columns:
     - 2007
     - 2026
   CON_LOCALI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.infection_site_distance_km
     kind: number
     model: mark
@@ -1783,6 +1784,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

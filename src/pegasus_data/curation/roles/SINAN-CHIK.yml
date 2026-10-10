@@ -169,6 +169,7 @@ columns:
     - 2014
     - 2026
   CLINC_CHIK:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.chik_presentation
     kind: category
     model: mark
@@ -177,6 +178,7 @@ columns:
     - 2014
     - 2026
   COMPLICA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.complications
     kind: category
     model: mark
@@ -211,6 +213,7 @@ columns:
     - 2014
     - 2026
   CON_FHD:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.fhd_grade
     kind: category
     model: mark
@@ -342,6 +345,7 @@ columns:
     - 2014
     - 2026
   DOENCA_TRA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.work_related
     kind: category
     model: mark
@@ -501,6 +505,7 @@ columns:
     - 2014
     - 2026
   EPISTAXE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_epistaxis
     kind: category
     model: mark
@@ -513,6 +518,7 @@ columns:
     - 2014
     - 2026
   EVIDENCIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.plasma_leakage_evidence
     kind: category
     model: mark
@@ -568,6 +574,7 @@ columns:
     - 2014
     - 2026
   GENGIVO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_gum_bleeding
     kind: category
     model: mark
@@ -690,6 +697,7 @@ columns:
     - 2014
     - 2026
   GRAV_ORGAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco''; 2023)'
     role: case.severe_other_organs
     kind: category
     model: mark
@@ -738,6 +746,7 @@ columns:
     - 2014
     - 2026
   HEMATURA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_hematuria
     kind: category
     model: mark
@@ -922,6 +931,7 @@ columns:
     - 2014
     - 2026
   LACO_N:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_tourniquet_test
     kind: category
     model: mark
@@ -941,6 +951,7 @@ columns:
     - 2014
     - 2026
   MANI_HEMOR:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_hemorrhagic_manifestations
     kind: category
     model: mark
@@ -949,6 +960,7 @@ columns:
     - 2014
     - 2026
   METRO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_metrorrhagia
     kind: category
     model: mark
@@ -1040,6 +1052,7 @@ columns:
     - 2014
     - 2026
   PETEQUIAS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_petechiae
     kind: category
     model: mark
@@ -1059,6 +1072,7 @@ columns:
     - 2014
     - 2026
   PLAQ_MENOR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.platelets_min
     kind: number
     model: mark
@@ -1069,6 +1083,7 @@ columns:
     - 2014
     - 2026
   PLASMATICO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.plasma_leakage
     kind: category
     model: mark
@@ -1159,6 +1174,7 @@ columns:
     - 2014
     - 2026
   SANGRAM:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.sign_bleeding
     kind: category
     model: mark
@@ -1272,6 +1288,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

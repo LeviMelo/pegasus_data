@@ -12,6 +12,7 @@ columns:
     - 2007
     - 2025
   ANT_IDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: mother.age_years
     kind: category
     model: dimension
@@ -72,6 +73,7 @@ columns:
     - 2007
     - 2025
   CLI_ANEMIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (3=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: case.sign_anemia
     kind: category
     model: mark
@@ -80,6 +82,7 @@ columns:
     - 2007
     - 2025
   CLI_ESPLEN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (3=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: case.sign_esplen
     kind: category
     model: mark
@@ -88,6 +91,7 @@ columns:
     - 2007
     - 2025
   CLI_ICTERI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (3=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: case.sign_icteri
     kind: category
     model: mark
@@ -116,6 +120,7 @@ columns:
     - 2007
     - 2025
   CLI_PSEUDO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (3=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: case.sign_pseudo
     kind: category
     model: mark
@@ -457,6 +462,7 @@ columns:
     - 2007
     - 2025
   LABC_TIT_1:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.blood_test_titre
     kind: number
     model: mark
@@ -465,6 +471,7 @@ columns:
     - 2007
     - 2025
   LABC_TIT_2:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.csf_test_titre
     kind: number
     model: mark
@@ -502,6 +509,7 @@ columns:
     - 2007
     - 2025
   LAB_TITU_2:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: pregnancy.delivery_test_titre
     kind: number
     model: mark
@@ -661,6 +669,7 @@ columns:
     - 2007
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

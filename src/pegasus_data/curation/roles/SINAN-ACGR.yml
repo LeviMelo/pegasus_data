@@ -195,6 +195,7 @@ columns:
     - 2006
     - 2026
   HORA_JOR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.hours_into_shift
     kind: number
     model: mark
@@ -423,6 +424,7 @@ columns:
     - 2026
     note: role from the notification block
   NU_TRAB:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.other_workers_count
     kind: number
     model: mark
@@ -524,6 +526,7 @@ columns:
     - 2006
     - 2026
   TERCEIRIZA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: patient.employer_subcontractor
     kind: category
     model: mark
@@ -607,6 +610,7 @@ columns:
     - 2006
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

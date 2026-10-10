@@ -170,6 +170,8 @@ columns:
     - 2001
     - 2025
   BACILOSC_O:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='positivo', 2='negativo', 3='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.other_material_smear
     kind: category
     model: mark
@@ -180,6 +182,8 @@ columns:
     - 2001
     - 2025
   BACILOS_E2:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='positivo', 2='negativo', 3='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.sputum_smear_2
     kind: category
     model: mark
@@ -188,6 +192,7 @@ columns:
     - 2001
     - 2025
   BAC_APOS_6:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco'', 5=''Ign/Branco'', 6=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: treatment.smear_after_month_6
     kind: category
     model: mark
@@ -284,6 +289,8 @@ columns:
     - 2001
     - 2025
   CULTURA_OU:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='positivo', 2='negativo', 4='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.other_material_culture
     kind: category
     model: mark
@@ -454,6 +461,8 @@ columns:
     - 2001
     - 2025
   EXTRAPU1_N:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='pleural', 10='outra', 2='gang. perif.', 3='genitourinária', 4='óssea', 5='ocular', 6='miliar', 7='meningoencefálica', 8='cutânea', 9='laríngea'): a code table, not a catch-all; no value labelled as not recorded
     role: case.extrapulmonary_site_1
     kind: category
     model: mark
@@ -636,6 +645,7 @@ columns:
     - 2001
     - 2025
   INSTITUCIO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: patient.institutionalized_in
     kind: category
     model: dimension
@@ -702,6 +712,7 @@ columns:
     - 2001
     - 2025
   NU_COMU_EX:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_examined
     kind: number
     model: mark
@@ -710,6 +721,7 @@ columns:
     - 2001
     - 2025
   NU_CONTATO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_registered
     kind: number
     model: mark
@@ -903,6 +915,8 @@ columns:
     - 2001
     - 2025
   TESTE_TUBE:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='não reator', 2='reator fraco', 3='reator forte', 4='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.tuberculin_test
     kind: category
     model: mark
@@ -911,6 +925,8 @@ columns:
     - 2001
     - 2025
   TEST_MOLEC:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='detect sensível rifamp', 2='detect resistente rifamp', 3='não detectável', 4='inconclusivo', 5='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.rapid_molecular_test
     kind: category
     model: mark
@@ -919,6 +935,7 @@ columns:
     - 2001
     - 2025
   TEST_SENSI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (8=''Ign/Branco'', 9=''Ign/Branco''; 2023)'
     role: case.sensitivity_test
     kind: category
     model: mark
@@ -927,6 +944,7 @@ columns:
     - 2001
     - 2025
   TPUNINOT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.unit_type
     kind: category
     model: mark
@@ -999,6 +1017,7 @@ columns:
     - 2001
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

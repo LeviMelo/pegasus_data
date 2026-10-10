@@ -31,6 +31,7 @@ columns:
     - 2001
     - 2026
   BACILOSCOP:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: case.smear
     kind: category
     model: mark
@@ -59,6 +60,7 @@ columns:
     - 2001
     - 2026
   CONTEXAM:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_examined
     kind: number
     model: mark
@@ -67,6 +69,7 @@ columns:
     - 2001
     - 2026
   CONTREG:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_registered
     kind: number
     model: mark
@@ -634,6 +637,7 @@ columns:
     - 2001
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum
