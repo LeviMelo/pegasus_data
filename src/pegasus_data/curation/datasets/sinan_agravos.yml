@@ -521,6 +521,19 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ROTA:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+        evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
+        source_notes:
+          source: "Nota Técnica nº 30/2024-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Rotavirus.pdf)"
+          definition: >-
+            Rotavirus is not a compulsory-notification disease: it is monitored by sentinel surveillance, the
+            investigation of individual cases of acute diarrhoeal disease in children under 5 years seen at sentinel units.
+          final_after_years: 3
+          limitations:
+            - The CNES codes of the sentinel units vary between periods of analysis, as units are activated and deactivated.
     system: SINAN
     series: ROTA
     official_name: Rotavírus
@@ -577,6 +590,25 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_TOXC:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+        evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
+        source_notes:
+          source: "Nota Técnica nº 133/2022-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf)"
+          definition: >-
+            A notification with ICD-10 O98.6, P37.1 or B58 of a child under one year of age.
+          valid_from: 2019
+          final_after_years: 3
+          known_errors:
+            - ICD-10 codes entered wrongly (pregnant women notified with B58 or P37.1, for example).
+          limitations:
+            - The data may not represent the disease's behaviour in the country (implementation of the 2018 guidelines differs between places).
+            - The period available for tabulation is the one after surveillance was implemented (2019 on); nothing earlier can be validated.
+          form: >-
+            Ficha de Notificação/Conclusão (portalsinan.saude.gov.br/notificacoes), which has no fields for the
+            disease's own characteristics.
     system: SINAN
     series: TOXC
     official_name: Toxoplasmose congênita
@@ -590,6 +622,25 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_TOXG:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+        evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
+        source_notes:
+          source: "Nota Técnica nº 133/2022-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf)"
+          definition: >-
+            A notification with ICD-10 O98.6, P37.1 or B58 of a woman of fertile age (10 to 49 years) who is pregnant (gestational age specified or not).
+          valid_from: 2019
+          final_after_years: 3
+          known_errors:
+            - ICD-10 codes entered wrongly (pregnant women notified with B58 or P37.1, for example).
+          limitations:
+            - The data may not represent the disease's behaviour in the country (implementation of the 2018 guidelines differs between places).
+            - The period available for tabulation is the one after surveillance was implemented (2019 on); nothing earlier can be validated.
+          form: >-
+            Ficha de Notificação/Conclusão (portalsinan.saude.gov.br/notificacoes), which has no fields for the
+            disease's own characteristics.
     system: SINAN
     series: TOXG
     official_name: Toxoplasmose gestacional

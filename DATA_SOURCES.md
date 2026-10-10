@@ -760,6 +760,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 ### Facts read off SINAN forms and files during role review (2026-10-08)
 
 - **Toxoplasmosis' entry dates are 70 years early in two years.** In the FINAIS `.dbc` of TOXG (and TOXC) for 2021 and 2022, `DT_DIGITA` holds the year minus 70 on most records: TOXG 2022 has 11,190 of 12,447 in 1952–53, and 2021 has 8,998 in 1951, raw in the file. 2020 and 2023 are clean. Whether the Dados Abertos CSV republication carries the right year is not yet read.
+- **Toxoplasmosis' Nota Técnica 133/2022-CGZV/DEDT/SVSA/MS** (`sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf`). Gestational = a notification with ICD-10 O98.6, P37.1 or B58 of a pregnant woman aged 10-49; congenital = the same codes in a child under one year. Data valid only from 2019; a year's national database is frozen three years after the notification year; ICD codes are sometimes entered wrongly (pregnant women with B58 or P37.1); the data may not be representative; the form is the generic Ficha de Notificação/Conclusão. Declared as `source_notes` (ADR-0160), as is Rotavirus' 30/2024 (sentinel surveillance of under-5 diarrhoea, not compulsory notification).
 - **Dictionaries are sources, not the truth.**
   - Meningitis's v5 dictionary prints `ANT_TRAUMA` as 1 Sim / 3 Não, while the records use 2 for Não and never 3.
   - Schistosomiasis's prints `EVOLUCAO` "1 – Cura 2, Não Cura" without a separator.

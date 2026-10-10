@@ -187,8 +187,23 @@ def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
                                  "add it to `also` or correct one of them")
 
 
-def roles(dataset: str) -> list[dict[str, Any]]:
-    """The role of every column of a dataset, as rows (``pegasus-data roles <dataset>``)."""
+def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:
+    """The role of every column of a dataset, as rows (``pegasus-data roles <dataset>``).
+
+    A role can sit on a different column in each layout generation (SIM-DOFET's residence is MUNIRES in 1979-1995 and
+    CODMUNRES from 1996; both rows are returned, each with its ``first_year``/``last_year``). A caller that reads one
+    year must not collapse them by role: pass ``period`` (a year, or a ``(first, last)`` pair / range / list of years)
+    and only the columns whose years intersect it are returned; a column with no declared years always is."""
+    rows = _all_roles(dataset)
+    if period is None:
+        return rows
+    ys = [int(period)] if isinstance(period, (int, str)) else [int(y) for y in period]
+    lo, hi = min(ys), max(ys)
+    return [r for r in rows if (r["first_year"] is None or r["first_year"] <= hi)
+            and (r["last_year"] is None or r["last_year"] >= lo)]
+
+
+def _all_roles(dataset: str) -> list[dict[str, Any]]:
     from .._request import parse_dataset
 
     declared = load_column_roles()

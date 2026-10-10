@@ -23,7 +23,12 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   evidence; dropped before anything else. A file's ``shared: duplicates:`` holds for each of its event types;
 * ``persons: false``: the row is a group, not a person (a foodborne outbreak): its events have no sex or age, and
   are exposed by the whole population of their place;
-* ``evidence``: where the rule comes from.
+* ``evidence``: where the rule comes from;
+* ``source_notes``: what the SOURCE itself says about the event, so every consumer inherits it and a report states
+  its limits with their citation (ADR-0160): ``source`` (required, the document), and any of ``definition`` (how the
+  source defines the event), ``valid_from`` / ``valid_to`` (years its data are valid), ``final_after_years`` (a
+  notification year's national database is frozen that many years later), ``known_errors`` and ``limitations``
+  (lists of statements the source makes), ``form`` (the notification form used). Unknown keys raise.
 
 :func:`count_events` applies status, consolidation and weight to a query, so a
 count of hospitalisations is one rule wherever it is asked.
@@ -91,6 +96,8 @@ class EventType:
     persons: bool = True
     evidence: str | None = None
     note: str | None = None
+    #: The source's own definitions, validity window, finality rule and acknowledged errors, with their citation
+    source_notes: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -110,6 +117,7 @@ class EventType:
                       "sex": GRID_SEX, "age": GRID_AGE}
                      if self.grid else None),
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
+            "source_notes": self.source_notes,
             **({} if self.persons else {"persons": False}),
         }
 
@@ -186,7 +194,50 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
+        source_notes=_source_notes(spec.get("source_notes"), f"{where}: {key}.{name}"),
     )
+
+
+_NOTE_TEXT = ("definition", "form")
+_NOTE_LISTS = ("known_errors", "limitations")
+_NOTE_YEARS = ("valid_from", "valid_to", "final_after_years")
+
+
+def _source_notes(spec: dict[str, Any] | None, where: str) -> dict[str, Any] | None:
+    """A declared ``source_notes`` block, validated: a citation is required, every key is known, years are integers,
+    texts and lists of texts are non-empty, and the validity window is ordered."""
+    if spec is None:
+        return None
+    if not isinstance(spec, dict):
+        raise ValueError(f"{where}: source_notes is a mapping")
+    unknown = sorted(set(spec) - {"source", *_NOTE_TEXT, *_NOTE_LISTS, *_NOTE_YEARS})
+    if unknown:
+        raise ValueError(f"{where}: source_notes has unknown keys {unknown}")
+    if not str(spec.get("source") or "").strip():
+        raise ValueError(f"{where}: source_notes needs its source (the document that states it)")
+    if len(spec) < 2:
+        raise ValueError(f"{where}: source_notes states nothing beside its source")
+    out: dict[str, Any] = {"source": str(spec["source"]).strip()}
+    for k in _NOTE_TEXT:
+        if k in spec:
+            if not isinstance(spec[k], str) or not spec[k].strip():
+                raise ValueError(f"{where}: source_notes.{k} is a non-empty text")
+            out[k] = " ".join(spec[k].split())
+    for k in _NOTE_LISTS:
+        if k in spec:
+            items = spec[k]
+            if not isinstance(items, list) or not items or not all(isinstance(i, str) and i.strip() for i in items):
+                raise ValueError(f"{where}: source_notes.{k} is a non-empty list of texts")
+            out[k] = [" ".join(i.split()) for i in items]
+    for k in _NOTE_YEARS:
+        if k in spec:
+            v = spec[k]
+            if isinstance(v, bool) or not isinstance(v, int) or v < (1 if k == "final_after_years" else 1900):
+                raise ValueError(f"{where}: source_notes.{k} is a year (or, for final_after_years, a number of years)")
+            out[k] = v
+    if "valid_from" in out and "valid_to" in out and out["valid_from"] > out["valid_to"]:
+        raise ValueError(f"{where}: source_notes.valid_from is after valid_to")
+    return out
 
 
 def _grid(spec: dict[str, Any] | None, dataset: str,

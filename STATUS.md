@@ -360,3 +360,4 @@ OQ-64), 1990s SIH V-codes.
 - `ruff check src scripts tests` and `scripts/check_docs.py`.
 - `pytest -q -m "not network"` is a regression net that does not grow
   (CLAUDE.md §5).
+- **2026-10-10 (later).** `roles(dataset, period)` picks the column a role sits on in a year (SIM-DOFET/DOINF/DOEXT residence: MUNIRES 1979-1995, CODMUNRES from 1996); a source's own definitions, validity, finality and known errors are declared on event types (`source_notes`, ADR-0160: SINAN TOXG, TOXC, ROTA). Evaluation 2026-10-10-dofet-residence-and-source-notes.
