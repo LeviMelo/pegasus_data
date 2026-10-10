@@ -480,6 +480,8 @@ def build_aggregate(
         *(f for m in spec.measures for f in m.source_fields),
         *((event.status_column,) if event is not None and event.status_column else ()),
         *(event.consolidation_key if event is not None else ()),
+        # the source's own duplicate flag (SINAN's NDUPLIC_N, ADR-0159), null where a form lacks it
+        *((event.duplicates_flag[0],) if event is not None and event.duplicates_flag else ()),
     })
 
     report = AggregateReport(name=name)
