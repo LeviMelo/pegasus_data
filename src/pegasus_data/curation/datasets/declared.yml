@@ -189,6 +189,24 @@ datasets:
   SIH.SP:
     system: SIH
     series: SP
+    event_types:
+      - name: procedure
+        kind: procedure
+        grain: one professional-act line of an AIH, a quantity of one procedure
+        weight:
+          column: SP_QT_PROC
+          evidence: >-
+            DATASUS's own tabulation of SP (TAB_SIH SP2008.DEF) sums SP_QT_PROC as "Quantidade Aprovada" and SP_QTD_ATO
+            as "Quantidade de Ato"; the approved quantity is the procedure count, as PA_QTDAPR is SIA's (ADR-0155).
+            AC 2019-01: 30,321 lines of 3,284 AIHs, every AIH in SIH.RD; SP_QT_PROC is 0 on 6,541 lines (acts billed,
+            no procedure approved).
+        classifiers:
+          - {column: SP_ATOPROF, role: primary, structure: SIGTAP}
+          - {column: SP_PROCREA, role: alternative, structure: SIGTAP}
+          - {column: SP_CIDPRI, role: alternative, structure: ICD10}
+        note: >-
+          SP records no sex or age: the patient's are in SIH.RD, on the same AIH (SP_NAIH = N_AIH). The tabulation
+          names SP_ATOPROF "Procedimentos Secundários" and SP_PROCREA "Procedimento Principal" (the admission's).
     asserted_by: pegasus_data
     what_one_row_is: one professional act billed inside an admission, NOT one admission
     unit_of_analysis: professional service

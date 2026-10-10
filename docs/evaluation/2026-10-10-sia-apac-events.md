@@ -1,4 +1,4 @@
-# SIA's remaining APAC families typed (2026-10-10)
+# SIA's remaining APAC families, and SIH-SP, typed (2026-10-10)
 
 `data/probes/apac/measure6.py` reads one year of each family's raw records. Then `count_events` reads the declared
 event through the API. The count that matters is the APACs counted once, because a row is an APAC-month. Regime:
@@ -33,3 +33,12 @@ branch `pegasus-core-fixes`, repo data home.
   - After the fix, AM 2023 AC returns 43,217 ages (0.25-97) and AQ 8,417 (2-103), with none null. PS (the other
     recipe) returns 28,749 (0-113).
   - No PegaSUS count of a SIA dataset was in the store, so no stored result carried the null ages.
+
+## SIH-SP: a procedure line weighted by its approved quantity
+
+- **Which column is the count.** DATASUS's tabulation kit for SP (`sources/TAB_SIH_extracted/SP2008.DEF`) sums
+  SP_QT_PROC as "Quantidade Aprovada", and SP_QTD_ATO as "Quantidade de Ato". The event is a procedure line weighted
+  by SP_QT_PROC, as SIA's PA lines are by PA_QTDAPR (ADR-0155).
+- **AC 2019-01.** 30,321 lines of 3,284 AIHs, every one of them in SIH.RD. The sum of SP_QT_PROC is 66,682, and
+  `count_events` gives 66,682. 6,541 lines approve no procedure.
+- **No sex or age.** SP records neither; the patient's are in SIH.RD on the same AIH.
