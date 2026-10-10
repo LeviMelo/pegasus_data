@@ -29,6 +29,10 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   source defines the event), ``valid_from`` / ``valid_to`` (years its data are valid), ``final_after_years`` (a
   notification year's national database is frozen that many years later), ``known_errors`` and ``limitations``
   (lists of statements the source makes), ``form`` (the notification form used). Unknown keys raise.
+* ``exposure``: the event's own denominator when it is other events, not residents: ``events`` (one or more
+  ``DATASET:event`` whose counts by place and year are summed: live births for a congenital or gestational condition,
+  live births and foetal deaths for the foetal death rate), ``per`` (the scale the source reports: 1000) and
+  ``evidence`` (required: the indicator's definition and who uses it). Consumers read the event per those events.
 
 :func:`count_events` applies status, consolidation and weight to a query, so a
 count of hospitalisations is one rule wherever it is asked.
@@ -98,6 +102,8 @@ class EventType:
     note: str | None = None
     #: The source's own definitions, validity window, finality rule and acknowledged errors, with their citation
     source_notes: dict[str, Any] | None = None
+    #: The denominator events (``events``: DATASET:event, summed), the reporting scale and the evidence for them
+    exposure: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -118,6 +124,7 @@ class EventType:
                      if self.grid else None),
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
             "source_notes": self.source_notes,
+            "exposure": self.exposure,
             **({} if self.persons else {"persons": False}),
         }
 
@@ -195,7 +202,31 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
         source_notes=_source_notes(spec.get("source_notes"), f"{where}: {key}.{name}"),
+        exposure=_exposure(spec.get("exposure"), f"{where}: {key}.{name}"),
     )
+
+
+def _exposure(spec: dict[str, Any] | None, where: str) -> dict[str, Any] | None:
+    """A declared ``exposure`` block, validated: ``events`` a non-empty list of ``DATASET:event``, ``per`` a positive
+    number, ``evidence`` required; unknown keys raise."""
+    if spec is None:
+        return None
+    if not isinstance(spec, dict):
+        raise ValueError(f"{where}: exposure is a mapping")
+    unknown = sorted(set(spec) - {"events", "per", "evidence"})
+    if unknown:
+        raise ValueError(f"{where}: exposure has unknown keys {unknown}")
+    events = spec.get("events")
+    if isinstance(events, str):
+        events = [events]
+    if not events or not all(isinstance(e, str) and e.count(":") == 1 and all(e.split(":")) for e in events):
+        raise ValueError(f"{where}: exposure.events is a list of DATASET:event")
+    if not str(spec.get("evidence") or "").strip():
+        raise ValueError(f"{where}: exposure needs its evidence (the indicator's definition and who uses it)")
+    per = spec.get("per", 1)
+    if isinstance(per, bool) or not isinstance(per, (int, float)) or per <= 0:
+        raise ValueError(f"{where}: exposure.per is a positive number")
+    return {"events": [e.strip() for e in events], "per": per, "evidence": " ".join(str(spec["evidence"]).split())}
 
 
 _NOTE_TEXT = ("definition", "form")

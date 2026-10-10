@@ -1156,6 +1156,12 @@ datasets:
           column: TIPOBITO
           values: ["1"]
           evidence: TIPOBITO 1 is a foetal death (SIM layout).
+        exposure:
+          events: ["SINASC-DN:birth", "SIM-DOFET:foetal_death"]
+          per: 1000
+          evidence: >-
+            The foetal death rate: foetal deaths per 1,000 total births (live births and foetal deaths), the
+            denominator ICD-10 (volume 2, the statistics of perinatal mortality) defines for it.
     system: SIM
     series: DOFET
     asserted_by: pegasus_data

@@ -594,6 +594,14 @@ datasets:
       - name: notification
         kind: notification
         grain: one notification; a person notified twice is two
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: >-
+            Live births, the convention of studies of SINAN's toxoplasmosis (Uberlândia 2020-2025 per 1,000 live births,
+            https://bjihs.emnuvens.com.br/bjihs/article/download/4323/4557/9965; Santa Catarina 2010-2020 per 10,000,
+            https://www.scielo.br/j/rsbmt/a/Cw7tjwk4TNG6YRjwyj5Jjfh/) and of the Ministry's gestational and congenital
+            syphilis indicators; Nota Técnica 133/2022 states no denominator.
         evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
         source_notes:
           source: "Nota Técnica nº 133/2022-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf)"
@@ -626,6 +634,14 @@ datasets:
       - name: notification
         kind: notification
         grain: one notification; a person notified twice is two
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: >-
+            Live births, the convention of studies of SINAN's toxoplasmosis (Uberlândia 2020-2025 per 1,000 live births,
+            https://bjihs.emnuvens.com.br/bjihs/article/download/4323/4557/9965; Santa Catarina 2010-2020 per 10,000,
+            https://www.scielo.br/j/rsbmt/a/Cw7tjwk4TNG6YRjwyj5Jjfh/) and of the Ministry's gestational and congenital
+            syphilis indicators; Nota Técnica 133/2022 states no denominator.
         evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
         source_notes:
           source: "Nota Técnica nº 133/2022-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf)"
@@ -958,6 +974,10 @@ datasets:
       - name: notification
         kind: notification
         grain: one notification; a person notified twice is two
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: "the Ministry's incidence rate of congenital syphilis in children under one, per 1,000 live births (Boletim Epidemiológico de Sífilis, SVSA/MS)"
     system: SINAN
     series: SIFC
     asserted_by: pegasus_data
@@ -973,6 +993,10 @@ datasets:
       - name: notification
         kind: notification
         grain: one notification; a person notified twice is two
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: "the Ministry's detection rate of syphilis in pregnancy, per 1,000 live births (Boletim Epidemiológico de Sífilis, SVSA/MS)"
     system: SINAN
     series: SIFG
     asserted_by: pegasus_data
