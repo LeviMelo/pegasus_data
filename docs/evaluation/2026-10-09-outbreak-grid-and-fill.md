@@ -97,3 +97,16 @@ dataset's roles.
 starts in 2011.
 - **Misspelt keys.** A role key the loader does not know now raises. A misspelt `fill:` had been ignored silently.
 
+
+## A lake in PegaSUS's data root
+
+PegaSUS's data root had no record lake, so every raw read in a new process decoded the DBC files again.
+- **The cost of decoding.** One CIHA state-month (SP 2013-06, 689,806 records) took 22.4–30.6 s in a fresh process.
+  A national year (324 files) took 30–60 min, which was most of a link year.
+- **The first lake.** CIHA 2015–2022, without labels: 2,488 files, 149.0 M records, 3.9 GB, no errors.
+  - A national year now reads in 12.2 s (2016, 18.9 M records); an SP month in 7.7 s.
+  - The births-to-CIHA-delivery link for 2015 still took 4,547 s, so decoding was not that link's only cost.
+- **`build_lake(dataset, years, root=)`.** It is the command's lake build for callers that are not the command line,
+  and a second call keeps every partition (CIHA 2016: 26 kept, 52 s).
+- **The decode admission.** It holds every decode while free RAM is under max(4 GB, 15 %), 4.8 GB on this machine. With
+  five heavy jobs that floor stalled the 2014 link year for 5.5 h.

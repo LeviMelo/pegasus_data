@@ -84,6 +84,7 @@ _EXPORTS: dict[str, str] = {
     "DataDictionary": "._dictionary",
     "aggregate": "._aggregate",
     "build_aggregate": "._aggregate",
+    "build_lake": ".build",
     "AggregateSpec": "._aggregate",
     "AggregateReport": "._aggregate",
     "memberships": ".geography",

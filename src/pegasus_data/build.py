@@ -852,3 +852,25 @@ def _year_from_path(catalog: CatalogStore, path: str) -> int | None:
 
 def _slug(path: str) -> str:
     return path.strip("/").replace("/", "__").replace("-", "_")
+
+
+def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, labels: bool = False) -> dict[str, Any]:
+    """The lake for one dataset's years (``pegasus-data build`` for a caller that is not the command line).
+
+    A partition whose sources and normalisation plan are unchanged and whose Parquet is on disk is kept, so a second
+    call over the same years writes nothing. Without labels by default: a reader of codes needs none, and they double
+    the footprint. Measured on 2026-10-09 in PegaSUS's data root: a national CIHA year decodes in 30-60 min from its
+    324 DBC files and reads in 12 s from the lake (18.9 M records)."""
+    from pathlib import Path
+
+    from ._request import parse_dataset
+    from .config import load_settings
+
+    system, series = parse_dataset(dataset)
+    pipeline = Pipeline(load_settings(root=Path(root) if root else None))
+    try:
+        result = Builder(pipeline).build(systems=[system], series=[series] if series else None, years=list(years),
+                                         emit_labels=labels)
+        return dict(result.counts)
+    finally:
+        pipeline.close()
