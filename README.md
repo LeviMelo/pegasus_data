@@ -172,6 +172,10 @@ memberships("280030").as_dict()      # health region, macroregion, comparable ar
 municipality_point("280030")         # (lon, lat): Census 2022 population centre, or kind="seat"
 distance_km("355030", "330455")      # 339.5 km, population centre to population centre
 mesh("state")                        # IBGE polygons (GeoDataFrame: code, geometry), "municipality" too; fetched once
+concept_index(["B58", "P37.1"], ["toxoplasm"])  # SINAN agravos holding the codes (counted), SIGTAP procedures
+                                     # compatible with them, ICD-10 and SIGTAP labels matching the terms
+sinan_codes(); procedure_compatibility()  # its two tables: SINAN's ID_AGRAVO codes by agravo, SIGTAP's
+                                     # procedure-ICD compatibility; label_matches(terms, "SIGTAP") its label search
 load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable

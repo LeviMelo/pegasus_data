@@ -687,6 +687,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   polygons.
 - `pg.mesh(level, quality)` serves `qualidade=minima` for maps (2026-10-10): 27 states and 5,570
   municipalities, 3.6 MB for both, codes 2 and 7 digits.
+- **Which SINAN agravo holds an ICD-10 code** is read from its records' `ID_AGRAVO` (`concept_index`, 2026-10-10,
+  lake years): SINAN-TOXG 2025 holds O98.6 11,852, B58 2,804, P37.1 162 (the miscoding Nota Técnica 133/2022 names);
+  TOXC 2025 P37.1 6,879, B58 247, O98.6 153; SINAN-SDTA 2023 (foodborne outbreaks) B58 18. SIGTAP 202609's
+  `rl_procedimento_cid` has 82,103 procedure–code pairs; toxoplasma serology (0202030768 IgG, 0202030873 IgM,
+  0202110150 heel-prick IgM) is tied to no code there and is found by its label.
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
 
