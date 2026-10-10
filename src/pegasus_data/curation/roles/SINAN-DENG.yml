@@ -1613,6 +1613,7 @@ columns:
     - 2014
     - 2026
   PLAQ_MENOR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.platelets_min
     kind: number
     model: mark
@@ -1985,6 +1986,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

@@ -125,6 +125,7 @@ columns:
     - 2014
     - 2026
   AP_CODEMI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.issuer
     kind: category
     model: mark
@@ -143,6 +144,7 @@ columns:
     - 2014
     - 2026
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -311,6 +313,7 @@ columns:
     - 2014
     - 2026
   AP_NUIDADE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: mark
@@ -400,6 +403,7 @@ columns:
     - 2014
     - 2026
   AP_TPATEN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.care_type
     kind: category
     model: mark
@@ -457,6 +461,7 @@ columns:
     - 2014
     - 2026
   AP_UFNACIO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: patient.nationality
     kind: category
     model: dimension
@@ -477,6 +482,7 @@ columns:
     - 2014
     - 2026
   AP_VL_AP:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.approved_value
     kind: number
     model: mark
@@ -497,6 +503,7 @@ columns:
     - 2014
     - 2026
   ATD_ALBUMI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.albumi
     kind: number
     model: mark
@@ -533,6 +540,7 @@ columns:
     - 2014
     - 2026
   ATD_FOSFOR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.fosfor
     kind: number
     model: mark
@@ -541,6 +549,7 @@ columns:
     - 2014
     - 2026
   ATD_HB:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.hb
     kind: number
     model: mark
@@ -589,6 +598,7 @@ columns:
     - 2014
     - 2026
   ATD_KTVSEM:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.ktvsem
     kind: number
     model: mark
@@ -607,6 +617,7 @@ columns:
     - 2014
     - 2026
   ATD_PTH:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.pth
     kind: number
     model: mark
@@ -655,6 +666,7 @@ columns:
     - 2014
     - 2026
   ATD_TRU:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.tru
     kind: number
     model: mark
@@ -663,6 +675,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

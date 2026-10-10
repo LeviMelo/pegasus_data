@@ -109,6 +109,7 @@ columns:
     - 2007
     - 2026
   CS_DESCART:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: case.discard_diagnosis
     kind: category
     model: mark
@@ -195,6 +196,8 @@ columns:
     - 2026
     note: role from the notification block
   CS_SUSPEIT:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='sarampo', 2='rubeola'): a code table, not a catch-all; no value labelled as not recorded
     role: case.suspected_disease
     kind: category
     model: mark
@@ -223,6 +226,7 @@ columns:
     - 2007
     - 2026
   DE15A39ANO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.blockade_vaccinated_15_39
     kind: number
     model: mark
@@ -231,6 +235,7 @@ columns:
     - 2007
     - 2026
   DE5A14ANOS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.blockade_vaccinated_5_14
     kind: number
     model: mark
@@ -826,6 +831,8 @@ columns:
     note: "Named by TabNet's ExantNET.def (TAB_SINANNET): IgM/IgG S1/S2 Sarampo; the underscore variants Rubéola;
       _1/_2 Outra exantemática."
   ID_S2_IGM_:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='reagente', 2='não reagente', 3='inconclusivo', 4='não realizado'): a code table, not a catch-all; no value labelled as not recorded
     role: case.rubella_igm_2
     kind: category
     model: mark
@@ -927,6 +934,7 @@ columns:
     - 2007
     - 2026
   MENOR_5ANO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.blockade_vaccinated_under_5
     kind: number
     model: mark
@@ -1013,6 +1021,7 @@ columns:
     - 2026
     note: role from the notification block
   PA_DES1:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.travel_country_1
     kind: category
     model: mark
@@ -1022,6 +1031,7 @@ columns:
     - 2026
     note: Text (BRAS) rather than a country code in 2022.
   PA_DES2:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.travel_country_2
     kind: category
     model: mark
@@ -1030,6 +1040,7 @@ columns:
     - 2007
     - 2026
   PA_DES3:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.travel_country_3
     kind: category
     model: mark
@@ -1088,6 +1099,7 @@ columns:
     - 2007
     - 2026
   TPEXANTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.other_exanthem
     kind: category
     model: mark
@@ -1117,6 +1129,7 @@ columns:
     - 2026
     note: 'IBGE state codes: 26 distinct two-digit codes in 2022.'
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

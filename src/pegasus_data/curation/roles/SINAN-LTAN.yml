@@ -1079,6 +1079,7 @@ columns:
     - 2007
     - 2025
   TRA_AMPOLA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.ampoules
     kind: number
     model: mark
@@ -1127,6 +1128,7 @@ columns:
     - 2007
     - 2025
   TRA_PESO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.weight_kg
     kind: number
     model: mark
@@ -1135,6 +1137,7 @@ columns:
     - 2000
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

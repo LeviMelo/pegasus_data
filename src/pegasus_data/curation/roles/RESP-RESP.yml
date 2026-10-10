@@ -80,6 +80,7 @@ columns:
     - 2024
     note: The mother's residence, the case's.
   COMPRIMENT:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: notification.birth_length
     kind: number
     model: mark
@@ -108,6 +109,7 @@ columns:
     - 2015
     - 2024
   CRITERIO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.final_classification_criteria_multi_select
     kind: category
     model: mark
@@ -154,6 +156,7 @@ columns:
     codelists:
     - SIM_NAO
   DIAMCEFAL:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.intrauterine_head_diameter
     kind: number
     model: mark
@@ -372,6 +375,7 @@ columns:
     codelists:
     - SIM_NAO
   FREQUENCIA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: notification.frequency
     kind: number
     model: mark
@@ -442,6 +446,7 @@ columns:
     codelists:
     - SIM_NAO
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum
@@ -504,6 +509,7 @@ columns:
     - 2015
     - 2024
   PERIMCEFAL:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: notification.head_circumference_at_birth
     kind: number
     model: mark

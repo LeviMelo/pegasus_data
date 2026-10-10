@@ -63,6 +63,7 @@ columns:
     - 2007
     - 2026
   ANT_CONT_N:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (9=''Ign/Branco''; 2023)'
     role: case.contact_setting
     kind: category
     model: mark
@@ -71,6 +72,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSES_:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_meningococcal_bc_doses
     kind: number
     model: mark
@@ -79,6 +81,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_3:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_meningococcal_ac_doses
     kind: number
     model: mark
@@ -87,6 +90,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_4:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_bcg_doses
     kind: number
     model: mark
@@ -95,6 +99,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_5:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_triple_viral_doses
     kind: number
     model: mark
@@ -103,6 +108,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_7:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_pneumococcal_doses
     kind: number
     model: mark
@@ -111,6 +117,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_C:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_meningococcal_c_conjugate_doses
     kind: number
     model: mark
@@ -119,6 +126,7 @@ columns:
     - 2007
     - 2026
   ANT_DOSE_T:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.vaccine_hib_doses
     kind: number
     model: mark
@@ -601,6 +609,7 @@ columns:
     - 2007
     - 2026
   CS_MENING:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: case.meningitis_classification
     kind: category
     model: mark
@@ -964,6 +973,7 @@ columns:
     - 2007
     - 2026
   LAB_CLOR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_chloride
     kind: number
     model: mark
@@ -1020,6 +1030,7 @@ columns:
     - 2007
     - 2026
   LAB_EOSI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_eosinophils
     kind: number
     model: mark
@@ -1028,6 +1039,7 @@ columns:
     - 2007
     - 2026
   LAB_GLICO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_glucose
     kind: number
     model: mark
@@ -1036,6 +1048,7 @@ columns:
     - 2007
     - 2026
   LAB_HEMA:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_red_cells
     kind: number
     model: mark
@@ -1064,6 +1077,7 @@ columns:
     - 2007
     - 2026
   LAB_LEUCO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_leukocytes
     kind: number
     model: mark
@@ -1072,6 +1086,7 @@ columns:
     - 2007
     - 2026
   LAB_LINFO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_lymphocytes
     kind: number
     model: mark
@@ -1080,6 +1095,7 @@ columns:
     - 2007
     - 2026
   LAB_MONO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_monocytes
     kind: number
     model: mark
@@ -1088,6 +1104,7 @@ columns:
     - 2007
     - 2026
   LAB_NEUTRO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_neutrophils
     kind: number
     model: mark
@@ -1116,6 +1133,7 @@ columns:
     - 2007
     - 2026
   LAB_PCLIQU:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (62=''Ignorado''; 2023)'
     role: case.lab_pcr_csf
     kind: category
     model: mark
@@ -1134,6 +1152,7 @@ columns:
     - 2007
     - 2026
   LAB_PROT:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.lab_csf_protein
     kind: number
     model: mark
@@ -1168,6 +1187,7 @@ columns:
     - 2007
     - 2026
   MED_NUCOMU:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_count
     kind: number
     model: mark
@@ -1296,6 +1316,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

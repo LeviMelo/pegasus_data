@@ -483,6 +483,7 @@ columns:
     - 2026
     note: Six positional S/X flags (interview, outpatient, record, SVO, IML, professional), not a number.
   FONTESINF:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: death.investigation_sources
     kind: category
     model: mark
@@ -687,6 +688,7 @@ columns:
     - 2009
     - 2010
   NUMEROLOTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: death.batch_number
     kind: number
     model: excluded
@@ -985,6 +987,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: deceased.age_years
     kind: number
     model: stratum

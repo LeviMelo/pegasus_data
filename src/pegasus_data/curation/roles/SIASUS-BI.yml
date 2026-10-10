@@ -2,6 +2,7 @@ dataset: SIASUS-BI
 record: procedure
 columns:
   AUTORIZ:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: procedure.authorization_number
     kind: number
     model: mark
@@ -147,6 +148,7 @@ columns:
     - 2008
     - 2026
   ETNIA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: procedure.indigenous_ethnicity
     kind: category
     model: mark
@@ -165,6 +167,7 @@ columns:
     - 2008
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum
@@ -172,6 +175,7 @@ columns:
     name: Idade em anos (derivada de IDADEPAC e TPIDADEPAC)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.
   IDADEPAC:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: mark
@@ -236,6 +240,7 @@ columns:
     - 2008
     - 2026
   QT_APRES:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: procedure.quantity_presented_produced
     kind: number
     model: mark
@@ -244,6 +249,7 @@ columns:
     - 2008
     - 2026
   QT_APROV:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: procedure.quantity_approved
     kind: number
     model: mark
@@ -272,6 +278,7 @@ columns:
     codelists:
     - SEXO
   SUBFIN:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: procedure.production_financing_subtype
     kind: category
     model: mark
@@ -304,6 +311,7 @@ columns:
     codelists:
     - FINANC
   TPIDADEPAC:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; SP 2023-01)'
     role: procedure.age_unit_code
     kind: category
     model: mark
@@ -346,6 +354,7 @@ columns:
     - 2008
     - 2026
   VL_APRES:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: procedure.value_presented_produced
     kind: number
     model: mark
@@ -354,6 +363,7 @@ columns:
     - 2008
     - 2026
   VL_APROV:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: procedure.value_approved
     kind: number
     model: mark

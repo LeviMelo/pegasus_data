@@ -921,6 +921,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   NUMEROLOTE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: death.batch_number
     kind: number
     model: excluded
@@ -1060,6 +1061,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   PESO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: birth.weight
     kind: number
     model: mark
@@ -1319,6 +1321,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: deceased.age_years
     kind: number
     model: stratum

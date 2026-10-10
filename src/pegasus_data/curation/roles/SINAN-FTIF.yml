@@ -373,6 +373,7 @@ columns:
     - 2007
     - 2026
   DIAS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: treatment.antibiotic_days
     kind: number
     model: mark
@@ -1291,6 +1292,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

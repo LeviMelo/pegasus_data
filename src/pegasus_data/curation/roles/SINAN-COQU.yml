@@ -693,6 +693,7 @@ columns:
     - 2007
     - 2026
   MED_QUAN_C:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_count
     kind: number
     model: mark
@@ -787,6 +788,7 @@ columns:
     - 2007
     - 2026
   QUAN_COMUN:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_sampled_count
     kind: number
     model: mark
@@ -795,6 +797,7 @@ columns:
     - 2007
     - 2026
   QUAN_POSIT:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.contacts_positive_count
     kind: number
     model: mark
@@ -851,6 +854,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

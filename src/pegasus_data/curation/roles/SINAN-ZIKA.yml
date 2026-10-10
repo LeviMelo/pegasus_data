@@ -66,6 +66,7 @@ columns:
     - 2015
     - 2026
   CRITERIO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (0=''Ign/Branco''; 2023)'
     role: case.confirmation_criterion
     kind: category
     model: mark
@@ -416,6 +417,7 @@ columns:
     - 2015
     - 2026
   TPUNINOT:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: facility.type
     kind: category
     model: mark
@@ -446,6 +448,7 @@ columns:
     - 2015
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

@@ -275,6 +275,7 @@ columns:
     - 2009
     - 2026
   D_DIAR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.diarrhoea_days
     kind: number
     model: mark
@@ -283,6 +284,7 @@ columns:
     - 2009
     - 2026
   D_VOMITO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.vomiting_days
     kind: number
     model: mark
@@ -551,6 +553,7 @@ columns:
     - 2009
     - 2026
   N_DIAR:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.diarrhoea_episodes
     kind: number
     model: mark
@@ -559,6 +562,7 @@ columns:
     - 2009
     - 2026
   N_VOMITO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.vomiting_episodes
     kind: number
     model: mark
@@ -663,6 +667,8 @@ columns:
     - 2009
     - 2026
   TIPO_LEITE:
+    missing: []
+    # declared from DATASUS's own sources (2023): no form dictionary; the table names every code the records use, each with its own label (1='exclusivo', 2='misto'): a code table, not a catch-all; no value labelled as not recorded
     role: patient.feeding_type
     kind: category
     model: mark
@@ -723,6 +729,7 @@ columns:
     - 2009
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

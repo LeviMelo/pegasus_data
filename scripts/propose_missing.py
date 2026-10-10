@@ -263,7 +263,7 @@ def numbers(dataset: str, year: int, write: bool) -> None:
                 NOT_RECORDED.match(lab) or NOT_CLASSIFIED.match(lab))]
             if not valid:
                 print(f"{r.column}: no tabulation band  [left undeclared]")
-                unknown[r.column] = "no codelist or tabulation band bounds it, and its form names no code for not recorded"
+                unknown[r.column] = "no codelist or tabulation band of DATASUS bounds it"
                 continue
             if "L" in labels:
                 print(f"{r.column}: a linear CNV (L), a display format with no range  [left undeclared]")

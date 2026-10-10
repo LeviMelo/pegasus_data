@@ -397,6 +397,7 @@ columns:
     - 2007
     - 2026
   IDADEMAE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: mother.age
     kind: number
     model: mark
@@ -607,6 +608,7 @@ columns:
     - 2007
     - 2026
   PESO:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: case.birth_weight_g
     kind: number
     model: mark
@@ -804,6 +806,7 @@ columns:
     - 2007
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

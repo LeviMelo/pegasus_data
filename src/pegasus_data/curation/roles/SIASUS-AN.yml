@@ -12,6 +12,7 @@ columns:
     - 2008
     - 2014
   AN_ALBUMI:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.albumi
     kind: number
     model: mark
@@ -41,6 +42,7 @@ columns:
     - 2008
     - 2014
   AN_DIURES:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.diures
     kind: number
     model: mark
@@ -57,6 +59,7 @@ columns:
     - 2008
     - 2014
   AN_GLICOS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.glicos
     kind: number
     model: mark
@@ -106,6 +109,7 @@ columns:
     - 2008
     - 2014
   AN_INTFIS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.intfis
     kind: number
     model: mark
@@ -125,6 +129,7 @@ columns:
     - 2008
     - 2014
   AN_TRU:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.tru
     kind: number
     model: mark
@@ -265,6 +270,7 @@ columns:
     - 2008
     - 2014
   AP_CODEMI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: authorisation.issuer
     kind: category
     model: mark
@@ -283,6 +289,7 @@ columns:
     - 2008
     - 2014
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2014)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -438,6 +445,8 @@ columns:
     - 2008
     - 2014
   AP_NATJUR:
+    missing: []
+    # declared from DATASUS's own sources (2014): no form dictionary; the table names every code the records use, each with its own label (3999='399-9 associação privada'): a code table, not a catch-all; no value labelled as not recorded
     role: facility.legal_nature
     kind: category
     model: mark
@@ -449,6 +458,7 @@ columns:
     - 2011
     - 2014
   AP_NUIDADE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: mark
@@ -619,6 +629,7 @@ columns:
     - 2008
     - 2014
   AP_VL_AP:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.approved_value
     kind: number
     model: mark
@@ -627,6 +638,7 @@ columns:
     - 2008
     - 2014
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

@@ -124,6 +124,7 @@ columns:
     - 2008
     - 2026
   AP_CODEMI:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.issuer
     kind: category
     model: mark
@@ -142,6 +143,7 @@ columns:
     - 2008
     - 2026
   AP_COIDADE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: patient.age_unit
     kind: category
     model: mark
@@ -310,6 +312,7 @@ columns:
     - 2011
     - 2026
   AP_NUIDADE:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age
     kind: number
     model: mark
@@ -458,6 +461,7 @@ columns:
     - 2008
     - 2026
   AP_UFNACIO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: patient.nationality
     kind: category
     model: dimension
@@ -478,6 +482,7 @@ columns:
     - 2008
     - 2026
   AP_VL_AP:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: authorisation.approved_value
     kind: number
     model: mark
@@ -582,6 +587,7 @@ columns:
     - 2008
     - 2026
   AQ_ESQU_P1:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.regimen_p1
     kind: category
     model: dimension
@@ -590,6 +596,7 @@ columns:
     - 2008
     - 2026
   AQ_ESQU_P2:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.regimen_p2
     kind: category
     model: dimension
@@ -610,6 +617,7 @@ columns:
     - 2008
     - 2026
   AQ_GRAHIS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.histologic_grade
     kind: category
     model: mark
@@ -732,6 +740,7 @@ columns:
     - 2021
     - 2026
   AQ_TOTMAU:
+    missing_unknown: 'its tabulation band [1, 99] is continued by the records (1: 79509 beside 0: 869185, 99: 2762 beside 100: 1709, 2023): a display width, not the column''s range'
     role: authorisation.months_authorised
     kind: number
     model: mark
@@ -740,6 +749,7 @@ columns:
     - 2008
     - 2026
   AQ_TOTMPL:
+    missing_unknown: 'its tabulation band [1, 99] is continued by the records (1: 21736 beside 0: 46594, 99: 14506 beside 100: 28771, 2023): a display width, not the column''s range'
     role: authorisation.months_planned
     kind: number
     model: mark
@@ -748,6 +758,7 @@ columns:
     - 2008
     - 2026
   AQ_TRANTE:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: authorisation.previous_treatment
     kind: category
     model: mark
@@ -758,6 +769,7 @@ columns:
     - 2008
     - 2026
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum

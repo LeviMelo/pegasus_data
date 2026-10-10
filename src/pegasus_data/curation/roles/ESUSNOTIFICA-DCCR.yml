@@ -101,6 +101,7 @@ columns:
     - 2023
     - 2025
   BNZ_DIAS:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: notification.benznidazole_treatment_days
     kind: number
     model: mark
@@ -157,6 +158,7 @@ columns:
     - 2023
     - 2025
   BNZ_TOT_CP:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: notification.benznidazole_tablets_prescribed
     kind: number
     model: mark
@@ -313,6 +315,7 @@ columns:
     - BR_MUNICIPALFA
     note: As across SINAN forms (21 of 22).
   CONF_FAMIL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_confirmed_after_active_case_finding
     kind: category
     model: mark
@@ -378,6 +381,7 @@ columns:
     - 2023
     - 2025
   DIAG_FAMIL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_identified_without_a_prior_diagnosis
     kind: category
     model: mark
@@ -467,6 +471,7 @@ columns:
     - 2023
     - 2025
   EXAM_FAMIL:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_tested_after_active_case_finding
     kind: category
     model: mark
@@ -525,6 +530,7 @@ columns:
     - 2023
     - 2025
   HIST_EPID:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.living_relatives_already_diagnosed_with_chagas
     kind: category
     model: mark
@@ -608,6 +614,7 @@ columns:
     - 2023
     - 2025
   LAB_CNES:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.laboratory_cnes_flag
     kind: category
     model: mark
@@ -629,6 +636,8 @@ columns:
     - 2023
     - 2025
   MN_RESI_TF:
+    missing: []
+    # declared from DATASUS's own sources (2023): no code table: the records hold the labels themselves ('Brasilia', 'Buritis', 'Campo Alegre de Lourdes', 'Coribe', 'Coxim', 'Montes Claros', 'Novo Hamburgo', 'Sinop', 'Uberlandia')
     role: notification.new_municipality_of_residence
     kind: category
     model: mark
@@ -720,6 +729,7 @@ columns:
     - 2023
     - 2025
   NFX_DIAS:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.nifurtimox_treatment_days
     kind: category
     model: mark
@@ -758,6 +768,7 @@ columns:
     - 2023
     - 2025
   NFX_MEDULA:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.nifurtimox_bone_marrow_suppression
     kind: category
     model: mark
@@ -784,6 +795,7 @@ columns:
     - 2023
     - 2025
   NFX_TOT_CP:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.nifurtimox_tablets_prescribed
     kind: category
     model: mark
@@ -953,6 +965,7 @@ columns:
     - 2023
     - 2025
   SITUACAO:
+    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.record_cancellation_flag
     kind: category
     model: mark
@@ -1045,6 +1058,7 @@ columns:
     - 2023
     - 2025
   IDADE_anos:
+    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number
     model: stratum
