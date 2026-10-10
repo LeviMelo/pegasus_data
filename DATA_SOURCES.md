@@ -613,12 +613,23 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 
 ## 5. DEMAS open-data API (`apidadosabertos.saude.gov.br`) (2026-08-18, F §1 V9)
 
-- Swagger 2.0, `DEMAS - API de Dados Abertos`, version 1.8.32, 87 paths.
+- Swagger 2.0, `DEMAS - API de Dados Abertos`, version 1.8.32, 113 paths (87 on 2026-08-18; corrected 2026-10-10).
 - `/daf/estoque-medicamentos-bnafar-horus` takes `codigo_uf`,
   `codigo_municipio`, `codigo_cnes`, `anomes_posicao_estoque`,
   `data_posicao_estoque`, `codigo_catmat`, `sigla_programa_saude`,
   `tipo_produto`, `sigla_sistema_origem`, `limit`, `offset`: per
   establishment, monthly, by medication (CATMAT).
+
+- **Assessed 2026-10-10** (`docs/evaluation/2026-10-10-demas-source-assessment.md`, every endpoint). JSON lists keyed by the
+  dataset name, no total; `limit` ≤ 1000, `offset` a row offset; 1e7 deep ≈ 15-35 s, 3e7 ≈ 42-60 s, beyond that `502`. On the
+  CNES, SIA and SIH endpoints and the municipality list the limit applies before de-duplication (a short page is not the end).
+  DEMAS is **not** the full source on most tables: SISAGUA cianobacterias holds 5,000 of 49,288 rows, carro-pipa 60%, SG leve
+  2023/2024 and SISAGUA plano-amostragem stop at 5,000, SIM holds 2025-2026 only, SINASC is empty, SRAG 2019-2026's `dt_notific`
+  is wrong; it equals SIES and one SISAGUA slice. The origin of the non-FTP datasets is the Portal de Dados Abertos do SUS
+  (`dadosabertos.saude.gov.br`; the old `opendatasus.saude.gov.br` redirects): yearly or monthly CSV/parquet files under
+  `s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/` (SISAGUA 2014-2026, PNI monthly 2020-2026, SRAG parquet, SISVAN, SG).
+  Verdicts: 35 use DEMAS (ESAVI, mpox, yellow fever, SIES, BNAFAR, COVID occupancy, SIASI/SESAI, SISAB, SIAPS, health-region
+  mapping, BPS), 49 original with DEMAS as fallback, 29 not relevant.
 
 ## 6. IBGE
 

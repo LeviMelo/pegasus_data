@@ -357,7 +357,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `workbook.py`: a built aggregate as an Excel workbook, each sheet its own aggregation (`pegasus-data workbook`).
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph. `mesh`: IBGE's polygons for maps.
-- `concepts.py`: the concept index: which sources hold a condition's codes (SINAN's `ID_AGRAVO` by agravo, SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope).
+- `concepts.py`: the concept index: which sources hold a condition's codes (every record's own condition code by its role, SINAN's `ID_AGRAVO`; SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope).
 - `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).
 - `linkage/`: record linkage across systems (ADR-0107; `docs/plans/linkage.md`).
 - `linkage/roles.py`: records as normalised roles (`curation/roles.yml`), with their setting (ADR-0109, ADR-0123); national role tables of whole years cached under `<lake>/roles/` (states filtered by their partition `_uf`, multi-year periods as unions, LRU-capped by `role_cache_gb`), national ones built state by state.

@@ -92,7 +92,7 @@ _EXPORTS: dict[str, str] = {
     "municipality_point": ".geography",
     "mesh": ".geography",
     "concept_index": ".concepts",
-    "sinan_codes": ".concepts",
+    "condition_codes": ".concepts",
     "procedure_compatibility": ".concepts",
     "label_matches": ".concepts",
     "distance_km": ".geography",

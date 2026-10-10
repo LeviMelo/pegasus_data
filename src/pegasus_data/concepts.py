@@ -3,9 +3,10 @@
 PegaSUS resolves a study's scope from it (its ARCHITECTURE §4, BACKLOG 4.1). Three tables, each read once and kept in
 the data home's ``registries/concepts``:
 
-* :func:`sinan_codes` — every SINAN dataset's ``ID_AGRAVO`` codes (ICD-10, the agravo the notification is of) in its
-  latest lake year, with their counts: the sources' own SINAN↔ICD map, never a curated one (SINAN-TOXG holds O98.6
-  and also B58 and P37.1, entered wrongly as Nota Técnica 133/2022 says).
+* :func:`condition_codes` — every record's own condition code where the roles declare one (a column whose role model
+  is ``event_type`` on ICD-10: SINAN's ``ID_AGRAVO``), counted in the latest lake year: the sources' own map from
+  event type to ICD-10, never a curated one (SINAN-TOXG holds O98.6 and also B58 and P37.1, entered wrongly as Nota
+  Técnica 133/2022 says).
 * :func:`procedure_compatibility` — SIGTAP's ``rl_procedimento_cid``: the procedures the Tabela Unificada allows
   under each ICD-10 code, with the procedure's name, from the latest monthly export.
 * :func:`concept_index` — for ICD-10 codes (any level, prefix-matched): the SINAN datasets holding them with counts, the
@@ -37,37 +38,44 @@ def _norm(code: str) -> str:
     return str(code).replace(".", "").strip().upper()
 
 
-def sinan_codes(root: str | Path | None = None, refresh: bool = False, download: bool = False) -> pa.Table:
-    """(dataset, year, code, events): each SINAN dataset's ``ID_AGRAVO`` codes in the latest year its lake holds. A
-    dataset with no lake year is left out and listed in the table's metadata ``not_in_lake``; with ``download`` its
-    latest published year is read instead (one national file per agravo)."""
+def condition_codes(root: str | Path | None = None, refresh: bool = False, download: bool = False) -> pa.Table:
+    """(dataset, column, year, code, events): for every event type whose records name the condition they are of (a role
+    whose model is ``event_type`` on an ICD-10 codelist: SINAN's ``ID_AGRAVO``), that column's codes in the latest year
+    the lake holds, with their counts. A dataset with no lake year is listed in the table's metadata ``not_in_lake``;
+    with ``download`` its latest published year is read instead (one national file each)."""
     import json
 
-    from ._explore import lake_coverage
+    from ._explore import explore, lake_coverage
+    from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types, load_event_types
 
-    target = _cache(root) / "sinan_codes.parquet"
+    target = _cache(root) / "condition_codes.parquet"
     if target.is_file() and not refresh:
         return pq.read_table(target)
     rows, missing = [], []
-    for ds in sorted(k for k in load_event_types() if k.upper().startswith("SINAN")):
-        name = ds
+    for name in sorted(load_event_types()):
+        try:
+            cols = [r["column"] for r in roles(name)
+                    if r.get("model") == "event_type" and "ICD10" in (r.get("codelists") or [])]
+        except Exception:  # noqa: BLE001 - a dataset without roles names no condition column
+            continue
+        if not cols:
+            continue
         years = sorted(lake_coverage(name, root=root))
         if not years and download:
-            from ._explore import explore
-
             years = sorted(int(r["year"]) for r in explore(name, root=root).rows)[-1:]
         if not years:
             missing.append(name)
             continue
         event = event_types(name)[0]["name"]
-        t = count_events(name, event, period=years[-1], geography="BR", by=["ID_AGRAVO"], root=root,
-                         **({} if download else {"max_download": 0}))
-        for r in t.to_pylist():
-            if r.get("ID_AGRAVO"):
-                rows.append({"dataset": name, "year": years[-1], "code": _norm(r["ID_AGRAVO"]), "events": int(r["events"])})
-    table = pa.Table.from_pylist(rows, schema=pa.schema([("dataset", pa.string()), ("year", pa.int16()),
-                                                         ("code", pa.string()), ("events", pa.int64())]))
+        for col in cols:
+            t = count_events(name, event, period=years[-1], geography="BR", by=[col], root=root,
+                             **({} if download else {"max_download": 0}))
+            rows += [{"dataset": name, "column": col, "year": years[-1], "code": _norm(r[col]), "events": int(r["events"])}
+                     for r in t.to_pylist() if r.get(col)]
+    table = pa.Table.from_pylist(rows, schema=pa.schema([("dataset", pa.string()), ("column", pa.string()),
+                                                         ("year", pa.int16()), ("code", pa.string()),
+                                                         ("events", pa.int64())]))
     table = table.replace_schema_metadata({"not_in_lake": json.dumps(missing)})
     pq.write_table(table, target)
     return table
@@ -119,7 +127,8 @@ def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") 
 def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None) -> dict[str, Any]:
     """Where ICD-10 ``codes`` (any level: B58 holds B58.0-B58.9) are held:
 
-    * ``sinan``: the SINAN datasets whose notifications carry them, with their counts in the lake year read;
+    * ``conditions``: the event types whose records name them as their condition (`condition_codes`), with the
+      column and its counts in the lake year read;
     * ``procedures``: the SIGTAP procedures compatible with them;
     * ``labels``: ICD-10 codes and SIGTAP procedures whose label matches a term (the weakest evidence: a name, not a
       declaration; it finds what no compatibility table ties to a code: toxoplasma serology).
@@ -129,13 +138,14 @@ def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), roo
     def held(code: str) -> bool:
         return any(code.startswith(p) for p in prefixes)
 
-    sinan = [r for r in sinan_codes(root).to_pylist() if held(r["code"])]
-    by_ds: dict[str, dict] = {}
-    for r in sinan:
-        d = by_ds.setdefault(r["dataset"], {"dataset": r["dataset"], "year": r["year"], "codes": {}, "events": 0})
+    found = [r for r in condition_codes(root).to_pylist() if held(r["code"])]
+    by_ds: dict[tuple, dict] = {}
+    for r in found:
+        d = by_ds.setdefault((r["dataset"], r["column"]), {"dataset": r["dataset"], "column": r["column"],
+                                                          "year": r["year"], "codes": {}, "events": 0})
         d["codes"][r["code"]] = r["events"]
         d["events"] += r["events"]
     procedures = [r for r in procedure_compatibility(root).to_pylist() if held(r["cid"])]
     labels = [{**r, "structure": st} for st in ("ICD10", "SIGTAP") for r in label_matches(terms, st)] if terms else []
-    return {"codes": prefixes, "sinan": sorted(by_ds.values(), key=lambda d: -d["events"]),
+    return {"codes": prefixes, "conditions": sorted(by_ds.values(), key=lambda d: -d["events"]),
             "procedures": procedures, "labels": labels}
