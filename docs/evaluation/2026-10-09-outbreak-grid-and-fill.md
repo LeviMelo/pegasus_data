@@ -121,3 +121,13 @@ PegaSUS's data root had no record lake, so every raw read in a new process decod
   string vs int64`).
   - Staging, previous and old trees are now hidden names (a leading dot), which dataset discovery skips.
   - A build first removes the trees a killed build left behind, when their process is gone. Four were in the SIH lake.
+- **Where a link year's time went.** `data/probes/link_profile.py`, births to CIHA delivery for AC 2017, with both
+  role tables read nationally (CIHA from the lake), took 654 s.
+  - Labelling took 412 s, of which `view._select_codelists` took 323 s over 5,633 calls. It trimmed every cell of each
+    column, chunk by chunk, before counting distinct values, and ran one catalog query a call for the family's series.
+  - The role tables' parquet write took 71 s, and the roles' normalisation 81 s.
+- **The fix.** The distinct values are counted first and only they are trimmed, and the series is read once per family.
+  - CIHA SP 2017 (9.76 M records, the link's 12 columns) reads with labels in 38.1 s, from 158.3 s; codes alone take 11–14 s.
+  - The labelled output of AC 2017 is identical cell for cell before and after.
+- **Correction.** The earlier SINASC measurement (labels about 44 s of a link year) was a single national read; CIHA's
+  side is read state by state, chunk by chunk, where the cost was.

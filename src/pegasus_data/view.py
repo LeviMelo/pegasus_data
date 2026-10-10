@@ -614,6 +614,23 @@ def _coded(doc: object) -> bool:
     return doc is not None and getattr(doc, "code_system", None) in ("internal", "external")
 
 
+_SERIES: dict[tuple[str, str], str] = {}
+
+
+def _family_series(store: CatalogStore | None, family_id: str) -> str:
+    """The series a family is filed under, read once per catalog and family (it was one query per column and chunk)."""
+    if store is None or not family_id:
+        return ""
+    key = (str(getattr(store, "path", id(store))), family_id)
+    if key not in _SERIES:
+        try:
+            row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
+            _SERIES[key] = str(row[0]["series"] or "").upper() if row else ""
+        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
+            return ""
+    return _SERIES[key]
+
+
 def _select_codelists(
     name: str,
     column: pa.ChunkedArray,
@@ -643,21 +660,17 @@ def _select_codelists(
     # One ladder of evidence, shared with compile_bindings (ADR-0082).
     from .semantics.label_bindings import candidates_for, decide
 
-    series = ""
-    if store is not None and family_id:
-        try:
-            row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
-            series = str(row[0]["series"] or "").upper() if row else ""
-        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
-            series = ""
-    # Counted in Arrow: a year of a file is a million cells and a few dozen
-    # distinct codes (ADR-0097).
-    trimmed = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
-    trimmed = pc.filter(trimmed, pc.and_(pc.is_valid(trimmed), pc.not_equal(trimmed, "")))
-    tallied = pc.value_counts(trimmed)
-    counts = Counter(dict(zip(
-        tallied.field("values").to_pylist(), tallied.field("counts").to_pylist(), strict=True
-    )))
+    series = _family_series(store, family_id)
+    # Counted in Arrow, then trimmed: a year of a file is a million cells and a few dozen distinct codes (ADR-0097), so
+    # the distinct values are trimmed and merged, not every cell (trimming each cell first took 200 s of a link year's
+    # 654, 2026-10-09)
+    tallied = pc.value_counts(column if pa.types.is_string(column.type) or pa.types.is_large_string(column.type)
+                              else pc.cast(column, pa.string()))
+    counts: Counter = Counter()
+    for value, n in zip(tallied.field("values").to_pylist(), tallied.field("counts").to_pylist(), strict=True):
+        text = None if value is None else str(value).strip()
+        if text:
+            counts[text] += n
     seen = set(counts)
     decision = decide(
         system=system, family_id=family_id, series=series, field_name=name, doc=doc,
