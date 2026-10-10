@@ -388,7 +388,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
 - `snapshot.py`: `pegasus-data snapshot`, the versions of preliminary and current-year files (declared in `curation/snapshots.yml`) kept as they change; `versions()` and `digests_as_of()` behind `query(as_of=)` (ADR-0141).
 - `pipeline.py`: `Pipeline`, the build stages.
-- `build.py`: the stages that write data (lake, population, DEMAS).
+- `build.py`: the stages that write data (lake, population, DEMAS); `build_lake(dataset, years, root=)` builds one dataset's lake for a caller that is not the command line.
 - `progress.py`: deadlines and heartbeat.
 - `config.py`, `locate.py`: settings and where the data home is.
 - `textenc.py`: codepage detection.

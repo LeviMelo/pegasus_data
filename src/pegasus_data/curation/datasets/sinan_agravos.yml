@@ -834,6 +834,13 @@ datasets:
       - name: case
         kind: case
         grain: one person ill in a foodborne outbreak, from the outbreak's count of its ill by sex and age band
+        duplicates:
+          except: [NU_NOTIFIC, DT_DIGITA, NU_LOTE_H, NU_LOTE_V, DT_TRANSUS, DT_TRANSDM, DT_TRANSSM, DT_TRANSRM, DT_TRANSRS, DT_TRANSSE, DT_INVEST, DT_ENCERRA]
+          evidence: >-
+            Rows equal on every recorded fact but entry metadata (notification number, entry, transfer, investigation
+            and closing dates) are one outbreak entered again: 0-3 a year in 2007-2022 but 21 in 2019 and 28 in 2023,
+            19 of them one Maranhão outbreak of 32 ill notified by one unit (CNES 9005064). Near-copies that differ in a
+            fact (that unit's 13 others, onsets 23 and 25 March) are not merged: which copy is right is not known.
         weight:
           grid: ill
           sex: {axis: sex, male: M, female: F}
@@ -855,6 +862,13 @@ datasets:
       - name: outbreak
         kind: outbreak
         grain: one foodborne outbreak, the unit its ill arrive in
+        duplicates:
+          except: [NU_NOTIFIC, DT_DIGITA, NU_LOTE_H, NU_LOTE_V, DT_TRANSUS, DT_TRANSDM, DT_TRANSSM, DT_TRANSRM, DT_TRANSRS, DT_TRANSSE, DT_INVEST, DT_ENCERRA]
+          evidence: >-
+            Rows equal on every recorded fact but entry metadata (notification number, entry, transfer, investigation
+            and closing dates) are one outbreak entered again: 0-3 a year in 2007-2022 but 21 in 2019 and 28 in 2023,
+            19 of them one Maranhão outbreak of 32 ill notified by one unit (CNES 9005064). Near-copies that differ in a
+            fact (that unit's 13 others, onsets 23 and 25 March) are not merged: which copy is right is not known.
         persons: false
         evidence: >-
           A row is one outbreak (the form's own unit; Nota Técnica Surtos de DTA §2.1: two or more ill, one for botulism

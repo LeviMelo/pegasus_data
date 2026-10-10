@@ -17,6 +17,8 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   holds up to 95,404 on one row), with its evidence; or a ``grid`` of columns,
   each the events of one (sex, age band), where the row is a group of people
   the form counts (SINAN-SDTA's foodborne outbreak, OQ-76);
+* ``duplicates``: rows identical in every column but the listed entry metadata (a notification number, an
+  entry or transfer date) are one record entered again, with its evidence; dropped before anything else;
 * ``persons: false``: the row is a group, not a person (a foodborne outbreak): its events have no sex or age, and
   are exposed by the whole population of their place;
 * ``evidence``: where the rule comes from.
@@ -69,6 +71,8 @@ class EventType:
     #: (a SINAN notification still under investigation is a probable case).
     status_excluded: tuple[str, ...] = ()
     consolidation_key: tuple[str, ...] = ()
+    #: Duplicate entries: rows equal on every column but these (entry metadata) are one record (``None``: no rule)
+    duplicates_except: tuple[str, ...] | None = None
     weight: str | None = None
     #: A weight grid: each cell's column holds the events of one (sex, age band); ``bands`` are the bands' lower
     #: edges (the last open); ``grid_total`` the row's total, whose events beyond the grid's are of unknown sex and age;
@@ -91,6 +95,7 @@ class EventType:
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
             "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
+            **({"duplicates": {"except": list(self.duplicates_except)}} if self.duplicates_except is not None else {}),
             "weight": self.weight,
             "grid": ({"cells": [{"column": c.column, "sex": c.sex, "age": c.age} for c in self.grid],
                       "bands": list(self.bands), "total": self.grid_total, "margin": self.grid_margin,
@@ -165,6 +170,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_values=tuple(str(v) for v in status.get("values") or ()),
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
+        duplicates_except=_duplicates(spec.get("duplicates"), f"{where}: {key}.{name}"),
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
@@ -202,6 +208,15 @@ def _grid(spec: dict[str, Any] | None, dataset: str,
     return cells, bands, total, margin
 
 
+def _duplicates(spec: dict[str, Any] | None, where: str) -> tuple[str, ...] | None:
+    """A duplicates rule's entry-metadata columns, with its evidence required."""
+    if spec is None:
+        return None
+    if not spec.get("evidence"):
+        raise ValueError(f"{where}: a duplicates rule needs its evidence")
+    return tuple(str(c).upper() for c in spec.get("except") or ())
+
+
 def _canonical_system(name: str) -> str:
     """The system as the catalog files it: the ontology's ``SIA`` is crawled as ``SIASUS``, so a
     dataset declared as ``SIA.AQ`` has the same key as a request for ``SIASUS.AQ``."""
@@ -237,10 +252,17 @@ def event_type(dataset: str, name: str) -> EventType:
 def events_of(table: pa.Table, event: EventType) -> pa.Table:
     """The rows of ``table`` that are events of this type, one per event.
 
-    Status first (which rows count), then consolidation: one row per distinct
-    key, the first in file order. Exact string matching: a status code is
+    Duplicate entries first (a declared ``duplicates`` rule: rows equal on every column but entry metadata are one
+    record, the first in file order kept; the table must then carry every column), then status (which rows count),
+    then consolidation: one row per distinct key, the first in file order. Exact string matching: a status code is
     matched at the width the dataset files it.
     """
+    if event.duplicates_except is not None and table.num_rows:
+        key = [c for c in table.column_names if not c.startswith("_") and c not in event.duplicates_except]
+        indexed = table.append_column("__i", pa.array(range(table.num_rows), pa.int64()))
+        strings = pa.table({c: pc.cast(indexed.column(c), pa.string()) for c in key}).append_column("__i", indexed.column("__i"))
+        first = strings.group_by(key, use_threads=False).aggregate([("__i", "min")])
+        table = table.take(pc.take(first.column("__i_min"), pc.sort_indices(first.column("__i_min"))))
     if event.status_column:
         if event.status_column not in table.column_names:
             raise KeyError(f"{event.name}: status column {event.status_column} is not in the table")
@@ -357,7 +379,8 @@ def count_events(
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
         columns = {c for c in (event.status_column, event.grid_total, event.grid_margin, *(c.column for c in event.grid),
                                *record_by) if c}
-        table = query(dataset, period=period, geography=geography, select=sorted(columns), present="codes",
+        table = query(dataset, period=period, geography=geography,
+                      select=None if event.duplicates_except is not None else sorted(columns), present="codes",
                       **query_kwargs)
         long = grid_events(events_of(table, event), event, record_by)
         if not by:
@@ -366,7 +389,8 @@ def count_events(
         return long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
             [*by, "events", "unquantified"])
     columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
-    table = query(dataset, period=period, geography=geography, select=sorted(columns) or None,
+    table = query(dataset, period=period, geography=geography,
+                  select=None if event.duplicates_except is not None else (sorted(columns) or None),
                   present="codes", **query_kwargs)
     events = events_of(table, event)
     events = events.append_column("__w", event_weights(events, event))

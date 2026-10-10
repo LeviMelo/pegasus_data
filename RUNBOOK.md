@@ -80,7 +80,7 @@ $PD download --system SIHSUS                                   # maintainer: raw
 | families | `families` | |
 | label bindings | `bindings` | one decision per family and field (ADR-0072); ~2 h for the tree |
 | code tables | `reference` | `lake/reference/` |
-| the lake | `build` | a year with a national file (SIM, SINASC) is built from it alone unless `--uf` names states |
+| the lake | `build`, or `build_lake(dataset, years, root=)` from Python (no labels by default; PegaSUS's `update` calls it for a plan's datasets) | a year with a national file (SIM, SINASC) is built from it alone unless `--uf` names states; a kept partition is not rewritten |
 | free the downloaded files | `prune [--dry-run]` | deletes blobs whose every path is in a verified lake partition; refetched only for a rebuild. The DBC bytes cannot be regenerated from the lake |
 | population | `population` | IBGE series |
 | curation into the catalog | `curate` | 4 s |
