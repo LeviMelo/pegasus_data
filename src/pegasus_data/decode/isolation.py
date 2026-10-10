@@ -236,7 +236,11 @@ class DecoderPool:
                     # Admission is machine-wide (decode/admission.py) and is
                     # waited for BEFORE the deadline starts: queueing behind
                     # other processes is not the decoder being slow.
-                    with admitted(logical_path):
+                    try:
+                        size = Path(blob_path).stat().st_size
+                    except OSError:
+                        size = None
+                    with admitted(logical_path, size):
                         outcome = self._run(
                             worker,
                             blob_path,

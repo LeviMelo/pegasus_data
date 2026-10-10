@@ -11,7 +11,12 @@ paging at 100%). A decode job therefore takes a **slot** before it starts:
 * the number of slots is machine-wide: ``PEGASUS_DECODE_SLOTS``, else
   ``total RAM // 8 GB + 1`` clamped to 2..6 (4 on a 32 GB machine);
 * once it holds a slot the job waits while physical memory available to the
-  OS is under a floor, ``PEGASUS_MIN_FREE_GB``, else ``max(4 GB, 15%)``.
+  OS is under what it needs: its own estimate when the caller gives the
+  source's size (`NEED_PER_BYTE` times the compressed bytes plus a worker's
+  baseline), never more than the floor ``PEGASUS_MIN_FREE_GB``, else
+  ``max(4 GB, 15%)``. A floor alone stalled every decode of the machine for
+  hours while the waiting files needed a fraction of it (2026-10-09: a link
+  year waited 5.5 h at 3-4 GB free).
 
 A wait is bounded (``PEGASUS_ADMISSION_WAIT``, default 30 minutes): after that
 the job runs anyway with a warning, because a decoder that never starts is a
@@ -34,6 +39,11 @@ import psutil
 __all__ = ["admitted", "free_floor_bytes", "slot_count"]
 
 _GIB = 1024**3
+#: a decode's peak memory per compressed byte of its source: a 16.3 MB SIH DBC peaked at 450 MB in its worker, the full
+#: job of 221,477 rows (evaluation 2026-10-05-decode-memory), 28x; 30 with a margin
+NEED_PER_BYTE = 30
+#: a worker's own baseline beside what it decodes
+WORKER_BASE = _GIB // 2
 
 
 def slot_count() -> int:
@@ -103,14 +113,15 @@ def _acquire_slot(deadline: float):  # noqa: ANN202
 
 
 @contextmanager
-def admitted(label: str = ""):  # noqa: ANN201
-    """Hold a machine-wide decode slot, and start only when memory allows."""
+def admitted(label: str = "", size: int | None = None):  # noqa: ANN201
+    """Hold a machine-wide decode slot, and start only when memory allows: the source's own need when its compressed
+    ``size`` is given (`NEED_PER_BYTE`), capped by the floor (`free_floor_bytes`), else the floor."""
     wait = float(str(os.environ.get("PEGASUS_ADMISSION_WAIT", 1800)).replace(",", "."))
     started = time.monotonic()
     deadline = started + wait
     handle = _acquire_slot(deadline)
     try:
-        floor = free_floor_bytes()
+        floor = free_floor_bytes() if size is None else min(free_floor_bytes(), size * NEED_PER_BYTE + WORKER_BASE)
         while psutil.virtual_memory().available < floor:
             if time.monotonic() > deadline:
                 warnings.warn(

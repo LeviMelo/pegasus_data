@@ -28,6 +28,8 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - Decoders made safe (evaluation 2026-10-05-decode-memory): a non-DBC payload is refused before inflation (one had filled the disk with 47.8 GB); Parquet is read from memory; stale temp directories are pruned. Person links measured against each other (`entities.triangles`), sides counted through persons, link specs read once per process.
   - SDTA's outbreaks are events of their own (ADR-0157, `persons: false`): PegaSUS reads them in one exposed cell (its decision 0034), φ 1.04 against the ill's 0.066. Its 47 counts declared from the form.
   - A role may state why its missing codes cannot be decided (`missing_unknown`); `scripts/sweep_missing.py` runs the proposer over every event dataset and writes the declarations or the reasons (running; years the FTP outage left unread are re-swept).
+  - Duplicate entries are one record (ADR-0159): rows equal but for entry metadata (SDTA: one Maranhão outbreak entered 32 times; 2023 1,134 outbreaks from 1,162), and the source's own flag (SINAN's NDUPLIC_N 2, every agravo).
+  - The lake is built by `build_lake` for any caller; PegaSUS's `update` builds it over a plan's datasets (a CIHA year: 12 s from 30-60 min).
   - A variable spread over columns is a grid of named axes (ADR-0158): SDTA's ill, CNES-ST's attendance × payer, programme × manager, installation × rooms/beds, read long by `grid_table`.
 - **Missing codes.** The form decides where its dictionary is harvested, and the tabulation speaks only where the form is silent.
   - A code the records use that neither defines is written as a CONFLICT (evaluation 2026-10-08-declarations-by-form).

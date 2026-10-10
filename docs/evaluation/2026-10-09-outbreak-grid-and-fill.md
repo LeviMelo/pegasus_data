@@ -110,3 +110,6 @@ PegaSUS's data root had no record lake, so every raw read in a new process decod
   and a second call keeps every partition (CIHA 2016: 26 kept, 52 s).
 - **The decode admission.** It holds every decode while free RAM is under max(4 GB, 15 %), 4.8 GB on this machine. With
   five heavy jobs that floor stalled the 2014 link year for 5.5 h.
+- **The admission now waits for a decode's own need.** It waits until free memory covers 30× the source's
+  compressed bytes plus 0.5 GB, capped at the floor. A 16.3 MB DBC had peaked at 450 MB (evaluation
+  2026-10-05-decode-memory), so most files are admitted under a gigabyte, and SIH's largest at about 3.5 GB.
