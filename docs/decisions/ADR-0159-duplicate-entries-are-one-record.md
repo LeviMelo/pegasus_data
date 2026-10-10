@@ -20,3 +20,14 @@
 **Consequences.**
 - SDTA 2023 counts 1,134 outbreaks, from 1,162, and 19,108 ill, from 19,879; the Ministry publishes 19,671.
 - PegaSUS's record reader applies the rule too, so a per-outbreak mark (its ill) counts the outbreak once.
+
+## Amendment (same day): the source's own duplicate flag
+
+- **The flag.** SINAN marks duplicates itself: NDUPLIC_N 2 is "Duplicidade (não contar)", in 22 agravo forms. No event
+  type had read it.
+- **The rule.** `duplicates` may name such a flag (`flag: {column, codes}`). Flagged rows are dropped before anything
+  else, and a form or year without the flag drops none.
+- **Where it is declared.** A file's `shared: duplicates:` holds for each of its event types unless one declares its
+  own. The SINAN agravo file declares NDUPLIC_N 2.
+- **The effect.** The published files are mostly reviewed: tuberculosis 2022 counts 103,376 (from 103,382), meningitis
+  2022 20,054 (from 20,063).

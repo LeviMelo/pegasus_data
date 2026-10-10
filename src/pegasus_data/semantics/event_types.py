@@ -17,8 +17,10 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   holds up to 95,404 on one row), with its evidence; or a ``grid`` of columns,
   each the events of one (sex, age band), where the row is a group of people
   the form counts (SINAN-SDTA's foodborne outbreak, OQ-76);
-* ``duplicates``: rows identical in every column but the listed entry metadata (a notification number, an
-  entry or transfer date) are one record entered again, with its evidence; dropped before anything else;
+* ``duplicates``: rows identical in every column but the listed entry metadata (``except``: a notification number,
+  an entry or transfer date) are one record entered again; and rows the source itself flags as duplicates
+  (``flag: {column, codes}``: SINAN's NDUPLIC_N 2, "não contar"; a form without the flag flags none). With its
+  evidence; dropped before anything else. A file's ``shared: duplicates:`` holds for each of its event types;
 * ``persons: false``: the row is a group, not a person (a foodborne outbreak): its events have no sex or age, and
   are exposed by the whole population of their place;
 * ``evidence``: where the rule comes from.
@@ -29,6 +31,7 @@ count of hospitalisations is one rule wherever it is asked.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
@@ -73,6 +76,8 @@ class EventType:
     consolidation_key: tuple[str, ...] = ()
     #: Duplicate entries: rows equal on every column but these (entry metadata) are one record (``None``: no rule)
     duplicates_except: tuple[str, ...] | None = None
+    #: The source's own duplicate flag: (column, codes that mean "do not count")
+    duplicates_flag: tuple[str, tuple[str, ...]] | None = None
     weight: str | None = None
     #: A weight grid: each cell's column holds the events of one (sex, age band); ``bands`` are the bands' lower
     #: edges (the last open); ``grid_total`` the row's total, whose events beyond the grid's are of unknown sex and age;
@@ -95,7 +100,10 @@ class EventType:
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
             "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
-            **({"duplicates": {"except": list(self.duplicates_except)}} if self.duplicates_except is not None else {}),
+            **({"duplicates": {**({"except": list(self.duplicates_except)} if self.duplicates_except is not None else {}),
+                                **({"flag": {"column": self.duplicates_flag[0], "codes": list(self.duplicates_flag[1])}}
+                                   if self.duplicates_flag else {})}}
+               if self.duplicates_except is not None or self.duplicates_flag else {}),
             "weight": self.weight,
             "grid": ({"cells": [{"column": c.column, "sex": c.sex, "age": c.age} for c in self.grid],
                       "bands": list(self.bands), "total": self.grid_total, "margin": self.grid_margin,
@@ -122,6 +130,7 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
         # a file's shared event types hold for every dataset in it that does not declare one of the same name
         # (SINAN's notification: every agravo carries the notification block, so a row is a notification in all 58)
         shared = (doc.get("shared") or {}).get("event_types") or ()
+        shared_dups = (doc.get("shared") or {}).get("duplicates")
         for key, body in (doc.get("datasets") or {}).items():
             body = body or {}
             own = list(body.get("event_types") or ())
@@ -133,6 +142,8 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
             inherited = ([] if ("event_types" in body and not own) or body.get("shared_event_types") is False
                          else [s for s in shared if str(s.get("name")) not in names])
             for spec in own + inherited:
+                if shared_dups and "duplicates" not in spec:
+                    spec = {**spec, "duplicates": shared_dups}
                 event = _event(str(key).upper(), body, spec, path.name)
                 out.setdefault(f"{event.system}-{event.series}", []).append(event)
     return {k: tuple(v) for k, v in out.items()}
@@ -171,6 +182,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         status_excluded=tuple(str(v) for v in status.get("exclude") or ()),
         consolidation_key=tuple(str(c).upper() for c in (spec.get("consolidation") or {}).get("key") or ()),
         duplicates_except=_duplicates(spec.get("duplicates"), f"{where}: {key}.{name}"),
+        duplicates_flag=_duplicate_flag(spec.get("duplicates"), f"{where}: {key}.{name}"),
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
@@ -209,12 +221,24 @@ def _grid(spec: dict[str, Any] | None, dataset: str,
 
 
 def _duplicates(spec: dict[str, Any] | None, where: str) -> tuple[str, ...] | None:
-    """A duplicates rule's entry-metadata columns, with its evidence required."""
+    """A duplicates rule's entry-metadata columns (None: rows are not compared), with its evidence required."""
     if spec is None:
         return None
     if not spec.get("evidence"):
         raise ValueError(f"{where}: a duplicates rule needs its evidence")
+    if "except" not in spec:
+        return None
     return tuple(str(c).upper() for c in spec.get("except") or ())
+
+
+def _duplicate_flag(spec: dict[str, Any] | None, where: str) -> tuple[str, tuple[str, ...]] | None:
+    """The source's duplicate flag of a duplicates rule: (column, codes that mean "do not count")."""
+    flag = (spec or {}).get("flag")
+    if not flag:
+        return None
+    if not (flag.get("column") and flag.get("codes")):
+        raise ValueError(f"{where}: a duplicate flag names its column and its codes")
+    return str(flag["column"]).upper(), tuple(str(c) for c in flag["codes"])
 
 
 def _canonical_system(name: str) -> str:
@@ -257,6 +281,11 @@ def events_of(table: pa.Table, event: EventType) -> pa.Table:
     then consolidation: one row per distinct key, the first in file order. Exact string matching: a status code is
     matched at the width the dataset files it.
     """
+    if event.duplicates_flag and event.duplicates_flag[0] in table.column_names:
+        column, codes = event.duplicates_flag
+        flagged = pc.is_in(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())),
+                           value_set=pa.array(list(codes), pa.string()))
+        table = table.filter(pc.invert(pc.fill_null(flagged, False)))
     if event.duplicates_except is not None and table.num_rows:
         key = [c for c in table.column_names if not c.startswith("_") and c not in event.duplicates_except]
         indexed = table.append_column("__i", pa.array(range(table.num_rows), pa.int64()))
@@ -364,6 +393,21 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
     return long.filter(pc.or_(pc.greater(long.column("events"), 0), pc.greater(long.column("unquantified"), 0)))
 
 
+def _read(query: Callable[..., pa.Table], event: EventType, dataset: str, select: list[str] | None,
+          **kwargs: Any) -> pa.Table:
+    """``query`` of an event's columns with its duplicate flag, which a form or a year may lack: then read without it
+    (`events_of` flags none); any other missing column raises."""
+    flag = event.duplicates_flag[0] if event.duplicates_flag else None
+    if select is None or flag is None:
+        return query(dataset, select=select, present="codes", **kwargs)
+    try:
+        return query(dataset, select=sorted({*select, flag}), present="codes", **kwargs)
+    except Exception as exc:
+        if f"'{flag}' is not present" not in str(exc):
+            raise
+        return query(dataset, select=select, present="codes", **kwargs)
+
+
 def count_events(
     dataset: str, name: str, *, period: object, geography: object = "BR", by: list[str] | None = None,
     **query_kwargs: Any,
@@ -379,9 +423,8 @@ def count_events(
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
         columns = {c for c in (event.status_column, event.grid_total, event.grid_margin, *(c.column for c in event.grid),
                                *record_by) if c}
-        table = query(dataset, period=period, geography=geography,
-                      select=None if event.duplicates_except is not None else sorted(columns), present="codes",
-                      **query_kwargs)
+        table = _read(query, event, dataset, None if event.duplicates_except is not None else sorted(columns),
+                      period=period, geography=geography, **query_kwargs)
         long = grid_events(events_of(table, event), event, record_by)
         if not by:
             return pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
@@ -389,9 +432,8 @@ def count_events(
         return long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
             [*by, "events", "unquantified"])
     columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
-    table = query(dataset, period=period, geography=geography,
-                  select=None if event.duplicates_except is not None else (sorted(columns) or None),
-                  present="codes", **query_kwargs)
+    table = _read(query, event, dataset, None if event.duplicates_except is not None else (sorted(columns) or None),
+                  period=period, geography=geography, **query_kwargs)
     events = events_of(table, event)
     events = events.append_column("__w", event_weights(events, event))
     if not by:

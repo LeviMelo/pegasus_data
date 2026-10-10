@@ -18,6 +18,13 @@
 # differ by weeks." This is the machine-readable form of that same statement,
 # and the reason an aggregate must be told WHICH question it is answering.
 shared:
+  # rows SINAN's own duplicity review marks "do not count" are not counted, in every agravo whose form carries the flag
+  duplicates:
+    flag: {column: NDUPLIC_N, codes: ['2']}
+    evidence: >-
+      NDUPLIC_N, "Não Listar/Não Contar (Duplicidade)": 0 'Não identificado', 1 'Não é duplicidade (não listar)', 2
+      'Duplicidade (não contar)' (SINAN's codelist). The published files are mostly reviewed already: 6 rows of
+      tuberculosis 2022 (of 103,382) and 9 of meningitis 2022 (of 20,063) carry 2, dengue 2019 none.
   # what a row becomes when counted: a notification, in every agravo (the header above); an agravo declares its
   # own `case` or `probable_case` only from its own form's classification codes
   event_types:
