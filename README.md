@@ -67,6 +67,7 @@ info("SIH.RD")            # one dataset: what one row is, coverage, schema gener
 info("SIM.DO.IDADE")      # one variable: its meaning and where that meaning comes from (a layout, or "INFERRED … unverified")
 explore("SIH.RD")         # years, states, files and bytes on the server, offline
 explore("SIH.RD", year=2023, uf="SP")   # the files themselves, with sizes
+lake_coverage("SIH.RD")   # what the local lake already holds, by year: partitions, states, rows, bytes
 search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …
 search("Parda", kind="code")            # which codes mean "Parda", in which tables
 ```

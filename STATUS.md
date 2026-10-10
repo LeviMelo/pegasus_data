@@ -300,6 +300,8 @@ OQ-64), 1990s SIH V-codes.
 
 ## Open fronts
 
+- **The project's work is ordered in `../pegasus_project/BACKLOG.md`** (2026-10-10, PegaSUS architecture revision 5). Its [data] units are pegasus_data's next work: phase 4 (concept index), phase 5 (source assessment of the DEMAS API's 113 endpoints and ANVISA's open data, the publication audit, source definitions and caveats as declarations, SISAGUA, medicines, SIASI and the DSEI support, primary care, the remaining DEMAS families), phase 6 (TOXG/TOXC → SINASC and other links, with viability).
+
 - **Undecoded because no source names them** (OQ-61; fresh-home sweep, 21
   columns and 48,763 cells, from 52 and 560,585 the same morning): largest SIH-SP
   `SERV_CLA` `000000`; SIA-AQ/AR histology grade and `AQ_TRANTE`; SIA-PS

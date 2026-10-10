@@ -47,6 +47,7 @@ _EXPORTS: dict[str, str] = {
     "LabelUnavailable": ".api",
     "RenderReport": ".api",
     "explore": "._explore",
+    "lake_coverage": "._explore",
     "info": "._info",
     "Info": "._info",
     "Ontology": ".ontology",

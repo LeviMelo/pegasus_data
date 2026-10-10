@@ -209,6 +209,7 @@ Stored aggregates are sums and counts, never finished means.
 |---|---|
 | how the system runs, end to end | `HOW_IT_WORKS.md` |
 | current state and what is next | `STATUS.md` |
+| the ordered work of the whole project (units tagged **[data]** land here: source assessments of the DEMAS API and ANVISA, the publication audit, source definitions as declarations, SISAGUA, medicines, SIASI, primary care, the concept index, new links and supports) | `../pegasus_project/BACKLOG.md`; the design it serves is `../pegasus_project/ARCHITECTURE.md` (revision 5, 2026-10-10) |
 | the plan of the branch in progress | `docs/plans/` (`linkage.md`: record linkage; `linkage-theory.md`: the proposed unified theory) |
 | module boundaries, what overlaps, and the invariants | `ARCHITECTURE.md` |
 | accepted decisions and their evidence | `DECISIONS.md` (an index; one file per ADR under `docs/decisions/`) |

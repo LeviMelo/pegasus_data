@@ -442,3 +442,31 @@ def _group(rows, keys, *, extra=None, order=None) -> list[dict[str, Any]]:
             entry.update(extra(group))
         out.append(entry)
     return sorted(out, key=order or (lambda e: (-int(e["files"]), str(list(e.values())[0]))))
+
+
+def lake_coverage(dataset: str, *, root: str | Path | None = None,
+                  settings: Settings | None = None) -> dict[int, dict[str, int]]:
+    """What the lake already holds of ``dataset``, by year: partitions, states, rows and bytes (the catalog's
+    ``lake_partitions``). A caller deciding what a reading costs needs it beside ``explore``'s published volume: a year
+    in the lake is read in seconds, a year outside it is a download and a decode."""
+    from .catalog.store import CatalogStore
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    system, series = _resolve(dataset)
+    if not system:
+        raise ValueError(f"not a dataset: {dataset!r}")
+    prefix = f"{system}_{series}_" if series else f"{system}_"
+    store = CatalogStore(resolved.catalog_path, read_only=True)
+    try:
+        rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size FROM lake_partitions")
+                if str(r["family_id"]).startswith(prefix)]
+    finally:
+        store.close()
+    out: dict[int, dict[str, Any]] = {}
+    for r in rows:
+        y = out.setdefault(int(r["year"]), {"partitions": 0, "ufs": set(), "rows": 0, "bytes": 0})
+        y["partitions"] += 1
+        y["ufs"].add(str(r["uf"]))
+        y["rows"] += int(r["row_count"] or 0)
+        y["bytes"] += int(r["byte_size"] or 0)
+    return {k: {**v, "ufs": len(v["ufs"])} for k, v in sorted(out.items())}

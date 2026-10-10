@@ -42,8 +42,9 @@ relative to the file as stored; write seconds are given for the level-19 rewrite
   - It is the MD5 of the record's own fields: 30% of a SIM partition and 68% of a CIHA link side
     (`lake/roles/CIHA`, 335 of 495 MB a year).
   - Hex text compresses to about 17 bytes a row; 16 raw bytes saves only 6-8%.
-  - Not storing it (it can be recomputed from the row) or a shorter key would save more. Both change record identity
-    and wait for a decision.
+  - It cannot be recomputed from the lake. `normalize.engine.record_keys` over SIM 2019's stored columns reproduced
+    0 of its 1,349,801 keys, because the key hashes the record as it was before the lake stored it.
+  - So the lake must keep it. Only a shorter key would save more, and that changes record identity.
 - **The maintainer catalog (13.2 GB) is mostly the dictionary and its indexes.** By dbstat:
   - `dictionary` is 4.2 GB with 5 GB of indexes.
   - `ix_dict_source` alone is 2.3 GB, over `source_ref`. That column runs about 88 characters a row and is nearly
