@@ -323,6 +323,10 @@ class Builder:
         us re-downloading, and this stops us re-decoding.
         """
         stats = BuildStats()
+        # trees a killed build left half-written (their process gone) are removed before this one writes beside them
+        from .persist.staging import prune_dead_staging
+
+        prune_dead_staging(self.lake.root)
         run_id = uuid.uuid4().hex[:12]
         outcomes: list[tuple[object, ...]] = []
         municipalities = MunicipalityIndex.from_catalog(self.catalog)

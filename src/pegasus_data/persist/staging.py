@@ -156,8 +156,11 @@ def staged_tree(
     # delete the first's staged tree mid-write, and both would try to move a
     # backup that the other had already consumed.
     token = f"{os.getpid()}-{uuid.uuid4().hex[:10]}"
-    staging = target.with_name(f"{target.name}.__staging__.{token}")
-    previous = target.with_name(f"{target.name}.__previous__.{token}")
+    # hidden names (a leading dot): a reader discovering the tree beside a build in progress must not see them. Named
+    # `year=2021.__staging__...` inside the lake's partitions, they made every concurrent read of the family infer
+    # `year` as text and fail ("string vs int64"), 2026-10-09
+    staging = target.with_name(f".{target.name}.__staging__.{token}")
+    previous = target.with_name(f".{target.name}.__previous__.{token}")
     staging.mkdir(parents=True, exist_ok=True)
     try:
         yield staging
@@ -176,7 +179,7 @@ def staged_tree(
                 destination = target / unit.relative_to(staging)
                 backup: Path | None = None
                 if destination.exists():
-                    backup = destination.with_name(f"{destination.name}.__old__.{token}")
+                    backup = destination.with_name(f".{destination.name}.__old__.{token}")
                     destination.rename(backup)
                 # Record the move BEFORE installing the replacement.  If the
                 # install rename fails, the old subtree is already absent from
@@ -214,3 +217,25 @@ def staged_tree(
         raise
     if previous.exists():
         shutil.rmtree(previous, ignore_errors=True)
+
+
+def prune_dead_staging(root: str | Path) -> int:
+    """Remove the staging, previous and old trees under ``root`` whose writing process is gone (their name carries its
+    pid): a build killed mid-write left them in place for good (four in the SIH lake, 2026-10-09). A live process's
+    are kept. Returns how many were removed."""
+    import re
+
+    import psutil
+
+    pattern = re.compile(r"\.__(staging|previous|old)__\.(\d+)-[0-9a-f]+$")
+    removed = 0
+    for path in Path(root).rglob("*.__*__.*"):
+        m = pattern.search(path.name)
+        if m is None or psutil.pid_exists(int(m.group(2))):
+            continue
+        if path.is_dir():
+            shutil.rmtree(path, ignore_errors=True)
+        else:
+            path.unlink(missing_ok=True)
+        removed += 1
+    return removed

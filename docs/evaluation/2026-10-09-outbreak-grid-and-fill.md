@@ -113,3 +113,11 @@ PegaSUS's data root had no record lake, so every raw read in a new process decod
 - **The admission now waits for a decode's own need.** It waits until free memory covers 30× the source's
   compressed bytes plus 0.5 GB, capped at the floor. A 16.3 MB DBC had peaked at 450 MB (evaluation
   2026-10-05-decode-memory), so most files are admitted under a gigabyte, and SIH's largest at about 3.5 GB.
+- **Labels are not what a link year costs.** SINASC 2016's link columns (2.86 M records) read in 28.6 s as codes and
+  in 72.1 s with labels (`present="analysis"`, the linkage's reading), in one process. That is about 44 s of a link
+  year's 4,500 s, so the labels stay; the link needs a profile on a quiet machine.
+- **A build made concurrent reads fail.** The builder staged a partition as `year=2021.__staging__.<pid>-<token>`
+  beside the live ones, so every read of that family while it built inferred `year` as text and failed (`ArrowTypeError:
+  string vs int64`).
+  - Staging, previous and old trees are now hidden names (a leading dot), which dataset discovery skips.
+  - A build first removes the trees a killed build left behind, when their process is gone. Four were in the SIH lake.
