@@ -745,6 +745,42 @@ POINT_SOURCES = {
 }
 
 
+#: IBGE's mesh levels (``intrarregiao``) by the name a caller uses
+MESH_LEVELS = {"municipality": "municipio", "state": "UF", "region": "regiao"}
+
+
+def mesh(level: str = "municipality", quality: str = "minima", root: str | Path | None = None):
+    """IBGE's polygons of Brazil's municipalities, states or regions (`/api/v3/malhas`, today's division) as a
+    GeoDataFrame (``code``: IBGE's code, 7 digits for a municipality; ``geometry`` in SIRGAS 2000, EPSG:4674),
+    downloaded once into the data home's ``registries/ibge_mesh``. ``quality`` is IBGE's: ``minima`` (maps, a few MB)
+    to ``maxima`` (the points pack's). The API answers gzip without saying so (DATA_SOURCES §6.3)."""
+    import gzip
+    import urllib.request
+
+    import geopandas as gpd
+
+    from .config import load_settings
+
+    if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
+        raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
+    cache = Path(root or load_settings().root) / "registries" / "ibge_mesh"
+    target = cache / f"{level}_{quality}.json"
+    if not target.is_file():
+        cache.mkdir(parents=True, exist_ok=True)
+        url = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
+               f"&qualidade={quality}&intrarregiao={MESH_LEVELS[level]}")
+        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (pegasus_data)"})
+        with urllib.request.urlopen(request, timeout=600) as response:
+            data = response.read()
+        if data[:2] == bytes((0x1F, 0x8B)):
+            data = gzip.decompress(data)
+        tmp = target.with_suffix(".tmp")
+        tmp.write_bytes(data)
+        tmp.replace(target)
+    frame = gpd.read_file(target).set_crs("EPSG:4674", allow_override=True)
+    return frame.rename(columns={"codarea": "code"})[["code", "geometry"]]
+
+
 def point_sources(cache_dir: str | Path) -> dict[str, Path]:
     """The three IBGE files the points pack is built from, downloaded once into ``cache_dir``."""
     import gzip

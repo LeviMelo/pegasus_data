@@ -685,6 +685,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - IBGE `/api/v3/malhas` returns gzip **without** `Content-Encoding`; the body
   starts `1f 8b` (ARCH §14.16, 2026-08-29). The built meshes have 5,570
   polygons.
+- `pg.mesh(level, quality)` serves `qualidade=minima` for maps (2026-10-10): 27 states and 5,570
+  municipalities, 3.6 MB for both, codes 2 and 7 digits.
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
 
