@@ -25,8 +25,8 @@ from pathlib import Path
 from typing import Any, cast
 
 import pyarrow as pa
-import pyarrow.dataset as ds
 
+from ._lazy import LazyModule  # noqa: E402
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .normalize.engine import MissingColumnError
@@ -52,6 +52,8 @@ from .view import (
     RenderMode,
     RenderReport,
 )
+
+ds = LazyModule("pyarrow.dataset")
 
 __all__ = [
     "Catalog",

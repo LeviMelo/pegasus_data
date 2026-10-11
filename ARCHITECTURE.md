@@ -395,6 +395,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `progress.py`: deadlines and heartbeat.
 - `config.py`, `locate.py`: settings and where the data home is.
 - `textenc.py`: codepage detection.
+- `_lazy.py`: a module imported on its first use (`pyarrow.dataset`, which loads pandas, kept off every command's start).
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).
 - `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`, `cli/sidra.py` (`pegasus-data sidra`); shared options and helpers in `cli/_common.py`.
 
