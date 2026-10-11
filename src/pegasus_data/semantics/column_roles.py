@@ -30,7 +30,10 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
                     "link_only", "excluded"})
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
-                  "also", "derived", "measure", "unfilled", "review"})
+                  "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence"})
+#: SIGTAP's registration instruments (``tb_registro``): 01 BPA consolidado, 02 BPA individualizado, 03-05 AIH principal,
+#: especial and secundário, 06-07 APAC principal and secundário, 08-09 RAAS domiciliar and psicossocial, 10 e-SUS APS.
+INSTRUMENTS = frozenset(f"{n:02d}" for n in range(1, 11))
 #: The properties a population account carries, the only admissible strata.
 STRATA = frozenset({"age", "birth_date", "sex", "race", "residence"})
 _ROLE = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
@@ -70,6 +73,10 @@ class ColumnRole:
     #: Years inside ``years`` in which the column is present but fills no record (`field_fill`): a span cannot hold
     #: SIM-DO's DTCONCASO, filled 2012-2013 and from 2017, or SINASC's CODPAISRES, empty in 2014, 2015 and 2017
     unfilled: tuple[int, ...] = ()
+    #: For a SIGTAP-coded column: the registration instruments (``INSTRUMENTS``) whose procedures it can carry, with the
+    #: document or measurement that says so (`can_record` reads them against SIGTAP's ``rl_procedimento_registro``).
+    instruments: tuple[str, ...] = ()
+    instruments_evidence: str | None = None
 
     @property
     def entity(self) -> str:
@@ -87,7 +94,9 @@ class ColumnRole:
                 "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
                 "domain": None if self.domain is None else list(self.domain),
                 **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {}),
-                **({"unfilled": list(self.unfilled)} if self.unfilled else {})}
+                **({"unfilled": list(self.unfilled)} if self.unfilled else {}),
+                **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
+                   if self.instruments else {})}
 
 
 def roles_dir() -> Path:
@@ -160,6 +169,15 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     if unknown is not None and not str(unknown).strip():
         raise bad("missing_unknown states why the sources cannot decide")
     unfilled = tuple(sorted(int(y) for y in spec.get("unfilled") or ()))
+    instruments = tuple(str(i).zfill(2) for i in spec.get("instruments") or ())
+    if set(instruments) - INSTRUMENTS:
+        raise bad(f"instruments {sorted(set(instruments) - INSTRUMENTS)} are not SIGTAP registers {sorted(INSTRUMENTS)}")
+    if instruments and "SIGTAP" not in (spec.get("codelists") or ()):
+        raise bad("instruments are declared for a SIGTAP-coded column")
+    if instruments and not str(spec.get("instruments_evidence") or "").strip():
+        raise bad("instruments need their instruments_evidence: the document or measurement that says so")
+    if not instruments and "instruments_evidence" in spec:
+        raise bad("instruments_evidence without instruments")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
         raise bad(f"unfilled years {list(unfilled)} lie outside its years {list(years)}")
@@ -167,7 +185,8 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       tuple(str(c) for c in spec.get("codelists") or ()),
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
                       spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure, missing,
-                      domain, str(unknown).strip() if unknown is not None else None, unfilled)
+                      domain, str(unknown).strip() if unknown is not None else None, unfilled, instruments,
+                      " ".join(str(spec["instruments_evidence"]).split()) if instruments else None)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

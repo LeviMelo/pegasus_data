@@ -330,6 +330,9 @@ columns:
     - 
     note: As in SIASUS-PS (the same file republished).
   PA_PROC_ID:
+    instruments: ["09"]
+    instruments_evidence: >-
+      The open-data republication of SIA-PS, RAAS-Psicossocial (ontology observed_as PS, APAC_PS).
     role: care.procedure
     kind: code_tree
     model: event_type

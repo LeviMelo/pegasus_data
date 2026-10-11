@@ -316,6 +316,10 @@ columns:
     codelists:
     - S_CLASSEN
   PA_PROC_ID:
+    instruments: ["09"]
+    instruments_evidence: >-
+      PS is PA's PA_DOCORIG B rows (RAAS-Psicossocial) republished, measured row for row on AC 2023-01
+      (curation/datasets/declared.yml SIA.PA note).
     role: care.procedure
     kind: code_tree
     model: event_type

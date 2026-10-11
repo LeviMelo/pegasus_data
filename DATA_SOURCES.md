@@ -611,6 +611,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - The newest export gave 44,984 entries; `tb_ocupacao` holds 2,719 occupation
   codes at one width.
 
+- **Which instruments record a procedure** (2026-10-11, `docs/evaluation/2026-10-11-sigtap-instruments.md`). `rl_procedimento_registro`
+  (CO_PROCEDIMENTO 10, CO_REGISTRO 2, DT_COMPETENCIA 6) lists, per procedure, the instruments it may be recorded on; `tb_registro`
+  names them: 01 BPA Consolidado, 02 BPA Individualizado, 03 AIH Proc. Principal, 04 AIH Proc. Especial, 05 AIH Proc. Secundário,
+  06 APAC Proc. Principal, 07 APAC Proc. Secundário, 08 RAAS Atenção Domiciliar, 09 RAAS Atenção Psicossocial, 10 e-SUS APS.
+  The 202609 export has 5,023 procedures; **no procedure lists 08** (all but 1,494 of SIA-SAD's 3.32 M RAAS-AD rows carry procedures registered on 02), and a
+  procedure retired before the export is absent. The APAC files' `AP_PRIPAL` is always 06; the SIA-PA production file holds
+  every instrument (`PA_DOCORIG` P, S, C, I, A, B), so SIGTAP's code tree is the code tree of all of SIA but each APAC family
+  holds only what 06 registers.
+
 ## 5. DEMAS open-data API (`apidadosabertos.saude.gov.br`) (2026-08-18, F §1 V9)
 
 - Swagger 2.0, `DEMAS - API de Dados Abertos`, version 1.8.32, 113 paths (87 on 2026-08-18; corrected 2026-10-10).

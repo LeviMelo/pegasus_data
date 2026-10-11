@@ -563,6 +563,11 @@ columns:
     - PERMANEN
     - PA_PERMAN
   PA_PROC_ID:
+    instruments: ["01", "02", "06", "07", "08", "09"]
+    instruments_evidence: >-
+      PA_DOCORIG names the instrument of each row: P APAC main (06), S APAC secondary (07), C BPA-C (01), I
+      BPA-I (02), A RAAS-AD (08), B RAAS-PS (09) (Informe Técnico SIASUS 2019-07, section 2.3). SIGTAP 202609
+      lists no procedure on 08.
     role: procedure.procedure
     kind: code_tree
     model: event_type

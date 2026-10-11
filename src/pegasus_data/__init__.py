@@ -97,6 +97,8 @@ _EXPORTS: dict[str, str] = {
     "concept_index": ".concepts",
     "condition_codes": ".concepts",
     "procedure_compatibility": ".concepts",
+    "procedure_instruments": ".concepts",
+    "can_record": ".concepts",
     "label_matches": ".concepts",
     "dispensed": ".concepts",
     "stock_by_state": ".concepts",
