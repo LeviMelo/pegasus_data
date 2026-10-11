@@ -53,6 +53,11 @@ def slot_count() -> int:
     return max(2, min(6, psutil.virtual_memory().total // (8 * _GIB) + 1))
 
 
+def decode_workers() -> int:
+    """Decoder processes per pool: as many as the machine-wide slots, which bound them in any case."""
+    return slot_count()
+
+
 def free_floor_bytes() -> int:
     override = os.environ.get("PEGASUS_MIN_FREE_GB")
     if override:

@@ -56,6 +56,8 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
 - Decoding is admitted machine-wide (`decode/admission.py`): `PEGASUS_DECODE_SLOTS`
   (default 4 on 32 GB), `PEGASUS_MIN_FREE_GB` (default max(4, 15% of RAM)),
   `PEGASUS_ADMISSION_WAIT` (seconds, 1800). A decode that waits is queued, not hung.
+  A process's decoder pool and the partitions a build makes at once number
+  `PEGASUS_DECODE_WORKERS`, by default the slots.
 
 ## 4. Getting data
 

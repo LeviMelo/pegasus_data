@@ -153,7 +153,9 @@ class Builder:
         holds the GIL, so it stays one at a time."""
         if not self.settings.decode_isolation:
             return 1
-        return max(1, min(4, self.settings.fetch_concurrency))
+        from .decode.admission import decode_workers
+
+        return self.settings.decode_workers or decode_workers()
 
     # ------------------------------------------------------------------ build
 

@@ -25,9 +25,10 @@ def decode_source(
 ) -> DecodeOutcome | Any:
     """Decode one blob under the configured killable-process policy."""
     if settings.decode_isolation:
+        from .admission import decode_workers
         from .isolation import decoder_pool
 
-        return decoder_pool(max(1, min(4, settings.fetch_concurrency))).decode(
+        return decoder_pool(settings.decode_workers or decode_workers()).decode(
             blob_path,
             logical_path=logical_path,
             columns=sorted(columns) if columns else None,

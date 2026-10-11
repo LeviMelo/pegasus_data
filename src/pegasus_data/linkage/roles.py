@@ -139,6 +139,10 @@ def _birth_from_age(age: pa.Array | pa.ChunkedArray, reference: pa.Array) -> pa.
     return pc.if_else(in_days, pc.cast(back, pa.date32()), pa.scalar(None, pa.date32()))
 
 
+#: the role types whose normalisation reads the column's label (`_normalise`)
+_READS_LABELS = frozenset({"sex", "municipality", "facility", "label"})
+
+
 def _normalise(role: Role, table: pa.Table) -> pa.Array:
     source = table.column(role.column)
     if role.type == "birth_from_age":
@@ -454,9 +458,11 @@ def _compute_roles_year(spec: DatasetRoles, names: list[str], *, period: object,
     # million rows of 113 columns, and linkage needs a dozen of them.
     select = sorted(_carried(spec.dataset, {c for role in wanted for c in (role.column, *role.also)}, period,
                              query_kwargs))
+    # labels only where a role reads them (`_normalise`: sex, places, facilities, label roles); a code read as filed
+    labelled = {c for role in wanted if role.type in _READS_LABELS for c in (role.column, *role.also)}
     table, report = query(
         spec.dataset, period=period, geography=geography, select=select, present="analysis",
-        provenance="all", return_report=True, **query_kwargs,
+        provenance="all", return_report=True, render={c: "code" for c in select if c not in labelled}, **query_kwargs,
     )
     table = table.combine_chunks() if table.num_rows else table
     columns: dict[str, pa.Array] = {

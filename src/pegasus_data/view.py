@@ -926,7 +926,9 @@ def _render_table(
             names.append(name)
             continue
 
-        if codes_only:
+        if codes_only or overrides.get(name.upper()) == "code":
+            # a column asked for as filed: no codelist chosen for it (a role table reads labels of five of its
+            # eighteen SIH columns; labelling all of them was 31-48 s of a state-year against 4-9 s, 2026-10-11)
             columns.append(column)
             names.append(name)
             continue
