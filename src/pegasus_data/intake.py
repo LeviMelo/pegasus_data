@@ -216,6 +216,8 @@ def _partition_values(level: dict[str, Any], params: dict[str, Any]) -> list[str
     universe = municipalities()
     if level["values"] == "uf_code":
         return sorted({row["uf_code"] for row in universe.values()})
+    if level["values"] == "uf_sigla":
+        return sorted({row["uf_sigla"] for row in universe.values()})
     inside = str(params.get(level.get("within"), ""))
     return sorted(code for code in universe if code.startswith(inside))
 
@@ -570,29 +572,47 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     return stats
 
 
-def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -> dict[str, Any]:
-    """A bulk read of an API endpoint in units of `PIECE_PAGES` pages, each landed at once: an interrupted read resumes at its
-    last unit. The unit an empty page ended is the last."""
-    origin = _origin(spec)
+def _api_units(origin: dict[str, Any]) -> Iterator[tuple[str, str, Any]]:
+    """The units a bulk API read is cut into, lazily: (key, path, rows-reader). With a declared ``partition`` a unit is one
+    value of its first parameter (a state), read to the end by `_complete`, because offset paging of a table that applies
+    its limit before de-duplication loses rows (the health-region list returned 4,870 of 5,571 municipalities unfiltered, all
+    of them by state); otherwise a unit is `PIECE_PAGES` pages of offsets."""
+    base, endpoint = origin["base"].rstrip("/"), origin["endpoint"]
     size = _paging(origin)["size"]
-    total = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0, "units": 0}
+    if origin.get("partition"):
+        level, rest = origin["partition"][0], origin["partition"][1:]
+        for value in _partition_values(level, {}):
+            yield (f"api-{level['param']}={value}", f"{base}{endpoint}?{level['param']}={value}",
+                   lambda value=value: _complete(origin, endpoint, {level["param"]: value}, rest, []))
+        return
     start = 0
     while True:
-        unit = {"key": f"api-{start:010d}", "year": None, "extension": "json", "size": 0,
-                "path": f"{origin['base'].rstrip('/')}{origin['endpoint']}?offset={start}&pages={PIECE_PAGES}"}
+        def read(start: int = start) -> list[dict]:
+            rows: list[dict] = []
+            for count, page in enumerate(_pages(origin, endpoint, origin.get("params") or {}, start), 1):
+                rows += page
+                if count == PIECE_PAGES:
+                    break
+            return rows
+        yield f"api-{start:010d}", f"{base}{endpoint}?offset={start}&pages={PIECE_PAGES}", read
+        start += size * PIECE_PAGES
+
+
+def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -> dict[str, Any]:
+    """A bulk read of an API endpoint, landed unit by unit: an interrupted read resumes at its last unit."""
+    origin = _origin(spec)
+    total = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0, "units": 0}
+    # A table without a period of its own (a reference, a current state) stands for the year it was read.
+    year = datetime.now(UTC).year if (spec.get("period") or {}).get("type", "file") == "file" else None
+    for key, path, read in _api_units(origin):
+        unit = {"key": key, "year": year, "extension": "json", "size": 0, "path": path}
         unit["fingerprint"] = _fingerprint(spec, unit)
-        side = _sidecar(source, settings.root, unit["key"])
+        side = _sidecar(source, settings.root, key)
         known = json.loads(side.read_text(encoding="utf8")) if side.is_file() and not refresh else None
         if known and known["fingerprint"] == unit["fingerprint"]:
             stats = known["stats"]
         else:
-            rows: list[dict] = []
-            pages = 0
-            for page in _pages(origin, origin["endpoint"], origin.get("params") or {}, start):
-                rows += page
-                pages += 1
-                if pages == PIECE_PAGES:
-                    break
+            rows = read()
             stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
             if rows:
                 con = _duck(settings, spec)
@@ -601,15 +621,14 @@ def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -
                     stats = _land(settings, source, spec, unit, con, "api_piece", datetime.now(UTC).date().isoformat())
                 finally:
                     con.close()
-            stats["ended"] = pages < PIECE_PAGES
             side.parent.mkdir(parents=True, exist_ok=True)
             side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
         for k in ("rows", "undated", "unplaced", "unallocated"):
             total[k] += stats.get(k, 0)
         total["units"] += 1
-        if stats.get("ended"):
+        if not origin.get("partition") and stats.get("rows", 0) == 0:     # an empty unit is the end of an offset read
             return total
-        start += size * PIECE_PAGES
+    return total
 
 
 def land_snapshot(source: str, table: pa.Table, label: str, read_on: str, root: str | Path | None = None) -> dict[str, Any]:

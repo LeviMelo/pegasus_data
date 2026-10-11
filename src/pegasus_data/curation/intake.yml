@@ -236,3 +236,41 @@ sources:
         by: [TX_INSUMO]
         unit: doses and units
         what: Quantity of each supply requested by the state secretariat, by month.
+
+  health_regions:
+    system: REGIAO
+    series: MUNICIPIO
+    system_name:
+      official_name: Macrorregiões e regiões de saúde dos municípios
+      translated_name: Health macro-regions and regions of the municipalities
+      authority: Ministério da Saúde / DEMAS
+      what_it_is: The Ministry's list of each municipality's health region and macro-region, with the IBGE population estimate it uses.
+    official_name: Municípios com macrorregião e região de saúde
+    translated_name: Municipalities with health macro-region and region
+    what: Each municipality's health region and macro-region (codes and names) as the Ministry publishes them now, with IBGE's 2022 population estimate.
+    one_row: one municipality
+    unit_of_analysis: municipality
+    gotchas:
+      - The table is a current state with no period; it is kept as read, stamped with the year of the read.
+      - The municipality name carries its state ("AC - ACRELANDIA").
+    citation: DEMAS /macrorregiao-e-regiao-de-saude/municipio (Ministério da Saúde)
+    origin:
+      kind: api
+      endpoint: /macrorregiao-e-regiao-de-saude/municipio
+      paging: {rows: macrorregiao_regiao_saude_municipios, short_page_is_end: true}
+      # Unfiltered offset paging loses rows here (4,870 of 5,571 municipalities): each state is read whole.
+      partition: [{param: sigla_uf, values: uf_sigla}]
+    columns:
+      codigo_regiao_pais: {role: code of the country region (1 Norte ... 5 Centro-Oeste), type: code}
+      regiao_pais: {role: name of the country region, type: label}
+      codigo_uf: {role: IBGE code of the state, type: code}
+      uf: {role: name of the state, type: label}
+      codigo_macrorregiao_saude: {role: code of the health macro-region, type: code}
+      macrorregiao_saude: {role: name of the health macro-region, type: label}
+      codigo_regiao_saude: {role: code of the health region, type: code}
+      regiao_saude: {role: name of the health region, type: label}
+      codigo_municipio: {role: IBGE code of the municipality (6 digits), type: municipality}
+      municipio: {role: name of the municipality with its state, type: label}
+      populacao_estimada_ibge_2022: {role: IBGE population estimate 2022, type: integer}
+    place: {column: codigo_municipio, type: municipality}
+    period: {type: file}
