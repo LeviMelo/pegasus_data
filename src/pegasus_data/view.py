@@ -388,22 +388,21 @@ def _strip_code(label: str, code: str) -> str:
 
 def _render_multi_valued(
     column: pa.Array, rule: Mapping[str, Any], lookup: Mapping[str, str]
-) -> tuple[list[str | None], list[list[str]], list[int]]:
-    """Label every token, keep the order, and never drop one.
+) -> tuple[pa.Array, pa.Array, pa.Array]:
+    """Label every token, keep the order, and never drop one: (labels, the codes of each cell, the misses per cell).
 
     A token with no match passes through as its raw code. Dropping it would make
     a shorter causal chain than the physician wrote, and nulling the whole cell
-    would discard the tokens that *did* resolve.
+    would discard the tokens that *did* resolve. Each distinct cell is rendered
+    once and the rows take theirs: a pass per row over a year of births' anomaly
+    lists (583,191 cells, 1,658 distinct) was most of a labelled query (2026-10-11).
     """
+    encoded = pc.dictionary_encode(column.combine_chunks() if isinstance(column, pa.ChunkedArray) else column)
+    distinct = encoded.dictionary.to_pylist()
     rendered: list[str | None] = []
     code_lists: list[list[str]] = []
     unmatched: list[int] = []
-    for value in column.to_pylist():
-        if value is None:
-            rendered.append(None)
-            code_lists.append([])
-            unmatched.append(0)
-            continue
+    for value in distinct:
         tokens = _tokenize(str(value), rule)
         misses = 0
         pieces: list[str] = []
@@ -418,7 +417,11 @@ def _render_multi_valued(
         rendered.append(TOKEN_JOIN.join(pieces) if pieces else None)
         code_lists.append(tokens)
         unmatched.append(misses)
-    return rendered, code_lists, unmatched
+    idx = encoded.indices                       # null where the cell is null: no label, no codes, no miss
+    labels = pa.array(rendered, type=pa.string()).take(idx)
+    codes = pc.fill_null(pa.array(code_lists, type=pa.list_(pa.string())).take(idx), pa.scalar([], pa.list_(pa.string())))
+    misses_ = pc.fill_null(pa.array(unmatched, type=pa.int32()).take(idx), 0)
+    return labels, codes, misses_
 
 
 def resolve_profile(
@@ -981,6 +984,12 @@ def _render_table(
             columns.append(column)
             names.append(name)
             continue
+        if name.startswith("_"):
+            # the record's bookkeeping (row number, source file, record key): never coded. Weighed against every
+            # codelist, `_row`'s 583,191 distinct values were most of a labelled SINASC SP year (2026-10-11)
+            columns.append(column)
+            names.append(name)
+            continue
         key_column = _lookup_key(table, doc, column)
         selection = _select_codelists(
             name,
@@ -1049,17 +1058,17 @@ def _render_table(
             rendered, code_lists, unmatched = _render_multi_valued(column, doc.token_rule, lookup)
             columns.append(column)
             names.append(name)
-            columns.append(pa.array(rendered, type=pa.string()))
+            columns.append(rendered)
             names.append(f"{name}{LABEL_SUFFIX}")
             keep_companions = settings_profile.companions
             if isinstance(companions, (list, tuple, set)):
                 keep_companions = f"{name}_codes" in set(companions)
             if keep_companions:
-                columns.append(pa.array(code_lists, type=pa.list_(pa.string())))
+                columns.append(code_lists)
                 names.append(f"{name}_codes")
-                columns.append(pa.array(unmatched, type=pa.int32()))
+                columns.append(unmatched)
                 names.append(f"{name}_unmatched")
-            total_missing = sum(unmatched)
+            total_missing = int(pc.sum(unmatched).as_py() or 0)
             if total_missing:
                 report.tokens_unmatched[name] = total_missing
             report.labelled.append(name)
