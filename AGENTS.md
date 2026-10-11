@@ -130,6 +130,15 @@ it is run again.
   problem has a synthetic solution. Judge work on real records against facts
   known independently (documented events, official totals where meaning is at
   stake, the same quantity in two sources), and read what comes out.
+- **Never run, wait on or measure outdated code** (author, 2026-10-11). A run tests the commit it was launched on and
+  nothing else.
+  - The moment a commit changes code a running job executes, stop that job and relaunch it on the new commit. Do not
+    keep it "to measure cost" or "to see the rest": its numbers describe code that no longer exists, and every hour
+    it holds the machine is lost.
+  - Never launch a run on a commit older than the working branch's head, and never read a run's output as evidence
+    about the current code without checking the commit it ran.
+  - Prefer the smallest run that exercises the failure point (a restricted declaration: few sources, short period,
+    one depth's new paths) over a full study. A full study is the milestone, not the debugging loop.
 - **Read the output, not the exit code.** Open the table; look at the labels;
   count the rows against an independent figure (TabNet, the file's own row
   count). Earlier sessions declared bugs fixed without reading the output and
