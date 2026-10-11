@@ -332,6 +332,8 @@ def _capabilities_uncached(
 ) -> Capability:
     """The projection itself; `capabilities` is the cached front door."""
     from ._aggregate import ArtifactMissing, artifact_dir, spec_named
+    from ._request import parse_dataset
+    from .api import _resolve_family
     from .catalog.store import CatalogStore
     from .config import load_settings
     from .geography import DENOMINATOR_COMPATIBLE_ROLES, classifications
@@ -390,9 +392,12 @@ def _capabilities_uncached(
         for dimension in spec.dimensions:
             codes = observed.get(dimension, [])
             try:
+                # the artifact's own family: without it the form's dictionary is out of reach and every table of the
+                # system is weighed (SINAN-ACBI's outcome 3 read "Óbito por LTA", leishmaniasis's, 2026-10-11)
+                family = _resolve_family(store, *parse_dataset(spec.dataset), dimension)
                 mapping = codelist_levels(
                     dimension, store=store, lake_root=resolved.lake_dir,
-                    system=docs_system, codes=codes,
+                    system=docs_system, family_id=family[0]["family_id"] if family else None, codes=codes,
                 )
             except Exception:  # pragma: no cover - a missing reference table
                 mapping = {}

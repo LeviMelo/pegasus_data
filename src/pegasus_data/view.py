@@ -50,7 +50,6 @@ from .lookups import (
     _distinct,
     _exists_anywhere,
     _labels_for,
-    _lookup_map,
     _merged_lookup,
     _per_distinct,
     _single_lookup,
@@ -204,48 +203,29 @@ def codelist_levels(
     competencia: int | None = None,
     codes: Sequence[str] | None = None,
 ) -> dict[str, str]:
-    """``code -> label`` for one field, without a table to apply it to.
+    """``code -> label`` for one field's ``codes``, without a table of records to apply it to.
 
-    The capability descriptor has to tell a client that ``SEXO`` takes ``1`` and
-    ``3`` and what those mean, so the client can draw a control. Everything
-    needed already lives in this module: :func:`_bindings` chooses which
-    codelists are bound to the field, and :func:`_lookup_map` reads the
-    version-scoped reference table for each. This composes them and adds
-    nothing, so a level rendered in a control and the same level rendered in a
-    cell cannot disagree.
+    The capability descriptor has to tell a client that ``SEXO`` takes ``1`` and ``3`` and what those mean, and a
+    study has to name the group its finding is in. The codes are rendered as a one-column table by `render_table`, so a
+    level named here and the same level in a cell cannot disagree: the same ladder of evidence chooses the table (the
+    form's own dictionary, curated tables, measured weighing; `label_bindings.decide`). This used to merge every table
+    bound to the field, first wins, and named SINAN-TOXG's outcome 2 "Óbito por meningite" (meningitis's table)
+    where a query says "Óbito pelo agravo notificado" (2026-10-11).
 
-    ``codes`` narrows the result to values actually present. That matters more
-    than it saves: ``DIAG_PRINC`` binds a table of ~14,000 ICD codes, and a
-    control offering 14,000 levels for an artifact that contains 40 of them is a
-    lie about the data. Passing the observed codes makes the descriptor describe
-    THIS artifact rather than the classification in the abstract.
-
-    Higher authority wins on collision, matching :func:`_bindings`' own ordering.
+    ``codes`` are the values present (``DIAG_PRINC`` binds ~14,000 ICD codes; a control offering them all for an
+    artifact holding 40 is a lie about the data); without them nothing is labelled. A code the chosen tables do not
+    decode is absent from the result: unknown, never guessed.
     """
-    bindings = _bindings(store, system, family_id)
-    codelists = bindings.get(field) or []
-    if not codelists:
+    wanted = sorted({str(c).strip() for c in codes or () if c is not None and str(c).strip()})
+    if not wanted:
         return {}
-    docs = load_variable_docs(store, system)
-    doc = docs.get(field)
-    width = None
-    if doc and doc.token_rule and not doc.multi_valued:
-        width = doc.token_rule.get("width")
-    merged: dict[str, str] = {}
-    for codelist in codelists:
-        try:
-            mapping = _lookup_map(
-                Path(lake_root), codelist, system=system, year=year,
-                competencia=competencia, code_width=width,
-            )
-        except FileNotFoundError:
-            continue
-        for code, label in mapping.items():
-            merged.setdefault(code, label)
-    if codes is None:
-        return merged
-    wanted = {str(c).strip() for c in codes}
-    return {c: lbl for c, lbl in merged.items() if c in wanted}
+    rendered, _ = render_table(pa.table({field: pa.array(wanted, pa.string())}), store=store, lake_root=lake_root,
+                               system=system, family_id=family_id, profile="analysis", companions=[field],
+                               derived=False, year=year, competencia=competencia)
+    if f"{field}{LABEL_SUFFIX}" not in rendered.column_names:
+        return {}
+    labels = rendered.column(f"{field}{LABEL_SUFFIX}").to_pylist()
+    return {c: lbl for c, lbl in zip(rendered.column(field).to_pylist(), labels, strict=True) if lbl}
 
 
 def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[str, list[str]]:

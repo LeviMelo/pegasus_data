@@ -58,6 +58,7 @@ ds = LazyModule("pyarrow.dataset")
 __all__ = [
     "Catalog",
     "describe",
+    "levels",
     "load",
     "load_population",
     "load_reference",
@@ -720,6 +721,35 @@ def describe(
             label_policy=label_policy,
             generations=generations,
         )
+    finally:
+        if own:
+            cat.close()
+
+
+def levels(
+    dataset: str,
+    field: str,
+    codes: Sequence[str],
+    *,
+    year: int | None = None,
+    catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
+) -> dict[str, str]:
+    """``code -> label`` for ``codes`` of one field of ``dataset``, labelled as a query labels them (`view.codelist_levels`:
+    the same renderer, so a level named here and the same level in a cell cannot disagree). A code no chosen table
+    decodes is absent: its label is unknown, never guessed."""
+    from ._request import parse_dataset
+    from .view import codelist_levels
+
+    system, series = parse_dataset(dataset)
+    own = catalog is None
+    cat = catalog or Catalog(root=root, settings=settings)
+    try:
+        candidates = _resolve_family(cat.store, system, series, field)
+        family_id = candidates[0]["family_id"] if candidates else None
+        return codelist_levels(field, store=cat.store, lake_root=cat.settings.lake_dir, system=system,
+                               family_id=family_id, year=year, codes=list(codes))
     finally:
         if own:
             cat.close()

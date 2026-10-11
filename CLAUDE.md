@@ -73,8 +73,10 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
 3. **Wall clock for a person.** A first `query()` for a state-year should take
    seconds to a minute, not an hour. Correct but unusably slow is not finished.
 4. **Disk.** The full tree is 991 GiB as listed on the server (`explore()`,
-   2026-09-28; the "183 GiB" in older documents was wrong); this machine has
-   ~177 GB free. Nothing downloads the whole tree implicitly.
+   2026-09-28; the "183 GiB" in older documents was wrong); this machine had
+   ~177 GB free then and ~36 GB on 2026-10-11 (the lake 57 GB, blobs 19 GB,
+   PegaSUS's store 28 GB, a 47 GB pagefile). Nothing downloads the whole tree
+   implicitly; a dataset larger than the disk is read as an extract (`extract.py`).
 
 ---
 
