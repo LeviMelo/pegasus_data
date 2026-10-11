@@ -813,6 +813,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     "Inconclusivo" and "Inconsistente". The database is frozen after three years.
   - Creutzfeldt-Jakob's 48/2025. It means A81.0, notified since 2005. Records change for two years. Confirmation was
     intermittent (no brain histopathology for years). Cases unclassified after 60 days were set to "Inconclusivo".
+  - exogenous poisoning's 5/2026 (downloaded 2026-10-11 from `/dissemin/publicos/SINAN/DOCS/`, the only other note
+    there). It selects methanol, lead and mercury poisonings by text descriptors and exclusions over the free-text
+    agent fields. TabNet applies that selection.
 - **Dictionaries are sources, not the truth.**
   - Meningitis's v5 dictionary prints `ANT_TRAUMA` as 1 Sim / 3 Não, while the records use 2 for Não and never 3.
   - Schistosomiasis's prints `EVOLUCAO` "1 – Cura 2, Não Cura" without a separator.

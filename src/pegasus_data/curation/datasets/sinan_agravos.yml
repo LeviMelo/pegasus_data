@@ -315,6 +315,19 @@ datasets:
       - name: notification
         kind: notification
         grain: one notification; a person notified twice is two
+        source_notes: &iexo_notes
+          source: "Nota Técnica nº 5/2026-CGVAM/DVSAT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Intoxicacao_Exogena.pdf)"
+          known_errors:
+            - >-
+              The toxic agent (form field 50: AGENTE_1-3, P_ATIVO_1-3, OUT_AGENTE) is free text, written with misspellings
+              and abbreviations ("CUMBO", "XUMB" for chumbo; "HG" inside unrelated words).
+          limitations:
+            - >-
+              The Ministry selects poisonings by methanol, lead and mercury with declared text descriptors and exclusions
+              over those fields (lead also excluding field 49's pesticide, rodenticide and veterinary groups; batteries
+              counted as a lead and mercury source), the selection TabNet applies since 2026; a count by agent read
+              otherwise is not comparable with it.
+          form: Ficha de Investigação de Intoxicação Exógena (Sinan).
       - name: case
         kind: case
         grain: one notification confirmed by the investigation
@@ -324,6 +337,7 @@ datasets:
           column: CLASSI_FIN
           values: ["1"]
           evidence: "the form's CLASSI_FIN: 1 intoxicação confirmada; 2 exposição, 3 reação adversa, 4 diagnóstico diferencial, 5 síndrome de abstinência are not poisonings"
+        source_notes: *iexo_notes
     system: SINAN
     series: IEXO
     official_name: Intoxicação exógena
