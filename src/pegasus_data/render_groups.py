@@ -106,24 +106,11 @@ def split_by_year_column(
             if value not in (None, 0) and int(value) % 100
         )
         if competences:
-            out: list[Group] = []
-            for competencia in competences:
-                chunk = table.filter(pc.equal(competence_column, competencia))
-                if chunk.num_rows:
-                    out.append((chunk, family_id, competencia // 100, competencia))
+            chunks, remaining = _partition(table, "_competencia", competences)
+            out: list[Group] = [(chunk, family_id, competencia // 100, competencia)
+                                for competencia, chunk in chunks]
             # Annual/unknown rows coexist with monthly ones in some families;
             # keep them and apply the year-level rule rather than dropping them.
-            remaining = table.filter(
-                pc.invert(
-                    pc.fill_null(
-                        pc.is_in(
-                            competence_column,
-                            value_set=pa.array(competences, type=pa.int32()),
-                        ),
-                        False,
-                    )
-                )
-            )
             if remaining.num_rows:
                 out.extend(_split_annual_rows(remaining, years, family_id))
             return out
@@ -141,12 +128,29 @@ def _split_annual_rows(
     if len(usable) <= 1:
         only = usable[0] if usable else (min(years) if years else None)
         return [(table, family_id, only, None)]
-    out: list[Group] = []
-    for year in usable:
-        chunk = table.filter(pc.equal(table.column("year"), year))
-        if chunk.num_rows:
-            out.append((chunk, family_id, year, None))
-    return out
+    chunks, _ = _partition(table, "year", usable)
+    return [(chunk, family_id, year, None) for year, chunk in chunks]
+
+
+def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[list[tuple[int, pa.Table]], pa.Table]:
+    """The rows of each of ``values`` in ``column`` (the table's row order kept within each), and the rows holding none
+    of them. One stable sort and contiguous slices: a filter per value scanned the whole table once per value (SIH's
+    11.5 million admissions of a year, a few dozen competences: a quarter of a query's time, 2026-10-11)."""
+    import numpy as np
+
+    col = pc.fill_null(table.column(column), 0).to_numpy()
+    order = np.argsort(col, kind="stable")
+    ordered = col[order]
+    wanted = np.asarray(sorted(values), dtype=ordered.dtype)
+    lo = np.searchsorted(ordered, wanted, side="left")
+    hi = np.searchsorted(ordered, wanted, side="right")
+    sorted_table = table.take(pa.array(order))
+    chunks = [(int(v), sorted_table.slice(int(a), int(b - a))) for v, a, b in zip(wanted, lo, hi, strict=True) if b > a]
+    rest = np.ones(len(col), dtype=bool)
+    for a, b in zip(lo, hi, strict=True):
+        rest[a:b] = False
+    # the rows outside the values in their original order, as a filter returns them
+    return chunks, table.take(pa.array(np.sort(order[rest])))
 
 
 def split_by_source(
