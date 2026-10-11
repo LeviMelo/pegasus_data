@@ -80,6 +80,7 @@ def extract(
     years: Annotated[str, typer.Option("--years", help="e.g. 2010-2025")],
     filters: Annotated[list[str], typer.Option("--filter", help="COLUMN=CODE,CODE (prefixes); repeat for several columns")],
     uf: Annotated[list[str] | None, typer.Option("--uf", help="only these states' files (the extract is then not whole)")] = None,
+    workers: Annotated[int, typer.Option("--workers", help="files fetched at once")] = 6,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
@@ -91,7 +92,8 @@ def extract(
     for f in filters:
         column, _, codes = f.partition("=")
         parsed[column] = [c for c in codes.split(",") if c]
-    result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print)
+    result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print,
+                           workers=workers)
     _emit({k: v for k, v in result.items() if k != "files"} | {"files_read": len(result["files"]),
           "kept": sum(v["kept"] for v in result["files"].values())}, as_json, "extract")
 

@@ -104,9 +104,10 @@ def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | 
     return mask
 
 
-#: files fetched at once: the network and the decoder pool overlap; each decoded month is held whole until filtered
-#: (SIA-PA RS 2018: about 25 s a file of 80 MB one at a time)
-EXTRACT_WORKERS = 3
+#: files fetched at once, each over its own FTP connection (the fetcher's tested limit is 8): the server gives about
+#: 0.5 MB/s a connection (2026-10-11); decoding waits for memory in pegasus_data's admission control, and a worker
+#: hands back only its file's kept records
+EXTRACT_WORKERS = 6
 
 
 def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
@@ -133,12 +134,19 @@ def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequenc
     log(f"extract {dataset} {filt}: {len(files)} files in {sorted(set(map(int, years)))}, {len(todo)} to read")
     t0 = time.time()
 
-    def read(f: dict[str, Any]) -> tuple[dict[str, Any], Any, Any]:
+    def read(f: dict[str, Any]) -> tuple[dict[str, Any], Any, int, Any]:
+        """One file fetched, decoded and filtered in the worker: only its kept records wait for their turn."""
         try:
-            return f, *fetch(dataset, labels=False, provenance=True, _only_paths=[f["path"]], report=True,
-                             max_bytes=None, settings=settings, on_missing_column="null_fill")
+            table, report = fetch(dataset, labels=False, provenance=True, _only_paths=[f["path"]], report=True,
+                                  max_bytes=None, settings=settings, on_missing_column="null_fill")
         except Exception as exc:  # noqa: BLE001 - a file that does not open is a recorded gap, not an absence
-            return f, exc, None
+            return f, exc, 0, None
+        mask = None
+        for column, prefixes in filt.items():
+            hit = _match(table, column, prefixes)          # a layout without the column holds none of its records
+            if hit is not None:
+                mask = hit if mask is None else pc.or_(mask, hit)
+        return f, (table.filter(mask) if mask is not None else table.slice(0, 0)), table.num_rows, report
 
     pool = ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="extract")
 
@@ -154,23 +162,17 @@ def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequenc
         while window:
             yield window.popleft().result()
 
-    for i, (f, table, report) in enumerate(results()):
-        if isinstance(table, Exception):
-            manifest["failed"][f["path"]] = f"{type(table).__name__}: {table}"[:300]
-            log(f"extract {dataset}: {f['path']} failed: {type(table).__name__}: {table}")
+    for i, (f, kept, rows, report) in enumerate(results()):
+        if isinstance(kept, Exception):
+            manifest["failed"][f["path"]] = f"{type(kept).__name__}: {kept}"[:300]
+            log(f"extract {dataset}: {f['path']} failed: {type(kept).__name__}: {kept}")
             continue
-        mask = None
-        for column, prefixes in filt.items():
-            hit = _match(table, column, prefixes)          # a layout without the column holds none of its records
-            if hit is not None:
-                mask = hit if mask is None else pc.or_(mask, hit)
-        kept = table.filter(mask) if mask is not None else table.slice(0, 0)
         if kept.num_rows:
             part = target / f"year={int(f['year'])}" / f"{f['geo_code']}_{f['normalized_date']}.parquet"
             part.parent.mkdir(parents=True, exist_ok=True)
             pq.write_table(kept, part, compression="zstd")
         manifest["files"][f["path"]] = {"year": int(f["year"]), "uf": f["geo_code"], "period": f["normalized_date"],
-                                        "rows": table.num_rows, "kept": kept.num_rows,
+                                        "rows": rows, "kept": kept.num_rows,
                                         "downloaded": int(getattr(report, "bytes_downloaded", 0) or 0)}
         _release(settings, [f["path"]])
         if (i + 1) % 25 == 0 or i + 1 == len(todo):
