@@ -38,7 +38,8 @@ def roles_file() -> Path:
     return curation_root() / "roles.yml"
 
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
-_TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
+_TYPES = {"date", "month", "year", "birth_from_age", "sex", "municipality", "facility", "integer", "number", "code",
+          "codes", "label"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,8 +78,11 @@ def load_roles() -> dict[str, DatasetRoles]:
             if kind not in _TYPES:
                 raise ValueError(f"roles.yml: {dataset}.{name}: unknown type {kind!r}")
             fmt = spec.get("format")
-            if kind in ("date", "month") and fmt not in _FORMATS:
+            if kind in ("date", "month", "year", "birth_from_age") and fmt not in _FORMATS:
                 raise ValueError(f"roles.yml: {dataset}.{name}: date needs format in {sorted(_FORMATS)}")
+            if kind == "birth_from_age" and len(spec.get("also") or ()) != 1:
+                raise ValueError(f"roles.yml: {dataset}.{name}: birth_from_age reads the age in `column` and "
+                                 "the reference date in the one `also` column")
             if "." not in name:
                 raise ValueError(f"roles.yml: {dataset}.{name}: a role is <entity>.<property>")
             categories = tuple(
@@ -114,8 +118,33 @@ def _ignored(labels: pa.Array | None) -> pa.Array | None:
     return pc.fill_null(pc.match_substring_regex(pc.utf8_lower(_strings(labels)), r"ignorad"), False)
 
 
+def _as_date(source: pa.Array | pa.ChunkedArray, fmt: str | None) -> pa.Array:
+    """A date column as dates: typed already (SINAN) or parsed with the declared format."""
+    if pa.types.is_date(source.type) or pa.types.is_timestamp(source.type):
+        return pc.cast(source, pa.date32())
+    parsed = pc.strptime(_strings(source), format=_FORMATS[fmt or ""], unit="s", error_is_null=True)
+    return pc.cast(parsed, pa.date32())
+
+
+def _birth_from_age(age: pa.Array | pa.ChunkedArray, reference: pa.Array) -> pa.Array:
+    """The birth date of a child whose age was coded in days (SINAN's NU_IDADE_N: 2 and the number of days) at the
+    reference date; null for any other unit, where the age fixes no day. SINAN carries no birth date since the LGPD
+    rewrite but its age was computed from one: in congenital toxoplasmosis, with the date of first symptoms or
+    diagnosis as reference (docs/evaluation/2026-10-10-links-toxoplasmosis.md)."""
+    text = _strings(age)
+    digits = pc.and_(pc.utf8_is_digit(text), pc.equal(pc.utf8_length(text), 4))
+    in_days = pc.fill_null(pc.and_(digits, pc.starts_with(text, "2")), False)
+    count = pc.cast(pc.if_else(in_days, pc.utf8_slice_codeunits(text, 1), "0"), pa.int32())
+    back = pc.subtract(pc.cast(reference, pa.int32()), count)
+    return pc.if_else(in_days, pc.cast(back, pa.date32()), pa.scalar(None, pa.date32()))
+
+
 def _normalise(role: Role, table: pa.Table) -> pa.Array:
     source = table.column(role.column)
+    if role.type == "birth_from_age":
+        return _birth_from_age(source, _as_date(table.column(role.also[0]), role.format))
+    if role.type == "year":
+        return pc.cast(pc.year(_as_date(source, role.format)), pa.int64())
     if role.type in ("date", "month") and (pa.types.is_date(source.type) or pa.types.is_timestamp(source.type)):
         days = pc.cast(source, pa.date32())     # typed at normalisation (SINAN): nothing to parse
         return pc.cast(pc.floor_temporal(days, unit="month"), pa.date32()) if role.type == "month" else days

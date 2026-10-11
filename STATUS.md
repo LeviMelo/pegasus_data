@@ -176,6 +176,10 @@ OQ-64), 1990s SIH V-codes.
   - SINAN HIV/AIDS and congenital syphilis cannot be linked from public
     fields: no birth date or facility (EVALUATION 2026-10-03 "SINAN
     linkage potential").
+  - Toxoplasmosis (2026-10-10, EVALUATION "Toxoplasmosis links"):
+    - TOXC → SIH admissions with the disease: 1,444 pairs, 5.75% chance, use with caution;
+    - TOXC → SIM: 101 pairs, 6.9% chance, use with caution;
+    - SIH → SIM, TOXC → SINASC and TOXG → SINASC: not viable. No three-source capture.
 
 ## Context around a record (2026-10-03)
 

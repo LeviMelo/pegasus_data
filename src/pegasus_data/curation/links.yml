@@ -351,3 +351,129 @@ links:
         - [[case.death_date, death.date], [case.sex, deceased.sex]]
       target_fdr: 0.01
       control_shift_days: 14   # every block uses the death day; 400 days leaves 2022
+
+  # Toxoplasmosis (BACKLOG 6.2; docs/evaluation/2026-10-10-links-toxoplasmosis.md). SINAN has carried no birth date
+  # since the LGPD rewrite: a child's birth date is rebuilt from the age in days and the date of first symptoms
+  # (`patient.birth_date` of SINAN-TOXC, roles.yml), so only a notification aged in days (85.5% of TOXC 2019-2025) has a key.
+  # TOXC's ID_AGRAVO is not a filter: the file is the congenital form, and its records carry P37.1, B58 and O98.6.
+  sinan_toxc_to_sinasc:
+    description: >
+      Congenital toxoplasmosis notifications to the child's birth record. SINAN carries the child's sex, municipality
+      of residence and (for an age in days) birth date, SINASC the same and the birth facility; neither side carries a
+      name, the mother's birth date or the birth weight, so the key is the weakest of the spine's links and
+      the negative control decides whether it identifies anyone.
+    person: [patient, baby]
+    same_event: false   # the notification counts an infection; the birth is the person's own event
+    left: {dataset: SINAN-TOXC}
+    right: {dataset: SINASC-DN, pad_years: [1, 0]}   # born in December, notified in January
+    passes:
+      - name: birth date, sex, residence, notifying unit is the birth facility
+        keys: [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex],
+               [patient.residence, mother.residence], [notification.facility, birth.facility]]
+      - name: birth date, sex, residence
+        keys: [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex],
+               [patient.residence, mother.residence]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: notified where the baby was born, left: notification.municipality, right: birth.municipality}
+      - {name: notified within a year of birth, sql: "l.\"notification.date\" - r.\"birth.date\" BETWEEN 0 AND 365"}
+
+  sinan_toxc_to_sih_admission:
+    description: >
+      Congenital toxoplasmosis notifications to the child's SIH admission with the disease (P37.1, or B58 under two
+      years). One record stands for the admissions of a child (the latest), found by birth date, sex and residence;
+      the pool is a few thousand admissions a year, so a key that cannot single out a birth among millions can single
+      out an admission among them.
+    person: [patient, patient]
+    same_event: false   # a notified infection and a hospital stay for it: two records of one person
+    left: {dataset: SINAN-TOXC}
+    right:
+      dataset: SIH-RD
+      pad_years: [1, 1]   # born or notified at the turn of the year; readmitted the year after
+      where: >
+        "admission.diagnoses" LIKE '%P371%' OR ("admission.diagnoses" LIKE '%B58%' AND "patient.age_years" < 2)
+      group: [patient.birth_date, patient.sex, patient.residence]
+      latest: admission.end
+    passes:
+      - name: birth date, sex, residence
+        keys: [[patient.birth_date, patient.birth_date], [patient.sex, patient.sex],
+               [patient.residence, patient.residence]]
+      - name: birth date, sex
+        keys: [[patient.birth_date, patient.birth_date], [patient.sex, patient.sex]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: notified where the child was admitted, left: notification.municipality, right: admission.facility_municipality}
+      - {name: notified within a year of the admission, sql: "abs(l.\"notification.date\" - r.\"admission.start\") <= 365"}
+
+  sinan_toxc_to_sim:
+    description: >
+      Congenital toxoplasmosis notifications to the death certificate that names the disease (P37.1 the underlying
+      or any line of the certificate, B58 underlying). SINAN's own death date (DT_OBITO, filled for under 1% of
+      TOXC) is held out as the check where it exists.
+    person: [patient, deceased]
+    same_event: false   # a notified infection and the death certificate of the person
+    left: {dataset: SINAN-TOXC}
+    right:
+      dataset: SIM-DO
+      pad_years: [0, 1]
+      where: >
+        "death.cause" = 'P371' OR "death.causes" LIKE '%P371%' OR "death.cause" LIKE 'B58%'
+    passes:
+      - name: birth date, sex, residence
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [patient.residence, deceased.residence]]
+      - name: birth date, sex
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: SINAN death date is the certificate's, left: case.death_date, right: death.date}
+      - {name: died after the first symptoms, sql: "r.\"death.date\" >= l.\"case.onset\""}
+
+  sih_toxoplasmosis_admissions_to_sim:
+    description: >
+      Admissions with congenital toxoplasmosis (P37.1, or B58 under two years) to the death certificate that names the
+      disease, whether or not the admission ended in death: a child discharged and dead later, or dead in another
+      hospital, is reached, which sih_deaths_to_sim (admissions that ended in death) cannot. One record stands
+      for a child's admissions (the latest).
+    person: [patient, deceased]
+    same_event: false   # an admission and the person's death, possibly weeks later
+    left:
+      dataset: SIH-RD
+      where: >
+        "admission.diagnoses" LIKE '%P371%' OR ("admission.diagnoses" LIKE '%B58%' AND "patient.age_years" < 2)
+      group: [patient.birth_date, patient.sex, patient.residence]
+      latest: admission.end
+    right:
+      dataset: SIM-DO
+      pad_years: [0, 1]
+      where: >
+        "death.cause" = 'P371' OR "death.causes" LIKE '%P371%' OR "death.cause" LIKE 'B58%'
+    passes:
+      - name: birth date, sex, residence
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [patient.residence, deceased.residence]]
+      - name: birth date, sex
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: death on or after the admission, sql: "r.\"death.date\" >= l.\"admission.start\""}
+      - {name: admission ended in death, sql: "l.\"admission.death\" = '1'"}
+
+  sinan_toxg_to_sinasc:
+    description: >
+      Gestational toxoplasmosis notifications to the mother's birth record. SINAN carries the woman's birth year,
+      age and residence; SINASC her full birth date, age and residence, and the delivery is dated: a key of
+      birth year and municipality is shared by hundreds of mothers in any city, and the delivery
+      window (the nine months after the first symptoms) is not an equality key the deterministic passes can use,
+      so this link is declared to be measured, and is expected not to be viable outside small municipalities.
+    person: [patient, mother]
+    same_event: false   # a notified infection in pregnancy and the delivery
+    left: {dataset: SINAN-TOXG}
+    right: {dataset: SINASC-DN, pad_years: [0, 1]}
+    passes:
+      - name: birth year, residence
+        keys: [[patient.birth_year, mother.birth_year], [patient.residence, mother.residence]]
+    control: {role: patient.birth_year, shift_days: 1}   # an integer role shifts by that many units: one year
+    validate:
+      - {name: delivery within ten months of the first symptoms, sql: "r.\"birth.date\" - l.\"case.onset\" BETWEEN -30 AND 300"}
+      - {name: age within a year, left: patient.age_years, right: mother.age, tolerance: 1.5}

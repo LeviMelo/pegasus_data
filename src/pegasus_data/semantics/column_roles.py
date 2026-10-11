@@ -182,6 +182,13 @@ def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
             column = columns.get(role.column.upper())
             if column is None:
                 raise ValueError(f"roles/{dataset}.yml: linkage role {name} reads {role.column}, which is not declared")
+            if role.type in ("year", "birth_from_age"):
+                # computed from the column(s): a birth year from a birth date, a birth date from an age and a date. The
+                # column keeps its own role; none may claim to state the derived property
+                for source in role.also:
+                    if source.upper() not in columns:
+                        raise ValueError(f"roles/{dataset}.yml: linkage role {name} reads {source}, which is not declared")
+                continue
             if name != column.role and name not in column.also:
                 raise ValueError(f"roles/{dataset}.yml: {role.column} is {column.role}, but linkage reads it as {name}; "
                                  "add it to `also` or correct one of them")
