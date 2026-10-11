@@ -71,3 +71,21 @@ In every link, the pass on birth date and sex alone ran at 70–127% chance and 
   - an integer key shifts by units for the control;
   - a national side with a `where` filter is read one cached year at a time with the filter applied. A TOXC→SIH
     run had held 15 GB; it now stays within the 3 GB DuckDB limit.
+
+## Stored runs named records two ways (found 2026-10-10, fixed)
+
+The national probabilistic runs stored before the lake stamped `_record_key` (OQ-65) name their records
+`<_blob_sha256>:<_row>`. Every reader since then names records by the content key (`identity.record_ids`). Each
+such run therefore matched none of its side's records. PegaSUS's linked shares read k = 0 with no error: SIM 2019
+gave 0 of 1,345,912 deaths paired with a birth, against 28,669 pairs. The cohort outcomes over persons were affected
+the same way.
+
+- **The fix.** `store.load` renames such a run's pairs once, to the current identity, read from the lake rows of the
+  blobs it names (`_relabel`). The report then records how many names were left unmapped. `entities` now reads runs
+  through `load` rather than opening the files itself.
+- **Checked against the source records.** A sample of 2,000 relabelled SIM 2019 → SINASC pairs found every record on
+  both sides. Birth date agrees in 99.35% and sex in 98.85%. SIM 2019 now has 28,069 expected paired deaths, and
+  54.9 of the 61 P37 deaths.
+- **A stale run.** CIHA 2011's file was republished after its run. All 52,461 of its CIHA names are unmapped, so it
+  must be rerun. PegaSUS refuses a run whose pairs name none of a side's records (`linked_counts`), so it can no
+  longer read as zero.

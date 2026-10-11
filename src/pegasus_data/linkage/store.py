@@ -80,7 +80,62 @@ def load(settings: Any, key: RunKey) -> tuple[pa.Table, dict[str, Any]] | None:
     pairs, report = folder / f"{key.stem}.parquet", folder / f"{key.stem}.json"
     if not (pairs.exists() and report.exists()):
         return None
-    return pq.read_table(pairs), json.loads(report.read_text(encoding="utf-8"))
+    table, body = pq.read_table(pairs), json.loads(report.read_text(encoding="utf-8"))
+    if _named_by_row(table):
+        table, body = _relabel(settings, key.spec, table, body)
+        pq.write_table(table, pairs.with_suffix(".tmp"), compression="zstd")
+        pairs.with_suffix(".tmp").replace(pairs)
+        report.write_text(json.dumps(body, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    return table, body
+
+
+def _named_by_row(table: pa.Table) -> bool:
+    """Whether a run names records by the fallback identity, ``<_blob_sha256>:<_row>``, rather than by the content key."""
+    for side in ("l", "r"):
+        if side in table.column_names and table.num_rows:
+            sample = [x for x in table.column(side).slice(0, 100).to_pylist() if x]
+            if any(len(x.partition(":")[0]) == 64 and x.partition(":")[2].isdigit() for x in sample):
+                return True
+    return False
+
+
+def _relabel(settings: Any, spec: str, table: pa.Table, body: dict[str, Any]) -> tuple[pa.Table, dict[str, Any]]:
+    """A run's pairs renamed to each record's current identity (`identity.RECORD_ID_SQL`), read from the lake.
+
+    Runs stored before the lake stamped ``_record_key`` named records ``<_blob_sha256>:<_row>``, while every reader
+    since names them by the content key: a stored national run then matched none of its side's records, and the linked
+    shares and cohort outcomes built on it read zero without an error (2026-10-10). Both names come from the same
+    lake row, so the old one maps to the new one exactly. A record whose file is no longer in the lake (republished
+    since) keeps its old name, and the count is recorded in the report."""
+    from .._request import parse_dataset
+    from .engine import load_links
+    from .identity import DUP_SQL, RECORD_ID_SQL, connect
+
+    sides = load_links()[spec]
+    con = connect()
+    out = table
+    unmapped = {}
+    for col, side in (("l", sides.left), ("r", sides.right)):
+        if col not in table.column_names:
+            continue
+        system, series = parse_dataset(side.dataset)
+        files = Path(settings.lake_dir) / system / f"{system}_{series or system}_*" / "**" / "*.parquet"
+        con.register("p", pa.table({"old": table.column(col), "pos": pa.array(range(table.num_rows), pa.int64())}))
+        con.execute("CREATE OR REPLACE TEMP TABLE blobs AS SELECT DISTINCT split_part(old, ':', 1) AS b FROM p "
+                    "WHERE old LIKE '%:%'")
+        con.execute(f"""CREATE OR REPLACE TEMP TABLE m AS
+            SELECT _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS old, {RECORD_ID_SQL} AS new
+            FROM (SELECT _blob_sha256, _row, _source_path, _record_key, {DUP_SQL}
+                  FROM read_parquet('{files.as_posix()}', union_by_name=true)
+                  WHERE _blob_sha256 IN (SELECT b FROM blobs))""")
+        new = con.execute("SELECT coalesce(m.new, p.old) AS id, m.new IS NULL AND p.old LIKE '%:%' AS miss "
+                          "FROM p LEFT JOIN m USING (old) ORDER BY p.pos").to_arrow_table()
+        if new.num_rows != table.num_rows:
+            raise RuntimeError(f"{spec}: relabelling the {col} side changed the number of pairs (duplicate lake rows?)")
+        unmapped[col] = sum(bool(x) for x in new.column("miss").to_pylist())
+        out = out.set_column(out.schema.get_field_index(col), col, new.column("id"))
+    return out, {**body, "identity": {"relabelled": "fallback <_blob_sha256>:<_row> to the content key (2026-10-10)",
+                                      "unmapped": unmapped}}
 
 
 def runs(settings: Any) -> list[dict[str, Any]]:
