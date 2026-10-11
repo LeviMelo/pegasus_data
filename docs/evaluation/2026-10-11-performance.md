@@ -11,7 +11,8 @@ second is the steady state. Profiles are py-spy raw stacks. Drivers are in the s
 | `pg.query`'s split by competence | 19 % of a query | a filter per month (`2026-10-11-query-split.md`) | one sort | 1.29 → 0.72 s |
 | first query of a process | 12.6 s (labelled, SIM-DO SE) | the decoders' temp pruning stat'ed every entry of the temp directory (14,929) before reading its name; YAML built object by object in each process | the name first; a parsed curation or ontology file kept as a pickle per version (path, mtime, size) for every process | 3.6–3.8 s |
 | `event_types` first call | 2.21 s | YAML (as above) and module imports | the YAML cache | 0.79 s |
-| `concept_index` | 1.2–1.5 s | not profiled yet | — | — |
+| `concept_index` (warm) | 0.59–0.96 s | Python passes over SIGTAP's 82,000 compatibility pairs and the condition codes, and every ICD-10 and SIGTAP label folded again on each call | prefixes filtered in Arrow; the folded labels once per structure and process | 0.03–0.06 s; identical conditions, procedures and labels for toxoplasmosis, dengue and microcephaly |
+| Lake build, one large partition (SIA AM SP 2025: 12 files, 16.4 M rows, 742 MB) | 343.6 s | Parquet writing 30 %, record keys 21 %, decompression 14 % (native); per 1.5 M rows the writer takes 5.2 s now, 6.2 s with 256K row groups (6 % smaller), 5.7 s through DuckDB; the keys 3.9 s in batches or in one query, identical | none: the per-row costs are real work. Left: decoding a large partition's files in parallel, which the builder's cross-file deduplication constrains | — |
 
 The cost that remains in a fresh process is module imports and the deep copies `read_yaml` hands its callers (12 % of
 `event_types`).

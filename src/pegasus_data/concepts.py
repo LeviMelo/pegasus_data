@@ -20,6 +20,7 @@ the data home's ``registries/concepts``:
 
 from __future__ import annotations
 
+import functools
 import io
 import zipfile
 from pathlib import Path
@@ -214,16 +215,28 @@ def _fold(text: str) -> str:
 def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") -> list[dict]:
     """The codes of ``structure`` whose label holds one of ``terms``, accents and case ignored ("toxoplasm" finds
     "Toxoplasmose"): (code, label, level, term)."""
+    import pyarrow.compute as pc
+
+    table, folded_labels = _folded_labels(structure)
+    hit = pa.nulls(table.num_rows, pa.string())
+    for term in reversed(list(terms)):          # the first term matching a label names it, as before
+        f = _fold(term)
+        if f:
+            hit = pc.if_else(pc.match_substring(folded_labels, f), pa.scalar(term), hit)
+    keep = pc.is_valid(hit)
+    rows = table.filter(keep).to_pylist()
+    return [{"code": r["code"], "label": r["label"], "level": r["level"], "term": h}
+            for r, h in zip(rows, hit.filter(keep).to_pylist(), strict=True)]
+
+
+@functools.cache
+def _folded_labels(structure: str) -> tuple[pa.Table, pa.Array]:
+    """A code structure and its labels folded (accents and case), once per process: every `label_matches` folded
+    every label again (ICD-10 and SIGTAP, a quarter of a `concept_index`, 2026-10-11)."""
     from .semantics.code_structures import code_structure
 
-    folded = [(t, _fold(t)) for t in terms]
-    out = []
-    for r in code_structure(structure).to_pylist():
-        label = _fold(r.get("label") or "")
-        hit = next((t for t, f in folded if f and f in label), None)
-        if hit:
-            out.append({"code": r["code"], "label": r["label"], "level": r["level"], "term": hit})
-    return out
+    table = code_structure(structure)
+    return table, pa.array([_fold(x or "") for x in table.column("label").to_pylist()], pa.string())
 
 
 def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None,
@@ -241,19 +254,29 @@ def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), roo
       ``substances`` (names a CATMAT PDM holds) and ``stock_year`` are given, ``"stock"``: BNAFAR's stock of those
       drugs by state and month (`stock_by_state`; ``keep`` filters its products).
     """
+    import pyarrow.compute as pc
+
     prefixes = [_norm(c) for c in codes]
 
-    def held(code: str) -> bool:
-        return any(code.startswith(p) for p in prefixes)
+    def held(table: pa.Table, column: str) -> list[dict]:
+        """The rows whose ``column`` starts with a prefix, filtered in Arrow (a Python pass over SIGTAP's 82,000
+        compatibility pairs at each call)."""
+        if not prefixes or table.num_rows == 0:
+            return []
+        col = pc.cast(table.column(column), pa.string())
+        mask = pc.starts_with(col, prefixes[0])
+        for pfx in prefixes[1:]:
+            mask = pc.or_(mask, pc.starts_with(col, pfx))
+        return table.filter(pc.fill_null(mask, False)).to_pylist()
 
-    found = [r for r in condition_codes(root).to_pylist() if held(r["code"])]
+    found = held(condition_codes(root), "code")
     by_ds: dict[tuple, dict] = {}
     for r in found:
         d = by_ds.setdefault((r["dataset"], r["column"]), {"dataset": r["dataset"], "column": r["column"],
                                                           "year": r["year"], "codes": {}, "events": 0})
         d["codes"][r["code"]] = r["events"]
         d["events"] += r["events"]
-    procedures = [r for r in procedure_compatibility(root).to_pylist() if held(r["cid"])]
+    procedures = held(procedure_compatibility(root), "cid")
     labels = [{**r, "structure": st} for st in ("ICD10", "SIGTAP") for r in label_matches(terms, st)] if terms else []
     try:
         disp: dict[str, Any] = {"apac": dispensed(codes, years, root, download)}
