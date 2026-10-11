@@ -28,6 +28,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -330,10 +331,32 @@ def read_yaml(path: Path) -> dict[str, Any]:
 
 @lru_cache(maxsize=1024)
 def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
+    """The parsed file, from a pickle kept beside the system's temp files when this version of it (path, mtime, size)
+    was parsed before by any process: libyaml parses, but builds every object in Python, and each fresh process (a
+    CLI command, a study's lane) paid it again (a fifth of a first query, `event_types` 2.2 s, 2026-10-11)."""
+    import pickle
+    import tempfile
+
     yaml = _require_yaml()
+    tag = hashlib.sha1(f"{path}|{mtime_ns}|{size}|{yaml.__version__}".encode()).hexdigest()
+    cached = Path(tempfile.gettempdir()) / "pegasus_data_yaml" / f"{tag}.pickle"
+    try:
+        with open(cached, "rb") as handle:
+            return pickle.load(handle)  # noqa: S301 - written by this function from the project's own files
+    except (OSError, pickle.UnpicklingError, EOFError):
+        pass
     loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
     with open(path, encoding="utf-8") as handle:
-        return yaml.load(handle, Loader=loader) or {}  # noqa: S506 - a safe loader
+        doc = yaml.load(handle, Loader=loader) or {}  # noqa: S506 - a safe loader
+    try:
+        cached.parent.mkdir(parents=True, exist_ok=True)
+        tmp = cached.with_suffix(f".{os.getpid()}.tmp")
+        with open(tmp, "wb") as handle:
+            pickle.dump(doc, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        tmp.replace(cached)
+    except OSError:                       # a read-only or full temp directory: parsed each time, never wrong
+        pass
+    return doc
 
 
 @lru_cache(maxsize=1)

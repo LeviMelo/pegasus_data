@@ -936,12 +936,10 @@ _ONTOLOGY_CACHE: dict[tuple, Any] = {}
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
-    try:
-        import yaml
-    except ImportError as exc:  # pragma: no cover - dependency is declared
-        raise RuntimeError("PyYAML is required to read the ontology") from exc
+    """The ontology file through the curation reader: libyaml (ADR-0097), parsed once per version of the file across
+    processes (`semantics.curation.read_yaml`)."""
     if not path.exists():
         return {}
-    with path.open(encoding="utf-8") as handle:
-        # libyaml's loader when present: ~10x the pure-Python one (ADR-0097).
-        return yaml.load(handle, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader)) or {}  # noqa: S506
+    from .semantics.curation import read_yaml
+
+    return read_yaml(path)

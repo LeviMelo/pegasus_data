@@ -133,7 +133,9 @@ def prune_stale_temp() -> dict[str, int]:
     removed = kept = 0
     cutoff = time.time() - STALE_SECONDS
     for d in Path(tempfile.gettempdir()).iterdir():
-        if not d.is_dir() or not d.name.startswith(_TEMP_PREFIXES):
+        # the name first: a stat of every entry of the temp directory (thousands, most not ours) was a fifth of a
+        # process's first query (2026-10-11)
+        if not d.name.startswith(_TEMP_PREFIXES) or not d.is_dir():
             continue
         try:
             newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
