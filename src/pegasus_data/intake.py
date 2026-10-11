@@ -99,7 +99,9 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
             # a field's years are its own, else its source's span (the period's valid years): a context is read on them
             years = fs.get("years") or spec.get("years") or (spec.get("period") or {}).get("valid") or ""
             out[field] = {"source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
-                          "years": str(years), **({"over": fs["over"]} if fs.get("over") else {})}
+                          "years": str(years), **({"over": fs["over"]} if fs.get("over") else {}),
+                          # its strata as `load_field` names them (`_derive`: lower case)
+                          **({"by": [str(c).lower() for c in fs["by"]]} if fs.get("by") else {})}
     return out
 
 

@@ -45,9 +45,9 @@ from typing import Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
-import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
+from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
 from .decisions import (
     borrowed_tables,
@@ -58,6 +58,8 @@ from .decisions import (
     note_pack_fallback,
 )
 from .staging import staged_tree
+
+pads = LazyModule("pyarrow.dataset")
 
 __all__ = [
     "borrowed_tables",

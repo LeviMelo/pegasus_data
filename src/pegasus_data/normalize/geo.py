@@ -18,6 +18,7 @@ Two rules from §7.1:
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 from dataclasses import dataclass, field
@@ -192,8 +193,12 @@ def to_seven_digit(array: pa.Array, index: MunicipalityIndex | None = None) -> p
 
 #: Built once. `pc.index_in` needs an Arrow value set, and rebuilding a 27-entry
 #: one per call would cost more than the lookup.
-_UF_KEYS = pa.array(sorted(UF_NUMERIC), type=pa.string())
-_UF_VALUES = pa.array([UF_NUMERIC[k] for k in sorted(UF_NUMERIC)], type=pa.string())
+@functools.cache
+def _uf_arrays() -> tuple[pa.Array, pa.Array]:
+    """The UF code → numeric code table, built on first use: a `pa.array` at import time imports pandas (pyarrow
+    checks its argument for a pandas object), 0.6 s of every command's start, `--help` included (2026-10-11)."""
+    keys = sorted(UF_NUMERIC)
+    return pa.array(keys, type=pa.string()), pa.array([UF_NUMERIC[k] for k in keys], type=pa.string())
 
 
 def uf_array(array: pa.Array) -> pa.Array:
@@ -204,4 +209,5 @@ def uf_array(array: pa.Array) -> pa.Array:
     if array.type != pa.string():
         array = array.cast(pa.string())
     prefix = pc.utf8_slice_codeunits(pc.utf8_trim_whitespace(array), 0, 2)
-    return pc.take(_UF_VALUES, pc.index_in(prefix, value_set=_UF_KEYS))
+    keys, values = _uf_arrays()
+    return pc.take(values, pc.index_in(prefix, value_set=keys))

@@ -357,7 +357,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `workbook.py`: a built aggregate as an Excel workbook, each sheet its own aggregation (`pegasus-data workbook`).
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph. `mesh`: IBGE's polygons for maps.
-- `concepts.py`: the concept index: which sources hold a condition's codes (every record's own condition code by its role, SINAN's `ID_AGRAVO`; SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope). `dispensed`: the SIGTAP medicine procedures (group 06) of SIA's APAC AM authorised under the codes, one APAC once (the event type's rule), cached per year; `stock_by_state`: BNAFAR's stock of a drug by state and month.
+- `concepts.py`: the concept index: which sources hold a condition's codes (every record's own condition code by its role, SINAN's `ID_AGRAVO`; SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope). `dispensed`: the SIGTAP medicine procedures (group 06) of SIA's APAC AM authorised under the codes, one APAC once (the event type's rule), cached per year; `stock_by_state`: BNAFAR's stock of a drug by state and month. `treatments`: the medicines an official document gives for the codes (`curation/treatments.yml`, each substance with the declared fields that count it, their exact filter and denominator); records never name a treatment here.
 - `intake.py`: the one intake for sources that are not on the FTP (ADR-0162), declared in `curation/intake.yml`: records land in the lake as Parquet (raw beside typed, DuckDB-streamed) and register as a queryable dataset (catalog family, ontology system and series, curation docs from the same declaration); context fields are derived from the records into `<lake>/fields/`; DEMAS and Portal files are read politely (API tables unstable under paging by partitioned filters), and `check_source` sets the used origin against its `compare` origin.
 - `sources/bnafar.py`: BNAFAR/Hórus medicine stock domain logic (CATMAT items, supply units, the monthly grouping) on `intake`; every fresh read also lands in the lake as `BNAFAR-STOCK` with its read day (the endpoint serves current positions only).
 - `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).
@@ -395,6 +395,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `progress.py`: deadlines and heartbeat.
 - `config.py`, `locate.py`: settings and where the data home is.
 - `textenc.py`: codepage detection.
+- `_lazy.py`: a module imported on its first use (`pyarrow.dataset`, which loads pandas, kept off every command's start).
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).
 - `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`, `cli/sidra.py` (`pegasus-data sidra`); shared options and helpers in `cli/_common.py`.
 

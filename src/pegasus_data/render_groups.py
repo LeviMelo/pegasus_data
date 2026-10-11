@@ -134,23 +134,29 @@ def _split_annual_rows(
 
 def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[list[tuple[int, pa.Table]], pa.Table]:
     """The rows of each of ``values`` in ``column`` (the table's row order kept within each), and the rows holding none
-    of them. One stable sort and contiguous slices: a filter per value scanned the whole table once per value (SIH's
-    11.5 million admissions of a year, a few dozen competences: a quarter of a query's time, 2026-10-11)."""
+    of them, as zero-copy slices of the table's runs of equal values. A lake partition is written file by file and a
+    monthly file is one competence, so a national read (27 states) is a few hundred runs: one pass finds them and each
+    value's runs are concatenated in order. A filter per value scanned the whole table once per value, and a sort's
+    take copied it all (SIH's 11.5 million admissions of a year: a third of a warm query, 2026-10-11)."""
     import numpy as np
 
     col = pc.fill_null(table.column(column), 0).to_numpy()
-    order = np.argsort(col, kind="stable")
-    ordered = col[order]
-    wanted = np.asarray(sorted(values), dtype=ordered.dtype)
-    lo = np.searchsorted(ordered, wanted, side="left")
-    hi = np.searchsorted(ordered, wanted, side="right")
-    sorted_table = table.take(pa.array(order))
-    chunks = [(int(v), sorted_table.slice(int(a), int(b - a))) for v, a, b in zip(wanted, lo, hi, strict=True) if b > a]
-    rest = np.ones(len(col), dtype=bool)
-    for a, b in zip(lo, hi, strict=True):
-        rest[a:b] = False
-    # the rows outside the values in their original order, as a filter returns them
-    return chunks, table.take(pa.array(np.sort(order[rest])))
+    if len(col) == 0:
+        return [], table
+    cut = np.flatnonzero(col[1:] != col[:-1]) + 1
+    starts, ends = np.r_[0, cut].tolist(), np.r_[cut, len(col)].tolist()
+    heads = col[np.r_[0, cut]].tolist()
+    runs: dict[int, list[pa.Table]] = {}
+    rest: list[pa.Table] = []
+    wanted = {int(v) for v in values}
+    for v, a, b in zip(heads, starts, ends, strict=True):
+        piece = table.slice(a, b - a)
+        if int(v) in wanted:
+            runs.setdefault(int(v), []).append(piece)
+        else:
+            rest.append(piece)
+    chunks = [(v, pa.concat_tables(runs[v])) for v in sorted(runs)]
+    return chunks, (pa.concat_tables(rest) if rest else table.slice(0, 0))
 
 
 def split_by_source(

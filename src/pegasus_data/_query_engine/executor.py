@@ -89,10 +89,13 @@ def query(
     root: str | Path | None = None,
     settings: Settings | None = None,
     as_of: str | date | datetime | None = None,
+    render: Mapping[str, Any] | None = None,
 ) -> pa.Table | tuple[pa.Table, QueryReport]:
     """Run a query. ``as_of`` reads each source file as the snapshot history
     kept it on that date (``pegasus-data snapshot``, ADR-0141): the lake and the
-    network are not used, and a file with no version by then is a gap."""
+    network are not used, and a file with no version by then is a gap.
+    ``render`` sets a column's rendering (``"code"``: as filed, no codelist
+    chosen), as `load` and `fetch` take it."""
     from ..presentation import resolve as resolve_presentation
 
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
@@ -209,7 +212,7 @@ def query(
                 retrieval.system, retrieval.series,
                 uf=list(retrieval.physical_geography) or None,
                 years=retrieval.lake_years or None, columns=lake_columns,
-                labels=labels, profile="audit" if labels else "codes",
+                labels=labels, profile="audit" if labels else "codes", render=render,
                 companions=False, derived=derived, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True,
             )
@@ -236,6 +239,7 @@ def query(
                 columns=requested_columns,
                 labels=labels,
                 profile="audit" if labels else "codes",
+                render=render,
                 companions=False,
                 # Curated derivations (IDADE_anos) are declarations like labels
                 # are, so they travel with them.

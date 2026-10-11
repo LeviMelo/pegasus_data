@@ -28,6 +28,7 @@ caution* at 20% and 75%; *not viable* otherwise.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -479,6 +480,7 @@ def link(
             if result.verdict == "not viable" and not allow_not_viable:
                 raise LinkNotViable(result)
             return result
+    t0 = time.time()
     if method == "probabilistic":
         from .probabilistic import link_probabilistic
 
@@ -491,7 +493,8 @@ def link(
                             geography=right_geography or geography, **query_kwargs)
         result = run(spec, left, right)
     if persist:
-        store.save(settings, key, result.pairs, result.summary())
+        # its wall time beside it: what a study prices a run it would compute by (pegasus_core `study._link_cost`)
+        store.save(settings, key, result.pairs, {**result.summary(), "seconds": round(time.time() - t0, 1)})
         if method == "probabilistic" and str(geography).upper() == "BR" and right_geography is None:
             store.save_params(settings, name, result.summary(), f"BR {key.period}")
     if result.verdict == "not viable" and not allow_not_viable:

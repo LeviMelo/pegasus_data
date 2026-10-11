@@ -142,6 +142,8 @@ class Settings:
     #: payload, so it is on by default; turn it off where spawning a subprocess
     #: is not possible.
     decode_isolation: bool = True
+    #: Decoder processes in a pool, and partitions built at once (`decode.admission.decode_workers` when None).
+    decode_workers: int | None = None
 
     keep_raw: bool = False
     compression: str = "zstd"
@@ -275,6 +277,7 @@ def load_settings(**overrides: object) -> Settings:
         ("PEGASUS_TIMEOUT", "timeout", float),
         ("PEGASUS_REFRESH", "refresh", str),
         ("PEGASUS_DECODE_ISOLATION", "decode_isolation", lambda v: v not in ("0", "false", "False")),
+        ("PEGASUS_DECODE_WORKERS", "decode_workers", int),
     ):
         if env_name in os.environ:
             kwargs[setting_name] = cast(os.environ[env_name])

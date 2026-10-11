@@ -20,6 +20,7 @@ the data home's ``registries/concepts``:
 
 from __future__ import annotations
 
+import functools
 import io
 import zipfile
 from pathlib import Path
@@ -39,6 +40,50 @@ def _cache(root: str | Path | None) -> Path:
 
 def _norm(code: str) -> str:
     return str(code).replace(".", "").strip().upper()
+
+
+_SUBSTANCE_KEYS = {"name", "reads", "catmat", "use"}
+
+
+def treatments(codes: list[str]) -> list[dict[str, Any]]:
+    """The declared treatments (`curation/treatments.yml`) of any of ICD-10 ``codes`` (a code holds its subcodes, as
+    B58 holds B58.0, and a subcode reaches its category's treatment): each with its conditions, source and substances
+    (their names in SNGPC and CATMAT). A treatment is read from the document it cites, never from records."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    asked = [_norm(c) for c in codes]
+    out = []
+    for key, t in (read_yaml(curation_root() / "treatments.yml").get("treatments") or {}).items():
+        if not str(t.get("source") or "").strip() or not t.get("substances") or not t.get("conditions"):
+            raise ValueError(f"treatments.yml {key}: a treatment needs its conditions, substances and source")
+        for sub in t["substances"]:
+            if set(sub) - _SUBSTANCE_KEYS or not sub.get("name") or not ({"reads", "catmat"} & set(sub)):
+                raise ValueError(f"treatments.yml {key}: a substance has a name and its CATMAT word or reads, "
+                                 f"keys {sorted(_SUBSTANCE_KEYS)}")
+            for read in sub.get("reads") or ():
+                _check_read(read, f"treatments.yml {key} {sub['name']}")
+        conditions = [_norm(c) for c in t["conditions"]]
+        if any(a.startswith(c) or c.startswith(a) for a in asked for c in conditions):
+            out.append({"treatment": key, "conditions": conditions, "source": " ".join(str(t["source"]).split()),
+                        "note": " ".join(str(t.get("note") or "").split()), "substances": list(t["substances"])})
+    return out
+
+
+def _check_read(read: dict[str, Any], where: str) -> None:
+    """A substance's read: a declared field, a filter on the columns it is stratified by, and a denominator that is
+    ``population`` or another declared field."""
+    from .fields import declared_fields
+
+    fields = declared_fields()
+    spec = fields.get(read.get("field"))
+    if spec is None:
+        raise ValueError(f"{where}: reads {read.get('field')!r}, no declared field")
+    by = set(spec.get("by") or ())            # its strata as `load_field` returns them
+    if not read.get("where") or set(read["where"]) - by:
+        raise ValueError(f"{where}: filters {sorted(read.get('where') or {})}, not among {read['field']}'s strata {sorted(by)}")
+    if read.get("over") not in (None, "population") and read["over"] not in fields:
+        raise ValueError(f"{where}: over {read['over']!r} is neither population nor a declared field")
 
 
 def condition_codes(root: str | Path | None = None, refresh: bool = False, download: bool = False) -> pa.Table:
@@ -214,16 +259,28 @@ def _fold(text: str) -> str:
 def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") -> list[dict]:
     """The codes of ``structure`` whose label holds one of ``terms``, accents and case ignored ("toxoplasm" finds
     "Toxoplasmose"): (code, label, level, term)."""
+    import pyarrow.compute as pc
+
+    table, folded_labels = _folded_labels(structure)
+    hit = pa.nulls(table.num_rows, pa.string())
+    for term in reversed(list(terms)):          # the first term matching a label names it, as before
+        f = _fold(term)
+        if f:
+            hit = pc.if_else(pc.match_substring(folded_labels, f), pa.scalar(term), hit)
+    keep = pc.is_valid(hit)
+    rows = table.filter(keep).to_pylist()
+    return [{"code": r["code"], "label": r["label"], "level": r["level"], "term": h}
+            for r, h in zip(rows, hit.filter(keep).to_pylist(), strict=True)]
+
+
+@functools.cache
+def _folded_labels(structure: str) -> tuple[pa.Table, pa.Array]:
+    """A code structure and its labels folded (accents and case), once per process: every `label_matches` folded
+    every label again (ICD-10 and SIGTAP, a quarter of a `concept_index`, 2026-10-11)."""
     from .semantics.code_structures import code_structure
 
-    folded = [(t, _fold(t)) for t in terms]
-    out = []
-    for r in code_structure(structure).to_pylist():
-        label = _fold(r.get("label") or "")
-        hit = next((t for t, f in folded if f and f in label), None)
-        if hit:
-            out.append({"code": r["code"], "label": r["label"], "level": r["level"], "term": hit})
-    return out
+    table = code_structure(structure)
+    return table, pa.array([_fold(x or "") for x in table.column("label").to_pylist()], pa.string())
 
 
 def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None,
@@ -236,30 +293,44 @@ def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), roo
     * ``procedures``: the SIGTAP procedures compatible with them;
     * ``labels``: ICD-10 codes and SIGTAP procedures whose label matches a term (the weakest evidence: a name, not a
       declaration; it finds what no compatibility table ties to a code: toxoplasma serology);
+    * ``treatments``: the medicines an official document gives for the codes (`treatments`);
     * ``dispensed``: ``{"apac": dispensed(...)}``, the specialised-component medicines authorised under the codes, or
       ``{"apac": None, "reason": ...}`` when no SIA AM year is in the lake (``download`` fetches one); and, when
-      ``substances`` (names a CATMAT PDM holds) and ``stock_year`` are given, ``"stock"``: BNAFAR's stock of those
-      drugs by state and month (`stock_by_state`; ``keep`` filters its products).
+      ``stock_year`` is given, ``"stock"``: BNAFAR's stock of ``substances`` (names a CATMAT PDM holds; by default
+      the declared treatments' CATMAT names) by state and month (`stock_by_state`; ``keep`` filters its products).
     """
+    import pyarrow.compute as pc
+
     prefixes = [_norm(c) for c in codes]
 
-    def held(code: str) -> bool:
-        return any(code.startswith(p) for p in prefixes)
+    def held(table: pa.Table, column: str) -> list[dict]:
+        """The rows whose ``column`` starts with a prefix, filtered in Arrow (a Python pass over SIGTAP's 82,000
+        compatibility pairs at each call)."""
+        if not prefixes or table.num_rows == 0:
+            return []
+        col = pc.cast(table.column(column), pa.string())
+        mask = pc.starts_with(col, prefixes[0])
+        for pfx in prefixes[1:]:
+            mask = pc.or_(mask, pc.starts_with(col, pfx))
+        return table.filter(pc.fill_null(mask, False)).to_pylist()
 
-    found = [r for r in condition_codes(root).to_pylist() if held(r["code"])]
+    found = held(condition_codes(root), "code")
     by_ds: dict[tuple, dict] = {}
     for r in found:
         d = by_ds.setdefault((r["dataset"], r["column"]), {"dataset": r["dataset"], "column": r["column"],
                                                           "year": r["year"], "codes": {}, "events": 0})
         d["codes"][r["code"]] = r["events"]
         d["events"] += r["events"]
-    procedures = [r for r in procedure_compatibility(root).to_pylist() if held(r["cid"])]
+    procedures = held(procedure_compatibility(root), "cid")
     labels = [{**r, "structure": st} for st in ("ICD10", "SIGTAP") for r in label_matches(terms, st)] if terms else []
     try:
         disp: dict[str, Any] = {"apac": dispensed(codes, years, root, download)}
     except LookupError as exc:
         disp = {"apac": None, "reason": str(exc)}
+    treated = treatments(codes)
+    if substances is None:
+        substances = [s["catmat"] for t in treated for s in t["substances"] if s.get("catmat")]
     if substances and stock_year:
         disp["stock"] = stock_by_state(substances, stock_year, root, keep)
     return {"codes": prefixes, "conditions": sorted(by_ds.values(), key=lambda d: -d["events"]),
-            "procedures": procedures, "labels": labels, "dispensed": disp}
+            "procedures": procedures, "labels": labels, "treatments": treated, "dispensed": disp}
