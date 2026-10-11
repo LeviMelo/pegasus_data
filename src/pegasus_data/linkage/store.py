@@ -123,11 +123,14 @@ def _relabel(settings: Any, spec: str, table: pa.Table, body: dict[str, Any]) ->
         con.register("p", pa.table({"old": table.column(col), "pos": pa.array(range(table.num_rows), pa.int64())}))
         con.execute("CREATE OR REPLACE TEMP TABLE blobs AS SELECT DISTINCT split_part(old, ':', 1) AS b FROM p "
                     "WHERE old LIKE '%:%'")
-        con.execute(f"""CREATE OR REPLACE TEMP TABLE m AS
-            SELECT _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS old, {RECORD_ID_SQL} AS new
-            FROM (SELECT _blob_sha256, _row, _source_path, _record_key, {DUP_SQL}
-                  FROM read_parquet('{files.as_posix()}', union_by_name=true)
-                  WHERE _blob_sha256 IN (SELECT b FROM blobs))""")
+        if any(Path(settings.lake_dir).glob(f"{system}/{system}_{series or system}_*/**/*.parquet")):
+            con.execute(f"""CREATE OR REPLACE TEMP TABLE m AS
+                SELECT _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS old, {RECORD_ID_SQL} AS new
+                FROM (SELECT _blob_sha256, _row, _source_path, _record_key, {DUP_SQL}
+                      FROM read_parquet('{files.as_posix()}', union_by_name=true)
+                      WHERE _blob_sha256 IN (SELECT b FROM blobs))""")
+        else:   # the side's dataset is not in this lake (SINAN dengue's runs were made elsewhere): its names stay, counted
+            con.execute("CREATE OR REPLACE TEMP TABLE m AS SELECT NULL::VARCHAR AS old, NULL::VARCHAR AS new WHERE false")
         new = con.execute("SELECT coalesce(m.new, p.old) AS id, m.new IS NULL AND p.old LIKE '%:%' AS miss "
                           "FROM p LEFT JOIN m USING (old) ORDER BY p.pos").to_arrow_table()
         if new.num_rows != table.num_rows:
