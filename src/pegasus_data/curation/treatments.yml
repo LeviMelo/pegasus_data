@@ -1,0 +1,41 @@
+# Medicines a condition is treated with, as an official document states them (`concepts.treatments`). A study reads
+# their supply and sales as fields of its topic (BNAFAR stock, SNGPC retail sales); nothing here is inferred from
+# records. Each substance names ``catmat``, a word of the CATMAT item's name (BNAFAR's filter, `sources.bnafar.products`),
+# and ``reads``: the declared fields (`curation/fields.yml`) that count it, each with its exact row filter and its
+# denominator. An exact principle (SNGPC's DS_PRINCIPIO_ATIVO) keeps oral sulfadiazine apart from the silver sulfadiazine burn cream; boxes
+# (CAIXA) are tablets' packages, bottles a suspension's.
+treatments:
+  toxoplasmosis_gestational_congenital:
+    conditions: [B58, O98.6, P37.1]
+    source: >-
+      Nota Técnica nº 163/2018-CGAFME/DAF/SCTIE/MS, Ministério da Saúde, item 6
+      (sources/protocols/nota_tecnica_163_2018_CGAFME_toxoplasmose.pdf)
+    note: >-
+      Spiramycin, pyrimethamine and sulfadiazine joined the strategic component of RENAME 2017 (Portaria nº 1.897 of
+      26 July 2017): the Ministry buys them and the states distribute them, so SUS dispensing is not a retail sale and
+      SNGPC sees little of it (2021: spiramycin 7,438 sale lines, oral sulfadiazine 291, pyrimethamine 8).
+    substances:
+      - name: spiramycin
+        reads:
+          - field: sngpc_industrialized_sales
+            where: {ds_principio_ativo: ESPIRAMICINA, ds_unidade_medida: CAIXA}
+            over: population
+        catmat: ESPIRAMICINA
+        use: acute infection in pregnancy before the 30th week, continued to delivery
+      - name: pyrimethamine
+        reads:
+          - field: sngpc_industrialized_sales
+            where: {ds_principio_ativo: PIRIMETAMINA, ds_unidade_medida: CAIXA}
+            over: population
+        catmat: PIRIMETAMINA
+        use: the triple maternal scheme after the 30th week
+      - name: sulfadiazine
+        reads:
+          - field: sngpc_industrialized_sales
+            where: {ds_principio_ativo: SULFADIAZINA, ds_unidade_medida: CAIXA}
+            over: population
+        catmat: SULFADIAZINA
+        use: the triple maternal scheme after the 30th week
+      - name: folinic acid
+        catmat: FOLÍNICO
+        use: the triple scheme, preventing the marrow aplasia pyrimethamine causes
