@@ -1,6 +1,8 @@
 """BNAFAR / Hórus medicine stock (DEMAS ``daf/estoque-medicamentos-bnafar-horus``), read by filter, never in bulk.
 
-The endpoint holds one row per establishment x product x lot x day of stock position (0.1 to 10 million rows, no total
+The endpoint holds each lot's CURRENT stock position (one row per establishment x product x lot, dated by its last report;
+measured 2026-10-10: no lot appears at two dates, and a past month holds only lots not reported since), not a history:
+it answers "what stock is where now", never a series (0.1 to 10 million rows, no total
 count, offsets slow when deep: docs/evaluation/2026-10-10-demas-source-assessment.md), so nothing here pages the table:
 a reader names a CATMAT code and a month (and optionally a state) and gets that slice, kept in
 ``<root>/registries/bnafar`` (a past month does not change).
@@ -12,9 +14,8 @@ supply unit U0042 (comprimido), and the filter takes that string whole (no prefi
 (`SOLID_ORAL`), and asks BNAFAR for one row of each (cached, negative answers too): the item codes are the catalogue's,
 the pairs that exist are BNAFAR's.
 
-A stock row is a lot's quantity on a day. :func:`monthly` takes each lot's last position of the month in each
-establishment (the stock at month end as the establishment last reported it) and sums over establishments; a month
-without a report is a gap, not zero.
+A stock row is a lot's quantity at its last report. :func:`monthly` groups rows by the month of that last report, which
+is NOT the stock in that month: a past month holds only the lots not reported since (a gap, never a series).
 """
 
 from __future__ import annotations

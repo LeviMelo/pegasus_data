@@ -47,6 +47,16 @@ Stock by state and month (rows, establishments, month-end quantity in tablets; `
   2,079 pirimetamina rows are tagged TOXO. The programme's first appearance (6 rows 2026-01-21) is followed by a single-day load on 2026-10-09
   (3,849 of 3,862 rows): the series is a snapshot of the programme's start, not a month of stock movements.
 
+**Correction (same day, re-measured).** The reading above, a programme "loaded in one day", was wrong. The endpoint
+serves each lot's **current** position, not a history:
+- levothyroxine (BR0268123U0042) in São Paulo: all of the 3,000 rows read are dated 2026-10, and none of their 2,368 lots
+  (establishment, lot, origin system) appears at a second date;
+- the TOXO rows: 3,849 of 3,862 are dated 2026-10-09, today's snapshot;
+- the rows dated earlier ("2025", "2026-01 to 09") are lots whose last report is that old, not stock in that month.
+
+So BNAFAR on DEMAS gives the present stock by establishment, never a series. A series needs the source's own history,
+which DEMAS does not serve (no dispensing endpoint was found).
+
 So BNAFAR cannot give a 2025 series for toxoplasmosis medicines (a handful of reporting establishments in 3 to 6 months); it gives the
 October 2026 stock picture by state. A month without a row is a gap, never zero (`monthly` omits it). Cost: about 450 requests at
 >= 1.1 s with a browser User-Agent (297 product probes, 101 stock slices of 1 to 4 pages, TOXO 4 pages, the CATMAT PDM list and five PDMs' items and units);

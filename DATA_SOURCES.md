@@ -644,6 +644,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 
 ### 6.1 Population
 
+  **Correction (2026-10-10):** the endpoint holds each lot's current position (no lot at two dates; 3,000 SP levothyroxine rows all of 2026-10), not a history: present stock by establishment, never a series.
 - On the DATASUS tree: POPSVS (municipal), POPTCU, POP, censo, and `projpop`
   (UF-level projections 2000–2070, which complement rather than supersede
   POPSVS) (F §1 V7, V8). Which series backs the Ministry's published rates is
