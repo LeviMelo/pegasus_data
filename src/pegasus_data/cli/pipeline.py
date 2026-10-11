@@ -75,6 +75,28 @@ def fields(
 
 
 @app.command(rich_help_panel="PIPELINE")
+def extract(
+    dataset: Annotated[str, typer.Argument(help="e.g. SIASUS-PA")],
+    years: Annotated[str, typer.Option("--years", help="e.g. 2010-2025")],
+    filters: Annotated[list[str], typer.Option("--filter", help="COLUMN=CODE,CODE (prefixes); repeat for several columns")],
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="only these states' files (the extract is then not whole)")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Keep the records of a dataset that the filters match, reading its files one by one (extract.py): for a dataset
+    larger than the lake can hold."""
+    from ..extract import build_extract
+
+    parsed = {}
+    for f in filters:
+        column, _, codes = f.partition("=")
+        parsed[column] = [c for c in codes.split(",") if c]
+    result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print)
+    _emit({k: v for k, v in result.items() if k != "files"} | {"files_read": len(result["files"]),
+          "kept": sum(v["kept"] for v in result["files"].values())}, as_json, "extract")
+
+
+@app.command(rich_help_panel="PIPELINE")
 def curate(
     root: RootOpt = None,
     curation: Annotated[Path | None, typer.Option("--curation", help="Directory of curated YAML (defaults to the packaged one)")] = None,

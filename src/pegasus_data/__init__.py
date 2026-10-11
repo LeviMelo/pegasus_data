@@ -54,6 +54,8 @@ _EXPORTS: dict[str, str] = {
     "roles": ".semantics.column_roles",
     "event_types": ".semantics.event_types",
     "count_events": ".semantics.event_types",
+    "build_extract": ".extract",
+    "extract_table": ".extract",
     "code_structure": ".semantics.code_structures",
     "code_attributes": ".semantics.code_structures",
     "code_bridge": ".semantics.code_structures",

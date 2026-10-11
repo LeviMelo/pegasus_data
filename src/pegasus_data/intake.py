@@ -673,7 +673,19 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     try:
         relation, extracted = _file_relation(raw, origin)
         unit["size"] = raw.stat().st_size
-        stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+        try:
+            stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+        except Exception as exc:
+            # a month published in another encoding than the source declares (SNGPC's latin-1 files hold UTF-8 months
+            # among 2014-2018's, 2026-10-11): read as mixed, each line's valid UTF-8 kept and stray bytes as cp1252
+            csv = origin.get("csv") or {}
+            if origin.get("format", "csv") != "csv" or csv.get("encoding") == "mixed" or "encoded" not in str(exc):
+                raise
+            if extracted is not None and extracted.is_file():
+                extracted.unlink()
+            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}})
+            stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+            stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
         if origin.get("format", "csv") == "csv":
             # the independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of
             # SISAGUA 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap

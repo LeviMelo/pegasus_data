@@ -176,6 +176,8 @@ concept_index(["B58", "P37.1"], ["toxoplasm"])  # SINAN agravos holding the code
                                      # compatible with them, ICD-10 and SIGTAP labels matching the terms
 dispensed(["G20"])                   # SIA AM medicines authorised under the codes: SIGTAP procedure, name, APACs (the lake's latest year)
 stock_by_state(["pirimetamina"], 2025)  # BNAFAR stock of a drug by state and month, read by CATMAT filter (sources/bnafar.py)
+build_extract("SIASUS-PA", range(2010, 2026), {"PA_PROC_ID": ["0202030768"]})  # the records the filters match, its
+                                     # files read one by one (a dataset larger than the lake); extract_table reads them back
 treatments(["B58"])                  # the medicines an official document gives for the codes (curation/treatments.yml),
                                      # with each one's SNGPC and CATMAT spelling; concept_index returns them too
 condition_codes(); procedure_compatibility()  # its two tables: each record's own condition code (SINAN's ID_AGRAVO), SIGTAP's

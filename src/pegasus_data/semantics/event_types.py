@@ -492,9 +492,11 @@ def _read(query: Callable[..., pa.Table], event: EventType, dataset: str, select
 
 def count_events(
     dataset: str, name: str, *, period: object, geography: object = "BR", by: list[str] | None = None,
-    **query_kwargs: Any,
+    records: pa.Table | None = None, **query_kwargs: Any,
 ) -> pa.Table:
     """Counts of one event type, optionally grouped by columns of the record; a weighted event sums its weight.
+    ``records``: the event type's records already read (an extract's, `pegasus_data.extract`), counted in place of a
+    query of ``period`` and ``geography``.
 
     A grid event's ``by`` may name `GRID_SEX` and `GRID_AGE`, and its result has a column ``unquantified``: the rows
     whose grid and total are both blank, a group whose people were not counted (`grid_events`)."""
@@ -505,8 +507,9 @@ def count_events(
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
         columns = {c for c in (event.status_column, event.grid_total, event.grid_margin, *(c.column for c in event.grid),
                                *record_by) if c}
-        table = _read(query, event, dataset, None if event.duplicates_except is not None else sorted(columns),
-                      period=period, geography=geography, **query_kwargs)
+        table = records if records is not None else _read(
+            query, event, dataset, None if event.duplicates_except is not None else sorted(columns),
+            period=period, geography=geography, **query_kwargs)
         long = grid_events(events_of(table, event), event, record_by)
         if not by:
             return pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
@@ -514,8 +517,9 @@ def count_events(
         return long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
             [*by, "events", "unquantified"])
     columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
-    table = _read(query, event, dataset, None if event.duplicates_except is not None else (sorted(columns) or None),
-                  period=period, geography=geography, **query_kwargs)
+    table = records if records is not None else _read(
+        query, event, dataset, None if event.duplicates_except is not None else (sorted(columns) or None),
+        period=period, geography=geography, **query_kwargs)
     events = events_of(table, event)
     events = events.append_column("__w", event_weights(events, event))
     if not by:

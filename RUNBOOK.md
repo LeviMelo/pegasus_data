@@ -69,6 +69,8 @@ $PD explore [SIH.RD]                                           # what exists, of
 $PD info SIH.RD                                                # what it is
 $PD search raça                                                # which columns and codes mean what
 $PD download --system SIHSUS                                   # maintainer: raw files into the cache
+$PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,0202030873   # a dataset too large for the lake:
+                                                               # the filters' records, its files read and released one by one
 ```
 
 ## 5. Maintainer builds
