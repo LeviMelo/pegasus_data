@@ -119,11 +119,12 @@ def _relabel(settings: Any, spec: str, table: pa.Table, body: dict[str, Any]) ->
         if col not in table.column_names:
             continue
         system, series = parse_dataset(side.dataset)
-        files = Path(settings.lake_dir) / system / f"{system}_{series or system}_*" / "**" / "*.parquet"
+        # published partitions only: a lake write in progress stages under a hidden `.year=…__staging__` directory
+        files = Path(settings.lake_dir) / system / f"{system}_{series or system}_*" / "schema_signature=*" / "uf=*" / "year=*" / "*.parquet"
         con.register("p", pa.table({"old": table.column(col), "pos": pa.array(range(table.num_rows), pa.int64())}))
         con.execute("CREATE OR REPLACE TEMP TABLE blobs AS SELECT DISTINCT split_part(old, ':', 1) AS b FROM p "
                     "WHERE old LIKE '%:%'")
-        if any(Path(settings.lake_dir).glob(f"{system}/{system}_{series or system}_*/**/*.parquet")):
+        if any(Path(settings.lake_dir).glob(f"{system}/{system}_{series or system}_*/schema_signature=*/uf=*/year=*/*.parquet")):
             con.execute(f"""CREATE OR REPLACE TEMP TABLE m AS
                 SELECT _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS old, {RECORD_ID_SQL} AS new
                 FROM (SELECT _blob_sha256, _row, _source_path, _record_key, {DUP_SQL}
