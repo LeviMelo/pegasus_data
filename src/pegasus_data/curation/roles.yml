@@ -49,11 +49,22 @@ datasets:
       birth.plurality: {column: GRAVIDEZ, type: label, categories: {single: ["única", "unica"], twins: [dupla], "triplets or more": ["tripla e mais", "tripla e+", "tripla ou mais"]}}
       birth.gestation_weeks: {column: SEMAGESTAC, type: integer}
       mother.birth_date: {column: DTNASCMAE, type: date, format: DDMMYYYY}
+      mother.birth_year: {column: DTNASCMAE, type: year, format: DDMMYYYY}
       mother.age: {column: IDADEMAE, type: integer}
       mother.residence: {column: CODMUNRES, type: municipality}
       birth.municipality: {column: CODMUNNASC, type: municipality}
       baby.race: {column: RACACOR, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
       mother.race: {column: RACACORMAE, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
+
+  # Foetal deaths: their certificate lines are read as one set of codes, as SIM-DO's are. Of the 29 foetal deaths
+  # of 2018 naming B58, P37.1 or O98.6, 10 name them only on a line, not as the underlying cause (2026-10-10).
+  SIM-DOFET:
+    record: death
+    roles:
+      deceased.residence: {column: CODMUNRES, type: municipality}
+      death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
+      death.cause: {column: CAUSABAS, type: code}
+      death.causes: {column: LINHAA, also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}   # every cause the certificate mentions
 
   SIM-DO:
     record: death
@@ -124,6 +135,42 @@ datasets:
       case.onset: {column: DT_SIN_PRI, type: date, format: YYYY-MM-DD}
       case.outcome: {column: EVOLUCAO, type: code}
       case.death_date: {column: DT_OBITO, type: date, format: YYYY-MM-DD}
+      notification.facility: {column: ID_UNIDADE, type: facility}
+      notification.municipality: {column: ID_MUNICIP, type: municipality}
+
+  # Congenital and gestational toxoplasmosis notifications (BACKLOG 6.2). SINAN carries no birth date since the LGPD
+  # rewrite: a year (ANO_NASC) and an age coded as a unit and a count (NU_IDADE_N: 1 hours, 2 days, 3 months, 4 years).
+  # A child's age in days was counted from the date of first symptoms or diagnosis: counted back from DT_SIN_PRI it
+  # gives ANO_NASC for 99.7% of the 30,478 TOXC 2019-2025 records aged in days, from DT_NOTIFIC for 91.8% (7.9% agree
+  # only through DT_SIN_PRI, 0.04% only through DT_NOTIFIC). It fixes the birth date: `birth_from_age`. A record aged
+  # in months or years (14.4% of TOXC) has no birth day; one aged in hours (54) is left without one too.
+  # The notified person is the child in TOXC, the mother in TOXG.
+  SINAN-TOXC:
+    record: notification
+    roles:
+      patient.birth_date: {column: NU_IDADE_N, also: [DT_SIN_PRI], type: birth_from_age, format: YYYY-MM-DD}
+      patient.birth_year: {column: ANO_NASC, type: integer}
+      patient.sex: {column: CS_SEXO, type: sex}
+      patient.residence: {column: ID_MN_RESI, type: municipality}
+      case.onset: {column: DT_SIN_PRI, type: date, format: YYYY-MM-DD}
+      case.death_date: {column: DT_OBITO, type: date, format: YYYY-MM-DD}
+      case.outcome: {column: EVOLUCAO, type: code}
+      case.disease: {column: ID_AGRAVO, type: code}
+      notification.date: {column: DT_NOTIFIC, type: date, format: YYYY-MM-DD}
+      notification.facility: {column: ID_UNIDADE, type: facility}
+      notification.municipality: {column: ID_MUNICIP, type: municipality}
+
+  SINAN-TOXG:
+    record: notification
+    roles:
+      patient.birth_year: {column: ANO_NASC, type: integer}
+      patient.sex: {column: CS_SEXO, type: sex}
+      patient.residence: {column: ID_MN_RESI, type: municipality}
+      patient.age_years: {column: IDADE_anos, type: number}
+      patient.pregnancy_status: {column: CS_GESTANT, type: code}
+      case.onset: {column: DT_SIN_PRI, type: date, format: YYYY-MM-DD}
+      case.disease: {column: ID_AGRAVO, type: code}
+      notification.date: {column: DT_NOTIFIC, type: date, format: YYYY-MM-DD}
       notification.facility: {column: ID_UNIDADE, type: facility}
       notification.municipality: {column: ID_MUNICIP, type: municipality}
 

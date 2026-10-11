@@ -32,7 +32,7 @@ import pyarrow.compute  # noqa: F401 - pa.compute
 from ..semantics.curation import read_yaml
 from .engine import link_method, links_file, load_links, stored_key
 from .identity import connect
-from .store import links_dir
+from .store import load
 
 #: How many records of one kind a person can have. A kind is (dataset, role).
 AT_MOST_ONE = {("SINASC-DN", "baby"), ("SIM-DO", "deceased")}
@@ -75,7 +75,6 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
     """Every stored pair of the scope's viable runs as one edge table, with its p_match (1 where the run carries none).
     A run stored with the verdict "not viable" (SINAN's dengue deaths in 2015: its controls matched like its pairs)
     merges no one."""
-    import json
 
     con = connect()
     parts = []
@@ -83,17 +82,15 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
         if name in exclude:
             continue
         key = stored_key(name, method or link_method(name), period, geography)
-        path = links_dir(settings) / name / f"{key.stem}.parquet"
-        report = path.with_suffix(".json")
-        if not path.exists():
+        stored = load(settings, key)               # through the store: a run named by an old identity is relabelled
+        if stored is None or stored[1].get("verdict") == "not viable":
             continue
-        if report.exists() and json.loads(report.read_text(encoding="utf-8")).get("verdict") == "not viable":
-            continue
-        cols = con.execute(f"SELECT * FROM '{path.as_posix()}' LIMIT 0").to_arrow_table().column_names
-        pm = "p_match" if "p_match" in cols else "1.0"
+        view = f"run_{len(parts)}"
+        con.register(view, stored[0])
+        pm = "p_match" if "p_match" in stored[0].column_names else "1.0"
         parts.append(f"""SELECT '{name}' AS spec, '{lds}' AS lds, '{lrole}' AS lrole, l,
                                  '{rds}' AS rds, '{rrole}' AS rrole, r, bits, CAST({pm} AS DOUBLE) AS p_match
-                          FROM '{path.as_posix()}'""")
+                          FROM {view}""")
     if not parts:
         raise FileNotFoundError("no stored links for this scope: run link() first")
     return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").to_arrow_table()

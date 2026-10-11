@@ -285,7 +285,10 @@ def _join(con: duckdb.DuckDBPyConnection, keys: tuple[tuple[str, str], ...], shi
     for left, _right in keys:
         expr = _q(left)
         if shift and left == shift[0]:
-            expr = f"CAST({_q(left)} + INTERVAL {shift[1]} DAY AS DATE)"
+            # a date moves by days; a year (SINAN's birth year, an integer) by that many years
+            kind = con.execute(f"SELECT typeof({_q(left)}) FROM L LIMIT 1").fetchone()
+            expr = (f"({_q(left)} + {shift[1]})" if kind and kind[0] in ("BIGINT", "INTEGER")
+                    else f"CAST({_q(left)} + INTERVAL {shift[1]} DAY AS DATE)")
         lk.append(f"{expr} AS k_{len(lk)}")
     rk = [f"{_q(right)} AS k_{i}" for i, (_l, right) in enumerate(keys)]
     kn = ", ".join(f"k_{i}" for i in range(len(keys)))
@@ -385,6 +388,41 @@ def judge(
     return "not viable"
 
 
+def _side_table(side: Side, roles: list[str], *, period: object, geography: object, **query_kwargs: Any) -> pa.Table:
+    """A side's role table. A national side with a filter is read one cached year at a time with the filter applied
+    where the year is read, so a side that keeps a few thousand of 12 million admissions never holds the year
+    (a congenital toxoplasmosis link held 15 GB, 2026-10-10). The side's own filter still runs in `_prepare`; a
+    record's identity does not depend on it (exact duplicates are numbered within their source file and pass the
+    filter together)."""
+    import os
+
+    from ..config import load_settings
+    from .roles import _cache_path, _whole_years
+
+    years = _whole_years(period)
+    if not side.where or not years or str(geography).upper() != "BR":
+        return role_table(side.dataset, period=period, geography=geography, roles=roles, **query_kwargs)
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    import pyarrow.parquet as pq
+
+    con = connect()
+    con.execute("SET memory_limit = '3GB'")
+    parts: list[pa.Table] = []
+    for year in years:
+        path = _cache_path(side.dataset, str(year), "BR", settings)
+        if path is not None and not path.exists():
+            role_table(side.dataset, period=year, geography="BR", roles=roles[:1], **query_kwargs)  # builds the cache
+        if path is None or not path.exists():
+            return role_table(side.dataset, period=period, geography=geography, roles=roles, **query_kwargs)
+        os.utime(path)
+        have = set(pq.read_schema(path).names)
+        keep = [c for c in ("_blob_sha256", "_row", "_source_path", "_record_key") if c in have] + roles
+        columns = ", ".join(_q(c) for c in keep)
+        parts.append(con.execute(f"SELECT {columns} FROM read_parquet('{path.as_posix()}') WHERE {side.where}"
+                                 ).to_arrow_table())
+    return pa.concat_tables(parts, promote_options="default")
+
+
 def link(
     name: str,
     *,
@@ -447,11 +485,10 @@ def link(
         result = link_probabilistic(name, period=period, geography=geography, right_period=right_period,
                                     right_geography=right_geography, **query_kwargs)
     else:
-        left = role_table(spec.left.dataset, period=period, geography=geography,
-                          roles=_roles_needed(spec, "left"), **query_kwargs)
-        right = role_table(spec.right.dataset, period=right_period or period,
-                           geography=right_geography or geography, roles=_roles_needed(spec, "right"),
+        left = _side_table(spec.left, _roles_needed(spec, "left"), period=period, geography=geography,
                            **query_kwargs)
+        right = _side_table(spec.right, _roles_needed(spec, "right"), period=right_period or period,
+                            geography=right_geography or geography, **query_kwargs)
         result = run(spec, left, right)
     if persist:
         store.save(settings, key, result.pairs, result.summary())
