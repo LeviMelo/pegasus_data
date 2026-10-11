@@ -449,7 +449,7 @@ def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
 #: what one of its rows means. They are keyed differently on purpose
 #: (``SIH.RD`` against ``SIHSUS_RD``) and :func:`pegasus_data._info.info` joins
 #: them on either.
-_NOT_CURATION = frozenset({"ontology.yml", "joins.yml", "codelists.yml"})
+_NOT_CURATION = frozenset({"ontology.yml", "joins.yml", "codelists.yml", "intake.yml"})
 
 
 def iter_curation_files(root: Path) -> Iterator[Path]:
@@ -585,6 +585,15 @@ def load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
         if "prefix_systems" in data:
             for prefix, system in (data.get("prefix_systems") or {}).items():
                 systems_map[str(prefix).upper()] = str(system).upper()
+
+    # The columns and datasets of the sources read by the intake mechanism (ADR-0162) are documented in curation/intake.yml.
+    from ..intake import curation_docs
+
+    intake_variables, intake_datasets = curation_docs(root)
+    for data in intake_variables:
+        variables.extend(parse_variable_file(root / "intake.yml", data))
+    for data in intake_datasets:
+        datasets.extend(parse_datasets_file(root / "intake.yml", data))
 
     _replace_variable_docs(catalog, variables)
     _replace_dataset_docs(catalog, datasets)

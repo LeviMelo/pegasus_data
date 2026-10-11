@@ -543,6 +543,21 @@ class Ontology:
                     observed_as=(series,),
                 )
 
+        # Sources read by the intake mechanism (ADR-0162) declare their system and series in curation/intake.yml.
+        from .intake import ontology_nodes
+
+        intake_systems, intake_datasets = ontology_nodes(root)
+        for code, body in intake_systems.items():
+            systems.setdefault(code, SystemNode(
+                code=code, official_name=body.get("official_name"), translated_name=body.get("translated_name"),
+                kind=str(body.get("kind", "data")), status="active", what_it_is=_clean(body.get("what_it_is")),
+                authority=body.get("authority"), crawled_as=tuple(str(x).upper() for x in body.get("crawled_as") or ()), republishes=False))
+        for code, body in intake_datasets.items():
+            datasets.setdefault(code, DatasetNode(
+                code=code, system=body["system"], official_name=body.get("official_name"), translated_name=body.get("translated_name"),
+                what_it_is=_clean(body.get("what_it_is")), status="active", confidence="high",
+                observed_as=tuple(str(x).upper() for x in body.get("observed_as") or ())))
+
         keys, unestablished = _load_joins(root)
         return cls(systems, datasets, keys, unestablished)
 

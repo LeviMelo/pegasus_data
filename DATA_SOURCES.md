@@ -640,6 +640,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Verdicts: 35 use DEMAS (ESAVI, mpox, yellow fever, SIES, BNAFAR, COVID occupancy, SIASI/SESAI, SISAB, SIAPS, health-region
   mapping, BPS), 49 original with DEMAS as fallback, 29 not relevant.
 
+- **Sources off the FTP, intake (2026-10-10, `intake.py`, ADR-0162, `docs/evaluation/2026-10-10-intake.md`).** DEMAS tables whose
+  rows are not stable under offset paging (BNAFAR's live stock: consecutive pages overlap by a third, the same request returns
+  different rows) are read by splitting the filter by state until it fits one 1,000-row page; static tables (SIES, ESAVI, yellow
+  fever) page stably. **Yellow-fever monitoring** (Portal `Febre Amarela/fa_casoshumanos_1994-2026.csv`, `fa_epizpnh_1994-2026.csv`,
+  semicolon, Latin-1, ends with an empty row; dictionary `Dicionario de variaveis.pdf`): 2,911 human cases (1994-2026; ID 1-2911) and
+  2,637 epizootics (2000-2026), placed at the probable place of infection and of occurrence, dated by year and month columns; DEMAS
+  holds one copy more of the first case and lacks the month of 13 epizootics, so the Portal is the source.
+
 ## 6. IBGE
 
 ### 6.1 Population

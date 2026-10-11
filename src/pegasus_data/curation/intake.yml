@@ -1,0 +1,184 @@
+# Intake of the sources that are not on the DATASUS FTP (ADR-0162): each entry is read by pegasus_data/intake.py, which does
+# everything else (fetch, stream, reduce, serve as `curation/fields.yml` fields). The format:
+#
+#   what / citation     one sentence, and the string every row of the field carries as `source`
+#   origin              the one route used: kind api (DEMAS: base, endpoint, paging {rows: the answer's list key, size, style})
+#                       or files (Portal de Dados Abertos: files [{url, year?}] or pattern + years/months; format csv|parquet,
+#                       csv {sep, encoding}); `keep: true` keeps the raw file (default: reduced, then deleted)
+#   compare             the other route, only to count its rows against the used one (the independent figure)
+#   columns             the columns used, as the source's own dictionary names them: `role` (the dictionary's words), `type`
+#                       (roles.yml's vocabulary: municipality, code, label, date, number...), `codes` (its code list, raw value
+#                       -> meaning, when the dictionary gives one), `decimal` for a number written with a comma
+#   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
+#                       municipality_name (+ uf: the state column; exact fold match against IBGE's names) | code, as: name}
+#   period              {type: date (+ format, take) | month (YYYYMM) | year | parts (year, month columns) | file (the file's own
+#                       year), grain: year|month, valid: the years kept}
+#   fields              each a measure over the rows: `count` or `{sum: column}` (never a mean), `where` {column: [raw values]},
+#                       `by` [columns kept as extra keys], `unit`, `what`
+#   verified            the check made: {rows, against, measured}
+#
+# What the reduction leaves out is counted, never silent: unplaced (no municipality given), unallocated (given, but not an
+# IBGE municipality of the universe), undated, out of range.
+
+sources:
+
+  catmat:
+    what: "The open CATMAT catalogue (Compras.gov.br, modulo-material): the drugs (PDM) of class 6505 and their items and supply units."
+    origin:
+      kind: api
+      base: https://dadosabertos.compras.gov.br/modulo-material
+      paging: {style: page, page_param: pagina, size_param: tamanhoPagina, size: 500, rows: resultado, pages_key: totalPaginas}
+    columns: {}
+
+  bnafar:
+    what: >
+      BNAFAR/Hórus medicine stock (DEMAS daf/estoque-medicamentos-bnafar-horus): each lot's CURRENT stock position at an
+      establishment (one row per establishment x product x lot, dated by its last report), read by filter (CATMAT code, month,
+      state, programme), never in bulk.
+    citation: DEMAS /daf/estoque-medicamentos-bnafar-horus (BNAFAR/Hórus, DAF/SECTICS)
+    system: BNAFAR
+    series: STOCK
+    system_name:
+      official_name: Base Nacional de Dados de Ações e Serviços da Assistência Farmacêutica (BNAFAR / Hórus)
+      translated_name: National Pharmaceutical Care Database (BNAFAR / Hórus)
+      authority: Ministério da Saúde / DAF / SECTICS
+      what_it_is: >
+        The stock of medicines that establishments report to the Ministry's pharmaceutical-care systems (Hórus and the
+        state systems that feed BNAFAR).
+    official_name: Posição de estoque de medicamentos
+    translated_name: Medicine stock position
+    snapshot: true
+    one_row: one lot of one product at one establishment, at its last stock report
+    unit_of_analysis: lot position
+    gotchas:
+      - The endpoint serves each lot's CURRENT position, not a history; every read is kept here with its read day (_READ_ON), so a history accrues from the first read.
+      - A municipality code ending in 0000 is the state's "ignored municipality", not a place.
+      - Offset paging of the live table is unstable (pages overlap and differ between reads), so a filter is split by state until it fits one page.
+    place: {column: codigo_municipio, type: municipality}
+    period: {type: date, column: data_posicao_estoque}
+    origin:
+      kind: api
+      endpoint: /daf/estoque-medicamentos-bnafar-horus
+      paging: {short_page_is_end: true}
+      # The table is read without an ORDER BY while it changes: offset pages overlap and differ between reads, so a filter is
+      # split by state (and by municipality where a state is still a full page) until each slice fits in one page.
+      partition: [{param: codigo_uf, values: uf_code}, {param: codigo_municipio, values: municipality, within: codigo_uf}]
+    columns:
+      codigo_uf: {role: state of the establishment, type: code}
+      uf: {role: state abbreviation, type: label}
+      codigo_municipio: {role: municipality of the establishment, type: municipality}
+      municipio: {role: municipality name, type: label}
+      codigo_cnes: {role: establishment, type: facility}
+      data_posicao_estoque: {role: date of the lot's last stock report, type: date}
+      codigo_catmat: {role: "CATMAT item with its supply unit (BR + item + unit, taken whole by the filter)", type: code}
+      descricao_produto: {role: product description, type: label}
+      quantidade_estoque: {role: quantity in stock, type: number}
+      numero_lote: {role: lot, type: code}
+      data_validade: {role: expiry, type: date, take: 10}
+      tipo_produto: {role: product type, type: label}
+      sigla_programa_saude: {role: health programme (NI = not informed), type: code}
+      sigla_sistema_origem: {role: system the report came from, type: code}
+
+  yellow_fever_humans:
+    system: FA
+    series: HUM
+    system_name:
+      official_name: Monitoramento da Febre Amarela
+      translated_name: Yellow Fever Monitoring
+      authority: Ministério da Saúde / SVSA
+      what_it_is: >
+        The Ministry's monitoring series of yellow fever in humans and in non-human primates (epizootics), by monitoring
+        period (July to June, the seasonal year of transmission), published as two open files.
+    official_name: Febre Amarela em humanos
+    translated_name: Yellow fever in humans
+    what: >
+      Suspected and confirmed yellow-fever cases in humans, 1994-2026, one row per case, placed at the probable place of
+      infection (LPI) and dated by the onset of symptoms.
+    one_row: one notified case, at its probable place of infection
+    unit_of_analysis: case
+    gotchas:
+      - The municipality is the probable place of infection, not of residence or notification.
+      - The year and month are those of the onset of symptoms; the monitoring period runs July to June.
+      - The file ends with an empty row, and a few cases carry no municipality code (counted as unplaced).
+    citation: Portal de Dados Abertos do SUS, fa_casoshumanos_1994-2026.csv (SVSA/MS); DEMAS /arboviroses/febre-amarela-humanos-primatas-nao-humanos holds one copy of the first case more
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/fa_casoshumanos_1994-2026.csv"}]
+    compare:
+      kind: api
+      endpoint: /arboviroses/febre-amarela-humanos-primatas-nao-humanos
+      paging: {rows: febre_amarela_humanos_primatas}
+    columns:
+      ID: {role: sequential unique identifier, type: integer}
+      MACRORREG_LPI: {role: abbreviation of the macro-region of the probable place of infection, type: code}
+      COD_UF_LPI: {role: IBGE code of the state of the probable place of infection, type: code}
+      UF_LPI: {role: abbreviation of the state of the probable place of infection, type: code}
+      COD_MUN_LPI: {role: IBGE code of the municipality of the probable place of infection, type: municipality}
+      MUN_LPI: {role: name of the municipality of the probable place of infection, type: label}
+      SEXO: {role: sex of the individual, type: code}
+      IDADE: {role: age of the individual, type: number, decimal: ","}
+      DT_IS: {role: date of the onset of symptoms (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_IS: {role: epidemiological week of the onset of symptoms, type: integer}
+      MES_IS: {role: month of the onset of symptoms, type: integer}
+      ANO_IS: {role: year of the onset of symptoms, type: integer}
+      MONITORAMENTO_IS: {role: monitoring period of the onset of symptoms (July to June), type: code}
+      OBITO: {role: evolution to death, type: code, codes: {"SIM": died, "NÃO": did not die, "IGN": ignored}}
+      DT_OBITO: {role: date of death (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+    place: {column: COD_MUN_LPI, type: municipality}
+    period: {type: parts, year: ANO_IS, month: MES_IS, grain: month, valid: 1994-2026}
+    fields:
+      yellow_fever_human_cases:
+        measure: count
+        unit: cases
+        what: Yellow-fever human cases by municipality of the probable place of infection and month of onset.
+      yellow_fever_human_deaths:
+        measure: count
+        where: {OBITO: [SIM]}
+        unit: deaths
+        what: Of those, the cases that evolved to death.
+
+  yellow_fever_epizootics:
+    system: FA
+    series: EPIZ
+    official_name: Epizootias de febre amarela em primatas não humanos
+    translated_name: Yellow-fever epizootics in non-human primates
+    what: >
+      Epizootics in non-human primates attributed to yellow fever, 1999-2026, one row per occurrence, placed where it occurred
+      and dated by the year and month of occurrence (the day is mostly empty).
+    one_row: one epizootic occurrence
+    unit_of_analysis: occurrence
+    gotchas:
+      - The exact date (DATA_OCOR) and week are mostly empty; the year and month are the period.
+    citation: Portal de Dados Abertos do SUS, fa_epizpnh_1994-2026.csv (SVSA/MS); DEMAS /arboviroses/febre-amarela-epzootias lacks the month of 13 rows
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/fa_epizpnh_1994-2026.csv"}]
+    compare:
+      kind: api
+      endpoint: /arboviroses/febre-amarela-epzootias
+      paging: {rows: febre_amarela_epzootias}
+    columns:
+      ID: {role: sequential unique identifier, type: integer}
+      MACRORREG_OCOR: {role: abbreviation of the macro-region of the place of occurrence, type: code}
+      COD_UF_OCOR: {role: IBGE code of the state of the place of occurrence, type: code}
+      UF_OCOR: {role: abbreviation of the state of the place of occurrence, type: code}
+      COD_MUN_OCOR: {role: IBGE code of the municipality of the place of occurrence, type: municipality}
+      MUN_OCOR: {role: name of the municipality of the place of occurrence, type: label}
+      DATA_OCOR: {role: date of the occurrence (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_OCOR: {role: epidemiological week of the occurrence, type: integer}
+      MES_OCOR: {role: month of the occurrence, type: integer}
+      ANO_OCOR: {role: year of the occurrence, type: integer}
+      MONITORAMENTO_OCOR: {role: monitoring period of the occurrence (July to June), type: code}
+    place: {column: COD_MUN_OCOR, type: municipality}
+    period: {type: parts, year: ANO_OCOR, month: MES_OCOR, grain: month, valid: 1994-2026}
+    fields:
+      yellow_fever_epizootics:
+        measure: count
+        unit: epizootics
+        what: Epizootics in non-human primates by municipality of occurrence and month.

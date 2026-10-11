@@ -21,63 +21,25 @@ is NOT the stock in that month: a past month holds only the lots not reported si
 from __future__ import annotations
 
 import json
-import time
 from pathlib import Path
 from typing import Any
 
-import httpx
 import pyarrow as pa
-import pyarrow.parquet as pq
 
-from ..config import DEMAS_BASE_URL
+from .. import intake
 
-ENDPOINT = "/daf/estoque-medicamentos-bnafar-horus"
-CATMAT_BASE = "https://dadosabertos.compras.gov.br/modulo-material"
-#: Drugs and medicines (CATMAT group 65, class 6505).
-CATMAT_CLASS = 6505
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
-PAGE = 1000
-#: Seconds between two requests to either host.
-INTERVAL = 1.1
-
-#: The columns kept (the rest of a row is the establishment's address, telephone and e-mail).
-COLUMNS = ("codigo_uf", "uf", "codigo_municipio", "municipio", "codigo_cnes", "data_posicao_estoque", "codigo_catmat",
-           "descricao_produto", "quantidade_estoque", "numero_lote", "data_validade", "tipo_produto",
-           "sigla_programa_saude", "sigla_sistema_origem")
-
-_last = [0.0]
-_client: list[httpx.Client] = []
+SOURCE = "bnafar"
+#: The columns kept are declared in ``curation/intake.yml`` (the rest of a row is the establishment's address, telephone and
+#: e-mail); fetching, politeness, paging and the cache are `intake`'s.
+CATMAT_CLASS = 6505     # Drugs and medicines (CATMAT group 65, class 6505).
 
 
 def _cache(root: str | Path | None) -> Path:
     from ..config import load_settings
 
-    path = Path(root or load_settings().root) / "registries" / "bnafar"
+    path = Path(root or load_settings().root) / "registries" / SOURCE
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-
-def _get(url: str, params: dict[str, Any], retries: int = 4) -> Any:
-    """GET json, at most one request per INTERVAL, a browser User-Agent, backoff on 429/5xx and timeouts."""
-    if not _client:
-        _client.append(httpx.Client(headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, timeout=120,
-                                    follow_redirects=True))
-    for attempt in range(retries + 1):
-        wait = INTERVAL - (time.time() - _last[0])
-        if wait > 0:
-            time.sleep(wait)
-        _last[0] = time.time()
-        try:
-            r = _client[0].get(url, params=params)
-            if r.status_code == 429 or r.status_code >= 500:
-                raise httpx.HTTPStatusError(f"{r.status_code}", request=r.request, response=r)
-            r.raise_for_status()
-            return r.json()
-        except (httpx.TransportError, httpx.HTTPStatusError):
-            if attempt == retries:
-                raise
-            time.sleep(5 * 2 ** attempt)
-    raise AssertionError("unreachable")
 
 
 def _fold(text: str) -> str:
@@ -88,23 +50,13 @@ def _fold(text: str) -> str:
 
 # --- CATMAT (the open catalogue) -------------------------------------------------------------------------------------
 
-def _pages(path: str, params: dict[str, Any]) -> list[dict]:
-    out, page = [], 1
-    while True:
-        d = _get(f"{CATMAT_BASE}/{path}", {**params, "pagina": page, "tamanhoPagina": 500})
-        out += d.get("resultado") or []
-        if page >= int(d.get("totalPaginas") or 0):
-            return out
-        page += 1
-
-
 def catmat_pdms(root: str | Path | None = None, refresh: bool = False) -> list[dict]:
     """The PDMs (drugs) of the CATMAT medicines class: [{codigoPdm, nomePdm, statusPdm}] (1,901 on 2026-10-10)."""
     target = _cache(root) / "catmat_pdm.json"
     if target.is_file() and not refresh:
         return json.loads(target.read_text(encoding="utf8"))
     rows = [{k: r[k] for k in ("codigoPdm", "nomePdm", "statusPdm")}
-            for r in _pages("3_consultarPdmMaterial", {"codigoClasse": CATMAT_CLASS})]
+            for r in intake.api_rows("catmat", "/3_consultarPdmMaterial", {"codigoClasse": CATMAT_CLASS})]
     target.write_text(json.dumps(rows, ensure_ascii=False), encoding="utf8")
     return rows
 
@@ -115,10 +67,10 @@ def catmat_items(pdm: int, root: str | Path | None = None) -> dict[str, list[dic
     if target.is_file():
         return json.loads(target.read_text(encoding="utf8"))
     items = [{"codigoItem": r["codigoItem"], "descricaoItem": r["descricaoItem"], "statusItem": r["statusItem"]}
-             for r in _pages("4_consultarItemMaterial", {"codigoPdm": pdm})]
+             for r in intake.api_rows("catmat", "/4_consultarItemMaterial", {"codigoPdm": pdm})]
     units = [{"seq": r["numeroSequencialUnidadeFornecimento"], "sigla": r["siglaUnidadeFornecimento"],
               "nome": r["nomeUnidadeFornecimento"], "capacidade": r["capacidadeUnidadeFornecimento"]}
-             for r in _pages("6_consultarMaterialUnidadeFornecimento", {"codigoPdm": pdm})]
+             for r in intake.api_rows("catmat", "/6_consultarMaterialUnidadeFornecimento", {"codigoPdm": pdm})]
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps({"items": items, "units": units}, ensure_ascii=False), encoding="utf8")
     return {"items": items, "units": units}
@@ -149,7 +101,7 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
             for suffix, unit in units.items():
                 code = f"BR{int(item['codigoItem']):07d}{suffix}"
                 if code not in probe:
-                    rows = _get(DEMAS_BASE_URL + ENDPOINT, {"codigo_catmat": code, "limit": 1}).get("parametros") or []
+                    rows = intake.get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}).get("parametros") or []
                     probe[code] = rows[0]["descricao_produto"].strip() if rows else None
                     cache.write_text(json.dumps(probe, ensure_ascii=False), encoding="utf8")
                 if probe[code] or not only_with_stock:
@@ -161,28 +113,8 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
 
 # --- the stock -------------------------------------------------------------------------------------------------------
 
-def _all_pages(params: dict[str, Any]) -> pa.Table:
-    """Every row of a filter, paged by ``limit=1000`` until a page is empty (the API applies its limit before
-    de-duplication, so a short page is not an end)."""
-    rows, offset = [], 0
-    while True:
-        page = _get(DEMAS_BASE_URL + ENDPOINT, {**params, "limit": PAGE, "offset": offset}).get("parametros") or []
-        rows += [{c: (r.get(c) if c == "quantidade_estoque" or r.get(c) is None else str(r[c])) for c in COLUMNS} for r in page]
-        if not page:
-            break
-        offset += PAGE
-    schema = pa.schema([(c, pa.float64() if c == "quantidade_estoque" else pa.string()) for c in COLUMNS])
-    return pa.Table.from_pylist(rows, schema=schema)
-
-
 def _cached(name: str, params: dict[str, Any], root: str | Path | None, refresh: bool) -> pa.Table:
-    target = _cache(root) / "stock" / name
-    if target.is_file() and not refresh:
-        return pq.read_table(target)
-    table = _all_pages(params)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, target)
-    return table
+    return intake.read_slice(SOURCE, params, root=root, name=f"stock/{name}", refresh=refresh)
 
 
 def stock(catmat: str, anomes: int, uf: int | str | None = None, root: str | Path | None = None,
