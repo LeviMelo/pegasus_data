@@ -139,6 +139,19 @@ def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[lis
     import numpy as np
 
     col = pc.fill_null(table.column(column), 0).to_numpy()
+    wanted_set = set(int(v) for v in values)
+    if len(col):
+        # a partition is written file by file, and a monthly file is one competence: each value is then one run of
+        # rows, sliced without a copy (a stable sort and a take copied the whole table, a third of a warm query)
+        cut = np.flatnonzero(col[1:] != col[:-1]) + 1
+        starts, ends = np.r_[0, cut], np.r_[cut, len(col)]
+        heads = col[starts]
+        if len(set(heads.tolist())) == len(heads):
+            runs = sorted(zip(heads.tolist(), starts.tolist(), ends.tolist(), strict=True))
+            chunks = [(int(v), table.slice(a, b - a)) for v, a, b in runs if int(v) in wanted_set]
+            rest = [table.slice(a, b - a) for a, b, v in zip(starts.tolist(), ends.tolist(), heads.tolist(), strict=True)
+                    if int(v) not in wanted_set]
+            return chunks, (pa.concat_tables(rest) if rest else table.slice(0, 0))
     order = np.argsort(col, kind="stable")
     ordered = col[order]
     wanted = np.asarray(sorted(values), dtype=ordered.dtype)
