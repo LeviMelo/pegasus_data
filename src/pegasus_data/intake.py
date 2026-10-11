@@ -70,7 +70,24 @@ def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
         if shared:
             # a shared dictionary's columns are optional (a file holds those it holds); the source's own stay required
             spec = {**spec, "columns": {**{c: {**(d or {}), "optional": True} for c, d in shared.items()}, **(spec.get("columns") or {})}}
-        out[name] = spec
+        out[name] = {**spec, "fields": _with_populations(spec.get("fields") or {})}
+    return out
+
+
+def _with_populations(fields: dict[str, Any]) -> dict[str, Any]:
+    """A field that declares an ``outcome`` beside its ``where`` counts the records of its population (``where``) with
+    the outcome; its population is a field of its own, ``<name>_assessed``, named as its denominator (``over``): samples
+    with E. coli present over the samples assessed for E. coli, never over every analysis. An outcome condition on a
+    column the population also restricts replaces it (present among present-or-absent)."""
+    out: dict[str, Any] = {}
+    for name, fs in fields.items():
+        if not fs.get("outcome"):
+            out[name] = fs
+            continue
+        population = {k: v for k, v in fs.items() if k not in ("outcome", "what")}
+        out[f"{name}_assessed"] = {**population, "what": f"The population of {name}: {fs.get('what', '')}".strip()}
+        out[name] = {**{k: v for k, v in fs.items() if k != "outcome"}, "where": {**(fs.get("where") or {}), **fs["outcome"]},
+                     "over": f"{name}_assessed"}
     return out
 
 
@@ -79,8 +96,10 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for name, spec in declared_sources(root).items():
         for field, fs in (spec.get("fields") or {}).items():
+            # a field's years are its own, else its source's span (the period's valid years): a context is read on them
+            years = fs.get("years") or spec.get("years") or (spec.get("period") or {}).get("valid") or ""
             out[field] = {"source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
-                          "years": fs.get("years", spec.get("years", ""))}
+                          "years": str(years), **({"over": fs["over"]} if fs.get("over") else {})}
     return out
 
 
@@ -313,7 +332,9 @@ def _settings(root: str | Path | None = None) -> Any:
 def _fold(text: str) -> str:
     import unicodedata
 
-    return " ".join("".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c)).upper().split())
+    # accents, case and punctuation between words (SNGPC's BIRITIBA-MIRIM is IBGE's Biritiba Mirim) are not the name
+    plain = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return " ".join(plain.upper().replace("-", " ").replace("'", " ").split())
 
 
 def _ident(name: str) -> str:
@@ -336,6 +357,14 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     con.execute(f"SET temp_directory='{work.as_posix()}'")
     universe = municipalities()
     con.register("universe", pa.table({"code": pa.array(sorted(universe), pa.string())}))
+    # a state of one municipality (the Distrito Federal: Brasília) holds every place inside it, whatever the source
+    # calls the place (SISAGUA codes the DF's administrative regions 530000-530015)
+    by_state: dict[str, list[str]] = {}
+    for code, row in universe.items():
+        by_state.setdefault(row["uf_code"], []).append(code)
+    sole = {uf: codes[0] for uf, codes in by_state.items() if len(codes) == 1}
+    con.register("sole", pa.table({"uf": pa.array(list(sole), pa.string()), "code": pa.array(list(sole.values()), pa.string()),
+                                   "sigla": pa.array([_fold(universe[c]["uf_sigla"]) for c in sole.values()], pa.string())}))
     place = spec.get("place") or {}
     if place.get("type") == "municipality_name":
         keys: dict[tuple[str, str], str | None] = {}
@@ -416,10 +445,12 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
     if place.get("type") == "municipality":
         text = f"regexp_replace({raw[place['column'].upper()]}, '\\.0+$', '')"
         out.append(f"CASE WHEN regexp_matches({text}, '^[0-9]{{6,7}}$') AND substr({text}, 1, 6) IN (SELECT code FROM universe) "
-                   f"THEN substr({text}, 1, 6) END AS _MUNICIPALITY")
+                   f"THEN substr({text}, 1, 6) WHEN regexp_matches({text}, '^[0-9]{{6,7}}$') "
+                   f"THEN (SELECT code FROM sole WHERE sole.uf = substr({text}, 1, 2)) END AS _MUNICIPALITY")
     elif place.get("type") == "municipality_name":
         joins = f" LEFT JOIN names ON names.key = fold({raw[place['uf'].upper()]}) || '|' || fold({raw[place['column'].upper()]})"
-        out.append("names.code AS _MUNICIPALITY")
+        out.append(f"coalesce(names.code, (SELECT code FROM sole WHERE sole.sigla = fold({raw[place['uf'].upper()]}))) "
+                   "AS _MUNICIPALITY")
     elif place:
         out.append(f"{raw[place['column'].upper()]} AS {_ident('_' + (place.get('as') or place['column']).upper())}")
     kind = period.get("type", "file")

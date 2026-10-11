@@ -650,6 +650,13 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Portal `SIES/csv/sies_csv.zip`, dictionary `dicionario-de-dados-do-sies-ok.pdf`): 137,914 rows, secretariat x supply x month x
   kind (`ORIGEM` Solicitado / Distribuido), 2018-2026; the `IBGE` column holds the secretariat's seat (27 codes), so the unit is the
   state secretariat. DEMAS equals the file row for row (read as the declared origin).
+  **SI-PNI dose records** (Portal `PNI/csv/vacinacao_<jan..dez>_<year>_csv.zip`, 2020 on; dictionary
+  `dbbni/Dicionario_tb_ria_rotina.pdf`, which lists fields, not code lists). There is one row per applied dose, with a
+  pseudonymous person hash. The files hold 1–several million rows a month and about 215 GB zipped for 2020 to 2026-09.
+  They are Latin-1 and `;`-separated. The code lists are the files' own descriptor columns beside each code
+  (`sg_imunobiologico`/`co_vacina`, `ds_tipo_dose`/`co_dose_vacina`). `co_vacina_fabricante` is mostly empty and does
+  not pair with `ds_nome`. `nu_idade_paciente` holds -1, 120 and 220. Not landed (2026-10-10): the size is out of
+  proportion to the current work.
 
 ## 6. IBGE
 

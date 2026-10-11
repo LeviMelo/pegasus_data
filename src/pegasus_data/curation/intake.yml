@@ -673,10 +673,14 @@ sources:
           - Escherichia coli
           RESULTADO__FLAG:
           - present
+          - absent
           TP_ABASTECIMENTO:
           - SAA
           - SAC
           - SAI
+        outcome:
+          RESULTADO__FLAG:
+          - present
         unit: analyses
         what: 'Samples with Escherichia coli present (Portaria GM/MS 888/2021, Anexo XX, Anexo 1 (ausência em 100 mL, SAI e
           SAA/SAC na saída do tratamento e na distribuição): absence required).'
@@ -685,6 +689,10 @@ sources:
         where:
           PARAMETRO:
           - Coliformes totais
+          RESULTADO__FLAG:
+          - present
+          - absent
+        outcome:
           RESULTADO__FLAG:
           - present
         unit: analyses
@@ -697,8 +705,6 @@ sources:
           - Turbidez (uT)
           RESULTADO__FLAG:
           - numeric
-          RESULTADO:
-            above: 5.0
           TP_ABASTECIMENTO:
           - SAA
           - SAC
@@ -706,6 +712,9 @@ sources:
           - SISTEMA DE DISTRIBUIÇÃO
           - INTRA-DOMICILIAR / INTRA-PREDIAL
           - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 5.0
         unit: analyses
         what: Turbidity above 5,0 uT (Portaria GM/MS 888/2021, Anexo XX, art. 28 §2º and Anexo 11 (VMP 5,0 uT in the distribution
           network, reservoirs and consumption points)). Results below a limit of detection or quantification, empty or unparsed
@@ -718,8 +727,6 @@ sources:
           - Cloro Residual Livre (mg/L)
           RESULTADO__FLAG:
           - numeric
-          RESULTADO:
-            below: 0.2
           TP_ABASTECIMENTO:
           - SAA
           - SAC
@@ -727,6 +734,9 @@ sources:
           - SISTEMA DE DISTRIBUIÇÃO
           - INTRA-DOMICILIAR / INTRA-PREDIAL
           - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            below: 0.2
         unit: analyses
         what: Free residual chlorine below 0,2 mg/L (Portaria GM/MS 888/2021, Anexo XX, art. 32 (minimum 0,2 mg/L in the network,
           reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
@@ -739,8 +749,6 @@ sources:
           - Cloro Residual Livre (mg/L)
           RESULTADO__FLAG:
           - numeric
-          RESULTADO:
-            above: 5.0
           TP_ABASTECIMENTO:
           - SAA
           - SAC
@@ -748,6 +756,9 @@ sources:
           - SISTEMA DE DISTRIBUIÇÃO
           - INTRA-DOMICILIAR / INTRA-PREDIAL
           - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 5.0
         unit: analyses
         what: Free residual chlorine above 5,0 mg/L (Portaria GM/MS 888/2021, Anexo XX, art. 32 (minimum 0,2 mg/L in the network,
           reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
@@ -759,8 +770,6 @@ sources:
           - Fluoreto (mg/L)
           RESULTADO__FLAG:
           - numeric
-          RESULTADO:
-            above: 1.5
           TP_ABASTECIMENTO:
           - SAA
           - SAC
@@ -770,6 +779,9 @@ sources:
           - INTRA-DOMICILIAR / INTRA-PREDIAL
           - SOLUÇÃO ALTERNATIVA
           - ESTAÇÃO DE TRATAMENTO DE ÁGUA
+        outcome:
+          RESULTADO:
+            above: 1.5
         unit: analyses
         what: Fluoride above 1,5 mg/L (Portaria GM/MS 888/2021, Anexo XX, Anexo 9 and art. 36 §1º (VMP 1,5 mg/L)). Results below
           a limit of detection or quantification, empty or unparsed are not assessed.
@@ -780,8 +792,6 @@ sources:
           - Cor Aparente (uH)
           RESULTADO__FLAG:
           - numeric
-          RESULTADO:
-            above: 15.0
           TP_ABASTECIMENTO:
           - SAA
           - SAC
@@ -789,6 +799,9 @@ sources:
           - SISTEMA DE DISTRIBUIÇÃO
           - INTRA-DOMICILIAR / INTRA-PREDIAL
           - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 15.0
         unit: analyses
         what: Apparent colour above 15 uH (Portaria GM/MS 888/2021, Anexo XX, Anexo 11 (VMP 15 uH, organoleptic)). Results below
           a limit of detection or quantification, empty or unparsed are not assessed.
@@ -1066,7 +1079,7 @@ sources:
     - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
     - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
     citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
-    dictionary: https://dados.anvisa.gov.br/dados/SNGPC/Dicionario_de_Dados_SNGPC.pdf (ANVISA)
+    dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Industrializados.pdf (ANVISA; §3.7 the published period, §5 the fields and codes)
     origin:
       kind: files
       format: csv
@@ -1097,20 +1110,25 @@ sources:
         role: state of the prescriber's council registration
         type: code
       TP_RECEITUARIO:
-        role: type of prescription form (codes in ANVISA's SNGPC data dictionary; not declared here)
+        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
         type: code
+        codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
+                "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
+                "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
       CO_CID10:
         role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
       SG_SEXO:
-        role: the patient's sex as coded by SNGPC (antimicrobials; codes in the dictionary, not declared here)
+        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
+        codes: {"1": male, "2": female}
       NU_IDADE:
         role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
         type: number
       NU_UNIDADE_IDADE:
-        role: the unit of NU_IDADE (codes in the dictionary, not declared here)
+        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
+        codes: {"1": years, "2": months}
       DS_PRINCIPIO_ATIVO:
         role: active principle(s) of the manufactured medicine
         type: label
@@ -1150,8 +1168,8 @@ sources:
         - DS_UNIDADE_MEDIDA
         - CO_CID10
         unit: the unit of DS_UNIDADE_MEDIDA
-        what: 'The same by the patient''s ICD-10 code as entered (antimicrobials): sulfadiazine for B58 is toxoplasmosis treatment
-          outside SUS.'
+        what: 'The same by the patient''s ICD-10 code as entered (antimicrobials). Rarely filled: 221,273 of 57,087,497 lines in
+          2021 (0.39%); oral sulfadiazine 311 lines, 1 with B58; spiramycin 7,894 lines, none with B58.'
   sngpc_compounded:
     system: SNGPC
     series: MAN
@@ -1173,7 +1191,7 @@ sources:
     - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
     - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
     citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
-    dictionary: https://dados.anvisa.gov.br/dados/SNGPC/Dicionario_de_Dados_SNGPC.pdf (ANVISA)
+    dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Manipulados.pdf (ANVISA; the same codes under the panel's names)
     origin:
       kind: files
       format: csv
@@ -1204,20 +1222,25 @@ sources:
         role: state of the prescriber's council registration
         type: code
       TP_RECEITUARIO:
-        role: type of prescription form (codes in ANVISA's SNGPC data dictionary; not declared here)
+        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
         type: code
+        codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
+                "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
+                "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
       CO_CID10:
         role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
       SG_SEXO:
-        role: the patient's sex as coded by SNGPC (antimicrobials; codes in the dictionary, not declared here)
+        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
+        codes: {"1": male, "2": female}
       NU_IDADE:
         role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
         type: number
       NU_UNIDADE_IDADE:
-        role: the unit of NU_IDADE (codes in the dictionary, not declared here)
+        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
+        codes: {"1": years, "2": months}
       DS_DCB:
         role: the active principle's Denominação Comum Brasileira
         type: label
