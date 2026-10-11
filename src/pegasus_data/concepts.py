@@ -12,7 +12,10 @@ the data home's ``registries/concepts``:
 * :func:`concept_index` — for ICD-10 codes (any level, prefix-matched): the SINAN datasets holding them with counts, the
   compatible procedures, and the ICD-10 labels that match a term (a label match is the weakest evidence, flagged).
 
-Medicines dispensed under a code (SIA's APAC AM by ``AP_CIDPRI``) are counted from the lake where it holds them.
+* :func:`dispensed` — the medicines authorised under a code: SIA's APAC AM (the specialised component), each
+  authorisation naming its diagnosis (``AP_CIDPRI``) and its medicine (``AP_PRIPAL``, SIGTAP group 06), counted as the
+  event type declares (one APAC once); and, for a medicine whose CATMAT code is known, what BNAFAR shows of its
+  stock (`sources.bnafar`).
 """
 
 from __future__ import annotations
@@ -81,17 +84,39 @@ def condition_codes(root: str | Path | None = None, refresh: bool = False, downl
     return table
 
 
+def _archive(export: Any) -> zipfile.ZipFile:
+    from .sources.sigtap import fetch_export
+
+    return zipfile.ZipFile(io.BytesIO(fetch_export(export)))
+
+
+def procedure_names(root: str | Path | None = None, refresh: bool = False) -> dict[str, str]:
+    """SIGTAP procedure code -> name (``tb_procedimento`` of the latest monthly export; cached)."""
+    from .sources.sigtap import list_exports, read_table
+
+    cache = _cache(root)
+    hits = sorted(cache.glob("procedure_names_*.parquet"))
+    if hits and not refresh:
+        t = pq.read_table(hits[-1])
+        return dict(zip(t.column("procedure").to_pylist(), t.column("name").to_pylist(), strict=True))
+    export = list_exports()[-1]
+    names = {r["CO_PROCEDIMENTO"]: r["NO_PROCEDIMENTO"] for r in read_table(_archive(export), "tb_procedimento")}
+    pq.write_table(pa.table({"procedure": list(names), "name": list(names.values())}),
+                   cache / f"procedure_names_{export.competencia}.parquet")
+    return names
+
+
 def procedure_compatibility(root: str | Path | None = None, refresh: bool = False) -> pa.Table:
     """(procedure, procedure_name, cid, competencia): SIGTAP's procedure↔ICD-10 compatibility of the latest monthly
     export (``rl_procedimento_cid``; the export is fetched once, ~5 MB)."""
-    from .sources.sigtap import fetch_export, list_exports, read_table
+    from .sources.sigtap import list_exports, read_table
 
     cache = _cache(root)
     hits = sorted(cache.glob("procedure_cid_*.parquet"))
     if hits and not refresh:
         return pq.read_table(hits[-1])
     export = list_exports()[-1]
-    archive = zipfile.ZipFile(io.BytesIO(fetch_export(export)))
+    archive = _archive(export)
     names = {r["CO_PROCEDIMENTO"]: r["NO_PROCEDIMENTO"] for r in read_table(archive, "tb_procedimento")}
     rows = [{"procedure": r["CO_PROCEDIMENTO"], "procedure_name": names.get(r["CO_PROCEDIMENTO"]),
              "cid": _norm(r["CO_CID"]), "competencia": export.competencia}
@@ -101,6 +126,83 @@ def procedure_compatibility(root: str | Path | None = None, refresh: bool = Fals
     table = pa.Table.from_pylist(rows)
     pq.write_table(table, cache / f"procedure_cid_{export.competencia}.parquet")
     return table
+
+
+def authorisations(year: int, root: str | Path | None = None, refresh: bool = False, download: bool = False,
+                   dataset: str = "SIASUS-AM") -> pa.Table:
+    """(cid, procedure, apacs, year): the APAC medicine authorisations of one year, nationally, by their diagnosis
+    (``AP_CIDPRI``) and medicine procedure (``AP_PRIPAL``), each APAC once (the event type's rule: the row of its first
+    month; continuation rows are not new authorisations). Read from the lake; with ``download`` the year's files are
+    fetched (a national AM year is 1.4-1.9 GiB of DBC) and kept there."""
+    from .semantics.event_types import count_events, event_types
+
+    target = _cache(root) / f"authorisations_{dataset}_{year}.parquet"
+    if target.is_file() and not refresh:
+        return pq.read_table(target)
+    event = event_types(dataset)[0]["name"]
+    t = count_events(dataset, event, period=(f"{year}-01", f"{year}-12"), geography="BR",
+                     by=["AP_CIDPRI", "AP_PRIPAL"], root=root, **({"max_download": None} if download else {"max_download": 0}))
+    rows = [{"cid": _norm(r["AP_CIDPRI"] or ""), "procedure": str(r["AP_PRIPAL"] or ""), "apacs": int(r["events"]), "year": year}
+            for r in t.to_pylist()]
+    table = pa.Table.from_pylist(rows, schema=pa.schema([("cid", pa.string()), ("procedure", pa.string()),
+                                                         ("apacs", pa.int64()), ("year", pa.int16())]))
+    pq.write_table(table, target)
+    return table
+
+
+def dispensed(codes: list[str], years: list[int] | None = None, root: str | Path | None = None,
+              download: bool = False, dataset: str = "SIASUS-AM") -> dict[str, Any]:
+    """The medicines authorised under ICD-10 ``codes`` (any level) in SIA's APAC AM: per SIGTAP medicine procedure
+    (group 06), its name and the APACs naming a held code as their principal diagnosis, with the codes they name.
+
+    ``years`` default to the latest year the lake holds (``download``: the latest complete published year). The
+    count is APACs begun in those years, not patients, doses or the stock delivered; only the specialised component
+    is in AM (what the basic component dispenses is BNAFAR's, `sources.bnafar`). Returns ``{"years", "medicines":
+    [{"procedure", "name", "apacs", "by_cid": {cid: apacs}}], "apacs", "scanned": {"apacs", "cids"}}``, medicines by
+    descending APACs. No medicine is a measured absence, not a gap: ``scanned`` is what was searched (the year's
+    APACs and diagnoses), so ``medicines == []`` with ``scanned.apacs > 0`` says the source holds no APAC under the
+    codes."""
+    from ._explore import explore, lake_coverage
+
+    prefixes = [_norm(c) for c in codes]
+    if not years:
+        held = sorted(lake_coverage(dataset, root=root))
+        if not held and download:
+            held = sorted(int(r["year"]) for r in explore(dataset, root=root).rows if int(r["months"]) == 12)
+        if not held:
+            raise LookupError(f"{dataset}: no year in the lake; pass years= with download=True")
+        years = held[-1:]
+    names = procedure_names(root)
+    meds: dict[str, dict] = {}
+    scanned = {"apacs": 0, "cids": set()}
+    for y in years:
+        for r in authorisations(y, root, download=download, dataset=dataset).to_pylist():
+            scanned["apacs"] += r["apacs"]
+            scanned["cids"].add(r["cid"])
+            if not (r["procedure"].startswith("06") and any(r["cid"].startswith(p) for p in prefixes)):
+                continue
+            m = meds.setdefault(r["procedure"], {"procedure": r["procedure"], "name": names.get(r["procedure"]),
+                                                 "apacs": 0, "by_cid": {}})
+            m["apacs"] += r["apacs"]
+            m["by_cid"][r["cid"]] = m["by_cid"].get(r["cid"], 0) + r["apacs"]
+    medicines = sorted(meds.values(), key=lambda m: -m["apacs"])
+    return {"years": list(years), "medicines": medicines, "apacs": sum(m["apacs"] for m in medicines),
+            "scanned": {"apacs": scanned["apacs"], "cids": len(scanned["cids"])}}
+
+
+def stock_by_state(substances: list[str], year: int, root: str | Path | None = None, keep: Any = None) -> dict[str, Any]:
+    """What BNAFAR (the Hórus stock reports) shows of the drugs whose CATMAT name holds each of ``substances``, by
+    state and month of ``year``: ``{"products": [...], "monthly": [(catmat, description, anomes, uf, rows,
+    establishments, lots, quantity)]}``. ``keep(product) -> bool`` drops products that are not the medicine meant (a
+    drug name also names its topical or veterinary item). Read by filter (one CATMAT code and month per request), so a
+    first call is minutes; see `sources.bnafar` for the stock rule and the code form."""
+    from .sources import bnafar
+
+    found = [p for s in substances for p in bnafar.products(s, root)]
+    if keep:
+        found = [p for p in found if keep(p)]
+    table = bnafar.monthly(sorted({p["code"] for p in found}), year, root=root)
+    return {"products": found, "monthly": table.to_pylist()}
 
 
 def _fold(text: str) -> str:
@@ -124,14 +226,20 @@ def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") 
     return out
 
 
-def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None) -> dict[str, Any]:
+def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None,
+                  substances: list[str] | None = None, stock_year: int | None = None, keep: Any = None,
+                  years: list[int] | None = None, download: bool = False) -> dict[str, Any]:
     """Where ICD-10 ``codes`` (any level: B58 holds B58.0-B58.9) are held:
 
     * ``conditions``: the event types whose records name them as their condition (`condition_codes`), with the
       column and its counts in the lake year read;
     * ``procedures``: the SIGTAP procedures compatible with them;
     * ``labels``: ICD-10 codes and SIGTAP procedures whose label matches a term (the weakest evidence: a name, not a
-      declaration; it finds what no compatibility table ties to a code: toxoplasma serology).
+      declaration; it finds what no compatibility table ties to a code: toxoplasma serology);
+    * ``dispensed``: ``{"apac": dispensed(...)}``, the specialised-component medicines authorised under the codes, or
+      ``{"apac": None, "reason": ...}`` when no SIA AM year is in the lake (``download`` fetches one); and, when
+      ``substances`` (names a CATMAT PDM holds) and ``stock_year`` are given, ``"stock"``: BNAFAR's stock of those
+      drugs by state and month (`stock_by_state`; ``keep`` filters its products).
     """
     prefixes = [_norm(c) for c in codes]
 
@@ -147,5 +255,11 @@ def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), roo
         d["events"] += r["events"]
     procedures = [r for r in procedure_compatibility(root).to_pylist() if held(r["cid"])]
     labels = [{**r, "structure": st} for st in ("ICD10", "SIGTAP") for r in label_matches(terms, st)] if terms else []
+    try:
+        disp: dict[str, Any] = {"apac": dispensed(codes, years, root, download)}
+    except LookupError as exc:
+        disp = {"apac": None, "reason": str(exc)}
+    if substances and stock_year:
+        disp["stock"] = stock_by_state(substances, stock_year, root, keep)
     return {"codes": prefixes, "conditions": sorted(by_ds.values(), key=lambda d: -d["events"]),
-            "procedures": procedures, "labels": labels}
+            "procedures": procedures, "labels": labels, "dispensed": disp}

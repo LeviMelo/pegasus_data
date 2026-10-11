@@ -95,6 +95,8 @@ _EXPORTS: dict[str, str] = {
     "condition_codes": ".concepts",
     "procedure_compatibility": ".concepts",
     "label_matches": ".concepts",
+    "dispensed": ".concepts",
+    "stock_by_state": ".concepts",
     "distance_km": ".geography",
     "MembershipSet": ".geography",
     "Membership": ".geography",
