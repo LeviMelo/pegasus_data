@@ -199,15 +199,17 @@ def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, st
     """).to_arrow_table()
 
 
-def triangles(*, period: object, geography: object, settings: Any = None) -> dict[str, dict[str, Any]]:
+def triangles(*, period: object, geography: object, settings: Any = None,
+              exclude: frozenset[str] = frozenset()) -> dict[str, dict[str, Any]]:
     """Each stored link of the scope against the persons the OTHER links make: of its pairs whose left record the other
     links also reach a right record of the same kind for, how many reach the same one (agree) and how many another
     (disagree). Two independent routes to one pair measure the links against each other, which no link's own controls
-    can (2026-10-02: 3,085 newborn triangles agreed, 76 did not, 97.6 %). A link with no other route has none."""
+    can (2026-10-02: 3,085 newborn triangles agreed, 76 did not, 97.6 %). A link with no other route has none.
+    ``exclude`` leaves links out, as `build_entities` does."""
     from ..config import load_settings
 
     settings = settings or load_settings()
-    edges = _stored_edges(settings, period, geography, None)
+    edges = _stored_edges(settings, period, geography, None, exclude)
     out: dict[str, dict[str, Any]] = {}
     con = connect()
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
