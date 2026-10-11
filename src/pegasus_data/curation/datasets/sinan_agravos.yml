@@ -768,6 +768,24 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Notifications concentrate in epidemic years, so the series is mostly zeroes punctuated by outbreaks rather than a trend.
   SINAN_DCRJ:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+        evidence: "SINAN is a compulsory-notification system: every agravo's file is its notifications (this file's header)"
+        source_notes:
+          source: "Nota Técnica nº 48/2025-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Doenca_de_Creutzfeldt-Jakob(DCJ).pdf)"
+          definition: A notification with ICD-10 A81.0 in the form's code field.
+          valid_from: 2005
+          final_after_years: 2
+          known_errors:
+            - Fields 32 and 33 of the form may be inconsistent or untrue, given how hard the diagnosis is.
+            - A case without a final classification after 60 days was set to "Inconclusivo" automatically, suspected or confirmed.
+          limitations:
+            - Confirmation was intermittent; for years no histopathology or immunocytochemistry of brain tissue was done, so notified cases could not be classified "Confirmado", and several states could not send samples.
+            - Surveillance and adherence to the diagnostic recommendations differ between states; the data are not a faithful picture of the disease in the country.
+          form: >-
+            Ficha de Notificação/Conclusão, which has no fields for the disease's own characteristics.
     system: SINAN
     series: DCRJ
     asserted_by: pegasus_data
@@ -933,6 +951,24 @@ datasets:
           The place is the outbreak's (ID_MUNI_RE, the form's field 11, "município de ocorrência do surto"), not the
           residence of the ill. The ill beyond the grid (NU_TOT less the grid's sum) are counted with sex and age
           unknown; an outbreak with neither grid nor total is a group whose ill were not counted, never zero.
+        source_notes: &sdta_notes
+          source: "Nota Técnica nº 45/2024-CGZV/DEDT/SVSA/MS, Ministério da Saúde (sources/sinan_docs/Nota_Tecnica_Surtos_de_DTA.pdf)"
+          definition: >-
+            An outbreak of water- and foodborne disease: two or more people with similar signs and symptoms after
+            eating food or drinking water of the same origin; one case is an outbreak for botulism and cholera.
+          final_after_years: 3
+          known_errors:
+            - >-
+              The form's etiological agent (field 56) and causal food (field 57) are free text, standardised by the
+              Ministry into AGENTE_ET1-AGENTE_ET3 and ALIMENTO_C's categories. "Ignorado" is a blank field or one saying
+              nothing was found; "Inconclusivo" a vague answer (bacteria, viral, presumed); "Inconsistente" one naming
+              something else (contaminated water as the agent).
+          limitations:
+            - The national database is frozen three years after the notification year; later local corrections are not in it.
+          form: >-
+            Ficha de Investigação de Surto-DTA (Sinan). Of the Ministry's own food categories, "Alimentos mistos" is
+            one food made of ingredients of different categories and "Múltiplos alimentos" two or more foods named as
+            the cause.
       - name: outbreak
         kind: outbreak
         grain: one foodborne outbreak, the unit its ill arrive in
@@ -948,6 +984,7 @@ datasets:
           A row is one outbreak (the form's own unit; Nota Técnica Surtos de DTA §2.1: two or more ill, one for botulism
           and cholera). Its ill come in clusters, so counted as people they fit with φ 0.066 (PegaSUS OPEN_QUESTIONS 14):
           the outbreak is the unit a change in their occurrence is read on, with its ill (NU_TOT) as its size.
+        source_notes: *sdta_notes
     semantic_axes:
       default_geography: occurrence
       geography:
