@@ -34,3 +34,13 @@ Rotavirus 30/2024 declared as the second example. Not declared: Creutzfeldt-Jako
 reads `CODMUNRES` and accounts for all 29,105 (122 outside a municipality, the rest unallocated by **age**: a foetus
 has no age, so DOFET is read as a ratio field without strata). Over SINASC births it is 10.2–10.9 foetal deaths per
 1,000 births in 2018–2023, Brazil's known level.
+
+## Every certificate line (2026-10-10)
+
+In 2018, 29 foetal deaths named B58, P37.1 or O98.6, but only 19 as the underlying cause. A reader of CAUSABAS
+alone missed 10. SIM-DOFET now declares `death.causes` in the linkage roles (`curation/roles.yml`), as SIM-DO does,
+so PegaSUS reads every line as one set of codes.
+
+Of these foetal deaths, 3 were of Santa Maria (RS) residents, with P37.1 as underlying cause. They are dated
+20 April, 26 April and 2 June 2018, in the documented waterborne outbreak. Santa Maria had 0–1 a year from 2015 to
+2020, against about 0.04 expected from its 0.13% share of the country's population.

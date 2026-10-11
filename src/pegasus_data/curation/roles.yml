@@ -56,6 +56,16 @@ datasets:
       baby.race: {column: RACACOR, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
       mother.race: {column: RACACORMAE, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
 
+  # Foetal deaths: their certificate lines are read as one set of codes, as SIM-DO's are. Of the 29 foetal deaths
+  # of 2018 naming B58, P37.1 or O98.6, 10 name them only on a line, not as the underlying cause (2026-10-10).
+  SIM-DOFET:
+    record: death
+    roles:
+      deceased.residence: {column: CODMUNRES, type: municipality}
+      death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
+      death.cause: {column: CAUSABAS, type: code}
+      death.causes: {column: LINHAA, also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}   # every cause the certificate mentions
+
   SIM-DO:
     record: death
     setting: deceased.residence
