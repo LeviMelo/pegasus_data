@@ -139,6 +139,12 @@ it is run again.
     about the current code without checking the commit it ran.
   - Prefer the smallest run that exercises the failure point (a restricted declaration: few sources, short period,
     one depth's new paths) over a full study. A full study is the milestone, not the debugging loop.
+- **Ingest only what tests something** (author, 2026-10-11). A development run reads the least data that
+  exercises the failure point it is for: the sources, years and depth that code path needs, nothing "while we are at
+  it". Downloading or decoding a source to discover it holds none of the topic's records is waste; the scope must know
+  before it fetches (a source's declared instruments, a probe year), and say why it leaves a source out.
+  - The user sets how much a study ingests (declaration: `topic.include`/`exclude`, `period`, `download`, `time`,
+    `contexts`); a study that cannot be cut to minutes is a defect, not a cost.
 - **Read the output, not the exit code.** Open the table; look at the labels;
   count the rows against an independent figure (TabNet, the file's own row
   count). Earlier sessions declared bugs fixed without reading the output and
