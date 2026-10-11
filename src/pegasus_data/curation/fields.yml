@@ -344,6 +344,8 @@ fields:
   # ADR-0139), never that population itself.
   ans_beneficiaries:
     over: population
+    # its rows are strata: read as one value per place, the medical-hospital plans (a dental plan is another link)
+    where: {coverage: Médico-hospitalar}
     source: ans
     unit: active beneficiary links (vínculos), not persons
     what: >
@@ -360,6 +362,8 @@ fields:
   # persons.
   inep_enrolments:
     over: population
+    # its rows are margins, each summing to the total: read as one value per place, the total
+    where: {margin: total}
     source: inep
     unit: enrolments (matrículas) in basic education, at the school's municipality
     what: >
