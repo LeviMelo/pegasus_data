@@ -13,6 +13,9 @@ their reason.
 A field declared with ``series:`` is one measure of a series stitched across the censuses
 (``curation/sidra/series.yml``): the same concept in 2000, 2010 and 2022 where IBGE's tables allow it, with the
 series' own statement of comparability and gaps. A share is a numerator field over a denominator field.
+
+A field declared in ``curation/intake.yml`` (`pegasus_data.intake`, ADR-0162) comes from a source that is not on the FTP and
+is read, reduced and served by that one mechanism: the DEMAS API and the Portal de Dados Abertos' files.
 """
 
 from __future__ import annotations
@@ -27,10 +30,11 @@ __all__ = ["build_fields", "declared_fields", "field_rate", "load_field"]
 
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
     from .config import curation_root
+    from .intake import intake_fields
     from .ontology import _read_yaml
 
     base = root or curation_root()
-    return dict((_read_yaml(base / "fields.yml") or {}).get("fields") or {})
+    return {**dict((_read_yaml(base / "fields.yml") or {}).get("fields") or {}), **intake_fields(base)}
 
 
 def _years(text: str) -> list[int]:
@@ -56,10 +60,21 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     chosen_cnes = {n: sp for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)}
     if chosen_cnes:
         report.update(_build_cnes(settings, chosen_cnes, years))
+    chosen_intake: dict[str, list[str]] = {}
+    for name, spec in declared.items():
+        if spec.get("source") == "intake" and (not names or name in names):
+            chosen_intake.setdefault(spec["intake"], []).append(name)
+    if chosen_intake:
+        from .intake import build_source
+
+        for source, fields in chosen_intake.items():
+            result = build_source(settings, source, fields, years)
+            report.update({f: result[f] for f in fields})
+            report[f"intake:{source}"] = {k: v for k, v in result.items() if k not in fields}
     for name, spec in declared.items():
         if names and name not in names:
             continue
-        if spec.get("source") == "cnes":
+        if spec.get("source") in ("cnes", "intake"):
             continue
         if spec.get("source") == "inmet":
             report[name] = _build_climate(settings, name, years)

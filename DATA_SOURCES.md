@@ -640,6 +640,24 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Verdicts: 35 use DEMAS (ESAVI, mpox, yellow fever, SIES, BNAFAR, COVID occupancy, SIASI/SESAI, SISAB, SIAPS, health-region
   mapping, BPS), 49 original with DEMAS as fallback, 29 not relevant.
 
+- **Sources off the FTP, intake (2026-10-10, `intake.py`, ADR-0162, `docs/evaluation/2026-10-10-intake.md`).** DEMAS tables whose
+  rows are not stable under offset paging (BNAFAR's live stock: consecutive pages overlap by a third, the same request returns
+  different rows) are read by splitting the filter by state until it fits one 1,000-row page; static tables (SIES, ESAVI, yellow
+  fever) page stably. **Yellow-fever monitoring** (Portal `Febre Amarela/fa_casoshumanos_1994-2026.csv`, `fa_epizpnh_1994-2026.csv`,
+  semicolon, Latin-1, ends with an empty row; dictionary `Dicionario de variaveis.pdf`): 2,911 human cases (1994-2026; ID 1-2911) and
+  2,637 epizootics (2000-2026), placed at the probable place of infection and of occurrence, dated by year and month columns; DEMAS
+  holds one copy more of the first case and lacks the month of 13 epizootics, so the Portal is the source. **SIES** (`vacinacao/sistema-de-informacao-de-insumos-estrategicos`,
+  Portal `SIES/csv/sies_csv.zip`, dictionary `dicionario-de-dados-do-sies-ok.pdf`): 137,914 rows, secretariat x supply x month x
+  kind (`ORIGEM` Solicitado / Distribuido), 2018-2026; the `IBGE` column holds the secretariat's seat (27 codes), so the unit is the
+  state secretariat. DEMAS equals the file row for row (read as the declared origin).
+  **SI-PNI dose records** (Portal `PNI/csv/vacinacao_<jan..dez>_<year>_csv.zip`, 2020 on; dictionary
+  `dbbni/Dicionario_tb_ria_rotina.pdf`, which lists fields, not code lists). There is one row per applied dose, with a
+  pseudonymous person hash. The files hold 1–several million rows a month and about 215 GB zipped for 2020 to 2026-09.
+  They are Latin-1 and `;`-separated. The code lists are the files' own descriptor columns beside each code
+  (`sg_imunobiologico`/`co_vacina`, `ds_tipo_dose`/`co_dose_vacina`). `co_vacina_fabricante` is mostly empty and does
+  not pair with `ds_nome`. `nu_idade_paciente` holds -1, 120 and 220. Not landed (2026-10-10): the size is out of
+  proportion to the current work.
+
 ## 6. IBGE
 
 ### 6.1 Population

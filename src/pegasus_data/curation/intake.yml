@@ -1,0 +1,1280 @@
+# Intake of the sources that are not on the DATASUS FTP (ADR-0162): each entry is read by pegasus_data/intake.py, which does
+# everything else (fetch, stream, reduce, serve as `curation/fields.yml` fields). The format:
+#
+#   what / citation     one sentence, and the string every row of the field carries as `source`
+#   origin              the one route used: kind api (DEMAS: base, endpoint, paging {rows: the answer's list key, size, style})
+#                       or files (Portal de Dados Abertos: files [{url, year?}] or pattern + years/months; format csv|parquet,
+#                       csv {sep, encoding}); `keep: true` keeps the raw file (default: reduced, then deleted)
+#   compare             the other route, only to count its rows against the used one (the independent figure)
+#   columns             the columns used, as the source's own dictionary names them: `role` (the dictionary's words), `type`
+#                       (roles.yml's vocabulary: municipality, code, label, date, number...), `codes` (its code list, raw value
+#                       -> meaning, when the dictionary gives one), `decimal` for a number written with a comma
+#   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
+#                       municipality_name (+ uf: the state column; exact fold match against IBGE's names) | code, as: name}
+#   period              {type: date (+ format, take) | month (YYYYMM) | year | parts (year, month columns) | file (the file's own
+#                       year), grain: year|month, valid: the years kept}
+#   fields              each a measure over the rows: `count` or `{sum: column}` (never a mean), `where` {column: [raw values]},
+#                       `by` [columns kept as extra keys], `unit`, `what`
+#   verified            the check made: {rows, against, measured}
+#
+# What the reduction leaves out is counted, never silent: unplaced (no municipality given), unallocated (given, but not an
+# IBGE municipality of the universe), undated, out of range.
+
+dictionaries:
+  sisagua:
+    NO_REGIAO:
+      role: Macrorregião do Brasil do município de coleta.
+      aliases:
+      - Região Geográfica
+    SG_UF:
+      role: Sigla da UF do município de coleta.
+      aliases:
+      - UF
+    NO_REGIONAL:
+      role: Regional de saúde do município, mantida pelos gestores do SISAGUA em cada UF (free text, not IBGE's).
+      aliases:
+      - Regional de Saúde
+    NO_MUNICIPIO:
+      role: Nome do município onde se fez a coleta. A water system serving several municipalities appears in each; an SAC
+        is always in one.
+      aliases:
+      - Município
+    CO_MUNICIPIO_IBGE:
+      role: 'Código IBGE do município, 6 dígitos, as given. The Distrito Federal is split into its Regiões Administrativas
+        with codes 530001-5300xx made up in the same format (Brasília itself is 530010): they are not IBGE municipalities.'
+      aliases:
+      - Código IBGE
+      type: municipality
+    TP_ABRANGENCIA:
+      role: 'Abrangência da instituição responsável pelo SAA ou SAC: Local (um município) ou Regional (mais de um).'
+      aliases:
+      - Tipo da Instituição
+    TP_EMPRESA:
+      role: Tipo da instituição responsável (control, other parameters; values such as Empresa Estadual). The dictionary describes
+        it as the institution type.
+    SG_INSTITUICAO:
+      role: Sigla da instituição responsável pelo SAA ou SAC.
+      aliases:
+      - Sigla da Instituição
+    NO_INSTITUICAO:
+      role: Nome da instituição responsável pelo SAA ou SAC.
+      aliases:
+      - Nome da Instituição
+    NU_CNPJ_INSTITUICAO:
+      role: CNPJ da instituição (da sede, se Regional). Stored as the source writes it (often with a trailing .0).
+      aliases:
+      - CNPJ da Instituição
+    NO_ESCRITORIO_REGIONAL_LOCAL:
+      role: Escritório regional ou local da instituição; empty for Local institutions.
+      aliases:
+      - Nome do escritório regional/local
+    NU_CNPJ_ESCRITORIO_REGIONAL_LOCAL:
+      role: CNPJ do escritório; empty for Local institutions.
+      aliases:
+      - CNPJ do escritório regional/local
+    TP_ABASTECIMENTO:
+      role: 'Tipo da forma de abastecimento: SAA sistema de abastecimento de água, SAC solução alternativa coletiva, SAI solução
+        alternativa individual (the control has SAA and SAC only).'
+      aliases:
+      - Tipo da Forma de Abastecimento
+    NU_SOLUCAO_ABASTECIMENTO:
+      role: Código da forma de abastecimento, gerado pelo SISAGUA no cadastro (S + 6-digit municipality + sequence).
+      aliases:
+      - Código Forma de abastecimento
+    NO_SOLUCAO_ABASTECIMENTO:
+      role: Nome da forma de abastecimento.
+      aliases:
+      - Nome da Forma de Abastecimento
+    NO_ETA:
+      role: Estação ou unidade de tratamento onde se coletou; empty when the sample was taken elsewhere.
+      aliases:
+      - Nome da ETA/UTA
+      - Nome da ETA / UTA
+    TP_FILTRACAO:
+      role: 1 sem filtração, 2 filtração lenta, 3 filtração rápida, 4 filtração em membranas (control dictionary).
+      aliases:
+      - Tipo de Filtração
+    NU_ANO:
+      role: Ano de coleta (control and surveillance) das amostras.
+      aliases:
+      - Ano
+      - Ano de referência
+      type: integer
+    NU_MES:
+      role: Mês de coleta.
+      aliases:
+      - Mês
+      - Mês de referência
+      type: integer
+    DT_COLETA:
+      role: Data em que foi realizada a coleta da amostra.
+      aliases:
+      - Data da Coleta
+      - Data da coleta
+      - DT_COLETA_AMOSTRA
+      type: date
+      take: 10
+      formats:
+      - '%Y/%m/%d'
+      - '%d/%m/%Y'
+    HR_COLETA:
+      role: Horário da coleta.
+      aliases:
+      - Hora da Coleta
+      - Hora da coleta
+    DT_LAUDO:
+      role: Data de emissão do laudo pelo laboratório.
+      aliases:
+      - Data do Laudo
+      type: date
+      take: 10
+      formats:
+      - '%Y/%m/%d'
+      - '%d/%m/%Y'
+    DT_INCLUSAO_REGISTRO:
+      role: Data de registro no SISAGUA (saved by the system).
+      aliases:
+      - Data de Registro no SISAGUA
+      - Data de registro
+      type: date
+      take: 10
+      formats:
+      - '%Y/%m/%d'
+      - '%d/%m/%Y'
+    DT_FORMULARIO_CADASTRO:
+      role: Data em que o responsável preencheu o relatório mensal (control).
+      aliases:
+      - Data de preenchimento do relatório mensal
+      type: date
+      take: 10
+      formats:
+      - '%Y/%m/%d'
+      - '%d/%m/%Y'
+    DT_ANALISE:
+      role: Data em que a amostra foi analisada.
+      aliases:
+      - Data da análise
+      - DT-ANALISE
+      type: date
+      take: 10
+      formats:
+      - '%Y/%m/%d'
+      - '%d/%m/%Y'
+    NU_AMOSTRA:
+      role: 'Número de identificação da amostra: from GAL when the municipality uses it, otherwise typed by the water-quality
+        surveillance officer. Not unique across municipalities.'
+      aliases:
+      - Número da amostra
+    TP_MOTIVO_COLETA:
+      role: 'Motivo da coleta: Rotina, Denúncia, Desastre ou Surto. Surto and Desastre samples follow an event, so they are
+        not routine surveillance.'
+      aliases:
+      - Motivo da coleta
+    TP_PROCEDENCIA_COLETA:
+      role: 'Parte da forma de abastecimento da coleta: ponto de captação, estação de tratamento de água, sistema de distribuição,
+        intra-domiciliar/intrapredial, solução alternativa.'
+      aliases:
+      - Procedência da Coleta
+    TP_PONTO_COLETA:
+      role: 'Ponto de coleta (surveillance: torneira, cavalete/hidrômetro, reservatório, chafariz, bebedouro, ...) or, in
+        the monthly control from 2015, the point of monitoring (pós-filtração, saída do tratamento, sistema de distribuição,
+        ponto de consumo, ...).'
+      aliases:
+      - Ponto de Coleta
+      - Ponto de Monitoramento
+    PT_MONITORAMENTO:
+      role: 'Ponto de monitoramento do controle: sistema de distribuição (reservatórios, rede do SAA) ou ponto de consumo
+        (chafariz, torneira pública de uma SAC).'
+    DS_LOCAL:
+      role: Descrição (texto livre) do local da coleta.
+      aliases:
+      - Descrição do Local
+    TP_ZONA:
+      role: Rural ou Urbana.
+      aliases:
+      - Zona
+    NO_CATEGORIA_AREA:
+      role: Bairro, sede de distrito, povoado, aldeia indígena, comunidade quilombola, ribeirinha, ... (the dictionary lists
+        ten).
+      aliases:
+      - Categoria Área
+      - Categoria da área
+    NO_AREA:
+      role: Nome da área da coleta.
+      aliases:
+      - Área
+    TP_LOCAL:
+      role: Tipo do local da coleta (estabelecimento de ensino
+      aliases:
+      - Tipo do local
+      - Tipo do Local
+    NO_LOCAL:
+      role: Nome do local da coleta.
+      aliases:
+      - Local
+    NO_ENDERECO:
+      role: Endereço da coleta (control
+      aliases:
+      - Endereço
+    NU_LATITUDE:
+      role: Latitude do ponto de coleta.
+      aliases:
+      - Latitude
+      - LATITUDE
+      type: number
+      decimal: ','
+    NU_LONGITUDE:
+      role: Longitude do ponto de coleta.
+      aliases:
+      - Longitude
+      - LONGIDADE
+      type: number
+      decimal: ','
+    TP_CAPTACAO:
+      role: Tipo de captação (superficial / subterrâneo) when the sample has a capture point.
+      aliases:
+      - Tipo de captação
+    NO_CATEGORIA_MANANCIAL:
+      role: Categoria do manancial superficial.
+      aliases:
+      - Categoria do manancial superficial
+    NO_MANANCIAL:
+      role: Nome do manancial superficial.
+      aliases:
+      - Nome do manancial superficial
+    TP_CATEGORIA_CAPT_SUB:
+      role: Categoria do ponto de captação subterrânea.
+      aliases:
+      - Categoria do ponto de captação subterrânea
+    NO_PONTO_CAPTACAO:
+      role: Nome do ponto de captação subterrânea.
+      aliases:
+      - Nome do ponto de captação subterrânea
+    GRUPO_PARAMETROS:
+      role: 'Grupo do parâmetro: agrotóxicos, organolépticos, produtos secundários de desinfecção, radioatividade, substâncias
+        inorgânicas, orgânicas (other parameters); cianobactérias, cianotoxinas.'
+      aliases:
+      - Grupo de parâmetros
+      - Grupo
+    PARAMETRO:
+      role: Parâmetro de qualidade da água, with its unit in the name for the basic ones (Turbidez (uT), Cloro Residual Livre
+        (mg/L), Cor (uH), Fluoreto (mg/L), pH, Coliformes totais, Escherichia coli, Bactérias Heterotróficas (UFC/mL)); in
+        the other-parameters table the name carries the limit (VMP). Spelling differs between tables (Cloro residual livre
+        / Cloro Residual Livre).
+      aliases:
+      - Parâmetro
+      - Parâmetro (ciano)
+      - Parâmetro (demais parâmetros)
+    CAMPO:
+      role: 'Tipo do monitoramento do controle mensal: número de amostras analisadas, percentil 95, número de dados acima/abaixo
+        de um limite (the limits are the control''s bins), número de amostras com presença/ausência de coliformes.'
+      aliases:
+      - Campo
+    ANALISE_REALIZADA:
+      role: EM_CAMPO or EM_LABORATORIO (surveillance basic parameters, from 2023).
+    UNIDADE:
+      role: Unidade de medida do parâmetro (control
+    LD:
+      role: 'Limite de detecção do método: a menor concentração que pode ser detectada, não necessariamente quantificada (filled
+        from 2023).'
+      type: number
+      decimal: ','
+    LQ:
+      role: 'Limite de quantificação: a menor concentração determinável com precisão e exatidão aceitáveis (filled from 2023).'
+      type: number
+      decimal: ','
+    RESULTADO:
+      role: 'Resultado da análise: a quantified value (decimal comma), MENOR_LD or MENOR_LQ (below the detection / quantification
+        limit), PRESENTE/AUSENTE for coliforms; in the outside-the-standard list, the result of the sample the supplier listed.'
+      aliases:
+      - Resultado
+      type: result
+      tokens:
+        MENOR_LD: below_ld
+        MENOR_LQ: below_lq
+        PRESENTE: present
+        PRESENÇA: present
+        AUSENTE: absent
+        AUSÊNCIA: absent
+        NAO_REALIZADA: not_done
+        NÃO_REALIZADA: not_done
+    VALOR:
+      role: 'Valor do controle mensal para o par parâmetro x campo: a count of analyses or of results above/below a limit,
+        a percentile or a mean, as CAMPO says.'
+      aliases:
+      - Valor
+      type: result
+      tokens:
+        MENOR_LD: below_ld
+        MENOR_LQ: below_lq
+        PRESENTE: present
+        PRESENÇA: present
+        AUSENTE: absent
+        AUSÊNCIA: absent
+        NAO_REALIZADA: not_done
+        NÃO_REALIZADA: not_done
+    PROVIDENCIA:
+      role: Providência da vigilância (free text), filled until 2022.
+      aliases:
+      - Providência
+    PROVIDENCIA_CONTROLE:
+      role: Ação do prestador ao identificar amostras que não atendem ao padrão (control, outside the standard).
+      aliases:
+      - Providência do controle
+
+sources:
+
+  catmat:
+    what: "The open CATMAT catalogue (Compras.gov.br, modulo-material): the drugs (PDM) of class 6505 and their items and supply units."
+    origin:
+      kind: api
+      base: https://dadosabertos.compras.gov.br/modulo-material
+      paging: {style: page, page_param: pagina, size_param: tamanhoPagina, size: 500, rows: resultado, pages_key: totalPaginas}
+    columns: {}
+
+  bnafar:
+    what: >
+      BNAFAR/Hórus medicine stock (DEMAS daf/estoque-medicamentos-bnafar-horus): each lot's CURRENT stock position at an
+      establishment (one row per establishment x product x lot, dated by its last report), read by filter (CATMAT code, month,
+      state, programme), never in bulk.
+    citation: DEMAS /daf/estoque-medicamentos-bnafar-horus (BNAFAR/Hórus, DAF/SECTICS)
+    system: BNAFAR
+    series: STOCK
+    system_name:
+      official_name: Base Nacional de Dados de Ações e Serviços da Assistência Farmacêutica (BNAFAR / Hórus)
+      translated_name: National Pharmaceutical Care Database (BNAFAR / Hórus)
+      authority: Ministério da Saúde / DAF / SECTICS
+      what_it_is: >
+        The stock of medicines that establishments report to the Ministry's pharmaceutical-care systems (Hórus and the
+        state systems that feed BNAFAR).
+    official_name: Posição de estoque de medicamentos
+    translated_name: Medicine stock position
+    snapshot: true
+    one_row: one lot of one product at one establishment, at its last stock report
+    unit_of_analysis: lot position
+    gotchas:
+      - The endpoint serves each lot's CURRENT position, not a history; every read is kept here with its read day (_READ_ON), so a history accrues from the first read.
+      - A municipality code ending in 0000 is the state's "ignored municipality", not a place.
+      - Offset paging of the live table is unstable (pages overlap and differ between reads), so a filter is split by state until it fits one page.
+    place: {column: codigo_municipio, type: municipality}
+    period: {type: date, column: data_posicao_estoque}
+    origin:
+      kind: api
+      endpoint: /daf/estoque-medicamentos-bnafar-horus
+      paging: {short_page_is_end: true}
+      # The table is read without an ORDER BY while it changes: offset pages overlap and differ between reads, so a filter is
+      # split by state (and by municipality where a state is still a full page) until each slice fits in one page.
+      partition: [{param: codigo_uf, values: uf_code}, {param: codigo_municipio, values: municipality, within: codigo_uf}]
+    columns:
+      codigo_uf: {role: state of the establishment, type: code}
+      uf: {role: state abbreviation, type: label}
+      codigo_municipio: {role: municipality of the establishment, type: municipality}
+      municipio: {role: municipality name, type: label}
+      codigo_cnes: {role: establishment, type: facility}
+      data_posicao_estoque: {role: date of the lot's last stock report, type: date}
+      codigo_catmat: {role: "CATMAT item with its supply unit (BR + item + unit, taken whole by the filter)", type: code}
+      descricao_produto: {role: product description, type: label}
+      quantidade_estoque: {role: quantity in stock, type: number}
+      numero_lote: {role: lot, type: code}
+      data_validade: {role: expiry, type: date, take: 10}
+      tipo_produto: {role: product type, type: label}
+      sigla_programa_saude: {role: health programme (NI = not informed), type: code}
+      sigla_sistema_origem: {role: system the report came from, type: code}
+
+  yellow_fever_humans:
+    system: FA
+    series: HUM
+    system_name:
+      official_name: Monitoramento da Febre Amarela
+      translated_name: Yellow Fever Monitoring
+      authority: Ministério da Saúde / SVSA
+      what_it_is: >
+        The Ministry's monitoring series of yellow fever in humans and in non-human primates (epizootics), by monitoring
+        period (July to June, the seasonal year of transmission), published as two open files.
+    official_name: Febre Amarela em humanos
+    translated_name: Yellow fever in humans
+    what: >
+      Suspected and confirmed yellow-fever cases in humans, 1994-2026, one row per case, placed at the probable place of
+      infection (LPI) and dated by the onset of symptoms.
+    one_row: one notified case, at its probable place of infection
+    unit_of_analysis: case
+    gotchas:
+      - The municipality is the probable place of infection, not of residence or notification.
+      - The year and month are those of the onset of symptoms; the monitoring period runs July to June.
+      - The file ends with an empty row, and a few cases carry no municipality code (counted as unplaced).
+    citation: Portal de Dados Abertos do SUS, fa_casoshumanos_1994-2026.csv (SVSA/MS); DEMAS /arboviroses/febre-amarela-humanos-primatas-nao-humanos holds one copy of the first case more
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/fa_casoshumanos_1994-2026.csv"}]
+    compare:
+      kind: api
+      endpoint: /arboviroses/febre-amarela-humanos-primatas-nao-humanos
+      paging: {rows: febre_amarela_humanos_primatas}
+    columns:
+      ID: {role: sequential unique identifier, type: integer}
+      MACRORREG_LPI: {role: abbreviation of the macro-region of the probable place of infection, type: code}
+      COD_UF_LPI: {role: IBGE code of the state of the probable place of infection, type: code}
+      UF_LPI: {role: abbreviation of the state of the probable place of infection, type: code}
+      COD_MUN_LPI: {role: IBGE code of the municipality of the probable place of infection, type: municipality}
+      MUN_LPI: {role: name of the municipality of the probable place of infection, type: label}
+      SEXO: {role: sex of the individual, type: code}
+      IDADE: {role: age of the individual, type: number, decimal: ","}
+      DT_IS: {role: date of the onset of symptoms (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_IS: {role: epidemiological week of the onset of symptoms, type: integer}
+      MES_IS: {role: month of the onset of symptoms, type: integer}
+      ANO_IS: {role: year of the onset of symptoms, type: integer}
+      MONITORAMENTO_IS: {role: monitoring period of the onset of symptoms (July to June), type: code}
+      OBITO: {role: evolution to death, type: code, codes: {"SIM": died, "NÃO": did not die, "IGN": ignored}}
+      DT_OBITO: {role: date of death (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+    place: {column: COD_MUN_LPI, type: municipality}
+    period: {type: parts, year: ANO_IS, month: MES_IS, grain: month, valid: 1994-2026}
+    fields:
+      yellow_fever_human_cases:
+        measure: count
+        unit: cases
+        what: Yellow-fever human cases by municipality of the probable place of infection and month of onset.
+      yellow_fever_human_deaths:
+        measure: count
+        where: {OBITO: [SIM]}
+        unit: deaths
+        what: Of those, the cases that evolved to death.
+
+  yellow_fever_epizootics:
+    system: FA
+    series: EPIZ
+    official_name: Epizootias de febre amarela em primatas não humanos
+    translated_name: Yellow-fever epizootics in non-human primates
+    what: >
+      Epizootics in non-human primates attributed to yellow fever, 1999-2026, one row per occurrence, placed where it occurred
+      and dated by the year and month of occurrence (the day is mostly empty).
+    one_row: one epizootic occurrence
+    unit_of_analysis: occurrence
+    gotchas:
+      - The exact date (DATA_OCOR) and week are mostly empty; the year and month are the period.
+    citation: Portal de Dados Abertos do SUS, fa_epizpnh_1994-2026.csv (SVSA/MS); DEMAS /arboviroses/febre-amarela-epzootias lacks the month of 13 rows
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/fa_epizpnh_1994-2026.csv"}]
+    compare:
+      kind: api
+      endpoint: /arboviroses/febre-amarela-epzootias
+      paging: {rows: febre_amarela_epzootias}
+    columns:
+      ID: {role: sequential unique identifier, type: integer}
+      MACRORREG_OCOR: {role: abbreviation of the macro-region of the place of occurrence, type: code}
+      COD_UF_OCOR: {role: IBGE code of the state of the place of occurrence, type: code}
+      UF_OCOR: {role: abbreviation of the state of the place of occurrence, type: code}
+      COD_MUN_OCOR: {role: IBGE code of the municipality of the place of occurrence, type: municipality}
+      MUN_OCOR: {role: name of the municipality of the place of occurrence, type: label}
+      DATA_OCOR: {role: date of the occurrence (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_OCOR: {role: epidemiological week of the occurrence, type: integer}
+      MES_OCOR: {role: month of the occurrence, type: integer}
+      ANO_OCOR: {role: year of the occurrence, type: integer}
+      MONITORAMENTO_OCOR: {role: monitoring period of the occurrence (July to June), type: code}
+    place: {column: COD_MUN_OCOR, type: municipality}
+    period: {type: parts, year: ANO_OCOR, month: MES_OCOR, grain: month, valid: 1994-2026}
+    fields:
+      yellow_fever_epizootics:
+        measure: count
+        unit: epizootics
+        what: Epizootics in non-human primates by municipality of occurrence and month.
+
+  sies:
+    system: SIES
+    series: DIST
+    system_name:
+      official_name: Sistema de Informação de Insumos Estratégicos
+      translated_name: Strategic Supplies Information System
+      authority: Ministério da Saúde / SVSA / PNI
+      what_it_is: Requests and distributions of immunobiologicals and supplies from the national programme to the state health secretariats.
+    official_name: Solicitações e distribuições de imunobiológicos e insumos
+    translated_name: Immunobiological requests and distributions
+    what: >
+      Immunobiologicals and supplies requested by and distributed to each state health secretariat (SES) by month, 2018-2026:
+      doses, by supply.
+    one_row: one supply requested or distributed to one secretariat in one month (an aggregate)
+    unit_of_analysis: secretariat x supply x month x kind
+    gotchas:
+      - The IBGE column holds one code per secretariat (27 distinct values for 27 secretariats), the secretariat's seat; the unit is the state secretariat, not the municipality, so the key here is the secretariat (TX_SIGLA).
+      - ORIGEM says whether the quantity was requested (Solicitado) or distributed (Distribuido).
+    citation: DEMAS /vacinacao/sistema-de-informacao-de-insumos-estrategicos (SIES, SVSA/PNI); equal to the Portal's sies_csv.zip
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/dicionario-de-dados-do-sies-ok.pdf
+    origin:
+      kind: api
+      endpoint: /vacinacao/sistema-de-informacao-de-insumos-estrategicos
+      paging: {rows: sies}
+    compare:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/csv/sies_csv.zip"}]
+    columns:
+      TX_SIGLA: {role: state health secretariat (SES) and state that requested or received the supplies, type: code}
+      IBGE: {role: IBGE code of the municipality of the secretariat, type: code}
+      TX_INSUMO: {role: type of immunobiological or supply, type: label}
+      ANO: {role: year requested and distributed, type: year}
+      MES: {role: month requested and distributed, type: integer}
+      QTDE: {role: quantity requested and distributed, type: number}
+      ORIGEM: {role: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
+      TX_AREA: {role: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
+    place: {column: TX_SIGLA, type: code, as: ses}
+    period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
+    fields:
+      sies_distributed:
+        measure: {sum: QTDE}
+        where: {ORIGEM: [Distribuido]}
+        by: [TX_INSUMO]
+        unit: doses and units
+        what: Quantity of each supply distributed to the state secretariat, by month.
+      sies_requested:
+        measure: {sum: QTDE}
+        where: {ORIGEM: [Solicitado]}
+        by: [TX_INSUMO]
+        unit: doses and units
+        what: Quantity of each supply requested by the state secretariat, by month.
+
+  health_regions:
+    system: REGIAO
+    series: MUNICIPIO
+    system_name:
+      official_name: Macrorregiões e regiões de saúde dos municípios
+      translated_name: Health macro-regions and regions of the municipalities
+      authority: Ministério da Saúde / DEMAS
+      what_it_is: The Ministry's list of each municipality's health region and macro-region, with the IBGE population estimate it uses.
+    official_name: Municípios com macrorregião e região de saúde
+    translated_name: Municipalities with health macro-region and region
+    what: Each municipality's health region and macro-region (codes and names) as the Ministry publishes them now, with IBGE's 2022 population estimate.
+    one_row: one municipality
+    unit_of_analysis: municipality
+    gotchas:
+      - The table is a current state with no period; it is kept as read, stamped with the year of the read.
+      - The municipality name carries its state ("AC - ACRELANDIA").
+    citation: DEMAS /macrorregiao-e-regiao-de-saude/municipio (Ministério da Saúde)
+    origin:
+      kind: api
+      endpoint: /macrorregiao-e-regiao-de-saude/municipio
+      paging: {rows: macrorregiao_regiao_saude_municipios, short_page_is_end: true}
+      # Unfiltered offset paging loses rows here (4,870 of 5,571 municipalities): each state is read whole.
+      partition: [{param: sigla_uf, values: uf_sigla}]
+    columns:
+      codigo_regiao_pais: {role: code of the country region (1 Norte ... 5 Centro-Oeste), type: code}
+      regiao_pais: {role: name of the country region, type: label}
+      codigo_uf: {role: IBGE code of the state, type: code}
+      uf: {role: name of the state, type: label}
+      codigo_macrorregiao_saude: {role: code of the health macro-region, type: code}
+      macrorregiao_saude: {role: name of the health macro-region, type: label}
+      codigo_regiao_saude: {role: code of the health region, type: code}
+      regiao_saude: {role: name of the health region, type: label}
+      codigo_municipio: {role: IBGE code of the municipality (6 digits), type: municipality}
+      municipio: {role: name of the municipality with its state, type: label}
+      populacao_estimada_ibge_2022: {role: IBGE population estimate 2022, type: integer}
+    place: {column: codigo_municipio, type: municipality}
+    period: {type: file}
+
+  sisagua_surveillance_basic:
+    system: SISAGUA
+    series: VIGB
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Vigilância - parâmetros básicos
+    translated_name: Vigilância - parâmetros básicos
+    what: 'Vigilância: samples collected by the health sector (the municipal or state water-quality surveillance), one row per
+      sample and parameter. Basic parameters: turbidity, free and combined chlorine, chlorine dioxide, pH, colour, fluoride,
+      total coliforms, E. coli.'
+    one_row: one analysis of one sample for one parameter
+    unit_of_analysis: sample x parameter
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    - 'Out-of-standard fields assess against Portaria GM/MS nº 888, de 4 de maio de 2021 (altera o Anexo XX da Portaria de Consolidação
+      GM/MS nº 5/2017): only limits read from its text are declared.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      pattern: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/vigilancia_parametros_basicos_{year}_csv.zip
+      years: 2014-2026
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_surveillance_analyses:
+        measure: count
+        by:
+        - PARAMETRO
+        unit: analyses
+        what: Surveillance analyses by parameter (a sample analysed for several parameters counts once for each).
+      sisagua_surveillance_censored:
+        measure: count
+        by:
+        - PARAMETRO
+        where:
+          RESULTADO__FLAG:
+          - below_ld
+          - below_lq
+        unit: analyses
+        what: Of those, results below the limit of detection or quantification (not zeros).
+      sisagua_surveillance_result_sum:
+        measure:
+          sum: RESULTADO
+        by:
+        - PARAMETRO
+        where:
+          RESULTADO__FLAG:
+          - numeric
+        unit: the parameter's unit
+        what: Sum of the quantified results by parameter (with `sisagua_surveillance_quantified`, their mean).
+      sisagua_surveillance_quantified:
+        measure: count
+        by:
+        - PARAMETRO
+        where:
+          RESULTADO__FLAG:
+          - numeric
+        unit: analyses
+        what: Quantified results by parameter (the count the sum is over).
+      sisagua_surveillance_outbreak_analyses:
+        measure: count
+        by:
+        - PARAMETRO
+        where:
+          TP_MOTIVO_COLETA:
+          - Surto
+        unit: analyses
+        what: Analyses of samples collected because of an outbreak (Surto).
+      sisagua_surveillance_ecoli_present:
+        measure: count
+        where:
+          PARAMETRO:
+          - Escherichia coli
+          RESULTADO__FLAG:
+          - present
+          - absent
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          - SAI
+        outcome:
+          RESULTADO__FLAG:
+          - present
+        unit: analyses
+        what: 'Samples with Escherichia coli present (Portaria GM/MS 888/2021, Anexo XX, Anexo 1 (ausência em 100 mL, SAI e
+          SAA/SAC na saída do tratamento e na distribuição): absence required).'
+      sisagua_surveillance_total_coliforms_present:
+        measure: count
+        where:
+          PARAMETRO:
+          - Coliformes totais
+          RESULTADO__FLAG:
+          - present
+          - absent
+        outcome:
+          RESULTADO__FLAG:
+          - present
+        unit: analyses
+        what: 'Samples with total coliforms present (a fact, not a standard: the rule is by population and share of the month''s
+          samples).'
+      sisagua_surveillance_turbidity_above_5:
+        measure: count
+        where:
+          PARAMETRO:
+          - Turbidez (uT)
+          RESULTADO__FLAG:
+          - numeric
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          TP_PROCEDENCIA_COLETA:
+          - SISTEMA DE DISTRIBUIÇÃO
+          - INTRA-DOMICILIAR / INTRA-PREDIAL
+          - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 5.0
+        unit: analyses
+        what: Turbidity above 5,0 uT (Portaria GM/MS 888/2021, Anexo XX, art. 28 §2º and Anexo 11 (VMP 5,0 uT in the distribution
+          network, reservoirs and consumption points)). Results below a limit of detection or quantification, empty or unparsed
+          are not assessed.
+      sisagua_surveillance_chlorine_below_0_2:
+        measure: count
+        where:
+          PARAMETRO:
+          - Cloro residual livre (mg/L)
+          - Cloro Residual Livre (mg/L)
+          RESULTADO__FLAG:
+          - numeric
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          TP_PROCEDENCIA_COLETA:
+          - SISTEMA DE DISTRIBUIÇÃO
+          - INTRA-DOMICILIAR / INTRA-PREDIAL
+          - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            below: 0.2
+        unit: analyses
+        what: Free residual chlorine below 0,2 mg/L (Portaria GM/MS 888/2021, Anexo XX, art. 32 (minimum 0,2 mg/L in the network,
+          reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
+          empty or unparsed are not assessed.
+      sisagua_surveillance_chlorine_above_5:
+        measure: count
+        where:
+          PARAMETRO:
+          - Cloro residual livre (mg/L)
+          - Cloro Residual Livre (mg/L)
+          RESULTADO__FLAG:
+          - numeric
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          TP_PROCEDENCIA_COLETA:
+          - SISTEMA DE DISTRIBUIÇÃO
+          - INTRA-DOMICILIAR / INTRA-PREDIAL
+          - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 5.0
+        unit: analyses
+        what: Free residual chlorine above 5,0 mg/L (Portaria GM/MS 888/2021, Anexo XX, art. 32 (minimum 0,2 mg/L in the network,
+          reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
+          empty or unparsed are not assessed.
+      sisagua_surveillance_fluoride_above_1_5:
+        measure: count
+        where:
+          PARAMETRO:
+          - Fluoreto (mg/L)
+          RESULTADO__FLAG:
+          - numeric
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          - SAI
+          TP_PROCEDENCIA_COLETA:
+          - SISTEMA DE DISTRIBUIÇÃO
+          - INTRA-DOMICILIAR / INTRA-PREDIAL
+          - SOLUÇÃO ALTERNATIVA
+          - ESTAÇÃO DE TRATAMENTO DE ÁGUA
+        outcome:
+          RESULTADO:
+            above: 1.5
+        unit: analyses
+        what: Fluoride above 1,5 mg/L (Portaria GM/MS 888/2021, Anexo XX, Anexo 9 and art. 36 §1º (VMP 1,5 mg/L)). Results below
+          a limit of detection or quantification, empty or unparsed are not assessed.
+      sisagua_surveillance_colour_above_15:
+        measure: count
+        where:
+          PARAMETRO:
+          - Cor Aparente (uH)
+          RESULTADO__FLAG:
+          - numeric
+          TP_ABASTECIMENTO:
+          - SAA
+          - SAC
+          TP_PROCEDENCIA_COLETA:
+          - SISTEMA DE DISTRIBUIÇÃO
+          - INTRA-DOMICILIAR / INTRA-PREDIAL
+          - SOLUÇÃO ALTERNATIVA
+        outcome:
+          RESULTADO:
+            above: 15.0
+        unit: analyses
+        what: Apparent colour above 15 uH (Portaria GM/MS 888/2021, Anexo XX, Anexo 11 (VMP 15 uH, organoleptic)). Results below
+          a limit of detection or quantification, empty or unparsed are not assessed.
+  sisagua_surveillance_other:
+    system: SISAGUA
+    series: VIGD
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Vigilância - demais parâmetros
+    translated_name: Vigilância - demais parâmetros
+    what: 'Vigilância: samples collected by the health sector (the municipal or state water-quality surveillance), one row per
+      sample and parameter. Other parameters (pesticides, inorganic, organic, disinfection by-products, radioactivity).'
+    one_row: one analysis of one sample for one parameter
+    unit_of_analysis: sample x parameter
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/vigilancia_demais_parametros_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_surveillance_other_analyses:
+        measure: count
+        by:
+        - PARAMETRO
+        unit: analyses
+        what: Analyses of the other parameters.
+  sisagua_surveillance_cyanobacteria:
+    system: SISAGUA
+    series: VIGC
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Vigilância - cianobactérias e cianotoxinas
+    translated_name: Vigilância - cianobactérias e cianotoxinas
+    what: 'Vigilância: samples collected by the health sector (the municipal or state water-quality surveillance), one row per
+      sample and parameter. Cyanobacteria and cyanotoxins.'
+    one_row: one analysis of one sample for one parameter
+    unit_of_analysis: sample x parameter
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/vigilancia_cianobacterias_cianotoxinas_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_surveillance_cyano_analyses:
+        measure: count
+        by:
+        - PARAMETRO
+        unit: analyses
+        what: Analyses of cyanobacteria and cyanotoxins.
+  sisagua_control_basic:
+    system: SISAGUA
+    series: CTLB
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Controle mensal - parâmetros básicos
+    translated_name: Controle mensal - parâmetros básicos
+    what: 'Controle: the water supplier''s monthly self-report (Portaria GM/MS 888/2021), aggregated by the supplier. Basic
+      parameters, one row per supplier, system, point, month, parameter and measure (CAMPO) with its value (VALOR).'
+    one_row: one measure of one parameter for one supply system, point and month
+    unit_of_analysis: supplier x system x point x month x parameter x measure
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    - 'VALOR is what CAMPO says: a count, a percentile or a mean; only the counts are summed into a field.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      pattern: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/controle_mensal_parametros_basicos_{year}_csv.zip
+      years: 2014-2026
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_control_counts:
+        measure:
+          sum: VALOR
+        by:
+        - PARAMETRO
+        - CAMPO
+        where:
+          CAMPO:
+            prefix:
+            - Número
+            - N de
+            - N° de
+            - Nº de
+        unit: analyses
+        what: The suppliers' monthly counts by parameter and measure as the control files state them (analyses, results above
+          or below the control's limits, presence or absence of coliforms); percentiles and means are left out (they do not
+          sum).
+  sisagua_control_other:
+    system: SISAGUA
+    series: CTLD
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Controle mensal - demais parâmetros
+    translated_name: Controle mensal - demais parâmetros
+    what: 'Controle: the water supplier''s monthly self-report (Portaria GM/MS 888/2021), aggregated by the supplier. Other
+      parameters, including at the raw-water intake.'
+    one_row: one analysis of one parameter for one supply system
+    unit_of_analysis: supplier x system x point x month x parameter x measure
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/controle_mensal_demais_parametros_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_control_other_analyses:
+        measure: count
+        by:
+        - PARAMETRO
+        unit: analyses
+        what: The suppliers' analyses of the other parameters.
+  sisagua_control_outside_standard:
+    system: SISAGUA
+    series: CTLF
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    official_name: Controle mensal - amostras fora do padrão
+    translated_name: Controle mensal - amostras fora do padrão
+    what: 'Controle: the water supplier''s monthly self-report (Portaria GM/MS 888/2021), aggregated by the supplier. The samples
+      the supplier lists as outside the standard, with the action taken.'
+    one_row: one sample outside the standard
+    unit_of_analysis: sample x parameter
+    gotchas:
+    - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
+    - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
+      IBGE municipalities, so unallocated in the fields, kept in the records.'
+    - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
+      registries/sisagua/dictionaries)
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/controle_mensal_amostras_fora_padrao_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period:
+      type: parts
+      year: NU_ANO
+      month: NU_MES
+      grain: month
+      valid: 2014-2026
+    fields:
+      sisagua_control_outside_standard:
+        measure: count
+        by:
+        - PARAMETRO
+        unit: samples
+        what: Samples the suppliers list as outside the standard, by parameter.
+
+  sngpc_industrialized:
+    system: SNGPC
+    series: IND
+    system_name:
+      official_name: Sistema Nacional de Gerenciamento de Produtos Controlados
+      translated_name: National system for the management of controlled products
+      authority: ANVISA
+      what_it_is: Retail-pharmacy sales of controlled medicines and antimicrobials, published monthly by ANVISA.
+    official_name: Vendas de medicamentos industrializados
+    translated_name: Vendas de medicamentos industrializados
+    what: Manufactured controlled medicines and antimicrobials sold by retail pharmacies.
+    one_row: one sale line (a pharmacy, a month, a medicine, a prescription)
+    unit_of_analysis: sale line
+    gotchas:
+    - 'Published months: 2014-01 to 2021-10 and 2026-01 on; 2021-11 to 2025-12 were never published (ANVISA''s dictionary, §3.7).'
+    - 'The 2014-2017 headers misspell NO_CONSELHO_PRESCRITOR as NO_CONSEITOR: read through its alias.'
+    - 'No municipality code: the name is matched to IBGE''s within the state where the folded name is the same; otherwise unplaced,
+      the name kept.'
+    - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
+    - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
+    citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
+    dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Industrializados.pdf (ANVISA; §3.7 the published period, §5 the fields and codes)
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: latin1
+      pattern: https://dados.anvisa.gov.br/dados/SNGPC/Industrializados/EDA_Industrializados_{period}.csv
+      months: 201401-202110,202601-202609
+    columns:
+      NU_ANO_VENDA:
+        role: year of the sale
+        type: integer
+      NU_MES_VENDA:
+        role: month of the sale
+        type: integer
+      SG_UF_VENDA:
+        role: state (UF) of the pharmacy
+        type: code
+      NO_MUNICIPIO_VENDA:
+        role: name of the pharmacy's municipality (no IBGE code in the file)
+        type: label
+      NO_CONSELHO_PRESCRITOR:
+        role: the prescriber's professional council (CRM, CRO, CRMV, ...)
+        type: code
+        aliases:
+        - NO_CONSEITOR
+      SG_UF_CONSELHO_PRESCRITOR:
+        role: state of the prescriber's council registration
+        type: code
+      TP_RECEITUARIO:
+        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
+        type: code
+        codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
+                "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
+                "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
+      CO_CID10:
+        role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
+        type: code
+      SG_SEXO:
+        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
+        type: code
+        codes: {"1": male, "2": female}
+      NU_IDADE:
+        role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
+        type: number
+      NU_UNIDADE_IDADE:
+        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
+        type: code
+        codes: {"1": years, "2": months}
+      DS_PRINCIPIO_ATIVO:
+        role: active principle(s) of the manufactured medicine
+        type: label
+      DS_DESCRICAO_APRESENTACAO:
+        role: presentation of the medicine as registered
+        type: label
+      QT_VENDIDA:
+        role: quantity sold, in DS_UNIDADE_MEDIDA
+        type: number
+      DS_UNIDADE_MEDIDA:
+        role: unit of the quantity sold (CAIXA, FRASCO, ...)
+        type: code
+    place:
+      column: NO_MUNICIPIO_VENDA
+      uf: SG_UF_VENDA
+      type: municipality_name
+    period:
+      type: parts
+      year: NU_ANO_VENDA
+      month: NU_MES_VENDA
+      grain: month
+      valid: 2014-2026
+    fields:
+      sngpc_industrialized_sales:
+        measure:
+          sum: QT_VENDIDA
+        by:
+        - DS_PRINCIPIO_ATIVO
+        - DS_UNIDADE_MEDIDA
+        unit: the unit of DS_UNIDADE_MEDIDA
+        what: Quantity of each active principle sold, by municipality and month.
+      sngpc_industrialized_sales_by_cid:
+        measure:
+          sum: QT_VENDIDA
+        by:
+        - DS_PRINCIPIO_ATIVO
+        - DS_UNIDADE_MEDIDA
+        - CO_CID10
+        unit: the unit of DS_UNIDADE_MEDIDA
+        what: 'The same by the patient''s ICD-10 code as entered (antimicrobials). Rarely filled: 221,273 of 57,087,497 lines in
+          2021 (0.39%); oral sulfadiazine 311 lines, 1 with B58; spiramycin 7,894 lines, none with B58.'
+  sngpc_compounded:
+    system: SNGPC
+    series: MAN
+    system_name:
+      official_name: Sistema Nacional de Gerenciamento de Produtos Controlados
+      translated_name: National system for the management of controlled products
+      authority: ANVISA
+      what_it_is: Retail-pharmacy sales of controlled medicines and antimicrobials, published monthly by ANVISA.
+    official_name: Vendas de medicamentos manipulados
+    translated_name: Vendas de medicamentos manipulados
+    what: Compounded controlled medicines and antimicrobials sold by retail pharmacies.
+    one_row: one sale line (a pharmacy, a month, a medicine, a prescription)
+    unit_of_analysis: sale line
+    gotchas:
+    - 'Published months: 2014-01 to 2021-10 and 2026-01 on; 2021-11 to 2025-12 were never published (ANVISA''s dictionary, §3.7).'
+    - 'The 2014-2017 headers misspell NO_CONSELHO_PRESCRITOR as NO_CONSEITOR: read through its alias.'
+    - 'No municipality code: the name is matched to IBGE''s within the state where the folded name is the same; otherwise unplaced,
+      the name kept.'
+    - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
+    - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
+    citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
+    dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Manipulados.pdf (ANVISA; the same codes under the panel's names)
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: latin1
+      pattern: https://dados.anvisa.gov.br/dados/SNGPC/Manipulados/EDA_Manipulados_{period}.csv
+      months: 201401-202110,202601-202609
+    columns:
+      NU_ANO_VENDA:
+        role: year of the sale
+        type: integer
+      NU_MES_VENDA:
+        role: month of the sale
+        type: integer
+      SG_UF_VENDA:
+        role: state (UF) of the pharmacy
+        type: code
+      NO_MUNICIPIO_VENDA:
+        role: name of the pharmacy's municipality (no IBGE code in the file)
+        type: label
+      NO_CONSELHO_PRESCRITOR:
+        role: the prescriber's professional council (CRM, CRO, CRMV, ...)
+        type: code
+        aliases:
+        - NO_CONSEITOR
+      SG_UF_CONSELHO_PRESCRITOR:
+        role: state of the prescriber's council registration
+        type: code
+      TP_RECEITUARIO:
+        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
+        type: code
+        codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
+                "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
+                "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
+      CO_CID10:
+        role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
+        type: code
+      SG_SEXO:
+        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
+        type: code
+        codes: {"1": male, "2": female}
+      NU_IDADE:
+        role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
+        type: number
+      NU_UNIDADE_IDADE:
+        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
+        type: code
+        codes: {"1": years, "2": months}
+      DS_DCB:
+        role: the active principle's Denominação Comum Brasileira
+        type: label
+      NO_PRINCIPIO_ATIVO:
+        role: name of the active principle
+        type: label
+      QT_ATIVO_POR_UNID_FARMACOTEC:
+        role: amount of active principle per pharmacotechnical unit
+        type: number
+      DS_UNIDADE_MEDIDA_PRINCIPIO_ATIVO:
+        role: unit of that amount
+        type: code
+      QT_UNIDADE_FARMACOTECNICA:
+        role: pharmacotechnical units sold
+        type: number
+      DS_TIPO_UNIDADE_FARMACOTECNICA:
+        role: kind of pharmacotechnical unit (capsule, ...)
+        type: code
+    place:
+      column: NO_MUNICIPIO_VENDA
+      uf: SG_UF_VENDA
+      type: municipality_name
+    period:
+      type: parts
+      year: NU_ANO_VENDA
+      month: NU_MES_VENDA
+      grain: month
+      valid: 2014-2026
+    fields:
+      sngpc_compounded_units:
+        measure:
+          sum: QT_UNIDADE_FARMACOTECNICA
+        by:
+        - NO_PRINCIPIO_ATIVO
+        - DS_TIPO_UNIDADE_FARMACOTECNICA
+        unit: pharmacotechnical units
+        what: Compounded units of each active principle sold, by municipality and month.
