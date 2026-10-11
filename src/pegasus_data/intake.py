@@ -50,7 +50,7 @@ INTERVAL = 1.1
 #: Pages of an API read landed together as one unit.
 PIECE_PAGES = 50
 #: Declared types that get a typed column beside the raw one.
-TYPED = ("date", "number", "integer", "year")
+TYPED = ("date", "number", "integer", "year", "result")
 
 _last: dict[str, float] = {}
 _client: list[httpx.Client] = []
@@ -60,7 +60,18 @@ def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
     from .config import curation_root
     from .ontology import _read_yaml
 
-    return dict((_read_yaml((root or curation_root()) / "intake.yml") or {}).get("sources") or {})
+    doc = _read_yaml((root or curation_root()) / "intake.yml") or {}
+    dictionaries = doc.get("dictionaries") or {}
+    out = {}
+    for name, spec in (doc.get("sources") or {}).items():
+        shared = dictionaries.get(spec.get("dictionary_columns")) if spec.get("dictionary_columns") else None
+        if spec.get("dictionary_columns") and shared is None:
+            raise KeyError(f"intake.yml: {name} names the dictionary {spec['dictionary_columns']!r}, which is not declared")
+        if shared:
+            # a shared dictionary's columns are optional (a file holds those it holds); the source's own stay required
+            spec = {**spec, "columns": {**{c: {**(d or {}), "optional": True} for c, d in shared.items()}, **(spec.get("columns") or {})}}
+        out[name] = spec
+    return out
 
 
 def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -344,28 +355,60 @@ def _typed(expr: str, decl: dict[str, Any]) -> str | None:
     kind = decl.get("type")
     if kind == "date":
         value = f"substr({expr}, 1, {int(decl['take'])})" if decl.get("take") else expr
-        return f"CAST(try_strptime({value}, '{decl.get('format', '%Y-%m-%d')}') AS DATE)"
+        formats = decl.get("formats") or [decl.get("format", "%Y-%m-%d")]
+        # several declared formats (a column filed as 2023/01/17 in one table and 17/01/2023 in another): the first that reads
+        tried = ", ".join(f"try_strptime({value}, '{f}')" for f in formats)
+        return f"CAST(coalesce({tried}) AS DATE)" if len(formats) > 1 else f"CAST(try_strptime({value}, '{formats[0]}') AS DATE)"
     if kind == "number":
         return f"try_cast(replace({expr}, ',', '.') AS DOUBLE)" if decl.get("decimal") == "," else f"try_cast({expr} AS DOUBLE)"
     if kind in ("integer", "year"):
         return f"CAST(try_cast({expr} AS DOUBLE) AS BIGINT)"
+    if kind == "result":
+        # a measurement as filed: a number only where it is one unambiguously (digits, a decimal comma); "1.544,00" and
+        # the like (a dot of no fixed meaning) stay unparsed, never guessed; the flag says what the text is (`_flag`)
+        return (f"CASE WHEN regexp_matches({expr}, '^-?[0-9]+(,[0-9]+)?$') "
+                f"THEN CAST(replace({expr}, ',', '.') AS DOUBLE) END")
     return None
+
+
+def _flag(expr: str, decl: dict[str, Any]) -> str:
+    """A result's kind: ``numeric``, a declared token's meaning (``tokens: {MENOR_LD: below_ld, PRESENTE: present}``),
+    ``censored`` for a leading "<", ``empty``, else ``unparsed``."""
+    tokens = decl.get("tokens") or {}
+    whens = "".join(f"WHEN upper({expr}) = '{str(k).upper()}' THEN '{v}' " for k, v in tokens.items())
+    return (f"CASE WHEN {expr} IS NULL THEN 'empty' WHEN regexp_matches({expr}, '^-?[0-9]+(,[0-9]+)?$') THEN 'numeric' "
+            f"{whens}WHEN starts_with({expr}, '<') THEN 'censored' ELSE 'unparsed' END")
 
 
 def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any], source_path: str, read_on: str) -> str:
     """The SELECT that turns a relation ``raw`` (all VARCHAR, the source's own column names) into the lake's records."""
     declared = {c.upper(): (d or {}) for c, d in (spec.get("columns") or {}).items()}
-    actual = {c.strip().lstrip("﻿").upper(): c for c in columns}
-    missing = [c for c in declared if c not in actual]
+    # a header is read under its canonical name: the declared name, or any of its ``aliases`` (another header generation
+    # of the same column: "Código IBGE" for CO_MUNICIPIO_IBGE), compared without case, accents or punctuation
+    alias = {}
+    for name, d in declared.items():
+        for spelling in [name, *(d.get("aliases") or [])]:
+            alias[re.sub(r"[^A-Z0-9]", "", _fold(spelling))] = name
+    actual: dict[str, str] = {}
+    for c in columns:
+        clean = c.strip().lstrip("\ufeff")
+        canonical = alias.get(re.sub(r"[^A-Z0-9]", "", _fold(clean)), clean.upper())
+        if canonical in actual:
+            raise KeyError(f"{unit['key']}: two headers read as {canonical}: {actual[canonical]!r} and {c!r}")
+        actual[canonical] = c
+    missing = [c for c, d in declared.items() if c not in actual and not d.get("optional")]
     if missing:
         raise KeyError(f"{unit['key']}: declared columns absent from the file: {missing}")
     raw = {u: f"NULLIF(trim(raw.{_ident(c)}), '')" for u, c in actual.items()}
     out: list[str] = []
     for upper, expr in raw.items():
-        typed = _typed(expr, declared.get(upper, {}))
+        decl = declared.get(upper, {})
+        typed = _typed(expr, decl)
         if typed:
             out.append(f"{typed} AS {_ident(upper)}")
             out.append(f"{expr} AS {_ident(upper + '__RAW')}")
+            if decl.get("type") == "result":
+                out.append(f"{_flag(expr, decl)} AS {_ident(upper + '__FLAG')}")
         else:
             out.append(f"{expr} AS {_ident(upper)}")
     place, period = spec.get("place") or {}, spec.get("period") or {"type": "file"}
@@ -507,6 +550,8 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
         out.append({"key": entry.get("key") or Path(urlsplit(entry["url"]).path).name, "url": entry["url"], "year": entry.get("year")})
     if origin.get("pattern"):
         for period in _span(origin["years"] if origin.get("years") else origin["months"]):
+            if not origin.get("years") and not 1 <= period % 100 <= 12:
+                continue                     # a span of YYYYMM months ("201401-202110") holds no month 13 to 00
             out.append({"key": str(period), "url": origin["pattern"].format(year=period, period=period),
                         "year": period if origin.get("years") else int(str(period)[:4])})
     for unit in out:
@@ -523,25 +568,59 @@ def _sidecar(source: str, root: Path | str | None, key: str) -> Path:
     return _cache(source, root, "units", f"{_safe(key)}.json")
 
 
+#: a lone byte that is not valid UTF-8, as Windows-1252 reads it
+_CP1252 = {b: bytes([b]).decode("cp1252", "replace") for b in range(128, 256)}
+_LONE = re.compile("[\udc80-\udcff]")
+
+
+def _transcode_mixed(src: Any, dst: Any) -> None:
+    """``encoding: mixed``: a file that mixes UTF-8 and Windows-1252, even within one line (SISAGUA's), rewritten as
+    UTF-8 in blocks: a valid UTF-8 sequence is read as such, a lone byte as its Windows-1252 character. A U+FFFD already
+    in the source is kept (the source's, not ours)."""
+    pending = b""
+    while True:
+        block = src.read(64 << 20)
+        data = pending + block
+        cut = data.rfind(b"\n") + 1 if block else len(data)
+        chunk, pending = data[:cut], data[cut:]
+        text = chunk.decode("utf-8", "surrogateescape")
+        for lone in set(_LONE.findall(text)):
+            text = text.replace(lone, _CP1252[ord(lone) - 0xDC00])
+        dst.write(text.encode("utf-8"))
+        if not block:
+            break
+
+
 def _file_relation(path: Path, origin: dict[str, Any]) -> tuple[str, Path | None]:
     """A DuckDB relation over a downloaded file; a zip's CSV member is extracted beside it (returned, to delete)."""
     if origin.get("format", "csv") == "parquet":
         return f"read_parquet('{path.as_posix()}')", None
     csv = origin.get("csv") or {}
+    mixed = csv.get("encoding") == "mixed"
     source, extracted = path, None
-    if path.suffix.lower() == ".zip":
-        with zipfile.ZipFile(path) as archive:
+    if path.suffix.lower() == ".zip" or mixed:
+        opener, name = (path.open, path.name) if path.suffix.lower() != ".zip" else (None, None)
+        if path.suffix.lower() == ".zip":
+            archive = zipfile.ZipFile(path)
             members = [m for m in archive.namelist() if m.lower().endswith((".csv", ".txt"))]
             if len(members) != 1:
                 raise ValueError(f"{path.name}: expected one CSV member, found {members}")
-            extracted = path.with_name(Path(members[0]).name)
-            with archive.open(members[0]) as src, extracted.open("wb") as dst:
+            name = Path(members[0]).name
+
+            def opener(mode="rb", archive=archive, member=members[0]):
+                return archive.open(member)
+        extracted = path.with_name(name + (".utf8.csv" if mixed else ""))
+        with opener("rb") as src, extracted.open("wb") as dst:
+            if mixed:
+                _transcode_mixed(src, dst)
+            else:
                 while chunk := src.read(1 << 24):
                     dst.write(chunk)
         source = extracted
-    encoding = {"latin1": "latin-1", "latin-1": "latin-1", "utf8": "utf-8", "utf-8": "utf-8"}.get(csv.get("encoding", "utf8"), csv.get("encoding"))
+    encoding = "utf-8" if mixed else {"latin1": "latin-1", "latin-1": "latin-1", "utf8": "utf-8", "utf-8": "utf-8"}.get(
+        csv.get("encoding", "utf8"), csv.get("encoding"))
     return (f"read_csv('{source.as_posix()}', all_varchar=true, header=true, delim='{csv.get('sep', ',')}', quote='\"', "
-            f"encoding='{encoding}', null_padding=true, strict_mode=false)"), extracted
+            f"encoding='{encoding}', null_padding=true)"), extracted
 
 
 def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], refresh: bool) -> dict[str, Any]:
@@ -562,6 +641,14 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         relation, extracted = _file_relation(raw, origin)
         unit["size"] = raw.stat().st_size
         stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+        if origin.get("format", "csv") == "csv":
+            # the independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of
+            # SISAGUA 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap
+            lines = _lines(extracted or raw)
+            stats["file_lines"] = lines
+            stats["rows_equal_lines"] = stats.get("rows") == lines - 1
+            if not stats["rows_equal_lines"]:
+                raise ValueError(f"{source} {unit['key']}: {stats.get('rows')} records landed from {lines - 1} lines")
     finally:
         con.close()
         for path in (extracted, None if origin.get("keep") else raw):
@@ -570,6 +657,15 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     side.parent.mkdir(parents=True, exist_ok=True)
     side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
     return stats
+
+
+def _lines(path: Path) -> int:
+    """The newlines of a file (its records plus the header, where no field holds a line break), counted in blocks."""
+    n = 0
+    with path.open("rb") as f:
+        while block := f.read(1 << 24):
+            n += block.count(b"\n")
+    return n
 
 
 def _api_units(origin: dict[str, Any]) -> Iterator[tuple[str, str, Any]]:
@@ -677,13 +773,22 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
             if years:
                 where.append(f"year IN ({','.join(str(int(y)) for y in years)})")
             for column, values in (fs.get("where") or {}).items():
-                where.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
+                # a list: the raw value is one of them; {prefix: [...]}: it starts with one; {above / below / at_least /
+                # at_most: x}: the typed value against a bound (a potability limit: turbidity above 5 uT)
+                if isinstance(values, dict):
+                    typed_col = _ident(column.upper())
+                    bounds = {"above": ">", "below": "<", "at_least": ">=", "at_most": "<="}
+                    parts = [f"{typed_col} {op} {float(values[k])}" for k, op in bounds.items() if k in values]
+                    parts += [" OR ".join(f"starts_with({raw_name(column)}, {str(v)!r})" for v in values.get("prefix") or [])]
+                    where.append("(" + " AND ".join(f"({x})" for x in parts if x) + ")")
+                else:
+                    where.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
             measure = fs["measure"]
             if measure == "count":
                 value = "count(*)"
             else:
-                if declared.get(measure["sum"].upper(), {}).get("type") != "number":
-                    raise ValueError(f"field {name}: sum of {measure['sum']} needs a column declared `type: number`")
+                if declared.get(measure["sum"].upper(), {}).get("type") not in ("number", "result"):
+                    raise ValueError(f"field {name}: sum of {measure['sum']} needs a column declared `type: number` or `result`")
                 value = f"sum({_ident(measure['sum'].upper())})"
             group = ", ".join(str(i + 1) for i in range(len(keys)))
             table = con.execute(f"SELECT {', '.join(keys)}, {value} AS value FROM rec WHERE {' AND '.join(where)} GROUP BY {group}").fetch_arrow_table()
