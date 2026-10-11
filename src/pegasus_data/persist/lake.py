@@ -316,12 +316,14 @@ class Lake:
         years: Sequence[int] | range | None = None,
         columns: Sequence[str] | None = None,
         optional_columns: Sequence[str] | None = None,
+        where: ds.Expression | None = None,
     ) -> pa.Table:
         dataset = self.dataset(system, family_id, schema_signature)
-        expression = None
+        expression = where              # a caller's own predicate on the data columns, pushed into the scan
         if uf is not None:
             ufs = [uf] if isinstance(uf, str) else list(uf)
-            expression = ds.field("uf").isin(ufs)
+            uf_filter = ds.field("uf").isin(ufs)
+            expression = uf_filter if expression is None else (expression & uf_filter)
         if years is not None:
             year_list = list(years)
             year_filter = ds.field("year").isin(year_list)

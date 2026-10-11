@@ -90,12 +90,15 @@ def query(
     settings: Settings | None = None,
     as_of: str | date | datetime | None = None,
     render: Mapping[str, Any] | None = None,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> pa.Table | tuple[pa.Table, QueryReport]:
     """Run a query. ``as_of`` reads each source file as the snapshot history
     kept it on that date (``pegasus-data snapshot``, ADR-0141): the lake and the
     network are not used, and a file with no version by then is a gap.
     ``render`` sets a column's rendering (``"code"``: as filed, no codelist
-    chosen), as `load` and `fetch` take it."""
+    chosen), as `load` and `fetch` take it. ``rows`` (``{column: code prefixes}``) keeps only the records whose columns
+    start with one of their codes: an explicit filter the caller names (period and geography never filter records),
+    pushed into the lake's scan before anything is rendered, and applied to a fetched year as it arrives."""
     from ..presentation import resolve as resolve_presentation
 
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
@@ -214,7 +217,7 @@ def query(
                 years=retrieval.lake_years or None, columns=lake_columns,
                 labels=labels, profile="audit" if labels else "codes", render=render,
                 companions=False, derived=derived, on_missing_column="null_fill",
-                report=True, catalog=cat, _preserve_internal=True,
+                report=True, catalog=cat, _preserve_internal=True, rows=rows,
             )
             tables.append(_with_competence(local_table, local_report))
             source_reports.append(local_report)
@@ -255,6 +258,10 @@ def query(
                 settings=resolved,
                 report=True,
             )
+            if rows:
+                from ..api import _rows_expression
+
+                fetched_table = fetched_table.filter(_rows_expression(rows))
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
             if not fetched_report.is_complete:

@@ -895,6 +895,21 @@ def _physical_columns(cat: Catalog, system: str, family_id: str) -> set[str]:
         return set()
 
 
+def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
+    """The rows whose every named column starts with one of its codes (``{column: prefixes}``), as a scan predicate."""
+    import pyarrow.compute as pc
+
+    out = None
+    for column, prefixes in rows.items():
+        text = pc.field(column).cast(pa.string())
+        hit = None
+        for p in prefixes:
+            one = pc.starts_with(text, pattern=str(p))
+            hit = one if hit is None else (hit | one)
+        out = hit if out is None else (out & hit)
+    return out
+
+
 def _read_generations(
     cat: Catalog,
     families: Sequence[Mapping[str, Any]],
@@ -905,6 +920,7 @@ def _read_generations(
     wanted: list[str] | None,
     presence: dict[str, set[str]],
     on_missing_column: str,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> tuple[list, dict[str, list[str]]]:
     """Read each generation, applying the structural missing-column policy.
 
@@ -980,6 +996,8 @@ def _read_generations(
         optional.append("year")
         optional.append("_competencia")
         optional.append("_source_resolution")
+        # a row filter needs its columns in the generation: one without them holds none of the filtered rows
+        filtered = bool(rows) and all(c in _physical_columns(cat, system, str(family["family_id"])) for c in rows)
         try:
             table = cat.lake.read(
                 system=system,
@@ -988,7 +1006,10 @@ def _read_generations(
                 years=years,
                 columns=projection,
                 optional_columns=optional,
+                where=_rows_expression(rows) if filtered else None,
             )
+            if rows and not filtered:
+                table = table.slice(0, 0)
         except FileNotFoundError:
             continue
         if table.num_rows:
@@ -1018,8 +1039,11 @@ def load(
     on_missing_column: str = "raise",
     report: bool = False,
     _preserve_internal: bool = False,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
-    """Read a family out of the lake, rendered for reading.
+    """Read a family out of the lake, rendered for reading. ``rows`` (``{column: code prefixes}``) keeps only the rows
+    whose columns start with one of their codes, pushed into the scan, before anything is rendered or derived: a code
+    set's records out of a year of admissions, not the year labelled and then filtered.
 
     Labels are produced **here**, at read time, by joining the version-scoped
     reference table for the years being read — not projected out of the Parquet.
@@ -1095,6 +1119,7 @@ def load(
             wanted=wanted,
             presence=presence,
             on_missing_column=on_missing_column,
+            rows=rows,
         )
         if not tables:
             # The same class fetch() raises for the same situation. load() used

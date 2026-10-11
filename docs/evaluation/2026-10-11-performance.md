@@ -26,3 +26,10 @@ the machine's decode slots: unchanged on this machine (4). The pool size has not
 year: SINASC 2019 is two national files and measured nothing, and the run on SIM-DO was stopped when free memory reached
 0.1 GB beside the study. The national role tables are keyed on the code that renders them, so this branch's merge
 rebuilds each one the next time a link needs it.
+
+**A named row filter (later the same day).** `query(rows={column: prefixes})` and `load(rows=)` keep only the records
+whose columns start with the codes, pushed into the lake's scan before anything is rendered. A year read from files is
+filtered on arrival. Period and geography still never filter records; this is a filter the caller names. Checked on
+SIH-RD 2016 with B58, P37.1 and O98.6: 2,205 records, identical to filtering after a full read of 11,527,712. Fixed on
+the way: `Lake.read` let a state filter replace the caller's predicate.
+
