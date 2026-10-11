@@ -183,6 +183,9 @@ treatments(["B58"])                  # the medicines an official document gives 
                                      # with each one's SNGPC and CATMAT spelling; concept_index returns them too
 condition_codes(); procedure_compatibility()  # its two tables: each record's own condition code (SINAN's ID_AGRAVO), SIGTAP's
                                      # procedure-ICD compatibility; label_matches(terms, "SIGTAP") its label search
+procedure_instruments(["0202030768"])  # the instruments SIGTAP registers a procedure on (BPA, AIH, APAC, RAAS, e-SUS APS): ["01", "02", "05"]
+can_record("SIA-AN", "AP_PRIPAL", codes)  # whether a dataset's column can hold any of the procedures: True, False, or None (undeclared or
+                                     # unknown; the declarations are `instruments:` in curation/roles). False means skip the dataset
 load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 query("FA-HUM", period=2017)         # a source off the FTP (curation/intake.yml, intake.py): yellow-fever cases, records in the lake;

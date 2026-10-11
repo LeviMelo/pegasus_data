@@ -586,6 +586,10 @@ columns:
     - 2026
     note: role from SIH-RD
   PROC_REA:
+    instruments: ["03", "04"]
+    instruments_evidence: >-
+      PROC_REA is the procedure performed on an AIH header, so a procedure SIGTAP registers as AIH principal
+      (03) or especial (04). The same AIH header as SIH-RD, which was measured 2026-10-11 on 1992-2025 (205.7 million rows): 1,771 of the 1,772 codes SIGTAP 202609 lists intersect 03/04; the other one is in docs/evaluation/2026-10-11-sigtap-instruments.md.
     role: admission.procedure
     kind: code_tree
     model: event_type
@@ -598,6 +602,10 @@ columns:
     - 2026
     note: role from SIH-RD
   PROC_SOLIC:
+    instruments: ["03", "04"]
+    instruments_evidence: >-
+      PROC_SOLIC is the procedure requested on an AIH header, so a procedure SIGTAP registers as AIH principal
+      (03) or especial (04). The same AIH header as SIH-RD, which was measured 2026-10-11 on 1992-2025 (205.7 million rows): 1,771 of the 1,772 codes SIGTAP 202609 lists intersect 03/04; the other one is in docs/evaluation/2026-10-11-sigtap-instruments.md.
     role: admission.requested_procedure
     kind: code_tree
     model: mark

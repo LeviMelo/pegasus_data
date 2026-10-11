@@ -9,6 +9,9 @@ the data home's ``registries/concepts``:
   Técnica 133/2022 says).
 * :func:`procedure_compatibility` — SIGTAP's ``rl_procedimento_cid``: the procedures the Tabela Unificada allows
   under each ICD-10 code, with the procedure's name, from the latest monthly export.
+* :func:`procedure_registration` / :func:`procedure_instruments` / :func:`can_record` — SIGTAP's
+  ``rl_procedimento_registro``: the instruments (BPA, AIH, APAC, RAAS, e-SUS APS) each procedure may be recorded on, and
+  whether a dataset's declared column can therefore hold a procedure (a study scope skips the datasets that cannot).
 * :func:`concept_index` — for ICD-10 codes (any level, prefix-matched): the SINAN datasets holding them with counts, the
   compatible procedures, and the ICD-10 labels that match a term (a label match is the weakest evidence, flagged).
 
@@ -22,6 +25,7 @@ from __future__ import annotations
 
 import functools
 import io
+import json
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -171,6 +175,77 @@ def procedure_compatibility(root: str | Path | None = None, refresh: bool = Fals
     table = pa.Table.from_pylist(rows)
     pq.write_table(table, cache / f"procedure_cid_{export.competencia}.parquet")
     return table
+
+
+def procedure_registration(root: str | Path | None = None, refresh: bool = False) -> pa.Table:
+    """(procedure, instrument, competencia): the registration instruments SIGTAP lets each procedure be recorded on
+    (``rl_procedimento_registro`` of the latest monthly export), one row per pair; the schema metadata ``instruments``
+    holds ``tb_registro`` (instrument code -> name, JSON). Only the newest vintage is kept, as for the other SIGTAP
+    tables: a procedure retired before it is absent, and its registers are unknown, not none."""
+    from .sources.sigtap import list_exports, read_table
+
+    cache = _cache(root)
+    hits = sorted(cache.glob("procedure_registration_*.parquet"))
+    if hits and not refresh:
+        return pq.read_table(hits[-1])
+    export = list_exports()[-1]
+    archive = _archive(export)
+    rows = [{"procedure": r["CO_PROCEDIMENTO"], "instrument": r["CO_REGISTRO"], "competencia": export.competencia}
+            for r in read_table(archive, "rl_procedimento_registro")]
+    if not rows:
+        raise LookupError(f"SIGTAP {export.filename}: no rl_procedimento_registro rows")
+    names = {r["CO_REGISTRO"]: r["NO_REGISTRO"] for r in read_table(archive, "tb_registro")}
+    table = pa.Table.from_pylist(rows).replace_schema_metadata({"instruments": json.dumps(names, ensure_ascii=False)})
+    pq.write_table(table, cache / f"procedure_registration_{export.competencia}.parquet")
+    return table
+
+
+def instrument_names(root: str | Path | None = None) -> dict[str, str]:
+    """SIGTAP's registration instruments: code -> name (``tb_registro``: 01 BPA Consolidado ... 10 e-SUS APS)."""
+    return json.loads(procedure_registration(root).schema.metadata[b"instruments"])
+
+
+@functools.lru_cache(maxsize=4)
+def _registry(root: str | None) -> tuple[dict[str, tuple[str, ...]], frozenset[str]]:
+    t = procedure_registration(root)
+    by: dict[str, set[str]] = {}
+    for p, i in zip(t.column("procedure").to_pylist(), t.column("instrument").to_pylist(), strict=True):
+        by.setdefault(p, set()).add(i)
+    return {p: tuple(sorted(v)) for p, v in by.items()}, frozenset(t.column("instrument").unique().to_pylist())
+
+
+def procedure_instruments(codes: str | list[str], root: str | Path | None = None) -> dict[str, list[str] | None]:
+    """The registration instruments (``instrument_names``) SIGTAP lets each procedure be recorded on; None for a code
+    the latest export does not list (a retired or mistyped procedure: unknown, not "none")."""
+    registry, _ = _registry(None if root is None else str(root))
+    asked = [str(c).strip() for c in ([codes] if isinstance(codes, str) else codes)]
+    return {c: list(registry[c]) if c in registry else None for c in asked}
+
+
+def can_record(dataset: str, column: str, codes: str | list[str], root: str | Path | None = None) -> bool | None:
+    """Whether ``dataset``'s SIGTAP-coded ``column`` can hold any of the procedure ``codes``, by the instruments that
+    column is declared to carry (``instruments`` in ``curation/roles``) against those SIGTAP registers the procedure on.
+
+    True: some code is registered on one of the column's instruments. False: every code is listed and none is. None:
+    undecided, never False: the column declares no instruments (the dataset is unrestricted), a code is not in the
+    latest export, or the column rides an instrument the export lists for no procedure (RAAS-AD, 08), so an
+    unmatched code may still be recorded on it."""
+    from .semantics.column_roles import roles
+
+    try:
+        mine = next((r for r in roles(dataset) if str(r["column"]).upper() == column.upper()), None)
+    except KeyError:
+        return None
+    if mine is None or not mine.get("instruments"):
+        return None
+    registry, listed = _registry(None if root is None else str(root))
+    declared = set(mine["instruments"])
+    unlisted = bool(declared - listed)
+    verdicts = []
+    for c in ([codes] if isinstance(codes, str) else codes):
+        registered = registry.get(str(c).strip())
+        verdicts.append(None if registered is None else True if declared & set(registered) else None if unlisted else False)
+    return True if True in verdicts else None if None in verdicts or not verdicts else False
 
 
 def authorisations(year: int, root: str | Path | None = None, refresh: bool = False, download: bool = False,

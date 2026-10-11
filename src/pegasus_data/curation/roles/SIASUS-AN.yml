@@ -492,6 +492,12 @@ columns:
     - 2008
     - 2014
   AP_PRIPAL:
+    instruments: ["06"]
+    instruments_evidence: >-
+      AP_PRIPAL is the APAC's main procedure (Informe Técnico SIASUS 2019-07, APAC layouts), registered on
+      SIGTAP's 06 APAC Proc. Principal. Measured 2026-10-11 on SIASUS AM, AN, AR and ATD 2009-2025 (65 million
+      rows): every one of the codes SIGTAP 202609 lists there (324 in AM, 6 in AN, 22 in AR, 6 in ATD) is registered on 06
+      (docs/evaluation/2026-10-11-sigtap-instruments.md).
     role: authorisation.procedure
     kind: code_tree
     model: event_type

@@ -62,6 +62,11 @@ columns:
     - 2026
     note: Year of the AIH's competence on each act row.
   SP_ATOPROF:
+    instruments: ["03", "04", "05"]
+    instruments_evidence: >-
+      SP_ATOPROF is the procedure of a professional act billed inside an AIH; the tabulation SP2008.DEF names
+      it "Procedimentos Secundários" (05) and the admission's own act is a line too (03, 04). Not measured: no
+      SIH-SP lake.
     role: act.procedure
     kind: code_tree
     model: event_type
@@ -294,6 +299,11 @@ columns:
     - 2026
     note: The establishment's CNES zero-filled to 14 in the records (variable note).
   SP_PROCREA:
+    instruments: ["03", "04"]
+    instruments_evidence: >-
+      SP_PROCREA is the admission's principal procedure (the tabulation SP2008.DEF names it "Procedimento
+      Principal"), carried on an AIH header, so a procedure SIGTAP registers as AIH principal (03) or especial
+      (04). The same AIH header as SIH-RD, which was measured 2026-10-11 on 1992-2025 (205.7 million rows): 1,771 of the 1,772 codes SIGTAP 202609 lists intersect 03/04; the other one is in docs/evaluation/2026-10-11-sigtap-instruments.md.
     role: admission.procedure
     kind: code_tree
     model: mark
