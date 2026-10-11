@@ -36,6 +36,8 @@ columns:
     role: admission.rejection_reason
     kind: category
     model: event_type
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo da Rejeição\" (admission.rejection_reason): billing, financing, management or contractual attribute"
     codelists:
     - MOTERRO
     name: Motivo da Rejeição

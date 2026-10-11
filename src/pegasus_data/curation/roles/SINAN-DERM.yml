@@ -17,6 +17,8 @@ columns:
     role: case.conduct_risk_removal
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – afastamento do agente do risco com mudança de função e/ou posto de trabalho\" (case.conduct_risk_removal): how care or investigation was carried out"
     name: Conduta geral – afastamento do agente do risco com mudança de função e/ou posto de trabalho
     years:
     - 2006
@@ -27,6 +29,8 @@ columns:
     role: case.conduct_workplace_removal
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – afastamento do local de trabalho\" (case.conduct_workplace_removal): how care or investigation was carried out"
     name: Conduta geral – afastamento do local de trabalho
     years:
     - 2006
@@ -41,6 +45,8 @@ columns:
     role: case.causative_agent
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente\" (case.causative_agent): fact about the health event or the person's health"
     name: Agente
     years:
     - 2006
@@ -76,6 +82,8 @@ columns:
     role: case.associated_asthma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – Asma\" (case.associated_asthma): fact about the health event or the person's health"
     name: Agravos associados – Asma
     years:
     - 2006
@@ -86,6 +94,8 @@ columns:
     role: case.cat_issued
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Comunicação de Acidente de Trabalho (CAT) Emitida?\" (case.cat_issued): record type, internal flag or system field"
     name: Comunicação de Acidente de Trabalho (CAT) Emitida?
     codelists:
     - SIM_NAOAP
@@ -109,6 +119,8 @@ columns:
     role: case.conduct_collective_protection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de proteção coletiva\" (case.conduct_collective_protection): how care or investigation was carried out"
     name: Conduta geral – adoção de proteção coletiva
     years:
     - 2006
@@ -119,6 +131,8 @@ columns:
     role: case.conduct_other
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – outros\" (case.conduct_other): how care or investigation was carried out"
     name: Conduta geral – outros
     years:
     - 2006
@@ -138,6 +152,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -152,6 +168,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -166,6 +184,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -180,6 +200,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -195,6 +217,8 @@ columns:
     role: case.associated_diabetes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diabetes\" (case.associated_diabetes): fact about the health event or the person's health"
     name: Diabetes
     codelists:
     - SIM_NAO
@@ -253,6 +277,8 @@ columns:
     role: case.patch_test_positive
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste epicutâneo positivo\" (case.patch_test_positive): fact about the health event or the person's health"
     name: Teste epicutâneo positivo
     years:
     - 2006
@@ -263,6 +289,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -280,6 +308,8 @@ columns:
     role: case.outcome_on_leave
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução da situação de saúde do paciente com afastamento do trabalho\" (case.outcome_on_leave): fact about the health event or the person's health"
     name: Evolução da situação de saúde do paciente com afastamento do trabalho
     years:
     - 2006
@@ -290,6 +320,8 @@ columns:
     role: case.associated_leprosy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – Hanseníase\" (case.associated_leprosy): fact about the health event or the person's health"
     name: Agravos associados – Hanseníase
     years:
     - 2006
@@ -300,6 +332,8 @@ columns:
     role: case.associated_hypertension
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – Hipertensão arterial\" (case.associated_hypertension): fact about the health event or the person's health"
     name: Agravos associados – Hipertensão arterial
     years:
     - 2006
@@ -427,6 +461,8 @@ columns:
     role: case.conduct_individual_protection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de proteção individual\" (case.conduct_individual_protection): how care or investigation was carried out"
     name: Conduta geral – adoção de proteção individual
     years:
     - 2006
@@ -442,6 +478,8 @@ columns:
     role: case.lesion_site
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da lesão (parte do corpo atingida)\" (case.lesion_site): fact about the health event or the person's health"
     name: Localização da lesão (parte do corpo atingida)
     years:
     - 2006
@@ -460,6 +498,8 @@ columns:
     role: case.associated_mental_disorder
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – Transtorno mental\" (case.associated_mental_disorder): fact about the health event or the person's health"
     name: Agravos associados – Transtorno mental
     years:
     - 2006
@@ -470,6 +510,8 @@ columns:
     role: case.conduct_work_reorganisation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de mudança na organização do trabalho\" (case.conduct_work_reorganisation): how care or investigation was carried out"
     name: Conduta geral – adoção de mudança na organização do trabalho
     years:
     - 2006
@@ -496,6 +538,8 @@ columns:
     role: case.conduct_none
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – nenhuma\" (case.conduct_none): how care or investigation was carried out"
     name: Conduta geral – nenhuma
     years:
     - 2006
@@ -562,6 +606,8 @@ columns:
     role: case.associated_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – outra doença\" (case.associated_other): fact about the health event or the person's health"
     name: Agravos associados – outra doença
     years:
     - 2006
@@ -572,6 +618,8 @@ columns:
     role: treatment.setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Regime de Tratamento\" (treatment.setting): treatment given to the case"
     name: Regime de Tratamento
     years:
     - 2006
@@ -624,6 +672,8 @@ columns:
     role: patient.labour_market_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação no Mercado de Trabalho\" (patient.labour_market_status): attribute of the person (work/occupation)"
     name: Situação no Mercado de Trabalho
     years:
     - 2006
@@ -634,6 +684,8 @@ columns:
     role: patient.employer_subcontractor
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Empregador é Empresa Terceirizada?\" (patient.employer_subcontractor): attribute of the person (work/occupation)"
     name: Empregador é Empresa Terceirizada?
     years:
     - 2006
@@ -645,6 +697,8 @@ columns:
     role: patient.time_in_occupation_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade do Tempo de Trabalho na Ocupação\" (patient.time_in_occupation_unit): encoding unit of another field"
     name: Unidade do Tempo de Trabalho na Ocupação
     codelists:
     - TPTEMPOTRAB
@@ -657,6 +711,8 @@ columns:
     role: case.risk_exposure_time_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tempo de exposição ao agente de risco – unidade\" (case.risk_exposure_time_unit): record type, internal flag or system field"
     name: Tempo de exposição ao agente de risco – unidade
     codelists:
     - HORADIAMESANO
@@ -669,6 +725,8 @@ columns:
     role: case.work_leave_duration_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tempo de afastamento do trabalho para tratamento (unidade)\" (case.work_leave_duration_unit): record type, internal flag or system field"
     name: Tempo de afastamento do trabalho para tratamento (unidade)
     years:
     - 2006
@@ -679,6 +737,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2006
@@ -689,6 +749,8 @@ columns:
     role: case.other_workers_same_disease
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Há ou houve outros trabalhadores com a mesma doença no local de trabalho\" (case.other_workers_same_disease): fact about the health event or the person's health"
     name: Há ou houve outros trabalhadores com a mesma doença no local de trabalho
     years:
     - 2006
@@ -699,6 +761,8 @@ columns:
     role: case.associated_tuberculosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – tuberculose\" (case.associated_tuberculosis): fact about the health event or the person's health"
     name: Agravos associados – tuberculose
     years:
     - 2006

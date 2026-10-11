@@ -12,6 +12,9 @@ PegaSUS; handoff 2026-10-04 §2). Each column states three things:
   be carried by a population account (age, sex, race, residence); every other
   categorical fact about persons is a dimension or a mark.
 
+A categorical column also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
+administrative) with the evidence it rests on; one no documentation places stays undeclared.
+
 The linkage roles of ``curation/roles.yml`` name some of these columns for
 comparison; each must agree with the column's declared role (one mechanism,
 two uses).
@@ -30,7 +33,12 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
                     "link_only", "excluded"})
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
-                  "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence"})
+                  "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
+                  "fact_domain", "fact_domain_evidence"})
+#: What a categorical column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
+#: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
+#: one (billing, financing, management, record type) says nothing about people or disease.
+FACT_DOMAINS = ("person", "clinical", "process", "administrative")
 #: SIGTAP's registration instruments (``tb_registro``): 01 BPA consolidado, 02 BPA individualizado, 03-05 AIH principal,
 #: especial and secundário, 06-07 APAC principal and secundário, 08-09 RAAS domiciliar and psicossocial, 10 e-SUS APS.
 INSTRUMENTS = frozenset(f"{n:02d}" for n in range(1, 11))
@@ -77,6 +85,10 @@ class ColumnRole:
     #: document or measurement that says so (`can_record` reads them against SIGTAP's ``rl_procedimento_registro``).
     instruments: tuple[str, ...] = ()
     instruments_evidence: str | None = None
+    #: What the column is a fact about (`FACT_DOMAINS`), with the dictionary or layout line it rests on. None: not placed
+    #: from the documentation, listed by `undeclared_fact_domains`, never guessed.
+    fact_domain: str | None = None
+    fact_domain_evidence: str | None = None
 
     @property
     def entity(self) -> str:
@@ -92,7 +104,8 @@ class ColumnRole:
                 "name": self.name, "codelists": list(self.codelists), "first_year": self.years[0],
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
                 "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
-                "domain": None if self.domain is None else list(self.domain),
+                "domain": None if self.domain is None else list(self.domain), "fact_domain": self.fact_domain,
+                **({"fact_domain_evidence": self.fact_domain_evidence} if self.fact_domain else {}),
                 **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {}),
                 **({"unfilled": list(self.unfilled)} if self.unfilled else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
@@ -178,6 +191,13 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad("instruments need their instruments_evidence: the document or measurement that says so")
     if not instruments and "instruments_evidence" in spec:
         raise bad("instruments_evidence without instruments")
+    fact = spec.get("fact_domain")
+    if fact is not None and str(fact) not in FACT_DOMAINS:
+        raise bad(f"fact_domain {fact!r} not in {list(FACT_DOMAINS)}")
+    if fact is not None and not str(spec.get("fact_domain_evidence") or "").strip():
+        raise bad("a fact_domain needs its fact_domain_evidence: the dictionary or layout line it rests on")
+    if fact is None and "fact_domain_evidence" in spec:
+        raise bad("fact_domain_evidence without fact_domain")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
         raise bad(f"unfilled years {list(unfilled)} lie outside its years {list(years)}")
@@ -186,7 +206,9 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       (years[0], years[1]) if len(years) == 2 else (None, None),  # type: ignore[arg-type]
                       spec.get("review") != "draft", spec.get("note"), bool(spec.get("derived")), measure, missing,
                       domain, str(unknown).strip() if unknown is not None else None, unfilled, instruments,
-                      " ".join(str(spec["instruments_evidence"]).split()) if instruments else None)
+                      " ".join(str(spec["instruments_evidence"]).split()) if instruments else None,
+                      str(fact) if fact is not None else None,
+                      " ".join(str(spec["fact_domain_evidence"]).split()) if fact is not None else None)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
@@ -211,6 +233,14 @@ def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
             if name != column.role and name not in column.also:
                 raise ValueError(f"roles/{dataset}.yml: {role.column} is {column.role}, but linkage reads it as {name}; "
                                  "add it to `also` or correct one of them")
+
+
+def undeclared_fact_domains(dataset: str | None = None) -> list[tuple[str, str]]:
+    """The categorical columns no ``fact_domain`` places (``(dataset, column)``), for one dataset or all: the list a
+    reviewer closes, never a default."""
+    declared = load_column_roles()
+    keys = [dataset.upper().replace(".", "-")] if dataset else sorted(declared)
+    return [(d, c.column) for d in keys for c in declared.get(d, ()) if c.kind == "category" and c.fact_domain is None]
 
 
 def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:

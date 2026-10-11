@@ -7,6 +7,8 @@ columns:
     role: death.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acidente do trabalho\" (death.work_related): work-related accident flag: a fact about the event"
     name: Acidente do trabalho
     years:
     - 1996
@@ -17,6 +19,8 @@ columns:
     role: death.cause_altered
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Alteração da causa\" (death.cause_altered): whether the cause of death was altered after investigation: investigation outcome"
     name: Alteração da causa
     codelists:
     - SIMNAO1
@@ -29,6 +33,8 @@ columns:
     role: death.medical_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recebeu assistência médica\" (death.medical_care): whether the deceased received medical assistance: a care-process fact"
     name: Recebeu assistência médica
     years:
     - 1996
@@ -48,6 +54,8 @@ columns:
     role: certifier.condition
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Condição do médico atestante\" (certifier.condition): how care or investigation was carried out"
     name: Condição do médico atestante
     years:
     - 2001
@@ -80,6 +88,8 @@ columns:
     role: death.maternal_external_cause
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa externa associada a causa materna\" (death.maternal_external_cause): fact about the health event or the person's health"
     name: Causa externa associada a causa materna
     years:
     - 2011
@@ -102,6 +112,8 @@ columns:
     role: death.violent_circumstance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de morte violenta\" (death.violent_circumstance): type of violent death: a fact about the event"
     name: Tipo de morte violenta
     years:
     - 1996
@@ -112,6 +124,8 @@ columns:
     role: death.surgery
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realização de cirurgia\" (death.surgery): whether surgery was performed: care delivered"
     name: Realização de cirurgia
     years:
     - 1996
@@ -156,6 +170,8 @@ columns:
     role: death.coded_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Informa se formulário foi codificado\" (death.coded_flag): record type, internal flag or system field"
     name: Informa se formulário foi codificado
     years:
     - 2014
@@ -356,6 +372,8 @@ columns:
     role: deceased.education_years_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade em anos\" (deceased.education_years_band): attribute of the person (schooling)"
     name: Escolaridade em anos
     years:
     - 1996
@@ -366,6 +384,8 @@ columns:
     role: deceased.education_level_2010
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade 2010 - nível\" (deceased.education_level_2010): attribute of the person (schooling)"
     name: Escolaridade 2010 - nível
     years:
     - 2011
@@ -376,6 +396,8 @@ columns:
     role: deceased.education_aggregated
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade do falecido agregada\" (deceased.education_aggregated): attribute of the person (schooling)"
     name: Escolaridade do falecido agregada
     codelists:
     - ESCAGR1
@@ -390,6 +412,8 @@ columns:
     role: mother.education_years_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade da mãe em anos\" (mother.education_years_band): attribute of the person (schooling)"
     name: Escolaridade da mãe em anos
     years:
     - 1996
@@ -400,6 +424,8 @@ columns:
     role: mother.education_level_2010
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade da mãe 2010 - nível\" (mother.education_level_2010): attribute of the person (schooling)"
     name: Escolaridade da mãe 2010 - nível
     years:
     - 2011
@@ -410,6 +436,8 @@ columns:
     role: mother.education_aggregated
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade da mãe agregada\" (mother.education_aggregated): attribute of the person (schooling)"
     name: Escolaridade da mãe agregada
     years:
     - 2012
@@ -428,6 +456,8 @@ columns:
     role: deceased.marital_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação conjugal\" (deceased.marital_status): attribute of the person (marital status)"
     name: Situação conjugal
     years:
     - 1996
@@ -438,6 +468,8 @@ columns:
     role: death.exam_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realização de exame\" (death.exam_performed): whether an examination was done: investigation done"
     name: Realização de exame
     years:
     - 1996
@@ -457,6 +489,8 @@ columns:
     role: death.information_source
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte de informação\" (death.information_source): record type, internal flag or system field"
     name: Fonte de informação
     codelists:
     - FONTINFO
@@ -470,6 +504,8 @@ columns:
     role: death.investigation_source
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fonte de investigação\" (death.investigation_source): how care or investigation was carried out"
     name: Fonte de investigação
     years:
     - 2006
@@ -488,6 +524,8 @@ columns:
     role: death.investigation_sources
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fontes de investigação (combinado)\" (death.investigation_sources): how care or investigation was carried out"
     name: Fontes de investigação (combinado)
     years:
     - 2014
@@ -499,6 +537,8 @@ columns:
     role: pregnancy.gestation_band
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semanas de gestação (formulário antigo)\" (pregnancy.gestation_band): fact about the health event or the person's health"
     name: Semanas de gestação (formulário antigo)
     years:
     - 1996
@@ -509,6 +549,8 @@ columns:
     role: birth.plurality
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de gravidez\" (birth.plurality): single or multiple pregnancy: a fact about the event"
     also:
     - death.plurality
     name: Tipo de gravidez
@@ -613,6 +655,8 @@ columns:
     role: death.place
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de ocorrência do óbito\" (death.place): place of death (hospital, home, road ...): a care-process fact"
     name: Local de ocorrência do óbito
     years:
     - 1996
@@ -623,6 +667,8 @@ columns:
     role: death.childbirth_relation_investigated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Morte em relação ao parto após investigação\" (death.childbirth_relation_investigated): fact about the health event or the person's health"
     name: Morte em relação ao parto após investigação
     years:
     - 2009
@@ -643,6 +689,8 @@ columns:
     role: death.autopsy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Necrópsia\" (death.autopsy): whether an autopsy was done: investigation done"
     name: Necrópsia
     years:
     - 1996
@@ -711,6 +759,8 @@ columns:
     role: deceased.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito na gravidez\" (deceased.pregnancy_status): fact about the health event or the person's health"
     also:
     - death.pregnancy
     name: Óbito na gravidez
@@ -723,6 +773,8 @@ columns:
     role: death.childbirth_relation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Morte em relação ao parto\" (death.childbirth_relation): fact about the health event or the person's health"
     name: Morte em relação ao parto
     years:
     - 1996
@@ -733,6 +785,8 @@ columns:
     role: deceased.puerperium_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito no puerpério\" (deceased.puerperium_status): fact about the health event or the person's health"
     also:
     - death.puerperium
     name: Óbito no puerpério
@@ -765,6 +819,8 @@ columns:
     role: death.record_origin
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Origem do registro\" (death.record_origin): record type, internal flag or system field"
     name: Origem do registro
     years:
     - 2009
@@ -775,6 +831,8 @@ columns:
     role: birth.delivery
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de parto\" (birth.delivery): type of delivery (vaginal/cesarean): a care-process fact"
     also:
     - death.delivery
     name: Tipo de parto
@@ -826,6 +884,8 @@ columns:
     role: deceased.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça Cor\" (deceased.race): attribute of the person (race/colour)"
     name: Raça Cor
     years:
     - 1996
@@ -849,6 +909,8 @@ columns:
     role: deceased.education_grade
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Série escolar do falecido\" (deceased.education_grade): attribute of the person (schooling)"
     name: Série escolar do falecido
     years:
     - 2012
@@ -859,6 +921,8 @@ columns:
     role: mother.education_grade
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Série escolar da mãe\" (mother.education_grade): attribute of the person (schooling)"
     name: Série escolar da mãe
     years:
     - 2012
@@ -867,6 +931,8 @@ columns:
     role: deceased.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (deceased.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 1996
@@ -875,6 +941,8 @@ columns:
     role: death.coding_status
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Status de instalação codificadora\" (death.coding_status): record type, internal flag or system field"
     name: Status de instalação codificadora
     years:
     - 2014
@@ -883,6 +951,8 @@ columns:
     role: death.epidemiological_status
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Status de DO epidemiológica\" (death.epidemiological_status): record type, internal flag or system field"
     name: Status de DO epidemiológica
     years:
     - 2011
@@ -891,6 +961,8 @@ columns:
     role: death.new_do_status
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Status de DO nova\" (death.new_do_status): record type, internal flag or system field"
     name: Status de DO nova
     years:
     - 2011
@@ -899,6 +971,8 @@ columns:
     role: death.kind
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo do óbito\" (death.kind): fetal or non-fetal death: kind of the health event"
     name: Tipo do óbito
     years:
     - 1996
@@ -907,6 +981,8 @@ columns:
     role: certifier.signature_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de assinatura\" (certifier.signature_type): record type, internal flag or system field"
     name: Tipo de assinatura
     years:
     - 2006
@@ -917,6 +993,8 @@ columns:
     role: death.pregnancy_relation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"A morte ocorreu\" (death.pregnancy_relation): fact about the health event or the person's health"
     name: A morte ocorreu
     years:
     - 2012
@@ -927,6 +1005,8 @@ columns:
     role: death.investigator_level
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de nível investigador\" (death.investigator_level): how care or investigation was carried out"
     name: Tipo de nível investigador
     years:
     - 2014
@@ -937,6 +1017,8 @@ columns:
     role: death.timing_investigated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Momento do óbito após investigação\" (death.timing_investigated): fact about the health event or the person's health"
     name: Momento do óbito após investigação
     years:
     - 2009
@@ -947,6 +1029,8 @@ columns:
     role: death.investigated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Óbito investigado\" (death.investigated): whether the death was investigated: investigation done"
     name: Óbito investigado
     years:
     - 2006
@@ -957,6 +1041,8 @@ columns:
     role: death.information_recovery_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de resgate de informação\" (death.information_recovery_type): record type, internal flag or system field"
     name: Tipo de resgate de informação
     years:
     - 2014
@@ -975,6 +1061,8 @@ columns:
     role: death.cause_selector_version
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Versão do seletor de causa básica\" (death.cause_selector_version): record type, internal flag or system field"
     name: Versão do seletor de causa básica
     years:
     - 2014
@@ -983,6 +1071,8 @@ columns:
     role: death.system_version
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Versão do sistema\" (death.system_version): record type, internal flag or system field"
     name: Versão do sistema
     years:
     - 2014

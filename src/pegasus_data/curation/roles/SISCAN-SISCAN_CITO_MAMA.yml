@@ -21,6 +21,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2013
@@ -29,6 +31,8 @@ columns:
     role: exam.age_bracket
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa etária\" (exam.age_bracket): attribute of the person (age)"
     name: Faixa etária
     years:
     - 2013
@@ -37,6 +41,8 @@ columns:
     role: exam.collection_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_interval): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2013
@@ -45,6 +51,8 @@ columns:
     role: exam.result_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.result_interval): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2013
@@ -63,6 +71,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2013
@@ -71,6 +81,8 @@ columns:
     role: exam.elevated_breast_cancer_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco elevado\" (exam.elevated_breast_cancer_risk): result of a test or finding on the person"
     name: Risco elevado
     years:
     - 2013
@@ -86,6 +98,8 @@ columns:
     role: exam.total_exam_turnaround
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo Exame\" (exam.total_exam_turnaround): how care or investigation was carried out"
     name: Tempo Exame
     years:
     - 2013
@@ -94,6 +108,8 @@ columns:
     role: exam.reported_breast_lump
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tem nódulo ou caroço na mama\" (exam.reported_breast_lump): result of a test or finding on the person"
     name: Tem nódulo ou caroço na mama
     years:
     - 2013
@@ -303,6 +319,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2013
@@ -321,6 +339,8 @@ columns:
     role: exam.material_adequacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade do material\" (exam.material_adequacy): how care or investigation was carried out"
     name: Adequabilidade do material
     years:
     - 2013
@@ -329,6 +349,8 @@ columns:
     role: exam.nipple_discharge_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar\" (exam.nipple_discharge_type): result of a test or finding on the person"
     name: Descarga papilar
     years:
     - 2013
@@ -337,6 +359,8 @@ columns:
     role: exam.breast_side_sampled
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mama\" (exam.breast_side_sampled): result of a test or finding on the person"
     name: Mama
     years:
     - 2013
@@ -345,6 +369,8 @@ columns:
     role: exam.material_submitted
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material Enviado\" (exam.material_submitted): how care or investigation was carried out"
     name: Material Enviado
     years:
     - 2013
@@ -353,6 +379,8 @@ columns:
     role: exam.nodule_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo Nódulo\" (exam.nodule_type): result of a test or finding on the person"
     name: Tipo Nódulo
     years:
     - 2013
@@ -361,6 +389,8 @@ columns:
     role: exam.cytology_pattern_for_discharge_cyst_material
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Padrão citopatológico da amostra\" (exam.cytology_pattern_for_discharge_cyst_material): result of a test or finding on the person"
     name: Padrão citopatológico da amostra
     years:
     - 2013
@@ -369,6 +399,8 @@ columns:
     role: exam.indeterminate_malignancy_pattern
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Malignid Indeterm\" (exam.indeterminate_malignancy_pattern): result of a test or finding on the person"
     name: Malignid Indeterm
     years:
     - 2013
@@ -377,6 +409,8 @@ columns:
     role: exam.positive_for_malignancy_pattern
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivo malignid\" (exam.positive_for_malignancy_pattern): result of a test or finding on the person"
     name: Positivo malignid
     years:
     - 2013
@@ -385,6 +419,8 @@ columns:
     role: exam.suspicious_for_malignancy_pattern
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeito malignid\" (exam.suspicious_for_malignancy_pattern): result of a test or finding on the person"
     name: Suspeito malignid
     years:
     - 2013
@@ -393,6 +429,8 @@ columns:
     role: exam.benign_negative_pattern_compatible_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Proc Ben Neg mal\" (exam.benign_negative_pattern_compatible_diagnosis): result of a test or finding on the person"
     name: Proc Ben Neg mal
     years:
     - 2013
@@ -401,6 +439,8 @@ columns:
     role: exam.fine_needle_aspiration_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado PAAF\" (exam.fine_needle_aspiration_result): result of a test or finding on the person"
     name: Resultado PAAF
     years:
     - 2013

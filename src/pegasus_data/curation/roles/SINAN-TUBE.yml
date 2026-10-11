@@ -7,6 +7,8 @@ columns:
     role: case.comorbidity_aids
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Aids\" (case.comorbidity_aids): fact about the health event or the person's health"
     name: Doenças e agravos associados - Aids
     years:
     - 2001
@@ -17,6 +19,8 @@ columns:
     role: case.comorbidity_alcohol
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Alcoolismo\" (case.comorbidity_alcohol): fact about the health event or the person's health"
     name: Doenças e agravos associados - Alcoolismo
     years:
     - 2001
@@ -27,6 +31,8 @@ columns:
     role: case.comorbidity_diabetes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Diabetes\" (case.comorbidity_diabetes): fact about the health event or the person's health"
     name: Doenças e agravos associados - Diabetes
     years:
     - 2001
@@ -37,6 +43,8 @@ columns:
     role: case.comorbidity_mental
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Doença Mental\" (case.comorbidity_mental): fact about the health event or the person's health"
     name: Doenças e agravos associados - Doença Mental
     years:
     - 2001
@@ -47,6 +55,8 @@ columns:
     role: case.comorbidity_drugs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Uso de drogas ilícitas\" (case.comorbidity_drugs): fact about the health event or the person's health"
     name: Doenças e agravos associados - Uso de drogas ilícitas
     years:
     - 2001
@@ -66,6 +76,8 @@ columns:
     role: case.comorbidity_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Outras\" (case.comorbidity_other): fact about the health event or the person's health"
     name: Doenças e agravos associados - Outras
     years:
     - 2001
@@ -76,6 +88,8 @@ columns:
     role: case.comorbidity_tobacco
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Tabagismo\" (case.comorbidity_tobacco): fact about the health event or the person's health"
     name: Doenças e agravos associados - Tabagismo
     years:
     - 2001
@@ -95,6 +109,8 @@ columns:
     role: treatment.antiretroviral
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Terapia Antirretroviral durante o tratamento para a TB\" (treatment.antiretroviral): treatment given to the case"
     name: Terapia Antirretroviral durante o tratamento para a TB
     years:
     - 2001
@@ -105,6 +121,8 @@ columns:
     role: treatment.smear_month_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 1º mês\" (treatment.smear_month_1): outcome of the event"
     name: Baciloscopia no 1º mês
     years:
     - 2001
@@ -115,6 +133,8 @@ columns:
     role: treatment.smear_month_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 2º mês\" (treatment.smear_month_2): outcome of the event"
     name: Baciloscopia no 2º mês
     years:
     - 2001
@@ -125,6 +145,8 @@ columns:
     role: treatment.smear_month_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 3º mês\" (treatment.smear_month_3): outcome of the event"
     name: Baciloscopia no 3º mês
     years:
     - 2001
@@ -135,6 +157,8 @@ columns:
     role: treatment.smear_month_4
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 4º mês\" (treatment.smear_month_4): outcome of the event"
     name: Baciloscopia no 4º mês
     years:
     - 2001
@@ -145,6 +169,8 @@ columns:
     role: treatment.smear_month_5
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 5º mês\" (treatment.smear_month_5): outcome of the event"
     name: Baciloscopia no 5º mês
     years:
     - 2001
@@ -155,6 +181,8 @@ columns:
     role: treatment.smear_month_6
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia no 6º mês\" (treatment.smear_month_6): outcome of the event"
     name: Baciloscopia no 6º mês
     years:
     - 2001
@@ -165,6 +193,8 @@ columns:
     role: case.sputum_smear
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia de escarro (diagnóstico)\" (case.sputum_smear): fact about the health event or the person's health"
     name: Baciloscopia de escarro (diagnóstico)
     years:
     - 2001
@@ -175,6 +205,8 @@ columns:
     role: case.other_material_smear
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia de outro material\" (case.other_material_smear): fact about the health event or the person's health"
     name: Baciloscopia de outro material
     codelists:
     - POSNEGNR
@@ -187,6 +219,8 @@ columns:
     role: case.sputum_smear_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia de escarro - 2ª amostra\" (case.sputum_smear_2): fact about the health event or the person's health"
     name: Baciloscopia de escarro - 2ª amostra
     years:
     - 2001
@@ -196,6 +230,8 @@ columns:
     role: treatment.smear_after_month_6
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia após o 6º mês\" (treatment.smear_after_month_6): outcome of the event"
     name: Baciloscopia após o 6º mês
     codelists:
     - POSNEGNRNA
@@ -208,6 +244,8 @@ columns:
     role: patient.income_transfer_beneficiary
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Beneficiário de programa de transferência de renda do governo\" (patient.income_transfer_beneficiary): attribute of the person (social condition)"
     name: Beneficiário de programa de transferência de renda do governo
     codelists:
     - SIM_NAO
@@ -221,6 +259,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -231,6 +271,8 @@ columns:
     role: notification.return_flow_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow_flag): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -244,6 +286,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -257,6 +301,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -270,6 +316,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     codelists:
     - SEXO
@@ -282,6 +330,8 @@ columns:
     role: case.sputum_culture
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura de escarro\" (case.sputum_culture): fact about the health event or the person's health"
     name: Cultura de escarro
     codelists:
     - POSNEGEM
@@ -294,6 +344,8 @@ columns:
     role: case.other_material_culture
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura de outro material\" (case.other_material_culture): fact about the health event or the person's health"
     name: Cultura de outro material
     codelists:
     - POSNEGEM
@@ -306,6 +358,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -430,6 +484,8 @@ columns:
     role: treatment.streptomycin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Estreptomicina\" (treatment.streptomycin): treatment given to the case"
     name: Drogas - Estreptomicina
     codelists:
     - SIM_NAO
@@ -442,6 +498,8 @@ columns:
     role: treatment.ethambutol
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Etambutol\" (treatment.ethambutol): treatment given to the case"
     name: Drogas - Etambutol
     codelists:
     - SIM_NAO
@@ -454,6 +512,8 @@ columns:
     role: treatment.ethionamide
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Etionamida\" (treatment.ethionamide): treatment given to the case"
     name: Drogas - Etionamida
     codelists:
     - SIM_NAO
@@ -466,6 +526,8 @@ columns:
     role: case.extrapulmonary_site_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se extrapulmonar - 1º campo\" (case.extrapulmonary_site_1): fact about the health event or the person's health"
     name: Se extrapulmonar - 1º campo
     codelists:
     - EXTRAPULNET
@@ -478,6 +540,8 @@ columns:
     role: case.extrapulmonary_site_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se extrapulmonar - 2º campo\" (case.extrapulmonary_site_2): fact about the health event or the person's health"
     name: Se extrapulmonar - 2º campo
     codelists:
     - EXTRAPULNET
@@ -496,6 +560,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2001
@@ -506,6 +572,8 @@ columns:
     role: case.clinical_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma clínica\" (case.clinical_form): fact about the health event or the person's health"
     name: Forma clínica
     years:
     - 2001
@@ -516,6 +584,8 @@ columns:
     role: case.histopathology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Histopatologia\" (case.histopathology): fact about the health event or the person's health"
     name: Histopatologia
     codelists:
     - BASUTBEM
@@ -528,6 +598,8 @@ columns:
     role: case.hiv_status
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HIV\" (case.hiv_status): fact about the health event or the person's health"
     name: HIV
     years:
     - 2001
@@ -649,6 +721,8 @@ columns:
     role: patient.institutionalized_in
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Institucionalizado em\" (patient.institutionalized_in): attribute of the person (social condition)"
     name: Institucionalizado em
     years:
     - 2001
@@ -657,6 +731,8 @@ columns:
     role: notification.followup_linked_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Vinculação\" (notification.followup_linked_flag): record type, internal flag or system field"
     name: Vinculação
     years:
     - 2001
@@ -667,6 +743,8 @@ columns:
     role: treatment.isoniazid
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Isoniazida\" (treatment.isoniazid): treatment given to the case"
     name: Drogas - Isoniazida
     codelists:
     - SIM_NAO
@@ -677,6 +755,8 @@ columns:
     role: notification.migrated_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated_flag): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -697,6 +777,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -745,6 +827,8 @@ columns:
     role: treatment.other_drugs
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Outras\" (treatment.other_drugs): treatment given to the case"
     name: Drogas - Outras
     years:
     - 2001
@@ -764,6 +848,8 @@ columns:
     role: treatment.pyrazinamide
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Pirazinamida\" (treatment.pyrazinamide): treatment given to the case"
     name: Drogas - Pirazinamida
     codelists:
     - SIM_NAO
@@ -776,6 +862,8 @@ columns:
     role: patient.is_immigrant
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Populações Especiais - Imigrante\" (patient.is_immigrant): attribute of the person (social condition)"
     name: Populações Especiais - Imigrante
     codelists:
     - SIM_NAO
@@ -788,6 +876,8 @@ columns:
     role: patient.is_deprived_of_liberty
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Populações Especiais - População privada de liberdade\" (patient.is_deprived_of_liberty): attribute of the person (social condition)"
     name: Populações Especiais - População privada de liberdade
     codelists:
     - SIM_NAO
@@ -800,6 +890,8 @@ columns:
     role: patient.is_homeless
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Populações Especiais - População em situação de rua\" (patient.is_homeless): attribute of the person (social condition)"
     name: Populações Especiais - População em situação de rua
     codelists:
     - SIM_NAO
@@ -812,6 +904,8 @@ columns:
     role: patient.is_health_worker
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Populações Especiais - Profissional de saúde\" (patient.is_health_worker): attribute of the person (social condition)"
     name: Populações Especiais - Profissional de saúde
     codelists:
     - SIM_NAO
@@ -824,6 +918,8 @@ columns:
     role: case.chest_xray
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Radiografia do tórax\" (case.chest_xray): fact about the health event or the person's health"
     name: Radiografia do tórax
     years:
     - 2001
@@ -834,6 +930,8 @@ columns:
     role: treatment.rifampicin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Rifampicina\" (treatment.rifampicin): treatment given to the case"
     name: Drogas - Rifampicina
     years:
     - 2001
@@ -885,6 +983,8 @@ columns:
     role: treatment.status_month_12
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação no 12º mês\" (treatment.status_month_12): outcome of the event"
     name: Situação no 12º mês
     years:
     - 2001
@@ -895,6 +995,8 @@ columns:
     role: treatment.status_month_9
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação no 9º mês\" (treatment.status_month_9): outcome of the event"
     name: Situação no 9º mês
     years:
     - 2001
@@ -910,6 +1012,8 @@ columns:
     role: treatment.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação de encerramento\" (treatment.outcome): outcome of the event"
     name: Situação de encerramento
     years:
     - 2001
@@ -920,6 +1024,8 @@ columns:
     role: case.tuberculin_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste tuberculínico\" (case.tuberculin_test): fact about the health event or the person's health"
     name: Teste tuberculínico
     years:
     - 2001
@@ -930,6 +1036,8 @@ columns:
     role: case.rapid_molecular_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste Molecular Rápido para TB (TRM-TB)\" (case.rapid_molecular_test): fact about the health event or the person's health"
     name: Teste Molecular Rápido para TB (TRM-TB)
     years:
     - 2001
@@ -939,6 +1047,8 @@ columns:
     role: case.sensitivity_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste de sensibilidade\" (case.sensitivity_test): fact about the health event or the person's health"
     name: Teste de sensibilidade
     years:
     - 2001
@@ -948,6 +1058,8 @@ columns:
     role: notification.unit_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Unidade Notificante\" (notification.unit_type): type of the notifying unit: provenance of the notification"
     name: Tipo de Unidade Notificante
     codelists:
     - TIPOUNIDADE
@@ -960,6 +1072,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2001
@@ -970,6 +1084,8 @@ columns:
     role: treatment.transfer_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Se transferência\" (treatment.transfer_type): treatment given to the case"
     name: Se transferência
     years:
     - 2001
@@ -992,6 +1108,8 @@ columns:
     role: treatment.dot_done
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento Diretamente Observado (TDO) realizado\" (treatment.dot_done): treatment given to the case"
     name: Tratamento Diretamente Observado (TDO) realizado
     years:
     - 2001
@@ -1002,6 +1120,8 @@ columns:
     role: treatment.dot_indicated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento supervisionado indicado\" (treatment.dot_indicated): treatment given to the case"
     name: Tratamento supervisionado indicado
     years:
     - 2001

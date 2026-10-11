@@ -13,6 +13,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2013
@@ -29,6 +31,8 @@ columns:
     role: exam.collection_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_interval): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2013
@@ -37,6 +41,8 @@ columns:
     role: exam.result_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.result_interval): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2013
@@ -62,6 +68,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2013
@@ -77,6 +85,8 @@ columns:
     role: exam.total_exam_turnaround
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo Exame\" (exam.total_exam_turnaround): how care or investigation was carried out"
     name: Tempo Exame
     years:
     - 2013
@@ -126,6 +136,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2013
@@ -146,6 +158,8 @@ columns:
     role: exam.other_malignant_neoplasm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras neoplasias malignas\" (exam.other_malignant_neoplasm): result of a test or finding on the person"
     name: Outras neoplasias malignas
     years:
     - 2013
@@ -154,6 +168,8 @@ columns:
     role: exam.colposcopic_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Achado colposcópico\" (exam.colposcopic_finding): result of a test or finding on the person"
     name: Achado colposcópico
     years:
     - 2013
@@ -162,6 +178,8 @@ columns:
     role: exam.squamous_cell_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atipias em células escamosas\" (exam.squamous_cell_atypia): result of a test or finding on the person"
     name: Atipias em células escamosas
     years:
     - 2013
@@ -170,6 +188,8 @@ columns:
     role: exam.glandular_cell_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atipias em células glandulares\" (exam.glandular_cell_atypia): result of a test or finding on the person"
     name: Atipias em células glandulares
     years:
     - 2013
@@ -178,6 +198,8 @@ columns:
     role: exam.sample_evaluation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade da amostra\" (exam.sample_evaluation): how care or investigation was carried out"
     name: Adequabilidade da amostra
     years:
     - 2013
@@ -186,6 +208,8 @@ columns:
     role: exam.squamous_cells_of_undetermined_significance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células escamosas atípicas de significado indeterminado\" (exam.squamous_cells_of_undetermined_significance): result of a test or finding on the person"
     name: Células escamosas atípicas de significado indeterminado
     years:
     - 2013
@@ -194,6 +218,8 @@ columns:
     role: exam.glandular_cells_of_undetermined_significance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células glandulares atípicas de significado indeterminado\" (exam.glandular_cells_of_undetermined_significance): result of a test or finding on the person"
     name: Células glandulares atípicas de significado indeterminado
     years:
     - 2013
@@ -202,6 +228,8 @@ columns:
     role: exam.cells_of_undetermined_origin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células de origem indefinida, de significado indeterminado\" (exam.cells_of_undetermined_origin): result of a test or finding on the person"
     name: Células de origem indefinida, de significado indeterminado
     years:
     - 2013
@@ -210,6 +238,8 @@ columns:
     role: exam.referral_reason
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de encaminhamento\" (exam.referral_reason): how care or investigation was carried out"
     name: Tipo de encaminhamento
     years:
     - 2013
@@ -218,6 +248,8 @@ columns:
     role: exam.tumor_differentiation_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação\" (exam.tumor_differentiation_grade): result of a test or finding on the person"
     name: Grau de diferenciação
     years:
     - 2013
@@ -226,6 +258,8 @@ columns:
     role: exam.squamous_neoplastic_pre_neoplastic_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Res_Neopl_Preneo_Escam\" (exam.squamous_neoplastic_pre_neoplastic_result): result of a test or finding on the person"
     name: Res_Neopl_Preneo_Escam
     years:
     - 2013
@@ -234,6 +268,8 @@ columns:
     role: exam.glandular_neoplastic_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Res_Neopl_Glandular\" (exam.glandular_neoplastic_result): result of a test or finding on the person"
     name: Res_Neopl_Glandular
     years:
     - 2013
@@ -242,6 +278,8 @@ columns:
     role: exam.surgical_margin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas\" (exam.surgical_margin): result of a test or finding on the person"
     name: Margens cirúrgicas
     years:
     - 2013
@@ -250,6 +288,8 @@ columns:
     role: exam.cervical_specimen_procedure_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento (mat. enviado)\" (exam.cervical_specimen_procedure_type): how care or investigation was carried out"
     name: Tipo de procedimento (mat. enviado)
     years:
     - 2013
@@ -258,6 +298,8 @@ columns:
     role: exam.transformation_zone_adequacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequab Zona de Transformação\" (exam.transformation_zone_adequacy): how care or investigation was carried out"
     name: Adequab Zona de Transformação
     years:
     - 2013

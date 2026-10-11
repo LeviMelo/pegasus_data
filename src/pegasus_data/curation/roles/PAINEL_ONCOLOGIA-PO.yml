@@ -66,6 +66,8 @@ columns:
     role: case.diagnosis_group
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grupo diagnóstico\" (case.diagnosis_group): fact about the health event or the person's health"
     name: Grupo diagnóstico
     years:
     - 2013
@@ -112,6 +114,8 @@ columns:
     role: case.stage_at_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estadiamento\" (case.stage_at_diagnosis): fact about the health event or the person's health"
     name: Estadiamento
     years:
     - 2013
@@ -166,6 +170,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2013
@@ -188,6 +194,8 @@ columns:
     role: case.treatment_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de tratamento\" (case.treatment_type): how care or investigation was carried out"
     name: Tipo de tratamento
     years:
     - 2013

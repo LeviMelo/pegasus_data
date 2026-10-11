@@ -14,6 +14,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -68,6 +70,8 @@ columns:
     role: case.sign_abdominal_rigidity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez abdominal\" (case.sign_abdominal_rigidity): fact about the health event or the person's health"
     name: Rigidez abdominal
     years:
     - 2007
@@ -78,6 +82,8 @@ columns:
     role: case.sign_spasms
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Crises convulsivas\" (case.sign_spasms): fact about the health event or the person's health"
     name: Crises convulsivas
     years:
     - 2007
@@ -89,6 +95,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -103,6 +111,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -116,6 +126,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu hospitalização?\" (case.hospitalised): how care or investigation was carried out"
     name: Ocorreu hospitalização?
     years:
     - 2007
@@ -126,6 +138,8 @@ columns:
     role: case.infection_place_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local Provável da Fonte de Infecção\" (case.infection_place_type): fact about the health event or the person's health"
     name: "Local Provável da Fonte de Infecção\n"
     codelists:
     - OCORRENCIA
@@ -138,6 +152,8 @@ columns:
     role: case.sign_limb_rigidity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez de Membros\" (case.sign_limb_rigidity): fact about the health event or the person's health"
     name: Rigidez de Membros
     years:
     - 2007
@@ -148,6 +164,8 @@ columns:
     role: case.sign_neck_stiffness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez de Nuca\" (case.sign_neck_stiffness): fact about the health event or the person's health"
     name: Rigidez de Nuca
     years:
     - 2007
@@ -158,6 +176,8 @@ columns:
     role: case.sign_opisthotonus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Opistótono\" (case.sign_opisthotonus): fact about the health event or the person's health"
     name: Opistótono
     years:
     - 2007
@@ -169,6 +189,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -182,6 +204,8 @@ columns:
     role: case.sign_sardonic_smile
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Riso Sardônico\" (case.sign_sardonic_smile): fact about the health event or the person's health"
     name: Riso Sardônico
     years:
     - 2007
@@ -193,6 +217,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -208,6 +234,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro sinal\" (case.sign_other): fact about the health event or the person's health"
     name: Outro sinal
     years:
     - 2007
@@ -218,6 +246,8 @@ columns:
     role: case.sign_trismus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Trismo\" (case.sign_trismus): fact about the health event or the person's health"
     name: Trismo
     years:
     - 2007
@@ -343,6 +373,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -509,6 +541,8 @@ columns:
     role: patient.tetanus_doses
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doses da vacina\" (patient.tetanus_doses): fact about the health event or the person's health"
     name: Número de doses da vacina
     years:
     - 2007
@@ -601,6 +635,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -614,6 +650,8 @@ columns:
     role: case.control_vaccination
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas de controle - Vacinação da população suscetível\" (case.control_vaccination): how care or investigation was carried out"
     name: Medidas de controle - Vacinação da população suscetível
     years:
     - 2007
@@ -624,6 +662,8 @@ columns:
     role: case.wound_cause
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa do ferimento\" (case.wound_cause): fact about the health event or the person's health"
     name: Causa do ferimento
     years:
     - 2007
@@ -642,6 +682,8 @@ columns:
     role: case.control_susceptible_identified
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas de controle - Identificar população suscetível\" (case.control_susceptible_identified): how care or investigation was carried out"
     name: Medidas de controle - Identificar população suscetível
     years:
     - 2007
@@ -652,6 +694,8 @@ columns:
     role: case.wound_site
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da lesão\" (case.wound_site): fact about the health event or the person's health"
     name: Local da lesão
     years:
     - 2007
@@ -662,6 +706,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -672,6 +718,8 @@ columns:
     role: case.case_origin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Origem do caso\" (case.case_origin): how care or investigation was carried out"
     name: Origem do caso
     years:
     - 2007
@@ -682,6 +730,8 @@ columns:
     role: treatment.specific
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Profilaxia realizada\" (treatment.specific): treatment given to the case"
     name: Profilaxia realizada
     years:
     - 2007
@@ -692,6 +742,8 @@ columns:
     role: case.control_coverage_analysis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas de controle - Análise de cobertura vacinal por faixa etária\" (case.control_coverage_analysis): how care or investigation was carried out"
     name: Medidas de controle - Análise de cobertura vacinal por faixa etária
     years:
     - 2007

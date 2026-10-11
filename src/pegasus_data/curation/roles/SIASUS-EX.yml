@@ -14,6 +14,8 @@ columns:
     role: authorisation.management_arrangement_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column EXA_CONDIC, no label recorded (authorisation.management_arrangement_code): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -47,6 +49,8 @@ columns:
     role: authorisation.hepatitis_b_surface_antigen_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXA_HBSAG, no label recorded (authorisation.hepatitis_b_surface_antigen_result): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -56,6 +60,8 @@ columns:
     role: authorisation.anti_hcv_hepatitis_c_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXA_HEPAT, no label recorded (authorisation.anti_hcv_hepatitis_c_result): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -65,6 +71,8 @@ columns:
     role: authorisation.hiv_test_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXA_HIV, no label recorded (authorisation.hiv_test_result): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -74,6 +82,8 @@ columns:
     role: authorisation.hla_typing_done
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column EXA_HLA, no label recorded (authorisation.hla_typing_done): how care or investigation was carried out"
     years:
     - 2001
     - 2007
@@ -95,6 +105,8 @@ columns:
     role: authorisation.post_dialysis_urea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXA_INDUPS, no label recorded (authorisation.post_dialysis_urea): fact about the health event or the person's health"
     years:
     - 2001
     - 2007

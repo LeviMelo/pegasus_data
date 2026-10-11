@@ -16,6 +16,8 @@ columns:
     role: procedure.type_of_care_episode
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater de Atendimento\" (procedure.type_of_care_episode): how care or investigation was carried out"
     name: Carater de Atendimento
     years:
     - 2008
@@ -104,6 +106,8 @@ columns:
     role: procedure.care_complexity
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Complexidade\" (procedure.care_complexity): how care or investigation was carried out"
     name: Complexidade
     years:
     - 2008
@@ -116,6 +120,8 @@ columns:
     role: procedure.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (procedure.management_type_code): billing, financing, management or contractual attribute"
     name: Sigla do Tipo de Gestao
     years:
     - 2008
@@ -152,6 +158,8 @@ columns:
     role: procedure.indigenous_ethnicity
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia\" (procedure.indigenous_ethnicity): attribute of the person (race/colour)"
     name: Etnia
     years:
     - 2008
@@ -189,6 +197,8 @@ columns:
     role: procedure.patient_municipality_differs_from_facility_municipality
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica se o município de residência do paciente é diferente do município de localização do estabelecimento\" (procedure.patient_municipality_differs_from_facility_municipality): how care or investigation was carried out"
     name: Indica se o município de residência do paciente é diferente do município de localização do 
       estabelecimento
     years:
@@ -202,6 +212,8 @@ columns:
     role: procedure.maintained_vs_individual_establishment_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (procedure.maintained_vs_individual_establishment_flag): billing, financing, management or contractual attribute"
     name: Estabelecimento Mantido / Individual
     years:
     - 2008
@@ -225,6 +237,8 @@ columns:
     role: procedure.establishment_legal_nature_concla
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica\" (procedure.establishment_legal_nature_concla): billing, financing, management or contractual attribute"
     name: Natureza jurídica
     years:
     - 2011
@@ -267,6 +281,8 @@ columns:
     role: procedure.race_colour
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (procedure.race_colour): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2008
@@ -275,6 +291,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2008
@@ -286,6 +304,8 @@ columns:
     role: procedure.production_financing_subtype
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Subtipo de Financiamento da produção\" (procedure.production_financing_subtype): billing, financing, management or contractual attribute"
     name: Subtipo de Financiamento da produção
     years:
     - 2008
@@ -298,6 +318,8 @@ columns:
     role: procedure.provider_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Prestador\" (procedure.provider_type_code): billing, financing, management or contractual attribute"
     name: Tipo de Prestador
     years:
     - 2008
@@ -308,6 +330,8 @@ columns:
     role: procedure.production_financing_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Financiamento da produção\" (procedure.production_financing_type): billing, financing, management or contractual attribute"
     name: Tipo de Financiamento da produção
     years:
     - 2008
@@ -319,6 +343,8 @@ columns:
     role: procedure.age_unit_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo da Idade do paciente\" (procedure.age_unit_code): encoding unit of another field"
     name: Tipo da Idade do paciente
     years:
     - 2008
@@ -341,6 +367,8 @@ columns:
     role: procedure.patient_uf_differs_from_facility_uf
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento\" (procedure.patient_uf_differs_from_facility_uf): how care or investigation was carried out"
     name: Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento
     years:
     - 2008

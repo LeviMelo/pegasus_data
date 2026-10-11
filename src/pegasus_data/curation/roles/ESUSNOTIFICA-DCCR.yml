@@ -7,6 +7,8 @@ columns:
     role: notification.follow_up_unit_same_as_notifying_unit
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"A Unidade de Saúde de acompanhamento é a mesma de notificação?\" (notification.follow_up_unit_same_as_notifying_unit): how care or investigation was carried out"
     name: A Unidade de Saúde de acompanhamento é a mesma de notificação?
     years:
     - 2023
@@ -17,6 +19,8 @@ columns:
     role: notification.benznidazole_no_adverse_reaction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Sem reações\" (notification.benznidazole_no_adverse_reaction): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Sem reações
     years:
     - 2023
@@ -27,6 +31,8 @@ columns:
     role: notification.nifurtimox_no_adverse_reaction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Sem reações\" (notification.nifurtimox_no_adverse_reaction): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Sem reações
     years:
     - 2023
@@ -66,6 +72,8 @@ columns:
     role: notification.state_of_the_new_specialised_unit
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Estado da nova unidade\" (notification.state_of_the_new_specialised_unit): how care or investigation was carried out"
     name: Estado da nova unidade
     years:
     - 2023
@@ -76,6 +84,8 @@ columns:
     role: notification.benznidazole_arthralgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Artralgias\" (notification.benznidazole_arthralgia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Artralgias
     years:
     - 2023
@@ -86,6 +96,8 @@ columns:
     role: notification.benznidazole_ageusia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Ageusia\" (notification.benznidazole_ageusia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Ageusia
     years:
     - 2023
@@ -96,6 +108,8 @@ columns:
     role: notification.benznidazole_bone_marrow_suppression
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Depressão med. óssea\" (notification.benznidazole_bone_marrow_suppression): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Depressão med. óssea
     years:
     - 2023
@@ -115,6 +129,8 @@ columns:
     role: notification.benznidazole_gastrointestinal_intolerance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Intolerância gastrointestinal\" (notification.benznidazole_gastrointestinal_intolerance): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Intolerância gastrointestinal
     years:
     - 2023
@@ -125,6 +141,8 @@ columns:
     role: notification.benznidazole_severe_dermopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Dermopatia grave\" (notification.benznidazole_severe_dermopathy): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Dermopatia grave
     years:
     - 2023
@@ -135,6 +153,8 @@ columns:
     role: notification.benznidazole_mild_moderate_dermopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Dermopatia leve/moderada\" (notification.benznidazole_mild_moderate_dermopathy): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Dermopatia leve/moderada
     years:
     - 2023
@@ -153,6 +173,8 @@ columns:
     role: notification.benznidazole_paraesthesia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Parestesias\" (notification.benznidazole_paraesthesia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Parestesias
     years:
     - 2023
@@ -172,6 +194,8 @@ columns:
     role: notification.active_case_finding_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizada busca ativa?\" (notification.active_case_finding_performed): how care or investigation was carried out"
     name: Realizada busca ativa?
     years:
     - 2023
@@ -182,6 +206,8 @@ columns:
     role: notification.comorbidity_heart_disease_of_other_aetiology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Cardiopatia de outra etiologia\" (notification.comorbidity_heart_disease_of_other_aetiology): fact about the health event or the person's health"
     name: Comorbidades - Cardiopatia de outra etiologia
     years:
     - 2023
@@ -319,6 +345,8 @@ columns:
     role: notification.relatives_confirmed_after_active_case_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de Familiares confirmados para doença de Chagas, após busca ativa\" (notification.relatives_confirmed_after_active_case_finding): fact about the health event or the person's health"
     name: Nº de Familiares confirmados para doença de Chagas, após busca ativa
     years:
     - 2023
@@ -337,6 +365,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2023
@@ -348,6 +378,8 @@ columns:
     role: patient.pregnant
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante (no ano de notificação)\" (patient.pregnant): fact about the health event or the person's health"
     name: Gestante (no ano de notificação)
     years:
     - 2023
@@ -356,6 +388,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/cor
     years:
     - 2023
@@ -365,6 +399,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo ao nascimento\" (patient.sex): attribute of the person (sex)"
     name: Sexo ao nascimento
     years:
     - 2023
@@ -376,6 +412,8 @@ columns:
     role: notification.comorbidity_diabetes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Diabetes\" (notification.comorbidity_diabetes): fact about the health event or the person's health"
     name: Comorbidades - Diabetes
     years:
     - 2023
@@ -385,6 +423,8 @@ columns:
     role: notification.relatives_identified_without_a_prior_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de Familiares com história epidemiológica SEM diagnóstico prévio de doença de Chagas\" (notification.relatives_identified_without_a_prior_diagnosis): fact about the health event or the person's health"
     name: Nº de Familiares com história epidemiológica SEM diagnóstico prévio de doença de Chagas
     years:
     - 2023
@@ -438,6 +478,8 @@ columns:
     role: notification.echocardiogram_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – Ecocardiograma\" (notification.echocardiogram_result): fact about the health event or the person's health"
     name: Exames complementares – Ecocardiograma
     years:
     - 2023
@@ -448,6 +490,8 @@ columns:
     role: notification.elisa_igg_serology_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia (IgG) – Ensaio Imunoenzimático (EIE) (ELISA)\" (notification.elisa_igg_serology_result): fact about the health event or the person's health"
     name: Sorologia (IgG) – Ensaio Imunoenzimático (EIE) (ELISA)
     years:
     - 2023
@@ -458,6 +502,8 @@ columns:
     role: notification.electrocardiogram_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – Eletrocardiograma\" (notification.electrocardiogram_result): fact about the health event or the person's health"
     name: Exames complementares – Eletrocardiograma
     years:
     - 2023
@@ -475,6 +521,8 @@ columns:
     role: notification.relatives_tested_after_active_case_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de Familiares com realização de exames para doença de Chagas, após busca ativa\" (notification.relatives_tested_after_active_case_finding): fact about the health event or the person's health"
     name: Nº de Familiares com realização de exames para doença de Chagas, após busca ativa
     years:
     - 2023
@@ -485,6 +533,8 @@ columns:
     role: notification.clinical_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma Clínica\" (notification.clinical_form): fact about the health event or the person's health"
     name: Forma Clínica
     years:
     - 2023
@@ -495,6 +545,8 @@ columns:
     role: notification.indirect_haemagglutination_igg_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia (IgG) – HAI-Hemaglutinação\" (notification.indirect_haemagglutination_igg_result): fact about the health event or the person's health"
     name: Sorologia (IgG) – HAI-Hemaglutinação
     years:
     - 2023
@@ -505,6 +557,8 @@ columns:
     role: notification.comorbidity_chronic_hepatitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Hepatite crônica\" (notification.comorbidity_chronic_hepatitis): fact about the health event or the person's health"
     name: Comorbidades - Hepatite crônica
     years:
     - 2023
@@ -515,6 +569,8 @@ columns:
     role: notification.comorbidity_hypertension
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Hipertensão\" (notification.comorbidity_hypertension): fact about the health event or the person's health"
     name: Comorbidades - Hipertensão
     years:
     - 2023
@@ -525,6 +581,8 @@ columns:
     role: notification.prior_benznidazole_treatment
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tem histórico de tratamento anterior com Benznidazol?\" (notification.prior_benznidazole_treatment): how care or investigation was carried out"
     name: Tem histórico de tratamento anterior com Benznidazol?
     years:
     - 2023
@@ -534,6 +592,8 @@ columns:
     role: notification.living_relatives_already_diagnosed_with_chagas
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de Familiares (vivos) com história epidemiológica COM diagnóstico prévio e confirmado de doença de Chagas\" (notification.living_relatives_already_diagnosed_with_chagas): fact about the health event or the person's health"
     name: Nº de Familiares (vivos) com história epidemiológica COM diagnóstico prévio e confirmado de doença 
       de Chagas
     years:
@@ -545,6 +605,8 @@ columns:
     role: notification.comorbidity_hiv_aids
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - HIV/aids\" (notification.comorbidity_hiv_aids): fact about the health event or the person's health"
     name: Comorbidades - HIV/aids
     years:
     - 2023
@@ -555,6 +617,8 @@ columns:
     role: notification.followed_at_a_specialised_hospital_or_service
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Está sendo acompanhado em Hospital/Serviço especializado?\" (notification.followed_at_a_specialised_hospital_or_service): how care or investigation was carried out"
     name: Está sendo acompanhado em Hospital/Serviço especializado?
     years:
     - 2023
@@ -565,6 +629,8 @@ columns:
     role: notification.foreign_national
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Estrangeiro\" (notification.foreign_national): attribute of the person (residence)"
     name: Estrangeiro
     years:
     - 2023
@@ -599,6 +665,8 @@ columns:
     role: notification.country_of_origin
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"País de origem\" (notification.country_of_origin): attribute of the person (residence)"
     name: País de origem
     years:
     - 2023
@@ -609,6 +677,8 @@ columns:
     role: notification.indirect_immunofluorescence_igg_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia (IgG) – IFI-Imunofluorescência\" (notification.indirect_immunofluorescence_igg_result): fact about the health event or the person's health"
     name: Sorologia (IgG) – IFI-Imunofluorescência
     years:
     - 2023
@@ -618,6 +688,8 @@ columns:
     role: notification.laboratory_cnes_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNES do laboratório\" (notification.laboratory_cnes_flag): record type, internal flag or system field"
     name: CNES do laboratório
     years:
     - 2023
@@ -631,6 +703,8 @@ columns:
     role: notification.comorbidity_leishmaniasis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Leishmaniose\" (notification.comorbidity_leishmaniasis): fact about the health event or the person's health"
     name: Comorbidades - Leishmaniose
     years:
     - 2023
@@ -641,6 +715,8 @@ columns:
     role: notification.new_municipality_of_residence
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Novo Município de Residência\" (notification.new_municipality_of_residence): attribute of the person (residence)"
     name: Novo Município de Residência
     years:
     - 2023
@@ -651,6 +727,8 @@ columns:
     role: notification.route_of_case_detection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Modo de suspeição\" (notification.route_of_case_detection): how care or investigation was carried out"
     name: Modo de suspeição
     years:
     - 2023
@@ -661,6 +739,8 @@ columns:
     role: notification.change_of_follow_up_primary_care_unit
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mudança de UBS de acompanhamento?\" (notification.change_of_follow_up_primary_care_unit): how care or investigation was carried out"
     name: Mudança de UBS de acompanhamento?
     years:
     - 2023
@@ -704,6 +784,8 @@ columns:
     role: notification.comorbidity_neoplasia_or_other_immunosuppression
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Neoplasias/Outras condições de imunossupressão\" (notification.comorbidity_neoplasia_or_other_immunosuppression): fact about the health event or the person's health"
     name: Comorbidades - Neoplasias/Outras condições de imunossupressão
     years:
     - 2023
@@ -714,6 +796,8 @@ columns:
     role: notification.nifurtimox_ageusia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Ageusia\" (notification.nifurtimox_ageusia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Ageusia
     years:
     - 2023
@@ -724,6 +808,8 @@ columns:
     role: notification.nifurtimox_arthralgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Artralgias\" (notification.nifurtimox_arthralgia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Artralgias
     years:
     - 2023
@@ -733,6 +819,8 @@ columns:
     role: notification.nifurtimox_treatment_days
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Nifurtimox (NFX) - Nº dias de tratamento\" (notification.nifurtimox_treatment_days): how care or investigation was carried out"
     name: Nifurtimox (NFX) - Nº dias de tratamento
     years:
     - 2023
@@ -743,6 +831,8 @@ columns:
     role: notification.nifurtimox_gastrointestinal_intolerance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Intolerância gastrointestinal\" (notification.nifurtimox_gastrointestinal_intolerance): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Intolerância gastrointestinal
     years:
     - 2023
@@ -753,6 +843,8 @@ columns:
     role: notification.nifurtimox_severe_dermopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Dermopatia grave\" (notification.nifurtimox_severe_dermopathy): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Dermopatia grave
     years:
     - 2023
@@ -763,6 +855,8 @@ columns:
     role: notification.nifurtimox_mild_moderate_dermopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Dermopatia leve/moderada\" (notification.nifurtimox_mild_moderate_dermopathy): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Dermopatia leve/moderada
     years:
     - 2023
@@ -772,6 +866,8 @@ columns:
     role: notification.nifurtimox_bone_marrow_suppression
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Depressão medula óssea\" (notification.nifurtimox_bone_marrow_suppression): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Depressão medula óssea
     years:
     - 2023
@@ -790,6 +886,8 @@ columns:
     role: notification.nifurtimox_paraesthesia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Parestesias\" (notification.nifurtimox_paraesthesia): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Parestesias
     years:
     - 2023
@@ -799,6 +897,8 @@ columns:
     role: notification.nifurtimox_tablets_prescribed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Nifurtimox (NFX) - Total de comprimidos\" (notification.nifurtimox_tablets_prescribed): how care or investigation was carried out"
     name: Nifurtimox (NFX) - Total de comprimidos
     years:
     - 2023
@@ -809,6 +909,8 @@ columns:
     role: notification.change_of_specialised_service_or_hospital
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Houve Alteração de Ambulatório Especializado ou Hospital?\" (notification.change_of_specialised_service_or_hospital): how care or investigation was carried out"
     name: Houve Alteração de Ambulatório Especializado ou Hospital?
     years:
     - 2023
@@ -834,6 +936,8 @@ columns:
     role: notification.other_complementary_exam_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – Outros\" (notification.other_complementary_exam_result): fact about the health event or the person's health"
     name: Exames complementares – Outros
     years:
     - 2023
@@ -844,6 +948,8 @@ columns:
     role: notification.other_positive_chagas_tests
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outros exames positivos?\" (notification.other_positive_chagas_tests): fact about the health event or the person's health"
     name: Outros exames positivos?
     years:
     - 2023
@@ -854,6 +960,8 @@ columns:
     role: notification.comorbidity_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comorbidades - Outras\" (notification.comorbidity_other): fact about the health event or the person's health"
     name: Comorbidades - Outras
     years:
     - 2023
@@ -864,6 +972,8 @@ columns:
     role: notification.pcr_detectable
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PCR detectável?\" (notification.pcr_detectable): fact about the health event or the person's health"
     name: PCR detectável?
     years:
     - 2023
@@ -874,6 +984,8 @@ columns:
     role: notification.chemiluminescence_igg_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia (IgG) – Quimioluminescência\" (notification.chemiluminescence_igg_result): fact about the health event or the person's health"
     name: Sorologia (IgG) – Quimioluminescência
     years:
     - 2023
@@ -884,6 +996,8 @@ columns:
     role: notification.benznidazole_other_adverse_reaction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao BNZ? Outras\" (notification.benznidazole_other_adverse_reaction): fact about the health event or the person's health"
     name: Apresentou reações adversas ao BNZ? Outras
     years:
     - 2023
@@ -894,6 +1008,8 @@ columns:
     role: notification.nifurtimox_other_adverse_reaction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentou reações adversas ao NFX? Outras\" (notification.nifurtimox_other_adverse_reaction): fact about the health event or the person's health"
     name: Apresentou reações adversas ao NFX? Outras
     years:
     - 2023
@@ -904,6 +1020,8 @@ columns:
     role: notification.reactivation_episode_occurred
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ocorreu episódio de reativação (reagudização)\" (notification.reactivation_episode_occurred): fact about the health event or the person's health"
     name: Ocorreu episódio de reativação (reagudização)
     years:
     - 2023
@@ -914,6 +1032,8 @@ columns:
     role: notification.colon_x_ray_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – RX cólon\" (notification.colon_x_ray_result): fact about the health event or the person's health"
     name: Exames complementares – RX cólon
     years:
     - 2023
@@ -924,6 +1044,8 @@ columns:
     role: notification.oesophagus_x_ray_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – RX Esôfago\" (notification.oesophagus_x_ray_result): fact about the health event or the person's health"
     name: Exames complementares – RX Esôfago
     years:
     - 2023
@@ -934,6 +1056,8 @@ columns:
     role: notification.chest_x_ray_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames complementares – RX tórax\" (notification.chest_x_ray_result): fact about the health event or the person's health"
     name: Exames complementares – RX tórax
     years:
     - 2023
@@ -944,6 +1068,8 @@ columns:
     role: notification.country_of_residence
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"País de residência\" (notification.country_of_residence): attribute of the person (residence)"
     name: País de residência
     years:
     - 2023
@@ -969,6 +1095,8 @@ columns:
     role: notification.record_cancellation_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Situação\" (notification.record_cancellation_flag): record type, internal flag or system field"
     name: Situação
     years:
     - 2023
@@ -979,6 +1107,8 @@ columns:
     role: notification.case_closure_status
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Situação de encerramento\" (notification.case_closure_status): record type, internal flag or system field"
     name: Situação de encerramento
     years:
     - 2023
@@ -989,6 +1119,8 @@ columns:
     role: notification.change_of_residence_during_follow_up
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Transferência de residência?\" (notification.change_of_residence_during_follow_up): how care or investigation was carried out"
     name: Transferência de residência?
     years:
     - 2023
@@ -999,6 +1131,8 @@ columns:
     role: notification.benznidazole_prescribed_now
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Prescrições atuais - Tratamento específico 1ª linha, Benznidazol (BNZ)\" (notification.benznidazole_prescribed_now): how care or investigation was carried out"
     name: Prescrições atuais - Tratamento específico 1ª linha, Benznidazol (BNZ)
     years:
     - 2023
@@ -1009,6 +1143,8 @@ columns:
     role: notification.nifurtimox_prescribed_now
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Prescrições atuais - Tratamento específico 2ª linha, Nifurtimox (NFX)\" (notification.nifurtimox_prescribed_now): how care or investigation was carried out"
     name: Prescrições atuais - Tratamento específico 2ª linha, Nifurtimox (NFX)
     years:
     - 2023
@@ -1035,6 +1171,8 @@ columns:
     role: notification.state_of_the_new_follow_up_primary_care_unit
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF da nova UBS de acompanhamento do caso\" (notification.state_of_the_new_follow_up_primary_care_unit): how care or investigation was carried out"
     name: UF da nova UBS de acompanhamento do caso
     years:
     - 2023
@@ -1045,6 +1183,8 @@ columns:
     role: notification.new_state_of_residence
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Novo Estado de Residência\" (notification.new_state_of_residence): attribute of the person (residence)"
     name: Novo Estado de Residência
     years:
     - 2023

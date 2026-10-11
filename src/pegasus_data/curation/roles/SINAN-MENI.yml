@@ -18,6 +18,8 @@ columns:
     role: patient.vaccine_meningococcal_ac
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina contra meningococo A e C\" (patient.vaccine_meningococcal_ac): fact about the health event or the person's health"
     name: Vacina contra meningococo A e C
     years:
     - 2007
@@ -28,6 +30,8 @@ columns:
     role: patient.history_aids
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aids\" (patient.history_aids): fact about the health event or the person's health"
     name: Aids
     years:
     - 2007
@@ -38,6 +42,8 @@ columns:
     role: patient.vaccine_meningococcal_bc
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina contra meningococo B e C\" (patient.vaccine_meningococcal_bc): fact about the health event or the person's health"
     name: Vacina contra meningococo B e C
     years:
     - 2007
@@ -48,6 +54,8 @@ columns:
     role: patient.vaccine_bcg
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina BCG\" (patient.vaccine_bcg): fact about the health event or the person's health"
     name: Vacina BCG
     years:
     - 2007
@@ -58,6 +66,8 @@ columns:
     role: patient.vaccine_meningococcal_c_conjugate
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina meningocócica conjugada C\" (patient.vaccine_meningococcal_c_conjugate): fact about the health event or the person's health"
     name: Vacina meningocócica conjugada C
     years:
     - 2007
@@ -67,6 +77,8 @@ columns:
     role: case.contact_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local do contato\" (case.contact_setting): fact about the health event or the person's health"
     name: Local do contato
     years:
     - 2007
@@ -204,6 +216,8 @@ columns:
     role: patient.vaccine_hib
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina contra Haemophilus influenzae b\" (patient.vaccine_hib): fact about the health event or the person's health"
     name: Vacina contra Haemophilus influenzae b
     years:
     - 2007
@@ -214,6 +228,8 @@ columns:
     role: patient.history_immunosuppression
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunodepressão\" (patient.history_immunosuppression): fact about the health event or the person's health"
     name: Imunodepressão
     years:
     - 2007
@@ -224,6 +240,8 @@ columns:
     role: patient.history_hospital_infection
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Infecção hospitalar\" (patient.history_hospital_infection): fact about the health event or the person's health"
     name: Infecção hospitalar
     years:
     - 2007
@@ -234,6 +252,8 @@ columns:
     role: patient.history_acute_respiratory_infection
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Infecção respiratória aguda\" (patient.history_acute_respiratory_infection): fact about the health event or the person's health"
     name: Infecção respiratória aguda
     years:
     - 2007
@@ -244,6 +264,8 @@ columns:
     role: patient.vaccine_other
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra vacina\" (patient.vaccine_other): fact about the health event or the person's health"
     name: Outra vacina
     years:
     - 2007
@@ -254,6 +276,8 @@ columns:
     role: patient.history_other_condition
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra condição\" (patient.history_other_condition): fact about the health event or the person's health"
     name: Outra condição
     years:
     - 2007
@@ -280,6 +304,8 @@ columns:
     role: patient.vaccine_pneumococcal
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)\" (patient.vaccine_pneumococcal): fact about the health event or the person's health"
     name: Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)
     years:
     - 2007
@@ -292,6 +318,8 @@ columns:
     role: case.secondary_case
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso secundário\" (case.secondary_case): fact about the health event or the person's health"
     name: Caso secundário
     years:
     - 2007
@@ -302,6 +330,8 @@ columns:
     role: patient.history_head_trauma
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Traumatismo craniano\" (patient.history_head_trauma): fact about the health event or the person's health"
     name: Traumatismo craniano
     years:
     - 2007
@@ -312,6 +342,8 @@ columns:
     role: patient.vaccine_triple_viral
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina tríplice\" (patient.vaccine_triple_viral): fact about the health event or the person's health"
     name: Vacina tríplice
     years:
     - 2007
@@ -322,6 +354,8 @@ columns:
     role: patient.history_tuberculosis
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tuberculose\" (patient.history_tuberculosis): fact about the health event or the person's health"
     name: Tuberculose
     years:
     - 2007
@@ -332,6 +366,8 @@ columns:
     role: case.hospitalized
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização\" (case.hospitalized): how care or investigation was carried out"
     name: "Ocorreu Hospitalização\n"
     codelists:
     - SIM_NAO
@@ -376,6 +412,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -393,6 +431,8 @@ columns:
     role: case.aseptic_meningitis_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se confirmado, especifique (meningite asséptica)\" (case.aseptic_meningitis_diagnosis): fact about the health event or the person's health"
     name: Se confirmado, especifique (meningite asséptica)
     years:
     - 2007
@@ -403,6 +443,8 @@ columns:
     role: case.other_bacterium
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se confirmado, especifique (meningite por outras bactérias)\" (case.other_bacterium): fact about the health event or the person's health"
     name: Se confirmado, especifique (meningite por outras bactérias)
     years:
     - 2007
@@ -413,6 +455,8 @@ columns:
     role: case.other_etiology_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se confirmado, especifique (meningite de outra etiologia)\" (case.other_etiology_diagnosis): fact about the health event or the person's health"
     name: Se confirmado, especifique (meningite de outra etiologia)
     years:
     - 2007
@@ -423,6 +467,8 @@ columns:
     role: case.serogroup
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se N. meningitidis, especificar sorogrupo\" (case.serogroup): fact about the health event or the person's health"
     name: Se N. meningitidis, especificar sorogrupo
     years:
     - 2007
@@ -433,6 +479,8 @@ columns:
     role: case.sign_bulging_fontanelle
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – abaulamento de fontanela\" (case.sign_bulging_fontanelle): fact about the health event or the person's health"
     name: Sinais e sintomas – abaulamento de fontanela
     years:
     - 2007
@@ -443,6 +491,8 @@ columns:
     role: case.sign_headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia\" (case.sign_headache): fact about the health event or the person's health"
     name: Cefaleia
     codelists:
     - SIM_NAO
@@ -455,6 +505,8 @@ columns:
     role: case.sign_coma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – coma\" (case.sign_coma): fact about the health event or the person's health"
     name: Sinais e sintomas – coma
     years:
     - 2007
@@ -465,6 +517,8 @@ columns:
     role: case.sign_convulsions
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – convulsões\" (case.sign_convulsions): fact about the health event or the person's health"
     name: Sinais e sintomas – convulsões
     years:
     - 2007
@@ -483,6 +537,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -495,6 +551,8 @@ columns:
     role: case.sign_kernig_brudzinski
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Kernig/Brudzinski\" (case.sign_kernig_brudzinski): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Kernig/Brudzinski\n"
     codelists:
     - AUSEPRES
@@ -507,6 +565,8 @@ columns:
     role: case.sign_other_manifestation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras (complicações/manifestações)\" (case.sign_other_manifestation): fact about the health event or the person's health"
     name: Outras (complicações/manifestações)
     years:
     - 2007
@@ -517,6 +577,8 @@ columns:
     role: case.sign_petechiae
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Petéquias/Sufusões Hemorrágicas\" (case.sign_petechiae): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Petéquias/Sufusões Hemorrágicas\n"
     codelists:
     - SIM_NAO
@@ -529,6 +591,8 @@ columns:
     role: case.sign_neck_stiffness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – rigidez de nuca\" (case.sign_neck_stiffness): fact about the health event or the person's health"
     name: Sinais e sintomas – rigidez de nuca
     years:
     - 2007
@@ -539,6 +603,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vômito\" (case.sign_vomiting): fact about the health event or the person's health"
     name: Vômito
     codelists:
     - SIM_NAO
@@ -551,6 +617,8 @@ columns:
     role: case.confirmed_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se confirmado, especifique\" (case.confirmed_form): fact about the health event or the person's health"
     name: Se confirmado, especifique
     years:
     - 2007
@@ -561,6 +629,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -579,6 +649,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -589,6 +661,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -602,6 +676,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -613,6 +689,8 @@ columns:
     role: case.meningitis_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação da meningite\" (case.meningitis_classification): fact about the health event or the person's health"
     name: Classificação da meningite
     years:
     - 2007
@@ -626,6 +704,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -639,6 +719,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -653,6 +735,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -753,6 +837,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -768,6 +854,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -888,6 +976,8 @@ columns:
     role: case.lab_latex_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"LATEX líquor\" (case.lab_latex_csf): fact about the health event or the person's health"
     name: LATEX líquor
     years:
     - 2007
@@ -898,6 +988,8 @@ columns:
     role: case.lab_latex_blood
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"LATEX Sangue/soro\" (case.lab_latex_blood): fact about the health event or the person's health"
     name: LATEX Sangue/soro
     years:
     - 2007
@@ -908,6 +1000,8 @@ columns:
     role: case.lab_csf_appearance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aspecto do líquor\" (case.lab_csf_appearance): fact about the health event or the person's health"
     name: Aspecto do líquor
     years:
     - 2007
@@ -918,6 +1012,8 @@ columns:
     role: case.lab_bacterioscopy_sputum
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bacterioscopia escarro\" (case.lab_bacterioscopy_sputum): fact about the health event or the person's health"
     name: Bacterioscopia escarro
     years:
     - 2007
@@ -928,6 +1024,8 @@ columns:
     role: case.lab_bacterioscopy_petechial_lesion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bacterioscopia lesão petequial\" (case.lab_bacterioscopy_petechial_lesion): fact about the health event or the person's health"
     name: Bacterioscopia lesão petequial
     years:
     - 2007
@@ -938,6 +1036,8 @@ columns:
     role: case.lab_bacterioscopy_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bacterioscopia líquor\" (case.lab_bacterioscopy_csf): fact about the health event or the person's health"
     name: Bacterioscopia líquor
     years:
     - 2007
@@ -948,6 +1048,8 @@ columns:
     role: case.lab_bacterioscopy_blood
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bacterioscopia Sangue/soro\" (case.lab_bacterioscopy_blood): fact about the health event or the person's health"
     name: Bacterioscopia Sangue/soro
     years:
     - 2007
@@ -958,6 +1060,8 @@ columns:
     role: case.lab_cie_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CIE líquor\" (case.lab_cie_csf): fact about the health event or the person's health"
     name: CIE líquor
     years:
     - 2007
@@ -968,6 +1072,8 @@ columns:
     role: case.lab_cie_blood
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CIE Sangue/soro\" (case.lab_cie_blood): fact about the health event or the person's health"
     name: CIE Sangue/soro
     years:
     - 2007
@@ -987,6 +1093,8 @@ columns:
     role: case.lab_culture_sputum
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura escarro\" (case.lab_culture_sputum): fact about the health event or the person's health"
     name: Cultura escarro
     years:
     - 2007
@@ -997,6 +1105,8 @@ columns:
     role: case.lab_culture_petechial_lesion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura lesão petequial\" (case.lab_culture_petechial_lesion): fact about the health event or the person's health"
     name: Cultura lesão petequial
     years:
     - 2007
@@ -1007,6 +1117,8 @@ columns:
     role: case.lab_culture_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura Líquor\" (case.lab_culture_csf): fact about the health event or the person's health"
     name: Cultura Líquor
     years:
     - 2007
@@ -1017,6 +1129,8 @@ columns:
     role: case.lab_culture_blood
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cultura Sangue/soro\" (case.lab_culture_blood): fact about the health event or the person's health"
     name: Cultura Sangue/soro
     years:
     - 2007
@@ -1062,6 +1176,8 @@ columns:
     role: case.lab_viral_isolation_feces
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Isolamento viral fezes\" (case.lab_viral_isolation_feces): fact about the health event or the person's health"
     name: Isolamento viral fezes
     years:
     - 2007
@@ -1072,6 +1188,8 @@ columns:
     role: case.lab_viral_isolation_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Isolamento viral líquor\" (case.lab_viral_isolation_csf): fact about the health event or the person's health"
     name: Isolamento viral líquor
     years:
     - 2007
@@ -1118,6 +1236,8 @@ columns:
     role: case.lab_pcr_sputum
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PCR escarro\" (case.lab_pcr_sputum): fact about the health event or the person's health"
     name: PCR escarro
     years:
     - 2007
@@ -1128,6 +1248,8 @@ columns:
     role: case.lab_pcr_petechial_lesion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PCR lesão petequial\" (case.lab_pcr_petechial_lesion): fact about the health event or the person's health"
     name: PCR lesão petequial
     years:
     - 2007
@@ -1137,6 +1259,8 @@ columns:
     role: case.lab_pcr_csf
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PCR líquor\" (case.lab_pcr_csf): fact about the health event or the person's health"
     name: PCR líquor
     years:
     - 2007
@@ -1147,6 +1271,8 @@ columns:
     role: case.lab_pcr_blood
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PCR Sangue/soro\" (case.lab_pcr_blood): fact about the health event or the person's health"
     name: PCR Sangue/soro
     years:
     - 2007
@@ -1166,6 +1292,8 @@ columns:
     role: case.lab_lumbar_puncture
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Punção lombar realizada\" (case.lab_lumbar_puncture): how care or investigation was carried out"
     name: Punção lombar realizada
     years:
     - 2007
@@ -1201,6 +1329,8 @@ columns:
     role: case.chemoprophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizada Quimioprofilaxia dos Comunicantes\" (case.chemoprophylaxis): how care or investigation was carried out"
     name: Realizada Quimioprofilaxia dos Comunicantes
     years:
     - 2007
@@ -1209,6 +1339,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -1219,6 +1351,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -1311,6 +1445,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007

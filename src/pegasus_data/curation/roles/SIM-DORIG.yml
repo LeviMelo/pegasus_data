@@ -14,6 +14,8 @@ columns:
     role: death.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acidente do trabalho\" (death.work_related): work-related accident flag: a fact about the event"
     name: Acidente do trabalho
     years:
     - 1995
@@ -23,6 +25,8 @@ columns:
     role: deceased.residence_area_local
     kind: category
     model: excluded
+    fact_domain: person
+    fact_domain_evidence: "\"Área de residência\" (deceased.residence_area_local): attribute of the person (residence)"
     name: Área de residência
     years:
     - 1995
@@ -41,6 +45,8 @@ columns:
     role: death.medical_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recebeu assistência médica\" (death.medical_care): whether the deceased received medical assistance: a care-process fact"
     name: Recebeu assistência médica
     years:
     - 1995
@@ -56,6 +62,8 @@ columns:
     role: certifier.condition
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Condição do médico atestante\" (certifier.condition): how care or investigation was carried out"
     name: Condição do médico atestante
     years:
     - 1995
@@ -65,6 +73,8 @@ columns:
     role: deceased.residence_neighbourhood_local
     kind: category
     model: excluded
+    fact_domain: person
+    fact_domain_evidence: "\"Bairro de residência\" (deceased.residence_neighbourhood_local): attribute of the person (residence)"
     name: Bairro de residência
     years:
     - 1995
@@ -102,6 +112,8 @@ columns:
     role: death.surgery
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realização de cirurgia\" (death.surgery): whether surgery was performed: care delivered"
     name: Realização de cirurgia
     years:
     - 1995
@@ -128,6 +140,8 @@ columns:
     role: death.edit_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Crítica\" (death.edit_flag): record type, internal flag or system field"
     name: Crítica
     years:
     - 1995
@@ -144,6 +158,8 @@ columns:
     role: deceased.residence_health_region_local
     kind: category
     model: excluded
+    fact_domain: person
+    fact_domain_evidence: "\"CRS de residência\" (deceased.residence_health_region_local): attribute of the person (residence)"
     name: CRS de residência
     years:
     - 1995
@@ -180,6 +196,8 @@ columns:
     role: deceased.marital_status_legacy
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Estado civil\" (deceased.marital_status_legacy): attribute of the person (marital status)"
     name: Estado civil
     years:
     - 1995
@@ -190,6 +208,8 @@ columns:
     role: deceased.indigenous_ethnicity
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Código para etnia indígena\" (deceased.indigenous_ethnicity): attribute of the person (ethnicity)"
     name: Código para etnia indígena
     years:
     - 1995
@@ -207,6 +227,8 @@ columns:
     role: death.exam_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realização de exame\" (death.exam_performed): whether an examination was done: investigation done"
     name: Realização de exame
     years:
     - 1995
@@ -216,6 +238,8 @@ columns:
     role: pregnancy.previous_children_dead_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Filhos mortos\" (pregnancy.previous_children_dead_legacy): fact about the health event or the person's health"
     name: Filhos mortos
     years:
     - 1995
@@ -225,6 +249,8 @@ columns:
     role: pregnancy.previous_live_births_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Filhos vivos\" (pregnancy.previous_live_births_legacy): fact about the health event or the person's health"
     name: Filhos vivos
     years:
     - 1995
@@ -236,6 +262,8 @@ columns:
     role: death.information_source_legacy
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte da informação\" (death.information_source_legacy): record type, internal flag or system field"
     name: Fonte da informação
     years:
     - 1995
@@ -274,6 +302,8 @@ columns:
     role: mother.education_legacy
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Instrução da mãe\" (mother.education_legacy): attribute of the person (schooling)"
     name: Instrução da mãe
     years:
     - 1995
@@ -286,6 +316,8 @@ columns:
     role: father.education_legacy
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Instrução do pai\" (father.education_legacy): attribute of the person (schooling)"
     name: Instrução do pai
     years:
     - 1995
@@ -298,6 +330,8 @@ columns:
     role: deceased.education_legacy
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Instrução\" (deceased.education_legacy): attribute of the person (schooling)"
     name: Instrução
     years:
     - 1995
@@ -308,6 +342,8 @@ columns:
     role: death.accident_place_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local do acidente\" (death.accident_place_legacy): fact about the health event or the person's health"
     name: Local do acidente
     years:
     - 1995
@@ -323,6 +359,8 @@ columns:
     role: death.place
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de ocorrência do óbito\" (death.place): place of death (hospital, home, road ...): a care-process fact"
     name: Local de ocorrência do óbito
     years:
     - 1995
@@ -374,6 +412,8 @@ columns:
     role: death.autopsy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Necrópsia\" (death.autopsy): whether an autopsy was done: investigation done"
     name: Necrópsia
     years:
     - 1995
@@ -391,6 +431,8 @@ columns:
     role: deceased.pregnant_at_death_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito e gravidez (no momento)\" (deceased.pregnant_at_death_legacy): fact about the health event or the person's health"
     name: Óbito e gravidez (no momento)
     years:
     - 1995
@@ -401,6 +443,8 @@ columns:
     role: deceased.pregnant_within_12_months_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito e gravidez (12 meses antes)\" (deceased.pregnant_within_12_months_legacy): fact about the health event or the person's health"
     name: Óbito e gravidez (12 meses antes)
     years:
     - 1995
@@ -458,6 +502,8 @@ columns:
     role: deceased.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça Cor\" (deceased.race): attribute of the person (race/colour)"
     name: Raça Cor
     years:
     - 1995
@@ -477,6 +523,8 @@ columns:
     role: pregnancy.gestation_band_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semanas de gestação\" (pregnancy.gestation_band_legacy): fact about the health event or the person's health"
     name: Semanas de gestação
     years:
     - 1995
@@ -487,6 +535,8 @@ columns:
     role: deceased.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (deceased.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 1995
@@ -496,6 +546,8 @@ columns:
     role: death.accident_type_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de acidente\" (death.accident_type_legacy): fact about the health event or the person's health"
     name: Tipo de acidente
     years:
     - 1995
@@ -506,6 +558,8 @@ columns:
     role: death.kind
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo do óbito\" (death.kind): fetal or non-fetal death: kind of the health event"
     name: Tipo do óbito
     years:
     - 1995
@@ -517,6 +571,8 @@ columns:
     role: birth.plurality_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de gravidez\" (birth.plurality_legacy): fact about the health event or the person's health"
     name: Tipo de gravidez
     years:
     - 1995
@@ -529,6 +585,8 @@ columns:
     role: birth.delivery_legacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de parto\" (birth.delivery_legacy): how care or investigation was carried out"
     name: Tipo de parto
     years:
     - 1995
@@ -541,6 +599,8 @@ columns:
     role: death.violence_type_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de violência\" (death.violence_type_legacy): fact about the health event or the person's health"
     name: Tipo de violência
     years:
     - 1995

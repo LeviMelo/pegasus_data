@@ -5,6 +5,8 @@ columns:
     role: survey.program_phase_category
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fase da atividade (categoria)\" (survey.program_phase_category): attribute of the establishment register (structure, service, management)"
     name: Fase da atividade (categoria)
     years:
     - 2024
@@ -24,6 +26,8 @@ columns:
     role: survey.health_district_region_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Distrito/Regional de Saúde\" (survey.health_district_region_code): attribute of the establishment register (structure, service, management)"
     name: Código do Distrito/Regional de Saúde
     years:
     - 1995
@@ -32,6 +36,8 @@ columns:
     role: survey.regional_health_department_drs_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Departamento Regional de Saúde (DRS)\" (survey.regional_health_department_drs_code): attribute of the establishment register (structure, service, management)"
     name: Código do Departamento Regional de Saúde (DRS)
     years:
     - 2024
@@ -40,6 +46,8 @@ columns:
     role: survey.locality
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da localidade (UF + município + localidade)\" (survey.locality): attribute of the establishment register (structure, service, management)"
     name: Código da localidade (UF + município + localidade)
     years:
     - 1995

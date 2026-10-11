@@ -15,6 +15,8 @@ columns:
     role: admission.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caráter da internação\" (admission.admission_character): urgent or elective admission: a care-process fact"
     name: Caráter da internação
     years:
     - 2006
@@ -92,6 +94,8 @@ columns:
     role: admission.work_accident_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de acidente de trabalho\" (admission.work_accident_code): employer activity (CNAE) code of a work-accident AIH: billing/document field"
     name: Código de acidente de trabalho
     years:
     - 2006
@@ -124,6 +128,8 @@ columns:
     role: admission.discharge_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de Saída/Permanência\" (admission.discharge_reason): motivo de saida/permanencia: the code that closes the AIH for payment (billing reason)"
     name: Motivo de Saída/Permanência
     years:
     - 2006
@@ -133,6 +139,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de medida da idade\" (patient.age_unit): encoding unit of another field"
     name: Unidade de medida da idade
     codelists:
     - IDADEDET
@@ -145,6 +153,8 @@ columns:
     role: admission.complexity
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Complexidade\" (admission.complexity): complexity level of the care delivered: a care-process fact"
     name: Complexidade
     years:
     - 2008
@@ -155,6 +165,8 @@ columns:
     role: admission.contraceptive_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de contraceptivo utilizado\" (admission.contraceptive_1): contraceptive method recorded for the stay: a fact about the person's health"
     name: Tipo de contraceptivo utilizado
     years:
     - 2006
@@ -165,6 +177,8 @@ columns:
     role: admission.contraceptive_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Segundo tipo de contraceptivo\" (admission.contraceptive_2): second contraceptive method recorded for the stay: a fact about the person's health"
     name: Segundo tipo de contraceptivo
     years:
     - 2006
@@ -286,6 +300,8 @@ columns:
     role: admission.bed_specialty
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade do Leito\" (admission.bed_specialty): specialty of the bed used: a care-process fact"
     name: Especialidade do Leito
     years:
     - 2006
@@ -297,6 +313,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
     name: Etnia do paciente
     years:
     - 2008
@@ -307,6 +325,8 @@ columns:
     role: admission.faec_subtype
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Subtipo de financiamento FAEC\" (admission.faec_subtype): FAEC financing subtype: financing"
     name: Subtipo de financiamento FAEC
     years:
     - 2008
@@ -317,6 +337,8 @@ columns:
     role: admission.funding_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de financiamento\" (admission.funding_type): type of financing: financing"
     name: Tipo de financiamento
     years:
     - 2008
@@ -326,6 +348,8 @@ columns:
     role: admission.budget_source
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte Orçamentária\" (admission.budget_source): budget source: financing"
     name: Fonte Orçamentária
     codelists:
     - FONTEREM
@@ -338,6 +362,8 @@ columns:
     role: admission.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestão\" (admission.management_type): management arrangement of the payer: management"
     name: Gestão
     codelists:
     - GESTAO
@@ -350,6 +376,8 @@ columns:
     role: admission.manager_override
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de autorização da AIH pelo Gestor\" (admission.manager_override): reason the manager authorised the AIH: management"
     name: Motivo de autorização da AIH pelo Gestor
     codelists:
     - LIBGESTOR
@@ -380,6 +408,8 @@ columns:
     role: admission.manager_authorisation
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestor\" (admission.manager_authorisation): type of manager that authorised the AIH: management"
     name: Tipo de gestor
     years:
     - 2008
@@ -390,6 +420,8 @@ columns:
     role: pregnancy.high_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador se é gestante de risco\" (pregnancy.high_risk): fact about the health event or the person's health"
     name: Indicador se é gestante de risco
     years:
     - 2006
@@ -399,6 +431,8 @@ columns:
     role: patient.homonym_flag
     kind: category
     model: link_only
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de homônimo\" (patient.homonym_flag): encoding unit of another field"
     name: Indicador de homônimo
     years:
     - 2006
@@ -419,6 +453,8 @@ columns:
     role: admission.aih_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificação do tipo da AIH\" (admission.aih_type): type of AIH (first, continuation, long stay): an authorisation/billing document type"
     name: Identificação do tipo da AIH
     years:
     - 2006
@@ -429,6 +465,8 @@ columns:
     role: admission.vdrl_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indica exame VDRL\" (admission.vdrl_test): VDRL test indicated on the AIH: a clinical test fact"
     name: Indica exame VDRL
     years:
     - 2006
@@ -438,6 +476,8 @@ columns:
     role: admission.hospital_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Status de infecção hospitalar\" (admission.hospital_infection): hospital-infection status of the stay: an event fact"
     name: Status de infecção hospitalar
     years:
     - 2006
@@ -457,6 +497,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Grau de instrução do paciente\" (patient.education): attribute of the person (schooling)"
     name: Grau de instrução do paciente
     years:
     - 2006
@@ -467,6 +509,8 @@ columns:
     role: admission.icu_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de UTI utilizada\" (admission.icu_type): ICU type marked for billing the stay: bed-type billing mark"
     name: Tipo de UTI utilizada
     years:
     - 2006
@@ -488,6 +532,8 @@ columns:
     role: admission.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indica Óbito\" (admission.death): stay ended in death: outcome of the event"
     name: Indica Óbito
     years:
     - 2006
@@ -522,6 +568,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código da nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     name: Código da nacionalidade do paciente
     years:
     - 2006
@@ -542,6 +590,8 @@ columns:
     role: facility.legal_nature_old
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica do hospital\" (facility.legal_nature_old): attribute of the establishment register (structure, service, management)"
     name: Natureza jurídica do hospital
     years:
     - 2006
@@ -552,6 +602,8 @@ columns:
     role: facility.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica do Estabelecimento\" (facility.legal_nature): attribute of the establishment register (structure, service, management)"
     name: Natureza jurídica do Estabelecimento
     years:
     - 2011
@@ -631,6 +683,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor do paciente
     years:
     - 2008
@@ -641,6 +695,8 @@ columns:
     role: admission.contract_rule
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Regra contratual\" (admission.contract_rule): contractual rule applied: contract"
     name: Regra contratual
     years:
     - 2008
@@ -659,6 +715,8 @@ columns:
     role: admission.budget_line
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Rubrica\" (admission.budget_line): budget line (rubrica): financing"
     name: Rubrica
     years:
     - 2006
@@ -686,6 +744,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     codelists:
     - SEXO
@@ -699,6 +759,8 @@ columns:
     role: admission.block_status
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Situação bloqueio\" (admission.block_status): billing, financing, management or contractual attribute"
     name: Situação bloqueio
     years:
     - 2006
@@ -709,6 +771,8 @@ columns:
     role: admission.block_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo bloqueio\" (admission.block_reason): billing, financing, management or contractual attribute"
     name: Motivo bloqueio
     years:
     - 2006
@@ -721,6 +785,8 @@ columns:
     role: admission.rejection_status
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Situação rejeição\" (admission.rejection_status): billing, financing, management or contractual attribute"
     name: Situação rejeição
     years:
     - 2006
@@ -973,6 +1039,8 @@ columns:
     role: patient.social_security_link
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Vínculo com a Previdência\" (patient.social_security_link): attribute of the person (work/occupation)"
     name: Vínculo com a Previdência
     years:
     - 2006

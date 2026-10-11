@@ -75,6 +75,8 @@ columns:
     role: birth.quality_control_code
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Crítica\" (birth.quality_control_code): record type, internal flag or system field"
     name: Crítica
     years:
     - 1994
@@ -128,6 +130,8 @@ columns:
     role: baby.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código para etnia indígena\" (baby.ethnicity): attribute of the person (ethnicity)"
     codelists:
     - TABETNIA
     name: Código para etnia indígena
@@ -177,6 +181,8 @@ columns:
     role: birth.gestation_band
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semanas de gestação agrupado\" (birth.gestation_band): gestational age band: a fact about the event"
     name: Semanas de gestação agrupado
     years:
     - 1994
@@ -199,6 +205,8 @@ columns:
     role: mother.education_legacy
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Grau de instrução da mãe\" (mother.education_legacy): attribute of the person (schooling)"
     name: Grau de instrução da mãe
     years:
     - 1994
@@ -209,6 +217,8 @@ columns:
     role: birth.place_legacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de ocorrência\" (birth.place_legacy): how care or investigation was carried out"
     name: Local de ocorrência
     years:
     - 1994
@@ -263,6 +273,8 @@ columns:
     role: pregnancy.prenatal_visits_band
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Consultas de pré-natal\" (pregnancy.prenatal_visits_band): number of prenatal visits: a care-process fact"
     name: Consultas de pré-natal
     codelists:
     - PRENATAL
@@ -274,6 +286,8 @@ columns:
     role: baby.race_legacy
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/cor\" (baby.race_legacy): attribute of the person (race/colour)"
     name: Raça/cor
     years:
     - 1994
@@ -294,6 +308,8 @@ columns:
     role: baby.sex
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do recém nascido\" (baby.sex): attribute of the person (sex)"
     name: Sexo do recém nascido
     years:
     - 1994
@@ -303,6 +319,8 @@ columns:
     role: birth.plurality_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de gravidez\" (birth.plurality_legacy): fact about the health event or the person's health"
     name: Tipo de gravidez
     years:
     - 1994
@@ -314,6 +332,8 @@ columns:
     role: birth.delivery_legacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de parto\" (birth.delivery_legacy): how care or investigation was carried out"
     name: Tipo de parto
     years:
     - 1994

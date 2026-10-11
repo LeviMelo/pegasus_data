@@ -44,6 +44,8 @@ columns:
     role: authorisation.management_arrangement_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Condição de Gestão\" (authorisation.management_arrangement_code): billing, financing, management or contractual attribute"
     name: Condição de Gestão
     years:
     - 2001
@@ -52,6 +54,8 @@ columns:
     role: authorisation.continuity_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de continuação da APAC\" (authorisation.continuity_flag): billing, financing, management or contractual attribute"
     name: Indicador de continuação da APAC
     years:
     - 2001
@@ -143,6 +147,8 @@ columns:
     role: authorisation.billing_closing_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo da cobrança\" (authorisation.billing_closing_reason): billing, financing, management or contractual attribute"
     name: Motivo da cobrança
     years:
     - 2001
@@ -187,6 +193,8 @@ columns:
     role: authorisation.apac_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de APAC\" (authorisation.apac_type): billing, financing, management or contractual attribute"
     name: Tipo de APAC
     years:
     - 2001
@@ -195,6 +203,8 @@ columns:
     role: authorisation.type_of_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de atendimento\" (authorisation.type_of_care): how care or investigation was carried out"
     name: Tipo de atendimento
     years:
     - 2001

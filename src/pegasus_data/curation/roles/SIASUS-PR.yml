@@ -13,6 +13,8 @@ columns:
     role: authorisation.irradiated_area_2
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Áreas irradiadas 2\" (authorisation.irradiated_area_2): how care or investigation was carried out"
     name: Áreas irradiadas 2
     years:
     - 2001
@@ -21,6 +23,8 @@ columns:
     role: authorisation.irradiated_area_3
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Áreas irradiadas 3\" (authorisation.irradiated_area_3): how care or investigation was carried out"
     name: Áreas irradiadas 3
     years:
     - 2001
@@ -56,6 +60,8 @@ columns:
     role: authorisation.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Gestão\" (authorisation.management_type_code): billing, financing, management or contractual attribute"
     name: Tipo de Gestão
     years:
     - 2001
@@ -129,6 +135,8 @@ columns:
     role: authorisation.tumour_state
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estado do Tumor\" (authorisation.tumour_state): fact about the health event or the person's health"
     name: Estado do Tumor
     years:
     - 2001
@@ -137,6 +145,8 @@ columns:
     role: authorisation.purpose_of_the_treatment
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column PAR_FINALI, no label recorded (authorisation.purpose_of_the_treatment): how care or investigation was carried out"
     years:
     - 2001
     - 2007
@@ -162,6 +172,8 @@ columns:
     role: authorisation.metastasis_s_n
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column PAR_METAST, no label recorded (authorisation.metastasis_s_n): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -196,6 +208,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2001
@@ -206,6 +220,8 @@ columns:
     role: patient.birth_state
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade\" (patient.birth_state): attribute of the person (nationality/birthplace)"
     name: Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade
     years:
     - 2001

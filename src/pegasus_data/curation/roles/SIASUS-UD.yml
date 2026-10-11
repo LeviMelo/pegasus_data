@@ -66,6 +66,8 @@ columns:
     role: authorisation.management_arrangement_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_CONDIC, no label recorded (authorisation.management_arrangement_code): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -181,6 +183,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_1
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR1, no label recorded (authorisation.treatment_type_offered_flag_item_1): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -188,6 +192,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_2
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR2, no label recorded (authorisation.treatment_type_offered_flag_item_2): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -195,6 +201,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_3
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR3, no label recorded (authorisation.treatment_type_offered_flag_item_3): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -202,6 +210,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_4
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR4, no label recorded (authorisation.treatment_type_offered_flag_item_4): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -209,6 +219,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_5
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR5, no label recorded (authorisation.treatment_type_offered_flag_item_5): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -216,6 +228,8 @@ columns:
     role: authorisation.treatment_type_offered_flag_item_6
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_INDTR6, no label recorded (authorisation.treatment_type_offered_flag_item_6): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -393,6 +407,8 @@ columns:
     role: authorisation.water_treatment_equipment_count_type_1
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_QTDAG1, no label recorded (authorisation.water_treatment_equipment_count_type_1): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -400,6 +416,8 @@ columns:
     role: authorisation.water_treatment_equipment_count_type_2
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_QTDAG2, no label recorded (authorisation.water_treatment_equipment_count_type_2): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -407,6 +425,8 @@ columns:
     role: authorisation.ambulatory_peritoneal_dialysis_capacity
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_QTDDPA, no label recorded (authorisation.ambulatory_peritoneal_dialysis_capacity): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -414,6 +434,8 @@ columns:
     role: authorisation.intermittent_peritoneal_dialysis_capacity
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDI_QTDDPI, no label recorded (authorisation.intermittent_peritoneal_dialysis_capacity): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004

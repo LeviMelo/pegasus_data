@@ -24,6 +24,8 @@ columns:
     role: population.age_band_legacy
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa Etária detalhada\" (population.age_band_legacy): attribute of the person (age)"
     name: Faixa Etária detalhada
     years:
     - 1980
@@ -32,6 +34,8 @@ columns:
     role: population.age_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Age\" (population.age_band): attribute of the person (age)"
     name: Age
     years:
     - 2000
@@ -67,6 +71,8 @@ columns:
     role: population.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (population.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 1980
@@ -78,6 +84,8 @@ columns:
     role: population.urban_rural
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação de domicílio\" (population.urban_rural): attribute of the person (residence)"
     name: Situação de domicílio
     years:
     - 1980

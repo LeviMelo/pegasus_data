@@ -12,6 +12,8 @@ columns:
     role: authorisation.aih_procedure_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column OPC_AIHPRO, no label recorded (authorisation.aih_procedure_code): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -47,6 +49,8 @@ columns:
     role: authorisation.management_arrangement
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column OPC_CONDIC, no label recorded (authorisation.management_arrangement): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -64,6 +68,8 @@ columns:
     role: authorisation.reference_compet_ncia
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column OPC_DATREF, no label recorded (authorisation.reference_compet_ncia): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -121,6 +127,8 @@ columns:
     role: authorisation.examination_result_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column OPC_RESULT, no label recorded (authorisation.examination_result_code): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -128,6 +136,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "column OPC_SEXOPC, no label recorded (patient.sex): attribute of the person (sex)"
     years:
     - 2001
     - 2007
@@ -135,6 +145,8 @@ columns:
     role: patient.birth_state
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "column OPC_UFNASC, no label recorded (patient.birth_state): attribute of the person (nationality/birthplace)"
     years:
     - 2001
     - 2007

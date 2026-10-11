@@ -7,6 +7,8 @@ columns:
     role: case.sign_abdominal_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor Abdominal\" (case.sign_abdominal_pain): fact about the health event or the person's health"
     name: Dor Abdominal
     years:
     - 2007
@@ -27,6 +29,8 @@ columns:
     role: case.infection_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ambiente de exposição\" (case.infection_setting): fact about the health event or the person's health"
     name: Ambiente de exposição
     years:
     - 2007
@@ -54,6 +58,8 @@ columns:
     role: case.contact_cattle
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com bovinos\" (case.contact_cattle): fact about the health event or the person's health"
     name: Teve contato com bovinos
     years:
     - 2007
@@ -64,6 +70,8 @@ columns:
     role: case.contact_dog_cat
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com cão/gato\" (case.contact_dog_cat): fact about the health event or the person's health"
     name: Teve contato com cão/gato
     years:
     - 2007
@@ -74,6 +82,8 @@ columns:
     role: case.contact_capybara
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com capivara\" (case.contact_capybara): fact about the health event or the person's health"
     name: Teve contato com capivara
     years:
     - 2007
@@ -84,6 +94,8 @@ columns:
     role: case.contact_tick
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com carrapato\" (case.contact_tick): fact about the health event or the person's health"
     name: Teve contato com carrapato
     years:
     - 2007
@@ -94,6 +106,8 @@ columns:
     role: case.sign_headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia\" (case.sign_headache): fact about the health event or the person's health"
     name: Cefaleia
     codelists:
     - SIM_NAO
@@ -106,6 +120,8 @@ columns:
     role: case.sign_shock
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Choque/Hipotensão\" (case.sign_shock): fact about the health event or the person's health"
     name: Choque/Hipotensão
     years:
     - 2007
@@ -114,6 +130,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -139,6 +157,8 @@ columns:
     role: case.sign_coma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estupor/coma\" (case.sign_coma): fact about the health event or the person's health"
     name: Estupor/coma
     years:
     - 2007
@@ -175,6 +195,8 @@ columns:
     role: case.sign_seizure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Convulsão\" (case.sign_seizure): fact about the health event or the person's health"
     name: Convulsão
     years:
     - 2007
@@ -217,6 +239,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -235,6 +259,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -249,6 +275,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -263,6 +291,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -277,6 +307,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -292,6 +324,8 @@ columns:
     role: case.lab_diagnosis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diagnóstico laboratorial realizado\" (case.lab_diagnosis): how care or investigation was carried out"
     name: Diagnóstico laboratorial realizado
     years:
     - 2007
@@ -310,6 +344,8 @@ columns:
     role: case.sign_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.sign_diarrhoea): fact about the health event or the person's health"
     name: Diarreia
     years:
     - 2007
@@ -320,6 +356,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -463,6 +501,8 @@ columns:
     role: case.contact_horses
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com eqüinos\" (case.contact_horses): fact about the health event or the person's health"
     name: Teve contato com eqüinos
     years:
     - 2007
@@ -473,6 +513,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -490,6 +532,8 @@ columns:
     role: case.sign_rash
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Exantema\" (case.sign_rash): fact about the health event or the person's health"
     name: Sinais clínicos – Exantema
     years:
     - 2007
@@ -500,6 +544,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -512,6 +558,8 @@ columns:
     role: case.forest_visit
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Freqüentou ambientes com vegetação (mata, floresta, rios, cachoeiras)\" (case.forest_visit): fact about the health event or the person's health"
     name: Freqüentou ambientes com vegetação (mata, floresta, rios, cachoeiras)
     years:
     - 2007
@@ -522,6 +570,8 @@ columns:
     role: case.sign_haemorrhage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações hemorrágicas\" (case.sign_haemorrhage): fact about the health event or the person's health"
     name: Manifestações hemorrágicas
     years:
     - 2007
@@ -532,6 +582,8 @@ columns:
     role: case.sign_haemorrhagic_suffusion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sufusão hemorrágica\" (case.sign_haemorrhagic_suffusion): fact about the health event or the person's health"
     name: Sufusão hemorrágica
     years:
     - 2007
@@ -542,6 +594,8 @@ columns:
     role: case.sign_hepatosplenomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hepatomegalia\" (case.sign_hepatosplenomegaly): fact about the health event or the person's health"
     name: Hepatomegalia
     years:
     - 2007
@@ -552,6 +606,8 @@ columns:
     role: case.sign_conjunctival_hyperaemia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hiperemia conjuntival\" (case.sign_conjunctival_hyperaemia): fact about the health event or the person's health"
     name: Hiperemia conjuntival
     years:
     - 2007
@@ -562,6 +618,8 @@ columns:
     role: case.histopathology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Histopatologia\" (case.histopathology): fact about the health event or the person's health"
     name: Histopatologia
     years:
     - 2007
@@ -572,6 +630,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização\" (case.hospitalised): how care or investigation was carried out"
     name: Ocorreu Hospitalização
     years:
     - 2007
@@ -582,6 +642,8 @@ columns:
     role: case.sign_jaundice
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Icterícia\" (case.sign_jaundice): fact about the health event or the person's health"
     name: Icterícia
     years:
     - 2007
@@ -718,6 +780,8 @@ columns:
     role: case.igg_sample_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na primeira amostra\" (case.igg_sample_1): fact about the health event or the person's health"
     name: IgG na primeira amostra
     years:
     - 2007
@@ -728,6 +792,8 @@ columns:
     role: case.igg_sample_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na segunda amostra\" (case.igg_sample_2): fact about the health event or the person's health"
     name: IgG na segunda amostra
     years:
     - 2007
@@ -738,6 +804,8 @@ columns:
     role: case.igm_sample_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na primeira amostra\" (case.igm_sample_1): fact about the health event or the person's health"
     name: IgM na primeira amostra
     years:
     - 2007
@@ -748,6 +816,8 @@ columns:
     role: case.igm_sample_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na segunda amostra\" (case.igm_sample_2): fact about the health event or the person's health"
     name: IgM na segunda amostra
     years:
     - 2007
@@ -758,6 +828,8 @@ columns:
     role: case.immunohistochemistry
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imuno-histoquímica\" (case.immunohistochemistry): fact about the health event or the person's health"
     name: Imuno-histoquímica
     years:
     - 2007
@@ -768,6 +840,8 @@ columns:
     role: case.isolation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Isolamento\" (case.isolation): how care or investigation was carried out"
     name: "Isolamento\n"
     codelists:
     - RESULTADO1
@@ -781,6 +855,8 @@ columns:
     role: case.sign_lymphadenopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfadenopatia\" (case.sign_lymphadenopathy): fact about the health event or the person's health"
     name: Linfadenopatia
     years:
     - 2007
@@ -791,6 +867,8 @@ columns:
     role: case.sign_myalgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Mialgia\" (case.sign_myalgia): fact about the health event or the person's health"
     name: Sinais clínicos – Mialgia
     years:
     - 2007
@@ -801,6 +879,8 @@ columns:
     role: case.sign_nausea_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Náusea\" (case.sign_nausea_vomiting): fact about the health event or the person's health"
     name: Sinais clínicos – Náusea
     years:
     - 2007
@@ -811,6 +891,8 @@ columns:
     role: case.sign_extremity_necrosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Necrose de extremidades\" (case.sign_extremity_necrosis): fact about the health event or the person's health"
     name: Necrose de extremidades
     years:
     - 2007
@@ -855,6 +937,8 @@ columns:
     role: case.sign_oliguria
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Oligúria/anúria\" (case.sign_oliguria): fact about the health event or the person's health"
     name: Oligúria/anúria
     years:
     - 2007
@@ -865,6 +949,8 @@ columns:
     role: case.contact_other_animal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teve contato com outros animais\" (case.contact_other_animal): fact about the health event or the person's health"
     name: Teve contato com outros animais
     years:
     - 2007
@@ -875,6 +961,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outros\" (case.sign_other): fact about the health event or the person's health"
     name: Outros
     years:
     - 2007
@@ -894,6 +982,8 @@ columns:
     role: case.sign_petechiae
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações hemorrágicas – Petéquias\" (case.sign_petechiae): fact about the health event or the person's health"
     name: Manifestações hemorrágicas – Petéquias
     years:
     - 2007
@@ -904,6 +994,8 @@ columns:
     role: case.sign_prostration
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Prostração\" (case.sign_prostration): fact about the health event or the person's health"
     name: Sinais e Sintomas - Prostração
     years:
     - 2007
@@ -914,6 +1006,8 @@ columns:
     role: case.sign_respiratory
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alterações respiratórias\" (case.sign_respiratory): fact about the health event or the person's health"
     name: Alterações respiratórias
     years:
     - 2007
@@ -1001,6 +1095,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -1014,6 +1110,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1024,6 +1122,8 @@ columns:
     role: case.infection_zone
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Zona de ocorrência\" (case.infection_zone): fact about the health event or the person's health"
     name: Zona de ocorrência
     years:
     - 2018

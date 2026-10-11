@@ -14,6 +14,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     codelists:
     - CLASINTO
     - CLASRC
@@ -85,6 +87,8 @@ columns:
     role: case.rigid_abdomen
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Abdome rígido\" (case.rigid_abdomen): fact about the health event or the person's health"
     name: Abdome rígido
     years:
     - 2014
@@ -95,6 +99,8 @@ columns:
     role: case.measure_taken_analysis_of_tetanus_vaccine_coverage_in_women_
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – análise da cobertura vacinal e vacinação discriminada em MIF contra o tétano\" (case.measure_taken_analysis_of_tetanus_vaccine_coverage_in_women_): how care or investigation was carried out"
     name: Medidas adotadas – análise da cobertura vacinal e vacinação discriminada em MIF contra o tétano
     years:
     - 2014
@@ -105,6 +111,8 @@ columns:
     role: case.who_attended_the_birth
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quem atendeu o parto\" (case.who_attended_the_birth): how care or investigation was carried out"
     name: Quem atendeu o parto
     years:
     - 2014
@@ -115,6 +123,8 @@ columns:
     role: case.active_case_search_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – busca ativa de outros casos\" (case.active_case_search_performed): how care or investigation was carried out"
     name: Medidas adotadas – busca ativa de outros casos
     years:
     - 2014
@@ -125,6 +135,8 @@ columns:
     role: case.measure_taken_registration_and_training_of_midwives
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – cadastro e capacitação de parteiras atuantes\" (case.measure_taken_registration_and_training_of_midwives): how care or investigation was carried out"
     name: Medidas adotadas – cadastro e capacitação de parteiras atuantes
     years:
     - 2014
@@ -135,6 +147,8 @@ columns:
     role: case.excessive_crying
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Choro excessivo\" (case.excessive_crying): fact about the health event or the person's health"
     name: Choro excessivo
     years:
     - 2014
@@ -145,6 +159,8 @@ columns:
     role: case.residence_covered_by_primary_care_programme
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de residência coberto pelo\" (case.residence_covered_by_primary_care_programme): how care or investigation was carried out"
     name: Local de residência coberto pelo
     years:
     - 2014
@@ -155,6 +171,8 @@ columns:
     role: case.contracture_crises
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Crises de Contraturas\" (case.contracture_crises): fact about the health event or the person's health"
     name: Crises de Contraturas
     years:
     - 2014
@@ -165,6 +183,8 @@ columns:
     role: case.case_disclosed_reported_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – divulgação do problema para autoridades e profissionais de saúde\" (case.case_disclosed_reported_flag): how care or investigation was carried out"
     name: Medidas adotadas – divulgação do problema para autoridades e profissionais de saúde
     years:
     - 2014
@@ -176,6 +196,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -190,6 +212,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -203,6 +227,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu hospitalização?\" (case.hospitalised): how care or investigation was carried out"
     name: Ocorreu hospitalização?
     years:
     - 2014
@@ -213,6 +239,8 @@ columns:
     role: case.umbilical_stump_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Infecção do coto umbilical\" (case.umbilical_stump_infection): fact about the health event or the person's health"
     name: Infecção do coto umbilical
     years:
     - 2014
@@ -223,6 +251,8 @@ columns:
     role: case.difficulty_feeding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dificuldade de mamar\" (case.difficulty_feeding): fact about the health event or the person's health"
     name: Dificuldade de mamar
     years:
     - 2014
@@ -233,6 +263,8 @@ columns:
     role: case.limb_rigidity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez de Membros\" (case.limb_rigidity): fact about the health event or the person's health"
     name: Rigidez de Membros
     years:
     - 2014
@@ -243,6 +275,8 @@ columns:
     role: case.birth_setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de ocorrência do parto\" (case.birth_setting): how care or investigation was carried out"
     name: Local de ocorrência do parto
     years:
     - 2014
@@ -253,6 +287,8 @@ columns:
     role: case.neck_stiffness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez de Nuca\" (case.neck_stiffness): fact about the health event or the person's health"
     name: Rigidez de Nuca
     years:
     - 2014
@@ -263,6 +299,8 @@ columns:
     role: case.opisthotonus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Opistótono\" (case.opisthotonus): fact about the health event or the person's health"
     name: Opistótono
     years:
     - 2014
@@ -273,6 +311,8 @@ columns:
     role: case.measure_taken_umbilical_stump_care_guidance
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – orientação às parturientes quanto aos cuidados com o coto umbilical\" (case.measure_taken_umbilical_stump_care_guidance): how care or investigation was carried out"
     name: Medidas adotadas – orientação às parturientes quanto aos cuidados com o coto umbilical
     years:
     - 2014
@@ -283,6 +323,8 @@ columns:
     role: case.how_the_case_was_found
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Origem da notificação\" (case.how_the_case_was_found): how care or investigation was carried out"
     name: Origem da notificação
     years:
     - 2014
@@ -292,6 +334,8 @@ columns:
     role: case.other_control_measures_taken
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas adotadas – outras\" (case.other_control_measures_taken): how care or investigation was carried out"
     name: Medidas adotadas – outras
     years:
     - 2014
@@ -303,6 +347,8 @@ columns:
     role: case.other_sign_neonatal_tetanus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro sinal\" (case.other_sign_neonatal_tetanus): fact about the health event or the person's health"
     name: Outro sinal
     years:
     - 2014
@@ -314,6 +360,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -327,6 +375,8 @@ columns:
     role: case.sardonic_smile
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Riso Sardônico\" (case.sardonic_smile): fact about the health event or the person's health"
     name: Riso Sardônico
     years:
     - 2014
@@ -338,6 +388,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -353,6 +405,8 @@ columns:
     role: case.baby_suckled_normally_at_birth_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sugou normalmente após o nascimento\" (case.baby_suckled_normally_at_birth_flag): fact about the health event or the person's health"
     name: Sugou normalmente após o nascimento
     years:
     - 2014
@@ -363,6 +417,8 @@ columns:
     role: case.trismus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Trismo\" (case.trismus): fact about the health event or the person's health"
     name: Trismo
     years:
     - 2014
@@ -373,6 +429,8 @@ columns:
     role: case.mother_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mãe vacinada\" (case.mother_vaccinated): fact about the health event or the person's health"
     name: Mãe vacinada
     years:
     - 2014
@@ -383,6 +441,8 @@ columns:
     role: case.mother_vaccinated_against_tetanus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Antecedentes vacinais contra tétano (mãe)\" (case.mother_vaccinated_against_tetanus): fact about the health event or the person's health"
     name: Antecedentes vacinais contra tétano (mãe)
     years:
     - 2014
@@ -393,6 +453,8 @@ columns:
     role: case.infection_place_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local provável da fonte de infecção\" (case.infection_place_type): fact about the health event or the person's health"
     name: Local provável da fonte de infecção
     years:
     - 2014
@@ -565,6 +627,8 @@ columns:
     role: mother.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade da mãe\" (mother.education): attribute of the person (schooling)"
     name: Escolaridade da mãe
     years:
     - 2014
@@ -575,6 +639,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     codelists:
     - ALTAOBIT
     - CURAOBIT
@@ -762,6 +828,8 @@ columns:
     role: pregnancy.prenatal_visits_band
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de consultas de pré-natal\" (pregnancy.prenatal_visits_band): number of prenatal visits: a care-process fact"
     name: Número de consultas de pré-natal
     years:
     - 2014
@@ -883,6 +951,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     codelists:
     - AUTOCTONE
     name: Caso é Autóctone da Residência?
@@ -896,6 +966,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2014

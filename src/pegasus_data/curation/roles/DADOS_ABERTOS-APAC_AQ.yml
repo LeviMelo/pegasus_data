@@ -7,6 +7,8 @@ columns:
     role: authorisation.discharge
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Alta\" (authorisation.discharge): billing, financing, management or contractual attribute"
     codelists:
     - ALTA
     name: Indicador de Alta
@@ -38,6 +40,8 @@ columns:
     role: authorisation.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater do Atendimento\" (authorisation.admission_character): how care or investigation was carried out"
     codelists:
     - CARAT_AT
     name: Carater do Atendimento
@@ -132,6 +136,8 @@ columns:
     role: authorisation.issuer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Orgao emissor\" (authorisation.issuer): billing, financing, management or contractual attribute"
     name: Codigo do Orgao emissor
     years:
     - 
@@ -152,6 +158,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Idade do paciente\" (patient.age_unit): encoding unit of another field"
     codelists:
     - IDADEDET
     name: Codigo da Idade do paciente
@@ -165,6 +173,8 @@ columns:
     role: authorisation.management_condition
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (authorisation.management_condition): billing, financing, management or contractual attribute"
     codelists:
     - TPGEST_C
     - TP_GESTAO
@@ -224,6 +234,8 @@ columns:
     role: authorisation.closure
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Encerramento\" (authorisation.closure): billing, financing, management or contractual attribute"
     codelists:
     - ENCERRAM
     name: Indicador de Encerramento
@@ -237,6 +249,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
     codelists:
     - ETNIA
     name: Etnia do paciente
@@ -260,6 +274,8 @@ columns:
     role: authorisation.municipality_mismatch_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Municipio de residencia diferente do estabelecimento\" (authorisation.municipality_mismatch_flag): billing, financing, management or contractual attribute"
     name: Municipio de residencia diferente do estabelecimento
     years:
     - 
@@ -271,6 +287,8 @@ columns:
     role: facility.maintained_or_individual
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (facility.maintained_or_individual): attribute of the establishment register (structure, service, management)"
     codelists:
     - MANT_IND
     name: Estabelecimento Mantido / Individual
@@ -284,6 +302,8 @@ columns:
     role: authorisation.exit_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de Saida e Permanencia\" (authorisation.exit_reason): billing, financing, management or contractual attribute"
     codelists:
     - MOTSAIPE
     name: Motivo de Saida e Permanencia
@@ -318,6 +338,8 @@ columns:
     role: facility.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Natureza Juridica\" (facility.legal_nature): attribute of the establishment register (structure, service, management)"
     codelists:
     - NATJUR
     - NATJURC
@@ -341,6 +363,8 @@ columns:
     role: authorisation.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador de Obito\" (authorisation.death): fact about the health event or the person's health"
     codelists:
     - OBITO
     name: Indicador de Obito
@@ -354,6 +378,8 @@ columns:
     role: authorisation.continuation
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Permanencia\" (authorisation.continuation): billing, financing, management or contractual attribute"
     codelists:
     - PERMANEN
     name: Indicador de Permanencia
@@ -382,6 +408,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raca/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     codelists:
     - RACA_COR
     name: Raca/Cor do paciente
@@ -393,6 +421,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     codelists:
     - SEXO
     name: Sexo do paciente
@@ -406,6 +436,8 @@ columns:
     role: facility.provider_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Prestador\" (facility.provider_type): attribute of the establishment register (structure, service, management)"
     codelists:
     - ESFERA
     - ESFERA_C
@@ -419,6 +451,8 @@ columns:
     role: authorisation.apac_type
     kind: category
     model: event_type
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de APAC\" (authorisation.apac_type): billing, financing, management or contractual attribute"
     codelists:
     - TP_APAC
     name: Tipo de APAC
@@ -432,6 +466,8 @@ columns:
     role: authorisation.care_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de Atendimento de APAC\" (authorisation.care_type): how care or investigation was carried out"
     codelists:
     - TP_ATEND
     name: Tipo de Atendimento de APAC
@@ -445,6 +481,8 @@ columns:
     role: facility.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Estabelecimento\" (facility.type): attribute of the establishment register (structure, service, management)"
     codelists:
     - TP_ESTAB
     name: Tipo de Estabelecimento
@@ -458,6 +496,8 @@ columns:
     role: authorisation.transfer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Transferencia\" (authorisation.transfer): billing, financing, management or contractual attribute"
     codelists:
     - TRANSFER
     name: Indicador de Transferencia
@@ -471,6 +511,8 @@ columns:
     role: authorisation.state_mismatch
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF de residencia diferente da UF do estabelecimento\" (authorisation.state_mismatch): billing, financing, management or contractual attribute"
     codelists:
     - INVASAO
     name: UF de residencia diferente da UF do estabelecimento
@@ -493,6 +535,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Codigo da Nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     codelists:
     - UFNACIO
     name: Codigo da Nacionalidade do paciente
@@ -574,6 +618,8 @@ columns:
     role: authorisation.treatment_continuity
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Continuidade do tratamento (S = Sim; N = Não)\" (authorisation.treatment_continuity): how care or investigation was carried out"
     codelists:
     - CONT_TRAT
     name: Continuidade do tratamento (S = Sim; N = Não)
@@ -630,6 +676,8 @@ columns:
     role: authorisation.regimen_p1
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"ESQUEMA (Sigla ou abrev.) - 5 primeiras posições\" (authorisation.regimen_p1): how care or investigation was carried out"
     name: ESQUEMA (Sigla ou abrev.) - 5 primeiras posições
     years:
     - 
@@ -639,6 +687,8 @@ columns:
     role: authorisation.regimen_p2
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"ESQUEMA (Sigla ou abrev.) - 10 últimas posições\" (authorisation.regimen_p2): how care or investigation was carried out"
     name: ESQUEMA (Sigla ou abrev.) - 10 últimas posições
     years:
     - 
@@ -650,6 +700,8 @@ columns:
     role: authorisation.tumour_stage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estádio - UICC (0; 1; 2; 3; 4)\" (authorisation.tumour_stage): fact about the health event or the person's health"
     codelists:
     - ESTADIO
     name: Estádio - UICC (0; 1; 2; 3; 4)
@@ -661,6 +713,8 @@ columns:
     role: authorisation.histologic_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau Histopatológico\" (authorisation.histologic_grade): fact about the health event or the person's health"
     codelists:
     - GRAU_HIS
     name: Grau Histopatológico
@@ -674,6 +728,8 @@ columns:
     role: authorisation.lymph_nodes_invaded
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodos regionais invadidos (S = Sim; N = Não; 3 = Não Avaliáveis)\" (authorisation.lymph_nodes_invaded): fact about the health event or the person's health"
     codelists:
     - LINF_INV
     name: Linfonodos regionais invadidos (S = Sim; N = Não; 3 = Não Avaliáveis)
@@ -687,6 +743,8 @@ columns:
     role: authorisation.drug_01
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 1 do esquema quimioterápico\" (authorisation.drug_01): how care or investigation was carried out"
     name: Medicamento 1 do esquema quimioterápico
     years:
     - 
@@ -698,6 +756,8 @@ columns:
     role: authorisation.drug_02
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 2 do esquema quimioterápico\" (authorisation.drug_02): how care or investigation was carried out"
     name: Medicamento 2 do esquema quimioterápico
     years:
     - 
@@ -709,6 +769,8 @@ columns:
     role: authorisation.drug_03
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 3 do esquema quimioterápico\" (authorisation.drug_03): how care or investigation was carried out"
     name: Medicamento 3 do esquema quimioterápico
     years:
     - 
@@ -720,6 +782,8 @@ columns:
     role: authorisation.drug_04
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 4 do esquema quimioterápico\" (authorisation.drug_04): how care or investigation was carried out"
     name: Medicamento 4 do esquema quimioterápico
     years:
     - 
@@ -731,6 +795,8 @@ columns:
     role: authorisation.drug_05
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 5 do esquema quimioterápico\" (authorisation.drug_05): how care or investigation was carried out"
     name: Medicamento 5 do esquema quimioterápico
     years:
     - 
@@ -742,6 +808,8 @@ columns:
     role: authorisation.drug_06
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 6 do esquema quimioterápico\" (authorisation.drug_06): how care or investigation was carried out"
     name: Medicamento 6 do esquema quimioterápico
     years:
     - 
@@ -753,6 +821,8 @@ columns:
     role: authorisation.drug_07
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 7 do esquema quimioterápico\" (authorisation.drug_07): how care or investigation was carried out"
     name: Medicamento 7 do esquema quimioterápico
     years:
     - 
@@ -764,6 +834,8 @@ columns:
     role: authorisation.drug_08
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 8 do esquema quimioterápico\" (authorisation.drug_08): how care or investigation was carried out"
     name: Medicamento 8 do esquema quimioterápico
     years:
     - 
@@ -775,6 +847,8 @@ columns:
     role: authorisation.drug_09
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 9 do esquema quimioterápico\" (authorisation.drug_09): how care or investigation was carried out"
     name: Medicamento 9 do esquema quimioterápico
     years:
     - 
@@ -786,6 +860,8 @@ columns:
     role: authorisation.drug_10
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamento 10 do esquema quimioterápico\" (authorisation.drug_10): how care or investigation was carried out"
     name: Medicamento 10 do esquema quimioterápico
     years:
     - 
@@ -813,6 +889,8 @@ columns:
     role: authorisation.previous_treatment
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tratamentos anteriores (S = Sim; N = Não)\" (authorisation.previous_treatment): fact about the health event or the person's health"
     codelists:
     - TRA_ANTE
     name: Tratamentos anteriores (S = Sim; N = Não)

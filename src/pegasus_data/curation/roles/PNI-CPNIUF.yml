@@ -25,6 +25,8 @@ columns:
     role: vaccination.dose
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Dose\" (vaccination.dose): how care or investigation was carried out"
     codelists:
     - DOSE
     name: Dose
@@ -38,6 +40,8 @@ columns:
     role: vaccination.age_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa Etária\" (vaccination.age_band): attribute of the person (age)"
     codelists:
     - FXET
     name: Faixa Etária
@@ -49,6 +53,8 @@ columns:
     role: vaccination.vaccine
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Imunobiológico\" (vaccination.vaccine): how care or investigation was carried out"
     codelists:
     - IMUNO
     - IMUNOC

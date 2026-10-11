@@ -14,6 +14,8 @@ columns:
     role: case.antibiotic_used_in_treatment
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Utilizou antibióticos - Caso afirmativo, qual\" (case.antibiotic_used_in_treatment): how care or investigation was carried out"
     name: Utilizou antibióticos - Caso afirmativo, qual
     years:
     - 2007
@@ -23,6 +25,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     codelists:
     - CLASINTO
     - CLASRC
@@ -39,6 +43,8 @@ columns:
     role: case.infection_district_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código do distrito de infecção\" (case.infection_district_code): fact about the health event or the person's health"
     name: Código do distrito de infecção
     years:
     - 2007
@@ -122,6 +128,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     codelists:
     - CONFDESC
     - CONFDESCA
@@ -140,6 +148,8 @@ columns:
     role: case.antibiotic_before_specimen_collection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Uso de antibiótico antes da coleta do material\" (case.antibiotic_before_specimen_collection): how care or investigation was carried out"
     name: Uso de antibiótico antes da coleta do material
     years:
     - 2007
@@ -150,6 +160,8 @@ columns:
     role: case.treated_with_antibiotics
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Utilizou antibióticos (tratamento)\" (case.treated_with_antibiotics): how care or investigation was carried out"
     name: Utilizou antibióticos (tratamento)
     years:
     - 2007
@@ -160,6 +172,8 @@ columns:
     role: case.asymptomatic
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Assintomático\" (case.asymptomatic): fact about the health event or the person's health"
     name: Assintomático
     years:
     - 2007
@@ -170,6 +184,8 @@ columns:
     role: case.cramps
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cãibras\" (case.cramps): fact about the health event or the person's health"
     name: Cãibras
     years:
     - 2007
@@ -180,6 +196,8 @@ columns:
     role: case.hypovolaemic_shock
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Choque hipovolêmico\" (case.hypovolaemic_shock): fact about the health event or the person's health"
     name: Choque hipovolêmico
     years:
     - 2007
@@ -190,6 +208,8 @@ columns:
     role: case.dehydration
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Desidratação\" (case.dehydration): fact about the health event or the person's health"
     name: Desidratação
     years:
     - 2007
@@ -200,6 +220,8 @@ columns:
     role: case.diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.diarrhoea): fact about the health event or the person's health"
     name: Diarreia
     years:
     - 2007
@@ -210,6 +232,8 @@ columns:
     role: case.abdominal_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor abdominal\" (case.abdominal_pain): fact about the health event or the person's health"
     name: Dor abdominal
     years:
     - 2007
@@ -221,6 +245,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -234,6 +260,8 @@ columns:
     role: case.fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.fever): fact about the health event or the person's health"
     name: Febre
     years:
     - 2007
@@ -244,6 +272,8 @@ columns:
     role: case.stool_frequency
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Frequência das evacuações\" (case.stool_frequency): fact about the health event or the person's health"
     name: Frequência das evacuações
     years:
     - 2007
@@ -255,6 +285,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -268,6 +300,8 @@ columns:
     role: case.specimen_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de material\" (case.specimen_collected): how care or investigation was carried out"
     name: Coleta de material
     years:
     - 2007
@@ -278,6 +312,8 @@ columns:
     role: case.mucus_in_stool
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Muco nas fezes\" (case.mucus_in_stool): fact about the health event or the person's health"
     name: Muco nas fezes
     years:
     - 2007
@@ -288,6 +324,8 @@ columns:
     role: case.if_negative_specify
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso negativo, especificar\" (case.if_negative_specify): fact about the health event or the person's health"
     name: Caso negativo, especificar
     years:
     - 2007
@@ -299,6 +337,8 @@ columns:
     role: case.serotype_isolated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorotipo isolado\" (case.serotype_isolated): fact about the health event or the person's health"
     name: Sorotipo isolado
     years:
     - 2007
@@ -310,6 +350,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -323,6 +365,8 @@ columns:
     role: case.rehydration_route
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Via de reidratação\" (case.rehydration_route): how care or investigation was carried out"
     name: Via de reidratação
     years:
     - 2007
@@ -333,6 +377,8 @@ columns:
     role: case.test_result_flag_virus_type_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado\" (case.test_result_flag_virus_type_result): fact about the health event or the person's health"
     name: "Resultado\n"
     years:
     - 2007
@@ -345,6 +391,8 @@ columns:
     role: case.blood_related_sign_or_specimen_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sangue\" (case.blood_related_sign_or_specimen_flag): fact about the health event or the person's health"
     name: "Sangue\n"
     years:
     - 2007
@@ -358,6 +406,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -373,6 +423,8 @@ columns:
     role: case.care_setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de atendimento\" (case.care_setting): how care or investigation was carried out"
     name: Local de atendimento
     years:
     - 2007
@@ -383,6 +435,8 @@ columns:
     role: case.vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vômito\" (case.vomiting): fact about the health event or the person's health"
     name: Vômito
     years:
     - 2007
@@ -393,6 +447,8 @@ columns:
     role: case.vomiting_sign
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Vômitos\" (case.vomiting_sign): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Vômitos\n"
     years:
     - 2007
@@ -405,6 +461,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     codelists:
     - SIM_NAO
     name: Doença Relacionada ao Trabalho
@@ -416,6 +474,8 @@ columns:
     role: case.municipality_of_transmission_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município de transmissão (1)\" (case.municipality_of_transmission_1): fact about the health event or the person's health"
     name: Município de transmissão (1)
     years:
     - 2007
@@ -425,6 +485,8 @@ columns:
     role: case.municipality_of_transmission_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município de transmissão (2)\" (case.municipality_of_transmission_2): fact about the health event or the person's health"
     name: Município de transmissão (2)
     years:
     - 2007
@@ -434,6 +496,8 @@ columns:
     role: case.municipality_of_transmission_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município de transmissão (3)\" (case.municipality_of_transmission_3): fact about the health event or the person's health"
     name: Município de transmissão (3)
     years:
     - 2007
@@ -610,6 +674,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     codelists:
     - ALTAOBIT
     - CURAOBIT
@@ -628,6 +694,8 @@ columns:
     role: case.location_of_contact_with_a_similar_case
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local do Contato\" (case.location_of_contact_with_a_similar_case): fact about the health event or the person's health"
     name: "Local do Contato\n"
     years:
     - 2007
@@ -871,6 +939,8 @@ columns:
     role: case.country_of_travel_exposure_location_1st_episode
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 1\" (case.country_of_travel_exposure_location_1st_episode): fact about the health event or the person's health"
     name: Deslocamento – País 1
     years:
     - 2007
@@ -879,6 +949,8 @@ columns:
     role: case.country_of_travel_exposure_location_2nd_episode
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 2\" (case.country_of_travel_exposure_location_2nd_episode): fact about the health event or the person's health"
     name: Deslocamento – País 2
     years:
     - 2007
@@ -887,6 +959,8 @@ columns:
     role: case.country_of_travel_exposure_location_3rd_episode
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 3\" (case.country_of_travel_exposure_location_3rd_episode): fact about the health event or the person's health"
     name: Deslocamento – País 3
     years:
     - 2007
@@ -937,6 +1011,8 @@ columns:
     role: case.stool_character
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Característica da diarreia\" (case.stool_character): fact about the health event or the person's health"
     name: Característica da diarreia
     years:
     - 2007
@@ -947,6 +1023,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     codelists:
     - AUTOCTONE
     name: Caso é Autóctone da Residência?
@@ -960,6 +1038,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -969,6 +1049,8 @@ columns:
     role: case.state_of_hospitalization
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de internação\" (case.state_of_hospitalization): how care or investigation was carried out"
     name: UF de internação
     years:
     - 2007
@@ -980,6 +1062,8 @@ columns:
     role: case.suggested_epidemiological_link
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vínculo epidemiológico sugerido\" (case.suggested_epidemiological_link): fact about the health event or the person's health"
     name: Vínculo epidemiológico sugerido
     years:
     - 2007

@@ -55,6 +55,8 @@ columns:
     role: outbreak.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (outbreak.confirmation_criterion): fact about the health event or the person's health"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -72,6 +74,8 @@ columns:
     role: outbreak.infection_place_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local Provável da Fonte de Infecção\" (outbreak.infection_place_type): fact about the health event or the person's health"
     name: "Local Provável da Fonte de Infecção\n"
     codelists:
     - OCORRENCIA
@@ -84,6 +88,8 @@ columns:
     role: outbreak.transmission_mode
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Modo de transmissão\" (outbreak.transmission_mode): fact about the health event or the person's health"
     name: Modo de transmissão
     years:
     - 2007
@@ -299,6 +305,8 @@ columns:
     role: outbreak.unit_of_maximum_incubation_period
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período de incubação máximo - horas/dias\" (outbreak.unit_of_maximum_incubation_period): fact about the health event or the person's health"
     name: Período de incubação máximo - horas/dias
     years:
     - 2007
@@ -614,6 +622,8 @@ columns:
     role: outbreak.positive_food_samples_result_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 1)\" (outbreak.positive_food_samples_result_1): fact about the health event or the person's health"
     name: Nº de positivas (amostras de alimentos, resultado 1)
     years:
     - 2022
@@ -623,6 +633,8 @@ columns:
     role: outbreak.positive_food_samples_result_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 2)\" (outbreak.positive_food_samples_result_2): fact about the health event or the person's health"
     name: Nº de positivas (amostras de alimentos, resultado 2)
     years:
     - 2022
@@ -632,6 +644,8 @@ columns:
     role: outbreak.positive_food_samples_result_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 3)\" (outbreak.positive_food_samples_result_3): fact about the health event or the person's health"
     name: Nº de positivas (amostras de alimentos, resultado 3)
     years:
     - 2007
@@ -652,6 +666,8 @@ columns:
     role: outbreak.positive_clinical_samples_result_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 1)\" (outbreak.positive_clinical_samples_result_1): fact about the health event or the person's health"
     name: Nº de positivas (amostras clínicas, resultado 1)
     years:
     - 2022
@@ -813,6 +829,8 @@ columns:
     role: outbreak.positive_clinical_samples_result_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 2)\" (outbreak.positive_clinical_samples_result_2): fact about the health event or the person's health"
     name: Nº de positivas (amostras clínicas, resultado 2)
     years:
     - 2022
@@ -822,6 +840,8 @@ columns:
     role: outbreak.positive_clinical_samples_result_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 3)\" (outbreak.positive_clinical_samples_result_3): fact about the health event or the person's health"
     name: Nº de positivas (amostras clínicas, resultado 3)
     years:
     - 2007
@@ -853,6 +873,8 @@ columns:
     role: outbreak.clinical_sample_result_3_other_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado 3 (outro achado) - amostras clínicas\" (outbreak.clinical_sample_result_3_other_finding): fact about the health event or the person's health"
     name: Resultado 3 (outro achado) - amostras clínicas
     years:
     - 2022
@@ -969,6 +991,8 @@ columns:
     role: outbreak.food_samples_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletadas amostras de alimentos (bromatológicas)\" (outbreak.food_samples_collected): specimen collected or test performed (investigation done)"
     name: Coletadas amostras de alimentos (bromatológicas)
     years:
     - 2007
@@ -979,6 +1003,8 @@ columns:
     role: outbreak.clinical_samples_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletadas amostras clínicas\" (outbreak.clinical_samples_collected): specimen collected or test performed (investigation done)"
     name: Coletadas amostras clínicas
     years:
     - 2007
@@ -989,6 +1015,8 @@ columns:
     role: outbreak.causal_factor_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores causais - Outros\" (outbreak.causal_factor_other): fact about the health event or the person's health"
     name: Fatores causais - Outros
     years:
     - 2007
@@ -999,6 +1027,8 @@ columns:
     role: outbreak.causal_factor_unfit_raw_material
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores causais - Matéria-prima imprópria\" (outbreak.causal_factor_unfit_raw_material): fact about the health event or the person's health"
     name: Fatores causais - Matéria-prima imprópria
     years:
     - 2007
@@ -1017,6 +1047,8 @@ columns:
     role: outbreak.causal_factor_inadequate_storage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores causais - Conservação inadequada\" (outbreak.causal_factor_inadequate_storage): fact about the health event or the person's health"
     name: Fatores causais - Conservação inadequada
     years:
     - 2007
@@ -1026,6 +1058,8 @@ columns:
     role: outbreak.unit_of_minimum_incubation_period
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período de incubação mínimo - horas/dias\" (outbreak.unit_of_minimum_incubation_period): fact about the health event or the person's health"
     name: Período de incubação mínimo - horas/dias
     years:
     - 2007
@@ -1035,6 +1069,8 @@ columns:
     role: outbreak.unit_of_median_incubation_period
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mediana do período de incubação - horas/dias\" (outbreak.unit_of_median_incubation_period): fact about the health event or the person's health"
     name: Mediana do período de incubação - horas/dias
     years:
     - 2007
@@ -1045,6 +1081,8 @@ columns:
     role: outbreak.causal_factor_inadequate_handling_preparation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores causais - Manipulação/preparação inadequada\" (outbreak.causal_factor_inadequate_handling_preparation): fact about the health event or the person's health"
     name: Fatores causais - Manipulação/preparação inadequada
     years:
     - 2007
@@ -1055,6 +1093,8 @@ columns:
     role: outbreak.indirect_transmission_vehicle
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de transmissão indireta\" (outbreak.indirect_transmission_vehicle): fact about the health event or the person's health"
     name: Tipo de transmissão indireta
     years:
     - 2007
@@ -1064,6 +1104,8 @@ columns:
     role: outbreak.venue_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de local\" (outbreak.venue_type): fact about the health event or the person's health"
     name: Tipo de local
     years:
     - 2007
@@ -1074,6 +1116,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1088,6 +1132,8 @@ columns:
     role: outbreak.place_of_food_production_preparation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local de produção/preparação\" (outbreak.place_of_food_production_preparation): fact about the health event or the person's health"
     name: Local de produção/preparação
     years:
     - 2007

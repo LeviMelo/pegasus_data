@@ -7,6 +7,8 @@ columns:
     role: case.aggressor_species
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Espécie do animal agressor\" (case.aggressor_species): fact about the health event or the person's health"
     name: Espécie do animal agressor
     codelists:
     - CANFELQUNET
@@ -30,6 +32,8 @@ columns:
     role: case.exposure_scratch
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de exposição ao vírus rábico: Arranhadura\" (case.exposure_scratch): fact about the health event or the person's health"
     name: 'Tipo de exposição ao vírus rábico: Arranhadura'
     codelists:
     - SIM_NAO
@@ -42,6 +46,8 @@ columns:
     role: case.wound_head_neck
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização do ferimento: Cabeça/pescoço\" (case.wound_head_neck): fact about the health event or the person's health"
     name: 'Localização do ferimento: Cabeça/pescoço'
     codelists:
     - SIM_NAO
@@ -54,6 +60,8 @@ columns:
     role: case.exposure_indirect_contact
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tratamento anti-rábico anterior\" (case.exposure_indirect_contact): fact about the health event or the person's health"
     name: Tratamento anti-rábico anterior
     codelists:
     - SIM_NAO
@@ -67,6 +75,8 @@ columns:
     role: case.wound_lacerating
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de ferimento: Dilacerante\" (case.wound_lacerating): fact about the health event or the person's health"
     name: 'Tipo de ferimento: Dilacerante'
     codelists:
     - SIM_NAO
@@ -87,6 +97,8 @@ columns:
     role: case.exposure_licking
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de exposição ao vírus rábico: Lambedura\" (case.exposure_licking): fact about the health event or the person's health"
     name: 'Tipo de exposição ao vírus rábico: Lambedura'
     codelists:
     - SIM_NAO
@@ -99,6 +111,8 @@ columns:
     role: case.wound_hands_feet
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização do ferimento: Mãos/pés\" (case.wound_hands_feet): fact about the health event or the person's health"
     name: 'Localização do ferimento: Mãos/pés'
     codelists:
     - SIM_NAO
@@ -111,6 +125,8 @@ columns:
     role: case.wound_upper_limbs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização do ferimento: Membros superiores\" (case.wound_upper_limbs): fact about the health event or the person's health"
     name: 'Localização do ferimento: Membros superiores'
     codelists:
     - SIM_NAO
@@ -123,6 +139,8 @@ columns:
     role: case.wound_lower_limbs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização do ferimento: Membros inferiores\" (case.wound_lower_limbs): fact about the health event or the person's health"
     name: 'Localização do ferimento: Membros inferiores'
     codelists:
     - SIM_NAO
@@ -135,6 +153,8 @@ columns:
     role: case.exposure_bite
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de exposição ao vírus rábico: Mordedura\" (case.exposure_bite): fact about the health event or the person's health"
     name: 'Tipo de exposição ao vírus rábico: Mordedura'
     codelists:
     - SIM_NAO
@@ -147,6 +167,8 @@ columns:
     role: case.wound_mucosa
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização do ferimento: Mucosa\" (case.wound_mucosa): fact about the health event or the person's health"
     name: 'Localização do ferimento: Mucosa'
     codelists:
     - SIM_NAO
@@ -159,6 +181,8 @@ columns:
     role: case.exposure_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de exposição ao vírus rábico: Outro\" (case.exposure_other): fact about the health event or the person's health"
     name: 'Tipo de exposição ao vírus rábico: Outro'
     codelists:
     - SIM_NAO
@@ -171,6 +195,8 @@ columns:
     role: case.wound_deep
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de ferimento: Profundo\" (case.wound_deep): fact about the health event or the person's health"
     name: 'Tipo de ferimento: Profundo'
     codelists:
     - SIM_NAO
@@ -183,6 +209,8 @@ columns:
     role: case.wound_superficial
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento superficial\" (case.wound_superficial): fact about the health event or the person's health"
     name: Ferimento superficial
     years:
     - 2006
@@ -193,6 +221,8 @@ columns:
     role: case.wound_trunk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento no tronco\" (case.wound_trunk): fact about the health event or the person's health"
     name: Ferimento no tronco
     years:
     - 2006
@@ -203,6 +233,8 @@ columns:
     role: treatment.active_search
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Busca ativa\" (treatment.active_search): treatment given to the case"
     name: Busca ativa
     years:
     - 2006
@@ -213,6 +245,8 @@ columns:
     role: case.animal_condition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Condição do animal\" (case.animal_condition): fact about the health event or the person's health"
     name: Condição do animal
     years:
     - 2006
@@ -224,6 +258,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -238,6 +274,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -252,6 +290,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -266,6 +306,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -280,6 +322,8 @@ columns:
     role: notification.doses_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doses de vacina anti-rábica recebidas no tratamento anterior\" (notification.doses_legacy): fact about the health event or the person's health"
     name: Número de doses de vacina anti-rábica recebidas no tratamento anterior
     years:
     - 2006
@@ -464,6 +508,8 @@ columns:
     role: case.wound_multiplicity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de ferimento\" (case.wound_multiplicity): fact about the health event or the person's health"
     name: Tipo de ferimento
     years:
     - 2006
@@ -474,6 +520,8 @@ columns:
     role: case.animal_final_condition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da observação do animal\" (case.animal_final_condition): fact about the health event or the person's health"
     name: Resultado da observação do animal
     years:
     - 2006
@@ -618,6 +666,8 @@ columns:
     role: treatment.antiserum_manufacturer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Laboratório produtor do soro anti-rábico\" (treatment.antiserum_manufacturer): record type, internal flag or system field"
     name: Laboratório produtor do soro anti-rábico
     years:
     - 2006
@@ -636,6 +686,8 @@ columns:
     role: treatment.vaccine_manufacturer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Laboratório produtor (Vacina)\" (treatment.vaccine_manufacturer): record type, internal flag or system field"
     name: Laboratório produtor (Vacina)
     years:
     - 2006
@@ -696,6 +748,8 @@ columns:
     role: case.animal_observable
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Animal em observação\" (case.animal_observable): fact about the health event or the person's health"
     name: Animal em observação
     years:
     - 2006
@@ -714,6 +768,8 @@ columns:
     role: case.prior_post_exposure_treatment
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antecedente de tratamento antirrábico pós-exposição\" (case.prior_post_exposure_treatment): how care or investigation was carried out"
     name: Antecedente de tratamento antirrábico pós-exposição
     years:
     - 2006
@@ -724,6 +780,8 @@ columns:
     role: case.prior_pre_exposure_treatment
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento pré-exposição\" (case.prior_pre_exposure_treatment): how care or investigation was carried out"
     name: Tratamento pré-exposição
     years:
     - 2006
@@ -734,6 +792,8 @@ columns:
     role: treatment.antiserum_adverse_event
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reação ao soro\" (treatment.antiserum_adverse_event): outcome of the event"
     name: Reação ao soro
     years:
     - 2006
@@ -744,6 +804,8 @@ columns:
     role: treatment.vaccine_adverse_event
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reação à vacina\" (treatment.vaccine_adverse_event): outcome of the event"
     name: Reação à vacina
     years:
     - 2006
@@ -792,6 +854,8 @@ columns:
     role: treatment.antiserum_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de soro\" (treatment.antiserum_type): treatment given to the case"
     name: Tipo de soro
     years:
     - 2006
@@ -802,6 +866,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2006
@@ -812,6 +878,8 @@ columns:
     role: treatment.indicated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta adotada\" (treatment.indicated): treatment given to the case"
     name: Conduta adotada
     years:
     - 2006
@@ -822,6 +890,8 @@ columns:
     role: case.prior_treatment_completion
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento anterior\" (case.prior_treatment_completion): how care or investigation was carried out"
     name: Tratamento anterior
     years:
     - 2006
@@ -832,6 +902,8 @@ columns:
     role: treatment.antiserum_indicated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento indicado\" (treatment.antiserum_indicated): treatment given to the case"
     name: Tratamento indicado
     years:
     - 2006
@@ -842,6 +914,8 @@ columns:
     role: treatment.antiserum_infiltrated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Infiltração do soro\" (treatment.antiserum_infiltrated): treatment given to the case"
     name: Infiltração do soro
     years:
     - 2006
@@ -852,6 +926,8 @@ columns:
     role: treatment.antiserum_infiltrated_partly
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Infiltração parcial do soro\" (treatment.antiserum_infiltrated_partly): treatment given to the case"
     name: Infiltração parcial do soro
     years:
     - 2006
@@ -862,6 +938,8 @@ columns:
     role: treatment.interrupted
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento interrompido\" (treatment.interrupted): treatment given to the case"
     name: Tratamento interrompido
     years:
     - 2006
@@ -872,6 +950,8 @@ columns:
     role: treatment.interruption_reason
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo da interrupção\" (treatment.interruption_reason): treatment given to the case"
     name: Motivo da interrupção
     years:
     - 2006

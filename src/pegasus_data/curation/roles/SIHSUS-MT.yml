@@ -47,6 +47,8 @@ columns:
     role: admission.bed_specialty
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade do Leito\" (admission.bed_specialty): specialty of the bed used: a care-process fact"
     name: Especialidade do Leito
     years:
     - 1995
@@ -56,6 +58,8 @@ columns:
     role: act.provider_document_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"CGC-vs-CPF indicator\" (act.provider_document_type): attribute of the establishment register (structure, service, management)"
     name: CGC-vs-CPF indicator
     years:
     - 1995
@@ -90,6 +94,8 @@ columns:
     role: act.apportioned
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Apportionment flag/code\" (act.apportioned): attribute of the establishment register (structure, service, management)"
     name: Apportionment flag/code
     years:
     - 1995
@@ -106,6 +112,8 @@ columns:
     role: act.record_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Record-type code (1995-1997 professional-acts file)\" (act.record_type): attribute of the establishment register (structure, service, management)"
     name: Record-type code (1995-1997 professional-acts file)
     years:
     - 1995
@@ -114,6 +122,8 @@ columns:
     role: act.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Type of professional act\" (act.type): attribute of the establishment register (structure, service, management)"
     name: Type of professional act
     years:
     - 1995

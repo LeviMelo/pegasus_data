@@ -16,6 +16,8 @@ columns:
     role: patient.dtp_doses
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doses da vacina\" (patient.dtp_doses): fact about the health event or the person's health"
     name: Número de doses da vacina
     years:
     - 2007
@@ -34,6 +36,8 @@ columns:
     role: case.contact_place
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local do contato\" (case.contact_place): fact about the health event or the person's health"
     name: Local do contato
     years:
     - 2007
@@ -52,6 +56,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização\" (case.hospitalised): how care or investigation was carried out"
     name: "Ocorreu Hospitalização\n"
     codelists:
     - SIM_NAO
@@ -98,6 +104,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -115,6 +123,8 @@ columns:
     role: case.membrane_tonsils
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas nas amígdalas\" (case.membrane_tonsils): fact about the health event or the person's health"
     name: Placas nas amígdalas
     years:
     - 2007
@@ -125,6 +135,8 @@ columns:
     role: case.complication_arrhythmia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Arritmia cardíaca\" (case.complication_arrhythmia): fact about the health event or the person's health"
     name: Arritmia cardíaca
     years:
     - 2007
@@ -135,6 +147,8 @@ columns:
     role: case.membrane_nasal_cavity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas na cavidade nasal\" (case.membrane_nasal_cavity): fact about the health event or the person's health"
     name: Placas na cavidade nasal
     years:
     - 2007
@@ -145,6 +159,8 @@ columns:
     role: case.membrane_ear_canal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas no conduto auditivo\" (case.membrane_ear_canal): fact about the health event or the person's health"
     name: Placas no conduto auditivo
     years:
     - 2007
@@ -155,6 +171,8 @@ columns:
     role: case.membrane_conjunctiva
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão conjuntival\" (case.membrane_conjunctiva): fact about the health event or the person's health"
     name: Lesão conjuntival
     years:
     - 2007
@@ -165,6 +183,8 @@ columns:
     role: case.membrane_umbilical_cord
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da pseudomembrana: cordão umbilical\" (case.membrane_umbilical_cord): fact about the health event or the person's health"
     name: 'Localização da pseudomembrana: cordão umbilical'
     years:
     - 2007
@@ -175,6 +195,8 @@ columns:
     role: case.sign_lymph_node_oedema
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema ganglionar\" (case.sign_lymph_node_oedema): fact about the health event or the person's health"
     name: Edema ganglionar
     years:
     - 2007
@@ -193,6 +215,8 @@ columns:
     role: case.membrane_pharynx
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas na faringe\" (case.membrane_pharynx): fact about the health event or the person's health"
     name: Placas na faringe
     years:
     - 2007
@@ -203,6 +227,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -215,6 +241,8 @@ columns:
     role: case.membrane_larynx
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas na laringe\" (case.membrane_larynx): fact about the health event or the person's health"
     name: Placas na laringe
     years:
     - 2007
@@ -225,6 +253,8 @@ columns:
     role: case.complication_myocarditis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Miocardite / miocardiopatia\" (case.complication_myocarditis): fact about the health event or the person's health"
     name: Miocardite / miocardiopatia
     years:
     - 2007
@@ -235,6 +265,8 @@ columns:
     role: case.complication_nephritis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nefrite\" (case.complication_nephritis): fact about the health event or the person's health"
     name: Nefrite
     years:
     - 2007
@@ -245,6 +277,8 @@ columns:
     role: case.membrane_genitals
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da pseudomembrana: órgãos genitais\" (case.membrane_genitals): fact about the health event or the person's health"
     name: 'Localização da pseudomembrana: órgãos genitais'
     years:
     - 2007
@@ -255,6 +289,8 @@ columns:
     role: case.complication_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras (complicações/manifestações)\" (case.complication_other): fact about the health event or the person's health"
     name: Outras (complicações/manifestações)
     years:
     - 2007
@@ -265,6 +301,8 @@ columns:
     role: case.membrane_palate
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas no palato\" (case.membrane_palate): fact about the health event or the person's health"
     name: Placas no palato
     years:
     - 2007
@@ -275,6 +313,8 @@ columns:
     role: case.sign_pallor
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Palidez\" (case.sign_pallor): fact about the health event or the person's health"
     name: Palidez
     years:
     - 2007
@@ -285,6 +325,8 @@ columns:
     role: case.complication_bilateral_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Complicação: paralisia bilateral e simétrica das extremidades\" (case.complication_bilateral_paralysis): fact about the health event or the person's health"
     name: 'Complicação: paralisia bilateral e simétrica das extremidades'
     years:
     - 2007
@@ -295,6 +337,8 @@ columns:
     role: case.complication_respiratory_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Paralisia de músculos respiratórios\" (case.complication_respiratory_paralysis): fact about the health event or the person's health"
     name: Paralisia de músculos respiratórios
     years:
     - 2007
@@ -305,6 +349,8 @@ columns:
     role: case.complication_palate_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Complicação: paralisia do palato\" (case.complication_palate_paralysis): fact about the health event or the person's health"
     name: 'Complicação: paralisia do palato'
     years:
     - 2007
@@ -315,6 +361,8 @@ columns:
     role: case.membrane_skin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão cutânea\" (case.membrane_skin): fact about the health event or the person's health"
     name: Lesão cutânea
     years:
     - 2007
@@ -325,6 +373,8 @@ columns:
     role: case.sign_neck_oedema
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema cervical\" (case.sign_neck_oedema): fact about the health event or the person's health"
     name: Edema cervical
     years:
     - 2007
@@ -335,6 +385,8 @@ columns:
     role: case.sign_prostration
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prostração\" (case.sign_prostration): fact about the health event or the person's health"
     name: Prostração
     years:
     - 2007
@@ -345,6 +397,8 @@ columns:
     role: case.sign_pseudomembrane
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Pseudomembrana (difteria) / Pseudoparalisia (sífilis congênita)\" (case.sign_pseudomembrane): fact about the health event or the person's health"
     name: Sinais e Sintomas - Pseudomembrana (difteria) / Pseudoparalisia (sífilis congênita)
     codelists:
     - SIM_NAO
@@ -367,6 +421,8 @@ columns:
     role: case.membrane_trachea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Placas na traqueia\" (case.membrane_trachea): fact about the health event or the person's health"
     name: Placas na traqueia
     years:
     - 2007
@@ -377,6 +433,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -395,6 +453,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -406,6 +466,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -419,6 +481,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -433,6 +497,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -447,6 +513,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -462,6 +530,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -572,6 +642,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -587,6 +659,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -714,6 +788,8 @@ columns:
     role: case.culture_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da cultura\" (case.culture_result): fact about the health event or the person's health"
     name: Resultado da cultura
     years:
     - 2007
@@ -732,6 +808,8 @@ columns:
     role: case.sample_material
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material coletado\" (case.sample_material): how care or investigation was carried out"
     name: Material coletado
     years:
     - 2007
@@ -742,6 +820,8 @@ columns:
     role: case.toxigenicity_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prova de toxigenicidade\" (case.toxigenicity_test): fact about the health event or the person's health"
     name: Prova de toxigenicidade
     years:
     - 2007
@@ -752,6 +832,8 @@ columns:
     role: case.secondary_cases
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantos Casos Secundários Foram Confirmados entre os Comunicantes\" (case.secondary_cases): fact about the health event or the person's health"
     name: "Quantos Casos Secundários Foram Confirmados entre os Comunicantes\n"
     codelists:
     - 012IGN
@@ -764,6 +846,8 @@ columns:
     role: case.contacts_identified
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizada Identificação dos Comunicantes Íntimos\" (case.contacts_identified): how care or investigation was carried out"
     name: "Realizada Identificação dos Comunicantes Íntimos\n"
     codelists:
     - SIM_NAO
@@ -776,6 +860,8 @@ columns:
     role: case.contacts_sampled
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizada coleta de material dos comunicantes\" (case.contacts_sampled): how care or investigation was carried out"
     name: Realizada coleta de material dos comunicantes
     years:
     - 2007
@@ -786,6 +872,8 @@ columns:
     role: case.control_measure
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medidas de prevenção/controle\" (case.control_measure): how care or investigation was carried out"
     name: Medidas de prevenção/controle
     years:
     - 2007
@@ -821,6 +909,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -831,6 +921,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -924,6 +1016,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -934,6 +1028,8 @@ columns:
     role: treatment.antibiotic
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento com Antibiótico\" (treatment.antibiotic): treatment given to the case"
     name: "Tratamento com Antibiótico\n"
     codelists:
     - SIM_NAO

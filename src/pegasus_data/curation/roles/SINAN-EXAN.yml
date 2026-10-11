@@ -14,6 +14,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -97,6 +99,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -113,6 +117,8 @@ columns:
     role: case.discard_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação final do caso descartado\" (case.discard_diagnosis): fact about the health event or the person's health"
     name: Classificação final do caso descartado
     years:
     - 2007
@@ -124,6 +130,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -135,6 +143,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -147,6 +157,8 @@ columns:
     role: case.probable_infection_place
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local provável de contágio\" (case.probable_infection_place): fact about the health event or the person's health"
     name: Local provável de contágio
     years:
     - 2007
@@ -158,6 +170,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -172,6 +186,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -186,6 +202,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -201,6 +219,8 @@ columns:
     role: case.suspected_disease
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeita do agravo\" (case.suspected_disease): fact about the health event or the person's health"
     name: Suspeita do agravo
     years:
     - 2007
@@ -211,6 +231,8 @@ columns:
     role: patient.vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinado\" (patient.vaccinated): fact about the health event or the person's health"
     name: Vacinado
     years:
     - 2007
@@ -221,6 +243,8 @@ columns:
     role: case.control_vaccination_blockade
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizou bloqueio vacinal\" (case.control_vaccination_blockade): how care or investigation was carried out"
     name: Realizou bloqueio vacinal
     years:
     - 2007
@@ -451,6 +475,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -466,6 +492,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -493,6 +521,8 @@ columns:
     role: case.sign_arthralgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Artralgia\" (case.sign_arthralgia): fact about the health event or the person's health"
     name: Artralgia
     years:
     - 2007
@@ -503,6 +533,8 @@ columns:
     role: case.sign_conjunctivitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Conjuntivite\" (case.sign_conjunctivitis): fact about the health event or the person's health"
     name: Conjuntivite
     years:
     - 2007
@@ -513,6 +545,8 @@ columns:
     role: case.sign_coryza
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Coriza\" (case.sign_coryza): fact about the health event or the person's health"
     name: Coriza
     years:
     - 2007
@@ -523,6 +557,8 @@ columns:
     role: case.viral_etiology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Etiologia viral\" (case.viral_etiology): fact about the health event or the person's health"
     name: Etiologia viral
     years:
     - 2007
@@ -533,6 +569,8 @@ columns:
     role: case.sign_lymphadenopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfadenopatia\" (case.sign_lymphadenopathy): fact about the health event or the person's health"
     name: Linfadenopatia
     years:
     - 2007
@@ -543,6 +581,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Hospitalização\" (case.hospitalised): how care or investigation was carried out"
     name: Hospitalização
     years:
     - 2007
@@ -553,6 +593,8 @@ columns:
     role: case.sample_csf
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra clínica coletada - Liquor\" (case.sample_csf): how care or investigation was carried out"
     name: Amostra clínica coletada - Liquor
     years:
     - 2007
@@ -634,6 +676,8 @@ columns:
     role: case.sign_retroauricular_nodes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfadenopatia retroauricular\" (case.sign_retroauricular_nodes): fact about the health event or the person's health"
     name: Linfadenopatia retroauricular
     years:
     - 2007
@@ -644,6 +688,8 @@ columns:
     role: case.measles_igg_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG no reexame\" (case.measles_igg_retest): fact about the health event or the person's health"
     name: IgG no reexame
     years:
     - 2007
@@ -656,6 +702,8 @@ columns:
     role: case.rubella_igg_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG no reexame, segundo agente\" (case.rubella_igg_retest): fact about the health event or the person's health"
     name: IgG no reexame, segundo agente
     years:
     - 2007
@@ -668,6 +716,8 @@ columns:
     role: case.measles_igm_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM no reexame\" (case.measles_igm_retest): fact about the health event or the person's health"
     name: IgM no reexame
     years:
     - 2007
@@ -680,6 +730,8 @@ columns:
     role: case.rubella_igm_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM no reexame, segundo agente\" (case.rubella_igm_retest): fact about the health event or the person's health"
     name: IgM no reexame, segundo agente
     years:
     - 2007
@@ -692,6 +744,8 @@ columns:
     role: case.other_exanthem_igm_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunoglobulina adicional no reexame\" (case.other_exanthem_igm_retest): fact about the health event or the person's health"
     name: Imunoglobulina adicional no reexame
     years:
     - 2007
@@ -704,6 +758,8 @@ columns:
     role: case.other_exanthem_igg_retest
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Segunda imunoglobulina adicional no reexame\" (case.other_exanthem_igg_retest): fact about the health event or the person's health"
     name: Segunda imunoglobulina adicional no reexame
     years:
     - 2007
@@ -728,6 +784,8 @@ columns:
     role: case.measles_igg_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na primeira amostra\" (case.measles_igg_1): fact about the health event or the person's health"
     name: IgG na primeira amostra
     years:
     - 2007
@@ -740,6 +798,8 @@ columns:
     role: case.rubella_igg_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na primeira amostra, segundo agente\" (case.rubella_igg_1): fact about the health event or the person's health"
     name: IgG na primeira amostra, segundo agente
     years:
     - 2007
@@ -752,6 +812,8 @@ columns:
     role: case.measles_igm_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na primeira amostra\" (case.measles_igm_1): fact about the health event or the person's health"
     name: IgM na primeira amostra
     years:
     - 2007
@@ -764,6 +826,8 @@ columns:
     role: case.rubella_igm_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na primeira amostra, segundo agente\" (case.rubella_igm_1): fact about the health event or the person's health"
     name: IgM na primeira amostra, segundo agente
     years:
     - 2007
@@ -776,6 +840,8 @@ columns:
     role: case.other_exanthem_igm_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunoglobulina adicional, primeira amostra\" (case.other_exanthem_igm_1): fact about the health event or the person's health"
     name: Imunoglobulina adicional, primeira amostra
     years:
     - 2007
@@ -788,6 +854,8 @@ columns:
     role: case.other_exanthem_igg_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Segunda imunoglobulina adicional, primeira amostra\" (case.other_exanthem_igg_1): fact about the health event or the person's health"
     name: Segunda imunoglobulina adicional, primeira amostra
     years:
     - 2007
@@ -800,6 +868,8 @@ columns:
     role: case.measles_igg_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na segunda amostra\" (case.measles_igg_2): fact about the health event or the person's health"
     name: IgG na segunda amostra
     years:
     - 2007
@@ -812,6 +882,8 @@ columns:
     role: case.rubella_igg_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na segunda amostra, segundo agente\" (case.rubella_igg_2): fact about the health event or the person's health"
     name: IgG na segunda amostra, segundo agente
     years:
     - 2007
@@ -824,6 +896,8 @@ columns:
     role: case.measles_igm_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na segunda amostra\" (case.measles_igm_2): fact about the health event or the person's health"
     name: IgM na segunda amostra
     years:
     - 2007
@@ -836,6 +910,8 @@ columns:
     role: case.rubella_igm_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na segunda amostra, segundo agente\" (case.rubella_igm_2): fact about the health event or the person's health"
     name: IgM na segunda amostra, segundo agente
     years:
     - 2007
@@ -848,6 +924,8 @@ columns:
     role: case.other_exanthem_igm_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunoglobulina adicional, segunda amostra\" (case.other_exanthem_igm_2): fact about the health event or the person's health"
     name: Imunoglobulina adicional, segunda amostra
     years:
     - 2007
@@ -860,6 +938,8 @@ columns:
     role: case.other_exanthem_igg_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Segunda imunoglobulina adicional, segunda amostra\" (case.other_exanthem_igg_2): fact about the health event or the person's health"
     name: Segunda imunoglobulina adicional, segunda amostra
     years:
     - 2007
@@ -872,6 +952,8 @@ columns:
     role: case.sample_blood
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra clínica coletada - Sangue total\" (case.sample_blood): how care or investigation was carried out"
     name: Amostra clínica coletada - Sangue total
     years:
     - 2007
@@ -882,6 +964,8 @@ columns:
     role: case.sample_nasopharynx
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra clínica coletada - Secreção nasofaríngea\" (case.sample_nasopharynx): how care or investigation was carried out"
     name: Amostra clínica coletada - Secreção nasofaríngea
     years:
     - 2007
@@ -892,6 +976,8 @@ columns:
     role: case.sign_cough
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tosse\" (case.sign_cough): fact about the health event or the person's health"
     name: Tosse
     years:
     - 2007
@@ -919,6 +1005,8 @@ columns:
     role: case.sample_urine
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra clínica coletada - Urina\" (case.sample_urine): how care or investigation was carried out"
     name: Amostra clínica coletada - Urina
     years:
     - 2007
@@ -929,6 +1017,8 @@ columns:
     role: case.control_blockade_timeliness
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Em caso afirmativo, especifique intervalo de tempo\" (case.control_blockade_timeliness): how care or investigation was carried out"
     name: Em caso afirmativo, especifique intervalo de tempo
     years:
     - 2007
@@ -946,6 +1036,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -986,6 +1078,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -1025,6 +1119,8 @@ columns:
     role: case.travel_country_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 1\" (case.travel_country_1): fact about the health event or the person's health"
     name: Deslocamento – País 1
     years:
     - 2007
@@ -1035,6 +1131,8 @@ columns:
     role: case.travel_country_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 2\" (case.travel_country_2): fact about the health event or the person's health"
     name: Deslocamento – País 2
     years:
     - 2007
@@ -1044,6 +1142,8 @@ columns:
     role: case.travel_country_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 3\" (case.travel_country_3): fact about the health event or the person's health"
     name: Deslocamento – País 3
     years:
     - 2007
@@ -1092,6 +1192,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -1103,6 +1205,8 @@ columns:
     role: case.other_exanthem
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras exantemáticas\" (case.other_exanthem): fact about the health event or the person's health"
     name: Outras exantemáticas
     years:
     - 2007
@@ -1113,6 +1217,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007

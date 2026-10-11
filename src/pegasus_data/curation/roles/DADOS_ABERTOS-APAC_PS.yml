@@ -7,6 +7,8 @@ columns:
     role: care.type_of_care_episode
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater de Atendimento\" (care.type_of_care_episode): how care or investigation was carried out"
     codelists:
     - CARAT_AT
     name: Carater de Atendimento
@@ -97,6 +99,8 @@ columns:
     role: care.esf_coverage_indicator
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família\" (care.esf_coverage_indicator): how care or investigation was carried out"
     codelists:
     - COBERTURA
     name: Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família
@@ -110,6 +114,8 @@ columns:
     role: care.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (care.management_type_code): billing, financing, management or contractual attribute"
     codelists:
     - TP_GESTAO
     - TP_GEST_C
@@ -124,6 +130,8 @@ columns:
     role: care.patient_destination
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Destino do paciente\" (care.patient_destination): how care or investigation was carried out"
     codelists:
     - DESTINO
     - DEST_PSI
@@ -190,6 +198,8 @@ columns:
     role: care.indigenous_ethnicity
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia\" (care.indigenous_ethnicity): attribute of the person (race/colour)"
     name: Etnia
     years:
     - 
@@ -239,6 +249,8 @@ columns:
     role: care.place_of_delivery
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de Realização (C – CAPS, T - Território)\" (care.place_of_delivery): how care or investigation was carried out"
     codelists:
     - LOC_REALIZ
     name: Local de Realização (C – CAPS, T - Território)
@@ -250,6 +262,8 @@ columns:
     role: care.maintained_vs_individual_establishment_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (care.maintained_vs_individual_establishment_flag): billing, financing, management or contractual attribute"
     codelists:
     - MANT_IND
     name: Estabelecimento Mantido / Individual
@@ -263,6 +277,8 @@ columns:
     role: care.reason_for_discharge_continuation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo de Saída/Permanência\" (care.reason_for_discharge_continuation): how care or investigation was carried out"
     codelists:
     - MOTSAIPE
     name: Motivo de Saída/Permanência
@@ -286,6 +302,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     codelists:
     - UFNACIO
     name: Nacionalidade do paciente
@@ -299,6 +317,8 @@ columns:
     role: care.establishment_legal_nature_concla
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica\" (care.establishment_legal_nature_concla): billing, financing, management or contractual attribute"
     name: Natureza jurídica
     years:
     - 
@@ -310,6 +330,8 @@ columns:
     role: care.patient_origin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Origem do paciente\" (care.patient_origin): how care or investigation was carried out"
     codelists:
     - ORIGEM
     - ORIG_PSI
@@ -322,6 +344,8 @@ columns:
     role: care.service_classification
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Classificação do Serviço\" (care.service_classification): how care or investigation was carried out"
     codelists:
     - S_CLASSEN
     name: Classificação do Serviço
@@ -367,6 +391,8 @@ columns:
     role: care.specialised_service
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Serviço Especializado\" (care.specialised_service): how care or investigation was carried out"
     codelists:
     - S_CLASSEN
     name: Serviço Especializado
@@ -407,6 +433,8 @@ columns:
     role: care.race_colour
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (care.race_colour): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 
@@ -416,6 +444,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     codelists:
     - SEXO
     name: Sexo do paciente
@@ -429,6 +459,8 @@ columns:
     role: care.homelessness_status
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Situação de Rua (S- SIM, N - NÃO)\" (care.homelessness_status): attribute of the person (social condition)"
     codelists:
     - SIT_RUA
     name: Situação de Rua (S- SIM, N - NÃO)
@@ -442,6 +474,8 @@ columns:
     role: care.provider_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Prestador\" (care.provider_type_code): billing, financing, management or contractual attribute"
     name: Tipo de Prestador
     years:
     - 
@@ -451,6 +485,8 @@ columns:
     role: care.age_unit_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo da Idade do paciente\" (care.age_unit_code): encoding unit of another field"
     codelists:
     - IDADEDET
     name: Tipo da Idade do paciente
@@ -473,6 +509,8 @@ columns:
     role: care.drug_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"TIPO DE DROGA (A - Álcool, C - Crack, O - Outros)\" (care.drug_type): fact about the health event or the person's health"
     codelists:
     - TP_DROGA
     name: TIPO DE DROGA (A - Álcool, C - Crack, O - Outros)

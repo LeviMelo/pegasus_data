@@ -5,6 +5,8 @@ columns:
     role: exam.adenocarcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarcinoma\" (exam.adenocarcinoma): result of a test or finding on the person"
     name: Adenocarcinoma
     years:
     - 2006
@@ -14,6 +16,8 @@ columns:
     role: exam.referring_cytology_adenocarcinoma_in_situ
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarcinoma \"in situ\" (citopatológico de encaminhamento)\" (exam.referring_cytology_adenocarcinoma_in_situ): result of a test or finding on the person"
     name: Adenocarcinoma "in situ" (citopatológico de encaminhamento)
     years:
     - 2006
@@ -31,6 +35,8 @@ columns:
     role: exam.benign_hpv_compatible_cyto_architectural_changes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral (HPV)\" (exam.benign_hpv_compatible_cyto_architectural_changes): result of a test or finding on the person"
     name: 'Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral (HPV)'
     years:
     - 2006
@@ -40,6 +46,8 @@ columns:
     role: exam.benign_chronic_non_specific_cervicitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesões de caráter benigno: Cervicite crônica inespecífica\" (exam.benign_chronic_non_specific_cervicitis): result of a test or finding on the person"
     name: 'Lesões de caráter benigno: Cervicite crônica inespecífica'
     years:
     - 2006
@@ -49,6 +57,8 @@ columns:
     role: exam.colposcopy_abnormal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Colposcopia anormal\" (exam.colposcopy_abnormal): result of a test or finding on the person"
     name: Colposcopia anormal
     years:
     - 2006
@@ -67,6 +77,8 @@ columns:
     role: exam.colposcopy_unsatisfactory
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Colposcopia insatisfatória\" (exam.colposcopy_unsatisfactory): how care or investigation was carried out"
     name: Colposcopia insatisfatória
     years:
     - 2006
@@ -76,6 +88,8 @@ columns:
     role: exam.colposcopy_normal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Colposcopia normal\" (exam.colposcopy_normal): result of a test or finding on the person"
     name: Colposcopia normal
     years:
     - 2006
@@ -85,6 +99,8 @@ columns:
     role: exam.examination_unsatisfactory
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame insatisfatório\" (exam.examination_unsatisfactory): how care or investigation was carried out"
     name: Exame insatisfatório
     years:
     - 2006
@@ -94,6 +110,8 @@ columns:
     role: exam.degree_of_differentiation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação\" (exam.degree_of_differentiation): result of a test or finding on the person"
     name: Grau de diferenciação
     years:
     - 2006
@@ -103,6 +121,8 @@ columns:
     role: exam.undifferentiated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação: Indiferenciado (Grau IV)\" (exam.undifferentiated): result of a test or finding on the person"
     name: 'Grau de diferenciação: Indiferenciado (Grau IV)'
     years:
     - 2006
@@ -112,6 +132,8 @@ columns:
     role: exam.moderately_differentiated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação: Moderadamente diferenciado (Grau II)\" (exam.moderately_differentiated): result of a test or finding on the person"
     name: 'Grau de diferenciação: Moderadamente diferenciado (Grau II)'
     years:
     - 2006
@@ -121,6 +143,8 @@ columns:
     role: exam.poorly_differentiated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação: Pouco diferenciado (Grau III)\" (exam.poorly_differentiated): result of a test or finding on the person"
     name: 'Grau de diferenciação: Pouco diferenciado (Grau III)'
     years:
     - 2006
@@ -130,6 +154,8 @@ columns:
     role: exam.referring_cytology_undefined_origin_atypia_cannot_exclude_hi
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células atípicas de origem indefinida: não se pode afastar lesão de alto grau (citopatológico de encaminhamento)\" (exam.referring_cytology_undefined_origin_atypia_cannot_exclude_hi): result of a test or finding on the person"
     name: 'Células atípicas de origem indefinida: não se pode afastar lesão de alto grau (citopatológico de encaminhamento)'
     years:
     - 2006
@@ -139,6 +165,8 @@ columns:
     role: exam.referring_cytology_other_malignant_neoplasm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras neoplasias malignas (citopatológico de encaminhamento)\" (exam.referring_cytology_other_malignant_neoplasm): result of a test or finding on the person"
     name: Outras neoplasias malignas (citopatológico de encaminhamento)
     years:
     - 2006
@@ -148,6 +176,8 @@ columns:
     role: exam.diagnosis_free_text
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descrição do diagnóstico\" (exam.diagnosis_free_text): result of a test or finding on the person"
     name: Descrição do diagnóstico
     years:
     - 2006
@@ -177,6 +207,8 @@ columns:
     role: exam.surgical_margins_involved
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas: Comprometidas\" (exam.surgical_margins_involved): result of a test or finding on the person"
     name: 'Margens cirúrgicas: Comprometidas'
     years:
     - 2006
@@ -186,6 +218,8 @@ columns:
     role: exam.surgical_margins_not_assessable
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas: Impossível de serem avaliadas\" (exam.surgical_margins_not_assessable): result of a test or finding on the person"
     name: 'Margens cirúrgicas: Impossível de serem avaliadas'
     years:
     - 2006
@@ -195,6 +229,8 @@ columns:
     role: exam.surgical_margins_clear
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas: Livres\" (exam.surgical_margins_clear): result of a test or finding on the person"
     name: 'Margens cirúrgicas: Livres'
     years:
     - 2006
@@ -204,6 +240,8 @@ columns:
     role: exam.benign_change_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alteração benigna\" (exam.benign_change_present): result of a test or finding on the person"
     name: Alteração benigna
     years:
     - 2006
@@ -212,6 +250,8 @@ columns:
     role: exam.benign_change_cervicitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alteração benigna — cervicite\" (exam.benign_change_cervicitis): result of a test or finding on the person"
     name: Alteração benigna — cervicite
     years:
     - 2006
@@ -220,6 +260,8 @@ columns:
     role: exam.benign_finding_metaplasia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Metaplasia escamosa\" (exam.benign_finding_metaplasia): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Metaplasia escamosa'
     years:
     - 2006
@@ -229,6 +271,8 @@ columns:
     role: exam.benign_endocervical_polyp
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesões de caráter benigno: Pólipo Endocervical\" (exam.benign_endocervical_polyp): result of a test or finding on the person"
     name: 'Lesões de caráter benigno: Pólipo Endocervical'
     years:
     - 2006
@@ -240,6 +284,8 @@ columns:
     role: exam.prior_cytology_squamous_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Citologia anterior, atipias escamosas\" (exam.prior_cytology_squamous_atypia): result of a test or finding on the person"
     name: Citologia anterior, atipias escamosas
     years:
     - 2006
@@ -250,6 +296,8 @@ columns:
     role: exam.prior_cytology_glandular_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Citologia anterior, atipias glandulares\" (exam.prior_cytology_glandular_atypia): result of a test or finding on the person"
     name: Citologia anterior, atipias glandulares
     years:
     - 2006
@@ -260,6 +308,8 @@ columns:
     role: exam.prior_cytology_atypia_of_undefined_origin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Citologia anterior, atipias de origem indefinida\" (exam.prior_cytology_atypia_of_undefined_origin): result of a test or finding on the person"
     name: Citologia anterior, atipias de origem indefinida
     years:
     - 2006
@@ -278,6 +328,8 @@ columns:
     role: exam.colposcopy_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Achado colposcópico\" (exam.colposcopy_finding): result of a test or finding on the person"
     name: Achado colposcópico
     years:
     - 2006
@@ -286,6 +338,8 @@ columns:
     role: exam.procedure_cold_knife_biopsy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento: Biópsia a frio\" (exam.procedure_cold_knife_biopsy): how care or investigation was carried out"
     name: 'Procedimento: Biópsia a frio'
     years:
     - 2006
@@ -295,6 +349,8 @@ columns:
     role: exam.procedure_curettage
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento: Curetagem\" (exam.procedure_curettage): how care or investigation was carried out"
     name: 'Procedimento: Curetagem'
     years:
     - 2006
@@ -304,6 +360,8 @@ columns:
     role: exam.procedure_extended_leep_caf_excision
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento: CAF alargada\" (exam.procedure_extended_leep_caf_excision): how care or investigation was carried out"
     name: 'Procedimento: CAF alargada'
     years:
     - 2006
@@ -322,6 +380,8 @@ columns:
     role: exam.procedure_leep_caf_excision_including_the_canal
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento: CAF com retirada do canal\" (exam.procedure_leep_caf_excision_including_the_canal): how care or investigation was carried out"
     name: 'Procedimento: CAF com retirada do canal'
     years:
     - 2006
@@ -331,6 +391,8 @@ columns:
     role: exam.histological_representation_control_blocks
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Controle de representação histológica: Blocos\" (exam.histological_representation_control_blocks): how care or investigation was carried out"
     name: 'Controle de representação histológica: Blocos'
     years:
     - 2006
@@ -340,6 +402,8 @@ columns:
     role: exam.histological_representation_control_fragments
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Controle de representação histológica: Fragmentos\" (exam.histological_representation_control_fragments): how care or investigation was carried out"
     name: 'Controle de representação histológica: Fragmentos'
     years:
     - 2006
@@ -351,6 +415,8 @@ columns:
     role: exam.differentiation_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau de diferenciação\" (exam.differentiation_grade): result of a test or finding on the person"
     name: Grau de diferenciação
     years:
     - 2006
@@ -397,6 +463,8 @@ columns:
     role: exam.age_band
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa Etária\" (exam.age_band): attribute of the person (age)"
     name: Faixa Etária
     years:
     - 2006
@@ -409,6 +477,8 @@ columns:
     role: exam.surgical_margin_status
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas\" (exam.surgical_margin_status): result of a test or finding on the person"
     name: Margens cirúrgicas
     years:
     - 2006
@@ -419,6 +489,8 @@ columns:
     role: exam.unsatisfactory_material_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material insatisfatório\" (exam.unsatisfactory_material_flag): how care or investigation was carried out"
     name: Material insatisfatório
     years:
     - 2006
@@ -427,6 +499,8 @@ columns:
     role: exam.adenocarcinoma_category_code_histopathology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Codigo de adenocarcinoma (histopatologia)\" (exam.adenocarcinoma_category_code_histopathology): result of a test or finding on the person"
     name: Codigo de adenocarcinoma (histopatologia)
     years:
     - 2006
@@ -436,6 +510,8 @@ columns:
     role: exam.nic_grade_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Codigo de grau da neoplasia intraepitelial cervical (NIC)\" (exam.nic_grade_code): result of a test or finding on the person"
     name: Codigo de grau da neoplasia intraepitelial cervical (NIC)
     years:
     - 2006
@@ -447,6 +523,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2006
@@ -477,6 +555,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Cor/raça\" (patient.race): attribute of the person (race/colour)"
     name: Cor/raça
     years:
     - 2006
@@ -507,6 +587,8 @@ columns:
     role: exam.tumour_location_on_the_cervix
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localizacao do tumor no colo\" (exam.tumour_location_on_the_cervix): result of a test or finding on the person"
     name: Localizacao do tumor no colo
     years:
     - 2006
@@ -517,6 +599,8 @@ columns:
     role: exam.distance_to_the_nearest_surgical_margin_mm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Distância da margem mais próxima\" (exam.distance_to_the_nearest_surgical_margin_mm): result of a test or finding on the person"
     name: Distância da margem mais próxima
     years:
     - 2006
@@ -526,6 +610,8 @@ columns:
     role: exam.cervical_tumour_size_first_dimension_mm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho do tumor (histopatologia colo) — dimensão 1\" (exam.cervical_tumour_size_first_dimension_mm): result of a test or finding on the person"
     name: Tamanho do tumor (histopatologia colo) — dimensão 1
     years:
     - 2006
@@ -535,6 +621,8 @@ columns:
     role: exam.surgical_procedure_type_code
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico\" (exam.surgical_procedure_type_code): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico
     years:
     - 2006
@@ -574,6 +662,8 @@ columns:
     role: exam.surgical_procedure_flag_biopsia
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico - biopsia\" (exam.surgical_procedure_flag_biopsia): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico - biopsia
     years:
     - 2006
@@ -583,6 +673,8 @@ columns:
     role: exam.surgical_procedure_flag_conizacao
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico - conizacao\" (exam.surgical_procedure_flag_conizacao): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico - conizacao
     years:
     - 2006
@@ -592,6 +684,8 @@ columns:
     role: exam.tumour_location_flag_ectocervice
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localizacao do tumor - ectocervice\" (exam.tumour_location_flag_ectocervice): result of a test or finding on the person"
     name: Localizacao do tumor - ectocervice
     years:
     - 2006
@@ -601,6 +695,8 @@ columns:
     role: exam.tumour_location_flag_endocervice
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localizacao do tumor - endocervice\" (exam.tumour_location_flag_endocervice): result of a test or finding on the person"
     name: Localizacao do tumor - endocervice
     years:
     - 2006
@@ -610,6 +706,8 @@ columns:
     role: exam.surgical_procedure_flag_histerectomia_simples
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico - histerectomia simples\" (exam.surgical_procedure_flag_histerectomia_simples): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico - histerectomia simples
     years:
     - 2006
@@ -619,6 +717,8 @@ columns:
     role: exam.tumour_location_flag_juncao_escamo_colunar
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localizacao do tumor - juncao escamo-colunar\" (exam.tumour_location_flag_juncao_escamo_colunar): result of a test or finding on the person"
     name: Localizacao do tumor - juncao escamo-colunar
     years:
     - 2006
@@ -628,6 +728,8 @@ columns:
     role: exam.surgical_procedure_flag_outros
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico - outros\" (exam.surgical_procedure_flag_outros): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico - outros
     years:
     - 2006
@@ -637,6 +739,8 @@ columns:
     role: exam.surgical_procedure_flag_histerectomia_com_anexectomia_uni_ou
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de procedimento cirurgico - histerectomia com anexectomia\" (exam.surgical_procedure_flag_histerectomia_com_anexectomia_uni_ou): how care or investigation was carried out"
     name: Tipo de procedimento cirurgico - histerectomia com anexectomia
     years:
     - 2006
@@ -654,6 +758,8 @@ columns:
     role: exam.tumour_extension_flag_parametrial
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensao do tumor - parametrial\" (exam.tumour_extension_flag_parametrial): result of a test or finding on the person"
     name: Extensao do tumor - parametrial
     years:
     - 2006
@@ -663,6 +769,8 @@ columns:
     role: exam.tumour_extension_flag_peri_neural
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensao do tumor - peri-neural\" (exam.tumour_extension_flag_peri_neural): result of a test or finding on the person"
     name: Extensao do tumor - peri-neural
     years:
     - 2006
@@ -672,6 +780,8 @@ columns:
     role: exam.tumour_extension_flag_vagina
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensao do tumor - vagina\" (exam.tumour_extension_flag_vagina): result of a test or finding on the person"
     name: Extensao do tumor - vagina
     years:
     - 2006
@@ -681,6 +791,8 @@ columns:
     role: exam.tumour_extension_flag_vascular
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensao do tumor - invasao vascular\" (exam.tumour_extension_flag_vascular): result of a test or finding on the person"
     name: Extensao do tumor - invasao vascular
     years:
     - 2006
@@ -692,6 +804,8 @@ columns:
     role: exam.collection_to_laboratory_interval_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_to_laboratory_interval_banded): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2006
@@ -704,6 +818,8 @@ columns:
     role: exam.interval_to_result_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.interval_to_result_banded): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2006
@@ -716,6 +832,8 @@ columns:
     role: exam.exam_turnaround_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo exame\" (exam.exam_turnaround_banded): how care or investigation was carried out"
     name: Tempo exame
     years:
     - 2006
@@ -726,6 +844,8 @@ columns:
     role: exam.other_malignant_neoplasm_free_text_description
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descricao de outras neoplasias malignas (histopatologia)\" (exam.other_malignant_neoplasm_free_text_description): result of a test or finding on the person"
     name: Descricao de outras neoplasias malignas (histopatologia)
     years:
     - 2006
@@ -767,6 +887,8 @@ columns:
     role: exam.squamous_atypia_undetermined_favor_non_neoplastic
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Esc.Indet não neop\" (exam.squamous_atypia_undetermined_favor_non_neoplastic): result of a test or finding on the person"
     name: Esc.Indet não neop
     years:
     - 2006
@@ -776,6 +898,8 @@ columns:
     role: exam.referring_cytology_invasive_squamous_carcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermóide invasor (citopatológico de encaminhamento)\" (exam.referring_cytology_invasive_squamous_carcinoma): result of a test or finding on the person"
     name: Carcinoma epidermóide invasor (citopatológico de encaminhamento)
     years:
     - 2006
@@ -785,6 +909,8 @@ columns:
     role: exam.high_grade_squamous_lesion_cannot_exclude_microinvasion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les.IEAG mic.inv\" (exam.high_grade_squamous_lesion_cannot_exclude_microinvasion): result of a test or finding on the person"
     name: Les.IEAG mic.inv
     years:
     - 2006
@@ -794,6 +920,8 @@ columns:
     role: exam.high_grade_squamous_intraepithelial_lesion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les.IE Alto Grau\" (exam.high_grade_squamous_intraepithelial_lesion): result of a test or finding on the person"
     name: Les.IE Alto Grau
     years:
     - 2006
@@ -803,6 +931,8 @@ columns:
     role: exam.low_grade_squamous_intraepithelial_lesion_biopsy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les.IE Baixo Grau\" (exam.low_grade_squamous_intraepithelial_lesion_biopsy): result of a test or finding on the person"
     name: Les.IE Baixo Grau
     years:
     - 2006
@@ -812,6 +942,8 @@ columns:
     role: exam.glandular_atypia_undetermined_favor_high_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gla.Indet alto grau\" (exam.glandular_atypia_undetermined_favor_high_grade): result of a test or finding on the person"
     name: Gla.Indet alto grau
     years:
     - 2006
@@ -821,6 +953,8 @@ columns:
     role: exam.referring_cytology_atypical_glandular_cells_possibly_non_neo
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células glandulares atípicas: possivelmente não neoplásicas (citopatológico de encaminhamento)\" (exam.referring_cytology_atypical_glandular_cells_possibly_non_neo): result of a test or finding on the person"
     name: 'Células glandulares atípicas: possivelmente não neoplásicas (citopatológico de encaminhamento)'
     years:
     - 2006
@@ -830,6 +964,8 @@ columns:
     role: exam.referring_cytology_undefined_origin_atypia_possibly_non_neop
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células atípicas de origem indefinida: possivelmente não neoplásicas (citopatológico de encaminhamento)\" (exam.referring_cytology_undefined_origin_atypia_possibly_non_neop): result of a test or finding on the person"
     name: 'Células atípicas de origem indefinida: possivelmente não neoplásicas (citopatológico de encaminhamento)'
     years:
     - 2006
@@ -839,6 +975,8 @@ columns:
     role: exam.adenocarcinoma_in_situ_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ\" (exam.adenocarcinoma_in_situ_flag): result of a test or finding on the person"
     name: 'Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ'
     years:
     - 2006
@@ -848,6 +986,8 @@ columns:
     role: exam.mucinous_adenocarcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarcinoma mucinoso\" (exam.mucinous_adenocarcinoma): result of a test or finding on the person"
     name: Adenocarcinoma mucinoso
     years:
     - 2006
@@ -857,6 +997,8 @@ columns:
     role: exam.villoglandular_adenocarcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarcinoma viloglandular\" (exam.villoglandular_adenocarcinoma): result of a test or finding on the person"
     name: Adenocarcinoma viloglandular
     years:
     - 2006
@@ -866,6 +1008,8 @@ columns:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_microin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermoide microinvasivo\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_microin): result of a test or finding on the person"
     name: Carcinoma epidermoide microinvasivo
     years:
     - 2006
@@ -875,6 +1019,8 @@ columns:
     role: exam.displasia_acentuada_carcinoma_in_situ_histopathology_microsc
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NIC III / displasia acentuada / carcinoma in situ\" (exam.displasia_acentuada_carcinoma_in_situ_histopathology_microsc): result of a test or finding on the person"
     name: NIC III / displasia acentuada / carcinoma in situ
     years:
     - 2006
@@ -884,6 +1030,8 @@ columns:
     role: exam.displasia_leve_histopathology_microscopy_flag_nic_i_displasi
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NIC I / displasia leve\" (exam.displasia_leve_histopathology_microscopy_flag_nic_i_displasi): result of a test or finding on the person"
     name: NIC I / displasia leve
     years:
     - 2006
@@ -893,6 +1041,8 @@ columns:
     role: exam.displasia_moderada_histopathology_microscopy_flag_nic_ii_dis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NIC II / displasia moderada\" (exam.displasia_moderada_histopathology_microscopy_flag_nic_ii_dis): result of a test or finding on the person"
     name: NIC II / displasia moderada
     years:
     - 2006
@@ -902,6 +1052,8 @@ columns:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_invasiv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermoide invasivo\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_invasiv): result of a test or finding on the person"
     name: Carcinoma epidermoide invasivo
     years:
     - 2006
@@ -911,6 +1063,8 @@ columns:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_impossi
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermoide, impossivel avaliar invasao\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_impossi): result of a test or finding on the person"
     name: Carcinoma epidermoide, impossivel avaliar invasao
     years:
     - 2006
@@ -920,6 +1074,8 @@ columns:
     role: exam.non_keratinising_squamous_carcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermóide não ceratinizante\" (exam.non_keratinising_squamous_carcinoma): result of a test or finding on the person"
     name: Carcinoma epidermóide não ceratinizante
     years:
     - 2006
@@ -929,6 +1085,8 @@ columns:
     role: exam.verrucous_carcinoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carcinoma epidermóide verrucoso\" (exam.verrucous_carcinoma): result of a test or finding on the person"
     name: Carcinoma epidermóide verrucoso
     years:
     - 2006
@@ -940,6 +1098,8 @@ columns:
     role: exam.squamous_cell_abnormality_result_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - atipias em celulas escamosas\" (exam.squamous_cell_abnormality_result_code): result of a test or finding on the person"
     name: Resultado - atipias em celulas escamosas
     years:
     - 2006
@@ -952,6 +1112,8 @@ columns:
     role: exam.referral_cytology_result_glandular_cell_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Encaminhamento — atipia de células glandulares (citologia prévia)\" (exam.referral_cytology_result_glandular_cell_atypia): result of a test or finding on the person"
     name: Encaminhamento — atipia de células glandulares (citologia prévia)
     years:
     - 2006
@@ -978,6 +1140,8 @@ columns:
     role: exam.lymph_node_involvement_flag_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensao para linfonodos\" (exam.lymph_node_involvement_flag_code): result of a test or finding on the person"
     name: Extensao para linfonodos
     years:
     - 2006
@@ -987,6 +1151,8 @@ columns:
     role: exam.tumour_extension_flag_parametrium
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensão do tumor — paramétrio\" (exam.tumour_extension_flag_parametrium): result of a test or finding on the person"
     name: Extensão do tumor — paramétrio
     years:
     - 2006
@@ -995,6 +1161,8 @@ columns:
     role: exam.tumour_extension_flag_perineural_invasion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensão do tumor — peri-neural\" (exam.tumour_extension_flag_perineural_invasion): result of a test or finding on the person"
     name: Extensão do tumor — peri-neural
     years:
     - 2006
@@ -1003,6 +1171,8 @@ columns:
     role: exam.tumour_extension_flag_vaginal_involvement
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extensão do tumor — vagina\" (exam.tumour_extension_flag_vaginal_involvement): result of a test or finding on the person"
     name: Extensão do tumor — vagina
     years:
     - 2006
@@ -1011,6 +1181,8 @@ columns:
     role: exam.tumour_size_dimension_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho do tumor - dimensao 2\" (exam.tumour_size_dimension_2): result of a test or finding on the person"
     name: Tamanho do tumor - dimensao 2
     years:
     - 2006
@@ -1020,6 +1192,8 @@ columns:
     role: exam.referring_cytology_asc_h
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células escamosas atípicas: não se pode afastar lesão de alto grau (ASC-H) (citopatológico de encaminhamento)\" (exam.referring_cytology_asc_h): result of a test or finding on the person"
     name: 'Células escamosas atípicas: não se pode afastar lesão de alto grau (ASC-H) (citopatológico de encaminhamento)'
     years:
     - 2006

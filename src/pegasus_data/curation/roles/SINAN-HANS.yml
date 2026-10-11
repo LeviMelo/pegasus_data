@@ -16,6 +16,8 @@ columns:
     role: case.disability_at_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Avaliação do Grau de Incapacidade Física no Diagnóstico\" (case.disability_at_diagnosis): fact about the health event or the person's health"
     name: Avaliação do Grau de Incapacidade Física no Diagnóstico
     years:
     - 2001
@@ -26,6 +28,8 @@ columns:
     role: treatment.disability_at_discharge
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Avaliação de incapacidade física no momento da cura\" (treatment.disability_at_discharge): outcome of the event"
     name: Avaliação de incapacidade física no momento da cura
     years:
     - 2001
@@ -35,6 +39,8 @@ columns:
     role: case.smear
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Baciloscopia\" (case.smear): fact about the health event or the person's health"
     name: Baciloscopia
     years:
     - 2001
@@ -45,6 +51,8 @@ columns:
     role: case.current_operational_class
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação operacional atual\" (case.current_operational_class): fact about the health event or the person's health"
     name: Classificação operacional atual
     years:
     - 2001
@@ -55,6 +63,8 @@ columns:
     role: case.operational_class
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Operacional\" (case.operational_class): fact about the health event or the person's health"
     name: Classificação Operacional
     years:
     - 2001
@@ -84,6 +94,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -94,6 +106,8 @@ columns:
     role: notification.return_flow_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow_flag): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -107,6 +121,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -120,6 +136,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -133,6 +151,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     codelists:
     - SEXO
@@ -276,6 +296,8 @@ columns:
     role: case.reaction_episode
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Episódio Reacional Durante o Tratamento\" (case.reaction_episode): fact about the health event or the person's health"
     name: Episódio Reacional Durante o Tratamento
     years:
     - 2001
@@ -286,6 +308,8 @@ columns:
     role: treatment.current_regimen
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Esquema terapêutico atual\" (treatment.current_regimen): treatment given to the case"
     name: Esquema terapêutico atual
     years:
     - 2001
@@ -296,6 +320,8 @@ columns:
     role: treatment.initial_regimen
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Esquema terapêutico inicial\" (treatment.initial_regimen): treatment given to the case"
     name: Esquema terapêutico inicial
     years:
     - 2001
@@ -304,6 +330,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2001
@@ -314,6 +342,8 @@ columns:
     role: case.clinical_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma Clínica\" (case.clinical_form): fact about the health event or the person's health"
     name: Forma Clínica
     years:
     - 2001
@@ -450,6 +480,8 @@ columns:
     role: notification.followup_linked_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Vinculação\" (notification.followup_linked_flag): record type, internal flag or system field"
     name: Vinculação
     years:
     - 2001
@@ -458,6 +490,8 @@ columns:
     role: notification.migrated_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated_flag): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -470,6 +504,8 @@ columns:
     role: case.detection_mode
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Modo de detecção de caso novo\" (case.detection_mode): how care or investigation was carried out"
     name: Modo de detecção de caso novo
     years:
     - 2001
@@ -480,6 +516,8 @@ columns:
     role: treatment.entry_mode
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Modo de entrada\" (treatment.entry_mode): treatment given to the case"
     name: Modo de entrada
     years:
     - 2001
@@ -498,6 +536,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -602,6 +642,8 @@ columns:
     role: treatment.exit_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de Saída\" (treatment.exit_type): outcome of the event"
     name: Tipo de Saída
     years:
     - 2001
@@ -612,6 +654,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2001

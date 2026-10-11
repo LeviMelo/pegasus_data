@@ -25,6 +25,8 @@ columns:
     role: vaccination.state
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da Unidade da Federação\" (vaccination.state): record type, internal flag or system field"
     name: Código da Unidade da Federação
     years:
     - 
@@ -45,6 +47,8 @@ columns:
     role: vaccination.vaccine
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "column NU_IMUNO, no label recorded (vaccination.vaccine): how care or investigation was carried out"
     years:
     - 
     - 

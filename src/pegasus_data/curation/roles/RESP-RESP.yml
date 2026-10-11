@@ -27,6 +27,8 @@ columns:
     role: notification.headache_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia entre outros sinais e sintomas na gestacao\" (notification.headache_flag): fact about the health event or the person's health"
     name: Cefaleia entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -39,6 +41,8 @@ columns:
     role: notification.final_case_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificacao final do caso\" (notification.final_case_classification): fact about the health event or the person's health"
     name: Classificacao final do caso
     years:
     - 2015
@@ -51,6 +55,8 @@ columns:
     role: notification.gestational_term_classification_at_delivery
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificacao do nascido vivo ou natimorto quanto ao periodo gestacional\" (notification.gestational_term_classification_at_delivery): fact about the health event or the person's health"
     name: Classificacao do nascido vivo ou natimorto quanto ao periodo gestacional
     years:
     - 2015
@@ -94,6 +100,8 @@ columns:
     role: notification.conjunctival_hyperemia_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hiperemia conjuntival entre outros sinais e sintomas na gestacao\" (notification.conjunctival_hyperemia_flag): fact about the health event or the person's health"
     name: Hiperemia conjuntival entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -113,6 +121,8 @@ columns:
     role: notification.final_classification_criteria_multi_select
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Criterios para classificacao final do caso\" (notification.final_classification_criteria_multi_select): fact about the health event or the person's health"
     name: Criterios para classificacao final do caso
     years:
     - 2015
@@ -125,6 +135,8 @@ columns:
     role: notification.hearing_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deficiencia auditiva entre as alteracoes congenitas detectadas\" (notification.hearing_deficiency_flag): fact about the health event or the person's health"
     name: Deficiencia auditiva entre as alteracoes congenitas detectadas
     years:
     - 2015
@@ -137,6 +149,8 @@ columns:
     role: notification.neurological_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deficiencia neurologica entre as alteracoes congenitas detectadas\" (notification.neurological_deficiency_flag): fact about the health event or the person's health"
     name: Deficiencia neurologica entre as alteracoes congenitas detectadas
     years:
     - 2015
@@ -149,6 +163,8 @@ columns:
     role: notification.visual_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deficiencia visual entre as alteracoes congenitas detectadas\" (notification.visual_deficiency_flag): fact about the health event or the person's health"
     name: Deficiencia visual entre as alteracoes congenitas detectadas
     years:
     - 2015
@@ -170,6 +186,8 @@ columns:
     role: notification.joint_pain_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor em articulacao entre outros sinais e sintomas na gestacao\" (notification.joint_pain_flag): fact about the health event or the person's health"
     name: Dor em articulacao entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -182,6 +200,8 @@ columns:
     role: notification.muscle_pain_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor muscular entre outros sinais e sintomas na gestacao\" (notification.muscle_pain_flag): fact about the health event or the person's health"
     name: Dor muscular entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -274,6 +294,8 @@ columns:
     role: notification.joint_edema_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema em articulacoes entre outros sinais e sintomas na gestacao\" (notification.joint_edema_flag): fact about the health event or the person's health"
     name: Edema em articulacoes entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -286,6 +308,8 @@ columns:
     role: notification.etiology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Etiologia\" (notification.etiology): fact about the health event or the person's health"
     name: Etiologia
     years:
     - 2015
@@ -296,6 +320,8 @@ columns:
     role: notification.mri_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de ressonancia magnetica\" (notification.mri_result): fact about the health event or the person's health"
     name: Resultado de ressonancia magnetica
     years:
     - 2015
@@ -308,6 +334,8 @@ columns:
     role: notification.ct_scan_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de tomografia computadorizada\" (notification.ct_scan_result): fact about the health event or the person's health"
     name: Resultado de tomografia computadorizada
     years:
     - 2015
@@ -320,6 +348,8 @@ columns:
     role: notification.prenatal_ultrasound_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da ultrassonografia realizada durante a gestacao\" (notification.prenatal_ultrasound_result): fact about the health event or the person's health"
     name: Resultado da ultrassonografia realizada durante a gestacao
     years:
     - 2015
@@ -332,6 +362,8 @@ columns:
     role: notification.rash_exanthema_during_pregnancy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exantema na gestacao\" (notification.rash_exanthema_during_pregnancy): fact about the health event or the person's health"
     name: Exantema na gestacao
     years:
     - 2015
@@ -344,6 +376,8 @@ columns:
     role: notification.storch_panel_testing_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diagnostico laboratorial para pelo menos um dos STORCH\" (notification.storch_panel_testing_flag): how care or investigation was carried out"
     name: Diagnostico laboratorial para pelo menos um dos STORCH
     years:
     - 2015
@@ -356,6 +390,8 @@ columns:
     role: notification.transfontanellar_ultrasound_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de ultrassonografia transfontanela\" (notification.transfontanellar_ultrasound_result): fact about the health event or the person's health"
     name: Resultado de ultrassonografia transfontanela
     years:
     - 2015
@@ -368,6 +404,8 @@ columns:
     role: notification.fever_during_pregnancy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre na gestacao\" (notification.fever_during_pregnancy): fact about the health event or the person's health"
     name: Febre na gestacao
     years:
     - 2015
@@ -403,6 +441,8 @@ columns:
     role: notification.pregnancy_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de gravidez\" (notification.pregnancy_type): fact about the health event or the person's health"
     name: Tipo de gravidez
     years:
     - 2015
@@ -415,6 +455,8 @@ columns:
     role: notification.lymph_node_enlargement_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hipertrofia ganglionar entre outros sinais e sintomas na gestacao\" (notification.lymph_node_enlargement_flag): fact about the health event or the person's health"
     name: Hipertrofia ganglionar entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -427,6 +469,8 @@ columns:
     role: notification.recent_other_arbovirus_infection_history
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Historico de infeccao recente por outros arbovirus\" (notification.recent_other_arbovirus_infection_history): fact about the health event or the person's health"
     name: Historico de infeccao recente por outros arbovirus
     years:
     - 2015
@@ -439,6 +483,8 @@ columns:
     role: notification.family_history_of_congenital_malformation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Historico de malformacao congenita em familiares/parentes\" (notification.family_history_of_congenital_malformation): fact about the health event or the person's health"
     name: Historico de malformacao congenita em familiares/parentes
     years:
     - 2015
@@ -480,6 +526,8 @@ columns:
     role: notification.congenital_alteration_type_microcephaly_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipos de alteracoes congenitas detectadas\" (notification.congenital_alteration_type_microcephaly_classification): fact about the health event or the person's health"
     name: Tipos de alteracoes congenitas detectadas
     years:
     - 2015
@@ -492,6 +540,8 @@ columns:
     role: notification.neurological_involvement_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acometimento neurologico entre outros sinais e sintomas na gestacao\" (notification.neurological_involvement_flag): fact about the health event or the person's health"
     name: Acometimento neurologico entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -504,6 +554,8 @@ columns:
     role: notification.zika_pcr_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de PCR para Zika vírus\" (notification.zika_pcr_result_mother): fact about the health event or the person's health"
     name: Resultado de PCR para Zika vírus
     years:
     - 2015
@@ -536,6 +588,8 @@ columns:
     role: notification.itching_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prurido entre outros sinais e sintomas na gestacao\" (notification.itching_flag): fact about the health event or the person's health"
     name: Prurido entre outros sinais e sintomas na gestacao
     years:
     - 2015
@@ -546,6 +600,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Cor ou raca declarada\" (patient.race): attribute of the person (race/colour)"
     name: Cor ou raca declarada
     years:
     - 2015
@@ -578,6 +634,8 @@ columns:
     role: notification.cytomegalovirus_cmv_laboratory_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial para Citomegalovírus\" (notification.cytomegalovirus_cmv_laboratory_result_mother): fact about the health event or the person's health"
     name: Diagnóstico laboratorial para Citomegalovírus
     years:
     - 2015
@@ -588,6 +646,8 @@ columns:
     role: notification.herpes_virus_laboratory_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial para Herpes vírus\" (notification.herpes_virus_laboratory_result_mother): fact about the health event or the person's health"
     name: Diagnóstico laboratorial para Herpes vírus
     years:
     - 2015
@@ -598,6 +658,8 @@ columns:
     role: notification.syphilis_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnostico laboratorial para Sifilis\" (notification.syphilis_laboratory_result): fact about the health event or the person's health"
     name: Diagnostico laboratorial para Sifilis
     years:
     - 2015
@@ -608,6 +670,8 @@ columns:
     role: notification.toxoplasmosis_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnostico laboratorial para Toxoplasmose\" (notification.toxoplasmosis_laboratory_result): fact about the health event or the person's health"
     name: Diagnostico laboratorial para Toxoplasmose
     years:
     - 2015
@@ -618,6 +682,8 @@ columns:
     role: notification.zika_virus_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnostico laboratorial para virus Zika\" (notification.zika_virus_laboratory_result): fact about the health event or the person's health"
     name: Diagnostico laboratorial para virus Zika
     years:
     - 2015
@@ -628,6 +694,8 @@ columns:
     role: notification.storch_panel_testing_flag_newborn
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para pelo menos um dos STORCH\" (notification.storch_panel_testing_flag_newborn): how care or investigation was carried out"
     name: Diagnóstico laboratorial do recém-nascido para pelo menos um dos STORCH
     years:
     - 2015
@@ -640,6 +708,8 @@ columns:
     role: notification.zika_pcr_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de PCR do recém-nascido para Zika vírus\" (notification.zika_pcr_result_newborn): fact about the health event or the person's health"
     name: Resultado de PCR do recém-nascido para Zika vírus
     years:
     - 2015
@@ -650,6 +720,8 @@ columns:
     role: notification.cytomegalovirus_cmv_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para Citomegalovírus\" (notification.cytomegalovirus_cmv_laboratory_result_newborn): fact about the health event or the person's health"
     name: Diagnóstico laboratorial do recém-nascido para Citomegalovírus
     years:
     - 2015
@@ -660,6 +732,8 @@ columns:
     role: notification.herpes_virus_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para Herpes vírus\" (notification.herpes_virus_laboratory_result_newborn): fact about the health event or the person's health"
     name: Diagnóstico laboratorial do recém-nascido para Herpes vírus
     years:
     - 2015
@@ -670,6 +744,8 @@ columns:
     role: notification.syphilis_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para Sífilis\" (notification.syphilis_laboratory_result_newborn): fact about the health event or the person's health"
     name: Diagnóstico laboratorial do recém-nascido para Sífilis
     years:
     - 2015
@@ -680,6 +756,8 @@ columns:
     role: notification.toxoplasmosis_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para Toxoplasmose\" (notification.toxoplasmosis_laboratory_result_newborn): fact about the health event or the person's health"
     name: Diagnóstico laboratorial do recém-nascido para Toxoplasmose
     years:
     - 2015
@@ -690,6 +768,8 @@ columns:
     role: notification.zika_positive_flag_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial do recém-nascido para Vírus Zika\" (notification.zika_positive_flag_newborn): fact about the health event or the person's health"
     name: Diagnóstico laboratorial do recém-nascido para Vírus Zika
     years:
     - 2015
@@ -700,6 +780,8 @@ columns:
     role: notification.zika_igg_serology_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do recém-nascido para Sorologia IgG para Zika Vírus\" (notification.zika_igg_serology_result_newborn): fact about the health event or the person's health"
     name: Resultado do recém-nascido para Sorologia IgG para Zika Vírus
     years:
     - 2015
@@ -710,6 +792,8 @@ columns:
     role: notification.zika_igm_serology_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do recém-nascido para Sorologia IgM para Zika Vírus\" (notification.zika_igm_serology_result_newborn): fact about the health event or the person's health"
     name: Resultado do recém-nascido para Sorologia IgM para Zika Vírus
     years:
     - 2015
@@ -720,6 +804,8 @@ columns:
     role: notification.zika_igg_rapid_test_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do teste rápido Sorologia IgG do recém-nascido para Zika vírus\" (notification.zika_igg_rapid_test_result_newborn): fact about the health event or the person's health"
     name: Resultado do teste rápido Sorologia IgG do recém-nascido para Zika vírus
     years:
     - 2015
@@ -730,6 +816,8 @@ columns:
     role: notification.zika_igm_rapid_test_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do teste rápido Sorologia IgM do recém-nascido para Zika vírus\" (notification.zika_igm_rapid_test_result_newborn): fact about the health event or the person's health"
     name: Resultado do teste rápido Sorologia IgM do recém-nascido para Zika vírus
     years:
     - 2015
@@ -738,6 +826,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo da crianca, recem-nascido, feto ou natimorto\" (patient.sex): attribute of the person (sex)"
     name: Sexo da crianca, recem-nascido, feto ou natimorto
     years:
     - 2015
@@ -750,6 +840,8 @@ columns:
     role: notification.zika_igg_serology_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado para Sorologia IgG para Zika Vírus\" (notification.zika_igg_serology_result_mother): fact about the health event or the person's health"
     name: Resultado para Sorologia IgG para Zika Vírus
     years:
     - 2015
@@ -760,6 +852,8 @@ columns:
     role: notification.zika_igm_serology_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado para Sorologia IgM para Zika Vírus\" (notification.zika_igm_serology_result_mother): fact about the health event or the person's health"
     name: Resultado para Sorologia IgM para Zika Vírus
     years:
     - 2015
@@ -770,6 +864,8 @@ columns:
     role: notification.record_status
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Situacao do registro\" (notification.record_status): record type, internal flag or system field"
     name: Situacao do registro
     years:
     - 2015
@@ -782,6 +878,8 @@ columns:
     role: notification.death_outcome_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolucao para obito\" (notification.death_outcome_flag): fact about the health event or the person's health"
     name: Evolucao para obito
     years:
     - 2015
@@ -794,6 +892,8 @@ columns:
     role: notification.timing_of_congenital_alteration_detection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Momento em que foi identificada a alteracao congenita\" (notification.timing_of_congenital_alteration_detection): fact about the health event or the person's health"
     name: Momento em que foi identificada a alteracao congenita
     years:
     - 2015
@@ -804,6 +904,8 @@ columns:
     role: notification.notification_type_case_category
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo da notificacao\" (notification.notification_type_case_category): record type, internal flag or system field"
     name: Tipo da notificacao
     years:
     - 2015
@@ -816,6 +918,8 @@ columns:
     role: notification.zika_igg_rapid_test_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do teste rápido Sorologia IgG para Zika vírus\" (notification.zika_igg_rapid_test_result_mother): fact about the health event or the person's health"
     name: Resultado do teste rápido Sorologia IgG para Zika vírus
     years:
     - 2015
@@ -826,6 +930,8 @@ columns:
     role: notification.zika_igm_rapid_test_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do teste rápido Sorologia IgM para Zika vírus\" (notification.zika_igm_rapid_test_result_mother): fact about the health event or the person's health"
     name: Resultado do teste rápido Sorologia IgM para Zika vírus
     years:
     - 2015

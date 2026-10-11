@@ -5,6 +5,8 @@ columns:
     role: authorisation.credit_assignment_cnpj
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column COB_CGC, no label recorded (authorisation.credit_assignment_cnpj): billing, financing, management or contractual attribute"
     years:
     - 2003
     - 2007
@@ -13,6 +15,8 @@ columns:
     role: authorisation.professional_activity_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column COB_CODESP, no label recorded (authorisation.professional_activity_code): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -39,6 +43,8 @@ columns:
     role: authorisation.management_arrangement_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column COB_CONDIC, no label recorded (authorisation.management_arrangement_code): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -70,6 +76,8 @@ columns:
     role: authorisation.credit_assignment_invoice_number
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column COB_NF, no label recorded (authorisation.credit_assignment_invoice_number): billing, financing, management or contractual attribute"
     years:
     - 2003
     - 2007
@@ -99,6 +107,8 @@ columns:
     role: authorisation.line_sequence_number
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column COB_SEQ, no label recorded (authorisation.line_sequence_number): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -106,6 +116,8 @@ columns:
     role: authorisation.type_of_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column COB_TIPATE, no label recorded (authorisation.type_of_care): how care or investigation was carried out"
     years:
     - 2001
     - 2007

@@ -7,6 +7,8 @@ columns:
     role: mother.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (mother.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2012
@@ -17,6 +19,8 @@ columns:
     role: mother.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia Indígena\" (mother.ethnicity): attribute of the person (ethnicity)"
     name: Etnia Indígena
     years:
     - 2012
@@ -46,6 +50,8 @@ columns:
     role: pregnancy.country_nationality_code
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"País (nacionalidade)\" (pregnancy.country_nationality_code): attribute of the person (nationality/birthplace)"
     name: País (nacionalidade)
     years:
     - 2012
@@ -56,6 +62,8 @@ columns:
     role: mother.race
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Raça / Cor\" (mother.race): attribute of the person (race/colour)"
     name: Raça / Cor
     years:
     - 2012
@@ -66,6 +74,8 @@ columns:
     role: pregnancy.household_family_living_situation_grouped
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Situação Familiar (agrupada)\" (pregnancy.household_family_living_situation_grouped): attribute of the person (social condition)"
     name: Situação Familiar (agrupada)
     years:
     - 2012
@@ -76,6 +86,8 @@ columns:
     role: pregnancy.pregnancy_type_singleton_multiple
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de Gravidez\" (pregnancy.pregnancy_type_singleton_multiple): fact about the health event or the person's health"
     name: Tipo de Gravidez
     years:
     - 2012
@@ -96,6 +108,8 @@ columns:
     role: pregnancy.residential_zone
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Zona\" (pregnancy.residential_zone): attribute of the person (residence)"
     name: Zona
     years:
     - 2012
@@ -289,6 +303,8 @@ columns:
     role: pregnancy.needs_transportation_assistance_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Precisa de Auxílio Deslocamento\" (pregnancy.needs_transportation_assistance_flag): how care or investigation was carried out"
     name: Precisa de Auxílio Deslocamento
     years:
     - 2012
@@ -297,6 +313,8 @@ columns:
     role: pregnancy.pregnancy_case_status
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Status da Gestação\" (pregnancy.pregnancy_case_status): fact about the health event or the person's health"
     name: Status da Gestação
     years:
     - 2012
@@ -305,6 +323,8 @@ columns:
     role: pregnancy.previous_pregnancy_ended_under_a_year_ago_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Final da Gestação Anterior, menos de 1 Ano\" (pregnancy.previous_pregnancy_ended_under_a_year_ago_flag): fact about the health event or the person's health"
     name: Final da Gestação Anterior, menos de 1 Ano
     years:
     - 2012
@@ -313,6 +333,8 @@ columns:
     role: pregnancy.planned_pregnancy_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gravidez Planejada\" (pregnancy.planned_pregnancy_flag): fact about the health event or the person's health"
     name: Gravidez Planejada
     years:
     - 2012

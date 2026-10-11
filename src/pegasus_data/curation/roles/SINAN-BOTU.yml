@@ -24,6 +24,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -41,6 +43,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -59,6 +63,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -73,6 +79,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -87,6 +95,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -101,6 +111,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -116,6 +128,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -476,6 +490,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -706,6 +722,8 @@ columns:
     role: case.result_food_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - Alimento 1\" (case.result_food_1): fact about the health event or the person's health"
     name: Resultado - Alimento 1
     years:
     - 2007
@@ -716,6 +734,8 @@ columns:
     role: case.result_other_material
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - Outro\" (case.result_other_material): fact about the health event or the person's health"
     name: Resultado - Outro
     years:
     - 2007
@@ -764,6 +784,8 @@ columns:
     role: case.suspected_foodborne_transmission
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeita de transmissão alimentar?\" (case.suspected_foodborne_transmission): fact about the health event or the person's health"
     name: Suspeita de transmissão alimentar?
     years:
     - 2007
@@ -774,6 +796,8 @@ columns:
     role: case.antibiotic_given_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento - Antibioticoterapia\" (case.antibiotic_given_flag): how care or investigation was carried out"
     name: Tratamento - Antibioticoterapia
     years:
     - 2007
@@ -784,6 +808,8 @@ columns:
     role: case.antitoxin_given_after_clinical_sample_collection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Se recebeu soro antibotulínico, foi após a coleta do material clínico?\" (case.antitoxin_given_after_clinical_sample_collection): how care or investigation was carried out"
     name: Se recebeu soro antibotulínico, foi após a coleta do material clínico?
     years:
     - 2007
@@ -794,6 +820,8 @@ columns:
     role: case.dry_mouth
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Boca seca\" (case.dry_mouth): fact about the health event or the person's health"
     name: Sinais e sintomas - Boca seca
     years:
     - 2007
@@ -804,6 +832,8 @@ columns:
     role: case.botulinum_toxin_in_food_bromatological_sample
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Presença de toxina botulínica na amostra bromatológica\" (case.botulinum_toxin_in_food_bromatological_sample): fact about the health event or the person's health"
     name: Presença de toxina botulínica na amostra bromatológica
     years:
     - 2007
@@ -814,6 +844,8 @@ columns:
     role: case.neurological_exam_bulbar_muscle_involvement
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Comprometimento da musculatura bulbar\" (case.neurological_exam_bulbar_muscle_involvement): fact about the health event or the person's health"
     name: Exame neurológico - Comprometimento da musculatura bulbar
     years:
     - 2007
@@ -824,6 +856,8 @@ columns:
     role: case.sign_heart_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Insuficiência cardíaca\" (case.sign_heart_failure): fact about the health event or the person's health"
     name: Sinais e sintomas - Insuficiência cardíaca
     years:
     - 2007
@@ -834,6 +868,8 @@ columns:
     role: case.home_made_food_source
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Produção do alimento suspeito - Caseira\" (case.home_made_food_source): fact about the health event or the person's health"
     name: Produção do alimento suspeito - Caseira
     years:
     - 2007
@@ -844,6 +880,8 @@ columns:
     role: case.headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Cefaleia\" (case.headache): fact about the health event or the person's health"
     name: Sinais e sintomas - Cefaleia
     years:
     - 2007
@@ -854,6 +892,8 @@ columns:
     role: case.botulinum_toxin_in_clinical_sample
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Presença de toxina botulínica na amostra clínica\" (case.botulinum_toxin_in_clinical_sample): fact about the health event or the person's health"
     name: Presença de toxina botulínica na amostra clínica
     years:
     - 2007
@@ -864,6 +904,8 @@ columns:
     role: case.coma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Coma\" (case.coma): fact about the health event or the person's health"
     name: Sinais e sintomas - Coma
     years:
     - 2007
@@ -874,6 +916,8 @@ columns:
     role: case.commercial_food_source
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Produção do alimento suspeito - Industrial/ Comercial\" (case.commercial_food_source): fact about the health event or the person's health"
     name: Produção do alimento suspeito - Industrial/ Comercial
     years:
     - 2007
@@ -884,6 +928,8 @@ columns:
     role: case.constipation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Constipação\" (case.constipation): fact about the health event or the person's health"
     name: Sinais e sintomas - Constipação
     years:
     - 2007
@@ -894,6 +940,8 @@ columns:
     role: case.neurological_exam_descending_weakness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Fraqueza descendente\" (case.neurological_exam_descending_weakness): fact about the health event or the person's health"
     name: Exame neurológico - Fraqueza descendente
     years:
     - 2007
@@ -904,6 +952,8 @@ columns:
     role: case.diarrhea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Diarreia\" (case.diarrhea): fact about the health event or the person's health"
     name: Sinais e sintomas - Diarreia
     years:
     - 2007
@@ -914,6 +964,8 @@ columns:
     role: case.double_vision_diplopia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Diplopia\" (case.double_vision_diplopia): fact about the health event or the person's health"
     name: Sinais e sintomas - Diplopia
     years:
     - 2007
@@ -924,6 +976,8 @@ columns:
     role: case.dysarthria_slurred_speech
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Disartria\" (case.dysarthria_slurred_speech): fact about the health event or the person's health"
     name: Sinais e sintomas - Disartria
     years:
     - 2007
@@ -934,6 +988,8 @@ columns:
     role: case.dysphagia_difficulty_swallowing
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Disfagia\" (case.dysphagia_difficulty_swallowing): fact about the health event or the person's health"
     name: Sinais e sintomas - Disfagia
     years:
     - 2007
@@ -944,6 +1000,8 @@ columns:
     role: case.dysphonia_voice_change
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Disfonia\" (case.dysphonia_voice_change): fact about the health event or the person's health"
     name: Sinais e sintomas - Disfonia
     years:
     - 2007
@@ -954,6 +1012,8 @@ columns:
     role: case.dyspnea_shortness_of_breath
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Dispneia\" (case.dyspnea_shortness_of_breath): fact about the health event or the person's health"
     name: Sinais e sintomas - Dispneia
     years:
     - 2007
@@ -964,6 +1024,8 @@ columns:
     role: case.home_exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Domicílio\" (case.home_exposure_setting): fact about the health event or the person's health"
     name: Local da ingestão - Domicílio
     years:
     - 2007
@@ -974,6 +1036,8 @@ columns:
     role: case.electroneuromyography_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exames complementares - Eletroneuromiografia\" (case.electroneuromyography_performed): how care or investigation was carried out"
     name: Exames complementares - Eletroneuromiografia
     years:
     - 2007
@@ -984,6 +1048,8 @@ columns:
     role: case.school_exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Creche/ escola\" (case.school_exposure_setting): fact about the health event or the person's health"
     name: Local da ingestão - Creche/ escola
     years:
     - 2007
@@ -994,6 +1060,8 @@ columns:
     role: case.exposure_to_the_food
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição ao alimento\" (case.exposure_to_the_food): fact about the health event or the person's health"
     name: Exposição ao alimento
     years:
     - 2007
@@ -1004,6 +1072,8 @@ columns:
     role: case.facial_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Paralisia facial\" (case.facial_paralysis): fact about the health event or the person's health"
     name: Exame neurológico - Paralisia facial
     years:
     - 2007
@@ -1014,6 +1084,8 @@ columns:
     role: case.fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Febre\" (case.fever): fact about the health event or the person's health"
     name: Sinais e sintomas - Febre
     years:
     - 2007
@@ -1024,6 +1096,8 @@ columns:
     role: case.sign_wound
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Ferimento\" (case.sign_wound): fact about the health event or the person's health"
     name: Sinais e sintomas - Ferimento
     years:
     - 2007
@@ -1034,6 +1108,8 @@ columns:
     role: case.party_event_exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Festa\" (case.party_event_exposure_setting): fact about the health event or the person's health"
     name: Local da ingestão - Festa
     years:
     - 2007
@@ -1044,6 +1120,8 @@ columns:
     role: case.stool_sample_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material coletado - Fezes\" (case.stool_sample_collected): how care or investigation was carried out"
     name: Material coletado - Fezes
     years:
     - 2007
@@ -1054,6 +1132,8 @@ columns:
     role: case.stool_test_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - Fezes\" (case.stool_test_result): fact about the health event or the person's health"
     name: Resultado - Fezes
     years:
     - 2007
@@ -1064,6 +1144,8 @@ columns:
     role: case.sign_neck_flaccidity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Flacidez de pescoço\" (case.sign_neck_flaccidity): fact about the health event or the person's health"
     name: Sinais e sintomas - Flacidez de pescoço
     years:
     - 2007
@@ -1074,6 +1156,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Hospitalização\" (case.hospitalised): how care or investigation was carried out"
     name: Hospitalização
     years:
     - 2007
@@ -1084,6 +1168,8 @@ columns:
     role: case.neurological_exam_lower_limb_weakness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Fraqueza em membros inferiores\" (case.neurological_exam_lower_limb_weakness): fact about the health event or the person's health"
     name: Exame neurológico - Fraqueza em membros inferiores
     years:
     - 2007
@@ -1094,6 +1180,8 @@ columns:
     role: case.neurological_exam_upper_limb_weakness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Fraqueza em membros superiores\" (case.neurological_exam_upper_limb_weakness): fact about the health event or the person's health"
     name: Exame neurológico - Fraqueza em membros superiores
     years:
     - 2007
@@ -1104,6 +1192,8 @@ columns:
     role: case.mydriasis_dilated_pupils
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Midríase\" (case.mydriasis_dilated_pupils): fact about the health event or the person's health"
     name: Exame neurológico - Midríase
     years:
     - 2007
@@ -1114,6 +1204,8 @@ columns:
     role: case.nausea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Náusea\" (case.nausea): fact about the health event or the person's health"
     name: Sinais e sintomas - Náusea
     years:
     - 2007
@@ -1124,6 +1216,8 @@ columns:
     role: case.ophthalmoplegia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Oftalmoparesia / Oftalmoplegia\" (case.ophthalmoplegia): fact about the health event or the person's health"
     name: Exame neurológico - Oftalmoparesia / Oftalmoplegia
     years:
     - 2007
@@ -1134,6 +1228,8 @@ columns:
     role: case.other_exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Outro\" (case.other_exposure_setting): fact about the health event or the person's health"
     name: Local da ingestão - Outro
     years:
     - 2007
@@ -1144,6 +1240,8 @@ columns:
     role: case.other_sign_or_symptom_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Outros\" (case.other_sign_or_symptom_flag): fact about the health event or the person's health"
     name: Sinais e sintomas - Outros
     years:
     - 2007
@@ -1154,6 +1252,8 @@ columns:
     role: case.other_treatment_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento - Outros\" (case.other_treatment_flag): how care or investigation was carried out"
     name: Tratamento - Outros
     years:
     - 2007
@@ -1164,6 +1264,8 @@ columns:
     role: case.paresthesia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Parestesia\" (case.paresthesia): fact about the health event or the person's health"
     name: Sinais e sintomas - Parestesia
     years:
     - 2007
@@ -1174,6 +1276,8 @@ columns:
     role: case.ptosis_drooping_eyelid
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Ptose palpebral\" (case.ptosis_drooping_eyelid): fact about the health event or the person's health"
     name: Exame neurológico - Ptose palpebral
     years:
     - 2007
@@ -1184,6 +1288,8 @@ columns:
     role: case.respiratory_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Insuficiência respiratória\" (case.respiratory_failure): fact about the health event or the person's health"
     name: Sinais e sintomas - Insuficiência respiratória
     years:
     - 2007
@@ -1194,6 +1300,8 @@ columns:
     role: case.restaurant_exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Restaurante/ Bar/ Lanchonete\" (case.restaurant_exposure_setting): fact about the health event or the person's health"
     name: Local da ingestão - Restaurante/ Bar/ Lanchonete
     years:
     - 2007
@@ -1204,6 +1312,8 @@ columns:
     role: case.sensory_impairment
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Alterações de sensibilidade\" (case.sensory_impairment): fact about the health event or the person's health"
     name: Exame neurológico - Alterações de sensibilidade
     years:
     - 2007
@@ -1214,6 +1324,8 @@ columns:
     role: case.neurological_exam_symmetric_weakness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame neurológico - Fraqueza simétrica\" (case.neurological_exam_symmetric_weakness): fact about the health event or the person's health"
     name: Exame neurológico - Fraqueza simétrica
     years:
     - 2007
@@ -1224,6 +1336,8 @@ columns:
     role: case.treatment_botulinum_antitoxin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento - Soro antibotulínico\" (case.treatment_botulinum_antitoxin): how care or investigation was carried out"
     name: Tratamento - Soro antibotulínico
     years:
     - 2007
@@ -1234,6 +1348,8 @@ columns:
     role: case.material_collected_serum
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material coletado - Soro\" (case.material_collected_serum): how care or investigation was carried out"
     name: Material coletado - Soro
     years:
     - 2007
@@ -1244,6 +1360,8 @@ columns:
     role: case.result_serum
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - Soro\" (case.result_serum): fact about the health event or the person's health"
     name: Resultado - Soro
     years:
     - 2007
@@ -1254,6 +1372,8 @@ columns:
     role: case.dizziness_symptom
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Tontura\" (case.dizziness_symptom): fact about the health event or the person's health"
     name: Sinais e sintomas - Tontura
     years:
     - 2007
@@ -1264,6 +1384,8 @@ columns:
     role: case.place_of_ingestion_workplace
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da ingestão - Trabalho\" (case.place_of_ingestion_workplace): fact about the health event or the person's health"
     name: Local da ingestão - Trabalho
     years:
     - 2007
@@ -1274,6 +1396,8 @@ columns:
     role: case.mechanical_ventilation_required_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratamento - Assistência ventilatória\" (case.mechanical_ventilation_required_flag): how care or investigation was carried out"
     name: Tratamento - Assistência ventilatória
     years:
     - 2007
@@ -1284,6 +1408,8 @@ columns:
     role: case.sign_blurred_vision
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Visão turva\" (case.sign_blurred_vision): fact about the health event or the person's health"
     name: Sinais e sintomas - Visão turva
     years:
     - 2007
@@ -1294,6 +1420,8 @@ columns:
     role: case.vomiting_symptom
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Vômito\" (case.vomiting_symptom): fact about the health event or the person's health"
     name: Sinais e sintomas - Vômito
     years:
     - 2007
@@ -1304,6 +1432,8 @@ columns:
     role: case.first_suspect_food_sample_collected_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletou material? - Alimento 1\" (case.first_suspect_food_sample_collected_flag): how care or investigation was carried out"
     name: Coletou material? - Alimento 1
     years:
     - 2007
@@ -1314,6 +1444,8 @@ columns:
     role: case.suspect_food_item_2_sample_collected_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletou material? - Alimento 2\" (case.suspect_food_item_2_sample_collected_flag): how care or investigation was carried out"
     name: Coletou material? - Alimento 2
     years:
     - 2007
@@ -1323,6 +1455,8 @@ columns:
     role: case.result_food_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - Alimento 2\" (case.result_food_2): fact about the health event or the person's health"
     name: Resultado - Alimento 2
     years:
     - 2007
@@ -1333,6 +1467,8 @@ columns:
     role: case.botulism_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma clínica do botulismo\" (case.botulism_form): fact about the health event or the person's health"
     name: Forma clínica do botulismo
     years:
     - 2007
@@ -1343,6 +1479,8 @@ columns:
     role: case.toxin_type_in_food
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Toxina identificada no alimento\" (case.toxin_type_in_food): fact about the health event or the person's health"
     name: Toxina identificada no alimento
     years:
     - 2007
@@ -1353,6 +1491,8 @@ columns:
     role: case.toxin_type_in_clinical_sample
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Toxina identificada na amostra clínica\" (case.toxin_type_in_clinical_sample): fact about the health event or the person's health"
     name: Toxina identificada na amostra clínica
     years:
     - 2007
@@ -1363,6 +1503,8 @@ columns:
     role: case.toxin_type_stool
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de toxina - Fezes\" (case.toxin_type_stool): fact about the health event or the person's health"
     name: Tipo de toxina - Fezes
     years:
     - 2007
@@ -1373,6 +1515,8 @@ columns:
     role: case.neurological_reflexes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexos neurológicos\" (case.neurological_reflexes): fact about the health event or the person's health"
     name: Reflexos neurológicos
     years:
     - 2007
@@ -1383,6 +1527,8 @@ columns:
     role: case.toxin_type_serum
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de toxina - Soro\" (case.toxin_type_serum): fact about the health event or the person's health"
     name: Tipo de toxina - Soro
     years:
     - 2007
@@ -1393,6 +1539,8 @@ columns:
     role: case.toxin_type_food_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de toxina - Alimento 1\" (case.toxin_type_food_1): fact about the health event or the person's health"
     name: Tipo de toxina - Alimento 1
     years:
     - 2007
@@ -1403,6 +1551,8 @@ columns:
     role: case.toxin_type_food_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de toxina - Alimento 2\" (case.toxin_type_food_2): fact about the health event or the person's health"
     name: Tipo de toxina - Alimento 2
     years:
     - 2007
@@ -1413,6 +1563,8 @@ columns:
     role: case.material_collected_other
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletou material? - Outros\" (case.material_collected_other): how care or investigation was carried out"
     name: Coletou material? - Outros
     years:
     - 2007
@@ -1423,6 +1575,8 @@ columns:
     role: case.csf_examination_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exames complementares: líquor\" (case.csf_examination_performed): how care or investigation was carried out"
     name: 'Exames complementares: líquor'
     years:
     - 2007
@@ -1433,6 +1587,8 @@ columns:
     role: case.motor_nerve_conduction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Neurocondução motora\" (case.motor_nerve_conduction): fact about the health event or the person's health"
     name: Neurocondução motora
     years:
     - 2007
@@ -1443,6 +1599,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1453,6 +1611,8 @@ columns:
     role: case.repetitive_nerve_stimulation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estimulação repetitiva\" (case.repetitive_nerve_stimulation): fact about the health event or the person's health"
     name: Estimulação repetitiva
     years:
     - 2007
@@ -1463,6 +1623,8 @@ columns:
     role: case.sensory_nerve_conduction
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Neurocondução sensitiva\" (case.sensory_nerve_conduction): fact about the health event or the person's health"
     name: Neurocondução sensitiva
     years:
     - 2007
@@ -1473,6 +1635,8 @@ columns:
     role: case.toxin_type_other_material
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de toxina - Outro\" (case.toxin_type_other_material): fact about the health event or the person's health"
     name: Tipo de toxina - Outro
     years:
     - 2007
@@ -1483,6 +1647,8 @@ columns:
     role: case.state_uf_of_hospitalization
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do Hospital\" (case.state_uf_of_hospitalization): how care or investigation was carried out"
     name: "UF do Hospital\n"
     codelists:
     - UF_BR
@@ -1494,6 +1660,8 @@ columns:
     role: case.state_uf_where_food_was_ingested
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF de ingestão do alimento suspeito\" (case.state_uf_where_food_was_ingested): exposure circumstance of the event"
     name: UF de ingestão do alimento suspeito
     years:
     - 2007

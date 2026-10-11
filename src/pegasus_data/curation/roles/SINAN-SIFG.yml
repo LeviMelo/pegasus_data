@@ -5,6 +5,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -23,6 +25,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -36,6 +40,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -49,6 +55,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -62,6 +70,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     codelists:
     - SEXO
@@ -274,6 +284,8 @@ columns:
     role: case.confirmatory_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste confirmatório\" (case.confirmatory_test): fact about the health event or the person's health"
     name: Teste confirmatório
     years:
     - 2007
@@ -284,6 +296,8 @@ columns:
     role: treatment.partner_regimen
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Esquema de tratamento prescrito ao parceiro\" (treatment.partner_regimen): treatment given to the case"
     note: Draft typing said number; coded regimen per curation.
     name: Esquema de tratamento prescrito ao parceiro
     years:
@@ -295,6 +309,8 @@ columns:
     role: treatment.regimen
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Esquema de tratamento\" (treatment.regimen): treatment given to the case"
     name: Esquema de tratamento
     years:
     - 2007
@@ -305,6 +321,8 @@ columns:
     role: case.clinical_stage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação clínica\" (case.clinical_stage): fact about the health event or the person's health"
     name: Classificação clínica
     years:
     - 2007
@@ -314,6 +332,8 @@ columns:
     role: treatment.partner_untreated_reason
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo para o não tratamento do parceiro\" (treatment.partner_untreated_reason): treatment given to the case"
     note: Draft typing said number; coded reason per curation.
     name: Motivo para o não tratamento do parceiro
     years:
@@ -325,6 +345,8 @@ columns:
     role: case.first_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Primeiro teste\" (case.first_test): fact about the health event or the person's health"
     name: Primeiro teste
     years:
     - 2007
@@ -335,6 +357,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -345,6 +369,8 @@ columns:
     role: treatment.partner_treated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Parceiro tratado concomitantemente à gestante\" (treatment.partner_treated): treatment given to the case"
     note: Draft typing said number; coded yes/no per curation.
     name: Parceiro tratado concomitantemente à gestante
     years:

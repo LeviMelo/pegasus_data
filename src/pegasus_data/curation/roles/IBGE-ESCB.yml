@@ -13,6 +13,8 @@ columns:
     role: population.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Race/color\" (population.race): attribute of the person (race/colour)"
     name: Race/color
     years:
     - 1991
@@ -21,6 +23,8 @@ columns:
     role: population.schooling_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "column ESCOLARID, no label recorded (population.schooling_band): attribute of the person (schooling)"
     years:
     - 1991
     - 2010
@@ -46,6 +50,8 @@ columns:
     role: population.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (population.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 1991
@@ -57,6 +63,8 @@ columns:
     role: population.urban_rural
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação de domicílio\" (population.urban_rural): attribute of the person (residence)"
     name: Situação de domicílio
     years:
     - 1991

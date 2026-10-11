@@ -7,6 +7,8 @@ columns:
     role: case.sample_packaged
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Acondicionamento da amostra\" (case.sample_packaged): how care or investigation was carried out"
     name: Acondicionamento da amostra
     years:
     - 2009
@@ -26,6 +28,8 @@ columns:
     role: case.bacterium
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bactéria identificada na amostra\" (case.bacterium): fact about the health event or the person's health"
     name: Bactéria identificada na amostra
     years:
     - 2009
@@ -36,6 +40,8 @@ columns:
     role: case.isolated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso isolado\" (case.isolated): fact about the health event or the person's health"
     name: Caso isolado
     years:
     - 2009
@@ -44,6 +50,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -61,6 +69,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -79,6 +89,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -93,6 +105,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -104,6 +118,8 @@ columns:
     role: case.meningitis_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação da meningite\" (case.meningitis_classification): fact about the health event or the person's health"
     name: Classificação da meningite
     years:
     - 2009
@@ -116,6 +132,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -129,6 +147,8 @@ columns:
     role: case.suspect_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeita do agravo\" (case.suspect_type): fact about the health event or the person's health"
     name: Suspeita do agravo
     years:
     - 2009
@@ -140,6 +160,8 @@ columns:
     role: case.sign_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.sign_diarrhoea): fact about the health event or the person's health"
     name: Diarreia
     years:
     - 2009
@@ -298,6 +320,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -315,6 +339,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -464,6 +490,8 @@ columns:
     role: patient.breastfed
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aleitamento\" (patient.breastfed): fact about the health event or the person's health"
     name: Aleitamento
     years:
     - 2009
@@ -490,6 +518,8 @@ columns:
     role: case.medication_before_sample
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medicamentos Injetáveis\" (case.medication_before_sample): how care or investigation was carried out"
     name: Medicamentos Injetáveis
     years:
     - 2009
@@ -584,6 +614,8 @@ columns:
     role: case.other_virus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro vírus detectado\" (case.other_virus): fact about the health event or the person's health"
     name: Outro vírus detectado
     years:
     - 2009
@@ -594,6 +626,8 @@ columns:
     role: case.parasite
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Parasita detectado\" (case.parasite): fact about the health event or the person's health"
     name: Parasita detectado
     years:
     - 2009
@@ -604,6 +638,8 @@ columns:
     role: case.rotavirus_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado para rotavírus\" (case.rotavirus_result): fact about the health event or the person's health"
     name: Resultado para rotavírus
     years:
     - 2009
@@ -614,6 +650,8 @@ columns:
     role: case.sign_blood_in_stool
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sangue nas fezes\" (case.sign_blood_in_stool): fact about the health event or the person's health"
     name: Sangue nas fezes
     years:
     - 2009
@@ -662,6 +700,8 @@ columns:
     role: case.outbreak
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso associado a surto\" (case.outbreak): fact about the health event or the person's health"
     name: Caso associado a surto
     years:
     - 2009
@@ -672,6 +712,8 @@ columns:
     role: patient.feeding_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de aleitamento\" (patient.feeding_type): fact about the health event or the person's health"
     name: Tipo de aleitamento
     years:
     - 2009
@@ -682,6 +724,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2009
@@ -702,6 +746,8 @@ columns:
     role: patient.rotavirus_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação Vacinal\" (patient.rotavirus_vaccinated): fact about the health event or the person's health"
     name: "Situação Vacinal\n"
     codelists:
     - SIM_NAO
@@ -714,6 +760,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Vômito\" (case.sign_vomiting): fact about the health event or the person's health"
     name: Sinais clínicos – Vômito
     years:
     - 2009
@@ -724,6 +772,8 @@ columns:
     role: patient.opv_same_day
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacina VOP\" (patient.opv_same_day): fact about the health event or the person's health"
     name: Vacina VOP
     years:
     - 2009

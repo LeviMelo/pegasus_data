@@ -7,6 +7,8 @@ columns:
     role: case.exposure_acupuncture
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acupuntura\" (case.exposure_acupuncture): fact about the health event or the person's health"
     name: Acupuntura
     years:
     - 2007
@@ -17,6 +19,8 @@ columns:
     role: case.hbeag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HBeAg\" (case.hbeag): fact about the health event or the person's health"
     name: HBeAg
     years:
     - 2007
@@ -27,6 +31,8 @@ columns:
     role: case.hbsag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HBsAg\" (case.hbsag): fact about the health event or the person's health"
     name: HBsAg
     years:
     - 2007
@@ -37,6 +43,8 @@ columns:
     role: case.exposure_contaminated_water_food
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição a água e/ou alimento contaminado\" (case.exposure_contaminated_water_food): fact about the health event or the person's health"
     name: Exposição a água e/ou alimento contaminado
     years:
     - 2007
@@ -47,6 +55,8 @@ columns:
     role: case.anti_hav_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HAV IgM\" (case.anti_hav_igm): fact about the health event or the person's health"
     name: Anti-HAV IgM
     years:
     - 2007
@@ -57,6 +67,8 @@ columns:
     role: case.anti_hbc_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HBc IgM\" (case.anti_hbc_igm): fact about the health event or the person's health"
     name: Anti-HBc IgM
     years:
     - 2007
@@ -67,6 +79,8 @@ columns:
     role: case.anti_hbe
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HBe\" (case.anti_hbe): fact about the health event or the person's health"
     name: Anti-HBe
     years:
     - 2007
@@ -77,6 +91,8 @@ columns:
     role: case.anti_hbs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HBs\" (case.anti_hbs): fact about the health event or the person's health"
     name: Anti-HBs
     years:
     - 2007
@@ -87,6 +103,8 @@ columns:
     role: case.anti_hcv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultados sorológicos/virológicos - Anti-HCV\" (case.anti_hcv): fact about the health event or the person's health"
     name: Resultados sorológicos/virológicos - Anti-HCV
     years:
     - 2007
@@ -97,6 +115,8 @@ columns:
     role: case.anti_hdv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HDV\" (case.anti_hdv): fact about the health event or the person's health"
     name: Anti-HDV
     years:
     - 2007
@@ -107,6 +127,8 @@ columns:
     role: case.anti_hdv_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HDV IgM\" (case.anti_hdv_igm): fact about the health event or the person's health"
     name: Anti-HDV IgM
     years:
     - 2007
@@ -117,6 +139,8 @@ columns:
     role: case.anti_hev_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HEV IgM\" (case.anti_hev_igm): fact about the health event or the person's health"
     name: Anti-HEV IgM
     years:
     - 2007
@@ -127,6 +151,8 @@ columns:
     role: case.referred_from
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de detecção\" (case.referred_from): how care or investigation was carried out"
     name: Local de detecção
     years:
     - 2007
@@ -137,6 +163,8 @@ columns:
     role: case.exposure_surgery
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Procedimento cirúrgico\" (case.exposure_surgery): fact about the health event or the person's health"
     name: Procedimento cirúrgico
     years:
     - 2007
@@ -145,6 +173,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -231,6 +261,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -244,6 +276,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -257,6 +291,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -270,6 +306,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     codelists:
     - SEXO
@@ -282,6 +320,8 @@ columns:
     role: case.exposure_dental_treatment
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tratamento dentário\" (case.exposure_dental_treatment): fact about the health event or the person's health"
     name: Tratamento dentário
     years:
     - 2007
@@ -292,6 +332,8 @@ columns:
     role: case.contact_household
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Contato domiciliar\" (case.contact_household): fact about the health event or the person's health"
     name: Contato domiciliar
     years:
     - 2007
@@ -358,6 +400,8 @@ columns:
     role: case.infection_source
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fonte/Mecanismo de Infecção\" (case.infection_source): fact about the health event or the person's health"
     name: "Fonte/Mecanismo de Infecção\n"
     codelists:
     - HEPFONTENET
@@ -370,6 +414,8 @@ columns:
     role: case.clinical_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma clínica\" (case.clinical_form): fact about the health event or the person's health"
     name: Forma clínica
     years:
     - 2007
@@ -380,6 +426,8 @@ columns:
     role: case.hcv_genotype
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Genótipo do HCV\" (case.hcv_genotype): fact about the health event or the person's health"
     name: Genótipo do HCV
     years:
     - 2007
@@ -389,6 +437,8 @@ columns:
     role: case.etiology_hav
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia para hepatite A (Anti-HAV)\" (case.etiology_hav): fact about the health event or the person's health"
     name: Sorologia para hepatite A (Anti-HAV)
     years:
     - 2007
@@ -399,6 +449,8 @@ columns:
     role: case.anti_hbc_total
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anti-HBc total\" (case.anti_hbc_total): fact about the health event or the person's health"
     name: Anti-HBc total
     years:
     - 2007
@@ -408,6 +460,8 @@ columns:
     role: case.etiology_hbv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Marcador de hepatite B\" (case.etiology_hbv): fact about the health event or the person's health"
     name: Marcador de hepatite B
     years:
     - 2007
@@ -417,6 +471,8 @@ columns:
     role: case.etiology_hcv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hepatite C\" (case.etiology_hcv): fact about the health event or the person's health"
     name: Hepatite C
     years:
     - 2007
@@ -426,6 +482,8 @@ columns:
     role: case.etiology_hdv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vírus da Hepatite D\" (case.etiology_hdv): fact about the health event or the person's health"
     name: Vírus da Hepatite D
     years:
     - 2007
@@ -436,6 +494,8 @@ columns:
     role: case.exposure_hemodialysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hemodiálise\" (case.exposure_hemodialysis): fact about the health event or the person's health"
     name: Hemodiálise
     years:
     - 2007
@@ -446,6 +506,8 @@ columns:
     role: case.vaccination_hepatitis_a
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinação contra hepatite A\" (case.vaccination_hepatitis_a): fact about the health event or the person's health"
     name: Vacinação contra hepatite A
     years:
     - 2007
@@ -456,6 +518,8 @@ columns:
     role: case.vaccination_hepatitis_b
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinação contra hepatite B\" (case.vaccination_hepatitis_b): fact about the health event or the person's health"
     name: Vacinação contra hepatite B
     years:
     - 2007
@@ -466,6 +530,8 @@ columns:
     role: case.suspected_hepatitis_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeita de\" (case.suspected_hepatitis_type): fact about the health event or the person's health"
     name: Suspeita de
     years:
     - 2007
@@ -475,6 +541,8 @@ columns:
     role: case.etiology_hev
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Marcador de hepatite E\" (case.etiology_hev): fact about the health event or the person's health"
     name: Marcador de hepatite E
     years:
     - 2007
@@ -485,6 +553,8 @@ columns:
     role: case.associated_hiv_aids
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HIV\" (case.associated_hiv_aids): fact about the health event or the person's health"
     name: HIV
     years:
     - 2007
@@ -587,6 +657,8 @@ columns:
     role: case.exposure_inhaled_drugs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Uso de drogas inaladas\" (case.exposure_inhaled_drugs): fact about the health event or the person's health"
     name: Uso de drogas inaladas
     years:
     - 2007
@@ -597,6 +669,8 @@ columns:
     role: case.exposure_injected_drugs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Uso de drogas injetáveis\" (case.exposure_injected_drugs): fact about the health event or the person's health"
     name: Uso de drogas injetáveis
     years:
     - 2007
@@ -607,6 +681,8 @@ columns:
     role: case.institutionalised_in
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Institucionalizado em\" (case.institutionalised_in): attribute of the person (social condition)"
     name: Institucionalizado em
     years:
     - 2007
@@ -617,6 +693,8 @@ columns:
     role: case.exposure_biological_material_accident
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição a acidente com material biológico\" (case.exposure_biological_material_accident): fact about the health event or the person's health"
     name: Exposição a acidente com material biológico
     years:
     - 2007
@@ -627,6 +705,8 @@ columns:
     role: case.exposure_injectable_medication
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Medicamentos Injetáveis\" (case.exposure_injectable_medication): fact about the health event or the person's health"
     name: Medicamentos Injetáveis
     years:
     - 2007
@@ -655,6 +735,8 @@ columns:
     role: case.contact_occupational
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição ocupacional\" (case.contact_occupational): fact about the health event or the person's health"
     name: Exposição ocupacional
     years:
     - 2007
@@ -665,6 +747,8 @@ columns:
     role: case.exposure_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Drogas - Outras\" (case.exposure_other): fact about the health event or the person's health"
     name: Drogas - Outras
     years:
     - 2007
@@ -675,6 +759,8 @@ columns:
     role: case.associated_other_sti
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra DST\" (case.associated_other_sti): fact about the health event or the person's health"
     name: Outra DST
     years:
     - 2007
@@ -685,6 +771,8 @@ columns:
     role: case.referral_hbsag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do HBsAg\" (case.referral_hbsag): result of a test or finding on the person"
     name: Resultado do HBsAg
     years:
     - 2007
@@ -695,6 +783,8 @@ columns:
     role: case.referral_anti_hbc
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da sorologia do banco de sangue ou CTA - Anti-HBc total\" (case.referral_anti_hbc): result of a test or finding on the person"
     name: Resultado da sorologia do banco de sangue ou CTA - Anti-HBc total
     years:
     - 2007
@@ -705,6 +795,8 @@ columns:
     role: case.referral_anti_hcv
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da sorologia do banco de sangue ou CTA - Anti-HCV\" (case.referral_anti_hcv): result of a test or finding on the person"
     name: Resultado da sorologia do banco de sangue ou CTA - Anti-HCV
     years:
     - 2007
@@ -731,6 +823,8 @@ columns:
     role: case.contact_sexual
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição sexual\" (case.contact_sexual): fact about the health event or the person's health"
     name: Exposição sexual
     years:
     - 2007
@@ -763,6 +857,8 @@ columns:
     role: case.exposure_tattoo_piercing
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tatuagem ou piercing\" (case.exposure_tattoo_piercing): fact about the health event or the person's health"
     name: Tatuagem ou piercing
     years:
     - 2007
@@ -773,6 +869,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -783,6 +881,8 @@ columns:
     role: case.hcv_rna
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia para hepatite C\" (case.hcv_rna): fact about the health event or the person's health"
     name: Sorologia para hepatite C
     years:
     - 2007
@@ -793,6 +893,8 @@ columns:
     role: case.exposure_transfusion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transfusão de sangue\" (case.exposure_transfusion): fact about the health event or the person's health"
     name: Transfusão de sangue
     years:
     - 2007
@@ -803,6 +905,8 @@ columns:
     role: case.exposure_transplant
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transplante\" (case.exposure_transplant): fact about the health event or the person's health"
     name: Transplante
     years:
     - 2007
@@ -813,6 +917,8 @@ columns:
     role: case.exposure_three_or_more_partners
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Três ou mais parceiros sexuais\" (case.exposure_three_or_more_partners): fact about the health event or the person's health"
     name: Três ou mais parceiros sexuais
     years:
     - 2007

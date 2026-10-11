@@ -58,6 +58,8 @@ columns:
     role: epizootic.species
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Espécie reportada na notificação\" (epizootic.species): fact about the health event or the person's health"
     name: Espécie reportada na notificação
     years:
     - 2013
@@ -148,6 +150,8 @@ columns:
     role: epizootic.setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ambiente de ocorrência\" (epizootic.setting): exposure circumstance of the event"
     name: Ambiente de ocorrência
     years:
     - 2013
@@ -158,6 +162,8 @@ columns:
     role: epizootic.zone
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Zona\" (epizootic.zone): exposure circumstance of the event"
     name: Zona
     years:
     - 2013

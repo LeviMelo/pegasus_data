@@ -43,6 +43,8 @@ columns:
     role: procedure.discharge_indicator
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Alta (APAC)\" (procedure.discharge_indicator): billing, financing, management or contractual attribute"
     name: Indicador de Alta (APAC)
     years:
     - 2008
@@ -64,6 +66,8 @@ columns:
     role: procedure.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater de Atendimento (APAC ou BPA-I)\" (procedure.admission_character): how care or investigation was carried out"
     name: Carater de Atendimento (APAC ou BPA-I)
     years:
     - 2008
@@ -171,6 +175,8 @@ columns:
     role: procedure.professional_activity_legacy
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da Especialidade/Atividade Profissional (inferido)\" (procedure.professional_activity_legacy): billing, financing, management or contractual attribute"
     name: Código da Especialidade/Atividade Profissional (inferido)
     years:
     - 1994
@@ -180,6 +186,8 @@ columns:
     role: procedure.occurrence_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo de Ocorrencia\" (procedure.occurrence_code): billing, financing, management or contractual attribute"
     name: Codigo de Ocorrencia
     years:
     - 1994
@@ -215,6 +223,8 @@ columns:
     role: procedure.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (procedure.management_type_code): billing, financing, management or contractual attribute"
     name: Sigla do Tipo de Gestao
     years:
     - 1994
@@ -257,6 +267,8 @@ columns:
     role: procedure.source_instrument_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Instrumento de Registro\" (procedure.source_instrument_code): billing, financing, management or contractual attribute"
     name: Instrumento de Registro
     years:
     - 1994
@@ -272,6 +284,8 @@ columns:
     role: procedure.closure_indicator
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Encerramento (APAC)\" (procedure.closure_indicator): billing, financing, management or contractual attribute"
     name: Indicador de Encerramento (APAC)
     years:
     - 2008
@@ -285,6 +299,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
     name: Etnia do paciente
     years:
     - 2008
@@ -296,6 +312,8 @@ columns:
     role: procedure.apac_body_error_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de erro de corpo da APAC\" (procedure.apac_body_error_flag): billing, financing, management or contractual attribute"
     name: Indicador de erro de corpo da APAC
     years:
     - 2008
@@ -306,6 +324,8 @@ columns:
     role: procedure.age_eligibility_compatibility_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Compatibilidade com a faixa de idade do procedimento\" (procedure.age_eligibility_compatibility_flag): encoding unit of another field"
     name: Compatibilidade com a faixa de idade do procedimento
     years:
     - 2008
@@ -318,6 +338,8 @@ columns:
     role: procedure.submitted_quantity_error_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de erro de Quantidade Produzida\" (procedure.submitted_quantity_error_flag): billing, financing, management or contractual attribute"
     name: Indicador de erro de Quantidade Produzida
     years:
     - 2008
@@ -326,6 +348,8 @@ columns:
     role: procedure.funding_source_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte de Recursos\" (procedure.funding_source_code): billing, financing, management or contractual attribute"
     name: Fonte de Recursos
     years:
     - 2025
@@ -336,6 +360,8 @@ columns:
     role: patient.age_band_legacy
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa etária\" (patient.age_band_legacy): attribute of the person (age)"
     name: Faixa etária
     years:
     - 1999
@@ -370,6 +396,8 @@ columns:
     role: procedure.other_increment_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Incremento Outros\" (procedure.other_increment_code): billing, financing, management or contractual attribute"
     name: Incremento Outros
     years:
     - 2008
@@ -383,6 +411,8 @@ columns:
     role: procedure.urgency_increment_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Incremento Urgencia\" (procedure.urgency_increment_code): billing, financing, management or contractual attribute"
     name: Incremento Urgencia
     years:
     - 2008
@@ -396,6 +426,8 @@ columns:
     role: procedure.approval_status_indicator
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicativo de situacao da producao\" (procedure.approval_status_indicator): billing, financing, management or contractual attribute"
     name: Indicativo de situacao da producao
     years:
     - 1994
@@ -421,6 +453,8 @@ columns:
     role: procedure.patient_vs_establishment_municipality_mismatch_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Municipio de residencia diferente do estabelecimento\" (procedure.patient_vs_establishment_municipality_mismatch_flag): how care or investigation was carried out"
     name: Municipio de residencia diferente do estabelecimento
     years:
     - 2008
@@ -434,6 +468,8 @@ columns:
     role: facility.maintained_or_individual
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (facility.maintained_or_individual): attribute of the establishment register (structure, service, management)"
     name: Estabelecimento Mantido / Individual
     years:
     - 2008
@@ -456,6 +492,8 @@ columns:
     role: procedure.exit_reason_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de saida\" (procedure.exit_reason_code): billing, financing, management or contractual attribute"
     name: Motivo de saida
     years:
     - 2008
@@ -498,6 +536,8 @@ columns:
     role: facility.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da Natureza Jurídica\" (facility.legal_nature): attribute of the establishment register (structure, service, management)"
     name: Código da Natureza Jurídica
     years:
     - 2011
@@ -511,6 +551,8 @@ columns:
     role: procedure.hierarchy_level
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Nível de hierarquia\" (procedure.hierarchy_level): billing, financing, management or contractual attribute"
     name: Nível de hierarquia
     years:
     - 2002
@@ -521,6 +563,8 @@ columns:
     role: procedure.procedure_complexity_level
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Complexidade do Procedimento\" (procedure.procedure_complexity_level): how care or investigation was carried out"
     name: Complexidade do Procedimento
     years:
     - 2008
@@ -542,6 +586,8 @@ columns:
     role: procedure.death_indicator
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador de Obito (APAC)\" (procedure.death_indicator): outcome of the event"
     name: Indicador de Obito (APAC)
     years:
     - 2008
@@ -555,6 +601,8 @@ columns:
     role: procedure.continuation_indicator
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Permanencia (APAC)\" (procedure.continuation_indicator): billing, financing, management or contractual attribute"
     name: Indicador de Permanencia (APAC)
     years:
     - 2008
@@ -599,6 +647,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raca/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     name: Raca/Cor do paciente
     years:
     - 2008
@@ -628,6 +678,8 @@ columns:
     role: procedure.contract_rule_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Regra Contratual\" (procedure.contract_rule_code): billing, financing, management or contractual attribute"
     name: Codigo da Regra Contratual
     years:
     - 2008
@@ -640,6 +692,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2008
@@ -652,6 +706,8 @@ columns:
     role: procedure.specialised_service
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Código do Serviço Especializado / Classificação CBO (de acordo com o CNES)\" (procedure.specialised_service): how care or investigation was carried out"
     codelists:
     - S_CLASSEN
     name: Código do Serviço Especializado / Classificação CBO (de acordo com o CNES)
@@ -663,6 +719,8 @@ columns:
     role: procedure.production_financing_subtype
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Subtipo de Financiamento da produção\" (procedure.production_financing_subtype): billing, financing, management or contractual attribute"
     name: Subtipo de Financiamento da produção
     years:
     - 2008
@@ -675,6 +733,8 @@ columns:
     role: procedure.attendance_type_legacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de Atendimento (inferido)\" (procedure.attendance_type_legacy): how care or investigation was carried out"
     name: Tipo de Atendimento (inferido)
     years:
     - 1994
@@ -685,6 +745,8 @@ columns:
     role: facility.provider_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Prestador\" (facility.provider_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de Prestador
     years:
     - 1994
@@ -702,6 +764,8 @@ columns:
     role: procedure.consultation_type_legacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de atendimento\" (procedure.consultation_type_legacy): how care or investigation was carried out"
     name: Tipo de atendimento
     years:
     - 1994
@@ -712,6 +776,8 @@ columns:
     role: procedure.production_financing_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Financiamento da produção\" (procedure.production_financing_type): billing, financing, management or contractual attribute"
     name: Tipo de Financiamento da produção
     years:
     - 2008
@@ -725,6 +791,8 @@ columns:
     role: facility.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Estabelecimento\" (facility.type): attribute of the establishment register (structure, service, management)"
     name: Tipo de Estabelecimento
     years:
     - 2008
@@ -738,6 +806,8 @@ columns:
     role: procedure.transfer_indicator
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Transferência\" (procedure.transfer_indicator): billing, financing, management or contractual attribute"
     name: Indicador de Transferência
     years:
     - 2008
@@ -751,6 +821,8 @@ columns:
     role: procedure.patient_uf_differs_from_facility_uf
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento\" (procedure.patient_uf_differs_from_facility_uf): how care or investigation was carried out"
     name: Indica se a UF de residência do paciente é diferente da UF de localização do estabelecimento
     years:
     - 2008

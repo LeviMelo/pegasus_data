@@ -35,6 +35,8 @@ columns:
     role: case.agent_group
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grupo do agente tóxico / classificação geral\" (case.agent_group): fact about the health event or the person's health"
     name: Grupo do agente tóxico / classificação geral
     years:
     - 2006
@@ -59,6 +61,8 @@ columns:
     role: case.pesticide_activity_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se agrotóxico, quais as atividades exercidas na exposição atual (1ª opção)\" (case.pesticide_activity_1): fact about the health event or the person's health"
     name: Se agrotóxico, quais as atividades exercidas na exposição atual (1ª opção)
     years:
     - 2006
@@ -74,6 +78,8 @@ columns:
     role: case.pesticide_activity_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se agrotóxico, quais as atividades exercidas na exposição atual (2ª opção)\" (case.pesticide_activity_2): fact about the health event or the person's health"
     name: Se agrotóxico, quais as atividades exercidas na exposição atual (2ª opção)
     years:
     - 2006
@@ -89,6 +95,8 @@ columns:
     role: case.pesticide_activity_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se agrotóxico, quais as atividades exercidas na exposição atual (3ª opção)\" (case.pesticide_activity_3): fact about the health event or the person's health"
     name: Se agrotóxico, quais as atividades exercidas na exposição atual (3ª opção)
     years:
     - 2006
@@ -99,6 +107,8 @@ columns:
     role: case.cat_issued
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Comunicação de Acidente de Trabalho (CAT) Emitida?\" (case.cat_issued): record type, internal flag or system field"
     name: Comunicação de Acidente de Trabalho (CAT) Emitida?
     codelists:
     - SIM_NAOAP
@@ -115,6 +125,8 @@ columns:
     role: case.exposure_circumstance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Circunstância da exposição / contaminação\" (case.exposure_circumstance): fact about the health event or the person's health"
     name: Circunstância da exposição / contaminação
     years:
     - 2006
@@ -131,6 +143,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -158,6 +172,8 @@ columns:
     role: case.agent_code_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente tóxico (código) 1\" (case.agent_code_1): fact about the health event or the person's health"
     name: Agente tóxico (código) 1
     years:
     - 2006
@@ -167,6 +183,8 @@ columns:
     role: case.agent_code_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente tóxico (código) 2\" (case.agent_code_2): fact about the health event or the person's health"
     name: Agente tóxico (código) 2
     years:
     - 2006
@@ -176,6 +194,8 @@ columns:
     role: case.agent_code_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente tóxico (código) 3\" (case.agent_code_3): fact about the health event or the person's health"
     name: Agente tóxico (código) 3
     years:
     - 2006
@@ -186,6 +206,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -204,6 +226,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -217,6 +241,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -230,6 +256,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -243,6 +271,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -267,6 +297,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -392,6 +424,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -409,6 +443,8 @@ columns:
     role: case.hospitalized
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização\" (case.hospitalized): how care or investigation was carried out"
     name: Ocorreu Hospitalização
     years:
     - 2006
@@ -529,6 +565,8 @@ columns:
     role: case.lead_poisoning
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Intoxicação exógena por chumbo\" (case.lead_poisoning): fact about the health event or the person's health"
     name: Intoxicação exógena por chumbo
     years:
     - 2007
@@ -539,6 +577,8 @@ columns:
     role: case.mercury_poisoning
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Intoxicação exógena por mercúrio\" (case.mercury_poisoning): fact about the health event or the person's health"
     name: Intoxicação exógena por mercúrio
     years:
     - 2007
@@ -549,6 +589,8 @@ columns:
     role: case.methanol_poisoning
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Intoxicação exógena por metanol\" (case.methanol_poisoning): fact about the health event or the person's health"
     name: Intoxicação exógena por metanol
     years:
     - 2007
@@ -558,6 +600,8 @@ columns:
     role: case.pesticide_crop
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se agrotóxico de uso agrícola, qual a cultura / lavoura\" (case.pesticide_crop): fact about the health event or the person's health"
     name: Se agrotóxico de uso agrícola, qual a cultura / lavoura
     years:
     - 2006
@@ -568,6 +612,8 @@ columns:
     role: case.exposure_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local de ocorrência da exposição\" (case.exposure_setting): fact about the health event or the person's health"
     name: Local de ocorrência da exposição
     years:
     - 2006
@@ -747,6 +793,8 @@ columns:
     role: patient.employment_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação no Mercado de Trabalho\" (patient.employment_status): attribute of the person (work/occupation)"
     name: Situação no Mercado de Trabalho
     years:
     - 2006
@@ -757,6 +805,8 @@ columns:
     role: case.care_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de atendimento\" (case.care_type): how care or investigation was carried out"
     name: Tipo de atendimento
     years:
     - 2006
@@ -767,6 +817,8 @@ columns:
     role: case.exposure_pattern
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de exposição\" (case.exposure_pattern): fact about the health event or the person's health"
     name: Tipo de exposição
     years:
     - 2006
@@ -777,6 +829,8 @@ columns:
     role: patient.occupation_tenure_unit
     kind: category
     model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade do Tempo de Trabalho na Ocupação\" (patient.occupation_tenure_unit): encoding unit of another field"
     name: Unidade do Tempo de Trabalho na Ocupação
     codelists:
     - TPTEMPOTRAB
@@ -789,6 +843,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2006
@@ -827,6 +883,8 @@ columns:
     role: case.pesticide_use
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se agrotóxico, qual a finalidade da utilização\" (case.pesticide_use): fact about the health event or the person's health"
     name: Se agrotóxico, qual a finalidade da utilização
     years:
     - 2006
@@ -845,6 +903,8 @@ columns:
     role: case.exposure_route_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Via de exposição / contaminação (1ª opção)\" (case.exposure_route_1): fact about the health event or the person's health"
     name: Via de exposição / contaminação (1ª opção)
     years:
     - 2006
@@ -855,6 +915,8 @@ columns:
     role: case.exposure_route_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Via de exposição / contaminação (2ª opção)\" (case.exposure_route_2): fact about the health event or the person's health"
     name: Via de exposição / contaminação (2ª opção)
     years:
     - 2006
@@ -865,6 +927,8 @@ columns:
     role: case.exposure_route_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Via de exposição / contaminação (3ª opção)\" (case.exposure_route_3): fact about the health event or the person's health"
     name: Via de exposição / contaminação (3ª opção)
     years:
     - 2006

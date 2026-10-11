@@ -5,6 +5,8 @@ columns:
     role: admission.budget_source
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte Orçamentária\" (admission.budget_source): budget source: financing"
     name: Fonte Orçamentária
     codelists:
     - FONTEREM
@@ -18,6 +20,8 @@ columns:
     role: act.value_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de valor\" (act.value_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de valor
     years:
     - 2008
@@ -46,6 +50,8 @@ columns:
     role: act.service_classification
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Serviço/Classificação\" (act.service_classification): attribute of the establishment register (structure, service, management)"
     name: Serviço/Classificação
     years:
     - 2008
@@ -126,6 +132,8 @@ columns:
     role: act.complexity
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Complexidade do ato profissional\" (act.complexity): how care or investigation was carried out"
     name: Complexidade do ato profissional
     years:
     - 2008
@@ -138,6 +146,8 @@ columns:
     role: act.faec_subtype
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo e subtipo de financiamento FAEC\" (act.faec_subtype): attribute of the establishment register (structure, service, management)"
     name: Tipo e subtipo de financiamento FAEC
     years:
     - 2008
@@ -160,6 +170,8 @@ columns:
     role: admission.cross_state_facility
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica UF de residência diferente\" (admission.cross_state_facility): how care or investigation was carried out"
     name: Indica UF de residência diferente
     years:
     - 2008
@@ -170,6 +182,8 @@ columns:
     role: patient.cross_municipality
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica UF de residência diferente\" (patient.cross_municipality): how care or investigation was carried out"
     name: Indica UF de residência diferente
     years:
     - 2008
@@ -196,6 +210,8 @@ columns:
     role: act.funding_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de financiamento do ato profissional\" (act.funding_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de financiamento do ato profissional
     years:
     - 2008
@@ -350,6 +366,8 @@ columns:
     role: act.type_legacy
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo\" (act.type_legacy): attribute of the establishment register (structure, service, management)"
     name: Tipo
     years:
     - 1997
@@ -359,6 +377,8 @@ columns:
     role: act.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo do ato\" (act.type): attribute of the establishment register (structure, service, management)"
     name: Tipo do ato
     years:
     - 1997
@@ -379,6 +399,8 @@ columns:
     role: act.unique_aih_marker
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador único da AIH\" (act.unique_aih_marker): attribute of the establishment register (structure, service, management)"
     name: Indicador único da AIH
     years:
     - 2008

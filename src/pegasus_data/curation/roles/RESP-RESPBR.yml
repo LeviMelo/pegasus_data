@@ -21,6 +21,8 @@ columns:
     role: notification.headache_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CEFALEIA, no label recorded (notification.headache_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -30,6 +32,8 @@ columns:
     role: notification.final_case_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CLASSIFIN, no label recorded (notification.final_case_classification): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -39,6 +43,8 @@ columns:
     role: notification.gestational_term_classification_at_delivery
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CLASS_FETO, no label recorded (notification.gestational_term_classification_at_delivery): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -75,6 +81,8 @@ columns:
     role: notification.conjunctival_hyperemia_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CONJUNTIV, no label recorded (notification.conjunctival_hyperemia_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -89,6 +97,8 @@ columns:
     role: notification.final_classification_criteria_multi_select
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CRITERIO, no label recorded (notification.final_classification_criteria_multi_select): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -98,6 +108,8 @@ columns:
     role: notification.hearing_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column DEF_AUDIT, no label recorded (notification.hearing_deficiency_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -107,6 +119,8 @@ columns:
     role: notification.neurological_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column DEF_NEURO, no label recorded (notification.neurological_deficiency_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -116,6 +130,8 @@ columns:
     role: notification.visual_deficiency_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column DEF_VISUAL, no label recorded (notification.visual_deficiency_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -132,6 +148,8 @@ columns:
     role: notification.joint_pain_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column DOR_ARTIC, no label recorded (notification.joint_pain_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -141,6 +159,8 @@ columns:
     role: notification.muscle_pain_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column DOR_MUSC, no label recorded (notification.muscle_pain_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -220,6 +240,8 @@ columns:
     role: notification.joint_edema_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EDEMA, no label recorded (notification.joint_edema_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -229,6 +251,8 @@ columns:
     role: notification.etiology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ETIOLOGIA, no label recorded (notification.etiology): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -238,6 +262,8 @@ columns:
     role: notification.mri_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXAME_RS, no label recorded (notification.mri_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -247,6 +273,8 @@ columns:
     role: notification.ct_scan_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXAME_TC, no label recorded (notification.ct_scan_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -256,6 +284,8 @@ columns:
     role: notification.prenatal_ultrasound_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXAME_USS, no label recorded (notification.prenatal_ultrasound_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -265,6 +295,8 @@ columns:
     role: notification.rash_exanthema_during_pregnancy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXANT_GES, no label recorded (notification.rash_exanthema_during_pregnancy): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -274,6 +306,8 @@ columns:
     role: notification.storch_panel_testing_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column EXA_TORSCH, no label recorded (notification.storch_panel_testing_flag): how care or investigation was carried out"
     years:
     - 
     - 
@@ -283,6 +317,8 @@ columns:
     role: notification.transfontanellar_ultrasound_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column EXA_TRANSF, no label recorded (notification.transfontanellar_ultrasound_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -292,6 +328,8 @@ columns:
     role: notification.fever_during_pregnancy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column FEBRE_GES, no label recorded (notification.fever_during_pregnancy): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -319,6 +357,8 @@ columns:
     role: notification.pregnancy_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column GRAVIDEZ, no label recorded (notification.pregnancy_type): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -328,6 +368,8 @@ columns:
     role: notification.lymph_node_enlargement_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column HIPERT_GAN, no label recorded (notification.lymph_node_enlargement_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -337,6 +379,8 @@ columns:
     role: notification.recent_other_arbovirus_infection_history
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column HIST_ARBOV, no label recorded (notification.recent_other_arbovirus_infection_history): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -346,6 +390,8 @@ columns:
     role: notification.family_history_of_congenital_malformation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column HIST_MALFO, no label recorded (notification.family_history_of_congenital_malformation): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -375,6 +421,8 @@ columns:
     role: notification.congenital_alteration_type_microcephaly_classification
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column MICROCEFAL, no label recorded (notification.congenital_alteration_type_microcephaly_classification): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -384,6 +432,8 @@ columns:
     role: notification.neurological_involvement_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column NEUROLOG, no label recorded (notification.neurological_involvement_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -391,6 +441,8 @@ columns:
     role: notification.zika_pcr_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column PCR_Z, no label recorded (notification.zika_pcr_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -417,6 +469,8 @@ columns:
     role: notification.itching_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column PRURIDO, no label recorded (notification.itching_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -424,6 +478,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "column RACACOR, no label recorded (patient.race): attribute of the person (race/colour)"
     years:
     - 
     - 
@@ -449,6 +505,8 @@ columns:
     role: notification.cytomegalovirus_cmv_laboratory_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RESUL_C, no label recorded (notification.cytomegalovirus_cmv_laboratory_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -456,6 +514,8 @@ columns:
     role: notification.herpes_virus_laboratory_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RESUL_H, no label recorded (notification.herpes_virus_laboratory_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -463,6 +523,8 @@ columns:
     role: notification.syphilis_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RESUL_S, no label recorded (notification.syphilis_laboratory_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -470,6 +532,8 @@ columns:
     role: notification.toxoplasmosis_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RESUL_TO, no label recorded (notification.toxoplasmosis_laboratory_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -477,6 +541,8 @@ columns:
     role: notification.zika_virus_laboratory_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RESUL_Z, no label recorded (notification.zika_virus_laboratory_result): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -486,6 +552,8 @@ columns:
     role: notification.storch_panel_testing_flag_newborn
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column RNEXA_TORS, no label recorded (notification.storch_panel_testing_flag_newborn): how care or investigation was carried out"
     years:
     - 
     - 
@@ -493,6 +561,8 @@ columns:
     role: notification.zika_pcr_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNPCR_Z, no label recorded (notification.zika_pcr_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -500,6 +570,8 @@ columns:
     role: notification.cytomegalovirus_cmv_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNRESUL_C, no label recorded (notification.cytomegalovirus_cmv_laboratory_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -507,6 +579,8 @@ columns:
     role: notification.herpes_virus_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNRESUL_H, no label recorded (notification.herpes_virus_laboratory_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -514,6 +588,8 @@ columns:
     role: notification.syphilis_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNRESUL_S, no label recorded (notification.syphilis_laboratory_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -521,6 +597,8 @@ columns:
     role: notification.toxoplasmosis_laboratory_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNRESUL_TO, no label recorded (notification.toxoplasmosis_laboratory_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -528,6 +606,8 @@ columns:
     role: notification.zika_positive_flag_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNRESUL_Z, no label recorded (notification.zika_positive_flag_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -535,6 +615,8 @@ columns:
     role: notification.zika_igg_serology_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNSO_IGG_Z, no label recorded (notification.zika_igg_serology_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -542,6 +624,8 @@ columns:
     role: notification.zika_igm_serology_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNSO_IGM_Z, no label recorded (notification.zika_igm_serology_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -549,6 +633,8 @@ columns:
     role: notification.zika_igg_rapid_test_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNTR_IGG_Z, no label recorded (notification.zika_igg_rapid_test_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -556,6 +642,8 @@ columns:
     role: notification.zika_igm_rapid_test_result_newborn
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column RNTR_IGM_Z, no label recorded (notification.zika_igm_rapid_test_result_newborn): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -563,6 +651,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "column SEXO, no label recorded (patient.sex): attribute of the person (sex)"
     years:
     - 
     - 
@@ -570,6 +660,8 @@ columns:
     role: notification.zika_igg_serology_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column SO_IGG_Z, no label recorded (notification.zika_igg_serology_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -577,6 +669,8 @@ columns:
     role: notification.zika_igm_serology_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column SO_IGM_Z, no label recorded (notification.zika_igm_serology_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -586,6 +680,8 @@ columns:
     role: notification.record_status
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column STATUS_NOT, no label recorded (notification.record_status): record type, internal flag or system field"
     years:
     - 
     - 
@@ -595,6 +691,8 @@ columns:
     role: notification.death_outcome_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_OBITO, no label recorded (notification.death_outcome_flag): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -602,6 +700,8 @@ columns:
     role: notification.timing_of_congenital_alteration_detection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column TPDETECCAO, no label recorded (notification.timing_of_congenital_alteration_detection): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -611,6 +711,8 @@ columns:
     role: notification.notification_type_case_category
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column TP_NOTIFIC, no label recorded (notification.notification_type_case_category): record type, internal flag or system field"
     years:
     - 
     - 
@@ -618,6 +720,8 @@ columns:
     role: notification.zika_igg_rapid_test_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column TR_IGG_Z, no label recorded (notification.zika_igg_rapid_test_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 
@@ -625,6 +729,8 @@ columns:
     role: notification.zika_igm_rapid_test_result_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column TR_IGM_Z, no label recorded (notification.zika_igm_rapid_test_result_mother): fact about the health event or the person's health"
     years:
     - 
     - 

@@ -7,6 +7,8 @@ columns:
     role: case.means_threat
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ameaça\" (case.means_threat): fact about the health event or the person's health"
     name: Ameaça
     years:
     - 2009
@@ -17,6 +19,8 @@ columns:
     role: case.means_sharp_object
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Objeto pérfuro-cortante\" (case.means_sharp_object): fact about the health event or the person's health"
     name: Objeto pérfuro-cortante
     years:
     - 2009
@@ -27,6 +31,8 @@ columns:
     role: case.means_hanging
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Enforcamento\" (case.means_hanging): fact about the health event or the person's health"
     name: Enforcamento
     years:
     - 2009
@@ -37,6 +43,8 @@ columns:
     role: case.means_poisoning
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Envenenamento\" (case.means_poisoning): fact about the health event or the person's health"
     name: Envenenamento
     years:
     - 2009
@@ -55,6 +63,8 @@ columns:
     role: case.means_firearm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Arma de fogo\" (case.means_firearm): fact about the health event or the person's health"
     name: Arma de fogo
     years:
     - 2009
@@ -65,6 +75,8 @@ columns:
     role: case.means_physical_force
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força corporal ou espancamento\" (case.means_physical_force): fact about the health event or the person's health"
     name: Força corporal ou espancamento
     years:
     - 2009
@@ -75,6 +87,8 @@ columns:
     role: case.means_blunt_object
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Objeto contundente\" (case.means_blunt_object): fact about the health event or the person's health"
     name: Objeto contundente
     years:
     - 2009
@@ -85,6 +99,8 @@ columns:
     role: case.means_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro meio de agressão\" (case.means_other): fact about the health event or the person's health"
     name: Outro meio de agressão
     years:
     - 2009
@@ -95,6 +111,8 @@ columns:
     role: case.means_hot_substance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Substância ou objeto quente\" (case.means_hot_substance): fact about the health event or the person's health"
     name: Substância ou objeto quente
     years:
     - 2009
@@ -114,6 +132,8 @@ columns:
     role: case.referral_social_assistance
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Assistência social\" (case.referral_social_assistance): how care or investigation was carried out"
     name: Assistência social
     years:
     - 2009
@@ -124,6 +144,8 @@ columns:
     role: case.referral_womens_services
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Atendimento à mulher\" (case.referral_womens_services): how care or investigation was carried out"
     name: Atendimento à mulher
     years:
     - 2009
@@ -134,6 +156,8 @@ columns:
     role: perpetrator.alcohol_suspected
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Suspeita de uso de álcool pelo autor\" (perpetrator.alcohol_suspected): circumstance of the violence event"
     name: Suspeita de uso de álcool pelo autor
     years:
     - 2009
@@ -144,6 +168,8 @@ columns:
     role: perpetrator.sex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sexo do provável autor\" (perpetrator.sex): circumstance of the violence event"
     name: Sexo do provável autor
     years:
     - 2009
@@ -153,6 +179,8 @@ columns:
     role: perpetrator.life_stage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ciclo de vida do provável autor\" (perpetrator.life_stage): circumstance of the violence event"
     name: Ciclo de vida do provável autor
     years:
     - 2009
@@ -169,6 +197,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -186,6 +216,8 @@ columns:
     role: case.consequence_abortion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aborto\" (case.consequence_abortion): fact about the health event or the person's health"
     name: Aborto
     years:
     - 2009
@@ -196,6 +228,8 @@ columns:
     role: case.consequence_behavioural_disorder
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transtorno de comportamento\" (case.consequence_behavioural_disorder): fact about the health event or the person's health"
     name: Transtorno de comportamento
     years:
     - 2009
@@ -206,6 +240,8 @@ columns:
     role: case.consequence_std
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"DST\" (case.consequence_std): fact about the health event or the person's health"
     name: DST
     years:
     - 2009
@@ -224,6 +260,8 @@ columns:
     role: case.consequence_post_traumatic_stress
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estresse pós-traumático\" (case.consequence_post_traumatic_stress): fact about the health event or the person's health"
     name: Estresse pós-traumático
     years:
     - 2009
@@ -234,6 +272,8 @@ columns:
     role: case.consequence_pregnancy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gravidez\" (case.consequence_pregnancy): fact about the health event or the person's health"
     name: Gravidez
     years:
     - 2009
@@ -244,6 +284,8 @@ columns:
     role: case.referral_elderly_council
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conselho do idoso\" (case.referral_elderly_council): how care or investigation was carried out"
     name: Conselho do idoso
     years:
     - 2009
@@ -254,6 +296,8 @@ columns:
     role: case.consequence_mental_disorder
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transtorno mental\" (case.consequence_mental_disorder): fact about the health event or the person's health"
     name: Transtorno mental
     years:
     - 2009
@@ -264,6 +308,8 @@ columns:
     role: case.consequence_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra consequência\" (case.consequence_other): fact about the health event or the person's health"
     name: Outra consequência
     years:
     - 2009
@@ -274,6 +320,8 @@ columns:
     role: case.consequence_suicide_attempt
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tentativa de suicídio\" (case.consequence_suicide_attempt): fact about the health event or the person's health"
     name: Tentativa de suicídio
     years:
     - 2009
@@ -284,6 +332,8 @@ columns:
     role: case.referral_child_protection_council
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conselho tutelar\" (case.referral_child_protection_council): how care or investigation was carried out"
     name: Conselho tutelar
     years:
     - 2009
@@ -294,6 +344,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -307,6 +359,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -320,6 +374,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -333,6 +389,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -347,6 +405,8 @@ columns:
     role: case.referral_public_defender
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Defensoria pública\" (case.referral_public_defender): how care or investigation was carried out"
     name: Defensoria pública
     years:
     - 2009
@@ -357,6 +417,8 @@ columns:
     role: patient.disability_hearing
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Deficiência auditiva\" (patient.disability_hearing): attribute of the person (disability)"
     name: Deficiência auditiva
     years:
     - 2009
@@ -375,6 +437,8 @@ columns:
     role: patient.disability_physical
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Deficiência física\" (patient.disability_physical): attribute of the person (disability)"
     name: Deficiência física
     years:
     - 2009
@@ -385,6 +449,8 @@ columns:
     role: patient.disability_intellectual
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Deficiência intelectual\" (patient.disability_intellectual): attribute of the person (disability)"
     name: Deficiência intelectual
     years:
     - 2009
@@ -395,6 +461,8 @@ columns:
     role: patient.disability_other
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Outra deficiência ou transtorno\" (patient.disability_other): attribute of the person (disability)"
     name: Outra deficiência ou transtorno
     years:
     - 2009
@@ -405,6 +473,8 @@ columns:
     role: patient.disability_any
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Pessoa com deficiência ou transtorno\" (patient.disability_any): attribute of the person (disability)"
     name: Pessoa com deficiência ou transtorno
     years:
     - 2009
@@ -415,6 +485,8 @@ columns:
     role: patient.disability_visual
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Deficiência visual\" (patient.disability_visual): attribute of the person (disability)"
     name: Deficiência visual
     years:
     - 2009
@@ -425,6 +497,8 @@ columns:
     role: case.referral_police_station
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Delegacia\" (case.referral_police_station): how care or investigation was carried out"
     name: Delegacia
     years:
     - 2009
@@ -435,6 +509,8 @@ columns:
     role: case.referral_child_police_station
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Delegacia de atendimento à criança\" (case.referral_child_police_station): how care or investigation was carried out"
     name: Delegacia de atendimento à criança
     years:
     - 2009
@@ -445,6 +521,8 @@ columns:
     role: case.referral_elderly_police_station
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Delegacia de atendimento ao idoso\" (case.referral_elderly_police_station): how care or investigation was carried out"
     name: Delegacia de atendimento ao idoso
     years:
     - 2009
@@ -455,6 +533,8 @@ columns:
     role: case.referral_womens_police_station
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Delegacia de atendimento à mulher\" (case.referral_womens_police_station): how care or investigation was carried out"
     name: Delegacia de atendimento à mulher
     years:
     - 2009
@@ -465,6 +545,8 @@ columns:
     role: case.referral_human_rights
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Direitos humanos\" (case.referral_human_rights): how care or investigation was carried out"
     name: Direitos humanos
     years:
     - 2009
@@ -571,6 +653,8 @@ columns:
     role: case.referral_shelter
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento a abrigo\" (case.referral_shelter): how care or investigation was carried out"
     name: Encaminhamento a abrigo
     years:
     - 2009
@@ -581,6 +665,8 @@ columns:
     role: case.referral_creas
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento ao CREAS\" (case.referral_creas): how care or investigation was carried out"
     name: Encaminhamento ao CREAS
     years:
     - 2009
@@ -591,6 +677,8 @@ columns:
     role: case.referral_deam
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento à DEAM\" (case.referral_deam): how care or investigation was carried out"
     name: Encaminhamento à DEAM
     years:
     - 2009
@@ -601,6 +689,8 @@ columns:
     role: case.referral_police_station
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento à delegacia\" (case.referral_police_station): how care or investigation was carried out"
     name: Encaminhamento à delegacia
     years:
     - 2009
@@ -611,6 +701,8 @@ columns:
     role: case.referral_dpca
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento à DPCA\" (case.referral_dpca): how care or investigation was carried out"
     name: Encaminhamento à DPCA
     years:
     - 2009
@@ -629,6 +721,8 @@ columns:
     role: case.referral_iml
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento ao IML\" (case.referral_iml): how care or investigation was carried out"
     name: Encaminhamento ao IML
     years:
     - 2009
@@ -639,6 +733,8 @@ columns:
     role: case.referral_public_prosecutor
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento para outros setores – Ministério Público\" (case.referral_public_prosecutor): how care or investigation was carried out"
     name: Encaminhamento para outros setores – Ministério Público
     years:
     - 2009
@@ -649,6 +745,8 @@ columns:
     role: case.referral_womens_reference_center
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento ao centro de referência da mulher\" (case.referral_womens_reference_center): how care or investigation was carried out"
     name: Encaminhamento ao centro de referência da mulher
     years:
     - 2009
@@ -659,6 +757,8 @@ columns:
     role: case.referral_other
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Outro encaminhamento\" (case.referral_other): how care or investigation was carried out"
     name: Outro encaminhamento
     years:
     - 2009
@@ -669,6 +769,8 @@ columns:
     role: case.referral_health_network
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento na rede de saúde\" (case.referral_health_network): how care or investigation was carried out"
     name: Encaminhamento na rede de saúde
     years:
     - 2009
@@ -679,6 +781,8 @@ columns:
     role: case.referral_sentinel_service
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento ao serviço sentinela\" (case.referral_sentinel_service): how care or investigation was carried out"
     name: Encaminhamento ao serviço sentinela
     years:
     - 2009
@@ -689,6 +793,8 @@ columns:
     role: case.referral_child_protection_council
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento ao conselho tutelar\" (case.referral_child_protection_council): how care or investigation was carried out"
     name: Encaminhamento ao conselho tutelar
     years:
     - 2009
@@ -699,6 +805,8 @@ columns:
     role: case.referral_juvenile_court
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento à vara da infância\" (case.referral_juvenile_court): how care or investigation was carried out"
     name: Encaminhamento à vara da infância
     years:
     - 2009
@@ -709,6 +817,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -736,6 +846,8 @@ columns:
     role: patient.gender_identity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Identidade de gênero\" (patient.gender_identity): attribute of the person (identity)"
     name: Identidade de gênero
     years:
     - 2009
@@ -828,6 +940,8 @@ columns:
     role: case.referral_juvenile_court
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Vara da infância e juventude\" (case.referral_juvenile_court): how care or investigation was carried out"
     name: Vara da infância e juventude
     years:
     - 2009
@@ -837,6 +951,8 @@ columns:
     role: case.injury_body_part
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Parte do corpo atingida\" (case.injury_body_part): fact about the health event or the person's health"
     name: Parte do corpo atingida
     years:
     - 2009
@@ -854,6 +970,8 @@ columns:
     role: case.injury_nature
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Natureza da lesão\" (case.injury_nature): fact about the health event or the person's health"
     name: Natureza da lesão
     years:
     - 2009
@@ -864,6 +982,8 @@ columns:
     role: case.self_inflicted
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão autoprovocada\" (case.self_inflicted): fact about the health event or the person's health"
     name: Lesão autoprovocada
     years:
     - 2009
@@ -887,6 +1007,8 @@ columns:
     role: case.occurrence_setting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local de ocorrência\" (case.occurrence_setting): fact about the health event or the person's health"
     name: Local de ocorrência
     years:
     - 2009
@@ -897,6 +1019,8 @@ columns:
     role: case.referral_public_prosecutor
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ministério Público\" (case.referral_public_prosecutor): how care or investigation was carried out"
     name: Ministério Público
     years:
     - 2009
@@ -905,6 +1029,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar
     years:
     - 2009
@@ -942,6 +1068,8 @@ columns:
     role: patient.sexual_orientation
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Orientação sexual\" (patient.sexual_orientation): attribute of the person (identity)"
     name: Orientação sexual
     years:
     - 2009
@@ -952,6 +1080,8 @@ columns:
     role: case.repeated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ocorreu outras vezes\" (case.repeated): fact about the health event or the person's health"
     name: Ocorreu outras vezes
     years:
     - 2009
@@ -962,6 +1092,8 @@ columns:
     role: case.penetration_anal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Penetração anal\" (case.penetration_anal): fact about the health event or the person's health"
     name: Penetração anal
     years:
     - 2009
@@ -972,6 +1104,8 @@ columns:
     role: case.penetration_oral
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Penetração oral\" (case.penetration_oral): fact about the health event or the person's health"
     name: Penetração oral
     years:
     - 2009
@@ -982,6 +1116,8 @@ columns:
     role: case.penetration_vaginal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Penetração vaginal\" (case.penetration_vaginal): fact about the health event or the person's health"
     name: Penetração vaginal
     years:
     - 2009
@@ -992,6 +1128,8 @@ columns:
     role: case.procedure_legal_abortion
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Aborto previsto em lei\" (case.procedure_legal_abortion): how care or investigation was carried out"
     name: Aborto previsto em lei
     years:
     - 2009
@@ -1002,6 +1140,8 @@ columns:
     role: case.procedure_emergency_contraception
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Contracepção de emergência\" (case.procedure_emergency_contraception): how care or investigation was carried out"
     name: Contracepção de emergência
     years:
     - 2009
@@ -1012,6 +1152,8 @@ columns:
     role: case.procedure_std_prophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Profilaxia de DST\" (case.procedure_std_prophylaxis): how care or investigation was carried out"
     name: Profilaxia de DST
     years:
     - 2009
@@ -1022,6 +1164,8 @@ columns:
     role: case.procedure_hepatitis_b_prophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Profilaxia de hepatite B\" (case.procedure_hepatitis_b_prophylaxis): how care or investigation was carried out"
     name: Profilaxia de hepatite B
     years:
     - 2009
@@ -1032,6 +1176,8 @@ columns:
     role: case.procedure_hiv_prophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Profilaxia de HIV\" (case.procedure_hiv_prophylaxis): how care or investigation was carried out"
     name: Profilaxia de HIV
     years:
     - 2009
@@ -1042,6 +1188,8 @@ columns:
     role: case.procedure_blood_collection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de sangue\" (case.procedure_blood_collection): how care or investigation was carried out"
     name: Coleta de sangue
     years:
     - 2009
@@ -1052,6 +1200,8 @@ columns:
     role: case.procedure_semen_collection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de sêmen\" (case.procedure_semen_collection): how care or investigation was carried out"
     name: Coleta de sêmen
     years:
     - 2009
@@ -1061,6 +1211,8 @@ columns:
     role: case.procedure_vaginal_secretion_collection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de secreção vaginal\" (case.procedure_vaginal_secretion_collection): how care or investigation was carried out"
     name: Coleta de secreção vaginal
     years:
     - 2009
@@ -1071,6 +1223,8 @@ columns:
     role: case.referral_education_network
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rede de educação\" (case.referral_education_network): how care or investigation was carried out"
     name: Rede de educação
     years:
     - 2009
@@ -1081,6 +1235,8 @@ columns:
     role: case.referral_health_network
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rede de saúde\" (case.referral_health_network): how care or investigation was carried out"
     name: Rede de saúde
     years:
     - 2009
@@ -1091,6 +1247,8 @@ columns:
     role: case.cat_issued
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Emissão de CAT\" (case.cat_issued): record type, internal flag or system field"
     name: Emissão de CAT
     years:
     - 2009
@@ -1101,6 +1259,8 @@ columns:
     role: perpetrator.relation_acquaintance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor era conhecido\" (perpetrator.relation_acquaintance): circumstance of the violence event"
     name: Agressor era conhecido
     years:
     - 2009
@@ -1111,6 +1271,8 @@ columns:
     role: perpetrator.relation_spouse
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o cônjuge\" (perpetrator.relation_spouse): circumstance of the violence event"
     name: Agressor foi o cônjuge
     years:
     - 2009
@@ -1121,6 +1283,8 @@ columns:
     role: perpetrator.relation_caregiver
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o cuidador\" (perpetrator.relation_caregiver): circumstance of the violence event"
     name: Agressor foi o cuidador
     years:
     - 2009
@@ -1131,6 +1295,8 @@ columns:
     role: perpetrator.relation_stranger
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor era desconhecido\" (perpetrator.relation_stranger): circumstance of the violence event"
     name: Agressor era desconhecido
     years:
     - 2009
@@ -1149,6 +1315,8 @@ columns:
     role: perpetrator.relation_ex_spouse
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o ex-cônjuge\" (perpetrator.relation_ex_spouse): circumstance of the violence event"
     name: Agressor foi o ex-cônjuge
     years:
     - 2009
@@ -1159,6 +1327,8 @@ columns:
     role: perpetrator.relation_ex_partner
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o ex-namorado\" (perpetrator.relation_ex_partner): circumstance of the violence event"
     name: Agressor foi o ex-namorado
     years:
     - 2009
@@ -1169,6 +1339,8 @@ columns:
     role: perpetrator.relation_child
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o filho\" (perpetrator.relation_child): circumstance of the violence event"
     name: Agressor foi o filho
     years:
     - 2009
@@ -1179,6 +1351,8 @@ columns:
     role: perpetrator.relation_institutional
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor era pessoa com relação institucional\" (perpetrator.relation_institutional): circumstance of the violence event"
     name: Agressor era pessoa com relação institucional
     years:
     - 2009
@@ -1189,6 +1363,8 @@ columns:
     role: perpetrator.relation_sibling
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o irmão\" (perpetrator.relation_sibling): circumstance of the violence event"
     name: Agressor foi o irmão
     years:
     - 2009
@@ -1199,6 +1375,8 @@ columns:
     role: perpetrator.relation_stepmother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi a madrasta\" (perpetrator.relation_stepmother): circumstance of the violence event"
     name: Agressor foi a madrasta
     years:
     - 2009
@@ -1209,6 +1387,8 @@ columns:
     role: perpetrator.relation_mother
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi a mãe\" (perpetrator.relation_mother): circumstance of the violence event"
     name: Agressor foi a mãe
     years:
     - 2009
@@ -1219,6 +1399,8 @@ columns:
     role: perpetrator.relation_partner
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o namorado\" (perpetrator.relation_partner): circumstance of the violence event"
     name: Agressor foi o namorado
     years:
     - 2009
@@ -1229,6 +1411,8 @@ columns:
     role: perpetrator.relation_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro vínculo\" (perpetrator.relation_other): circumstance of the violence event"
     name: Outro vínculo
     years:
     - 2009
@@ -1239,6 +1423,8 @@ columns:
     role: perpetrator.relation_stepfather
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o padrasto\" (perpetrator.relation_stepfather): circumstance of the violence event"
     name: Agressor foi o padrasto
     years:
     - 2009
@@ -1249,6 +1435,8 @@ columns:
     role: perpetrator.relation_father
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o pai\" (perpetrator.relation_father): circumstance of the violence event"
     name: Agressor foi o pai
     years:
     - 2009
@@ -1259,6 +1447,8 @@ columns:
     role: perpetrator.relation_employer
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor foi o patrão\" (perpetrator.relation_employer): circumstance of the violence event"
     name: Agressor foi o patrão
     years:
     - 2009
@@ -1269,6 +1459,8 @@ columns:
     role: perpetrator.relation_police
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agressor era policial ou agente da lei\" (perpetrator.relation_police): circumstance of the violence event"
     name: Agressor era policial ou agente da lei
     years:
     - 2009
@@ -1279,6 +1471,8 @@ columns:
     role: perpetrator.relation_self
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"A própria pessoa\" (perpetrator.relation_self): circumstance of the violence event"
     name: A própria pessoa
     years:
     - 2009
@@ -1287,6 +1481,8 @@ columns:
     role: patient.sexual_partner_sex
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vínculo sexual com o agressor\" (patient.sexual_partner_sex): fact about the health event or the person's health"
     name: Vínculo sexual com o agressor
     years:
     - 2009
@@ -1301,6 +1497,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Violência relacionada ao trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Violência relacionada ao trabalho
     years:
     - 2009
@@ -1327,6 +1525,8 @@ columns:
     role: case.sexual_violence_harassment
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Assédio sexual\" (case.sexual_violence_harassment): fact about the health event or the person's health"
     name: Assédio sexual
     years:
     - 2009
@@ -1345,6 +1545,8 @@ columns:
     role: case.sexual_violence_rape
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estupro\" (case.sexual_violence_rape): fact about the health event or the person's health"
     name: Estupro
     years:
     - 2009
@@ -1355,6 +1557,8 @@ columns:
     role: case.sexual_violence_exploitation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exploração sexual\" (case.sexual_violence_exploitation): fact about the health event or the person's health"
     name: Exploração sexual
     years:
     - 2009
@@ -1365,6 +1569,8 @@ columns:
     role: case.sexual_violence_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra violência sexual\" (case.sexual_violence_other): fact about the health event or the person's health"
     name: Outra violência sexual
     years:
     - 2009
@@ -1375,6 +1581,8 @@ columns:
     role: case.sexual_violence_child_pornography
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Pornografia infantil\" (case.sexual_violence_child_pornography): fact about the health event or the person's health"
     name: Pornografia infantil
     years:
     - 2009
@@ -1384,6 +1592,8 @@ columns:
     role: case.sexual_violence_indecent_assault
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atentado violento ao pudor\" (case.sexual_violence_indecent_assault): fact about the health event or the person's health"
     name: Atentado violento ao pudor
     years:
     - 2009
@@ -1428,6 +1638,8 @@ columns:
     role: patient.marital_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação conjugal\" (patient.marital_status): attribute of the person (marital status)"
     name: Situação conjugal
     years:
     - 2009
@@ -1436,6 +1648,8 @@ columns:
     role: notification.facility_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Unidade Notificante\" (notification.facility_type): record type, internal flag or system field"
     name: Tipo de Unidade Notificante
     codelists:
     - TIPOUNIDADE
@@ -1448,6 +1662,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2009
@@ -1457,6 +1673,8 @@ columns:
     role: patient.behavioural_disorder
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transtorno de comportamento\" (patient.behavioural_disorder): fact about the health event or the person's health"
     name: Transtorno de comportamento
     years:
     - 2009
@@ -1467,6 +1685,8 @@ columns:
     role: patient.mental_disorder
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Transtorno mental\" (patient.mental_disorder): fact about the health event or the person's health"
     name: Transtorno mental
     years:
     - 2009
@@ -1485,6 +1705,8 @@ columns:
     role: case.violence_financial
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Violência financeira ou econômica\" (case.violence_financial): fact about the health event or the person's health"
     name: Violência financeira ou econômica
     years:
     - 2009
@@ -1495,6 +1717,8 @@ columns:
     role: case.violence_physical
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Violência física\" (case.violence_physical): fact about the health event or the person's health"
     name: Violência física
     years:
     - 2009
@@ -1505,6 +1729,8 @@ columns:
     role: case.violence_child_labour
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de violência – trabalho infantil\" (case.violence_child_labour): fact about the health event or the person's health"
     name: Tipo de violência – trabalho infantil
     years:
     - 2009
@@ -1515,6 +1741,8 @@ columns:
     role: case.violence_legal_intervention
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Intervenção legal\" (case.violence_legal_intervention): fact about the health event or the person's health"
     name: Intervenção legal
     years:
     - 2009
@@ -1524,6 +1752,8 @@ columns:
     role: case.violence_motive
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Motivação da violência\" (case.violence_motive): fact about the health event or the person's health"
     name: Motivação da violência
     years:
     - 2009
@@ -1534,6 +1764,8 @@ columns:
     role: case.violence_neglect
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Negligência ou abandono\" (case.violence_neglect): fact about the health event or the person's health"
     name: Negligência ou abandono
     years:
     - 2009
@@ -1544,6 +1776,8 @@ columns:
     role: case.violence_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra violência\" (case.violence_other): fact about the health event or the person's health"
     name: Outra violência
     years:
     - 2009
@@ -1554,6 +1788,8 @@ columns:
     role: case.violence_psychological
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Violência psicológica ou moral\" (case.violence_psychological): fact about the health event or the person's health"
     name: Violência psicológica ou moral
     years:
     - 2009
@@ -1564,6 +1800,8 @@ columns:
     role: case.violence_sexual
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Violência sexual\" (case.violence_sexual): fact about the health event or the person's health"
     name: Violência sexual
     years:
     - 2009
@@ -1574,6 +1812,8 @@ columns:
     role: case.violence_torture
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tortura\" (case.violence_torture): fact about the health event or the person's health"
     name: Tortura
     years:
     - 2009
@@ -1584,6 +1824,8 @@ columns:
     role: case.violence_trafficking
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tráfico de seres humanos\" (case.violence_trafficking): fact about the health event or the person's health"
     name: Tráfico de seres humanos
     years:
     - 2009

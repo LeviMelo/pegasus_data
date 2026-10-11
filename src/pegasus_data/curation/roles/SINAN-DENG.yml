@@ -7,6 +7,8 @@ columns:
     role: case.sign_abdominal_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor Abdominal\" (case.sign_abdominal_pain): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Dor Abdominal
     years:
@@ -18,6 +20,8 @@ columns:
     role: patient.peptic_ulcer
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença ácido-péptica\" (patient.peptic_ulcer): fact about the health event or the person's health"
     note: 'Pre-existing condition: a property of the person, not of this episode.'
     name: Doença ácido-péptica
     years:
@@ -29,6 +33,8 @@ columns:
     role: case.alarm_abdominal_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor abdominal (sinal de alarme)\" (case.alarm_abdominal_pain): fact about the health event or the person's health"
     name: Dor abdominal (sinal de alarme)
     years:
     - 2014
@@ -39,6 +45,8 @@ columns:
     role: case.alarm_hematocrit_rise
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aumento do hematócrito\" (case.alarm_hematocrit_rise): fact about the health event or the person's health"
     name: Aumento do hematócrito
     years:
     - 2014
@@ -49,6 +57,8 @@ columns:
     role: case.alarm_hepatomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hepatomegalia\" (case.alarm_hepatomegaly): fact about the health event or the person's health"
     name: Hepatomegalia
     years:
     - 2014
@@ -59,6 +69,8 @@ columns:
     role: case.alarm_postural_hypotension
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hipotensão postural/lipotimia\" (case.alarm_postural_hypotension): fact about the health event or the person's health"
     name: Hipotensão postural/lipotimia
     years:
     - 2014
@@ -69,6 +81,8 @@ columns:
     role: case.alarm_lethargy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Letargia ou irritabilidade\" (case.alarm_lethargy): fact about the health event or the person's health"
     name: Letargia ou irritabilidade
     years:
     - 2014
@@ -79,6 +93,8 @@ columns:
     role: case.alarm_fluid_accumulation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acúmulo de líquidos\" (case.alarm_fluid_accumulation): fact about the health event or the person's health"
     name: Acúmulo de líquidos
     years:
     - 2014
@@ -89,6 +105,8 @@ columns:
     role: case.alarm_platelet_drop
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Queda abrupta de plaquetas\" (case.alarm_platelet_drop): fact about the health event or the person's health"
     name: Queda abrupta de plaquetas
     years:
     - 2014
@@ -99,6 +117,8 @@ columns:
     role: case.alarm_mucosal_bleeding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sangramento de mucosa/outras hemorragias\" (case.alarm_mucosal_bleeding): fact about the health event or the person's health"
     name: Sangramento de mucosa/outras hemorragias
     years:
     - 2014
@@ -109,6 +129,8 @@ columns:
     role: case.alarm_persistent_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vômitos persistentes\" (case.alarm_persistent_vomiting): fact about the health event or the person's health"
     name: Vômitos persistentes
     years:
     - 2014
@@ -117,6 +139,8 @@ columns:
     role: case.other_sample_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra outra\" (case.other_sample_collected): how care or investigation was carried out"
     note: Legacy 2000-2006; curation reads it as a C1 Sim/Nao flag, draft typed it text.
     name: Amostra outra
     years:
@@ -126,6 +150,8 @@ columns:
     role: case.pcr_sampled
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Amostra para RT-PCR\" (case.pcr_sampled): how care or investigation was carried out"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Amostra para RT-PCR
@@ -165,6 +191,8 @@ columns:
     role: case.sign_arthralgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Artralgia\" (case.sign_arthralgia): fact about the health event or the person's health"
     name: Artralgia
     years:
     - 2000
@@ -175,6 +203,8 @@ columns:
     role: case.sign_arthritis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Artrite\" (case.sign_arthritis): fact about the health event or the person's health"
     name: Sinais clínicos – Artrite
     years:
     - 2014
@@ -183,6 +213,8 @@ columns:
     role: case.sign_ascites
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ascite\" (case.sign_ascites): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Ascite
@@ -195,6 +227,8 @@ columns:
     role: patient.autoimmune_disease
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças auto-imunes\" (patient.autoimmune_disease): fact about the health event or the person's health"
     name: Doenças auto-imunes
     years:
     - 2014
@@ -205,6 +239,8 @@ columns:
     role: case.sign_headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia\" (case.sign_headache): fact about the health event or the person's health"
     name: Cefaleia
     codelists:
     - SIM_NAO
@@ -217,6 +253,8 @@ columns:
     role: case.sign_shock
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Choque/Hipotensão\" (case.sign_shock): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Choque/Hipotensão
     years:
@@ -226,6 +264,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -243,6 +283,8 @@ columns:
     role: case.chik_presentation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apresentação clínica Chikungunya\" (case.chik_presentation): fact about the health event or the person's health"
     name: Apresentação clínica Chikungunya
     years:
     - 2014
@@ -253,6 +295,8 @@ columns:
     role: case.complications
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Complicações\" (case.complications): fact about the health event or the person's health"
     name: Complicações
     years:
     - 2007
@@ -279,6 +323,8 @@ columns:
     role: case.sign_conjunctivitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos - Conjuntivite\" (case.sign_conjunctivitis): fact about the health event or the person's health"
     name: Sinais clínicos - Conjuntivite
     years:
     - 2014
@@ -287,6 +333,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação (bloco de conclusão legado)\" (case.classification): final classification of the case: clinical classification"
     note: Legacy 2000-2006 predecessor of CLASSI_FIN.
     name: Classificação (bloco de conclusão legado)
     years:
@@ -296,6 +344,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     note: Legacy 2000-2006 predecessor of CRITERIO.
     name: Critério de confirmação
     years:
@@ -305,6 +355,8 @@ columns:
     role: case.disease
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença (bloco de conclusão legado)\" (case.disease): fact about the health event or the person's health"
     note: 'Legacy 2000-2006 conclusion block: the disease the investigation concluded; draft typed it number.'
     name: Doença (bloco de conclusão legado)
     years:
@@ -332,6 +384,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução (bloco de conclusão legado)\" (case.outcome): outcome of the case: outcome of the event"
     note: Legacy 2000-2006 predecessor of EVOLUCAO; draft typed it number.
     name: Evolução (bloco de conclusão legado)
     years:
@@ -343,6 +397,8 @@ columns:
     role: case.fhd_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação/Conduta — Grau da FHD\" (case.fhd_grade): fact about the health event or the person's health"
     note: Legacy WHO 1997 DHF grade I-IV.
     name: "Classificação/Conduta — Grau da FHD\n"
     codelists:
@@ -412,6 +468,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -427,6 +485,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2000
@@ -437,6 +497,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -447,6 +509,8 @@ columns:
     role: notification.return_flow_status
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow_status): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -459,6 +523,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     note: Trimester or not pregnant at notification; auto-filled 6 for males.
     name: Gestante
     codelists:
@@ -473,6 +539,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -486,6 +554,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -498,6 +568,8 @@ columns:
     role: case.dengue_case_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue\" (case.dengue_case_flag): fact about the health event or the person's health"
     name: Dengue
     years:
     - 2000
@@ -510,6 +582,8 @@ columns:
     role: patient.diabetes
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diabetes\" (patient.diabetes): fact about the health event or the person's health"
     name: Diabetes
     codelists:
     - SIM_NAO
@@ -522,6 +596,8 @@ columns:
     role: case.sign_diarrhea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.sign_diarrhea): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Diarreia
     years:
@@ -533,6 +609,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -545,6 +623,8 @@ columns:
     role: case.sign_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – Dor\" (case.sign_pain): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Sinais e sintomas – Dor
     years:
@@ -556,6 +636,8 @@ columns:
     role: case.sign_back_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos - Dor nas costas\" (case.sign_back_pain): fact about the health event or the person's health"
     name: Sinais clínicos - Dor nas costas
     years:
     - 2014
@@ -566,6 +648,8 @@ columns:
     role: case.sign_retroorbital_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos - Dor retroorbital\" (case.sign_retroorbital_pain): fact about the health event or the person's health"
     name: Sinais clínicos - Dor retroorbital
     years:
     - 2014
@@ -814,6 +898,8 @@ columns:
     role: case.sign_epistaxis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Epistaxe\" (case.sign_epistaxis): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Epistaxe\n"
     codelists:
     - EPISTAXE
@@ -826,6 +912,8 @@ columns:
     role: case.plasma_leakage_evidence
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência de extravasamento de plasma\" (case.plasma_leakage_evidence): fact about the health event or the person's health"
     name: Evidência de extravasamento de plasma
     years:
     - 2007
@@ -836,6 +924,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -853,6 +943,8 @@ columns:
     role: case.sign_rash
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Exantema\" (case.sign_rash): fact about the health event or the person's health"
     name: Sinais clínicos – Exantema
     years:
     - 2000
@@ -863,6 +955,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -873,6 +967,8 @@ columns:
     role: notification.received_by_return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.received_by_return_flow): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -883,6 +979,8 @@ columns:
     role: case.sign_gum_bleeding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Gengivorragia\" (case.sign_gum_bleeding): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Gengivorragia\n"
     codelists:
     - GENGIVO
@@ -895,6 +993,8 @@ columns:
     role: case.severe_ast_alt
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - AST/ALT >1.000\" (case.severe_ast_alt): fact about the health event or the person's health"
     name: Dengue grave - AST/ALT >1.000
     years:
     - 2014
@@ -905,6 +1005,8 @@ columns:
     role: case.severe_consciousness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Alteração da consciência\" (case.severe_consciousness): fact about the health event or the person's health"
     name: Dengue grave - Alteração da consciência
     years:
     - 2014
@@ -915,6 +1017,8 @@ columns:
     role: case.severe_convergent_pressure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - PA convergente\" (case.severe_convergent_pressure): fact about the health event or the person's health"
     name: Dengue grave - PA convergente
     years:
     - 2014
@@ -925,6 +1029,8 @@ columns:
     role: case.severe_capillary_refill
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Tempo de enchimento capilar\" (case.severe_capillary_refill): fact about the health event or the person's health"
     name: Dengue grave - Tempo de enchimento capilar
     years:
     - 2014
@@ -935,6 +1041,8 @@ columns:
     role: case.severe_cold_extremities
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Extremidades frias\" (case.severe_cold_extremities): fact about the health event or the person's health"
     name: Dengue grave - Extremidades frias
     years:
     - 2014
@@ -945,6 +1053,8 @@ columns:
     role: case.severe_hematemesis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Hematêmese\" (case.severe_hematemesis): fact about the health event or the person's health"
     name: Dengue grave - Hematêmese
     years:
     - 2014
@@ -955,6 +1065,8 @@ columns:
     role: case.severe_hypotension
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Hipotensão arterial em fase tardia\" (case.severe_hypotension): fact about the health event or the person's health"
     name: Dengue grave - Hipotensão arterial em fase tardia
     years:
     - 2014
@@ -965,6 +1077,8 @@ columns:
     role: case.severe_respiratory_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Acúmulo de líquidos com insuficiência respiratória\" (case.severe_respiratory_failure): fact about the health event or the person's health"
     name: Dengue grave - Acúmulo de líquidos com insuficiência respiratória
     years:
     - 2014
@@ -975,6 +1089,8 @@ columns:
     role: case.severe_melena
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Melena\" (case.severe_melena): fact about the health event or the person's health"
     name: Dengue grave - Melena
     years:
     - 2014
@@ -985,6 +1101,8 @@ columns:
     role: case.severe_metrorrhagia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Metrorragia volumosa\" (case.severe_metrorrhagia): fact about the health event or the person's health"
     name: Dengue grave - Metrorragia volumosa
     years:
     - 2014
@@ -995,6 +1113,8 @@ columns:
     role: case.severe_myocarditis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Miocardite\" (case.severe_myocarditis): fact about the health event or the person's health"
     name: Dengue grave - Miocardite
     years:
     - 2014
@@ -1005,6 +1125,8 @@ columns:
     role: case.severe_other_organs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Outros órgãos\" (case.severe_other_organs): fact about the health event or the person's health"
     name: Dengue grave - Outros órgãos
     years:
     - 2014
@@ -1015,6 +1137,8 @@ columns:
     role: case.severe_weak_pulse
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Pulso débil ou indetectável\" (case.severe_weak_pulse): fact about the health event or the person's health"
     name: Dengue grave - Pulso débil ou indetectável
     years:
     - 2014
@@ -1025,6 +1149,8 @@ columns:
     role: case.severe_cns_bleeding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Sangramento do SNC\" (case.severe_cns_bleeding): fact about the health event or the person's health"
     name: Dengue grave - Sangramento do SNC
     years:
     - 2014
@@ -1035,6 +1161,8 @@ columns:
     role: case.severe_tachycardia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Taquicardia\" (case.severe_tachycardia): fact about the health event or the person's health"
     name: Dengue grave - Taquicardia
     years:
     - 2014
@@ -1045,6 +1173,8 @@ columns:
     role: patient.hematologic_disease
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças pré-existentes - Doenças hematológicas\" (patient.hematologic_disease): fact about the health event or the person's health"
     name: Doenças pré-existentes - Doenças hematológicas
     years:
     - 2014
@@ -1055,6 +1185,8 @@ columns:
     role: case.sign_hematuria
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Hematúria\" (case.sign_hematuria): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Hematúria\n"
     codelists:
     - HEMATURA
@@ -1083,6 +1215,8 @@ columns:
     role: case.sign_hepatomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hepatomegalia\" (case.sign_hepatomegaly): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Hepatomegalia
     years:
@@ -1094,6 +1228,8 @@ columns:
     role: patient.liver_disease
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças pré-existentes - Hepatopatias\" (patient.liver_disease): fact about the health event or the person's health"
     name: Doenças pré-existentes - Hepatopatias
     years:
     - 2014
@@ -1104,6 +1240,8 @@ columns:
     role: patient.hypertension
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças pré-existentes - Hipertensão arterial\" (patient.hypertension): fact about the health event or the person's health"
     name: Doenças pré-existentes - Hipertensão arterial
     years:
     - 2014
@@ -1112,6 +1250,8 @@ columns:
     role: case.sign_postural_hypotension
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hipotensão postural\" (case.sign_postural_hypotension): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Hipotensão postural
@@ -1122,6 +1262,8 @@ columns:
     role: case.histopathology_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do exame histopatológico\" (case.histopathology_result): fact about the health event or the person's health"
     note: Legacy 2000-2006 predecessor of HISTOPA_N.
     name: Resultado do exame histopatológico
     years:
@@ -1133,6 +1275,8 @@ columns:
     role: case.histopathology_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Histopatologia (resultado)\" (case.histopathology_result): fact about the health event or the person's health"
     name: Histopatologia (resultado)
     years:
     - 2007
@@ -1143,6 +1287,8 @@ columns:
     role: case.hospitalized
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização?\" (case.hospitalized): how care or investigation was carried out"
     name: Ocorreu Hospitalização?
     years:
     - 2000
@@ -1169,6 +1315,8 @@ columns:
     role: notification.notification_record_control_code
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificador de notificação (bloco Dados Gerais)\" (notification.notification_record_control_code): record type, internal flag or system field"
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
@@ -1179,6 +1327,8 @@ columns:
     role: notification.notification_record_control_code_evolution_block
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificador de notificação (bloco Evolução/Notificação)\" (notification.notification_record_control_code_evolution_block): record type, internal flag or system field"
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
@@ -1284,6 +1434,8 @@ columns:
     role: case.immunohistochemistry_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da imuno-histoquímica\" (case.immunohistochemistry_result): fact about the health event or the person's health"
     note: Legacy 2000-2006 predecessor of IMUNOH_N.
     name: Resultado da imuno-histoquímica
     years:
@@ -1295,6 +1447,8 @@ columns:
     role: case.immunohistochemistry_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunohistoquímica (resultado)\" (case.immunohistochemistry_result): fact about the health event or the person's health"
     name: Imunohistoquímica (resultado)
     years:
     - 2007
@@ -1303,6 +1457,8 @@ columns:
     role: case.sign_organ_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Insuficiência de órgãos\" (case.sign_organ_failure): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Insuficiência de órgãos
@@ -1313,6 +1469,8 @@ columns:
     role: case.aids_indicated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicação de AIDS\" (case.aids_indicated): fact about the health event or the person's health"
     name: Indicação de AIDS
     years:
     - 2000
@@ -1323,6 +1481,8 @@ columns:
     role: notification.linked_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Vinculação\" (notification.linked_flag): record type, internal flag or system field"
     note: Set by the system after the TB/HANS linking routine; of doubtful use for arboviruses.
     name: Vinculação
     years:
@@ -1334,6 +1494,8 @@ columns:
     role: case.sign_tourniquet_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prova do laço positiva\" (case.sign_tourniquet_test): fact about the health event or the person's health"
     name: Prova do laço positiva
     years:
     - 2000
@@ -1344,6 +1506,8 @@ columns:
     role: case.sign_tourniquet_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prova do laço (revisão anterior)\" (case.sign_tourniquet_test): fact about the health event or the person's health"
     note: Earlier-revision field of the tourniquet test; same meaning.
     name: Prova do laço (revisão anterior)
     years:
@@ -1355,6 +1519,8 @@ columns:
     role: case.sign_leukopenia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos - Leucopenia\" (case.sign_leukopenia): fact about the health event or the person's health"
     name: Sinais clínicos - Leucopenia
     years:
     - 2014
@@ -1363,6 +1529,8 @@ columns:
     role: case.sign_hemorrhagic_manifestations
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações hemorrágicas\" (case.sign_hemorrhagic_manifestations): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Manifestações hemorrágicas
@@ -1375,6 +1543,8 @@ columns:
     role: case.sign_hemorrhagic_manifestations
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações Hemorrágicas\" (case.sign_hemorrhagic_manifestations): fact about the health event or the person's health"
     name: Manifestações Hemorrágicas
     years:
     - 2007
@@ -1383,6 +1553,8 @@ columns:
     role: case.specimen_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material coletado\" (case.specimen_type): how care or investigation was carried out"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Material coletado
@@ -1395,6 +1567,8 @@ columns:
     role: case.sign_metrorrhagia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Metrorragia\" (case.sign_metrorrhagia): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Metrorragia\n"
     codelists:
     - METRO
@@ -1407,6 +1581,8 @@ columns:
     role: case.sign_myalgia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Mialgia\" (case.sign_myalgia): fact about the health event or the person's health"
     name: Sinais clínicos – Mialgia
     years:
     - 2000
@@ -1415,6 +1591,8 @@ columns:
     role: notification.migrated_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated_flag): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -1425,6 +1603,8 @@ columns:
     role: case.sign_myocarditis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Miocardite\" (case.sign_myocarditis): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Miocardite
@@ -1448,6 +1628,8 @@ columns:
     role: case.sign_nausea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Náusea\" (case.sign_nausea): fact about the health event or the person's health"
     name: Sinais clínicos – Náusea
     years:
     - 2014
@@ -1458,6 +1640,8 @@ columns:
     role: case.sign_nausea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Náuseas\" (case.sign_nausea): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Náuseas
     years:
@@ -1467,6 +1651,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     note: Duplicate-review flag; a counting filter, not an analytical property.
     name: Não Listar/Não Contar
     years:
@@ -1476,6 +1662,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     note: Duplicate-review flag (2 = exclude from counts); a counting filter, not an analytical property.
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
@@ -1539,6 +1727,8 @@ columns:
     role: case.sign_other_manifestation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras manifestações\" (case.sign_other_manifestation): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Outras manifestações
@@ -1558,6 +1748,8 @@ columns:
     role: case.sign_other_sign
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro sinal/sintoma\" (case.sign_other_sign): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Outro sinal/sintoma
     years:
@@ -1585,6 +1777,8 @@ columns:
     role: case.sign_pericardial_effusion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Derrame pericárdico\" (case.sign_pericardial_effusion): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Derrame pericárdico
@@ -1597,6 +1791,8 @@ columns:
     role: case.sign_petechiae
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações hemorrágicas – Petéquias\" (case.sign_petechiae): fact about the health event or the person's health"
     name: Manifestações hemorrágicas – Petéquias
     years:
     - 2000
@@ -1607,6 +1803,8 @@ columns:
     role: case.sign_petechiae
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos - Petéquias\" (case.sign_petechiae): fact about the health event or the person's health"
     note: 2014+ field; PETEQUIAS is the 2000-2026 hemorrhagic-manifestation form.
     name: Sinais clínicos - Petéquias
     years:
@@ -1627,6 +1825,8 @@ columns:
     role: case.plasma_leakage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Extravasamento Plasmático\" (case.plasma_leakage): fact about the health event or the person's health"
     name: Extravasamento Plasmático
     years:
     - 2007
@@ -1635,6 +1835,8 @@ columns:
     role: case.sign_pleural_effusion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Derrame pleural\" (case.sign_pleural_effusion): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Derrame pleural
@@ -1647,6 +1849,8 @@ columns:
     role: case.sign_prostration
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Prostração\" (case.sign_prostration): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Sinais e Sintomas - Prostração
     years:
@@ -1658,6 +1862,8 @@ columns:
     role: patient.chronic_kidney_disease
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças pré-existentes - Doença renal crônica\" (patient.chronic_kidney_disease): fact about the health event or the person's health"
     name: Doenças pré-existentes - Doença renal crônica
     years:
     - 2014
@@ -1668,6 +1874,8 @@ columns:
     role: case.ns1_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame NS1 - Resultado\" (case.ns1_result): fact about the health event or the person's health"
     name: Exame NS1 - Resultado
     years:
     - 2007
@@ -1676,6 +1884,8 @@ columns:
     role: case.other_test_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado de outro exame\" (case.other_test_result): fact about the health event or the person's health"
     name: Resultado de outro exame
     years:
     - 2000
@@ -1686,6 +1896,8 @@ columns:
     role: case.pcr_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do PCR\" (case.pcr_result): fact about the health event or the person's health"
     note: Legacy 2000-2006 predecessor of RESUL_PCR_; draft typed it number.
     name: Resultado do PCR
     years:
@@ -1697,6 +1909,8 @@ columns:
     role: case.pcr_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"RT-PCR - Resultado\" (case.pcr_result): fact about the health event or the person's health"
     name: RT-PCR - Resultado
     years:
     - 2007
@@ -1707,6 +1921,8 @@ columns:
     role: case.prnt_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Exame Sorológico (IgM) PRNT\" (case.prnt_result): fact about the health event or the person's health"
     name: Resultado do Exame Sorológico (IgM) PRNT
     years:
     - 2014
@@ -1717,6 +1933,8 @@ columns:
     role: case.igm_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame Sorológico (IgM) Dengue - Resultado\" (case.igm_result): fact about the health event or the person's health"
     name: Exame Sorológico (IgM) Dengue - Resultado
     codelists:
     - RESULTADO
@@ -1727,6 +1945,8 @@ columns:
     role: case.viral_isolation_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado - isolamento viral\" (case.viral_isolation_result): fact about the health event or the person's health"
     note: Legacy 2000-2006 predecessor of RESUL_VI_N; draft typed it number.
     name: Resultado - isolamento viral
     years:
@@ -1738,6 +1958,8 @@ columns:
     role: case.viral_isolation_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Isolamento Viral - Resultado\" (case.viral_isolation_result): fact about the health event or the person's health"
     name: Isolamento Viral - Resultado
     years:
     - 2007
@@ -1748,6 +1970,8 @@ columns:
     role: case.chik_igm1_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Exame Sorológico (IgM) soro 1 para Chikungunya\" (case.chik_igm1_result): fact about the health event or the person's health"
     name: Resultado do Exame Sorológico (IgM) soro 1 para Chikungunya
     years:
     - 2014
@@ -1758,6 +1982,8 @@ columns:
     role: case.chik_igm2_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Exame Sorológico (IgM) soro 2 para Chikungunya\" (case.chik_igm2_result): fact about the health event or the person's health"
     name: Resultado do Exame Sorológico (IgM) soro 2 para Chikungunya
     years:
     - 2014
@@ -1766,6 +1992,8 @@ columns:
     role: case.serology1_igg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgG - 1ª amostra\" (case.serology1_igg): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Resultado sorologia IgG - 1ª amostra
     years:
@@ -1775,6 +2003,8 @@ columns:
     role: case.serology1_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgM - 1ª amostra\" (case.serology1_igm): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Resultado sorologia IgM - 1ª amostra
     years:
@@ -1793,6 +2023,8 @@ columns:
     role: case.serology2_igg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgG - 2ª amostra\" (case.serology2_igg): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Resultado sorologia IgG - 2ª amostra
     years:
@@ -1802,6 +2034,8 @@ columns:
     role: case.serology2_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgM - 2ª amostra\" (case.serology2_igm): fact about the health event or the person's health"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Resultado sorologia IgM - 2ª amostra
     years:
@@ -1822,6 +2056,8 @@ columns:
     role: case.sign_bleeding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Sangramento\" (case.sign_bleeding): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Sangramento\n"
     codelists:
     - SANGRAM
@@ -1879,6 +2115,8 @@ columns:
     role: case.serology1_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorologia 1 - resultado\" (case.serology1_result): fact about the health event or the person's health"
     note: Legacy 2000-2006; curation describes a result, draft typed it number.
     name: Sorologia 1 - resultado
     years:
@@ -1888,6 +2126,8 @@ columns:
     role: case.serum2_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta do 2º soro\" (case.serum2_collected): how care or investigation was carried out"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Coleta do 2º soro
@@ -1900,6 +2140,8 @@ columns:
     role: case.serotype
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sorotipo\" (case.serotype): fact about the health event or the person's health"
     name: Sorotipo
     years:
     - 2007
@@ -1908,6 +2150,8 @@ columns:
     role: case.tissue_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de tecidos\" (case.tissue_collected): how care or investigation was carried out"
     note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded 
       flag.
     name: Coleta de tecidos
@@ -1929,6 +2173,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -1941,6 +2187,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1949,6 +2197,8 @@ columns:
     role: notification.system
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Sistema\" (notification.system): record type, internal flag or system field"
     note: Which SINAN application inserted the record (Net or Online); bookkeeping.
     name: Tipo de Sistema
     years:
@@ -1971,6 +2221,8 @@ columns:
     role: case.dengue_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinado contra dengue\" (case.dengue_vaccinated): fact about the health event or the person's health"
     name: Vacinado contra dengue
     years:
     - 2000
@@ -1981,6 +2233,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Vômito\" (case.sign_vomiting): fact about the health event or the person's health"
     name: Sinais clínicos – Vômito
     years:
     - 2014

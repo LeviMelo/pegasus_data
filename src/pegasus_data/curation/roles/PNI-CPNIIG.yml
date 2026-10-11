@@ -23,6 +23,8 @@ columns:
     role: vaccination.vaccine
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Imunobiológico\" (vaccination.vaccine): how care or investigation was carried out"
     codelists:
     - IMUNO
     - IMUNOC

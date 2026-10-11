@@ -5,6 +5,8 @@ columns:
     role: survey.survey_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de inquérito\" (survey.survey_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de inquérito
     years:
     - 2010
@@ -236,6 +238,8 @@ columns:
     role: notification.unit_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Unidade Notificante\" (notification.unit_type): type of the notifying unit: provenance of the notification"
     name: Tipo de Unidade Notificante
     codelists:
     - TIPOUNIDADE

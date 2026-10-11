@@ -35,6 +35,8 @@ columns:
     role: case.sign_splenomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aumento do Baço\" (case.sign_splenomegaly): fact about the health event or the person's health"
     name: Aumento do Baço
     years:
     - 2000
@@ -43,6 +45,8 @@ columns:
     role: notification.case_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de caso\" (notification.case_type): fact about the health event or the person's health"
     name: Tipo de caso
     years:
     - 2000
@@ -53,6 +57,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -84,6 +90,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação (bloco de conclusão legado)\" (case.classification): final classification of the case: clinical classification"
     name: Classificação (bloco de conclusão legado)
     years:
     - 2000
@@ -92,6 +100,8 @@ columns:
     role: notification.final_diagnosed_disease_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença (bloco de conclusão legado)\" (notification.final_diagnosed_disease_legacy): fact about the health event or the person's health"
     name: Doença (bloco de conclusão legado)
     years:
     - 2000
@@ -118,6 +128,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução (bloco de conclusão legado)\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução (bloco de conclusão legado)
     years:
     - 2000
@@ -126,6 +138,8 @@ columns:
     role: notification.infection_neighbourhood_local
     kind: category
     model: excluded
+    fact_domain: clinical
+    fact_domain_evidence: "\"Bairro provável de infecção\" (notification.infection_neighbourhood_local): fact about the health event or the person's health"
     name: Bairro provável de infecção
     years:
     - 2000
@@ -137,6 +151,8 @@ columns:
     role: notification.infection_district_local
     kind: category
     model: excluded
+    fact_domain: clinical
+    fact_domain_evidence: "\"Distrito provável de infecção\" (notification.infection_district_local): fact about the health event or the person's health"
     name: Distrito provável de infecção
     years:
     - 2000
@@ -159,6 +175,8 @@ columns:
     role: notification.other_immunosuppressive_condition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra condição de imunossupressão\" (notification.other_immunosuppressive_condition): fact about the health event or the person's health"
     name: Outra condição de imunossupressão
     years:
     - 2000
@@ -271,6 +289,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -286,6 +306,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2000
@@ -297,6 +319,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -307,6 +331,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -320,6 +346,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -333,6 +361,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -346,6 +376,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     codelists:
     - SEXO
@@ -356,6 +388,8 @@ columns:
     role: notification.parasitological_diagnosis_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico parasitológico\" (notification.parasitological_diagnosis_result): fact about the health event or the person's health"
     name: Diagnóstico parasitológico
     years:
     - 2000
@@ -368,6 +402,8 @@ columns:
     role: case.parasitological_exam
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico parasitológico\" (case.parasitological_exam): fact about the health event or the person's health"
     name: Diagnóstico parasitológico
     years:
     - 2007
@@ -378,6 +414,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -390,6 +428,8 @@ columns:
     role: treatment.dose_band
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dose prescrita em mg/kg/dia Sb+5\" (treatment.dose_band): treatment given to the case"
     name: Dose prescrita em mg/kg/dia Sb+5
     years:
     - 2007
@@ -398,6 +438,8 @@ columns:
     role: notification.doses_legacy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doses de vacina anti-rábica recebidas no tratamento anterior\" (notification.doses_legacy): fact about the health event or the person's health"
     name: Número de doses de vacina anti-rábica recebidas no tratamento anterior
     years:
     - 2000
@@ -411,6 +453,8 @@ columns:
     role: treatment.initial_drug
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Droga utilizada no tratamento específico\" (treatment.initial_drug): treatment given to the case"
     name: Droga utilizada no tratamento específico
     years:
     - 2000
@@ -601,6 +645,8 @@ columns:
     role: case.sign_oedema
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema\" (case.sign_oedema): fact about the health event or the person's health"
     name: Edema
     years:
     - 2007
@@ -609,6 +655,8 @@ columns:
     role: notification.elisa_serology_test_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"ELISA\" (notification.elisa_serology_test_result): fact about the health event or the person's health"
     name: ELISA
     years:
     - 2000
@@ -621,6 +669,8 @@ columns:
     role: case.sign_weight_loss
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Emagrecimento\" (case.sign_weight_loss): fact about the health event or the person's health"
     name: Sinais e Sintomas - Emagrecimento
     years:
     - 2000
@@ -629,6 +679,8 @@ columns:
     role: notification.case_located_in_a_recognized_endemic_area_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Área endêmica\" (notification.case_located_in_a_recognized_endemic_area_flag): fact about the health event or the person's health"
     name: Área endêmica
     years:
     - 2000
@@ -641,6 +693,8 @@ columns:
     role: case.entry_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de entrada\" (case.entry_type): fact about the health event or the person's health"
     name: Tipo de entrada
     years:
     - 2007
@@ -651,6 +705,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -668,6 +724,8 @@ columns:
     role: treatment.failure_drug
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Outra droga utilizada, na falência do tratamento inicial\" (treatment.failure_drug): treatment given to the case"
     name: Outra droga utilizada, na falência do tratamento inicial
     years:
     - 2000
@@ -678,6 +736,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -690,6 +750,8 @@ columns:
     role: case.sign_haemorrhage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Fenômenos hemorrágicos\" (case.sign_haemorrhage): fact about the health event or the person's health"
     name: Sinais e sintomas - Fenômenos hemorrágicos
     years:
     - 2007
@@ -700,6 +762,8 @@ columns:
     role: case.sign_hepatomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Aumento do Fígado\" (case.sign_hepatomegaly): fact about the health event or the person's health"
     name: Sinais e Sintomas - Aumento do Fígado
     years:
     - 2000
@@ -708,6 +772,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -718,6 +784,8 @@ columns:
     role: case.sign_weakness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas - Fraqueza\" (case.sign_weakness): fact about the health event or the person's health"
     name: Sinais e Sintomas - Fraqueza
     years:
     - 2000
@@ -728,6 +796,8 @@ columns:
     role: case.hiv_coinfection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HIV\" (case.hiv_coinfection): fact about the health event or the person's health"
     name: HIV
     years:
     - 2000
@@ -738,6 +808,8 @@ columns:
     role: case.sign_jaundice
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Icterícia\" (case.sign_jaundice): fact about the health event or the person's health"
     name: Icterícia
     years:
     - 2007
@@ -770,6 +842,8 @@ columns:
     role: notification.notification_record_control_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificador de notificação (bloco Dados Gerais)\" (notification.notification_record_control_code): record type, internal flag or system field"
     name: Identificador de notificação (bloco Dados Gerais)
     years:
     - 2000
@@ -780,6 +854,8 @@ columns:
     role: notification.notification_record_control_code_evolution_block
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificador de notificação (bloco Evolução/Notificação)\" (notification.notification_record_control_code_evolution_block): record type, internal flag or system field"
     name: Identificador de notificação (bloco Evolução/Notificação)
     years:
     - 2000
@@ -884,6 +960,8 @@ columns:
     role: case.ifi_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico Imunológico - IFI\" (case.ifi_test): fact about the health event or the person's health"
     name: Diagnóstico Imunológico - IFI
     years:
     - 2000
@@ -894,6 +972,8 @@ columns:
     role: case.sign_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Quadro infeccioso\" (case.sign_infection): fact about the health event or the person's health"
     name: Sinais e sintomas - Quadro infeccioso
     years:
     - 2007
@@ -902,6 +982,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -912,6 +994,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -982,6 +1066,8 @@ columns:
     role: notification.other_drugs_used
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Drogas - Outras\" (notification.other_drugs_used): how care or investigation was carried out"
     name: Drogas - Outras
     years:
     - 2000
@@ -995,6 +1081,8 @@ columns:
     role: case.other_immunological_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro (Exames Realizados - Parasitológico Direto)\" (case.other_immunological_test): fact about the health event or the person's health"
     name: Outro (Exames Realizados - Parasitológico Direto)
     years:
     - 2000
@@ -1005,6 +1093,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outros\" (case.sign_other): fact about the health event or the person's health"
     name: Outros
     years:
     - 2007
@@ -1023,6 +1113,8 @@ columns:
     role: case.sign_pallor
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Palidez\" (case.sign_pallor): fact about the health event or the person's health"
     name: Sinais e sintomas - Palidez
     years:
     - 2007
@@ -1080,6 +1172,8 @@ columns:
     role: case.sign_cough_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tosse\" (case.sign_cough_diarrhoea): fact about the health event or the person's health"
     name: Tosse
     years:
     - 2000
@@ -1090,6 +1184,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -1102,6 +1198,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1120,6 +1218,8 @@ columns:
     role: notification.tuberculosis_comorbidity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – tuberculose\" (notification.tuberculosis_comorbidity): fact about the health event or the person's health"
     name: Agravos associados – tuberculose
     years:
     - 2000

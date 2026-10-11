@@ -16,6 +16,8 @@ columns:
     role: case.stool_qualitative
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Análise qualitativa (Hoffman)\" (case.stool_qualitative): fact about the health event or the person's health"
     name: Análise qualitativa (Hoffman)
     years:
     - 2007
@@ -26,6 +28,8 @@ columns:
     role: case.stool_quantitative
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Análise quantitativa (Kato-Katz)\" (case.stool_quantitative): fact about the health event or the person's health"
     name: Análise quantitativa (Kato-Katz)
     years:
     - 2007
@@ -76,6 +80,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -90,6 +96,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -104,6 +112,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -118,6 +128,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -133,6 +145,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -267,6 +281,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -284,6 +300,8 @@ columns:
     role: case.clinical_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma clínica\" (case.clinical_form): fact about the health event or the person's health"
     name: Forma clínica
     years:
     - 2007
@@ -445,6 +463,8 @@ columns:
     role: case.stool_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outros\" (case.stool_other): fact about the health event or the person's health"
     name: Outros
     years:
     - 2007
@@ -501,6 +521,8 @@ columns:
     role: case.cure_check_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da análise de verificação de cura - 1ª amostra\" (case.cure_check_1): fact about the health event or the person's health"
     name: Resultado da análise de verificação de cura - 1ª amostra
     years:
     - 2007
@@ -511,6 +533,8 @@ columns:
     role: case.cure_check_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da análise de verificação de cura - 2ª amostra\" (case.cure_check_2): fact about the health event or the person's health"
     name: Resultado da análise de verificação de cura - 2ª amostra
     years:
     - 2007
@@ -521,6 +545,8 @@ columns:
     role: case.cure_check_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da análise de verificação de cura - 3ª amostra\" (case.cure_check_3): fact about the health event or the person's health"
     name: Resultado da análise de verificação de cura - 3ª amostra
     years:
     - 2007
@@ -531,6 +557,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -543,6 +571,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -553,6 +583,8 @@ columns:
     role: treatment.given
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fez tratamento?\" (treatment.given): treatment given to the case"
     name: Fez tratamento?
     years:
     - 2007
@@ -563,6 +595,8 @@ columns:
     role: treatment.not_given_reason
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caso não tenha feito tratamento, qual o motivo?\" (treatment.not_given_reason): treatment given to the case"
     name: Caso não tenha feito tratamento, qual o motivo?
     years:
     - 2007

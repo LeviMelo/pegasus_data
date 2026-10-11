@@ -41,6 +41,8 @@ columns:
     role: authorisation.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestão\" (authorisation.management_type_code): billing, financing, management or contractual attribute"
     name: Sigla do Tipo de Gestão
     years:
     - 2001
@@ -500,6 +502,8 @@ columns:
     role: authorisation.facility_item_slqarm_chemotherapy_slq
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLQARM, no label recorded (authorisation.facility_item_slqarm_chemotherapy_slq): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -507,6 +511,8 @@ columns:
     role: authorisation.facility_item_slqcdu_chemotherapy_slq
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLQCDU, no label recorded (authorisation.facility_item_slqcdu_chemotherapy_slq): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -514,6 +520,8 @@ columns:
     role: authorisation.facility_item_slqcfl_chemotherapy_slq
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLQCFL, no label recorded (authorisation.facility_item_slqcfl_chemotherapy_slq): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -521,6 +529,8 @@ columns:
     role: authorisation.facility_item_slqldu_chemotherapy_slq
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLQLDU, no label recorded (authorisation.facility_item_slqldu_chemotherapy_slq): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -528,6 +538,8 @@ columns:
     role: authorisation.facility_item_slqpre_chemotherapy_slq
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLQPRE, no label recorded (authorisation.facility_item_slqpre_chemotherapy_slq): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -535,6 +547,8 @@ columns:
     role: authorisation.facility_item_slrarf_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRARF, no label recorded (authorisation.facility_item_slrarf_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -542,6 +556,8 @@ columns:
     role: authorisation.facility_item_slrblp_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRBLP, no label recorded (authorisation.facility_item_slrblp_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -549,6 +565,8 @@ columns:
     role: authorisation.facility_item_slrcom_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRCOM, no label recorded (authorisation.facility_item_slrcom_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -556,6 +574,8 @@ columns:
     role: authorisation.facility_item_slrmol_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRMOL, no label recorded (authorisation.facility_item_slrmol_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -563,6 +583,8 @@ columns:
     role: authorisation.facility_item_slrpla_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRPLA, no label recorded (authorisation.facility_item_slrpla_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004
@@ -570,6 +592,8 @@ columns:
     role: authorisation.facility_item_slrsim_radiotherapy_slr
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column UDO_SLRSIM, no label recorded (authorisation.facility_item_slrsim_radiotherapy_slr): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2004

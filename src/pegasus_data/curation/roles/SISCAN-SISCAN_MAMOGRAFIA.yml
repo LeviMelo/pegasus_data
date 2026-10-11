@@ -23,6 +23,8 @@ columns:
     role: exam.bi_rads_category
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CO_BIRADS, no label recorded (exam.bi_rads_category): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -32,6 +34,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2013
@@ -40,6 +44,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia\" (patient.ethnicity): attribute of the person (ethnicity)"
     name: Etnia
     years:
     - 2013
@@ -56,6 +62,8 @@ columns:
     role: exam.clinical_indication
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indicação clínica\" (exam.clinical_indication): how care or investigation was carried out"
     name: Indicação clínica
     years:
     - 2013
@@ -64,6 +72,8 @@ columns:
     role: exam.result_turnaround_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo do resultado\" (exam.result_turnaround_interval): how care or investigation was carried out"
     name: Intervalo do resultado
     years:
     - 2013
@@ -72,6 +82,8 @@ columns:
     role: exam.scheduling_wait_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo da solicitação\" (exam.scheduling_wait_interval): how care or investigation was carried out"
     name: Intervalo da solicitação
     years:
     - 2013
@@ -120,6 +132,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2013
@@ -128,6 +142,8 @@ columns:
     role: exam.recommended_follow_up_action
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recomendação de conduta\" (exam.recommended_follow_up_action): how care or investigation was carried out"
     name: Recomendação de conduta
     years:
     - 2013
@@ -143,6 +159,8 @@ columns:
     role: exam.nodule_size_right_breast_mm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CO_TAMANHO_NOD_DIR, no label recorded (exam.nodule_size_right_breast_mm): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -150,6 +168,8 @@ columns:
     role: exam.nodule_size_left_breast_mm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column CO_TAMANHO_NOD_ESQ, no label recorded (exam.nodule_size_left_breast_mm): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -157,6 +177,8 @@ columns:
     role: exam.total_exam_turnaround
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo Exame\" (exam.total_exam_turnaround): how care or investigation was carried out"
     name: Tempo Exame
     years:
     - 2013
@@ -165,6 +187,8 @@ columns:
     role: exam.prior_mammogram_history
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fez mamografia alguma vez\" (exam.prior_mammogram_history): result of a test or finding on the person"
     name: Fez mamografia alguma vez
     years:
     - 2013
@@ -502,6 +526,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2013
@@ -522,6 +548,8 @@ columns:
     role: exam.benign_finding_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_ACHADO_BENIGNO, no label recorded (exam.benign_finding_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -531,6 +559,8 @@ columns:
     role: exam.dense_area_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_AREA_DENSA, no label recorded (exam.dense_area_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -540,6 +570,8 @@ columns:
     role: exam.diffuse_asymmetry_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_ASSIMETRIA_DIFUSA, no label recorded (exam.diffuse_asymmetry_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -549,6 +581,8 @@ columns:
     role: exam.focal_asymmetry_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_ASSIMETRIA_FOCAL, no label recorded (exam.focal_asymmetry_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -558,6 +592,8 @@ columns:
     role: exam.focal_architectural_distortion_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_DISTORCAO_FOCAL, no label recorded (exam.focal_architectural_distortion_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -567,6 +603,8 @@ columns:
     role: exam.microcalcification_present_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_TEM_MICROCALCIFICACAO, no label recorded (exam.microcalcification_present_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -576,6 +614,8 @@ columns:
     role: exam.any_nodule_present_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column ST_TEM_NODULO, no label recorded (exam.any_nodule_present_flag): result of a test or finding on the person"
     years:
     - 2013
     - 2025
@@ -583,6 +623,8 @@ columns:
     role: exam.right_axillary_lymph_node_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodo axilar mama direita\" (exam.right_axillary_lymph_node_finding): result of a test or finding on the person"
     name: Linfonodo axilar mama direita
     years:
     - 2013
@@ -591,6 +633,8 @@ columns:
     role: exam.left_axillary_lymph_node_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodo axilar mama esquerda\" (exam.left_axillary_lymph_node_finding): result of a test or finding on the person"
     name: Linfonodo axilar mama esquerda
     years:
     - 2013
@@ -599,6 +643,8 @@ columns:
     role: exam.right_breast_composition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Composição da mama direita\" (exam.right_breast_composition): result of a test or finding on the person"
     name: Composição da mama direita
     years:
     - 2013
@@ -607,6 +653,8 @@ columns:
     role: exam.left_breast_composition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Composição da mama esquerda\" (exam.left_breast_composition): result of a test or finding on the person"
     name: Composição da mama esquerda
     years:
     - 2013
@@ -615,6 +663,8 @@ columns:
     role: exam.right_breast_skin_appearance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mama dir pele\" (exam.right_breast_skin_appearance): result of a test or finding on the person"
     name: Mama dir pele
     years:
     - 2013
@@ -623,6 +673,8 @@ columns:
     role: exam.left_breast_skin_appearance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mama esq pele\" (exam.left_breast_skin_appearance): result of a test or finding on the person"
     name: Mama esq pele
     years:
     - 2013
@@ -631,6 +683,8 @@ columns:
     role: exam.screening_mammogram_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo Mamo rast\" (exam.screening_mammogram_type): how care or investigation was carried out"
     name: Tipo Mamo rast
     years:
     - 2013
@@ -639,6 +693,8 @@ columns:
     role: exam.reported_lump_on_requisition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nódulo_requis\" (exam.reported_lump_on_requisition): result of a test or finding on the person"
     name: Nódulo_requis
     years:
     - 2013
@@ -649,6 +705,8 @@ columns:
     role: exam.right_breast_follow_up_recommendation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recomendação - mama direita\" (exam.right_breast_follow_up_recommendation): how care or investigation was carried out"
     name: Recomendação - mama direita
     years:
     - 2013
@@ -659,6 +717,8 @@ columns:
     role: exam.left_breast_follow_up_recommendation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recomendação - mama esquerda\" (exam.left_breast_follow_up_recommendation): how care or investigation was carried out"
     name: Recomendação - mama esquerda
     years:
     - 2013
@@ -667,6 +727,8 @@ columns:
     role: exam.prior_clinical_breast_exam
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ex Clin Ant\" (exam.prior_clinical_breast_exam): result of a test or finding on the person"
     name: Ex Clin Ant
     years:
     - 2013
@@ -675,6 +737,8 @@ columns:
     role: exam.elevated_breast_cancer_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco elevado\" (exam.elevated_breast_cancer_risk): result of a test or finding on the person"
     name: Risco elevado
     years:
     - 2013
@@ -683,6 +747,8 @@ columns:
     role: exam.ever_had_a_mammogram_before
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mamog. Anterior\" (exam.ever_had_a_mammogram_before): result of a test or finding on the person"
     name: Mamog. Anterior
     years:
     - 2013

@@ -24,6 +24,8 @@ columns:
     role: admission.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caráter da internação\" (admission.admission_character): urgent or elective admission: a care-process fact"
     name: Caráter da internação
     years:
     - 1998
@@ -98,6 +100,8 @@ columns:
     role: admission.work_accident_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de acidente de trabalho\" (admission.work_accident_code): employer activity (CNAE) code of a work-accident AIH: billing/document field"
     name: Código de acidente de trabalho
     years:
     - 2002
@@ -128,6 +132,8 @@ columns:
     role: admission.discharge_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de Saída/Permanência\" (admission.discharge_reason): motivo de saida/permanencia: the code that closes the AIH for payment (billing reason)"
     note: MORTE is derived from it.
     name: Motivo de Saída/Permanência
     years:
@@ -137,6 +143,8 @@ columns:
     role: admission.record_type
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Reduced-AIH record-type code\" (admission.record_type): record-type code of the file: record type"
     note: 'Reviewed: a file-layout code, administrative. Meaning of 1 vs 2 is unexplained in curation; record-type
       marker, not confirmed.'
     name: Reduced-AIH record-type code
@@ -147,6 +155,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de medida da idade\" (patient.age_unit): encoding unit of another field"
     note: Unit of IDADE; use IDADE_anos.
     name: Unidade de medida da idade
     codelists:
@@ -158,6 +168,8 @@ columns:
     role: admission.segment_code
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Segment/batch code (RD, 2005-2006 vintage only)\" (admission.segment_code): billing, financing, management or contractual attribute"
     note: 'Reviewed: a file-segment code, administrative. Curation only conjectures a batch/segment identifier (2005-2006
       only); meaning unknown.'
     name: Segment/batch code (RD, 2005-2006 vintage only)
@@ -170,6 +182,8 @@ columns:
     role: admission.complexity
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Complexidade\" (admission.complexity): complexity level of the care delivered: a care-process fact"
     name: Complexidade
     years:
     - 2008
@@ -178,6 +192,8 @@ columns:
     role: admission.legacy_control
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Legacy control field, constant value\" (admission.legacy_control): billing, financing, management or contractual attribute"
     note: Constant "1" in every row, no documented meaning.
     name: Legacy control field, constant value
     years:
@@ -189,6 +205,8 @@ columns:
     role: admission.contraceptive_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de contraceptivo utilizado\" (admission.contraceptive_1): contraceptive method recorded for the stay: a fact about the person's health"
     name: Tipo de contraceptivo utilizado
     years:
     - 1999
@@ -199,6 +217,8 @@ columns:
     role: admission.contraceptive_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Segundo tipo de contraceptivo\" (admission.contraceptive_2): second contraceptive method recorded for the stay: a fact about the person's health"
     name: Segundo tipo de contraceptivo
     years:
     - 1999
@@ -430,6 +450,8 @@ columns:
     role: admission.bed_specialty
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade do Leito\" (admission.bed_specialty): specialty of the bed used: a care-process fact"
     name: Especialidade do Leito
     years:
     - 1992
@@ -440,6 +462,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
     name: Etnia do paciente
     years:
     - 2008
@@ -450,6 +474,8 @@ columns:
     role: admission.faec_subtype
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Subtipo de financiamento FAEC\" (admission.faec_subtype): FAEC financing subtype: financing"
     name: Subtipo de financiamento FAEC
     years:
     - 2008
@@ -460,6 +486,8 @@ columns:
     role: admission.funding_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de financiamento\" (admission.funding_type): type of financing: financing"
     name: Tipo de financiamento
     years:
     - 2008
@@ -468,6 +496,8 @@ columns:
     role: admission.budget_source
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte Orçamentária\" (admission.budget_source): budget source: financing"
     name: Fonte Orçamentária
     codelists:
     - FONTEREM
@@ -480,6 +510,8 @@ columns:
     role: admission.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestão\" (admission.management_type): management arrangement of the payer: management"
     name: Gestão
     codelists:
     - GESTAO
@@ -492,6 +524,8 @@ columns:
     role: admission.manager_override
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de autorização da AIH pelo Gestor\" (admission.manager_override): reason the manager authorised the AIH: management"
     name: Motivo de autorização da AIH pelo Gestor
     codelists:
     - LIBGESTOR
@@ -520,6 +554,8 @@ columns:
     role: admission.manager_authorisation
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestor\" (admission.manager_authorisation): type of manager that authorised the AIH: management"
     name: Tipo de gestor
     years:
     - 2008
@@ -530,6 +566,8 @@ columns:
     role: pregnancy.high_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador se é gestante de risco\" (pregnancy.high_risk): fact about the health event or the person's health"
     name: Indicador se é gestante de risco
     years:
     - 1999
@@ -538,6 +576,8 @@ columns:
     role: patient.homonym_flag
     kind: category
     model: link_only
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de homônimo\" (patient.homonym_flag): encoding unit of another field"
     note: Warning flag against naive name matching.
     name: Indicador de homônimo
     years:
@@ -559,6 +599,8 @@ columns:
     role: admission.aih_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificação do tipo da AIH\" (admission.aih_type): type of AIH (first, continuation, long stay): an authorisation/billing document type"
     name: Identificação do tipo da AIH
     years:
     - 1992
@@ -569,6 +611,8 @@ columns:
     role: admission.vdrl_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indica exame VDRL\" (admission.vdrl_test): VDRL test indicated on the AIH: a clinical test fact"
     name: Indica exame VDRL
     years:
     - 2006
@@ -577,6 +621,8 @@ columns:
     role: admission.hospital_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Status de infecção hospitalar\" (admission.hospital_infection): hospital-infection status of the stay: an event fact"
     name: Status de infecção hospitalar
     years:
     - 2006
@@ -595,6 +641,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Grau de instrução do paciente\" (patient.education): attribute of the person (schooling)"
     name: Grau de instrução do paciente
     years:
     - 1999
@@ -605,6 +653,8 @@ columns:
     role: admission.intermediate_unit_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de UCI utilizada pelo paciente\" (admission.intermediate_unit_type): intermediate-care unit type marked for billing the stay: bed-type billing mark"
     name: Tipo de UCI utilizada pelo paciente
     years:
     - 2013
@@ -615,6 +665,8 @@ columns:
     role: admission.icu_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de UTI utilizada\" (admission.icu_type): ICU type marked for billing the stay: bed-type billing mark"
     name: Tipo de UTI utilizada
     years:
     - 1998
@@ -636,6 +688,8 @@ columns:
     role: admission.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indica Óbito\" (admission.death): stay ended in death: outcome of the event"
     name: Indica Óbito
     years:
     - 1992
@@ -668,6 +722,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código da nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     name: Código da nacionalidade do paciente
     years:
     - 1998
@@ -686,6 +742,8 @@ columns:
     role: facility.legal_nature_old
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica do hospital\" (facility.legal_nature_old): attribute of the establishment register (structure, service, management)"
     note: Only through May/2012; NAT_JUR replaces it.
     name: Natureza jurídica do hospital
     years:
@@ -697,6 +755,8 @@ columns:
     role: facility.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica do Estabelecimento\" (facility.legal_nature): attribute of the establishment register (structure, service, management)"
     name: Natureza jurídica do Estabelecimento
     years:
     - 2011
@@ -774,6 +834,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor do paciente
     years:
     - 2008
@@ -784,6 +846,8 @@ columns:
     role: admission.contract_rule
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Regra contratual\" (admission.contract_rule): contractual rule applied: contract"
     name: Regra contratual
     years:
     - 2008
@@ -800,6 +864,8 @@ columns:
     role: admission.budget_line
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Rubrica\" (admission.budget_line): budget line (rubrica): financing"
     name: Rubrica
     years:
     - 2006
@@ -810,6 +876,8 @@ columns:
     role: admission.management_type_1995_97
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestão (95-97)\" (admission.management_type_1995_97): billing, financing, management or contractual attribute"
     name: Gestão (95-97)
     codelists:
     - GESTAO
@@ -837,6 +905,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     codelists:
     - SEXO
@@ -867,6 +937,8 @@ columns:
     role: admission.secondary_diagnosis_type_1
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 1\" (admission.secondary_diagnosis_type_1): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 1
     codelists:
     - TP_DIAGSEC
@@ -879,6 +951,8 @@ columns:
     role: admission.secondary_diagnosis_type_2
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 2\" (admission.secondary_diagnosis_type_2): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 2
     codelists:
     - TP_DIAGSEC
@@ -891,6 +965,8 @@ columns:
     role: admission.secondary_diagnosis_type_3
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 3\" (admission.secondary_diagnosis_type_3): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 3
     codelists:
     - TP_DIAGSEC
@@ -903,6 +979,8 @@ columns:
     role: admission.secondary_diagnosis_type_4
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 4\" (admission.secondary_diagnosis_type_4): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 4
     codelists:
     - TP_DIAGSEC
@@ -915,6 +993,8 @@ columns:
     role: admission.secondary_diagnosis_type_5
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 5\" (admission.secondary_diagnosis_type_5): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 5
     codelists:
     - TP_DIAGSEC
@@ -927,6 +1007,8 @@ columns:
     role: admission.secondary_diagnosis_type_6
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 6\" (admission.secondary_diagnosis_type_6): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 6
     codelists:
     - TP_DIAGSEC
@@ -939,6 +1021,8 @@ columns:
     role: admission.secondary_diagnosis_type_7
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 7\" (admission.secondary_diagnosis_type_7): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 7
     codelists:
     - TP_DIAGSEC
@@ -951,6 +1035,8 @@ columns:
     role: admission.secondary_diagnosis_type_8
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 8\" (admission.secondary_diagnosis_type_8): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 8
     codelists:
     - TP_DIAGSEC
@@ -963,6 +1049,8 @@ columns:
     role: admission.secondary_diagnosis_type_9
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de diagnóstico secundário 9\" (admission.secondary_diagnosis_type_9): billing, financing, management or contractual attribute"
     name: Tipo de diagnóstico secundário 9
     codelists:
     - TP_DIAGSEC
@@ -1333,6 +1421,8 @@ columns:
     role: patient.social_security_link
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Vínculo com a Previdência\" (patient.social_security_link): attribute of the person (work/occupation)"
     name: Vínculo com a Previdência
     years:
     - 2002

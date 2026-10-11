@@ -23,6 +23,8 @@ columns:
     role: case.transfusion_accident_state
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF da transfusão/acidente\" (case.transfusion_accident_state): fact about the health event or the person's health"
     name: UF da transfusão/acidente
     years:
     - 2007
@@ -34,6 +36,8 @@ columns:
     role: case.transmission_biological_accident
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acidente com material biológico com posterior soroconversão até 6 meses\" (case.transmission_biological_accident): fact about the health event or the person's health"
     name: Acidente com material biológico com posterior soroconversão até 6 meses
     years:
     - 2007
@@ -44,6 +48,8 @@ columns:
     role: case.exposure_category
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Categoria de Exposição (Campo Interno)\" (case.exposure_category): fact about the health event or the person's health"
     name: "Categoria de Exposição (Campo Interno)\n"
     codelists:
     - CATHIERN
@@ -57,6 +63,8 @@ columns:
     role: case.transmission_injecting_drugs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Provável modo de transmissão – sanguínea: uso de droga injetável\" (case.transmission_injecting_drugs): fact about the health event or the person's health"
     name: 'Provável modo de transmissão – sanguínea: uso de droga injetável'
     years:
     - 2007
@@ -67,6 +75,8 @@ columns:
     role: case.transfusion_accident_confirmed
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Após investigação, a transfusão/acidente com material biológico foi confirmada como via de transmissão\" (case.transfusion_accident_confirmed): fact about the health event or the person's health"
     name: Após investigação, a transfusão/acidente com material biológico foi confirmada como via de 
       transmissão
     years:
@@ -78,6 +88,8 @@ columns:
     role: case.transmission_perinatal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"36. Transmissão (Perinatal)\" (case.transmission_perinatal): fact about the health event or the person's health"
     name: "36. Transmissão (Perinatal)\n"
     codelists:
     - SIMNAOAIDS
@@ -90,6 +102,8 @@ columns:
     role: case.transmission_sexual
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"37. Transmissão Sexual\" (case.transmission_sexual): fact about the health event or the person's health"
     name: "37. Transmissão Sexual\n"
     codelists:
     - ANTRELN
@@ -102,6 +116,8 @@ columns:
     role: case.transmission_transfusion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"38. Transmissão Sanguínea — Transfusão Sanguínea\" (case.transmission_transfusion): fact about the health event or the person's health"
     name: "38. Transmissão Sanguínea — Transfusão Sanguínea\n"
     years:
     - 2007
@@ -112,6 +128,8 @@ columns:
     role: case.transmission_haemophilia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"38. Transmissão Sanguínea — Tratamento para Hemofilia\" (case.transmission_haemophilia): fact about the health event or the person's health"
     name: "38. Transmissão Sanguínea — Tratamento para Hemofilia\n"
     years:
     - 2007
@@ -122,6 +140,8 @@ columns:
     role: case.cdc_criterion_met
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério CDC adaptado\" (case.cdc_criterion_met): fact about the health event or the person's health"
     name: Critério CDC adaptado
     years:
     - 2007
@@ -132,6 +152,8 @@ columns:
     role: case.cdc_anaemia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Anemia\" (case.cdc_anaemia): fact about the health event or the person's health"
     name: Anemia
     years:
     - 2007
@@ -142,6 +164,8 @@ columns:
     role: case.cdc_oral_candidiasis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Candidose oral resistente ao tratamento\" (case.cdc_oral_candidiasis): fact about the health event or the person's health"
     name: Candidose oral resistente ao tratamento
     years:
     - 2007
@@ -152,6 +176,8 @@ columns:
     role: case.cdc_cryptococcosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Criptococose (Extra-Pulmonar)\" (case.cdc_cryptococcosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Criptococose (Extra-Pulmonar)\n"
     codelists:
     - SIM_NAO
@@ -164,6 +190,8 @@ columns:
     role: case.cdc_lymphoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Linfoma Não Hodgkin e Outros Linfomas\" (case.cdc_lymphoma): fact about the health event or the person's health"
     name: "45. Critério CDC — Linfoma Não Hodgkin e Outros Linfomas\n"
     codelists:
     - SIM_NAO
@@ -176,6 +204,8 @@ columns:
     role: case.cdc_cytomegalovirus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Citomegalovirose (>1 Mês de Idade, Exceto Fígado/Baço/Linfonodo)\" (case.cdc_cytomegalovirus): fact about the health event or the person's health"
     name: "45. Critério CDC — Citomegalovirose (>1 Mês de Idade, Exceto Fígado/Baço/Linfonodo)\n"
     codelists:
     - SIM_NAO
@@ -188,6 +218,8 @@ columns:
     role: case.cdc_cryptosporidiosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Criptosporidiose com Diarréia\" (case.cdc_cryptosporidiosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Criptosporidiose com Diarréia\n"
     codelists:
     - SIM_NAO
@@ -200,6 +232,8 @@ columns:
     role: case.cdc_hiv_encephalopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Encefalopatia pelo HIV\" (case.cdc_hiv_encephalopathy): fact about the health event or the person's health"
     name: "45. Critério CDC — Encefalopatia pelo HIV\n"
     codelists:
     - SIM_NAO
@@ -212,6 +246,8 @@ columns:
     role: case.cdc_herpetic_gingivostomatitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Gengivo-Estomatite Herpética Recorrente\" (case.cdc_herpetic_gingivostomatitis): fact about the health event or the person's health"
     name: "45. Critério CDC — Gengivo-Estomatite Herpética Recorrente\n"
     codelists:
     - SIM_NAO
@@ -224,6 +260,8 @@ columns:
     role: case.cdc_herpes_simplex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Herpes Simples Mucocutâneo >1 Mês (Crianças >1 Mês)\" (case.cdc_herpes_simplex): fact about the health event or the person's health"
     name: "45. Critério CDC — Herpes Simples Mucocutâneo >1 Mês (Crianças >1 Mês)\n"
     codelists:
     - SIM_NAO
@@ -236,6 +274,8 @@ columns:
     role: case.cdc_histoplasmosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Histoplasmose Disseminada\" (case.cdc_histoplasmosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Histoplasmose Disseminada\n"
     codelists:
     - SIM_NAO
@@ -248,6 +288,8 @@ columns:
     role: case.cdc_recurrent_bacterial_infections
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Infecções Bacterianas de Repetição/Múltiplas\" (case.cdc_recurrent_bacterial_infections): fact about the health event or the person's health"
     name: "45. Critério CDC — Infecções Bacterianas de Repetição/Múltiplas\n"
     codelists:
     - SIM_NAO
@@ -260,6 +302,8 @@ columns:
     role: case.cdc_isosporiasis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Isosporidiose Intestinal Crônica (>1 Mês)\" (case.cdc_isosporiasis): fact about the health event or the person's health"
     name: "45. Critério CDC — Isosporidiose Intestinal Crônica (>1 Mês)\n"
     codelists:
     - SIM_NAO
@@ -272,6 +316,8 @@ columns:
     role: case.cdc_pml
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Leucoencefalopatia Multifocal Progressiva\" (case.cdc_pml): fact about the health event or the person's health"
     name: "45. Critério CDC — Leucoencefalopatia Multifocal Progressiva\n"
     codelists:
     - SIM_NAO
@@ -284,6 +330,8 @@ columns:
     role: case.cdc_primary_brain_lymphoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Linfoma Primário de Cérebro\" (case.cdc_primary_brain_lymphoma): fact about the health event or the person's health"
     name: "45. Critério CDC — Linfoma Primário de Cérebro\n"
     codelists:
     - SIM_NAO
@@ -296,6 +344,8 @@ columns:
     role: case.cdc_bacterial_meningitis_pneumonia_sepsis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC Adaptado — Meningite Bacteriana, Pneumonia ou Sepse (episódio único)\" (case.cdc_bacterial_meningitis_pneumonia_sepsis): fact about the health event or the person's health"
     name: "45. Critério CDC Adaptado — Meningite Bacteriana, Pneumonia ou Sepse (episódio único)\n"
     codelists:
     - SIM_NAO
@@ -308,6 +358,8 @@ columns:
     role: case.cdc_disseminated_mycobacteriosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Micobacteriose Disseminada (Exceto TB e Hanseníase)\" (case.cdc_disseminated_mycobacteriosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Micobacteriose Disseminada (Exceto TB e Hanseníase)\n"
     codelists:
     - SIM_NAO
@@ -320,6 +372,8 @@ columns:
     role: case.cdc_pneumocystis_pneumonia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Pneumonia por P. carinii\" (case.cdc_pneumocystis_pneumonia): fact about the health event or the person's health"
     name: "45. Critério CDC — Pneumonia por P. carinii\n"
     codelists:
     - SIM_NAO
@@ -332,6 +386,8 @@ columns:
     role: case.cdc_lymphoid_interstitial_pneumonia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Pneumonia Linfóide Intersticial\" (case.cdc_lymphoid_interstitial_pneumonia): fact about the health event or the person's health"
     name: "45. Critério CDC — Pneumonia Linfóide Intersticial\n"
     codelists:
     - SIM_NAO
@@ -344,6 +400,8 @@ columns:
     role: case.cdc_salmonella_sepsis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Salmonelose (Sepse/Septicemia Recorrente Não-Tifóide)\" (case.cdc_salmonella_sepsis): fact about the health event or the person's health"
     name: "45. Critério CDC — Salmonelose (Sepse/Septicemia Recorrente Não-Tifóide)\n"
     codelists:
     - SIM_NAO
@@ -356,6 +414,8 @@ columns:
     role: case.cdc_wasting_syndrome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Síndrome da Emaciação (Aids Wasting Syndrome)\" (case.cdc_wasting_syndrome): fact about the health event or the person's health"
     name: "45. Critério CDC — Síndrome da Emaciação (Aids Wasting Syndrome)\n"
     years:
     - 2007
@@ -366,6 +426,8 @@ columns:
     role: case.cdc_kaposi_sarcoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Sarcoma de Kaposi\" (case.cdc_kaposi_sarcoma): fact about the health event or the person's health"
     name: "45. Critério CDC — Sarcoma de Kaposi\n"
     codelists:
     - SIM_NAO
@@ -378,6 +440,8 @@ columns:
     role: case.cdc_cerebral_toxoplasmosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Toxoplasmose Cerebral (>1 Mês de Idade)\" (case.cdc_cerebral_toxoplasmosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Toxoplasmose Cerebral (>1 Mês de Idade)\n"
     codelists:
     - SIM_NAO
@@ -390,6 +454,8 @@ columns:
     role: case.cdc_chronic_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Diarréia Recorrente ou Crônica\" (case.cdc_chronic_diarrhoea): fact about the health event or the person's health"
     name: "45. Critério CDC — Diarréia Recorrente ou Crônica\n"
     codelists:
     - SIM_NAO
@@ -402,6 +468,8 @@ columns:
     role: case.cdc_persistent_dermatitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC Adaptado — Dermatite Persistente\" (case.cdc_persistent_dermatitis): fact about the health event or the person's health"
     name: "45. Critério CDC Adaptado — Dermatite Persistente\n"
     codelists:
     - SIM_NAO
@@ -414,6 +482,8 @@ columns:
     role: case.cdc_disseminated_tuberculosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Tuberculose Disseminada ou Extrapulmonar\" (case.cdc_disseminated_tuberculosis): fact about the health event or the person's health"
     name: "45. Critério CDC — Tuberculose Disseminada ou Extrapulmonar\n"
     codelists:
     - SIM_NAO
@@ -426,6 +496,8 @@ columns:
     role: case.cdc_splenomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Esplenomegalia\" (case.cdc_splenomegaly): fact about the health event or the person's health"
     name: Esplenomegalia
     years:
     - 2007
@@ -436,6 +508,8 @@ columns:
     role: case.cdc_persistent_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.cdc_persistent_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -448,6 +522,8 @@ columns:
     role: case.cdc_hiv_hepatitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Hepatite pelo HIV\" (case.cdc_hiv_hepatitis): fact about the health event or the person's health"
     name: "45. Critério CDC — Hepatite pelo HIV\n"
     codelists:
     - SIM_NAO
@@ -460,6 +536,8 @@ columns:
     role: case.cdc_hepatomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Hepatomegalia\" (case.cdc_hepatomegaly): fact about the health event or the person's health"
     name: "45. Critério CDC — Hepatomegalia\n"
     codelists:
     - SIM_NAO
@@ -472,6 +550,8 @@ columns:
     role: case.cdc_recurrent_herpetic_gingivostomatitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gengivo-estomatite herpética recorrente\" (case.cdc_recurrent_herpetic_gingivostomatitis): fact about the health event or the person's health"
     name: Gengivo-estomatite herpética recorrente
     years:
     - 2007
@@ -482,6 +562,8 @@ columns:
     role: case.cdc_herpes_simplex_visceral
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Herpes simples (mucocutâneo/visceral)\" (case.cdc_herpes_simplex_visceral): fact about the health event or the person's health"
     name: Herpes simples (mucocutâneo/visceral)
     years:
     - 2007
@@ -492,6 +574,8 @@ columns:
     role: case.cdc_cytomegalovirus_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Infecção por Citomegalovírus (<1 Mês de Idade)\" (case.cdc_cytomegalovirus_infection): fact about the health event or the person's health"
     name: "45. Critério CDC — Infecção por Citomegalovírus (<1 Mês de Idade)\n"
     codelists:
     - SIM_NAO
@@ -504,6 +588,8 @@ columns:
     role: case.cdc_leiomyosarcoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Leiomiossarcoma\" (case.cdc_leiomyosarcoma): fact about the health event or the person's health"
     name: "45. Critério CDC — Leiomiossarcoma\n"
     codelists:
     - SIM_NAO
@@ -516,6 +602,8 @@ columns:
     role: case.cdc_lymphadenopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Linfadenopatia ≥0,5cm em >2 Sítios\" (case.cdc_lymphadenopathy): fact about the health event or the person's health"
     name: "45. Critério CDC — Linfadenopatia ≥0,5cm em >2 Sítios\n"
     codelists:
     - SIM_NAO
@@ -528,6 +616,8 @@ columns:
     role: case.cdc_lymphopenia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Linfopenia >30 Dias\" (case.cdc_lymphopenia): fact about the health event or the person's health"
     name: "45. Critério CDC — Linfopenia >30 Dias\n"
     codelists:
     - SIM_NAO
@@ -540,6 +630,8 @@ columns:
     role: case.cdc_myocarditis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Miocardite / miocardiopatia\" (case.cdc_myocarditis): fact about the health event or the person's health"
     name: Miocardite / miocardiopatia
     years:
     - 2007
@@ -550,6 +642,8 @@ columns:
     role: case.cdc_nephropathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"45. Critério CDC — Nefropatia\" (case.cdc_nephropathy): fact about the health event or the person's health"
     name: "45. Critério CDC — Nefropatia\n"
     codelists:
     - SIM_NAO
@@ -562,6 +656,8 @@ columns:
     role: case.cdc_nocardiosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nocardiose\" (case.cdc_nocardiosis): fact about the health event or the person's health"
     name: Nocardiose
     years:
     - 2007
@@ -572,6 +668,8 @@ columns:
     role: case.cdc_recurrent_otitis_sinusitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Infecções persistentes ou recorrentes de VAS (Otite ou Sinusite)\" (case.cdc_recurrent_otitis_sinusitis): fact about the health event or the person's health"
     name: Infecções persistentes ou recorrentes de VAS (Otite ou Sinusite)
     years:
     - 2007
@@ -582,6 +680,8 @@ columns:
     role: case.cdc_chronic_parotitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aumento crônico de parótida\" (case.cdc_chronic_parotitis): fact about the health event or the person's health"
     name: Aumento crônico de parótida
     years:
     - 2007
@@ -592,6 +692,8 @@ columns:
     role: case.cdc_airway_candidiasis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Candidose de traqueia, brônquios ou pulmões\" (case.cdc_airway_candidiasis): fact about the health event or the person's health"
     name: Candidose de traqueia, brônquios ou pulmões
     years:
     - 2007
@@ -602,6 +704,8 @@ columns:
     role: case.cdc_early_toxoplasmosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Toxoplasmose iniciada antes de 1 mês de idade\" (case.cdc_early_toxoplasmosis): fact about the health event or the person's health"
     name: Toxoplasmose iniciada antes de 1 mês de idade
     years:
     - 2007
@@ -612,6 +716,8 @@ columns:
     role: case.cdc_pulmonary_tuberculosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tuberculose disseminada ou extrapulmonar\" (case.cdc_pulmonary_tuberculosis): fact about the health event or the person's health"
     name: Tuberculose disseminada ou extrapulmonar
     years:
     - 2007
@@ -622,6 +728,8 @@ columns:
     role: case.cdc_thrombocytopenia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tuberculose pulmonar\" (case.cdc_thrombocytopenia): fact about the health event or the person's health"
     name: Tuberculose pulmonar
     years:
     - 2007
@@ -632,6 +740,8 @@ columns:
     role: case.cdc_disseminated_varicella
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Varicela disseminada\" (case.cdc_disseminated_varicella): fact about the health event or the person's health"
     name: Varicela disseminada
     years:
     - 2007
@@ -642,6 +752,8 @@ columns:
     role: case.hiv_confirmatory_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência laboratorial de infecção pelo HIV (teste confirmatório após 18 meses de vida)\" (case.hiv_confirmatory_test): fact about the health event or the person's health"
     name: Evidência laboratorial de infecção pelo HIV (teste confirmatório após 18 meses de vida)
     years:
     - 2007
@@ -652,6 +764,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -669,6 +783,8 @@ columns:
     role: case.cdc_cd4_below_1000
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Achados laboratoriais - CD4+ < 1000 células/mm3\" (case.cdc_cd4_below_1000): fact about the health event or the person's health"
     name: Achados laboratoriais - CD4+ < 1000 células/mm3
     years:
     - 2007
@@ -679,6 +795,8 @@ columns:
     role: case.cdc_cd4_below_1500
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Achados laboratoriais - CD4+ < 1500 células/mm3\" (case.cdc_cd4_below_1500): fact about the health event or the person's health"
     name: Achados laboratoriais - CD4+ < 1500 células/mm3
     years:
     - 2007
@@ -689,6 +807,8 @@ columns:
     role: case.cdc_cd4_below_500
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Achados laboratoriais - CD4+ < 500 células/mm3\" (case.cdc_cd4_below_500): fact about the health event or the person's health"
     name: Achados laboratoriais - CD4+ < 500 células/mm3
     years:
     - 2007
@@ -699,6 +819,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -713,6 +835,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -727,6 +851,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -741,6 +867,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -821,6 +949,8 @@ columns:
     role: mother.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade da mãe\" (mother.education): attribute of the person (schooling)"
     name: Escolaridade da mãe
     years:
     - 2007
@@ -831,6 +961,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -848,6 +980,8 @@ columns:
     role: case.death_certificate_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério óbito\" (case.death_certificate_criterion): fact about the health event or the person's health"
     name: Critério óbito
     years:
     - 2007
@@ -974,6 +1108,8 @@ columns:
     role: case.hiv_nucleic_acid_test_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência laboratorial de infecção pelo HIV (1o teste de detecção de ácido nucléico)\" (case.hiv_nucleic_acid_test_1): fact about the health event or the person's health"
     name: Evidência laboratorial de infecção pelo HIV (1o teste de detecção de ácido nucléico)
     years:
     - 2007
@@ -983,6 +1119,8 @@ columns:
     role: case.hiv_nucleic_acid_test_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência laboratorial de infecção pelo HIV (2o teste de detecção de ácido nucléico)\" (case.hiv_nucleic_acid_test_2): fact about the health event or the person's health"
     name: Evidência laboratorial de infecção pelo HIV (2o teste de detecção de ácido nucléico)
     years:
     - 2007
@@ -993,6 +1131,8 @@ columns:
     role: case.hiv_nucleic_acid_test_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência laboratorial de infecção pelo HIV (3o teste de detecção de ácido nucléico)\" (case.hiv_nucleic_acid_test_3): fact about the health event or the person's health"
     name: Evidência laboratorial de infecção pelo HIV (3o teste de detecção de ácido nucléico)
     years:
     - 2007
@@ -1003,6 +1143,8 @@ columns:
     role: case.hiv_screening_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evidência laboratorial de infecção pelo HIV (Teste de triagem)\" (case.hiv_screening_test): fact about the health event or the person's health"
     name: Evidência laboratorial de infecção pelo HIV (Teste de triagem)
     years:
     - 2007
@@ -1031,6 +1173,8 @@ columns:
     role: mother.race
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/cor da mãe\" (mother.race): attribute of the person (race/colour)"
     name: Raça/cor da mãe
     years:
     - 2007
@@ -1070,6 +1214,8 @@ columns:
     role: notification.investigation_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de investigação\" (notification.investigation_type): how care or investigation was carried out"
     name: Tipo de investigação
     years:
     - 2007
@@ -1080,6 +1226,8 @@ columns:
     role: case.hiv_rapid_test_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste rápido 1\" (case.hiv_rapid_test_1): fact about the health event or the person's health"
     name: Teste rápido 1
     years:
     - 2007
@@ -1090,6 +1238,8 @@ columns:
     role: case.hiv_rapid_test_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste rápido 2\" (case.hiv_rapid_test_2): fact about the health event or the person's health"
     name: Teste rápido 2
     years:
     - 2007
@@ -1100,6 +1250,8 @@ columns:
     role: case.hiv_rapid_test_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste rápido 3\" (case.hiv_rapid_test_3): fact about the health event or the person's health"
     name: Teste rápido 3
     years:
     - 2007
@@ -1110,6 +1262,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1130,6 +1284,8 @@ columns:
     role: case.treatment_state
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF onde se realiza o tratamento\" (case.treatment_state): how care or investigation was carried out"
     name: UF onde se realiza o tratamento
     codelists:
     - UF_BR

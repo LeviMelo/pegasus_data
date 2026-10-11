@@ -25,6 +25,8 @@ columns:
     role: authorisation.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Gestão\" (authorisation.management_type_code): billing, financing, management or contractual attribute"
     name: Tipo de Gestão
     years:
     - 2001
@@ -45,6 +47,8 @@ columns:
     role: authorisation.care_reference_month_year
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano Atendimento\" (authorisation.care_reference_month_year): billing, financing, management or contractual attribute"
     name: Mês/Ano Atendimento
     years:
     - 2001
@@ -69,6 +73,8 @@ columns:
     role: authorisation.tumour_morphology_cid_o
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column PAQ_DIAGSE, no label recorded (authorisation.tumour_morphology_cid_o): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -104,6 +110,8 @@ columns:
     role: authorisation.tumour_state
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Estado do Tumor\" (authorisation.tumour_state): fact about the health event or the person's health"
     name: Estado do Tumor
     years:
     - 2001
@@ -137,6 +145,8 @@ columns:
     role: authorisation.metastasis_s_n
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "column PAQ_METAST, no label recorded (authorisation.metastasis_s_n): fact about the health event or the person's health"
     years:
     - 2001
     - 2007
@@ -171,6 +181,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2001
@@ -181,6 +193,8 @@ columns:
     role: patient.birth_state
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade\" (patient.birth_state): attribute of the person (nationality/birthplace)"
     name: Sigla da U.F. de nascimento do paciente ou Código da Nacionalidade
     years:
     - 2001

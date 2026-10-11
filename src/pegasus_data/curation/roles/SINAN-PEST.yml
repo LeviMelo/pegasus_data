@@ -14,6 +14,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -47,6 +49,8 @@ columns:
     role: case.sign_match_the_case_definition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Os sinais e sintomas são compatíveis com a definição de caso?\" (case.sign_match_the_case_definition): fact about the health event or the person's health"
     name: Os sinais e sintomas são compatíveis com a definição de caso?
     years:
     - 2007
@@ -55,6 +59,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação (bloco de conclusão legado)\" (case.classification): final classification of the case: clinical classification"
     name: Classificação (bloco de conclusão legado)
     years:
     - 2007
@@ -65,6 +71,8 @@ columns:
     role: case.severity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gravidade\" (case.severity): fact about the health event or the person's health"
     name: Gravidade
     years:
     - 2007
@@ -99,6 +107,8 @@ columns:
     role: case.focal_control_instituted
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Instituído controle focal?\" (case.focal_control_instituted): how care or investigation was carried out"
     name: Instituído controle focal?
     years:
     - 2007
@@ -109,6 +119,8 @@ columns:
     role: case.occurrence_meets_basic_risk_conditions
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"A ocorrência cumpre condições básicas de risco?\" (case.occurrence_meets_basic_risk_conditions): fact about the health event or the person's health"
     name: A ocorrência cumpre condições básicas de risco?
     years:
     - 2007
@@ -119,6 +131,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -137,6 +151,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -151,6 +167,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -165,6 +183,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -179,6 +199,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -194,6 +216,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -320,6 +344,8 @@ columns:
     role: case.elisa_result_1st_sample
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da sorologia para ELISA – S1\" (case.elisa_result_1st_sample): fact about the health event or the person's health"
     name: Resultado da sorologia para ELISA – S1
     years:
     - 2007
@@ -330,6 +356,8 @@ columns:
     role: case.elisa_result_2nd_sample
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da sorologia para ELISA – S2\" (case.elisa_result_2nd_sample): fact about the health event or the person's health"
     name: Resultado da sorologia para ELISA – S2
     years:
     - 2007
@@ -340,6 +368,8 @@ columns:
     role: case.case_linked_to_epidemiologically_important_plague_events
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"O caso está associado a eventos positivos de importância epidemiológica para peste?\" (case.case_linked_to_epidemiologically_important_plague_events): fact about the health event or the person's health"
     name: O caso está associado a eventos positivos de importância epidemiológica para peste?
     years:
     - 2007
@@ -350,6 +380,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -367,6 +399,8 @@ columns:
     role: case.hemagglutination_result_igg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da hemoaglutinação – IgG\" (case.hemagglutination_result_igg): fact about the health event or the person's health"
     name: Resultado da hemoaglutinação – IgG
     years:
     - 2007
@@ -377,6 +411,8 @@ columns:
     role: case.hemagglutination_result_igm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da hemoaglutinação – IgM\" (case.hemagglutination_result_igm): fact about the health event or the person's health"
     name: Resultado da hemoaglutinação – IgM
     years:
     - 2007
@@ -502,6 +538,8 @@ columns:
     role: case.hemagglutination_igg_titre
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da hemoaglutinação – IgG título\" (case.hemagglutination_igg_titre): fact about the health event or the person's health"
     name: Resultado da hemoaglutinação – IgG título
     years:
     - 2007
@@ -510,6 +548,8 @@ columns:
     role: case.hemagglutination_igm_titre
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da hemoaglutinação – IgM título\" (case.hemagglutination_igm_titre): fact about the health event or the person's health"
     name: Resultado da hemoaglutinação – IgM título
     years:
     - 2007
@@ -520,6 +560,8 @@ columns:
     role: case.smear_microscopy_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame bacteriológico – esfregaço\" (case.smear_microscopy_result): fact about the health event or the person's health"
     name: Exame bacteriológico – esfregaço
     years:
     - 2007
@@ -530,6 +572,8 @@ columns:
     role: case.blood_bubo_culture_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame bacteriológico – hemocultura\" (case.blood_bubo_culture_result): fact about the health event or the person's health"
     name: Exame bacteriológico – hemocultura
     years:
     - 2007
@@ -612,6 +656,8 @@ columns:
     role: case.bubo_swollen_lymph_node
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sintomatologia específica – ganglionar\" (case.bubo_swollen_lymph_node): fact about the health event or the person's health"
     name: Sintomatologia específica – ganglionar
     years:
     - 2007
@@ -622,6 +668,8 @@ columns:
     role: case.pulmonary_signs_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sintomatologia específica – pulmonar\" (case.pulmonary_signs_flag): fact about the health event or the person's health"
     name: Sintomatologia específica – pulmonar
     years:
     - 2007
@@ -632,6 +680,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -644,6 +694,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -654,6 +706,8 @@ columns:
     role: case.treated_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caso tratado\" (case.treated_flag): how care or investigation was carried out"
     name: Caso tratado
     years:
     - 2007

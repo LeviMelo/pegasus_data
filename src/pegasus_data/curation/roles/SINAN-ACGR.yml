@@ -16,6 +16,8 @@ columns:
     role: case.medical_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Atendimento médico\" (case.medical_care): how care or investigation was carried out"
     name: Atendimento médico
     years:
     - 2006
@@ -26,6 +28,8 @@ columns:
     role: case.cat_issued
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Comunicação de Acidente de Trabalho (CAT) Emitida?\" (case.cat_issued): record type, internal flag or system field"
     name: Comunicação de Acidente de Trabalho (CAT) Emitida?
     codelists:
     - SIM_NAOAP
@@ -84,6 +88,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -98,6 +104,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -112,6 +120,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -126,6 +136,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -174,6 +186,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -326,6 +340,8 @@ columns:
     role: case.accident_place_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local onde ocorreu o acidente\" (case.accident_place_type): fact about the health event or the person's health"
     name: Local onde ocorreu o acidente
     years:
     - 2006
@@ -336,6 +352,8 @@ columns:
     role: case.other_workers_affected
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Houve Outros Trabalhadores Atingidos?\" (case.other_workers_affected): fact about the health event or the person's health"
     name: Houve Outros Trabalhadores Atingidos?
     years:
     - 2006
@@ -439,6 +457,8 @@ columns:
     role: case.body_part_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Partes do corpo atingida 1\" (case.body_part_1): fact about the health event or the person's health"
     name: Partes do corpo atingida 1
     years:
     - 2006
@@ -449,6 +469,8 @@ columns:
     role: case.body_part_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Partes do corpo atingida 2\" (case.body_part_2): fact about the health event or the person's health"
     name: Partes do corpo atingida 2
     years:
     - 2006
@@ -459,6 +481,8 @@ columns:
     role: case.body_part_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Partes do corpo atingida 3\" (case.body_part_3): fact about the health event or the person's health"
     name: Partes do corpo atingida 3
     years:
     - 2006
@@ -469,6 +493,8 @@ columns:
     role: treatment.setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Regime de Tratamento\" (treatment.setting): treatment given to the case"
     name: Regime de Tratamento
     years:
     - 2006
@@ -521,6 +547,8 @@ columns:
     role: patient.labour_market_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação no Mercado de Trabalho\" (patient.labour_market_status): attribute of the person (work/occupation)"
     name: Situação no Mercado de Trabalho
     years:
     - 2006
@@ -530,6 +558,8 @@ columns:
     role: patient.employer_subcontractor
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Empregador é Empresa Terceirizada?\" (patient.employer_subcontractor): attribute of the person (work/occupation)"
     name: Empregador é Empresa Terceirizada?
     years:
     - 2006
@@ -540,6 +570,8 @@ columns:
     role: case.accident_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de acidente / circunstância do acidente\" (case.accident_type): fact about the health event or the person's health"
     name: Tipo de acidente / circunstância do acidente
     years:
     - 2006
@@ -550,6 +582,8 @@ columns:
     role: patient.time_in_occupation_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade do Tempo de Trabalho na Ocupação\" (patient.time_in_occupation_unit): encoding unit of another field"
     name: Unidade do Tempo de Trabalho na Ocupação
     codelists:
     - TPTEMPOTRAB
@@ -562,6 +596,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2006

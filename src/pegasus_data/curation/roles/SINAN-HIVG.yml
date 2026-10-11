@@ -7,6 +7,8 @@ columns:
     role: case.hiv_evidence_timing
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Momento do diagnóstico\" (case.hiv_evidence_timing): fact about the health event or the person's health"
     name: Momento do diagnóstico
     years:
     - 2007
@@ -18,6 +20,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -32,6 +36,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -46,6 +52,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -60,6 +68,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -198,6 +208,8 @@ columns:
     role: case.antiretroviral_prophylaxis_delivery
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fez uso de profilaxia anti-retroviral durante o parto\" (case.antiretroviral_prophylaxis_delivery): how care or investigation was carried out"
     name: Fez uso de profilaxia anti-retroviral durante o parto
     years:
     - 2007
@@ -216,6 +228,8 @@ columns:
     role: case.pregnancy_outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução da gravidez\" (case.pregnancy_outcome): fact about the health event or the person's health"
     name: Evolução da gravidez
     years:
     - 2007
@@ -226,6 +240,8 @@ columns:
     role: case.infant_prophylaxis_start
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Início da profilaxia com anti-retroviral na criança (horas)\" (case.infant_prophylaxis_start): how care or investigation was carried out"
     name: Início da profilaxia com anti-retroviral na criança (horas)
     years:
     - 2007
@@ -236,6 +252,8 @@ columns:
     role: case.delivery_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo do parto\" (case.delivery_type): how care or investigation was carried out"
     name: Tipo do parto
     years:
     - 2007
@@ -255,6 +273,8 @@ columns:
     role: case.antiretroviral_prophylaxis_pregnancy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antirretroviral no pré-natal\" (case.antiretroviral_prophylaxis_pregnancy): how care or investigation was carried out"
     name: Antirretroviral no pré-natal
     years:
     - 2007
@@ -293,6 +313,8 @@ columns:
     role: case.prenatal_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fez/Faz pré-natal\" (case.prenatal_care): how care or investigation was carried out"
     name: Fez/Faz pré-natal
     years:
     - 2007
@@ -345,6 +367,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007

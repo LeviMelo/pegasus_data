@@ -207,11 +207,12 @@ def roles_cmd(
         _emit(rows, True)
         return
     table = Table(title=f"roles of {dataset}")
-    for header in ("column", "role", "kind", "model", "name"):
+    for header in ("column", "role", "kind", "model", "domain", "name"):
         table.add_column(header)
     for row in rows:
         mark = "" if row["reviewed"] else " (draft)"
-        table.add_row(row["column"], row["role"] + mark, row["kind"], row["model"], str(row["name"] or ""))
+        table.add_row(row["column"], row["role"] + mark, row["kind"], row["model"], str(row["fact_domain"] or ""),
+                      str(row["name"] or ""))
     console.print(table)
 
 

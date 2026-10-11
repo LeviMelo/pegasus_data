@@ -7,6 +7,8 @@ columns:
     role: case.spider_genus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gênero da aranha\" (case.spider_genus): fact about the health event or the person's health"
     name: Gênero da aranha
     years:
     - 2007
@@ -17,6 +19,8 @@ columns:
     role: case.caterpillar_genus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gênero da lagarta\" (case.caterpillar_genus): fact about the health event or the person's health"
     name: Gênero da lagarta
     years:
     - 2007
@@ -27,6 +31,8 @@ columns:
     role: case.snake_genus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gênero da serpente\" (case.snake_genus): fact about the health event or the person's health"
     name: Gênero da serpente
     years:
     - 2007
@@ -62,6 +68,8 @@ columns:
     role: case.bite_site
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local da picada\" (case.bite_site): fact about the health event or the person's health"
     name: Local da picada
     years:
     - 2007
@@ -82,6 +90,8 @@ columns:
     role: case.time_to_care
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo entre o acidente e o atendimento\" (case.time_to_care): how care or investigation was carried out"
     name: Tempo entre o acidente e o atendimento
     years:
     - 2007
@@ -103,6 +113,8 @@ columns:
     role: case.sign_local_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dor local\" (case.sign_local_pain): fact about the health event or the person's health"
     name: Dor local
     years:
     - 2007
@@ -113,6 +125,8 @@ columns:
     role: case.sign_local_oedema
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema local\" (case.sign_local_oedema): fact about the health event or the person's health"
     name: Edema local
     years:
     - 2007
@@ -123,6 +137,8 @@ columns:
     role: case.sign_local_bruising
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Equimose local\" (case.sign_local_bruising): fact about the health event or the person's health"
     name: Equimose local
     years:
     - 2007
@@ -133,6 +149,8 @@ columns:
     role: case.sign_systemic_haemorrhage
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras hemorragias\" (case.sign_systemic_haemorrhage): fact about the health event or the person's health"
     name: Outras hemorragias
     years:
     - 2007
@@ -143,6 +161,8 @@ columns:
     role: case.sign_local_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra manifestação local\" (case.sign_local_other): fact about the health event or the person's health"
     name: Outra manifestação local
     years:
     - 2007
@@ -161,6 +181,8 @@ columns:
     role: case.sign_myolysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mioanálise ou mialgia\" (case.sign_myolysis): fact about the health event or the person's health"
     name: Mioanálise ou mialgia
     years:
     - 2007
@@ -171,6 +193,8 @@ columns:
     role: case.sign_local_necrosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Necrose local\" (case.sign_local_necrosis): fact about the health event or the person's health"
     name: Necrose local
     years:
     - 2007
@@ -181,6 +205,8 @@ columns:
     role: case.sign_neurological
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações neurológicas\" (case.sign_neurological): fact about the health event or the person's health"
     name: Manifestações neurológicas
     years:
     - 2007
@@ -191,6 +217,8 @@ columns:
     role: case.sign_systemic_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra manifestação sistêmica\" (case.sign_systemic_other): fact about the health event or the person's health"
     name: Outra manifestação sistêmica
     years:
     - 2007
@@ -209,6 +237,8 @@ columns:
     role: case.sign_renal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Insuficiência renal\" (case.sign_renal): fact about the health event or the person's health"
     name: Insuficiência renal
     years:
     - 2007
@@ -219,6 +249,8 @@ columns:
     role: case.coagulation_time
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tempo de coagulação\" (case.coagulation_time): fact about the health event or the person's health"
     name: Tempo de coagulação
     years:
     - 2007
@@ -229,6 +261,8 @@ columns:
     role: case.sign_vagal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações vagais (vômitos/diarreia)\" (case.sign_vagal): fact about the health event or the person's health"
     name: Manifestações vagais (vômitos/diarreia)
     years:
     - 2007
@@ -239,6 +273,8 @@ columns:
     role: case.complication_amputation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Amputação\" (case.complication_amputation): fact about the health event or the person's health"
     name: Amputação
     years:
     - 2007
@@ -249,6 +285,8 @@ columns:
     role: case.complication_shock
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Choque\" (case.complication_shock): fact about the health event or the person's health"
     name: Choque
     years:
     - 2007
@@ -259,6 +297,8 @@ columns:
     role: case.complication_compartment_syndrome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Síndrome compartimental\" (case.complication_compartment_syndrome): fact about the health event or the person's health"
     name: Síndrome compartimental
     years:
     - 2007
@@ -269,6 +309,8 @@ columns:
     role: case.complication_functional_deficit
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Déficit funcional\" (case.complication_functional_deficit): fact about the health event or the person's health"
     name: Déficit funcional
     years:
     - 2007
@@ -279,6 +321,8 @@ columns:
     role: case.complication_respiratory_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Edema como complicação\" (case.complication_respiratory_failure): fact about the health event or the person's health"
     name: Edema como complicação
     years:
     - 2007
@@ -291,6 +335,8 @@ columns:
     role: case.local_complication
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Complicação local\" (case.local_complication): fact about the health event or the person's health"
     name: Complicação local
     years:
     - 2007
@@ -301,6 +347,8 @@ columns:
     role: case.complication_necrosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Necrose como complicação\" (case.complication_necrosis): fact about the health event or the person's health"
     name: Necrose como complicação
     years:
     - 2007
@@ -311,6 +359,8 @@ columns:
     role: case.complication_renal_failure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Insuficiência renal aguda\" (case.complication_renal_failure): fact about the health event or the person's health"
     name: Insuficiência renal aguda
     years:
     - 2007
@@ -321,6 +371,8 @@ columns:
     role: case.complication_secondary_infection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Infecção secundária\" (case.complication_secondary_infection): fact about the health event or the person's health"
     name: Infecção secundária
     years:
     - 2007
@@ -331,6 +383,8 @@ columns:
     role: case.complication_septicaemia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Septicemia\" (case.complication_septicaemia): fact about the health event or the person's health"
     name: Septicemia
     years:
     - 2007
@@ -341,6 +395,8 @@ columns:
     role: case.systemic_complication
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Complicação sistêmica\" (case.systemic_complication): fact about the health event or the person's health"
     name: Complicação sistêmica
     years:
     - 2007
@@ -351,6 +407,8 @@ columns:
     role: treatment.antivenom
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Soroterapia realizada\" (treatment.antivenom): treatment given to the case"
     name: Soroterapia realizada
     years:
     - 2007
@@ -362,6 +420,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -376,6 +436,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -390,6 +452,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -404,6 +468,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -419,6 +485,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -481,6 +549,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -598,6 +668,8 @@ columns:
     role: case.local_signs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações clínicas locais\" (case.local_signs): fact about the health event or the person's health"
     name: Manifestações clínicas locais
     years:
     - 2007
@@ -608,6 +680,8 @@ columns:
     role: case.systemic_signs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Manifestações clínicas sistêmicas\" (case.systemic_signs): fact about the health event or the person's health"
     name: Manifestações clínicas sistêmicas
     years:
     - 2007
@@ -755,6 +829,8 @@ columns:
     role: case.animal_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de acidente\" (case.animal_type): fact about the health event or the person's health"
     name: Tipo de acidente
     years:
     - 2007
@@ -765,6 +841,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -775,6 +853,8 @@ columns:
     role: case.severity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação do caso\" (case.severity): fact about the health event or the person's health"
     name: Classificação do caso
     years:
     - 2007

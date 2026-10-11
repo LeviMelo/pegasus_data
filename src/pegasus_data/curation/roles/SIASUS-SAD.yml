@@ -7,6 +7,8 @@ columns:
     role: care.type_of_care_episode
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater de Atendimento\" (care.type_of_care_episode): how care or investigation was carried out"
     name: Carater de Atendimento
     years:
     - 2012
@@ -89,6 +91,8 @@ columns:
     role: care.esf_coverage_indicator
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família\" (care.esf_coverage_indicator): how care or investigation was carried out"
     name: Indica se a região de atendimento do paciente tem cobertura de Estratégia Saúde da Família
     years:
     - 2012
@@ -101,6 +105,8 @@ columns:
     role: care.management_type_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (care.management_type_code): billing, financing, management or contractual attribute"
     name: Sigla do Tipo de Gestao
     years:
     - 2012
@@ -112,6 +118,8 @@ columns:
     role: care.national_care_team_identifier
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Identificador Nacional de Equipe\" (care.national_care_team_identifier): billing, financing, management or contractual attribute"
     name: Identificador Nacional de Equipe
     years:
     - 2014
@@ -124,6 +132,8 @@ columns:
     role: care.patient_destination
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Destino do paciente\" (care.patient_destination): how care or investigation was carried out"
     name: Destino do paciente
     years:
     - 2012
@@ -183,6 +193,8 @@ columns:
     role: care.indigenous_ethnicity
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia\" (care.indigenous_ethnicity): attribute of the person (race/colour)"
     name: Etnia
     years:
     - 2012
@@ -234,6 +246,8 @@ columns:
     role: care.maintained_vs_individual_establishment_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (care.maintained_vs_individual_establishment_flag): billing, financing, management or contractual attribute"
     name: Estabelecimento Mantido / Individual
     years:
     - 2012
@@ -246,6 +260,8 @@ columns:
     role: care.reason_for_discharge_continuation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo de Saída/Permanência\" (care.reason_for_discharge_continuation): how care or investigation was carried out"
     name: Motivo de Saída/Permanência
     years:
     - 2012
@@ -267,6 +283,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     name: Nacionalidade do paciente
     years:
     - 2012
@@ -279,6 +297,8 @@ columns:
     role: care.establishment_legal_nature_concla
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica\" (care.establishment_legal_nature_concla): billing, financing, management or contractual attribute"
     name: Natureza jurídica
     years:
     - 2014
@@ -289,6 +309,8 @@ columns:
     role: care.patient_origin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Origem do paciente\" (care.patient_origin): how care or investigation was carried out"
     name: Origem do paciente
     years:
     - 2012
@@ -310,6 +332,8 @@ columns:
     role: care.service_classification
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Classificação do Serviço\" (care.service_classification): how care or investigation was carried out"
     name: Classificação do Serviço
     years:
     - 2012
@@ -320,6 +344,8 @@ columns:
     role: care.health_team_identifier
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Equipe\" (care.health_team_identifier): billing, financing, management or contractual attribute"
     name: Equipe
     years:
     - 2012
@@ -356,6 +382,8 @@ columns:
     role: care.specialised_service
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Serviço Especializado\" (care.specialised_service): how care or investigation was carried out"
     name: Serviço Especializado
     years:
     - 2012
@@ -368,6 +396,8 @@ columns:
     role: care.team_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de equipe\" (care.team_type): billing, financing, management or contractual attribute"
     name: Tipo de equipe
     years:
     - 2012
@@ -376,6 +406,8 @@ columns:
     role: care.time_in_attendance
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Permanência em Atendimento\" (care.time_in_attendance): how care or investigation was carried out"
     name: Permanência em Atendimento
     years:
     - 2012
@@ -402,6 +434,8 @@ columns:
     role: care.race_colour
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (care.race_colour): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2012
@@ -410,6 +444,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     years:
     - 2012
@@ -420,6 +456,8 @@ columns:
     role: care.age_unit_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo da Idade do paciente\" (care.age_unit_code): encoding unit of another field"
     name: Tipo da Idade do paciente
     years:
     - 2012

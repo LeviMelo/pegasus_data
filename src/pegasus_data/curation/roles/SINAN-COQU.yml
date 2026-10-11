@@ -16,6 +16,8 @@ columns:
     role: notification.sentinel_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade sentinela\" (notification.sentinel_unit): record type, internal flag or system field"
     name: Unidade sentinela
     years:
     - 2007
@@ -24,6 +26,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -62,6 +66,8 @@ columns:
     role: case.contacts_sampled
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta em comunicantes\" (case.contacts_sampled): how care or investigation was carried out"
     name: Coleta em comunicantes
     years:
     - 2007
@@ -72,6 +78,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -89,6 +97,8 @@ columns:
     role: treatment.antibiotic
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Uso de antibiótico\" (treatment.antibiotic): treatment given to the case"
     name: Uso de antibiótico
     years:
     - 2007
@@ -99,6 +109,8 @@ columns:
     role: case.sign_apnoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Apneia\" (case.sign_apnoea): fact about the health event or the person's health"
     name: Apneia
     years:
     - 2007
@@ -109,6 +121,8 @@ columns:
     role: case.sign_cyanosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cianose\" (case.sign_cyanosis): fact about the health event or the person's health"
     name: Cianose
     years:
     - 2007
@@ -119,6 +133,8 @@ columns:
     role: case.nasopharynx_sample
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de material\" (case.nasopharynx_sample): how care or investigation was carried out"
     name: Coleta de material
     years:
     - 2007
@@ -129,6 +145,8 @@ columns:
     role: case.sign_whoop
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Crises de Contraturas\" (case.sign_whoop): fact about the health event or the person's health"
     name: Crises de Contraturas
     years:
     - 2007
@@ -139,6 +157,8 @@ columns:
     role: case.culture_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da cultura\" (case.culture_result): fact about the health event or the person's health"
     name: Resultado da cultura
     years:
     - 2007
@@ -149,6 +169,8 @@ columns:
     role: case.complication_dehydration
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Desidratação\" (case.complication_dehydration): fact about the health event or the person's health"
     name: Desidratação
     years:
     - 2007
@@ -159,6 +181,8 @@ columns:
     role: case.complication_malnutrition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Desnutrição\" (case.complication_malnutrition): fact about the health event or the person's health"
     name: Desnutrição
     years:
     - 2007
@@ -169,6 +193,8 @@ columns:
     role: case.complication_encephalopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Encefalopatia\" (case.complication_encephalopathy): fact about the health event or the person's health"
     name: Encefalopatia
     years:
     - 2007
@@ -180,6 +206,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -191,6 +219,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -204,6 +234,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -217,6 +249,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu hospitalização?\" (case.hospitalised): how care or investigation was carried out"
     name: Ocorreu hospitalização?
     years:
     - 2007
@@ -227,6 +261,8 @@ columns:
     role: case.complication_otitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Otite\" (case.complication_otitis): fact about the health event or the person's health"
     name: Otite
     years:
     - 2007
@@ -237,6 +273,8 @@ columns:
     role: case.complication_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra complicação\" (case.complication_other): fact about the health event or the person's health"
     name: Outra complicação
     years:
     - 2007
@@ -247,6 +285,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro sinal ou sintoma\" (case.sign_other): fact about the health event or the person's health"
     name: Outro sinal ou sintoma
     years:
     - 2007
@@ -257,6 +297,8 @@ columns:
     role: case.complication_pneumonia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Pneumonia\" (case.complication_pneumonia): fact about the health event or the person's health"
     name: Pneumonia
     years:
     - 2007
@@ -268,6 +310,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -282,6 +326,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -297,6 +343,8 @@ columns:
     role: case.sign_temperature_below_38
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre até 37 graus\" (case.sign_temperature_below_38): fact about the health event or the person's health"
     name: Febre até 37 graus
     years:
     - 2007
@@ -307,6 +355,8 @@ columns:
     role: case.sign_temperature_38_or_more
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre acima de 38 graus\" (case.sign_temperature_38_or_more): fact about the health event or the person's health"
     name: Febre acima de 38 graus
     years:
     - 2007
@@ -317,6 +367,8 @@ columns:
     role: case.sign_cough
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tosse em acessos\" (case.sign_cough): fact about the health event or the person's health"
     name: Tosse em acessos
     years:
     - 2007
@@ -327,6 +379,8 @@ columns:
     role: case.sign_paroxysmal_cough
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Guincho inspiratório\" (case.sign_paroxysmal_cough): fact about the health event or the person's health"
     name: Guincho inspiratório
     years:
     - 2007
@@ -337,6 +391,8 @@ columns:
     role: patient.dtp_doses
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doses de vacina recebidas\" (patient.dtp_doses): fact about the health event or the person's health"
     name: Doses de vacina recebidas
     years:
     - 2007
@@ -347,6 +403,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Vômitos\" (case.sign_vomiting): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Vômitos\n"
     codelists:
     - SIM_NAO
@@ -359,6 +417,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -510,6 +570,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -527,6 +589,8 @@ columns:
     role: case.contact_place
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Local do Contato\" (case.contact_place): fact about the health event or the person's health"
     name: "Local do Contato\n"
     codelists:
     - LOCALCONCNET
@@ -537,6 +601,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -664,6 +730,8 @@ columns:
     role: case.control_measure
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Medida preventiva adotada\" (case.control_measure): how care or investigation was carried out"
     name: Medida preventiva adotada
     years:
     - 2007
@@ -674,6 +742,8 @@ columns:
     role: case.secondary_cases
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantos Casos Secundários Foram Confirmados entre os Comunicantes\" (case.secondary_cases): fact about the health event or the person's health"
     name: "Quantos Casos Secundários Foram Confirmados entre os Comunicantes\n"
     codelists:
     - 012IGN
@@ -686,6 +756,8 @@ columns:
     role: case.contacts_identified
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Realizada Identificação dos Comunicantes Íntimos\" (case.contacts_identified): how care or investigation was carried out"
     name: "Realizada Identificação dos Comunicantes Íntimos\n"
     codelists:
     - SIM_NAO
@@ -705,6 +777,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -715,6 +789,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -849,6 +925,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007

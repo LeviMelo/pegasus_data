@@ -5,6 +5,8 @@ columns:
     role: exam.benign_atrophic_cellular_change
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt. ben:Atr. inflam\" (exam.benign_atrophic_cellular_change): result of a test or finding on the person"
     name: Alt. ben:Atr. inflam
     years:
     - 2013
@@ -13,6 +15,8 @@ columns:
     role: exam.benign_changes_inflammation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt.ben.inflamação\" (exam.benign_changes_inflammation): result of a test or finding on the person"
     name: Alt.ben.inflamação
     years:
     - 2013
@@ -21,6 +25,8 @@ columns:
     role: exam.benign_changes_immature_squamous_metaplasia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt.ben.metap.esca\" (exam.benign_changes_immature_squamous_metaplasia): result of a test or finding on the person"
     name: Alt.ben.metap.esca
     years:
     - 2013
@@ -29,6 +35,8 @@ columns:
     role: exam.benign_changes_other_cause
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt.ben.outros\" (exam.benign_changes_other_cause): result of a test or finding on the person"
     name: Alt.ben.outros
     years:
     - 2013
@@ -37,6 +45,8 @@ columns:
     role: exam.benign_changes_radiation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt.ben.radiação\" (exam.benign_changes_radiation): result of a test or finding on the person"
     name: Alt.ben.radiação
     years:
     - 2013
@@ -45,6 +55,8 @@ columns:
     role: exam.benign_changes_repair
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alt.ben.reparação\" (exam.benign_changes_repair): result of a test or finding on the person"
     name: Alt.ben.reparação
     years:
     - 2013
@@ -85,6 +97,8 @@ columns:
     role: exam.squamous_epithelium_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Epitélio escamoso\" (exam.squamous_epithelium_present): result of a test or finding on the person"
     name: Epitélio escamoso
     years:
     - 2013
@@ -93,6 +107,8 @@ columns:
     role: exam.glandular_epithelium_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Epitélio glandular\" (exam.glandular_epithelium_present): result of a test or finding on the person"
     name: Epitélio glandular
     years:
     - 2013
@@ -101,6 +117,8 @@ columns:
     role: exam.metaplastic_epithelium_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Epitélio metaplas.\" (exam.metaplastic_epithelium_present): result of a test or finding on the person"
     name: Epitélio metaplas.
     years:
     - 2013
@@ -111,6 +129,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2013
@@ -119,6 +139,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia\" (patient.ethnicity): attribute of the person (ethnicity)"
     name: Etnia
     years:
     - 2013
@@ -135,6 +157,8 @@ columns:
     role: exam.unsatisfactory_drying_artifact
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. pres.art.desec.\" (exam.unsatisfactory_drying_artifact): how care or investigation was carried out"
     name: Ins. pres.art.desec.
     years:
     - 2013
@@ -143,6 +167,8 @@ columns:
     role: exam.unsatisfactory_external_contaminants
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. pres.cont.exte\" (exam.unsatisfactory_external_contaminants): how care or investigation was carried out"
     name: Ins. pres.cont.exte
     years:
     - 2013
@@ -151,6 +177,8 @@ columns:
     role: exam.unsatisfactory_cell_overlap
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. pres.sup.celul\" (exam.unsatisfactory_cell_overlap): how care or investigation was carried out"
     name: Ins. pres.sup.celul
     years:
     - 2013
@@ -159,6 +187,8 @@ columns:
     role: exam.unsatisfactory_scanty_cellular_material
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. mat. acelular\" (exam.unsatisfactory_scanty_cellular_material): how care or investigation was carried out"
     name: Ins. mat. acelular
     years:
     - 2013
@@ -167,6 +197,8 @@ columns:
     role: exam.unsatisfactory_other_cause
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. Outros\" (exam.unsatisfactory_other_cause): how care or investigation was carried out"
     name: Ins. Outros
     years:
     - 2013
@@ -175,6 +207,8 @@ columns:
     role: exam.unsatisfactory_pus_cells
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. pres. piócitos\" (exam.unsatisfactory_pus_cells): how care or investigation was carried out"
     name: Ins. pres. piócitos
     years:
     - 2013
@@ -183,6 +217,8 @@ columns:
     role: exam.unsatisfactory_blood
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ins. pres. sangue\" (exam.unsatisfactory_blood): how care or investigation was carried out"
     name: Ins. pres. sangue
     years:
     - 2013
@@ -191,6 +227,8 @@ columns:
     role: exam.collection_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_interval): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2013
@@ -199,6 +237,8 @@ columns:
     role: exam.result_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.result_interval): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2013
@@ -207,6 +247,8 @@ columns:
     role: exam.overall_cytopathology_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Laudo citopatológico (inferido)\" (exam.overall_cytopathology_result): result of a test or finding on the person"
     name: Laudo citopatológico (inferido)
     years:
     - 2013
@@ -215,6 +257,8 @@ columns:
     role: exam.microbiology_actinomyces_sp
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.actinomyces sp (inferido)\" (exam.microbiology_actinomyces_sp): result of a test or finding on the person"
     name: Mic.actinomyces sp (inferido)
     years:
     - 2013
@@ -223,6 +267,8 @@ columns:
     role: exam.microbiology_supracytoplasmic_bacilli
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.bacil supracit. (inferido)\" (exam.microbiology_supracytoplasmic_bacilli): result of a test or finding on the person"
     name: Mic.bacil supracit. (inferido)
     years:
     - 2013
@@ -231,6 +277,8 @@ columns:
     role: exam.microbiology_candida_sp
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.CANDIDA sp (inferido)\" (exam.microbiology_candida_sp): result of a test or finding on the person"
     name: Mic.CANDIDA sp (inferido)
     years:
     - 2013
@@ -239,6 +287,8 @@ columns:
     role: exam.microbiology_cocci
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.cocos (inferido)\" (exam.microbiology_cocci): result of a test or finding on the person"
     name: Mic.cocos (inferido)
     years:
     - 2013
@@ -247,6 +297,8 @@ columns:
     role: exam.microbiology_herpes_group_viral_effect
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.vir gr.herpes (inferido)\" (exam.microbiology_herpes_group_viral_effect): result of a test or finding on the person"
     name: Mic.vir gr.herpes (inferido)
     years:
     - 2013
@@ -255,6 +307,8 @@ columns:
     role: exam.microbiology_lactobacillus_sp
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.lactobacillus (inferido)\" (exam.microbiology_lactobacillus_sp): result of a test or finding on the person"
     name: Mic.lactobacillus (inferido)
     years:
     - 2013
@@ -263,6 +317,8 @@ columns:
     role: exam.microbiology_other_organism
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mic.outros (inferido)\" (exam.microbiology_other_organism): result of a test or finding on the person"
     name: Mic.outros (inferido)
     years:
     - 2013
@@ -271,6 +327,8 @@ columns:
     role: exam.microbiology_other_bacilli
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outros bacilos\" (exam.microbiology_other_bacilli): result of a test or finding on the person"
     name: Outros bacilos
     years:
     - 2013
@@ -279,6 +337,8 @@ columns:
     role: exam.microbiology_suggestive_of_chlamydia_sp
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sugestivo de Chlamydia sp.\" (exam.microbiology_suggestive_of_chlamydia_sp): result of a test or finding on the person"
     name: Sugestivo de Chlamydia sp.
     years:
     - 2013
@@ -287,6 +347,8 @@ columns:
     role: exam.microbiology_trichomonas_vaginalis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Trichomonas vaginalis\" (exam.microbiology_trichomonas_vaginalis): result of a test or finding on the person"
     name: Trichomonas vaginalis
     years:
     - 2013
@@ -332,6 +394,8 @@ columns:
     role: exam.time_since_previous_pap_test
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período do preventivo\" (exam.time_since_previous_pap_test): result of a test or finding on the person"
     name: Período do preventivo
     years:
     - 2013
@@ -350,6 +414,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2013
@@ -358,6 +424,8 @@ columns:
     role: exam.rejected_slide_vial_identification_missing
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rejeitada id. lâmin\" (exam.rejected_slide_vial_identification_missing): how care or investigation was carried out"
     name: Rejeitada id. lâmin
     years:
     - 2013
@@ -366,6 +434,8 @@ columns:
     role: exam.rejected_cause_external_to_the_laboratory
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rej. causas alheias\" (exam.rejected_cause_external_to_the_laboratory): how care or investigation was carried out"
     name: Rej. causas alheias
     years:
     - 2013
@@ -374,6 +444,8 @@ columns:
     role: exam.rejected_slide_damaged_or_missing
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rej. lâmina danif\" (exam.rejected_slide_damaged_or_missing): how care or investigation was carried out"
     name: Rej. lâmina danif
     years:
     - 2013
@@ -382,6 +454,8 @@ columns:
     role: exam.rejected_other_cause
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Rejeitada: Outros\" (exam.rejected_other_cause): how care or investigation was carried out"
     name: 'Rejeitada: Outros'
     years:
     - 2013
@@ -397,6 +471,8 @@ columns:
     role: exam.total_exam_turnaround
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo Exame\" (exam.total_exam_turnaround): how care or investigation was carried out"
     name: Tempo Exame
     years:
     - 2013
@@ -597,6 +673,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2013
@@ -605,6 +683,8 @@ columns:
     role: exam.endometrial_cells_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Presença de células endometriais\" (exam.endometrial_cells_present): result of a test or finding on the person"
     name: Presença de células endometriais
     years:
     - 2013
@@ -615,6 +695,8 @@ columns:
     role: exam.result_within_normal_limits_dln_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dentro dos limites da normalidade no material examinado\" (exam.result_within_normal_limits_dln_flag): result of a test or finding on the person"
     name: Dentro dos limites da normalidade no material examinado
     years:
     - 2013
@@ -625,6 +707,8 @@ columns:
     role: exam.other_malignant_neoplasm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras neoplasias malignas\" (exam.other_malignant_neoplasm): result of a test or finding on the person"
     name: Outras neoplasias malignas
     years:
     - 2013
@@ -635,6 +719,8 @@ columns:
     role: exam.transformation_zone_representativity_flag
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Representatividade da Zona de Transformação\" (exam.transformation_zone_representativity_flag): how care or investigation was carried out"
     name: Representatividade da Zona de Transformação
     years:
     - 2013
@@ -645,6 +731,8 @@ columns:
     role: exam.screening_done_by_cytotechnician
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Screening pelo citotécnico\" (exam.screening_done_by_cytotechnician): how care or investigation was carried out"
     name: Screening pelo citotécnico
     years:
     - 2013
@@ -655,6 +743,8 @@ columns:
     role: exam.sign_suggestive_of_an_std_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais sugestivos de doenças sexualmente transmissíveis\" (exam.sign_suggestive_of_an_std_flag): result of a test or finding on the person"
     name: Sinais sugestivos de doenças sexualmente transmissíveis
     years:
     - 2013
@@ -663,6 +753,8 @@ columns:
     role: exam.squamous_cell_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atipias em células escamosas\" (exam.squamous_cell_atypia): result of a test or finding on the person"
     name: Atipias em células escamosas
     years:
     - 2013
@@ -671,6 +763,8 @@ columns:
     role: exam.glandular_cell_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atipias em células glandulares\" (exam.glandular_cell_atypia): result of a test or finding on the person"
     name: Atipias em células glandulares
     years:
     - 2013
@@ -679,6 +773,8 @@ columns:
     role: exam.sample_evaluation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade da amostra\" (exam.sample_evaluation): how care or investigation was carried out"
     name: Adequabilidade da amostra
     years:
     - 2013
@@ -687,6 +783,8 @@ columns:
     role: exam.squamous_cells_of_undetermined_significance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células escamosas atípicas de significado indeterminado\" (exam.squamous_cells_of_undetermined_significance): result of a test or finding on the person"
     name: Células escamosas atípicas de significado indeterminado
     years:
     - 2013
@@ -695,6 +793,8 @@ columns:
     role: exam.glandular_cells_of_undetermined_significance
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células glandulares atípicas de significado indeterminado\" (exam.glandular_cells_of_undetermined_significance): result of a test or finding on the person"
     name: Células glandulares atípicas de significado indeterminado
     years:
     - 2013
@@ -703,6 +803,8 @@ columns:
     role: exam.cells_of_undetermined_origin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Células de origem indefinida, de significado indeterminado\" (exam.cells_of_undetermined_origin): result of a test or finding on the person"
     name: Células de origem indefinida, de significado indeterminado
     years:
     - 2013
@@ -711,6 +813,8 @@ columns:
     role: exam.type_of_cervical_visual_inspection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column TP_INSPECAO_COLO, no label recorded (exam.type_of_cervical_visual_inspection): how care or investigation was carried out"
     years:
     - 2013
     - 2025
@@ -718,6 +822,8 @@ columns:
     role: exam.reason_for_the_exam_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Motivo do exame\" (exam.reason_for_the_exam_type): how care or investigation was carried out"
     name: Motivo do exame
     years:
     - 2013
@@ -726,6 +832,8 @@ columns:
     role: exam.previous_pap_test_reported
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resposta: exame preventivo realizado\" (exam.previous_pap_test_reported): result of a test or finding on the person"
     name: 'Resposta: exame preventivo realizado'
     years:
     - 2013

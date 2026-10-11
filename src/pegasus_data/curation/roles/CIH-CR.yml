@@ -13,6 +13,8 @@ columns:
     role: admission.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Caráter da internação\" (admission.admission_character): urgent or elective admission: a care-process fact"
     name: Caráter da internação
     years:
     - 2008
@@ -42,6 +44,8 @@ columns:
     role: admission.discharge_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de saída/permanência\" (admission.discharge_reason): motivo de saida/permanencia: the code that closes the AIH for payment (billing reason)"
     name: Motivo de saída/permanência
     years:
     - 2008
@@ -53,6 +57,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de idade\" (patient.age_unit): encoding unit of another field"
     codelists:
     - IDADEDET
     name: Unidade de idade
@@ -116,6 +122,8 @@ columns:
     role: admission.bed_specialty
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade do leito/da internação\" (admission.bed_specialty): specialty of the bed used: a care-process fact"
     name: Especialidade do leito/da internação
     years:
     - 2008
@@ -125,6 +133,8 @@ columns:
     role: admission.payment_source
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte da remuneração\" (admission.payment_source): billing, financing, management or contractual attribute"
     name: Fonte da remuneração
     years:
     - 2008
@@ -133,6 +143,8 @@ columns:
     role: admission.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestão\" (admission.management_type): management arrangement of the payer: management"
     name: Tipo de gestão
     years:
     - 2008
@@ -146,6 +158,8 @@ columns:
     role: patient.homonym_flag
     kind: category
     model: link_only
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de homônimo\" (patient.homonym_flag): encoding unit of another field"
     name: Indicador de homônimo
     years:
     - 2008
@@ -173,6 +187,8 @@ columns:
     role: admission.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito (saída com morte)\" (admission.death): stay ended in death: outcome of the event"
     name: Óbito (saída com morte)
     years:
     - 2008
@@ -205,6 +221,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Nacionalidade\" (patient.nationality): attribute of the person (nationality/birthplace)"
     name: Nacionalidade
     years:
     - 2008
@@ -225,6 +243,8 @@ columns:
     role: facility.legal_nature_old
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza jurídica do estabelecimento\" (facility.legal_nature_old): attribute of the establishment register (structure, service, management)"
     name: Natureza jurídica do estabelecimento
     years:
     - 2008
@@ -246,6 +266,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     codelists:
     - SEXO
     name: Sexo do paciente

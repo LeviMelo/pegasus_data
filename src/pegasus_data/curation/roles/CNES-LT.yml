@@ -7,6 +7,8 @@ columns:
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atividade de ensino\" (establishment.teaching_research_activity_of_the_establishment): attribute of the establishment register (structure, service, management)"
     name: Atividade de ensino
     years:
     - 2005
@@ -19,6 +21,8 @@ columns:
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de clientela\" (establishment.patient_flow_referral_intake_type): attribute of the establishment register (structure, service, management)"
     name: Fluxo de clientela
     years:
     - 2005
@@ -49,6 +53,8 @@ columns:
     role: bed.specialty
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade do leito\" (bed.specialty): how care or investigation was carried out"
     name: Especialidade do leito
     years:
     - 2005
@@ -87,6 +93,8 @@ columns:
     role: establishment.administrative_district_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Distrito administrativo / Módulo assistencial\" (establishment.administrative_district_local): attribute of the establishment register (structure, service, management)"
     name: Distrito administrativo / Módulo assistencial
     years:
     - 2005
@@ -95,6 +103,8 @@ columns:
     role: establishment.sanitary_district_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Distrito sanitário\" (establishment.sanitary_district_local): attribute of the establishment register (structure, service, management)"
     name: Distrito sanitário
     years:
     - 2005
@@ -103,6 +113,8 @@ columns:
     role: establishment.administrative_sphere
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Esfera administrativa\" (establishment.administrative_sphere): attribute of the establishment register (structure, service, management)"
     name: Esfera administrativa
     years:
     - 2005
@@ -113,6 +125,8 @@ columns:
     role: establishment.micro_region_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Microrregião de saúde\" (establishment.micro_region_local): attribute of the establishment register (structure, service, management)"
     name: Microrregião de saúde
     years:
     - 2005
@@ -121,6 +135,8 @@ columns:
     role: establishment.organisation_nature_legacy
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da natureza da organização\" (establishment.organisation_nature_legacy): attribute of the establishment register (structure, service, management)"
     name: Código da natureza da organização
     years:
     - 2005
@@ -131,6 +147,8 @@ columns:
     role: establishment.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza Jurídica\" (establishment.legal_nature): attribute of the establishment register (structure, service, management)"
     name: Natureza Jurídica
     years:
     - 2012
@@ -144,6 +162,8 @@ columns:
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Grau/Nível de dependência\" (establishment.institutional_dependency_level): attribute of the establishment register (structure, service, management)"
     name: Grau/Nível de dependência
     years:
     - 2005
@@ -154,6 +174,8 @@ columns:
     role: establishment.care_network_hierarchy_level
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Nível de hierarquia\" (establishment.care_network_hierarchy_level): attribute of the establishment register (structure, service, management)"
     name: Nível de hierarquia
     years:
     - 2005
@@ -166,6 +188,8 @@ columns:
     role: establishment.person_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de pessoa física/jurídica\" (establishment.person_type): attribute of the establishment register (structure, service, management)"
     name: Indicador de pessoa física/jurídica
     years:
     - 2005
@@ -208,6 +232,8 @@ columns:
     role: establishment.health_region_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região de saúde\" (establishment.health_region_local): attribute of the establishment register (structure, service, management)"
     name: Região de saúde
     years:
     - 2005
@@ -216,6 +242,8 @@ columns:
     role: establishment.tax_withholding_classification_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de retenção\" (establishment.tax_withholding_classification_code): attribute of the establishment register (structure, service, management)"
     name: Código de retenção
     years:
     - 2005
@@ -226,6 +254,8 @@ columns:
     role: bed.outsourced_link_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Terceiro\" (bed.outsourced_link_flag): attribute of the establishment register (structure, service, management)"
     name: Terceiro
     years:
     - 2005
@@ -238,6 +268,8 @@ columns:
     role: establishment.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestão\" (establishment.management_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de gestão
     years:
     - 2005
@@ -251,6 +283,8 @@ columns:
     role: bed.bed_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de leito\" (bed.bed_type): how care or investigation was carried out"
     name: Tipo de leito
     years:
     - 2005
@@ -261,6 +295,8 @@ columns:
     role: establishment.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de unidade (estabelecimento)\" (establishment.type): attribute of the establishment register (structure, service, management)"
     codelists:
     - TP_ESTAB
     name: Tipo de unidade (estabelecimento)
@@ -273,6 +309,8 @@ columns:
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Turno de atendimento\" (establishment.operating_shift_hours_code): attribute of the establishment register (structure, service, management)"
     name: Turno de atendimento
     years:
     - 2005

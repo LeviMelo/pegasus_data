@@ -5,6 +5,8 @@ columns:
     role: establishment.water_treatment_with_water_softener
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com abrandador\" (establishment.water_treatment_with_water_softener): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com abrandador
     years:
     - 2005
@@ -15,6 +17,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_the_sus_public_
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio SUS\" (establishment.inpatient_admission_internacao_offered_under_the_sus_public_): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio SUS
     years:
     - 2005
@@ -27,6 +31,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_out_of_pocket_p
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio PARTICULAR\" (establishment.inpatient_admission_internacao_offered_under_out_of_pocket_p): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio PARTICULAR
     years:
     - 2005
@@ -37,6 +43,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_the_establishme
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO\" (establishment.inpatient_admission_internacao_offered_under_the_establishme): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -49,6 +57,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_a_third_partys_
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO\" (establishment.inpatient_admission_internacao_offered_under_a_third_partys_): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -59,6 +69,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_a_public_health
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO\" (establishment.inpatient_admission_internacao_offered_under_a_public_health): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -69,6 +81,8 @@ columns:
     role: establishment.inpatient_admission_internacao_offered_under_a_private_healt
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO\" (establishment.inpatient_admission_internacao_offered_under_a_private_healt): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -77,6 +91,8 @@ columns:
     role: establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado INTERNAÇÃO / Convênio Gratuidade\" (establishment.inpatient_interna_o_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado INTERNAÇÃO / Convênio Gratuidade
     years:
     - 2019
@@ -87,6 +103,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_s
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_s): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
     years:
     - 2005
@@ -99,6 +117,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_out_o
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_out_o): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
     years:
     - 2005
@@ -109,6 +129,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_e
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO PROPRIO\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_the_e): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -121,6 +143,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_thi
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO TERCEIRO\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_thi): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -131,6 +155,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pub
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PUBLICO\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pub): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -141,6 +167,8 @@ columns:
     role: establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pri
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PRIVADO\" (establishment.outpatient_care_atendimento_ambulatorial_offered_under_a_pri): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -149,6 +177,8 @@ columns:
     role: establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado AMBULATORIAL / Convênio Gratuidade\" (establishment.outpatient_ambulatorial_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado AMBULATORIAL / Convênio Gratuidade
     years:
     - 2019
@@ -159,6 +189,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_s
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio SUS\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_the_s): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio SUS
     years:
     - 2005
@@ -171,6 +203,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_out_o
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio PARTICULAR\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_out_o): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio PARTICULAR
     years:
     - 2005
@@ -181,6 +215,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_the_e
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_the_e): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -193,6 +229,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_thi
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_a_thi): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -203,6 +241,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pub
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pub): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -213,6 +253,8 @@ columns:
     role: establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pri
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO\" (establishment.diagnostic_therapy_support_services_sadt_offered_under_a_pri): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -221,6 +263,8 @@ columns:
     role: establishment.sadt_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado SADT / Convênio Gratuidade\" (establishment.sadt_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado SADT / Convênio Gratuidade
     years:
     - 2019
@@ -231,6 +275,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_the_sus_public_
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio SUS\" (establishment.emergency_urgent_care_urgencia_offered_under_the_sus_public_): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio SUS
     years:
     - 2005
@@ -243,6 +289,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_out_of_pocket_p
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio PARTICULAR\" (establishment.emergency_urgent_care_urgencia_offered_under_out_of_pocket_p): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio PARTICULAR
     years:
     - 2005
@@ -253,6 +301,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_the_establishme
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO\" (establishment.emergency_urgent_care_urgencia_offered_under_the_establishme): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -265,6 +315,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_third_partys_
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO\" (establishment.emergency_urgent_care_urgencia_offered_under_a_third_partys_): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -275,6 +327,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_public_health
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO\" (establishment.emergency_urgent_care_urgencia_offered_under_a_public_health): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -285,6 +339,8 @@ columns:
     role: establishment.emergency_urgent_care_urgencia_offered_under_a_private_healt
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO\" (establishment.emergency_urgent_care_urgencia_offered_under_a_private_healt): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -293,6 +349,8 @@ columns:
     role: establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado URGÊNCIA / Convênio Gratuidade\" (establishment.emergency_urg_ncia_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado URGÊNCIA / Convênio Gratuidade
     years:
     - 2019
@@ -303,6 +361,8 @@ columns:
     role: establishment.other_care_outros_offered_under_the_sus_public_system
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio SUS\" (establishment.other_care_outros_offered_under_the_sus_public_system): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio SUS
     years:
     - 2005
@@ -315,6 +375,8 @@ columns:
     role: establishment.other_care_outros_offered_under_out_of_pocket_private_pay_pa
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio PARTICULAR\" (establishment.other_care_outros_offered_under_out_of_pocket_private_pay_pa): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio PARTICULAR
     years:
     - 2005
@@ -325,6 +387,8 @@ columns:
     role: establishment.other_care_outros_offered_under_the_establishments_own_compa
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO\" (establishment.other_care_outros_offered_under_the_establishments_own_compa): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -337,6 +401,8 @@ columns:
     role: establishment.other_care_outros_offered_under_a_third_partys_company_healt
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO\" (establishment.other_care_outros_offered_under_a_third_partys_company_healt): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -347,6 +413,8 @@ columns:
     role: establishment.other_care_outros_offered_under_a_public_health_plan_plano_d
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO\" (establishment.other_care_outros_offered_under_a_public_health_plan_plano_d): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -357,6 +425,8 @@ columns:
     role: establishment.other_care_outros_offered_under_a_private_health_plan_plano_
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO\" (establishment.other_care_outros_offered_under_a_private_health_plan_plano_): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -365,6 +435,8 @@ columns:
     role: establishment.outros_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado OUTROS / Convênio Gratuidade\" (establishment.outros_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado OUTROS / Convênio Gratuidade
     years:
     - 2019
@@ -375,6 +447,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_su
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_the_su): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
     years:
     - 2005
@@ -387,6 +461,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_out_of
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_out_of): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
     years:
     - 2005
@@ -397,6 +473,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_the_es
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_the_es): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -409,6 +487,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_thir
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_a_thir): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -419,6 +499,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_publ
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PUBLICO\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_a_publ): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -429,6 +511,8 @@ columns:
     role: establishment.health_surveillance_vigilancia_em_saude_offered_under_a_priv
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PRIVADO\" (establishment.health_surveillance_vigilancia_em_saude_offered_under_a_priv): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -437,6 +521,8 @@ columns:
     role: establishment.health_surveillance_care_given_free_of_charge_gratuidade
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade\" (establishment.health_surveillance_care_given_free_of_charge_gratuidade): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade
     years:
     - 2019
@@ -447,6 +533,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_the_s
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio SUS\" (establishment.regulation_referral_management_regulacao_offered_under_the_s): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio SUS
     years:
     - 2005
@@ -459,6 +547,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_out_o
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio PARTICULAR\" (establishment.regulation_referral_management_regulacao_offered_under_out_o): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio PARTICULAR
     years:
     - 2005
@@ -469,6 +559,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_the_e
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO\" (establishment.regulation_referral_management_regulacao_offered_under_the_e): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO
     years:
     - 2005
@@ -481,6 +573,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_a_thi
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO\" (establishment.regulation_referral_management_regulacao_offered_under_a_thi): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO
     years:
     - 2005
@@ -491,6 +585,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_a_pub
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO\" (establishment.regulation_referral_management_regulacao_offered_under_a_pub): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO
     years:
     - 2005
@@ -501,6 +597,8 @@ columns:
     role: establishment.regulation_referral_management_regulacao_offered_under_a_pri
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO\" (establishment.regulation_referral_management_regulacao_offered_under_a_pri): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO
     years:
     - 2005
@@ -509,6 +607,8 @@ columns:
     role: establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado REGULAÇÃO / Convênio Gratuidade\" (establishment.bed_vacancy_regulation_function_given_free_of_charge_gratuid): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado REGULAÇÃO / Convênio Gratuidade
     years:
     - 2019
@@ -517,6 +617,8 @@ columns:
     role: establishment.radiotherapy_sealed_source_storage_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas de armazenamento de fontes - (Radioterapia)\" (establishment.radiotherapy_sealed_source_storage_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas de armazenamento de fontes - (Radioterapia)
     years:
     - 2005
@@ -527,6 +629,8 @@ columns:
     role: establishment.any_service_provided_flag
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atendimento prestado\" (establishment.any_service_provided_flag): attribute of the establishment register (structure, service, management)"
     name: Atendimento prestado
     years:
     - 2005
@@ -537,6 +641,8 @@ columns:
     role: establishment.teaching_research_activity_of_the_establishment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Atividade de ensino\" (establishment.teaching_research_activity_of_the_establishment): attribute of the establishment register (structure, service, management)"
     name: Atividade de ensino
     years:
     - 2005
@@ -547,6 +653,8 @@ columns:
     role: establishment.radiotherapy_custom_block_fabrication_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas de bloco personalizado - (Radioterapia)\" (establishment.radiotherapy_custom_block_fabrication_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas de bloco personalizado - (Radioterapia)
     years:
     - 2005
@@ -557,6 +665,8 @@ columns:
     role: establishment.patient_flow_referral_intake_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de clientela\" (establishment.patient_flow_referral_intake_type): attribute of the establishment register (structure, service, management)"
     name: Fluxo de clientela
     years:
     - 2005
@@ -693,6 +803,8 @@ columns:
     role: establishment.income_tax_withholding_classification_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de retenção do imposto de renda\" (establishment.income_tax_withholding_classification_code): attribute of the establishment register (structure, service, management)"
     name: Código de retenção do imposto de renda
     years:
     - 2005
@@ -712,6 +824,8 @@ columns:
     role: establishment.radiotherapy_mask_fabrication_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas confeccao masc. - (Radioterapia)\" (establishment.radiotherapy_mask_fabrication_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas confeccao masc. - (Radioterapia)
     years:
     - 2005
@@ -730,6 +844,8 @@ columns:
     role: establishment.water_treatment_with_deionizer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com deionizador\" (establishment.water_treatment_with_deionizer): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com deionizador
     years:
     - 2005
@@ -738,6 +854,8 @@ columns:
     role: establishment.dialysis_service_requirements_met
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica a existencia de algum REQUISITO DE DIALISE para este CNES\" (establishment.dialysis_service_requirements_met): attribute of the establishment register (structure, service, management)"
     name: Indica a existencia de algum REQUISITO DE DIALISE para este CNES
     years:
     - 2005
@@ -746,6 +864,8 @@ columns:
     role: establishment.administrative_district_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Distrito administrativo / Módulo assistencial\" (establishment.administrative_district_local): attribute of the establishment register (structure, service, management)"
     name: Distrito administrativo / Módulo assistencial
     years:
     - 2005
@@ -754,6 +874,8 @@ columns:
     role: establishment.sanitary_district_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Distrito sanitário\" (establishment.sanitary_district_local): attribute of the establishment register (structure, service, management)"
     name: Distrito sanitário
     years:
     - 2005
@@ -786,6 +908,8 @@ columns:
     role: establishment.radiotherapy_clinical_dosimeters
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de dosimetro clinico\" (establishment.radiotherapy_clinical_dosimeters): attribute of the establishment register (structure, service, management)"
     name: Quantidade de dosimetro clinico
     years:
     - 2005
@@ -794,6 +918,8 @@ columns:
     role: establishment.radiotherapy_sealed_radioactive_sources
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de fontes seladas\" (establishment.radiotherapy_sealed_radioactive_sources): attribute of the establishment register (structure, service, management)"
     name: Quantidade de fontes seladas
     years:
     - 2005
@@ -802,6 +928,8 @@ columns:
     role: establishment.radiotherapy_treatment_planning_computer_systems
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de sistema de Computacao para Planejamento\" (establishment.radiotherapy_treatment_planning_computer_systems): attribute of the establishment register (structure, service, management)"
     name: Quantidade de sistema de Computacao para Planejamento
     years:
     - 2005
@@ -810,6 +938,8 @@ columns:
     role: establishment.radiotherapy_area_radiation_monitors
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Monitor de Area\" (establishment.radiotherapy_area_radiation_monitors): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Monitor de Area
     years:
     - 2005
@@ -818,6 +948,8 @@ columns:
     role: establishment.radiotherapy_personal_individual_dosimetry_monitors
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Monitor Individual\" (establishment.radiotherapy_personal_individual_dosimetry_monitors): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Monitor Individual
     years:
     - 2005
@@ -826,6 +958,8 @@ columns:
     role: establishment.administrative_sphere
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Esfera administrativa\" (establishment.administrative_sphere): attribute of the establishment register (structure, service, management)"
     name: Esfera administrativa
     years:
     - 2005
@@ -836,6 +970,8 @@ columns:
     role: establishment.water_treatment_with_sand_filter
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com filtro de areia\" (establishment.water_treatment_with_sand_filter): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com filtro de areia
     years:
     - 2005
@@ -844,6 +980,8 @@ columns:
     role: establishment.water_treatment_with_carbon_filter
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com filtro de carvao\" (establishment.water_treatment_with_carbon_filter): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com filtro de carvao
     years:
     - 2005
@@ -854,6 +992,8 @@ columns:
     role: establishment.legacy_state_level_internacao_general_inpatient_management_i
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao do programa cod. 03 e ESTADUAL\" (establishment.legacy_state_level_internacao_general_inpatient_management_i): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao do programa cod. 03 e ESTADUAL
     years:
     - 2005
@@ -864,6 +1004,8 @@ columns:
     role: establishment.legacy_municipal_level_internacao_general_inpatient_manageme
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao do programa cod. 03 e MUNICIPAL\" (establishment.legacy_municipal_level_internacao_general_inpatient_manageme): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
     years:
     - 2005
@@ -874,6 +1016,8 @@ columns:
     role: establishment.state_level_management_of_outpatient_high_complexity_care
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL\" (establishment.state_level_management_of_outpatient_high_complexity_care): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL
     years:
     - 2005
@@ -884,6 +1028,8 @@ columns:
     role: establishment.municipal_level_management_of_outpatient_high_complexity_car
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e MUNICIPAL\" (establishment.municipal_level_management_of_outpatient_high_complexity_car): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e MUNICIPAL
     years:
     - 2005
@@ -894,6 +1040,8 @@ columns:
     role: establishment.state_level_management_of_inpatient_high_complexity_care
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL\" (establishment.state_level_management_of_inpatient_high_complexity_care): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
     years:
     - 2005
@@ -904,6 +1052,8 @@ columns:
     role: establishment.municipal_level_management_of_inpatient_high_complexity_care
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL\" (establishment.municipal_level_management_of_inpatient_high_complexity_care): attribute of the establishment register (structure, service, management)"
     name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
     years:
     - 2005
@@ -912,6 +1062,8 @@ columns:
     role: establishment.hemotherapy_requirements_met
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este CNES\" (establishment.hemotherapy_requirements_met): attribute of the establishment register (structure, service, management)"
     name: Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este CNES
     years:
     - 2005
@@ -920,6 +1072,8 @@ columns:
     role: establishment.other_dialysis_machines
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de outras maquinas\" (establishment.other_dialysis_machines): attribute of the establishment register (structure, service, management)"
     name: Quantidade de outras maquinas
     years:
     - 2005
@@ -928,6 +1082,8 @@ columns:
     role: establishment.proportioning_dialysis_machines
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de maquinas de proporcao\" (establishment.proportioning_dialysis_machines): attribute of the establishment register (structure, service, management)"
     name: Quantidade de maquinas de proporcao
     years:
     - 2005
@@ -936,6 +1092,8 @@ columns:
     role: establishment.micro_region_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Microrregião de saúde\" (establishment.micro_region_local): attribute of the establishment register (structure, service, management)"
     name: Microrregião de saúde
     years:
     - 2005
@@ -944,6 +1102,8 @@ columns:
     role: establishment.organisation_nature_legacy
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da natureza da organização\" (establishment.organisation_nature_legacy): attribute of the establishment register (structure, service, management)"
     name: Código da natureza da organização
     years:
     - 2005
@@ -954,6 +1114,8 @@ columns:
     role: establishment.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza Jurídica\" (establishment.legal_nature): attribute of the establishment register (structure, service, management)"
     name: Natureza Jurídica
     years:
     - 2012
@@ -967,6 +1129,8 @@ columns:
     role: establishment.outpatient_ambulatorial_care_tier_exists_for_this_establishm
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao Municipal/Estadual, para este CNES\" (establishment.outpatient_ambulatorial_care_tier_exists_for_this_establishm): attribute of the establishment register (structure, service, management)"
     name: Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao Municipal/Estadual, para este CNES
     years:
     - 2005
@@ -977,6 +1141,8 @@ columns:
     role: establishment.inpatient_hospitalar_care_tier_exists_for_this_establishment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica a existencia de Nivel de Atencao HOSPITALAR, de gestao Municipal/Estadual, para este CNES\" (establishment.inpatient_hospitalar_care_tier_exists_for_this_establishment): attribute of the establishment register (structure, service, management)"
     name: Indica a existencia de Nivel de Atencao HOSPITALAR, de gestao Municipal/Estadual, para este CNES
     years:
     - 2005
@@ -987,6 +1153,8 @@ columns:
     role: establishment.institutional_dependency_level
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Grau/Nível de dependência\" (establishment.institutional_dependency_level): attribute of the establishment register (structure, service, management)"
     name: Grau/Nível de dependência
     years:
     - 2005
@@ -997,6 +1165,8 @@ columns:
     role: establishment.care_network_hierarchy_level
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Nível de hierarquia\" (establishment.care_network_hierarchy_level): attribute of the establishment register (structure, service, management)"
     name: Nível de hierarquia
     years:
     - 2005
@@ -1007,6 +1177,8 @@ columns:
     role: establishment.radiotherapy_orthovoltage_units_10_50_kv
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 10-50 KV\" (establishment.radiotherapy_orthovoltage_units_10_50_kv): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Equipamentos de Ortovoltagem 10-50 KV
     years:
     - 2005
@@ -1015,6 +1187,8 @@ columns:
     role: establishment.radiotherapy_orthovoltage_units_50_150_kv
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 50-150 KV\" (establishment.radiotherapy_orthovoltage_units_50_150_kv): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Equipamentos de Ortovoltagem 50-150 KV
     years:
     - 2005
@@ -1023,6 +1197,8 @@ columns:
     role: establishment.water_treatment_with_reverse_osmosis_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com maquina de osmose reversa\" (establishment.water_treatment_with_reverse_osmosis_unit): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com maquina de osmose reversa
     years:
     - 2005
@@ -1031,6 +1207,8 @@ columns:
     role: establishment.water_treatment_with_other_water_treatment_equipment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica se faz tratamento de agua com outros tipos de equipamento\" (establishment.water_treatment_with_other_water_treatment_equipment): attribute of the establishment register (structure, service, management)"
     name: Indica se faz tratamento de agua com outros tipos de equipamento
     years:
     - 2005
@@ -1039,6 +1217,8 @@ columns:
     role: establishment.radiotherapy_orthovoltage_units_150_500_kv
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 150-500 KV\" (establishment.radiotherapy_orthovoltage_units_150_500_kv): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Equipamentos de Ortovoltagem 150-500 KV
     years:
     - 2005
@@ -1049,6 +1229,8 @@ columns:
     role: establishment.person_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de pessoa física/jurídica\" (establishment.person_type): attribute of the establishment register (structure, service, management)"
     name: Indicador de pessoa física/jurídica
     years:
     - 2005
@@ -1059,6 +1241,8 @@ columns:
     role: establishment.radiotherapy_treatment_planning_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas de Planejamento - (Radioterapia)\" (establishment.radiotherapy_treatment_planning_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas de Planejamento - (Radioterapia)
     years:
     - 2005
@@ -1187,6 +1371,8 @@ columns:
     role: establishment.chemo_radiotherapy_requirements_met
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indica a existencia de algum REQUISITO DE QUIMIO/RADIO para este CNES\" (establishment.chemo_radiotherapy_requirements_met): attribute of the establishment register (structure, service, management)"
     name: Indica a existencia de algum REQUISITO DE QUIMIO/RADIO para este CNES
     years:
     - 2005
@@ -1195,6 +1381,8 @@ columns:
     role: establishment.health_region_local
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região de saúde\" (establishment.health_region_local): attribute of the establishment register (structure, service, management)"
     name: Região de saúde
     years:
     - 2005
@@ -1203,6 +1391,8 @@ columns:
     role: establishment.tax_withholding_classification_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de retenção\" (establishment.tax_withholding_classification_code): attribute of the establishment register (structure, service, management)"
     name: Código de retenção
     years:
     - 2005
@@ -1213,6 +1403,8 @@ columns:
     role: establishment.radiotherapy_mould_room_facilities
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas de salas de molde - (Radioterapia)\" (establishment.radiotherapy_mould_room_facilities): attribute of the establishment register (structure, service, management)"
     name: Numero de salas de salas de molde - (Radioterapia)
     years:
     - 2005
@@ -1221,6 +1413,8 @@ columns:
     role: establishment.radiotherapy_simulation_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas simulacao - (Radioterapia)\" (establishment.radiotherapy_simulation_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas simulacao - (Radioterapia)
     years:
     - 2005
@@ -1229,6 +1423,8 @@ columns:
     role: establishment.radiotherapy_linear_accelerators_up_to_6_mev
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Acelerador Linear ate 6 MeV\" (establishment.radiotherapy_linear_accelerators_up_to_6_mev): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Acelerador Linear ate 6 MeV
     years:
     - 2005
@@ -1237,6 +1433,8 @@ columns:
     role: establishment.apheresis_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Numero de salas de aferese\" (establishment.apheresis_rooms): attribute of the establishment register (structure, service, management)"
     name: Numero de salas de aferese
     years:
     - 2005
@@ -1245,6 +1443,8 @@ columns:
     role: establishment.linear_accelerators_above_6_mev_with_electrons
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de acelerador linear maior 6 MeV com elétrons\" (establishment.linear_accelerators_above_6_mev_with_electrons): attribute of the establishment register (structure, service, management)"
     name: Quantidade de acelerador linear maior 6 MeV com elétrons
     years:
     - 2005
@@ -1253,6 +1453,8 @@ columns:
     role: establishment.linear_accelerators_above_6_mev_without_electrons
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Acelerador Linear maior 6 MeV sem elétrons\" (establishment.linear_accelerators_above_6_mev_without_electrons): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Acelerador Linear maior 6 MeV sem elétrons
     years:
     - 2005
@@ -1261,6 +1463,8 @@ columns:
     role: establishment.storage_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de armazenagem\" (establishment.storage_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de armazenagem
     years:
     - 2005
@@ -1269,6 +1473,8 @@ columns:
     role: establishment.molecular_biology_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de biologia molecular\" (establishment.molecular_biology_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de biologia molecular
     years:
     - 2005
@@ -1277,6 +1483,8 @@ columns:
     role: establishment.collection_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de coleta\" (establishment.collection_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de coleta
     years:
     - 2005
@@ -1285,6 +1493,8 @@ columns:
     role: establishment.quality_control_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de controle de qualidade\" (establishment.quality_control_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de controle de qualidade
     years:
     - 2005
@@ -1293,6 +1503,8 @@ columns:
     role: establishment.laminar_flow_hoods
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Salas/Equipamentos de Capela Fluxo Laminar\" (establishment.laminar_flow_hoods): attribute of the establishment register (structure, service, management)"
     name: Salas/Equipamentos de Capela Fluxo Laminar
     years:
     - 2005
@@ -1301,6 +1513,8 @@ columns:
     role: establishment.distribution_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de distribuição\" (establishment.distribution_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de distribuição
     years:
     - 2005
@@ -1309,6 +1523,8 @@ columns:
     role: establishment.capd_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas DPAC\" (establishment.capd_rooms): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas DPAC
     years:
     - 2005
@@ -1317,6 +1533,8 @@ columns:
     role: establishment.intermittent_peritoneal_dialysis_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas DPI\" (establishment.intermittent_peritoneal_dialysis_rooms): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas DPI
     years:
     - 2005
@@ -1325,6 +1543,8 @@ columns:
     role: establishment.stock_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de estoque\" (establishment.stock_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de estoque
     years:
     - 2005
@@ -1333,6 +1553,8 @@ columns:
     role: establishment.dialysis_rooms_for_hbsag_negative_patients
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas HBsAG-\" (establishment.dialysis_rooms_for_hbsag_negative_patients): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas HBsAG-
     years:
     - 2005
@@ -1341,6 +1563,8 @@ columns:
     role: establishment.dialysis_rooms_for_hbsag_positive_patients
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas HBsAG+\" (establishment.dialysis_rooms_for_hbsag_positive_patients): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas HBsAG+
     years:
     - 2005
@@ -1349,6 +1573,8 @@ columns:
     role: establishment.haemostasis_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas hemostasia\" (establishment.haemostasis_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas hemostasia
     years:
     - 2005
@@ -1357,6 +1583,8 @@ columns:
     role: establishment.immunophenotyping_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de imunofenotipágem\" (establishment.immunophenotyping_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de imunofenotipágem
     years:
     - 2005
@@ -1365,6 +1593,8 @@ columns:
     role: establishment.immunohaematology_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de imunohematologia\" (establishment.immunohaematology_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de imunohematologia
     years:
     - 2005
@@ -1373,6 +1603,8 @@ columns:
     role: establishment.pre_stock_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de pré-estoque\" (establishment.pre_stock_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de pré-estoque
     years:
     - 2005
@@ -1381,6 +1613,8 @@ columns:
     role: establishment.preparation_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de preparo\" (establishment.preparation_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de preparo
     years:
     - 2005
@@ -1389,6 +1623,8 @@ columns:
     role: establishment.pre_transfusion_testing_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas pré-transfusionais\" (establishment.pre_transfusion_testing_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas pré-transfusionais
     years:
     - 2005
@@ -1397,6 +1633,8 @@ columns:
     role: establishment.processing_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de processamento\" (establishment.processing_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de processamento
     years:
     - 2005
@@ -1405,6 +1643,8 @@ columns:
     role: establishment.short_duration_chemotherapy_rooms_equipment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Salas/Equipamentos de Quimio Curta duração\" (establishment.short_duration_chemotherapy_rooms_equipment): attribute of the establishment register (structure, service, management)"
     name: Salas/Equipamentos de Quimio Curta duração
     years:
     - 2005
@@ -1413,6 +1653,8 @@ columns:
     role: establishment.long_duration_chemotherapy_rooms_equipment
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Salas/Equipamentos de Quimio de Longa Duração\" (establishment.long_duration_chemotherapy_rooms_equipment): attribute of the establishment register (structure, service, management)"
     name: Salas/Equipamentos de Quimio de Longa Duração
     years:
     - 2005
@@ -1421,6 +1663,8 @@ columns:
     role: establishment.dialyser_reuse_rooms_hbsag_negative
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas de reuso de HBsAG-\" (establishment.dialyser_reuse_rooms_hbsag_negative): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas de reuso de HBsAG-
     years:
     - 2005
@@ -1429,6 +1673,8 @@ columns:
     role: establishment.dialyser_reuse_rooms_hbsag_positive
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de salas de reuso de HBsAG+\" (establishment.dialyser_reuse_rooms_hbsag_positive): attribute of the establishment register (structure, service, management)"
     name: Quantidade de salas de reuso de HBsAG+
     years:
     - 2005
@@ -1437,6 +1683,8 @@ columns:
     role: establishment.reception_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de recepção\" (establishment.reception_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de recepção
     years:
     - 2005
@@ -1445,6 +1693,8 @@ columns:
     role: establishment.dialyser_reuse_rooms_hcv_positive
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Salas de reuso de HCV+\" (establishment.dialyser_reuse_rooms_hcv_positive): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Salas de reuso de HCV+
     years:
     - 2005
@@ -1453,6 +1703,8 @@ columns:
     role: establishment.donor_follow_up_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas seguimento doador\" (establishment.donor_follow_up_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas seguimento doador
     years:
     - 2005
@@ -1461,6 +1713,8 @@ columns:
     role: establishment.radiotherapy_simulators
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Simuladores\" (establishment.radiotherapy_simulators): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Simuladores
     years:
     - 2005
@@ -1469,6 +1723,8 @@ columns:
     role: establishment.serology_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de sorologia\" (establishment.serology_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de sorologia
     years:
     - 2005
@@ -1477,6 +1733,8 @@ columns:
     role: establishment.transfusion_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de transfusão\" (establishment.transfusion_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de transfusão
     years:
     - 2005
@@ -1485,6 +1743,8 @@ columns:
     role: establishment.clinical_screening_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de triagem clínica\" (establishment.clinical_screening_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de triagem clínica
     years:
     - 2005
@@ -1493,6 +1753,8 @@ columns:
     role: establishment.haematological_screening_rooms
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número de salas de triagem hematológica\" (establishment.haematological_screening_rooms): attribute of the establishment register (structure, service, management)"
     name: Número de salas de triagem hematológica
     years:
     - 2005
@@ -1503,6 +1765,8 @@ columns:
     role: establishment.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestão\" (establishment.management_type): attribute of the establishment register (structure, service, management)"
     name: Tipo de gestão
     years:
     - 2005
@@ -1516,6 +1780,8 @@ columns:
     role: establishment.provider_ownership_legal_nature_classification
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de prestador\" (establishment.provider_ownership_legal_nature_classification): attribute of the establishment register (structure, service, management)"
     name: Tipo de prestador
     years:
     - 2005
@@ -1528,6 +1794,8 @@ columns:
     role: establishment.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de unidade (estabelecimento)\" (establishment.type): attribute of the establishment register (structure, service, management)"
     codelists:
     - TP_ESTAB
     name: Tipo de unidade (estabelecimento)
@@ -1540,6 +1808,8 @@ columns:
     role: establishment.operating_shift_hours_code
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Turno de atendimento\" (establishment.operating_shift_hours_code): attribute of the establishment register (structure, service, management)"
     name: Turno de atendimento
     years:
     - 2005
@@ -1550,6 +1820,8 @@ columns:
     role: establishment.cobalt_units
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Unidade de Cobalto\" (establishment.cobalt_units): attribute of the establishment register (structure, service, management)"
     name: Quantidade de Unidade de Cobalto
     years:
     - 2005
@@ -1560,6 +1832,8 @@ columns:
     role: establishment.sus_linked
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Vínculo com o SUS\" (establishment.sus_linked): attribute of the establishment register (structure, service, management)"
     name: Vínculo com o SUS
     years:
     - 2005

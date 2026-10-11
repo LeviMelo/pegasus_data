@@ -13,6 +13,8 @@ columns:
     role: admission.admission_character
     kind: category
     model: excluded
+    fact_domain: process
+    fact_domain_evidence: "\"Caráter da internação (campo reservado, vazio na CIHA)\" (admission.admission_character): urgent or elective admission: a care-process fact"
     note: Reserved, empty in CIHA.
     name: Caráter da internação (campo reservado, vazio na CIHA)
     years:
@@ -53,6 +55,8 @@ columns:
     role: admission.discharge_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo da cobrança\" (admission.discharge_reason): motivo de saida/permanencia: the code that closes the AIH for payment (billing reason)"
     name: Motivo da cobrança
     codelists:
     - SAIDAPERM
@@ -63,6 +67,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de medida da idade\" (patient.age_unit): encoding unit of another field"
     note: Unit of IDADE; use IDADE_anos.
     name: Unidade de medida da idade
     codelists:
@@ -123,6 +129,8 @@ columns:
     role: admission.bed_specialty
     kind: category
     model: excluded
+    fact_domain: process
+    fact_domain_evidence: "\"Especialidade (campo reservado, vazio na CIHA)\" (admission.bed_specialty): specialty of the bed used: a care-process fact"
     note: Reserved, empty in CIHA.
     name: Especialidade (campo reservado, vazio na CIHA)
     years:
@@ -134,6 +142,8 @@ columns:
     role: admission.payer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte da remuneração\" (admission.payer): billing, financing, management or contractual attribute"
     name: Fonte da remuneração
     codelists:
     - FONTE
@@ -146,6 +156,8 @@ columns:
     role: admission.management_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de gestão\" (admission.management_type): management arrangement of the payer: management"
     name: Tipo de gestão
     codelists:
     - GESTAO
@@ -156,6 +168,8 @@ columns:
     role: patient.homonym_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Homônimo (campo reservado, vazio na CIHA)\" (patient.homonym_flag): encoding unit of another field"
     note: Reserved, empty in CIHA.
     name: Homônimo (campo reservado, vazio na CIHA)
     years:
@@ -185,6 +199,8 @@ columns:
     role: admission.modality
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Modalidade do atendimento\" (admission.modality): how care or investigation was carried out"
     name: Modalidade do atendimento
     codelists:
     - MODALIDADE
@@ -197,6 +213,8 @@ columns:
     role: admission.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbito (saída com morte)\" (admission.death): stay ended in death: outcome of the event"
     name: Óbito (saída com morte)
     codelists:
     - MORTES
@@ -237,6 +255,8 @@ columns:
     role: patient.nationality
     kind: category
     model: excluded
+    fact_domain: person
+    fact_domain_evidence: "\"Nacionalidade (campo reservado, vazio na CIHA)\" (patient.nationality): attribute of the person (nationality/birthplace)"
     note: Reserved, empty in CIHA.
     name: Nacionalidade (campo reservado, vazio na CIHA)
     years:
@@ -254,6 +274,8 @@ columns:
     role: facility.sus_relation
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Natureza da relação com o SUS\" (facility.sus_relation): attribute of the establishment register (structure, service, management)"
     name: Natureza da relação com o SUS
     codelists:
     - NATUREZA
@@ -283,6 +305,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     name: Sexo do paciente
     codelists:
     - SEXO

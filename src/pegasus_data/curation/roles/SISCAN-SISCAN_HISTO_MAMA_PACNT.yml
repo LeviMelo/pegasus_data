@@ -13,6 +13,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2013
@@ -29,6 +31,8 @@ columns:
     role: exam.collection_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_interval): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2013
@@ -37,6 +41,8 @@ columns:
     role: exam.result_interval
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.result_interval): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2013
@@ -62,6 +68,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 2013
@@ -77,6 +85,8 @@ columns:
     role: exam.total_exam_turnaround
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo Exame\" (exam.total_exam_turnaround): how care or investigation was carried out"
     name: Tempo Exame
     years:
     - 2013
@@ -111,6 +121,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2013
@@ -129,6 +141,8 @@ columns:
     role: exam.microcalcifications_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Microcalcificações\" (exam.microcalcifications_present): result of a test or finding on the person"
     name: Microcalcificações
     years:
     - 2013
@@ -137,6 +151,8 @@ columns:
     role: exam.material_adequacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade do material\" (exam.material_adequacy): how care or investigation was carried out"
     name: Adequabilidade do material
     years:
     - 2013
@@ -145,6 +161,8 @@ columns:
     role: exam.how_the_lesion_was_detected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Detecção da lesão\" (exam.how_the_lesion_was_detected): how care or investigation was carried out"
     name: Detecção da lesão
     years:
     - 2013
@@ -153,6 +171,8 @@ columns:
     role: exam.imaging_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico de imagem\" (exam.imaging_finding): result of a test or finding on the person"
     name: Diagnóstico de imagem
     years:
     - 2013
@@ -161,6 +181,8 @@ columns:
     role: exam.type_of_histopathology_exam
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de exame histopatológico\" (exam.type_of_histopathology_exam): how care or investigation was carried out"
     name: Tipo de exame histopatológico
     years:
     - 2013
@@ -169,6 +191,8 @@ columns:
     role: exam.histological_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau histológico\" (exam.histological_grade): result of a test or finding on the person"
     name: Grau histológico
     years:
     - 2013
@@ -177,6 +201,8 @@ columns:
     role: exam.lesion_laterality
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mama\" (exam.lesion_laterality): result of a test or finding on the person"
     name: Mama
     years:
     - 2013
@@ -185,6 +211,8 @@ columns:
     role: exam.type_of_histopathology_report
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "column TP_LAUDO_HISTOPATOLOGICO, no label recorded (exam.type_of_histopathology_report): how care or investigation was carried out"
     years:
     - 2013
     - 2025
@@ -192,6 +220,8 @@ columns:
     role: exam.lesion_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo lesão\" (exam.lesion_type): result of a test or finding on the person"
     name: Tipo lesão
     years:
     - 2013
@@ -200,6 +230,8 @@ columns:
     role: exam.malignant_neoplasia_subtype
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter neoplásico maligno\" (exam.malignant_neoplasia_subtype): result of a test or finding on the person"
     name: Lesão de caráter neoplásico maligno
     years:
     - 2013
@@ -208,6 +240,8 @@ columns:
     role: exam.palpable_axillary_lymph_node
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodo axilar palpável\" (exam.palpable_axillary_lymph_node): result of a test or finding on the person"
     name: Linfonodo axilar palpável
     years:
     - 2013
@@ -216,6 +250,8 @@ columns:
     role: exam.surgical_margin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas\" (exam.surgical_margin): result of a test or finding on the person"
     name: Margens cirúrgicas
     years:
     - 2013
@@ -224,6 +260,8 @@ columns:
     role: exam.materials_procedural_origin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Proc. Material\" (exam.materials_procedural_origin): how care or investigation was carried out"
     name: Proc. Material
     years:
     - 2013
@@ -232,6 +270,8 @@ columns:
     role: exam.breast_surgical_procedure_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Proc. Cirúrgico\" (exam.breast_surgical_procedure_type): how care or investigation was carried out"
     name: Proc. Cirúrgico
     years:
     - 2013
@@ -240,6 +280,8 @@ columns:
     role: exam.elevated_breast_cancer_risk_histopathology_form
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco elevado (histopatológico de mama)\" (exam.elevated_breast_cancer_risk_histopathology_form): result of a test or finding on the person"
     name: Risco elevado (histopatológico de mama)
     years:
     - 2013
@@ -248,6 +290,8 @@ columns:
     role: exam.lesion_size_on_requisition
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tam_lesão_req\" (exam.lesion_size_on_requisition): result of a test or finding on the person"
     name: Tam_lesão_req
     years:
     - 2013
@@ -256,6 +300,8 @@ columns:
     role: exam.pathologic_tumor_size
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho_tumor\" (exam.pathologic_tumor_size): result of a test or finding on the person"
     name: Tamanho_tumor
     years:
     - 2013

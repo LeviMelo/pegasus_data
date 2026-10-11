@@ -16,6 +16,8 @@ columns:
     role: case.vaccinated_within_30_days_before_onset
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Recebeu vacina nos 30 dias anteriores\" (case.vaccinated_within_30_days_before_onset): fact about the health event or the person's health"
     name: Recebeu vacina nos 30 dias anteriores
     years:
     - 2007
@@ -51,6 +53,8 @@ columns:
     role: case.received_polio_vaccine
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Antecedente de vacina contra poliomielite\" (case.received_polio_vaccine): fact about the health event or the person's health"
     name: Antecedente de vacina contra poliomielite
     years:
     - 2007
@@ -80,6 +84,8 @@ columns:
     role: case.hospitalised
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu hospitalização?\" (case.hospitalised): how care or investigation was carried out"
     name: Ocorreu hospitalização?
     years:
     - 2007
@@ -116,6 +122,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -133,6 +141,8 @@ columns:
     role: case.acute_onset
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Instalação aguda\" (case.acute_onset): fact about the health event or the person's health"
     name: Instalação aguda
     years:
     - 2007
@@ -143,6 +153,8 @@ columns:
     role: case.right_ankle_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo aquileu direito\" (case.right_ankle_reflex): fact about the health event or the person's health"
     name: Reflexo aquileu direito
     years:
     - 2007
@@ -153,6 +165,8 @@ columns:
     role: case.left_ankle_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo aquileu esquerdo\" (case.left_ankle_reflex): fact about the health event or the person's health"
     name: Reflexo aquileu esquerdo
     years:
     - 2007
@@ -163,6 +177,8 @@ columns:
     role: case.ascending_progression
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Progressão ascendente\" (case.ascending_progression): fact about the health event or the person's health"
     name: Progressão ascendente
     years:
     - 2007
@@ -173,6 +189,8 @@ columns:
     role: case.asymmetric_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Assimetria da paralisia\" (case.asymmetric_paralysis): fact about the health event or the person's health"
     name: Assimetria da paralisia
     years:
     - 2007
@@ -183,6 +201,8 @@ columns:
     role: case.muscle_strength_acute_phase_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular, fase aguda: MID\" (case.muscle_strength_acute_phase_right_leg): fact about the health event or the person's health"
     name: 'Força muscular, fase aguda: MID'
     years:
     - 2007
@@ -193,6 +213,8 @@ columns:
     role: case.muscle_strength_acute_phase_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular, fase aguda: MIE\" (case.muscle_strength_acute_phase_left_leg): fact about the health event or the person's health"
     name: 'Força muscular, fase aguda: MIE'
     years:
     - 2007
@@ -203,6 +225,8 @@ columns:
     role: case.muscle_strength_acute_phase_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular, fase aguda: MSD\" (case.muscle_strength_acute_phase_right_arm): fact about the health event or the person's health"
     name: 'Força muscular, fase aguda: MSD'
     years:
     - 2007
@@ -213,6 +237,8 @@ columns:
     role: case.muscle_strength_acute_phase_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular, fase aguda: MSE\" (case.muscle_strength_acute_phase_left_arm): fact about the health event or the person's health"
     name: 'Força muscular, fase aguda: MSE'
     years:
     - 2007
@@ -223,6 +249,8 @@ columns:
     role: case.sensation_acute_phase_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade, fase aguda: MID\" (case.sensation_acute_phase_right_leg): fact about the health event or the person's health"
     name: 'Sensibilidade, fase aguda: MID'
     years:
     - 2007
@@ -233,6 +261,8 @@ columns:
     role: case.sensation_acute_phase_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade, fase aguda: MIE\" (case.sensation_acute_phase_left_leg): fact about the health event or the person's health"
     name: 'Sensibilidade, fase aguda: MIE'
     years:
     - 2007
@@ -243,6 +273,8 @@ columns:
     role: case.sensation_acute_phase_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade, fase aguda: MSD\" (case.sensation_acute_phase_right_arm): fact about the health event or the person's health"
     name: 'Sensibilidade, fase aguda: MSD'
     years:
     - 2007
@@ -253,6 +285,8 @@ columns:
     role: case.sensation_acute_phase_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade, fase aguda: MSE\" (case.sensation_acute_phase_left_arm): fact about the health event or the person's health"
     name: 'Sensibilidade, fase aguda: MSE'
     years:
     - 2007
@@ -263,6 +297,8 @@ columns:
     role: case.sensation_acute_phase_face
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade, fase aguda: face\" (case.sensation_acute_phase_face): fact about the health event or the person's health"
     name: 'Sensibilidade, fase aguda: face'
     years:
     - 2007
@@ -273,6 +309,8 @@ columns:
     role: case.muscle_tone_acute_phase_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: MID\" (case.muscle_tone_acute_phase_right_leg): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: MID'
     years:
     - 2007
@@ -283,6 +321,8 @@ columns:
     role: case.muscle_tone_acute_phase_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: MIE\" (case.muscle_tone_acute_phase_left_leg): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: MIE'
     years:
     - 2007
@@ -293,6 +333,8 @@ columns:
     role: case.muscle_tone_acute_phase_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: MSD\" (case.muscle_tone_acute_phase_right_arm): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: MSD'
     years:
     - 2007
@@ -303,6 +345,8 @@ columns:
     role: case.muscle_tone_acute_phase_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: MSE\" (case.muscle_tone_acute_phase_left_arm): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: MSE'
     years:
     - 2007
@@ -313,6 +357,8 @@ columns:
     role: case.muscle_tone_acute_phase_neck
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: cervical\" (case.muscle_tone_acute_phase_neck): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: cervical'
     years:
     - 2007
@@ -323,6 +369,8 @@ columns:
     role: case.muscle_tone_acute_phase_face
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular, fase aguda: face\" (case.muscle_tone_acute_phase_face): fact about the health event or the person's health"
     name: 'Tônus muscular, fase aguda: face'
     years:
     - 2007
@@ -333,6 +381,8 @@ columns:
     role: case.right_biceps_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo bicipital direito\" (case.right_biceps_reflex): fact about the health event or the person's health"
     name: Reflexo bicipital direito
     years:
     - 2007
@@ -343,6 +393,8 @@ columns:
     role: case.left_biceps_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo bicipital esquerdo\" (case.left_biceps_reflex): fact about the health event or the person's health"
     name: Reflexo bicipital esquerdo
     years:
     - 2007
@@ -353,6 +405,8 @@ columns:
     role: case.brudzinski_sign
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinal de Brudzinski\" (case.brudzinski_sign): fact about the health event or the person's health"
     name: Sinal de Brudzinski
     years:
     - 2007
@@ -363,6 +417,8 @@ columns:
     role: case.sign_headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia\" (case.sign_headache): fact about the health event or the person's health"
     name: Cefaleia
     codelists:
     - SIM_NAO
@@ -375,6 +431,8 @@ columns:
     role: case.neck_involvement
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comprometimento cervical\" (case.neck_involvement): fact about the health event or the person's health"
     name: Comprometimento cervical
     years:
     - 2007
@@ -385,6 +443,8 @@ columns:
     role: case.contact_with_or_ingestion_of_toxic_substances
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Contato ou ingestão de substâncias tóxicas\" (case.contact_with_or_ingestion_of_toxic_substances): fact about the health event or the person's health"
     name: Contato ou ingestão de substâncias tóxicas
     years:
     - 2007
@@ -403,6 +463,8 @@ columns:
     role: case.descending_progression
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Progressão descendente\" (case.descending_progression): fact about the health event or the person's health"
     name: Progressão descendente
     years:
     - 2007
@@ -413,6 +475,8 @@ columns:
     role: case.sign_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.sign_diarrhoea): fact about the health event or the person's health"
     name: Diarreia
     years:
     - 2007
@@ -423,6 +487,8 @@ columns:
     role: case.muscle_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dores musculares\" (case.muscle_pain): fact about the health event or the person's health"
     name: Dores musculares
     years:
     - 2007
@@ -449,6 +515,8 @@ columns:
     role: case.plantar_reflex_extension_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo cutâneo plantar: extensão D\" (case.plantar_reflex_extension_right): fact about the health event or the person's health"
     name: 'Reflexo cutâneo plantar: extensão D'
     years:
     - 2007
@@ -459,6 +527,8 @@ columns:
     role: case.plantar_reflex_extension_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo cutâneo plantar: extensão E\" (case.plantar_reflex_extension_left): fact about the health event or the person's health"
     name: 'Reflexo cutâneo plantar: extensão E'
     years:
     - 2007
@@ -469,6 +539,8 @@ columns:
     role: case.facial_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Paralisia facial\" (case.facial_paralysis): fact about the health event or the person's health"
     name: Paralisia facial
     years:
     - 2007
@@ -479,6 +551,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -491,6 +565,8 @@ columns:
     role: case.flaccid_paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Paralisia flácida\" (case.flaccid_paralysis): fact about the health event or the person's health"
     name: Paralisia flácida
     years:
     - 2007
@@ -501,6 +577,8 @@ columns:
     role: case.plantar_reflex_flexion_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo cutâneo plantar: flexão D\" (case.plantar_reflex_flexion_right): fact about the health event or the person's health"
     name: 'Reflexo cutâneo plantar: flexão D'
     years:
     - 2007
@@ -511,6 +589,8 @@ columns:
     role: case.plantar_reflex_flexion_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo cutâneo plantar: flexão E\" (case.plantar_reflex_flexion_left): fact about the health event or the person's health"
     name: 'Reflexo cutâneo plantar: flexão E'
     years:
     - 2007
@@ -521,6 +601,8 @@ columns:
     role: case.muscle_strength_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular no membro inferior direito\" (case.muscle_strength_right_leg): fact about the health event or the person's health"
     name: Força muscular no membro inferior direito
     years:
     - 2007
@@ -531,6 +613,8 @@ columns:
     role: case.muscle_strength_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular no membro inferior esquerdo\" (case.muscle_strength_left_leg): fact about the health event or the person's health"
     name: Força muscular no membro inferior esquerdo
     years:
     - 2007
@@ -540,6 +624,8 @@ columns:
     role: case.muscle_strength_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular no membro superior direito\" (case.muscle_strength_right_arm): fact about the health event or the person's health"
     name: Força muscular no membro superior direito
     years:
     - 2007
@@ -550,6 +636,8 @@ columns:
     role: case.muscle_strength_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força muscular no membro superior esquerdo\" (case.muscle_strength_left_arm): fact about the health event or the person's health"
     name: Força muscular no membro superior esquerdo
     years:
     - 2007
@@ -560,6 +648,8 @@ columns:
     role: case.prior_intramuscular_injection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Injeção intramuscular prévia\" (case.prior_intramuscular_injection): fact about the health event or the person's health"
     name: Injeção intramuscular prévia
     years:
     - 2007
@@ -570,6 +660,8 @@ columns:
     role: case.sign_kernig
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas — Kernig/Brudzinski\" (case.sign_kernig): fact about the health event or the person's health"
     name: "Sinais e Sintomas — Kernig/Brudzinski\n"
     codelists:
     - AUSEPRES
@@ -582,6 +674,8 @@ columns:
     role: case.site_of_intramuscular_injection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de aplicação\" (case.site_of_intramuscular_injection): how care or investigation was carried out"
     name: Local de aplicação
     years:
     - 2007
@@ -592,6 +686,8 @@ columns:
     role: case.neck_stiffness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Rigidez de nuca\" (case.neck_stiffness): fact about the health event or the person's health"
     name: Rigidez de nuca
     years:
     - 2007
@@ -602,6 +698,8 @@ columns:
     role: case.constipation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Obstipação intestinal\" (case.constipation): fact about the health event or the person's health"
     name: Obstipação intestinal
     years:
     - 2007
@@ -612,6 +710,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – outros\" (case.sign_other): fact about the health event or the person's health"
     name: Sinais e sintomas – outros
     years:
     - 2007
@@ -622,6 +722,8 @@ columns:
     role: case.right_knee_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo patelar direito\" (case.right_knee_reflex): fact about the health event or the person's health"
     name: Reflexo patelar direito
     years:
     - 2007
@@ -632,6 +734,8 @@ columns:
     role: case.left_knee_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo patelar esquerdo\" (case.left_knee_reflex): fact about the health event or the person's health"
     name: Reflexo patelar esquerdo
     years:
     - 2007
@@ -642,6 +746,8 @@ columns:
     role: case.motor_deficit_progressing_beyond_3_days
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deficiência motora: progressão após 3 dias\" (case.motor_deficit_progressing_beyond_3_days): fact about the health event or the person's health"
     name: 'Deficiência motora: progressão após 3 dias'
     years:
     - 2007
@@ -652,6 +758,8 @@ columns:
     role: case.sign_respiratory
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alterações respiratórias\" (case.sign_respiratory): fact about the health event or the person's health"
     name: Alterações respiratórias
     years:
     - 2007
@@ -662,6 +770,8 @@ columns:
     role: case.respiratory_symptoms
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas: sintomas respiratórios\" (case.respiratory_symptoms): fact about the health event or the person's health"
     name: 'Sinais e sintomas: sintomas respiratórios'
     years:
     - 2007
@@ -672,6 +782,8 @@ columns:
     role: case.right_triceps_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo tricipital direito\" (case.right_triceps_reflex): fact about the health event or the person's health"
     name: Reflexo tricipital direito
     years:
     - 2007
@@ -682,6 +794,8 @@ columns:
     role: case.left_triceps_reflex
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo tricipital esquerdo\" (case.left_triceps_reflex): fact about the health event or the person's health"
     name: Reflexo tricipital esquerdo
     years:
     - 2007
@@ -692,6 +806,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vômito\" (case.sign_vomiting): fact about the health event or the person's health"
     name: Vômito
     codelists:
     - SIM_NAO
@@ -715,6 +831,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -733,6 +851,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -744,6 +864,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -757,6 +879,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -771,6 +895,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -785,6 +911,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -906,6 +1034,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -931,6 +1061,8 @@ columns:
     role: case.atrophy_at_reassessment_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atrofia no membro inferior direito na reavaliação\" (case.atrophy_at_reassessment_right_leg): fact about the health event or the person's health"
     name: Atrofia no membro inferior direito na reavaliação
     years:
     - 2007
@@ -941,6 +1073,8 @@ columns:
     role: case.atrophy_at_reassessment_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atrofia no membro inferior esquerdo na reavaliação\" (case.atrophy_at_reassessment_left_leg): fact about the health event or the person's health"
     name: Atrofia no membro inferior esquerdo na reavaliação
     years:
     - 2007
@@ -951,6 +1085,8 @@ columns:
     role: case.atrophy_at_reassessment_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atrofia no membro superior direito na reavaliação\" (case.atrophy_at_reassessment_right_arm): fact about the health event or the person's health"
     name: Atrofia no membro superior direito na reavaliação
     years:
     - 2007
@@ -961,6 +1097,8 @@ columns:
     role: case.atrophy_at_reassessment_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Atrofia no membro superior esquerdo na reavaliação\" (case.atrophy_at_reassessment_left_arm): fact about the health event or the person's health"
     name: Atrofia no membro superior esquerdo na reavaliação
     years:
     - 2007
@@ -979,6 +1117,8 @@ columns:
     role: case.strength_at_reassessment_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força no membro inferior direito na reavaliação\" (case.strength_at_reassessment_right_leg): fact about the health event or the person's health"
     name: Força no membro inferior direito na reavaliação
     years:
     - 2007
@@ -989,6 +1129,8 @@ columns:
     role: case.strength_at_reassessment_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força no membro inferior esquerdo na reavaliação\" (case.strength_at_reassessment_left_leg): fact about the health event or the person's health"
     name: Força no membro inferior esquerdo na reavaliação
     years:
     - 2007
@@ -999,6 +1141,8 @@ columns:
     role: case.strength_at_reassessment_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força no membro superior direito na reavaliação\" (case.strength_at_reassessment_right_arm): fact about the health event or the person's health"
     name: Força no membro superior direito na reavaliação
     years:
     - 2007
@@ -1009,6 +1153,8 @@ columns:
     role: case.strength_at_reassessment_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Força no membro superior esquerdo na reavaliação\" (case.strength_at_reassessment_left_arm): fact about the health event or the person's health"
     name: Força no membro superior esquerdo na reavaliação
     years:
     - 2007
@@ -1019,6 +1165,8 @@ columns:
     role: case.reflex_at_reassessment_right_upper
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo na reavaliação, extremidade direita\" (case.reflex_at_reassessment_right_upper): fact about the health event or the person's health"
     name: Reflexo na reavaliação, extremidade direita
     years:
     - 2007
@@ -1029,6 +1177,8 @@ columns:
     role: case.reflex_at_reassessment_left_upper
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo na reavaliação, extremidade esquerda\" (case.reflex_at_reassessment_left_upper): fact about the health event or the person's health"
     name: Reflexo na reavaliação, extremidade esquerda
     years:
     - 2007
@@ -1039,6 +1189,8 @@ columns:
     role: case.reflex_at_reassessment_right_lower
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo na reavaliação, segundo grupo, direita\" (case.reflex_at_reassessment_right_lower): fact about the health event or the person's health"
     name: Reflexo na reavaliação, segundo grupo, direita
     years:
     - 2007
@@ -1049,6 +1201,8 @@ columns:
     role: case.reflex_at_reassessment_left_lower
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo na reavaliação, segundo grupo, esquerda\" (case.reflex_at_reassessment_left_lower): fact about the health event or the person's health"
     name: Reflexo na reavaliação, segundo grupo, esquerda
     years:
     - 2007
@@ -1059,6 +1213,8 @@ columns:
     role: case.sensation_at_reassessment_face
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade facial na reavaliação\" (case.sensation_at_reassessment_face): fact about the health event or the person's health"
     name: Sensibilidade facial na reavaliação
     years:
     - 2007
@@ -1069,6 +1225,8 @@ columns:
     role: case.sensation_at_reassessment_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade no membro inferior direito na reavaliação\" (case.sensation_at_reassessment_right_leg): fact about the health event or the person's health"
     name: Sensibilidade no membro inferior direito na reavaliação
     years:
     - 2007
@@ -1079,6 +1237,8 @@ columns:
     role: case.sensation_at_reassessment_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade no membro inferior esquerdo na reavaliação\" (case.sensation_at_reassessment_left_leg): fact about the health event or the person's health"
     name: Sensibilidade no membro inferior esquerdo na reavaliação
     years:
     - 2007
@@ -1089,6 +1249,8 @@ columns:
     role: case.sensation_at_reassessment_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade no membro superior direito na reavaliação\" (case.sensation_at_reassessment_right_arm): fact about the health event or the person's health"
     name: Sensibilidade no membro superior direito na reavaliação
     years:
     - 2007
@@ -1099,6 +1261,8 @@ columns:
     role: case.sensation_at_reassessment_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sensibilidade no membro superior esquerdo na reavaliação\" (case.sensation_at_reassessment_left_arm): fact about the health event or the person's health"
     name: Sensibilidade no membro superior esquerdo na reavaliação
     years:
     - 2007
@@ -1107,6 +1271,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -1222,6 +1388,8 @@ columns:
     role: case.brain_tissue_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de tecido cerebral\" (case.brain_tissue_collected): how care or investigation was carried out"
     name: Coleta de tecido cerebral
     years:
     - 2007
@@ -1232,6 +1400,8 @@ columns:
     role: case.stool_sample_cold_chain_intact
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Condição de conservação da amostra de fezes\" (case.stool_sample_cold_chain_intact): how care or investigation was carried out"
     name: Condição de conservação da amostra de fezes
     years:
     - 2007
@@ -1322,6 +1492,8 @@ columns:
     role: case.intestinal_content_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de conteúdo intestinal\" (case.intestinal_content_collected): how care or investigation was carried out"
     name: Coleta de conteúdo intestinal
     years:
     - 2007
@@ -1422,6 +1594,8 @@ columns:
     role: case.spinal_cord_tissue_collected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de medula espinhal\" (case.spinal_cord_tissue_collected): how care or investigation was carried out"
     name: Coleta de medula espinhal
     years:
     - 2007
@@ -1432,6 +1606,8 @@ columns:
     role: case.stool_sample_quantity_adequate
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade da amostra de fezes\" (case.stool_sample_quantity_adequate): how care or investigation was carried out"
     name: Quantidade da amostra de fezes
     years:
     - 2007
@@ -1442,6 +1618,8 @@ columns:
     role: case.anatomopathological_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado (exame anatomopatológico)\" (case.anatomopathological_result): fact about the health event or the person's health"
     name: Resultado (exame anatomopatológico)
     years:
     - 2007
@@ -1452,6 +1630,8 @@ columns:
     role: case.first_stool_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da primeira amostra de fezes\" (case.first_stool_result): fact about the health event or the person's health"
     name: Resultado da primeira amostra de fezes
     years:
     - 2007
@@ -1461,6 +1641,8 @@ columns:
     role: case.second_stool_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da segunda amostra de fezes\" (case.second_stool_result): fact about the health event or the person's health"
     name: Resultado da segunda amostra de fezes
     years:
     - 2007
@@ -1470,6 +1652,8 @@ columns:
     role: case.third_stool_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da terceira amostra de fezes\" (case.third_stool_result): fact about the health event or the person's health"
     name: Resultado da terceira amostra de fezes
     years:
     - 2007
@@ -1480,6 +1664,8 @@ columns:
     role: case.paralysis_site_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da paralisia, membro inferior direito\" (case.paralysis_site_right_leg): fact about the health event or the person's health"
     name: Localização da paralisia, membro inferior direito
     years:
     - 2007
@@ -1490,6 +1676,8 @@ columns:
     role: case.paralysis_site_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da paralisia, membro inferior esquerdo\" (case.paralysis_site_left_leg): fact about the health event or the person's health"
     name: Localização da paralisia, membro inferior esquerdo
     years:
     - 2007
@@ -1500,6 +1688,8 @@ columns:
     role: case.paralysis_site_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da paralisia, membro superior direito\" (case.paralysis_site_right_arm): fact about the health event or the person's health"
     name: Localização da paralisia, membro superior direito
     years:
     - 2007
@@ -1510,6 +1700,8 @@ columns:
     role: case.paralysis_site_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da paralisia, membro superior esquerdo\" (case.paralysis_site_left_arm): fact about the health event or the person's health"
     name: Localização da paralisia, membro superior esquerdo
     years:
     - 2007
@@ -1518,6 +1710,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -1528,6 +1722,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -1590,6 +1786,8 @@ columns:
     role: case.ankle_reflex_at_reassessment_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo aquileu direito na reavaliação\" (case.ankle_reflex_at_reassessment_right): fact about the health event or the person's health"
     name: Reflexo aquileu direito na reavaliação
     years:
     - 2007
@@ -1600,6 +1798,8 @@ columns:
     role: case.ankle_reflex_at_reassessment_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo aquileu esquerdo na reavaliação\" (case.ankle_reflex_at_reassessment_left): fact about the health event or the person's health"
     name: Reflexo aquileu esquerdo na reavaliação
     years:
     - 2007
@@ -1610,6 +1810,8 @@ columns:
     role: case.biceps_reflex_at_reassessment_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo bicipital direito na reavaliação\" (case.biceps_reflex_at_reassessment_right): fact about the health event or the person's health"
     name: Reflexo bicipital direito na reavaliação
     years:
     - 2007
@@ -1620,6 +1822,8 @@ columns:
     role: case.biceps_reflex_at_reassessment_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo bicipital esquerdo na reavaliação\" (case.biceps_reflex_at_reassessment_left): fact about the health event or the person's health"
     name: Reflexo bicipital esquerdo na reavaliação
     years:
     - 2007
@@ -1630,6 +1834,8 @@ columns:
     role: case.knee_reflex_at_reassessment_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo patelar direito na reavaliação\" (case.knee_reflex_at_reassessment_right): fact about the health event or the person's health"
     name: Reflexo patelar direito na reavaliação
     years:
     - 2007
@@ -1640,6 +1846,8 @@ columns:
     role: case.knee_reflex_at_reassessment_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo patelar esquerdo na reavaliação\" (case.knee_reflex_at_reassessment_left): fact about the health event or the person's health"
     name: Reflexo patelar esquerdo na reavaliação
     years:
     - 2007
@@ -1650,6 +1858,8 @@ columns:
     role: case.triceps_reflex_at_reassessment_right
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo tricipital direito na reavaliação\" (case.triceps_reflex_at_reassessment_right): fact about the health event or the person's health"
     name: Reflexo tricipital direito na reavaliação
     years:
     - 2007
@@ -1660,6 +1870,8 @@ columns:
     role: case.triceps_reflex_at_reassessment_left
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Reflexo tricipital esquerdo na reavaliação\" (case.triceps_reflex_at_reassessment_left): fact about the health event or the person's health"
     name: Reflexo tricipital esquerdo na reavaliação
     years:
     - 2007
@@ -1708,6 +1920,8 @@ columns:
     role: case.cervical_muscle_tone_at_revisit
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus muscular - Musculatura cervical (revisita)\" (case.cervical_muscle_tone_at_revisit): fact about the health event or the person's health"
     name: Tônus muscular - Musculatura cervical (revisita)
     years:
     - 2007
@@ -1718,6 +1932,8 @@ columns:
     role: case.tone_at_reassessment_face
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus facial na reavaliação\" (case.tone_at_reassessment_face): fact about the health event or the person's health"
     name: Tônus facial na reavaliação
     years:
     - 2007
@@ -1728,6 +1944,8 @@ columns:
     role: case.tone_at_reassessment_right_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus no membro inferior direito na reavaliação\" (case.tone_at_reassessment_right_leg): fact about the health event or the person's health"
     name: Tônus no membro inferior direito na reavaliação
     years:
     - 2007
@@ -1738,6 +1956,8 @@ columns:
     role: case.tone_at_reassessment_left_leg
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus no membro inferior esquerdo na reavaliação\" (case.tone_at_reassessment_left_leg): fact about the health event or the person's health"
     name: Tônus no membro inferior esquerdo na reavaliação
     years:
     - 2007
@@ -1748,6 +1968,8 @@ columns:
     role: case.tone_at_reassessment_right_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus no membro superior direito na reavaliação\" (case.tone_at_reassessment_right_arm): fact about the health event or the person's health"
     name: Tônus no membro superior direito na reavaliação
     years:
     - 2007
@@ -1758,6 +1980,8 @@ columns:
     role: case.tone_at_reassessment_left_arm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tônus no membro superior esquerdo na reavaliação\" (case.tone_at_reassessment_left_arm): fact about the health event or the person's health"
     name: Tônus no membro superior esquerdo na reavaliação
     years:
     - 2007
@@ -1768,6 +1992,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007

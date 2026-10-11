@@ -5,6 +5,8 @@ columns:
     role: authorisation.vascular_access_type
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Acesso vascular\" (authorisation.vascular_access_type): fact about the health event or the person's health"
     name: Acesso vascular
     years:
     - 
@@ -14,6 +16,8 @@ columns:
     role: authorisation.serum_albumin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Albumina\" (authorisation.serum_albumin): fact about the health event or the person's health"
     name: Albumina
     years:
     - 
@@ -50,6 +54,8 @@ columns:
     role: authorisation.serum_phosphorus
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fósforo\" (authorisation.serum_phosphorus): fact about the health event or the person's health"
     name: Fósforo
     years:
     - 
@@ -59,6 +65,8 @@ columns:
     role: authorisation.hemoglobin
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hb\" (authorisation.hemoglobin): fact about the health event or the person's health"
     name: Hb
     years:
     - 
@@ -68,6 +76,8 @@ columns:
     role: authorisation.hepatitis_b_surface_antigen_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"HBs Ag\" (authorisation.hepatitis_b_surface_antigen_result): fact about the health event or the person's health"
     name: HBs Ag
     years:
     - 
@@ -77,6 +87,8 @@ columns:
     role: authorisation.hepatitis_c_antibody_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"aa HCV\" (authorisation.hepatitis_c_antibody_result): fact about the health event or the person's health"
     name: aa HCV
     years:
     - 
@@ -86,6 +98,8 @@ columns:
     role: authorisation.hiv_antibody_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"aa HIV\" (authorisation.hiv_antibody_result): fact about the health event or the person's health"
     name: aa HIV
     years:
     - 
@@ -95,6 +109,8 @@ columns:
     role: authorisation.clinical_complication_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Intercorrência\" (authorisation.clinical_complication_flag): fact about the health event or the person's health"
     name: Intercorrência
     years:
     - 
@@ -104,6 +120,8 @@ columns:
     role: authorisation.weekly_kt_v
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Kt/V Semanal\" (authorisation.weekly_kt_v): fact about the health event or the person's health"
     name: Kt/V Semanal
     years:
     - 
@@ -122,6 +140,8 @@ columns:
     role: authorisation.parathyroid_hormone
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PTH\" (authorisation.parathyroid_hormone): fact about the health event or the person's health"
     name: PTH
     years:
     - 
@@ -131,6 +151,8 @@ columns:
     role: authorisation.transplant_eligibility_status_detail
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação de aptidão para transplante\" (authorisation.transplant_eligibility_status_detail): fact about the health event or the person's health"
     name: Situação de aptidão para transplante
     years:
     - 
@@ -140,6 +162,8 @@ columns:
     role: authorisation.peritonitis_occurrence_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Houve Peritonite\" (authorisation.peritonitis_occurrence_flag): fact about the health event or the person's health"
     name: Houve Peritonite
     years:
     - 
@@ -149,6 +173,8 @@ columns:
     role: authorisation.status_at_admission
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação Inicial\" (authorisation.status_at_admission): fact about the health event or the person's health"
     name: Situação Inicial
     years:
     - 
@@ -158,6 +184,8 @@ columns:
     role: authorisation.transplant_eligibility_status
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Situação de transplante\" (authorisation.transplant_eligibility_status): fact about the health event or the person's health"
     name: Situação de transplante
     years:
     - 
@@ -167,6 +195,8 @@ columns:
     role: authorisation.urea_reduction_rate
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"TRU\" (authorisation.urea_reduction_rate): fact about the health event or the person's health"
     name: TRU
     years:
     - 
@@ -185,6 +215,8 @@ columns:
     role: authorisation.pregnancy_indicator
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador de Gestante (S = Sim; N = Não)\" (authorisation.pregnancy_indicator): fact about the health event or the person's health"
     codelists:
     - GESTANTE
     name: Indicador de Gestante (S = Sim; N = Não)
@@ -214,6 +246,8 @@ columns:
     role: authorisation.transplant_indicator
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador se o paciente fez transplante\" (authorisation.transplant_indicator): fact about the health event or the person's health"
     codelists:
     - TRANSPL
     name: Indicador se o paciente fez transplante
@@ -227,6 +261,8 @@ columns:
     role: authorisation.discharge
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Alta\" (authorisation.discharge): billing, financing, management or contractual attribute"
     codelists:
     - ALTA
     name: Indicador de Alta
@@ -258,6 +294,8 @@ columns:
     role: authorisation.admission_character
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Carater do Atendimento\" (authorisation.admission_character): how care or investigation was carried out"
     codelists:
     - CARAT_AT
     name: Carater do Atendimento
@@ -350,6 +388,8 @@ columns:
     role: authorisation.issuer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Orgao emissor\" (authorisation.issuer): billing, financing, management or contractual attribute"
     name: Codigo do Orgao emissor
     years:
     - 
@@ -370,6 +410,8 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Idade do paciente\" (patient.age_unit): encoding unit of another field"
     codelists:
     - IDADEDET
     name: Codigo da Idade do paciente
@@ -383,6 +425,8 @@ columns:
     role: authorisation.management_condition
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do Tipo de Gestao\" (authorisation.management_condition): billing, financing, management or contractual attribute"
     codelists:
     - TPGEST_C
     - TP_GESTAO
@@ -442,6 +486,8 @@ columns:
     role: authorisation.closure
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Encerramento\" (authorisation.closure): billing, financing, management or contractual attribute"
     codelists:
     - ENCERRAM
     name: Indicador de Encerramento
@@ -453,6 +499,8 @@ columns:
     role: patient.ethnicity
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
     codelists:
     - ETNIA
     name: Etnia do paciente
@@ -476,6 +524,8 @@ columns:
     role: authorisation.municipality_mismatch_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Municipio de residencia diferente do estabelecimento\" (authorisation.municipality_mismatch_flag): billing, financing, management or contractual attribute"
     name: Municipio de residencia diferente do estabelecimento
     years:
     - 
@@ -487,6 +537,8 @@ columns:
     role: facility.maintained_or_individual
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento Mantido / Individual\" (facility.maintained_or_individual): attribute of the establishment register (structure, service, management)"
     codelists:
     - MANT_IND
     name: Estabelecimento Mantido / Individual
@@ -500,6 +552,8 @@ columns:
     role: authorisation.exit_reason
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Motivo de Saida e Permanencia\" (authorisation.exit_reason): billing, financing, management or contractual attribute"
     codelists:
     - MOTSAIPE
     name: Motivo de Saida e Permanencia
@@ -532,6 +586,8 @@ columns:
     role: facility.legal_nature
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Natureza Juridica\" (facility.legal_nature): attribute of the establishment register (structure, service, management)"
     codelists:
     - NATJUR
     - NATJURC
@@ -555,6 +611,8 @@ columns:
     role: authorisation.death
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Indicador de Obito\" (authorisation.death): fact about the health event or the person's health"
     codelists:
     - OBITO
     name: Indicador de Obito
@@ -568,6 +626,8 @@ columns:
     role: authorisation.continuation
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Permanencia\" (authorisation.continuation): billing, financing, management or contractual attribute"
     codelists:
     - PERMANEN
     name: Indicador de Permanencia
@@ -596,6 +656,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raca/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     codelists:
     - RACA_COR
     name: Raca/Cor do paciente
@@ -607,6 +669,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
     codelists:
     - SEXO
     name: Sexo do paciente
@@ -620,6 +684,8 @@ columns:
     role: facility.provider_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Prestador\" (facility.provider_type): attribute of the establishment register (structure, service, management)"
     codelists:
     - ESFERA
     - ESFERA_C
@@ -633,6 +699,8 @@ columns:
     role: authorisation.apac_type
     kind: category
     model: event_type
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de APAC\" (authorisation.apac_type): billing, financing, management or contractual attribute"
     codelists:
     - TP_APAC
     name: Tipo de APAC
@@ -644,6 +712,8 @@ columns:
     role: authorisation.care_type
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo de Atendimento de APAC\" (authorisation.care_type): how care or investigation was carried out"
     codelists:
     - TP_ATEND
     name: Tipo de Atendimento de APAC
@@ -657,6 +727,8 @@ columns:
     role: facility.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Estabelecimento\" (facility.type): attribute of the establishment register (structure, service, management)"
     codelists:
     - TP_ESTAB
     name: Tipo de Estabelecimento
@@ -670,6 +742,8 @@ columns:
     role: authorisation.transfer
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Indicador de Transferencia\" (authorisation.transfer): billing, financing, management or contractual attribute"
     codelists:
     - TRANSFER
     name: Indicador de Transferencia
@@ -683,6 +757,8 @@ columns:
     role: authorisation.state_mismatch
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF de residencia diferente da UF do estabelecimento\" (authorisation.state_mismatch): billing, financing, management or contractual attribute"
     codelists:
     - INVASAO
     name: UF de residencia diferente da UF do estabelecimento
@@ -707,6 +783,8 @@ columns:
     role: patient.nationality
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Codigo da Nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
     codelists:
     - UFNACIO
     name: Codigo da Nacionalidade do paciente

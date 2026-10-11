@@ -13,6 +13,8 @@ columns:
     role: population.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Race/color\" (population.race): attribute of the person (race/colour)"
     name: Race/color
     years:
     - 1991
@@ -21,6 +23,8 @@ columns:
     role: population.age_band
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Age\" (population.age_band): attribute of the person (age)"
     name: Age
     years:
     - 1991
@@ -56,6 +60,8 @@ columns:
     role: population.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (population.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 1991

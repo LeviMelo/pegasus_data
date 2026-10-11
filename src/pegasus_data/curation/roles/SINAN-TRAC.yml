@@ -7,6 +7,8 @@ columns:
     role: case.survey_type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de inquérito\" (case.survey_type): record type, internal flag or system field"
     name: Tipo de inquérito
     years:
     - 2009
@@ -19,6 +21,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -99,6 +103,8 @@ columns:
     role: case.referred
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Encaminhamento\" (case.referred): how care or investigation was carried out"
     name: Encaminhamento
     years:
     - 2009
@@ -109,6 +115,8 @@ columns:
     role: case.corneal_opacity
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma CO, opacificação corneana\" (case.corneal_opacity): fact about the health event or the person's health"
     name: Forma CO, opacificação corneana
     years:
     - 2009
@@ -119,6 +127,8 @@ columns:
     role: case.trachomatous_inflammation_follicular
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma TF, folicular\" (case.trachomatous_inflammation_follicular): fact about the health event or the person's health"
     name: Forma TF, folicular
     years:
     - 2009
@@ -129,6 +139,8 @@ columns:
     role: case.trachomatous_inflammation_intense
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma TI, intensa\" (case.trachomatous_inflammation_intense): fact about the health event or the person's health"
     name: Forma TI, intensa
     years:
     - 2009
@@ -139,6 +151,8 @@ columns:
     role: case.trachomatous_scarring
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma TS, cicatricial\" (case.trachomatous_scarring): fact about the health event or the person's health"
     name: Forma TS, cicatricial
     years:
     - 2009
@@ -149,6 +163,8 @@ columns:
     role: case.trachomatous_trichiasis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Forma TT, triquíase\" (case.trachomatous_trichiasis): fact about the health event or the person's health"
     name: Forma TT, triquíase
     years:
     - 2009

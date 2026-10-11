@@ -21,6 +21,8 @@ columns:
     role: exam.radial_sclerosing_lesion_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Lesão esclerosante radial\" (exam.radial_sclerosing_lesion_flag): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Lesão esclerosante radial'
     years:
     - 2009
@@ -29,6 +31,8 @@ columns:
     role: exam.benign_breast_lesion_fibroadenoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Fibroadenoma\" (exam.benign_breast_lesion_fibroadenoma): result of a test or finding on the person"
     name: Lesao benigna (histopatologia mama) - Fibroadenoma
     years:
     - 2009
@@ -37,6 +41,8 @@ columns:
     role: exam.benign_breast_lesion_condicao_fibrocistica
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Condicao fibrocistica\" (exam.benign_breast_lesion_condicao_fibrocistica): result of a test or finding on the person"
     name: Lesao benigna (histopatologia mama) - Condicao fibrocistica
     years:
     - 2009
@@ -45,6 +51,8 @@ columns:
     role: exam.benign_breast_lesion_papilomatose_florida_do_mamilo
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo\" (exam.benign_breast_lesion_papilomatose_florida_do_mamilo): result of a test or finding on the person"
     name: Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo
     years:
     - 2009
@@ -69,6 +77,8 @@ columns:
     role: exam.benign_lobular_hyperplasia_with_atypia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Hiperplasia lobular com atipias\" (exam.benign_lobular_hyperplasia_with_atypia): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Hiperplasia lobular com atipias'
     years:
     - 2009
@@ -77,6 +87,8 @@ columns:
     role: exam.benign_mastitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Mastite\" (exam.benign_mastitis): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Mastite'
     years:
     - 2009
@@ -85,6 +97,8 @@ columns:
     role: exam.benign_multiple_papillomas
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Papiloma múltiplo\" (exam.benign_multiple_papillomas): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Papiloma múltiplo'
     years:
     - 2009
@@ -93,6 +107,8 @@ columns:
     role: exam.benign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Outros\" (exam.benign_other): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Outros'
     years:
     - 2009
@@ -101,6 +117,8 @@ columns:
     role: exam.benign_solitary_papilloma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão de caráter benigno: Papiloma solitário\" (exam.benign_solitary_papilloma): result of a test or finding on the person"
     name: 'Lesão de caráter benigno: Papiloma solitário'
     years:
     - 2009
@@ -111,6 +129,8 @@ columns:
     role: exam.imaging_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico de Imagem\" (exam.imaging_diagnosis): result of a test or finding on the person"
     name: Diagnóstico de Imagem
     years:
     - 2009
@@ -121,6 +141,8 @@ columns:
     role: exam.lesion_location
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Localização da Lesão\" (exam.lesion_location): result of a test or finding on the person"
     name: Localização da Lesão
     years:
     - 2009
@@ -129,6 +151,8 @@ columns:
     role: exam.how_the_specimen_was_obtained
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento de obtenção do material\" (exam.how_the_specimen_was_obtained): how care or investigation was carried out"
     name: Procedimento de obtenção do material
     years:
     - 2009
@@ -139,6 +163,8 @@ columns:
     role: exam.prior_breast_cancer_treatment
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tratam anterior Câncer Mama\" (exam.prior_breast_cancer_treatment): result of a test or finding on the person"
     name: Tratam anterior Câncer Mama
     years:
     - 2009
@@ -149,6 +175,8 @@ columns:
     role: exam.type_of_histopathological_exam
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tipo Exame Histopatológico\" (exam.type_of_histopathological_exam): how care or investigation was carried out"
     name: Tipo Exame Histopatológico
     years:
     - 2009
@@ -157,6 +185,8 @@ columns:
     role: exam.compromised_axillary_lymph_nodes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodo Comprometido (inferido)\" (exam.compromised_axillary_lymph_nodes): result of a test or finding on the person"
     name: Linfonodo Comprometido (inferido)
     years:
     - 2009
@@ -167,6 +197,8 @@ columns:
     role: exam.estrogen_receptor
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Receptor de Estrógeno\" (exam.estrogen_receptor): result of a test or finding on the person"
     name: Receptor de Estrógeno
     years:
     - 2009
@@ -177,6 +209,8 @@ columns:
     role: exam.progesterone_receptor
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Receptor de Progesterona\" (exam.progesterone_receptor): result of a test or finding on the person"
     name: Receptor de Progesterona
     years:
     - 2009
@@ -187,6 +221,8 @@ columns:
     role: exam.microcalcifications
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Microcalcificações\" (exam.microcalcifications): result of a test or finding on the person"
     name: Microcalcificações
     years:
     - 2009
@@ -205,6 +241,8 @@ columns:
     role: exam.breast_examined
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mama examinada\" (exam.breast_examined): how care or investigation was carried out"
     name: Mama examinada
     years:
     - 2009
@@ -215,6 +253,8 @@ columns:
     role: exam.clinical_tumour_size
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho clínico do tumor\" (exam.clinical_tumour_size): result of a test or finding on the person"
     name: Tamanho clínico do tumor
     years:
     - 2009
@@ -235,6 +275,8 @@ columns:
     role: exam.age_band
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa Etária\" (exam.age_band): attribute of the person (age)"
     name: Faixa Etária
     years:
     - 2009
@@ -247,6 +289,8 @@ columns:
     role: exam.histological_grade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Grau histológico\" (exam.histological_grade): result of a test or finding on the person"
     name: Grau histológico
     years:
     - 2009
@@ -257,6 +301,8 @@ columns:
     role: exam.surgical_margins
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Margens cirúrgicas\" (exam.surgical_margins): result of a test or finding on the person"
     name: Margens cirúrgicas
     years:
     - 2009
@@ -267,6 +313,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2009
@@ -288,6 +336,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Cor/raça\" (patient.race): attribute of the person (race/colour)"
     name: Cor/raça
     years:
     - 2009
@@ -298,6 +348,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2009
@@ -318,6 +370,8 @@ columns:
     role: exam.result_adequacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade do resultado\" (exam.result_adequacy): how care or investigation was carried out"
     name: Adequabilidade do resultado
     years:
     - 2009
@@ -328,6 +382,8 @@ columns:
     role: exam.pathological_tumour_size
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho patológico do tumor\" (exam.pathological_tumour_size): result of a test or finding on the person"
     name: Tamanho patológico do tumor
     years:
     - 2009
@@ -368,6 +424,8 @@ columns:
     role: exam.surgical_procedure_performed
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento cirúrgico realizado\" (exam.surgical_procedure_performed): how care or investigation was carried out"
     name: Procedimento cirúrgico realizado
     years:
     - 2009
@@ -378,6 +436,8 @@ columns:
     role: exam.how_the_lesion_was_detected
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Forma de detecção da lesão\" (exam.how_the_lesion_was_detected): how care or investigation was carried out"
     name: Forma de detecção da lesão
     years:
     - 2009
@@ -388,6 +448,8 @@ columns:
     role: exam.palpable_axillary_node
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodo axilar palpável\" (exam.palpable_axillary_node): result of a test or finding on the person"
     name: Linfonodo axilar palpável
     years:
     - 2009
@@ -398,6 +460,8 @@ columns:
     role: exam.high_risk_for_breast_cancer
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco elevado para câncer de mama\" (exam.high_risk_for_breast_cancer): result of a test or finding on the person"
     name: Risco elevado para câncer de mama
     years:
     - 2009
@@ -406,6 +470,8 @@ columns:
     role: exam.malignant_neoplasm
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Neoplasia maligna\" (exam.malignant_neoplasm): result of a test or finding on the person"
     name: Neoplasia maligna
     years:
     - 2009
@@ -416,6 +482,8 @@ columns:
     role: exam.collection_to_laboratory_interval_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_to_laboratory_interval_banded): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2009
@@ -428,6 +496,8 @@ columns:
     role: exam.interval_to_result_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.interval_to_result_banded): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2009
@@ -440,6 +510,8 @@ columns:
     role: exam.exam_turnaround_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo exame\" (exam.exam_turnaround_banded): how care or investigation was carried out"
     name: Tempo exame
     years:
     - 2009
@@ -458,6 +530,8 @@ columns:
     role: exam.benign_lesion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão benigna\" (exam.benign_lesion): result of a test or finding on the person"
     name: Lesão benigna
     years:
     - 2009

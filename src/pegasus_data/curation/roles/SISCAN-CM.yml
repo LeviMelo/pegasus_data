@@ -15,6 +15,8 @@ columns:
     role: exam.high_breast_cancer_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco elevado para câncer de mama\" (exam.high_breast_cancer_risk): result of a test or finding on the person"
     name: Risco elevado para câncer de mama
     years:
     - 2009
@@ -25,6 +27,8 @@ columns:
     role: exam.specimen_collection_method_code
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material enviado\" (exam.specimen_collection_method_code): how care or investigation was carried out"
     name: Material enviado
     years:
     - 2009
@@ -37,6 +41,8 @@ columns:
     role: exam.breast_laterality_of_specimen
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mama\" (exam.breast_laterality_of_specimen): result of a test or finding on the person"
     name: Mama
     years:
     - 2009
@@ -47,6 +53,8 @@ columns:
     role: exam.nipple_discharge_characteristic_clinical_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar (achado clínico)\" (exam.nipple_discharge_characteristic_clinical_finding): result of a test or finding on the person"
     name: Descarga papilar (achado clínico)
     years:
     - 2009
@@ -57,6 +65,8 @@ columns:
     role: exam.palpable_nodule_characteristic_clinical_finding
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nódulo/tumor (achado clínico)\" (exam.palpable_nodule_characteristic_clinical_finding): result of a test or finding on the person"
     name: Nódulo/tumor (achado clínico)
     years:
     - 2009
@@ -79,6 +89,8 @@ columns:
     role: exam.age_band
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Faixa Etária\" (exam.age_band): attribute of the person (age)"
     name: Faixa Etária
     years:
     - 2009
@@ -91,6 +103,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     years:
     - 2009
@@ -112,6 +126,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Cor/raça\" (patient.race): attribute of the person (race/colour)"
     name: Cor/raça
     years:
     - 2009
@@ -122,6 +138,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 2009
@@ -144,6 +162,8 @@ columns:
     role: exam.result_adequacy
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade do resultado\" (exam.result_adequacy): how care or investigation was carried out"
     name: Adequabilidade do resultado
     years:
     - 2009
@@ -182,6 +202,8 @@ columns:
     role: exam.paaf_result_category_processos_benignos_negativo_para_malign
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da puncao aspirativa - Processos Benignos. Negativo para malignidade\" (exam.paaf_result_category_processos_benignos_negativo_para_malign): result of a test or finding on the person"
     name: Resultado da puncao aspirativa - Processos Benignos. Negativo para malignidade
     years:
     - 2009
@@ -192,6 +214,8 @@ columns:
     role: exam.nipple_discharge_cystic_content_specimen_result_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado — descarga papilar / conteúdo cístico\" (exam.nipple_discharge_cystic_content_specimen_result_flag): result of a test or finding on the person"
     name: Resultado — descarga papilar / conteúdo cístico
     years:
     - 2009
@@ -202,6 +226,8 @@ columns:
     role: exam.paaf_result_category_malignidade_indeterminada_compativel
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da puncao aspirativa - Malignidade Indeterminada Compativel\" (exam.paaf_result_category_malignidade_indeterminada_compativel): result of a test or finding on the person"
     name: Resultado da puncao aspirativa - Malignidade Indeterminada Compativel
     years:
     - 2009
@@ -212,6 +238,8 @@ columns:
     role: exam.paaf_result_category_positivo_para_malignidade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da puncao aspirativa - Positivo para Malignidade\" (exam.paaf_result_category_positivo_para_malignidade): result of a test or finding on the person"
     name: Resultado da puncao aspirativa - Positivo para Malignidade
     years:
     - 2009
@@ -222,6 +250,8 @@ columns:
     role: exam.paaf_result_category_suspeito_para_malignidade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da puncao aspirativa - Suspeito para Malignidade\" (exam.paaf_result_category_suspeito_para_malignidade): result of a test or finding on the person"
     name: Resultado da puncao aspirativa - Suspeito para Malignidade
     years:
     - 2009
@@ -232,6 +262,8 @@ columns:
     role: exam.known_elevated_breast_cancer_risk
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Risco Elevado (anamnese)\" (exam.known_elevated_breast_cancer_risk): result of a test or finding on the person"
     name: Risco Elevado (anamnese)
     years:
     - 2009
@@ -240,6 +272,8 @@ columns:
     role: exam.nipple_discharge_cystic_result_consistent_with_papillary_les
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Consistente com lesão papilar\" (exam.nipple_discharge_cystic_result_consistent_with_papillary_les): result of a test or finding on the person"
     name: Consistente com lesão papilar
     years:
     - 2009
@@ -248,6 +282,8 @@ columns:
     role: exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar - Padrao citopatologico de malignidade indeterminada\" (exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad): result of a test or finding on the person"
     name: Descarga papilar - Padrao citopatologico de malignidade indeterminada
     years:
     - 2009
@@ -256,6 +292,8 @@ columns:
     role: exam.nipple_discharge_finding_material_acelular
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar - Material acelular\" (exam.nipple_discharge_finding_material_acelular): result of a test or finding on the person"
     name: Descarga papilar - Material acelular
     years:
     - 2009
@@ -264,6 +302,8 @@ columns:
     role: exam.nipple_discharge_finding_negativo_para_malignidade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar - Negativo para malignidade\" (exam.nipple_discharge_finding_negativo_para_malignidade): result of a test or finding on the person"
     name: Descarga papilar - Negativo para malignidade
     years:
     - 2009
@@ -272,6 +312,8 @@ columns:
     role: exam.nipple_discharge_finding_positivo_para_malignidade
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar - Positivo para malignidade\" (exam.nipple_discharge_finding_positivo_para_malignidade): result of a test or finding on the person"
     name: Descarga papilar - Positivo para malignidade
     years:
     - 2009
@@ -280,6 +322,8 @@ columns:
     role: exam.nipple_discharge_finding_consistente_com_processo_inflamator
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Descarga papilar - Consistente com processo inflamatorio\" (exam.nipple_discharge_finding_consistente_com_processo_inflamator): result of a test or finding on the person"
     name: Descarga papilar - Consistente com processo inflamatorio
     years:
     - 2009
@@ -290,6 +334,8 @@ columns:
     role: exam.collection_to_laboratory_interval_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de coleta\" (exam.collection_to_laboratory_interval_banded): how care or investigation was carried out"
     name: Intervalo de coleta
     years:
     - 2009
@@ -302,6 +348,8 @@ columns:
     role: exam.interval_to_result_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Intervalo de resultado\" (exam.interval_to_result_banded): how care or investigation was carried out"
     name: Intervalo de resultado
     years:
     - 2009
@@ -314,6 +362,8 @@ columns:
     role: exam.exam_turnaround_banded
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo exame\" (exam.exam_turnaround_banded): how care or investigation was carried out"
     name: Tempo exame
     years:
     - 2009
@@ -332,6 +382,8 @@ columns:
     role: exam.benign_paaf_finding_abscesso_subareolar_recorrente
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Abscesso subareolar recorrente\" (exam.benign_paaf_finding_abscesso_subareolar_recorrente): result of a test or finding on the person"
     name: PAAF benigno - Abscesso subareolar recorrente
     years:
     - 2009
@@ -340,6 +392,8 @@ columns:
     role: exam.benign_paaf_finding_condicao_fibrocistica_mamaria
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Condicao fibrocistica mamaria\" (exam.benign_paaf_finding_condicao_fibrocistica_mamaria): result of a test or finding on the person"
     name: PAAF benigno - Condicao fibrocistica mamaria
     years:
     - 2009
@@ -348,6 +402,8 @@ columns:
     role: exam.benign_paaf_finding_fibroadenoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Fibroadenoma\" (exam.benign_paaf_finding_fibroadenoma): result of a test or finding on the person"
     name: PAAF benigno - Fibroadenoma
     years:
     - 2009
@@ -356,6 +412,8 @@ columns:
     role: exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Lesao epitelial benigna proliferativa sem atipias\" (exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se): result of a test or finding on the person"
     name: PAAF benigno - Lesao epitelial benigna proliferativa sem atipias
     years:
     - 2009
@@ -364,6 +422,8 @@ columns:
     role: exam.benign_paaf_finding_mastite
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Mastite\" (exam.benign_paaf_finding_mastite): result of a test or finding on the person"
     name: PAAF benigno - Mastite
     years:
     - 2009
@@ -372,6 +432,8 @@ columns:
     role: exam.benign_paaf_finding_necrose_gordurosa
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Necrose gordurosa\" (exam.benign_paaf_finding_necrose_gordurosa): result of a test or finding on the person"
     name: PAAF benigno - Necrose gordurosa
     years:
     - 2009
@@ -380,6 +442,8 @@ columns:
     role: exam.benign_paaf_finding_outros_exclusivamente_benignos
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF benigno - Outros (exclusivamente benignos)\" (exam.benign_paaf_finding_outros_exclusivamente_benignos): result of a test or finding on the person"
     name: PAAF benigno - Outros (exclusivamente benignos)
     years:
     - 2009
@@ -388,6 +452,8 @@ columns:
     role: exam.indeterminate_malignancy_paaf_finding_outros
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF malignidade indeterminada - Outros\" (exam.indeterminate_malignancy_paaf_finding_outros): result of a test or finding on the person"
     name: PAAF malignidade indeterminada - Outros
     years:
     - 2009
@@ -396,6 +462,8 @@ columns:
     role: exam.indeterminate_malignancy_paaf_finding_tumor_filoide
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF malignidade indeterminada - Tumor filoide\" (exam.indeterminate_malignancy_paaf_finding_tumor_filoide): result of a test or finding on the person"
     name: PAAF malignidade indeterminada - Tumor filoide
     years:
     - 2009
@@ -404,6 +472,8 @@ columns:
     role: exam.indeterminate_malignancy_paaf_finding_tumor_papilar
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF malignidade indeterminada - Tumor papilar\" (exam.indeterminate_malignancy_paaf_finding_tumor_papilar): result of a test or finding on the person"
     name: PAAF malignidade indeterminada - Tumor papilar
     years:
     - 2009
@@ -412,6 +482,8 @@ columns:
     role: exam.malignant_paaf_finding_carcinoma_ductal
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF positivo malignidade - Carcinoma ductal\" (exam.malignant_paaf_finding_carcinoma_ductal): result of a test or finding on the person"
     name: PAAF positivo malignidade - Carcinoma ductal
     years:
     - 2009
@@ -420,6 +492,8 @@ columns:
     role: exam.malignant_paaf_finding_carcinoma_lobular
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF positivo malignidade - Carcinoma lobular\" (exam.malignant_paaf_finding_carcinoma_lobular): result of a test or finding on the person"
     name: PAAF positivo malignidade - Carcinoma lobular
     years:
     - 2009
@@ -428,6 +502,8 @@ columns:
     role: exam.malignant_paaf_finding_outros_exclusivamente_malignos
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF positivo malignidade - Outros (exclusivamente malignos)\" (exam.malignant_paaf_finding_outros_exclusivamente_malignos): result of a test or finding on the person"
     name: PAAF positivo malignidade - Outros (exclusivamente malignos)
     years:
     - 2009
@@ -456,6 +532,8 @@ columns:
     role: exam.overall_fna_paaf_result_code
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado geral da puncao aspirativa\" (exam.overall_fna_paaf_result_code): result of a test or finding on the person"
     name: Resultado geral da puncao aspirativa
     years:
     - 2009
@@ -466,6 +544,8 @@ columns:
     role: exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF suspeito malignidade - lesao epitelial proliferativa com atipias\" (exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with): result of a test or finding on the person"
     name: PAAF suspeito malignidade - lesao epitelial proliferativa com atipias
     years:
     - 2009
@@ -474,6 +554,8 @@ columns:
     role: exam.suspicious_paaf_finding_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAAF suspeito malignidade - outros\" (exam.suspicious_paaf_finding_other): result of a test or finding on the person"
     name: PAAF suspeito malignidade - outros
     years:
     - 2009

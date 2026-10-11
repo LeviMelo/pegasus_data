@@ -16,6 +16,8 @@ columns:
     role: case.sign_hearing_deficit
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deficiência auditiva\" (case.sign_hearing_deficit): fact about the health event or the person's health"
     name: Deficiência auditiva
     years:
     - 2007
@@ -26,6 +28,8 @@ columns:
     role: case.contacts_vaccinated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Bloqueio vacinal\" (case.contacts_vaccinated): how care or investigation was carried out"
     name: Bloqueio vacinal
     years:
     - 2007
@@ -36,6 +40,8 @@ columns:
     role: case.sign_congenital_heart_disease
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cardiopatia congênita\" (case.sign_congenital_heart_disease): fact about the health event or the person's health"
     name: Cardiopatia congênita
     years:
     - 2007
@@ -46,6 +52,8 @@ columns:
     role: case.sign_cataract
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Catarata\" (case.sign_cataract): fact about the health event or the person's health"
     name: Catarata
     years:
     - 2007
@@ -54,6 +62,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -71,6 +81,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -89,6 +101,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -103,6 +117,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -116,6 +132,8 @@ columns:
     role: case.sample_csf
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Detecção viral – amostra clínica – líquor\" (case.sample_csf): how care or investigation was carried out"
     name: Detecção viral – amostra clínica – líquor
     years:
     - 2007
@@ -127,6 +145,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -140,6 +160,8 @@ columns:
     role: case.viral_detection
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado\" (case.viral_detection): fact about the health event or the person's health"
     name: "Resultado\n"
     codelists:
     - POSNEGIG
@@ -152,6 +174,8 @@ columns:
     role: case.sample_blood
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Sangue\" (case.sample_blood): how care or investigation was carried out"
     name: "Sangue\n"
     codelists:
     - SIM_NAO
@@ -164,6 +188,8 @@ columns:
     role: case.sample_nasopharynx
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Detecção viral – amostra clínica – secreção nasofaríngea\" (case.sample_nasopharynx): how care or investigation was carried out"
     name: Detecção viral – amostra clínica – secreção nasofaríngea
     years:
     - 2007
@@ -175,6 +201,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -190,6 +218,8 @@ columns:
     role: case.sample_urine
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Detecção viral – amostra clínica – urina\" (case.sample_urine): how care or investigation was carried out"
     name: Detecção viral – amostra clínica – urina
     years:
     - 2007
@@ -208,6 +238,8 @@ columns:
     role: mother.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério do diagnóstico materno\" (mother.confirmation_criterion): result of a test or finding on the person"
     name: Critério do diagnóstico materno
     years:
     - 2007
@@ -355,6 +387,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -372,6 +406,8 @@ columns:
     role: case.sign_congenital_glaucoma
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Glaucoma congênito\" (case.sign_congenital_glaucoma): fact about the health event or the person's health"
     name: Glaucoma congênito
     years:
     - 2007
@@ -382,6 +418,8 @@ columns:
     role: case.sign_hepatosplenomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hepatoesplenomegalia\" (case.sign_hepatosplenomegaly): fact about the health event or the person's health"
     name: Hepatoesplenomegalia
     years:
     - 2007
@@ -392,6 +430,8 @@ columns:
     role: case.sign_jaundice
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Icterícia\" (case.sign_jaundice): fact about the health event or the person's health"
     name: Icterícia
     years:
     - 2007
@@ -428,6 +468,8 @@ columns:
     role: case.discard_diagnosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico diferencial\" (case.discard_diagnosis): fact about the health event or the person's health"
     name: Diagnóstico diferencial
     years:
     - 2007
@@ -526,6 +568,8 @@ columns:
     role: case.newborn_isolated
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Isolamento\" (case.newborn_isolated): how care or investigation was carried out"
     name: "Isolamento\n"
     codelists:
     - RESULTADO1
@@ -539,6 +583,8 @@ columns:
     role: case.sign_meningoencephalitis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Meningoencefalite\" (case.sign_meningoencephalitis): fact about the health event or the person's health"
     name: Meningoencefalite
     years:
     - 2007
@@ -549,6 +595,8 @@ columns:
     role: case.sign_microcephaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Microcefalia\" (case.sign_microcephaly): fact about the health event or the person's health"
     name: Microcefalia
     years:
     - 2007
@@ -593,6 +641,8 @@ columns:
     role: case.sign_bone_changes
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Alteração óssea\" (case.sign_bone_changes): fact about the health event or the person's health"
     name: Alteração óssea
     years:
     - 2007
@@ -603,6 +653,8 @@ columns:
     role: mother.exposure_trimester
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período da gestação em que foi acometida/exposta\" (mother.exposure_trimester): fact about the health event or the person's health"
     name: Período da gestação em que foi acometida/exposta
     years:
     - 2007
@@ -623,6 +675,8 @@ columns:
     role: case.sign_purpura
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Púrpura\" (case.sign_purpura): fact about the health event or the person's health"
     name: Púrpura
     years:
     - 2007
@@ -633,6 +687,8 @@ columns:
     role: case.gestational_term
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Recém-nascido\" (case.gestational_term): fact about the health event or the person's health"
     name: Recém-nascido
     years:
     - 2007
@@ -643,6 +699,8 @@ columns:
     role: case.sign_psychomotor_delay
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Retardo do desenvolvimento\" (case.sign_psychomotor_delay): fact about the health event or the person's health"
     name: Retardo do desenvolvimento
     years:
     - 2007
@@ -653,6 +711,8 @@ columns:
     role: case.sign_pigmentary_retinopathy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Retinopatia\" (case.sign_pigmentary_retinopathy): fact about the health event or the person's health"
     name: Retinopatia
     years:
     - 2007
@@ -663,6 +723,8 @@ columns:
     role: case.igg_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgG - 1ª amostra\" (case.igg_1): fact about the health event or the person's health"
     name: Resultado sorologia IgG - 1ª amostra
     years:
     - 2007
@@ -673,6 +735,8 @@ columns:
     role: case.igm_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgM - 1ª amostra\" (case.igm_1): fact about the health event or the person's health"
     name: Resultado sorologia IgM - 1ª amostra
     years:
     - 2007
@@ -683,6 +747,8 @@ columns:
     role: case.igg_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgG - 2ª amostra\" (case.igg_2): fact about the health event or the person's health"
     name: Resultado sorologia IgG - 2ª amostra
     years:
     - 2007
@@ -693,6 +759,8 @@ columns:
     role: case.igm_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado sorologia IgM - 2ª amostra\" (case.igm_2): fact about the health event or the person's health"
     name: Resultado sorologia IgM - 2ª amostra
     years:
     - 2007
@@ -703,6 +771,8 @@ columns:
     role: case.igg_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgG na terceira amostra\" (case.igg_3): fact about the health event or the person's health"
     name: IgG na terceira amostra
     years:
     - 2007
@@ -713,6 +783,8 @@ columns:
     role: case.igm_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"IgM na terceira amostra\" (case.igm_3): fact about the health event or the person's health"
     name: IgM na terceira amostra
     years:
     - 2007
@@ -761,6 +833,8 @@ columns:
     role: mother.rubella_symptoms
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas (de rubéola na mãe)\" (mother.rubella_symptoms): fact about the health event or the person's health"
     name: Sinais e sintomas (de rubéola na mãe)
     years:
     - 2007
@@ -771,6 +845,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -781,6 +857,8 @@ columns:
     role: mother.mmr_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinação tríplice viral (sarampo, rubéola, caxumba)\" (mother.mmr_vaccinated): fact about the health event or the person's health"
     name: Vacinação tríplice viral (sarampo, rubéola, caxumba)
     years:
     - 2007
@@ -791,6 +869,8 @@ columns:
     role: mother.mr_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinação dupla viral (sarampo e rubéola)\" (mother.mr_vaccinated): fact about the health event or the person's health"
     name: Vacinação dupla viral (sarampo e rubéola)
     years:
     - 2007
@@ -801,6 +881,8 @@ columns:
     role: mother.rubella_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Vacinação rubéola (monovalente)\" (mother.rubella_vaccinated): fact about the health event or the person's health"
     name: Vacinação rubéola (monovalente)
     years:
     - 2007

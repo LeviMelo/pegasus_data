@@ -7,6 +7,8 @@ columns:
     role: case.aerophobia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Aerofobia\" (case.aerophobia): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Aerofobia
     years:
     - 2007
@@ -17,6 +19,8 @@ columns:
     role: case.psychomotor_agitation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Agitação psicomotora\" (case.psychomotor_agitation): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Agitação psicomotora
     years:
     - 2007
@@ -27,6 +31,8 @@ columns:
     role: case.aggressiveness
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Agressividade\" (case.aggressiveness): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Agressividade
     years:
     - 2007
@@ -46,6 +52,8 @@ columns:
     role: case.prior_post_exposure_prophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tem antecedentes de tratamento anti-rábico? - Pós-exposição\" (case.prior_post_exposure_prophylaxis): how care or investigation was carried out"
     name: Tem antecedentes de tratamento anti-rábico? - Pós-exposição
     years:
     - 2007
@@ -56,6 +64,8 @@ columns:
     role: case.prior_pre_exposure_prophylaxis
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tem antecedentes de tratamento anti-rábico? - Pré-exposição\" (case.prior_pre_exposure_prophylaxis): how care or investigation was carried out"
     name: Tem antecedentes de tratamento anti-rábico? - Pré-exposição
     years:
     - 2007
@@ -66,6 +76,8 @@ columns:
     role: case.rabies_vaccine_given
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Vacina antirrábica indicada\" (case.rabies_vaccine_given): how care or investigation was carried out"
     name: Vacina antirrábica indicada
     years:
     - 2007
@@ -76,6 +88,8 @@ columns:
     role: case.scratch
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição por arranhão\" (case.scratch): fact about the health event or the person's health"
     name: Exposição por arranhão
     years:
     - 2007
@@ -86,6 +100,8 @@ columns:
     role: case.head_or_neck_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição na cabeça ou pescoço\" (case.head_or_neck_exposure): fact about the health event or the person's health"
     name: Exposição na cabeça ou pescoço
     years:
     - 2007
@@ -94,6 +110,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -127,6 +145,8 @@ columns:
     role: case.contact_with_case_exposure_type_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Contato\" (case.contact_with_case_exposure_type_flag): fact about the health event or the person's health"
     name: "Contato\n"
     years:
     - 2007
@@ -161,6 +181,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -179,6 +201,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -190,6 +214,8 @@ columns:
     role: notification.return_flow
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fluxo de Retorno\" (notification.return_flow): record type, internal flag or system field"
     name: Fluxo de Retorno
     codelists:
     - CS_FLXRET
@@ -203,6 +229,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -217,6 +245,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -231,6 +261,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -246,6 +278,8 @@ columns:
     role: case.lacerating_wound
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento dilacerante\" (case.lacerating_wound): fact about the health event or the person's health"
     name: Ferimento dilacerante
     years:
     - 2007
@@ -256,6 +290,8 @@ columns:
     role: case.dysphagia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Disfagia\" (case.dysphagia): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Disfagia
     years:
     - 2007
@@ -266,6 +302,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -442,6 +480,8 @@ columns:
     role: case.animal_species
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Espécie do animal agressor\" (case.animal_species): fact about the health event or the person's health"
     name: Espécie do animal agressor
     years:
     - 2007
@@ -460,6 +500,8 @@ columns:
     role: case.fever_symptom_present
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.fever_symptom_present): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -472,6 +514,8 @@ columns:
     role: case.wound_count_category
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento\" (case.wound_count_category): fact about the health event or the person's health"
     name: Ferimento
     years:
     - 2007
@@ -480,6 +524,8 @@ columns:
     role: notification.return_flow_received
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Recebida por Fluxo de Retorno\" (notification.return_flow_received): record type, internal flag or system field"
     name: Recebida por Fluxo de Retorno
     years:
     - 2007
@@ -490,6 +536,8 @@ columns:
     role: case.symptom_hydrophobia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Hidrofobia\" (case.symptom_hydrophobia): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Hidrofobia
     years:
     - 2007
@@ -500,6 +548,8 @@ columns:
     role: case.histopathology
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Histopatologia\" (case.histopathology): fact about the health event or the person's health"
     name: Histopatologia
     years:
     - 2007
@@ -510,6 +560,8 @@ columns:
     role: case.hospitalized
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ocorreu Hospitalização?\" (case.hospitalized): how care or investigation was carried out"
     name: Ocorreu Hospitalização?
     years:
     - 2007
@@ -638,6 +690,8 @@ columns:
     role: case.direct_immunofluorescence
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Imunofluorescência direta\" (case.direct_immunofluorescence): fact about the health event or the person's health"
     name: Imunofluorescência direta
     years:
     - 2007
@@ -648,6 +702,8 @@ columns:
     role: case.indirect_immunofluorescence
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Prova biológica\" (case.indirect_immunofluorescence): fact about the health event or the person's health"
     name: Prova biológica
     years:
     - 2007
@@ -658,6 +714,8 @@ columns:
     role: case.lower_limb_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição em membros inferiores\" (case.lower_limb_exposure): fact about the health event or the person's health"
     name: Exposição em membros inferiores
     years:
     - 2007
@@ -668,6 +726,8 @@ columns:
     role: case.immunoglobulin_infiltrated_into_the_wound
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Infiltração do soro na lesão\" (case.immunoglobulin_infiltrated_into_the_wound): how care or investigation was carried out"
     name: Infiltração do soro na lesão
     years:
     - 2007
@@ -678,6 +738,8 @@ columns:
     role: case.lick
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição por lambedura\" (case.lick): fact about the health event or the person's health"
     name: Exposição por lambedura
     years:
     - 2007
@@ -688,6 +750,8 @@ columns:
     role: case.hand_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição nas mãos\" (case.hand_exposure): fact about the health event or the person's health"
     name: Exposição nas mãos
     years:
     - 2007
@@ -696,6 +760,8 @@ columns:
     role: notification.migrated
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Migrado do SINAN Windows\" (notification.migrated): record type, internal flag or system field"
     name: Migrado do SINAN Windows
     codelists:
     - MIGRADO
@@ -708,6 +774,8 @@ columns:
     role: case.bite
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição por mordedura\" (case.bite): fact about the health event or the person's health"
     name: Exposição por mordedura
     years:
     - 2007
@@ -718,6 +786,8 @@ columns:
     role: case.mucosal_involvement_flag
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mucosa\" (case.mucosal_involvement_flag): fact about the health event or the person's health"
     name: "Mucosa\n"
     codelists:
     - SIM_NAO
@@ -739,6 +809,8 @@ columns:
     role: notification.duplicate_flag
     kind: category
     model: excluded
+    fact_domain: administrative
+    fact_domain_evidence: "\"Não Listar/Não Contar (Duplicidade)\" (notification.duplicate_flag): duplicate-record flag: internal flag"
     name: Não Listar/Não Contar (Duplicidade)
     codelists:
     - NDUPLIC_N
@@ -778,6 +850,8 @@ columns:
     role: case.sign_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outro (Exames Realizados - Parasitológico Direto)\" (case.sign_other): fact about the health event or the person's health"
     name: Outro (Exames Realizados - Parasitológico Direto)
     years:
     - 2007
@@ -796,6 +870,8 @@ columns:
     role: case.paralysis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Paralisia\" (case.paralysis): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Paralisia
     years:
     - 2007
@@ -806,6 +882,8 @@ columns:
     role: case.paresthesia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Principais sinais/sintomas - Parestesia\" (case.paresthesia): fact about the health event or the person's health"
     name: Principais sinais/sintomas - Parestesia
     years:
     - 2007
@@ -816,6 +894,8 @@ columns:
     role: case.foot_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição nos pés\" (case.foot_exposure): fact about the health event or the person's health"
     name: Exposição nos pés
     years:
     - 2007
@@ -826,6 +906,8 @@ columns:
     role: case.deep_wound
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento profundo\" (case.deep_wound): fact about the health event or the person's health"
     name: Ferimento profundo
     years:
     - 2007
@@ -836,6 +918,8 @@ columns:
     role: case.biological_test_mouse_inoculation_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico laboratorial - Prova biológica\" (case.biological_test_mouse_inoculation_result): fact about the health event or the person's health"
     name: Diagnóstico laboratorial - Prova biológica
     years:
     - 2007
@@ -893,6 +977,8 @@ columns:
     role: case.superficial_wound
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ferimento superficial\" (case.superficial_wound): fact about the health event or the person's health"
     name: Ferimento superficial
     years:
     - 2007
@@ -903,6 +989,8 @@ columns:
     role: case.upper_limb_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição em membros superiores\" (case.upper_limb_exposure): fact about the health event or the person's health"
     name: Exposição em membros superiores
     years:
     - 2007
@@ -913,6 +1001,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -925,6 +1015,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -935,6 +1027,8 @@ columns:
     role: case.rabies_immunoglobulin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Soro antirrábico\" (case.rabies_immunoglobulin): how care or investigation was carried out"
     name: Soro antirrábico
     years:
     - 2007
@@ -945,6 +1039,8 @@ columns:
     role: case.trunk_exposure
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exposição no tronco\" (case.trunk_exposure): fact about the health event or the person's health"
     name: Exposição no tronco
     years:
     - 2007
@@ -955,6 +1051,8 @@ columns:
     role: case.hospital_state
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de hospitalização\" (case.hospital_state): how care or investigation was carried out"
     name: UF de hospitalização
     codelists:
     - UF_BR
@@ -968,6 +1066,8 @@ columns:
     role: case.animal_vaccinated
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Animal vacinado\" (case.animal_vaccinated): fact about the health event or the person's health"
     name: Animal vacinado
     years:
     - 2007
@@ -976,6 +1076,8 @@ columns:
     role: case.viral_variant_identified
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Variante\" (case.viral_variant_identified): fact about the health event or the person's health"
     name: Variante
     years:
     - 2007

@@ -7,6 +7,8 @@ columns:
     role: case.conduct_risk_removal
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – afastamento do agente do risco com mudança de função e/ou posto de trabalho\" (case.conduct_risk_removal): how care or investigation was carried out"
     name: Conduta geral – afastamento do agente do risco com mudança de função e/ou posto de trabalho
     years:
     - 2006
@@ -17,6 +19,8 @@ columns:
     role: case.conduct_workplace_removal
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – afastamento do local de trabalho\" (case.conduct_workplace_removal): how care or investigation was carried out"
     name: Conduta geral – afastamento do local de trabalho
     years:
     - 2006
@@ -36,6 +40,8 @@ columns:
     role: case.associated_rheumatoid_arthritis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais clínicos – Artrite\" (case.associated_rheumatoid_arthritis): fact about the health event or the person's health"
     name: Sinais clínicos – Artrite
     years:
     - 2006
@@ -46,6 +52,8 @@ columns:
     role: case.exposure_asbestos
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de Exposição - Asbesto\" (case.exposure_asbestos): fact about the health event or the person's health"
     name: Agentes de Exposição - Asbesto
     years:
     - 2006
@@ -56,6 +64,8 @@ columns:
     role: case.exposure_beryllium
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de Exposição — Berílio\" (case.exposure_beryllium): fact about the health event or the person's health"
     name: "Agentes de Exposição — Berílio\n"
     years:
     - 2006
@@ -66,6 +76,8 @@ columns:
     role: case.confirmation_lung_biopsy
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Confirmação diagnóstica - Biópsia pulmonar\" (case.confirmation_lung_biopsy): fact about the health event or the person's health"
     name: Confirmação diagnóstica - Biópsia pulmonar
     years:
     - 2006
@@ -76,6 +88,8 @@ columns:
     role: case.associated_cancer
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados - Câncer\" (case.associated_cancer): fact about the health event or the person's health"
     name: Agravos associados - Câncer
     years:
     - 2006
@@ -86,6 +100,8 @@ columns:
     role: case.exposure_coal_dust
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de exposição - Poeiras de carvão mineral\" (case.exposure_coal_dust): fact about the health event or the person's health"
     name: Agentes de exposição - Poeiras de carvão mineral
     years:
     - 2006
@@ -96,6 +112,8 @@ columns:
     role: case.cat_issued
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Comunicação de Acidente de Trabalho (CAT) Emitida?\" (case.cat_issued): record type, internal flag or system field"
     name: Comunicação de Acidente de Trabalho (CAT) Emitida?
     codelists:
     - SIM_NAOAP
@@ -120,6 +138,8 @@ columns:
     role: case.conduct_collective_protection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de proteção coletiva\" (case.conduct_collective_protection): how care or investigation was carried out"
     name: Conduta geral – adoção de proteção coletiva
     years:
     - 2006
@@ -130,6 +150,8 @@ columns:
     role: case.conduct_other
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – outros\" (case.conduct_other): how care or investigation was carried out"
     name: Conduta geral – outros
     years:
     - 2006
@@ -149,6 +171,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -163,6 +187,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -177,6 +203,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -191,6 +219,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -299,6 +329,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -316,6 +348,8 @@ columns:
     role: case.associated_airflow_limitation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados - Limitação crônica ao fluxo aéreo\" (case.associated_airflow_limitation): fact about the health event or the person's health"
     name: Agravos associados - Limitação crônica ao fluxo aéreo
     years:
     - 2006
@@ -326,6 +360,8 @@ columns:
     role: patient.smoking
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hábito de fumar\" (patient.smoking): fact about the health event or the person's health"
     name: Hábito de fumar
     years:
     - 2006
@@ -453,6 +489,8 @@ columns:
     role: case.conduct_individual_protection
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de proteção individual\" (case.conduct_individual_protection): how care or investigation was carried out"
     name: Conduta geral – adoção de proteção individual
     years:
     - 2006
@@ -463,6 +501,8 @@ columns:
     role: case.exposure_hard_metals
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de Exposição - Metais duros\" (case.exposure_hard_metals): fact about the health event or the person's health"
     name: Agentes de Exposição - Metais duros
     years:
     - 2006
@@ -473,6 +513,8 @@ columns:
     role: case.conduct_work_reorganisation
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – adoção de mudança na organização do trabalho\" (case.conduct_work_reorganisation): how care or investigation was carried out"
     name: Conduta geral – adoção de mudança na organização do trabalho
     years:
     - 2006
@@ -499,6 +541,8 @@ columns:
     role: case.conduct_none
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Conduta geral – nenhuma\" (case.conduct_none): how care or investigation was carried out"
     name: Conduta geral – nenhuma
     years:
     - 2006
@@ -571,6 +615,8 @@ columns:
     role: case.associated_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados - Outros\" (case.associated_other): fact about the health event or the person's health"
     name: Agravos associados - Outros
     years:
     - 2006
@@ -589,6 +635,8 @@ columns:
     role: case.confirmation_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Confirmação diagnóstica - Outro\" (case.confirmation_other): fact about the health event or the person's health"
     name: Confirmação diagnóstica - Outro
     years:
     - 2006
@@ -599,6 +647,8 @@ columns:
     role: case.dust_exposure_multiple_jobs
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa\" (case.dust_exposure_multiple_jobs): fact about the health event or the person's health"
     name: A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa
     years:
     - 2006
@@ -609,6 +659,8 @@ columns:
     role: case.exposure_abrasive_dust
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de exposição - Poeiras de abrasivos\" (case.exposure_abrasive_dust): fact about the health event or the person's health"
     name: Agentes de exposição - Poeiras de abrasivos
     years:
     - 2006
@@ -619,6 +671,8 @@ columns:
     role: case.exposure_mixed_dust
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de exposição - Poeira mista (silicato, talco)\" (case.exposure_mixed_dust): fact about the health event or the person's health"
     name: Agentes de exposição - Poeira mista (silicato, talco)
     years:
     - 2006
@@ -629,6 +683,8 @@ columns:
     role: case.exposure_organic_dust
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de exposição - Poeiras orgânicas\" (case.exposure_organic_dust): fact about the health event or the person's health"
     name: Agentes de exposição - Poeiras orgânicas
     years:
     - 2006
@@ -639,6 +695,8 @@ columns:
     role: case.confirmation_chest_xray
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Confirmação Diagnóstica - Radiografia de tórax\" (case.confirmation_chest_xray): fact about the health event or the person's health"
     name: Confirmação Diagnóstica - Radiografia de tórax
     years:
     - 2006
@@ -649,6 +707,8 @@ columns:
     role: treatment.setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Regime de Tratamento\" (treatment.setting): treatment given to the case"
     name: Regime de Tratamento
     years:
     - 2006
@@ -697,6 +757,8 @@ columns:
     role: case.exposure_silica
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agentes de Exposição — Sílica\" (case.exposure_silica): fact about the health event or the person's health"
     name: "Agentes de Exposição — Sílica\n"
     years:
     - 2006
@@ -711,6 +773,8 @@ columns:
     role: patient.labour_market_status
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Situação no Mercado de Trabalho\" (patient.labour_market_status): attribute of the person (work/occupation)"
     name: Situação no Mercado de Trabalho
     years:
     - 2006
@@ -721,6 +785,8 @@ columns:
     role: case.lung_function_test
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Avaliação funcional (prova de função pulmonar)\" (case.lung_function_test): how care or investigation was carried out"
     name: Avaliação funcional (prova de função pulmonar)
     years:
     - 2006
@@ -731,6 +797,8 @@ columns:
     role: case.lung_function_result
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da avaliação funcional\" (case.lung_function_result): fact about the health event or the person's health"
     name: Resultado da avaliação funcional
     years:
     - 2006
@@ -750,6 +818,8 @@ columns:
     role: patient.employer_subcontractor
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Empregador é Empresa Terceirizada?\" (patient.employer_subcontractor): attribute of the person (work/occupation)"
     name: Empregador é Empresa Terceirizada?
     years:
     - 2006
@@ -761,6 +831,8 @@ columns:
     role: case.associated_thyroiditis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados - Tireoidite\" (case.associated_thyroiditis): fact about the health event or the person's health"
     name: Agravos associados - Tireoidite
     years:
     - 2006
@@ -771,6 +843,8 @@ columns:
     role: case.confirmation_hrct
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Confirmação diagnóstica - Tomografia de tórax de alta resolução\" (case.confirmation_hrct): fact about the health event or the person's health"
     name: Confirmação diagnóstica - Tomografia de tórax de alta resolução
     years:
     - 2006
@@ -781,6 +855,8 @@ columns:
     role: patient.time_in_occupation_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade do Tempo de Trabalho na Ocupação\" (patient.time_in_occupation_unit): encoding unit of another field"
     name: Unidade do Tempo de Trabalho na Ocupação
     codelists:
     - TPTEMPOTRAB
@@ -793,6 +869,8 @@ columns:
     role: case.risk_exposure_time_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tempo de exposição ao agente de risco – unidade\" (case.risk_exposure_time_unit): record type, internal flag or system field"
     name: Tempo de exposição ao agente de risco – unidade
     codelists:
     - HORADIAMESANO
@@ -805,6 +883,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2006
@@ -815,6 +895,8 @@ columns:
     role: patient.smoking_duration_unit
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tempo de exposição ao tabaco – unidade\" (patient.smoking_duration_unit): encoding unit of another field"
     name: Tempo de exposição ao tabaco – unidade
     years:
     - 2006
@@ -825,6 +907,8 @@ columns:
     role: case.other_workers_same_disease
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Há ou houve outros trabalhadores com a mesma doença no local de trabalho\" (case.other_workers_same_disease): fact about the health event or the person's health"
     name: Há ou houve outros trabalhadores com a mesma doença no local de trabalho
     years:
     - 2006
@@ -835,6 +919,8 @@ columns:
     role: case.associated_tuberculosis
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravos associados – tuberculose\" (case.associated_tuberculosis): fact about the health event or the person's health"
     name: Agravos associados – tuberculose
     years:
     - 2006

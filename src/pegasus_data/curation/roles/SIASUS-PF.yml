@@ -23,6 +23,8 @@ columns:
     role: authorisation.management_arrangement
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column PAF_CONDIC, no label recorded (authorisation.management_arrangement): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -40,6 +42,8 @@ columns:
     role: authorisation.reference_compet_ncia
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column PAF_DATREF, no label recorded (authorisation.reference_compet_ncia): billing, financing, management or contractual attribute"
     years:
     - 2001
     - 2007
@@ -151,6 +155,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "column PAF_SEXOPC, no label recorded (patient.sex): attribute of the person (sex)"
     years:
     - 2001
     - 2007
@@ -165,6 +171,8 @@ columns:
     role: patient.birth_state
     kind: category
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "column PAF_UFNASC, no label recorded (patient.birth_state): attribute of the person (nationality/birthplace)"
     years:
     - 2001
     - 2007

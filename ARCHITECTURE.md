@@ -475,7 +475,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `semantics/defnames.py`, `semantics/pdf_harvest.py`: harvesting (§2.3).
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
-- `semantics/column_roles.py`: `curation/roles/<dataset>.yml`, a role for every column, validated against the linkage roles.
+- `semantics/column_roles.py`: `curation/roles/<dataset>.yml`, a role for every column, validated against the linkage roles; a categorical column also declares its `fact_domain` (person, clinical, process, administrative) with evidence, and `pg.roles` returns it, so a study groups by people, disease and care, never by billing fields (docs/evaluation/2026-10-11-column-domains.md).
 - `proximity.py`: proximity graphs as edge lists (`proximity.parquet`, `municipality_areas.parquet`, `regic_cities.parquet`, built from IBGE's 2022 mesh, Census tracts and REGIC 2018) and care flows counted from records; `care_flows` is the one flow mechanism (per year, `share`, municipality or CNES destination, every event accounted for, ADR-0144).
 - `careflow.py`: what a care-flow graph says about places, derived from the `care_flows` table and never stored: self-sufficiency and import share, nodal catchments, Leiden flow communities (`network` extra) and their comparison with the official health regions (`pegasus-data graph --derive`, ADR-0144).
 - `modelled.py`: the modelled tier (ADR-0139): products under lake/modelled/, typed, versioned, with uncertainty and validation evidence.

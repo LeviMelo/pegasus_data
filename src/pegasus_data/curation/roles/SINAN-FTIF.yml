@@ -7,6 +7,8 @@ columns:
     role: treatment.ampicillin
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antibióticos utilizados no tratamento - Ampicilina\" (treatment.ampicillin): treatment given to the case"
     name: Antibióticos utilizados no tratamento - Ampicilina
     years:
     - 2007
@@ -28,6 +30,8 @@ columns:
     role: case.antibiotic_before_sample
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Uso prévio de antibiótico\" (case.antibiotic_before_sample): how care or investigation was carried out"
     name: Uso prévio de antibiótico
     years:
     - 2007
@@ -38,6 +42,8 @@ columns:
     role: treatment.antibiotic_other
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antibióticos utilizados no tratamento - Outro\" (treatment.antibiotic_other): treatment given to the case"
     name: Antibióticos utilizados no tratamento - Outro
     years:
     - 2007
@@ -56,6 +62,8 @@ columns:
     role: case.asymptomatic
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Assintomático\" (case.asymptomatic): fact about the health event or the person's health"
     name: Sinais e sintomas - Assintomático
     years:
     - 2007
@@ -66,6 +74,8 @@ columns:
     role: case.sign_asthenia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Astenia\" (case.sign_asthenia): fact about the health event or the person's health"
     name: Astenia
     years:
     - 2007
@@ -76,6 +86,8 @@ columns:
     role: case.care_setting
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Local de atendimento\" (case.care_setting): how care or investigation was carried out"
     name: Local de atendimento
     years:
     - 2007
@@ -86,6 +98,8 @@ columns:
     role: case.sign_headache
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Cefaleia\" (case.sign_headache): fact about the health event or the person's health"
     name: Cefaleia
     codelists:
     - SIM_NAO
@@ -96,6 +110,8 @@ columns:
     role: case.classification
     kind: category
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação Final\" (case.classification): final classification of the case: clinical classification"
     name: Classificação Final
     codelists:
     - CLASINTO
@@ -113,6 +129,8 @@ columns:
     role: treatment.chloramphenicol
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antibióticos utilizados no tratamento - Cloranfenicol\" (treatment.chloramphenicol): treatment given to the case"
     name: Antibióticos utilizados no tratamento - Cloranfenicol
     years:
     - 2007
@@ -123,6 +141,8 @@ columns:
     role: case.complication_other
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outra complicação\" (case.complication_other): fact about the health event or the person's health"
     name: Outra complicação
     years:
     - 2007
@@ -157,6 +177,8 @@ columns:
     role: case.sign_constipation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Constipação\" (case.sign_constipation): fact about the health event or the person's health"
     name: Sinais e sintomas - Constipação
     years:
     - 2007
@@ -167,6 +189,8 @@ columns:
     role: case.contact_place
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Contato\" (case.contact_place): fact about the health event or the person's health"
     name: "Contato\n"
     years:
     - 2007
@@ -219,6 +243,8 @@ columns:
     role: case.stool_culture_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da primeira coprocultura\" (case.stool_culture_1): fact about the health event or the person's health"
     name: Resultado da primeira coprocultura
     years:
     - 2007
@@ -229,6 +255,8 @@ columns:
     role: case.stool_culture_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da segunda coprocultura\" (case.stool_culture_2): fact about the health event or the person's health"
     name: Resultado da segunda coprocultura
     years:
     - 2007
@@ -239,6 +267,8 @@ columns:
     role: case.stool_culture_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da terceira coprocultura\" (case.stool_culture_3): fact about the health event or the person's health"
     name: Resultado da terceira coprocultura
     years:
     - 2007
@@ -293,6 +323,8 @@ columns:
     role: case.confirmation_criterion
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Confirmação\" (case.confirmation_criterion): criterion by which the case was confirmed: clinical-laboratory"
     name: Critério de Confirmação
     codelists:
     - CONFDESC
@@ -311,6 +343,8 @@ columns:
     role: patient.education
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the person (schooling)"
     name: Escolaridade
     codelists:
     - ESCOLARNET
@@ -325,6 +359,8 @@ columns:
     role: patient.pregnancy_status
     kind: category
     model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
     name: Gestante
     codelists:
     - GESTANTE
@@ -339,6 +375,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     codelists:
     - RAÇA
@@ -353,6 +391,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     also:
     - case.sex
     name: Sexo
@@ -368,6 +408,8 @@ columns:
     role: case.sign_diarrhoea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diarreia\" (case.sign_diarrhoea): fact about the health event or the person's health"
     name: Diarreia
     years:
     - 2007
@@ -387,6 +429,8 @@ columns:
     role: case.work_related
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doença Relacionada ao Trabalho\" (case.work_related): work-relatedness of the disease: a fact about the event"
     name: Doença Relacionada ao Trabalho
     codelists:
     - SIM_NAO
@@ -399,6 +443,8 @@ columns:
     role: case.sign_abdominal_pain
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas – Dor\" (case.sign_abdominal_pain): fact about the health event or the person's health"
     name: Sinais e sintomas – Dor
     years:
     - 2007
@@ -659,6 +705,8 @@ columns:
     role: case.complication_enterorrhagia
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Enterorragia\" (case.complication_enterorrhagia): fact about the health event or the person's health"
     name: Enterorragia
     years:
     - 2007
@@ -669,6 +717,8 @@ columns:
     role: case.sign_splenomegaly
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Esplenomegalia\" (case.sign_splenomegaly): fact about the health event or the person's health"
     name: Sinais e sintomas - Esplenomegalia
     years:
     - 2007
@@ -679,6 +729,8 @@ columns:
     role: case.outcome
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do Caso\" (case.outcome): outcome of the case: outcome of the event"
     name: Evolução do Caso
     codelists:
     - ALTAOBIT
@@ -696,6 +748,8 @@ columns:
     role: case.sign_fever
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Febre\" (case.sign_fever): fact about the health event or the person's health"
     name: Febre
     codelists:
     - SIM_NAO
@@ -708,6 +762,8 @@ columns:
     role: case.sample_stool
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de fezes\" (case.sample_stool): how care or investigation was carried out"
     name: Coleta de fezes
     years:
     - 2007
@@ -742,6 +798,8 @@ columns:
     role: case.blood_culture_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da hemocultura\" (case.blood_culture_1): fact about the health event or the person's health"
     name: Resultado da hemocultura
     years:
     - 2007
@@ -752,6 +810,8 @@ columns:
     role: case.blood_culture_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hemocultura - Resultado da 2° coleta\" (case.blood_culture_2): fact about the health event or the person's health"
     name: Hemocultura - Resultado da 2° coleta
     years:
     - 2007
@@ -762,6 +822,8 @@ columns:
     role: case.blood_culture_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hemocultura - Resultado da 3° coleta\" (case.blood_culture_3): fact about the health event or the person's health"
     name: Hemocultura - Resultado da 3° coleta
     years:
     - 2007
@@ -930,6 +992,8 @@ columns:
     role: case.sign_nausea
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Náuseas\" (case.sign_nausea): fact about the health event or the person's health"
     name: Náuseas
     years:
     - 2007
@@ -1007,6 +1071,8 @@ columns:
     role: case.other_culture_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da primeira outra cultura\" (case.other_culture_1): fact about the health event or the person's health"
     name: Resultado da primeira outra cultura
     years:
     - 2007
@@ -1017,6 +1083,8 @@ columns:
     role: case.other_culture_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da segunda outra cultura\" (case.other_culture_2): fact about the health event or the person's health"
     name: Resultado da segunda outra cultura
     years:
     - 2007
@@ -1027,6 +1095,8 @@ columns:
     role: case.other_culture_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da terceira outra cultura\" (case.other_culture_3): fact about the health event or the person's health"
     name: Resultado da terceira outra cultura
     years:
     - 2007
@@ -1061,6 +1131,8 @@ columns:
     role: case.complication_perforation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Perfuração intestinal\" (case.complication_perforation): fact about the health event or the person's health"
     name: Perfuração intestinal
     years:
     - 2007
@@ -1071,6 +1143,8 @@ columns:
     role: case.sign_pulse_temperature_dissociation
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Dissociação pulso/temperatura\" (case.sign_pulse_temperature_dissociation): fact about the health event or the person's health"
     name: Sinais e sintomas - Dissociação pulso/temperatura
     years:
     - 2007
@@ -1081,6 +1155,8 @@ columns:
     role: treatment.quinolone
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antibióticos utilizados no tratamento - Quinolona\" (treatment.quinolone): treatment given to the case"
     name: Antibióticos utilizados no tratamento - Quinolona
     years:
     - 2007
@@ -1091,6 +1167,8 @@ columns:
     role: case.sample_blood
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coleta de sangue\" (case.sample_blood): how care or investigation was carried out"
     name: Coleta de sangue
     years:
     - 2007
@@ -1139,6 +1217,8 @@ columns:
     role: case.suggested_link
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sugestão de vínculo com\" (case.suggested_link): fact about the health event or the person's health"
     name: Sugestão de vínculo com
     years:
     - 2007
@@ -1149,6 +1229,8 @@ columns:
     role: treatment.sulfamethoxazole_trimethoprim
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Antibióticos utilizados no tratamento - Sulfametoxazol+Trimetoprima\" (treatment.sulfamethoxazole_trimethoprim): treatment given to the case"
     name: Antibióticos utilizados no tratamento - Sulfametoxazol+Trimetoprima
     years:
     - 2007
@@ -1159,6 +1241,8 @@ columns:
     role: case.sign_rose_spots
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Roséola tífica\" (case.sign_rose_spots): fact about the health event or the person's health"
     name: Sinais e sintomas - Roséola tífica
     years:
     - 2007
@@ -1169,6 +1253,8 @@ columns:
     role: case.sign_cough
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tosse\" (case.sign_cough): fact about the health event or the person's health"
     name: Tosse
     years:
     - 2007
@@ -1179,6 +1265,8 @@ columns:
     role: case.autochthonous
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso é Autóctone da Residência?\" (case.autochthonous): whether the case is autochthonous to the residence: epidemiological fact of the event"
     name: Caso é Autóctone da Residência?
     codelists:
     - AUTOCTONE
@@ -1192,6 +1280,8 @@ columns:
     role: notification.type
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Notificação\" (notification.type): notification type (individual, negative, ...): record type"
     name: Tipo de Notificação
     years:
     - 2007
@@ -1202,6 +1292,8 @@ columns:
     role: notification.state_uf_where_the_patient_was_hospitalized
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de hospitalização\" (notification.state_uf_where_the_patient_was_hospitalized): how care or investigation was carried out"
     name: UF de hospitalização
     years:
     - 2007
@@ -1215,6 +1307,8 @@ columns:
     role: case.sample_urine
     kind: category
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Material coletado - Urina\" (case.sample_urine): how care or investigation was carried out"
     name: Material coletado - Urina
     years:
     - 2007
@@ -1249,6 +1343,8 @@ columns:
     role: case.urine_culture_1
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da primeira urocultura\" (case.urine_culture_1): fact about the health event or the person's health"
     name: Resultado da primeira urocultura
     years:
     - 2007
@@ -1259,6 +1355,8 @@ columns:
     role: case.urine_culture_2
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da segunda urocultura\" (case.urine_culture_2): fact about the health event or the person's health"
     name: Resultado da segunda urocultura
     years:
     - 2007
@@ -1269,6 +1367,8 @@ columns:
     role: case.urine_culture_3
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da terceira urocultura\" (case.urine_culture_3): fact about the health event or the person's health"
     name: Resultado da terceira urocultura
     years:
     - 2007
@@ -1287,6 +1387,8 @@ columns:
     role: case.sign_vomiting
     kind: category
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Vômitos\" (case.sign_vomiting): fact about the health event or the person's health"
     name: Sinais e sintomas - Vômitos
     years:
     - 2007

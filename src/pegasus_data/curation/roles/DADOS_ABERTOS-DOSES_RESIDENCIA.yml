@@ -5,6 +5,8 @@ columns:
     role: vaccination.dose
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Código da dose\" (vaccination.dose): how care or investigation was carried out"
     name: Código da dose
     years:
     - 
@@ -14,6 +16,8 @@ columns:
     role: vaccination.strategy
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Código da estratégia de vacinação\" (vaccination.strategy): how care or investigation was carried out"
     name: Código da estratégia de vacinação
     years:
     - 
@@ -23,6 +27,8 @@ columns:
     role: vaccination.vaccine
     kind: category
     model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Código do imunobiológico\" (vaccination.vaccine): how care or investigation was carried out"
     name: Código do imunobiológico
     years:
     - 
@@ -43,6 +49,8 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor
     years:
     - 
@@ -52,6 +60,8 @@ columns:
     role: patient.sex
     kind: category
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the person (sex)"
     name: Sexo
     years:
     - 
@@ -61,6 +71,8 @@ columns:
     role: vaccination.transcribed
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "column CO_TRANSCRICAO, no label recorded (vaccination.transcribed): record type, internal flag or system field"
     years:
     - 
     - 
@@ -102,6 +114,8 @@ columns:
     role: patient.age_published
     kind: category
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_published): attribute of the person (age)"
     name: Idade
     years:
     - 
@@ -136,6 +150,8 @@ columns:
     role: vaccination.source_system
     kind: category
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Sigla do sistema de origem\" (vaccination.source_system): record type, internal flag or system field"
     name: Sigla do sistema de origem
     years:
     - 
