@@ -117,14 +117,24 @@ class Exploration:
         return head + notes + "\n" + "\n".join(lines)
 
 
-def _from_catalog(settings: Settings) -> tuple[list[dict[str, Any]], str | None] | None:
-    """The map: the catalog, which a fresh install seeds from the package (ADR-0067)."""
+def _from_catalog(settings: Settings, system: str | None = None,
+                  role: str | None = None) -> tuple[list[dict[str, Any]], str | None] | None:
+    """The map: the catalog, which a fresh install seeds from the package (ADR-0067), narrowed in SQL to ``system``
+    and ``role`` when given: every call read all 207,000 files into Python and filtered there (half of an `explore`,
+    1.9 s a call, 2026-10-11)."""
     from .catalog.store import CatalogStore
 
     store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         if not store.has_rows("files", "gone_at IS NULL"):
             return None
+        where, params = "", []
+        if system:
+            where += " AND upper(fa.system) = ?"
+            params.append(system.upper())
+        if role:
+            where += " AND fa.role = ?"
+            params.append(role)
         rows = [
             {
                 "path": r["path"], "system": r["system"], "series": r["series_prefix"],
@@ -138,14 +148,26 @@ def _from_catalog(settings: Settings) -> tuple[list[dict[str, Any]], str | None]
                        fa.normalized_date, f.size, fa.role, fa.container_format,
                        fa.logical_id
                   FROM files f LEFT JOIN file_facts fa ON fa.path = f.path
-                 WHERE f.gone_at IS NULL
-                """
+                 WHERE f.gone_at IS NULL""" + where,
+                params,
             )
         ]
         as_of = store.scalar(
             "SELECT MAX(finished_at) FROM crawl_runs WHERE finished_at IS NOT NULL"
         )
         return rows, as_of
+    finally:
+        store.close()
+
+
+def _known_systems(settings: Settings, role: str | None) -> list[str]:
+    """The systems the catalog lists (for a system it does not know: the nearest are suggested)."""
+    from .catalog.store import CatalogStore
+
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        sql = "SELECT DISTINCT system FROM file_facts WHERE system IS NOT NULL" + (" AND role = ?" if role else "")
+        return sorted(str(r[0]) for r in store.query(sql, [role] if role else []))
     finally:
         store.close()
 
@@ -253,27 +275,22 @@ def explore(
     resolved = settings or load_settings(root=Path(root) if root else None)
     rows: list[dict[str, Any]] = []
     as_of: str | None = None
-    local = _from_catalog(resolved)
+    system, parsed_series = _resolve(target)
+    want_series = (series or parsed_series or "").upper() or None
+    local = _from_catalog(resolved, system=system, role=role)
     if local is None:
         raise FileNotFoundError(
             "the catalog lists no files: run `pegasus-data crawl` (half a minute for the whole tree)"
         )
     rows, as_of = local
     origin = "catalog"
-
-    system, parsed_series = _resolve(target)
-    want_series = (series or parsed_series or "").upper() or None
-    if role:
-        rows = [r for r in rows if (r.get("role") or "") == role]
-    known_systems = sorted({str(r["system"]) for r in rows if r.get("system")})
-    if system:
-        rows = [r for r in rows if (r.get("system") or "").upper() == system]
-        if not rows:
-            near = [s for s in known_systems if system[:3] in s or s[:3] in system]
-            return Exploration(
-                level="systems", rows=[], source=origin, as_of=as_of, target=target,
-                unknown=near or known_systems,
-            )
+    if system and not rows:
+        known_systems = _known_systems(resolved, role)
+        near = [s for s in known_systems if system[:3] in s or s[:3] in system]
+        return Exploration(
+            level="systems", rows=[], source=origin, as_of=as_of, target=target,
+            unknown=near or known_systems,
+        )
     if want_series:
         rows = _of_dataset(rows, system, want_series)
 
