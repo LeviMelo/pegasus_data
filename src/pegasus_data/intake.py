@@ -317,7 +317,7 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     con = duckdb.connect(":memory:")
     work = Path(settings.work_dir) / "duckdb"
     work.mkdir(parents=True, exist_ok=True)
-    con.execute("SET memory_limit='3GB'")
+    con.execute("SET memory_limit='2GB'")
     con.execute("SET threads=4")
     con.execute("SET preserve_insertion_order=false")
     con.execute(f"SET temp_directory='{work.as_posix()}'")
@@ -383,7 +383,7 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
         date = _typed(raw[column], declared[column])
         year, month = f"year({date})", f"month({date})"
     elif kind == "parts":
-        y = raw[period["year"].upper()]
+        y = f"regexp_replace({raw[period['year'].upper()]}, '\\.0+$', '')"
         year = f"CASE WHEN regexp_matches({y}, '^[0-9]{{4}}$') THEN CAST({y} AS INTEGER) END"
         m = f"regexp_replace({raw[period['month'].upper()]}, '\\.0+$', '')" if period.get("month") else "NULL"
         month = f"CASE WHEN regexp_matches({m}, '^(1[0-2]|[1-9])$') THEN CAST({m} AS INTEGER) END"
@@ -392,7 +392,7 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
         year = f"CASE WHEN regexp_matches({ym}, '^[0-9]{{6}}$') THEN CAST(substr({ym}, 1, 4) AS INTEGER) END"
         month = f"CASE WHEN regexp_matches({ym}, '^[0-9]{{6}}$') THEN CAST(substr({ym}, 5, 2) AS INTEGER) END"
     elif kind == "year":
-        y = raw[period["column"].upper()]
+        y = f"regexp_replace({raw[period['column'].upper()]}, '\\.0+$', '')"
         year, month = f"CASE WHEN regexp_matches({y}, '^[0-9]{{4}}$') THEN CAST({y} AS INTEGER) END", "NULL"
     else:                                            # the file's own year
         year, month = (str(int(unit["year"])) if unit.get("year") else "NULL"), "NULL"

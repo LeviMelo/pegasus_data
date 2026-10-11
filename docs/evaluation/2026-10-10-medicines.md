@@ -33,8 +33,9 @@ from BNAFAR's rows (SP+RS 2025-06, 3,107 rows: U0042 on 106 products, U0041 on 1
 | folinato de cálcio (1930) | 268292 | BR0268292U0042, 15 mg comprimido |
 
 (ácido folínico, PDM 2585, has no comprimido in BNAFAR; topical silver sulfadiazine is a different item and not read.) Corroboration
-from outside the search: `sigla_programa_saude=TOXO` ("TOXOPLASMOSE") holds 3,862 rows, of which 3,851 are exactly these four codes
-and 11 a Toxoplasma IgG reagent.
+from outside the search: `sigla_programa_saude=TOXO` ("TOXOPLASMOSE") holds 3,862 rows, of which 3,854 are exactly these four codes
+and 8 others (7 of a Toxoplasma IgG reagent; corrected 2026-10-10: the first read paged by offset and held only 2,572 distinct rows, see
+`2026-10-10-intake.md`; read by state the figures are these, and the dates below hold).
 
 Stock by state and month (rows, establishments, month-end quantity in tablets; `monthly`, a lot's last position of the month):
 - **2025**: few and scattered, none in Jan-Feb or Oct-Nov: pirimetamina 56 rows in 39 establishments in GO, MG,
@@ -42,8 +43,8 @@ Stock by state and month (rows, establishments, month-end quantity in tablets; `
   MG MS PR RJ RS; folinato 25 rows, 19, GO MG MS RJ. Peak July, MG: pirimetamina 6,544 tablets in 21 establishments.
   Earlier months (2023-12, 2024-06, 2024-12, 2025-01, 2025-02) hold none of the four, while the table has rows for each of those months.
 - **2026-01 to 09**: 38 state-months, up to 7 states a month (ES, MS, PR, RJ, RS, SC, SP).
-- **2026-10 (to the 9th)**: 2,079 / 2,065 / 1,306 / 1,672 rows (pirimetamina / sulfadiazina / espiramicina / folinato), 1,228 / 1,134
-  / 746 / 974 establishments, all 27 states, month-end quantities 993,189 / 2,040,401 / 1,081,806 / 685,840 tablets; 1,218 of the
+- **2026-10 (to the 9th)**: 2,079 / 2,065 / 1,306 / 1,672 rows (pirimetamina / sulfadiazina / espiramicina / folinato), 1,228 / 1,135
+  / 746 / 974 establishments (sulfadiazina 1,134 in the first read; re-read by state 2026-10-10), all 27 states, month-end quantities 993,189 / 2,040,401 / 1,081,806 / 685,840 tablets; 1,218 of the
   2,079 pirimetamina rows are tagged TOXO. The programme's first appearance (6 rows 2026-01-21) is followed by a single-day load on 2026-10-09
   (3,849 of 3,862 rows): the series is a snapshot of the programme's start, not a month of stock movements.
 

@@ -646,7 +646,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   fever) page stably. **Yellow-fever monitoring** (Portal `Febre Amarela/fa_casoshumanos_1994-2026.csv`, `fa_epizpnh_1994-2026.csv`,
   semicolon, Latin-1, ends with an empty row; dictionary `Dicionario de variaveis.pdf`): 2,911 human cases (1994-2026; ID 1-2911) and
   2,637 epizootics (2000-2026), placed at the probable place of infection and of occurrence, dated by year and month columns; DEMAS
-  holds one copy more of the first case and lacks the month of 13 epizootics, so the Portal is the source.
+  holds one copy more of the first case and lacks the month of 13 epizootics, so the Portal is the source. **SIES** (`vacinacao/sistema-de-informacao-de-insumos-estrategicos`,
+  Portal `SIES/csv/sies_csv.zip`, dictionary `dicionario-de-dados-do-sies-ok.pdf`): 137,914 rows, secretariat x supply x month x
+  kind (`ORIGEM` Solicitado / Distribuido), 2018-2026; the `IBGE` column holds the secretariat's seat (27 codes), so the unit is the
+  state secretariat. DEMAS equals the file row for row (read as the declared origin).
 
 ## 6. IBGE
 

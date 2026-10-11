@@ -182,3 +182,57 @@ sources:
         measure: count
         unit: epizootics
         what: Epizootics in non-human primates by municipality of occurrence and month.
+
+  sies:
+    system: SIES
+    series: DIST
+    system_name:
+      official_name: Sistema de Informação de Insumos Estratégicos
+      translated_name: Strategic Supplies Information System
+      authority: Ministério da Saúde / SVSA / PNI
+      what_it_is: Requests and distributions of immunobiologicals and supplies from the national programme to the state health secretariats.
+    official_name: Solicitações e distribuições de imunobiológicos e insumos
+    translated_name: Immunobiological requests and distributions
+    what: >
+      Immunobiologicals and supplies requested by and distributed to each state health secretariat (SES) by month, 2018-2026:
+      doses, by supply.
+    one_row: one supply requested or distributed to one secretariat in one month (an aggregate)
+    unit_of_analysis: secretariat x supply x month x kind
+    gotchas:
+      - The IBGE column holds one code per secretariat (27 distinct values for 27 secretariats), the secretariat's seat; the unit is the state secretariat, not the municipality, so the key here is the secretariat (TX_SIGLA).
+      - ORIGEM says whether the quantity was requested (Solicitado) or distributed (Distribuido).
+    citation: DEMAS /vacinacao/sistema-de-informacao-de-insumos-estrategicos (SIES, SVSA/PNI); equal to the Portal's sies_csv.zip
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/dicionario-de-dados-do-sies-ok.pdf
+    origin:
+      kind: api
+      endpoint: /vacinacao/sistema-de-informacao-de-insumos-estrategicos
+      paging: {rows: sies}
+    compare:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/csv/sies_csv.zip"}]
+    columns:
+      TX_SIGLA: {role: state health secretariat (SES) and state that requested or received the supplies, type: code}
+      IBGE: {role: IBGE code of the municipality of the secretariat, type: code}
+      TX_INSUMO: {role: type of immunobiological or supply, type: label}
+      ANO: {role: year requested and distributed, type: year}
+      MES: {role: month requested and distributed, type: integer}
+      QTDE: {role: quantity requested and distributed, type: number}
+      ORIGEM: {role: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
+      TX_AREA: {role: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
+    place: {column: TX_SIGLA, type: code, as: ses}
+    period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
+    fields:
+      sies_distributed:
+        measure: {sum: QTDE}
+        where: {ORIGEM: [Distribuido]}
+        by: [TX_INSUMO]
+        unit: doses and units
+        what: Quantity of each supply distributed to the state secretariat, by month.
+      sies_requested:
+        measure: {sum: QTDE}
+        where: {ORIGEM: [Solicitado]}
+        by: [TX_INSUMO]
+        unit: doses and units
+        what: Quantity of each supply requested by the state secretariat, by month.
