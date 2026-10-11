@@ -628,6 +628,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   is wrong; it equals SIES and one SISAGUA slice. The origin of the non-FTP datasets is the Portal de Dados Abertos do SUS
   (`dadosabertos.saude.gov.br`; the old `opendatasus.saude.gov.br` redirects): yearly or monthly CSV/parquet files under
   `s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/` (SISAGUA 2014-2026, PNI monthly 2020-2026, SRAG parquet, SISVAN, SG).
+
+- **BNAFAR stock, read by filter (2026-10-10, `sources/bnafar.py`, `docs/evaluation/2026-10-10-medicines.md`).** A row is an
+  establishment x CATMAT product x lot x day of stock position (from 2023-12 at least; `anomes_posicao_estoque` 201901 is empty).
+  `codigo_catmat` matches whole and exactly: the product is `BR` + the 7-digit CATMAT item + a national supply-unit suffix
+  (`U0042` comprimido, `U0041` cápsula, `U0062` a 100 mL bottle...), not the PDM's own unit number. The open catalogue
+  (`dadosabertos.compras.gov.br/modulo-material`: PDMs `3_consultarPdmMaterial`, items `4_consultarItemMaterial`, 1,901 PDMs in
+  class 6505; no key, 500 per page) lists items and no unit codes. The medicines' CATMAT items: pirimetamina PDM 10768 (25 mg =
+  item 268158), sulfadiazina 12314 (500 mg = 267765), espiramicina 7021 (1.5 MUI = 343494), folinato de cálcio 1930 (15 mg = 268292).
+  The BPS endpoint (`economia-da-saude/bps`) filters by item number without the unit.
   Verdicts: 35 use DEMAS (ESAVI, mpox, yellow fever, SIES, BNAFAR, COVID occupancy, SIASI/SESAI, SISAB, SIAPS, health-region
   mapping, BPS), 49 original with DEMAS as fallback, 29 not relevant.
 
