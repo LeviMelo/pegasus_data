@@ -397,12 +397,19 @@ def _render_multi_valued(
     once and the rows take theirs: a pass per row over a year of births' anomaly
     lists (583,191 cells, 1,658 distinct) was most of a labelled query (2026-10-11).
     """
-    encoded = pc.dictionary_encode(column.combine_chunks() if isinstance(column, pa.ChunkedArray) else column)
+    # a null cell is an entry of its own (no label, no codes, no miss), so every row has an index to take
+    encoded = pc.dictionary_encode(column.combine_chunks() if isinstance(column, pa.ChunkedArray) else column,
+                                   null_encoding="encode")
     distinct = encoded.dictionary.to_pylist()
     rendered: list[str | None] = []
     code_lists: list[list[str]] = []
     unmatched: list[int] = []
     for value in distinct:
+        if value is None:
+            rendered.append(None)
+            code_lists.append([])
+            unmatched.append(0)
+            continue
         tokens = _tokenize(str(value), rule)
         misses = 0
         pieces: list[str] = []
@@ -417,11 +424,9 @@ def _render_multi_valued(
         rendered.append(TOKEN_JOIN.join(pieces) if pieces else None)
         code_lists.append(tokens)
         unmatched.append(misses)
-    idx = encoded.indices                       # null where the cell is null: no label, no codes, no miss
-    labels = pa.array(rendered, type=pa.string()).take(idx)
-    codes = pc.fill_null(pa.array(code_lists, type=pa.list_(pa.string())).take(idx), pa.scalar([], pa.list_(pa.string())))
-    misses_ = pc.fill_null(pa.array(unmatched, type=pa.int32()).take(idx), 0)
-    return labels, codes, misses_
+    idx = encoded.indices
+    return (pa.array(rendered, type=pa.string()).take(idx), pa.array(code_lists, type=pa.list_(pa.string())).take(idx),
+            pa.array(unmatched, type=pa.int32()).take(idx))
 
 
 def resolve_profile(
