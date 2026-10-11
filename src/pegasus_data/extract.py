@@ -3,7 +3,7 @@
 Some datasets are larger than the lake can hold (SIA-PA 2010-2025 is about 190 GB of DBC files, SIA-BI 156 GB; the disk
 has under 180 GB free), while a study needs a few procedures of them (toxoplasma serology). An extract streams the
 dataset's published files one at a time: fetch, decode, keep the records any of whose ``filters`` (column -> code
-prefixes) matches, whole, write them, and release the file's blob unless a lake partition or a snapshot holds it. Several
+prefixes) matches, whole, write them, and release the file's blob unless a snapshot keeps it. Several
 filters are one pass (SIA-PA's serology procedures and its records coded B58 on PA_CIDPRI). Peak disk is one file; the
 extract is each filter's complete records, never a sample.
 
@@ -65,28 +65,16 @@ def _files(settings: Any, dataset: str, years: Sequence[int], ufs: Sequence[str]
 
 
 def _release(settings: Any, paths: Sequence[str]) -> int:
-    """Delete the blobs fetched for ``paths`` that no lake partition and no snapshot holds; returns the bytes freed."""
+    """Delete the blobs fetched for ``paths``, files this extract has read and kept the matching records of, unless a
+    snapshot keeps them or they were also fetched for another path nothing holds (`BlobStore.prune_verified`, the
+    rule a lake build's release follows too); returns the bytes freed."""
     from .acquire.cache import BlobStore
     from .catalog.store import CatalogStore
 
     store = CatalogStore(settings.catalog_path)
     try:
-        held = set()
-        for row in store.query("SELECT source_paths FROM lake_partitions"):
-            held.update(json.loads(row["source_paths"] or "[]"))
-        kept = {str(r["sha256"]) for r in store.query("SELECT DISTINCT sha256 FROM snapshot_versions")}
-        blobs = BlobStore(settings.blobs_dir, store)
-        freed = 0
-        marks = ",".join("?" for _ in paths)
-        for row in store.query(f"SELECT DISTINCT sha256, source_path FROM fetches WHERE source_path IN ({marks})", list(paths)):
-            digest = str(row["sha256"])
-            if digest in kept or any(str(row["source_path"]) in h for h in held):
-                continue
-            path = blobs.path_for(digest)
-            if path.is_file():
-                freed += path.stat().st_size
-                path.unlink()
-        return freed
+        return BlobStore(settings.blobs_dir, store).prune_verified(Path(settings.lake_dir), paths=paths,
+                                                                   held=paths)["bytes"]
     finally:
         store.close()
 

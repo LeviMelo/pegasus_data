@@ -53,7 +53,7 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
 ```
 
 - **Encoding.** Set `PYTHONUTF8=1`: labels are Portuguese.
-- **Data homes.** The repo's own `pegasus_data_home/` (3.5 GB, gitignored) is
+- **Data homes.** The repo's own `pegasus_data_home/` (55 GB on 2026-10-11, 35 of it downloads; once "3.5 GB"; gitignored) is
   adopted automatically by any command run inside the repo. Live checks run
   against a **fresh** home instead (`scripts/live.py` does this), because the
   local one hides every fresh-install defect.

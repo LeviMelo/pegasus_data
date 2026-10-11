@@ -21,7 +21,7 @@ import shutil
 import tempfile
 import time
 import uuid
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from ..catalog.store import CatalogStore
@@ -275,8 +275,12 @@ class BlobStore:
                 total += p.stat().st_size
         return total
 
-    def prune_verified(self, lake_dir: Path, *, dry_run: bool = False) -> dict[str, int]:
-        """Delete the blobs whose every fetched path is held by a verified lake partition.
+    def prune_verified(self, lake_dir: Path, *, paths: Iterable[str] | None = None, held: Iterable[str] = (),
+                       dry_run: bool = False) -> dict[str, int]:
+        """Delete the blobs whose every fetched path is held by a verified lake partition, or by the caller (``held``:
+        an extract that kept a file's matching records). ``paths`` limits it to the blobs fetched for those source
+        paths, verifying only the partitions built from them: a lake build or an extract releasing its own files
+        (one rule for both; the extract had its own, which did not verify the partitions it trusted).
 
         A partition is verified when its Parquet file exists and holds the row
         count the catalog recorded when it was written. The catalog keeps the
@@ -293,10 +297,13 @@ class BlobStore:
 
         if self.catalog is None:
             raise RuntimeError("pruning needs the catalog that records what the lake was built from")
-        covered: set[str] = set()
+        want = None if paths is None else {str(p) for p in paths}
+        covered: set[str] = {str(p) for p in held}
         uncovered: set[str] = set()
         for row in self.catalog.query("SELECT relative_path, source_paths, row_count FROM lake_partitions"):
             sources = set(json.loads(row["source_paths"] or "[]"))
+            if want is not None and not sources & want:
+                continue
             path = Path(lake_dir) / str(row["relative_path"])
             try:
                 verified = path.is_file() and pq.ParquetFile(path).metadata.num_rows == int(row["row_count"] or -1)
@@ -308,7 +315,16 @@ class BlobStore:
         # A snapshot version is the only copy of a state DATASUS has since
         # overwritten (ADR-0141): it is never pruned, whatever the lake holds.
         kept_versions = {str(r["sha256"]) for r in self.catalog.query("SELECT DISTINCT sha256 FROM snapshot_versions")}
-        for row in self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches"):
+        if want is None:
+            fetched = self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches")
+        else:
+            # every path each wanted blob was fetched for: a blob also fetched for a path outside ``paths`` stays
+            # unless that path is covered too
+            marks = ",".join("?" for _ in want) or "NULL"
+            fetched = self.catalog.query(
+                f"""SELECT DISTINCT sha256, source_path FROM fetches WHERE sha256 IN
+                    (SELECT sha256 FROM fetches WHERE source_path IN ({marks}))""", sorted(want))
+        for row in fetched:
             if str(row["sha256"]) in kept_versions:
                 continue
             by_blob.setdefault(str(row["sha256"]), set()).add(str(row["source_path"]))

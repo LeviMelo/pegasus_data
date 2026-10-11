@@ -860,13 +860,18 @@ def _slug(path: str) -> str:
     return path.strip("/").replace("/", "__").replace("-", "_")
 
 
-def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, labels: bool = False) -> dict[str, Any]:
+def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, labels: bool = False,
+               release: bool = False) -> dict[str, Any]:
     """The lake for one dataset's years (``pegasus-data build`` for a caller that is not the command line).
 
     A partition whose sources and normalisation plan are unchanged and whose Parquet is on disk is kept, so a second
     call over the same years writes nothing. Without labels by default: a reader of codes needs none, and they double
     the footprint. Measured on 2026-10-09 in PegaSUS's data root: a national CIHA year decodes in 30-60 min from its
-    324 DBC files and reads in 12 s from the lake (18.9 M records)."""
+    324 DBC files and reads in 12 s from the lake (18.9 M records).
+
+    ``release`` then deletes the downloaded files of these years that verified partitions hold (`prune` for this
+    build alone; ``released`` in the counts): a build otherwise keeps every file beside its Parquet, so each
+    downloaded gigabyte cost disk twice, and a rebuild fetches them again."""
     from pathlib import Path
 
     from ._request import parse_dataset
@@ -877,6 +882,12 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
     try:
         result = Builder(pipeline).build(systems=[system], series=[series] if series else None, years=list(years),
                                          emit_labels=labels)
-        return dict(result.counts)
+        counts = dict(result.counts)
+        if release:
+            from .extract import _files
+
+            paths = [f["path"] for f in _files(pipeline.settings, dataset, years)]
+            counts["released"] = pipeline.blobs.prune_verified(Path(pipeline.settings.lake_dir), paths=paths)
+        return counts
     finally:
         pipeline.close()
