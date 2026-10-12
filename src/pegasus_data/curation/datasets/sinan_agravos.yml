@@ -631,6 +631,22 @@ datasets:
           form: >-
             Ficha de Notificação/Conclusão (portalsinan.saude.gov.br/notificacoes), which has no fields for the
             disease's own characteristics.
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1"]
+          evidence: >-
+            CLASSI_FIN 1 Confirmado, 2 Descartado (Protocolo de notificação e investigação, 2018, p. 23, Figura 1), 8
+            Inconclusivo (DATASUS's CLASSIFI table); a notification is not a case: of 2019's 2,858 congenital
+            notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake, 2026-10-12)
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: "live births, as the notification's (above)"
     system: SINAN
     series: TOXC
     official_name: Toxoplasmose congênita
@@ -671,6 +687,22 @@ datasets:
           form: >-
             Ficha de Notificação/Conclusão (portalsinan.saude.gov.br/notificacoes), which has no fields for the
             disease's own characteristics.
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1"]
+          evidence: >-
+            CLASSI_FIN 1 Confirmado, 2 Descartado (Protocolo de notificação e investigação, 2018, p. 23, Figura 1), 8
+            Inconclusivo (DATASUS's CLASSIFI table); a notification is not a case: of 2019's 2,858 congenital
+            notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake, 2026-10-12)
+        exposure:
+          events: ["SINASC-DN:birth"]
+          per: 1000
+          evidence: "live births, as the notification's (above)"
     system: SINAN
     series: TOXG
     official_name: Toxoplasmose gestacional
