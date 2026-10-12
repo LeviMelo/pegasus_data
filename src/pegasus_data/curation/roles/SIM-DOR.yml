@@ -92,6 +92,8 @@ columns:
     role: death.cause
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa básica do óbito\" (death.cause): cause of death, certificate lines, date and time of death: the health event"
     codelists:
     - CID9WHO
     name: Causa básica do óbito
@@ -168,6 +170,8 @@ columns:
     role: deceased.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (deceased.birth_date): attribute of the person"
     name: Data de nascimento
     years:
     - 1979
@@ -177,6 +181,8 @@ columns:
     role: death.date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do óbito\" (death.date): cause of death, certificate lines, date and time of death: the health event"
     name: Data do óbito
     years:
     - 1979
@@ -185,6 +191,8 @@ columns:
     role: death.receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de registro\" (death.receipt_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data de registro
     years:
     - 1979
@@ -274,6 +282,8 @@ columns:
     role: deceased.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (deceased.age_coded): attribute of the person"
     name: Idade
     codelists:
     - IDADE
@@ -289,6 +299,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     also:
     - death.maternal_age
     name: Idade da mãe
@@ -370,6 +382,8 @@ columns:
     role: death.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de ocorrência\" (death.municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     codelists:
     - BR_MUNICIPALFA
     name: Município de ocorrência
@@ -381,6 +395,8 @@ columns:
     role: deceased.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (deceased.residence): attribute of the person"
     codelists:
     - BR_MUNICIPALFA
     name: Município de residência
@@ -392,6 +408,8 @@ columns:
     role: deceased.birth_place
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Naturalidade\" (deceased.birth_place): attribute of the person"
     name: Naturalidade
     codelists:
     - NATURALIDADE
@@ -455,6 +473,8 @@ columns:
     role: deceased.occupation_legacy
     kind: code_tree
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (deceased.occupation_legacy): attribute of the person"
     codelists:
     - GRUPOCUP
     - SGRPOCUP
@@ -467,6 +487,8 @@ columns:
     role: mother.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação habitual da mãe\" (mother.occupation): attribute of the mother (age, birth, residence, occupation)"
     name: Ocupação habitual da mãe
     codelists:
     - CBO2002
@@ -479,6 +501,8 @@ columns:
     role: father.occupation_legacy
     kind: code_tree
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação do pai\" (father.occupation_legacy): attribute of the person"
     codelists:
     - GRUPOCUP
     - SGRPOCUP
@@ -490,6 +514,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer
     years:
     - 1979
@@ -615,6 +641,8 @@ columns:
     role: deceased.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos (derivada de IDADE)\" (deceased.age_years): attribute of the person"
     derived: true
     name: Idade em anos (derivada de IDADE)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.

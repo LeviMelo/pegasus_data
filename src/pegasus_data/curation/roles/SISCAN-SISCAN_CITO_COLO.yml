@@ -65,6 +65,8 @@ columns:
     role: exam.year_of_report_release
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de liberação (inferido)\" (exam.year_of_report_release): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de liberação (inferido)
     years:
     - 2013
@@ -73,6 +75,8 @@ columns:
     role: exam.year_month_of_report_release
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano de liberação (inferido)\" (exam.year_month_of_report_release): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano de liberação (inferido)
     years:
     - 2013
@@ -81,6 +85,8 @@ columns:
     role: exam.year_month_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano Resultado
     years:
     - 2013
@@ -89,6 +95,8 @@ columns:
     role: exam.year_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de resultado\" (exam.year_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de resultado
     years:
     - 2013
@@ -149,6 +157,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2013
@@ -357,6 +367,8 @@ columns:
     role: exam.providers_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do prestador de serviço\" (exam.providers_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município do prestador de serviço
@@ -367,6 +379,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Munic. de residência
@@ -377,6 +391,8 @@ columns:
     role: exam.requesting_units_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município da unidade de saúde\" (exam.requesting_units_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município da unidade de saúde
@@ -397,6 +413,8 @@ columns:
     role: exam.service_provider
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Prestador do serviço\" (exam.service_provider): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Prestador do serviço
@@ -474,6 +492,8 @@ columns:
     role: exam.providers_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF do prest.serviço\" (exam.providers_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF do prest.serviço
@@ -484,6 +504,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -494,6 +516,8 @@ columns:
     role: exam.collecting_units_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF da un.saúde\" (exam.collecting_units_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF da un.saúde
@@ -504,6 +528,8 @@ columns:
     role: exam.collecting_health_unit
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de saúde\" (exam.collecting_health_unit): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Unidade de saúde
@@ -514,6 +540,8 @@ columns:
     role: exam.adenocarcinoma_in_situ_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarc in situ\" (exam.adenocarcinoma_in_situ_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Adenocarc in situ
     years:
     - 2013
@@ -523,6 +551,8 @@ columns:
     role: exam.invasive_adenocarcinoma_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Adenocarc invasor\" (exam.invasive_adenocarcinoma_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Adenocarc invasor
     years:
     - 2013
@@ -532,6 +562,8 @@ columns:
     role: exam.sample_rejected_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade - Rejeitada\" (exam.sample_rejected_count): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Adequabilidade - Rejeitada
     years:
     - 2013
@@ -541,6 +573,8 @@ columns:
     role: exam.sample_satisfactory_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Adequabilidade - Satisfatória\" (exam.sample_satisfactory_count): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Adequabilidade - Satisfatória
     years:
     - 2013
@@ -550,6 +584,8 @@ columns:
     role: exam.invasive_squamous_carcinoma_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Carc. Epiderm. Inv\" (exam.invasive_squamous_carcinoma_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Carc. Epiderm. Inv
     years:
     - 2013
@@ -559,6 +595,8 @@ columns:
     role: exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"ASC-H\" (exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion): count of a result or finding of the screening exam, or its size: the health event"
     name: ASC-H
     years:
     - 2013
@@ -568,6 +606,8 @@ columns:
     role: exam.atypical_squamous_cells_probably_non_neoplastic
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"ASC-US\" (exam.atypical_squamous_cells_probably_non_neoplastic): count of a result or finding of the screening exam, or its size: the health event"
     name: ASC-US
     years:
     - 2013
@@ -577,6 +617,8 @@ columns:
     role: exam.atypical_glandular_cells_probably_non_neoplastic
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"At. Glan.Ind.Não Neo\" (exam.atypical_glandular_cells_probably_non_neoplastic): count of a result or finding of the screening exam, or its size: the health event"
     name: At. Glan.Ind.Não Neo
     years:
     - 2013
@@ -586,6 +628,8 @@ columns:
     role: exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"At.Glan.Ind. Alto Grau\" (exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion): count of a result or finding of the screening exam, or its size: the health event"
     name: At.Glan.Ind. Alto Grau
     years:
     - 2013
@@ -595,6 +639,8 @@ columns:
     role: exam.atypical_cells_of_indefinite_origin_cannot_exclude_high_grad
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ori. Indef. Alto Grau\" (exam.atypical_cells_of_indefinite_origin_cannot_exclude_high_grad): count of a result or finding of the screening exam, or its size: the health event"
     name: Ori. Indef. Alto Grau
     years:
     - 2013
@@ -604,6 +650,8 @@ columns:
     role: exam.atypical_cells_of_indefinite_origin_probably_non_neoplastic
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ori. Indef. Não Neo\" (exam.atypical_cells_of_indefinite_origin_probably_non_neoplastic): count of a result or finding of the screening exam, or its size: the health event"
     name: Ori. Indef. Não Neo
     years:
     - 2013
@@ -613,6 +661,8 @@ columns:
     role: exam.count_of_altered_abnormal_exam_results
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_EXAME_ALTERADO\" (exam.count_of_altered_abnormal_exam_results): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -621,6 +671,8 @@ columns:
     role: exam.high_grade_squamous_intraepithelial_lesion_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les IEp Alto Grau\" (exam.high_grade_squamous_intraepithelial_lesion_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Les IEp Alto Grau
     years:
     - 2013
@@ -630,6 +682,8 @@ columns:
     role: exam.low_grade_squamous_intraepithelial_lesion_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les IE Baixo Grau\" (exam.low_grade_squamous_intraepithelial_lesion_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Les IE Baixo Grau
     years:
     - 2013
@@ -639,6 +693,8 @@ columns:
     role: exam.high_grade_lesion_cannot_exclude_microinvasion
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Les IE AG Mic. Inv\" (exam.high_grade_lesion_cannot_exclude_microinvasion): count of a result or finding of the screening exam, or its size: the health event"
     name: Les IE AG Mic. Inv
     years:
     - 2013
@@ -648,6 +704,8 @@ columns:
     role: exam.within_normal_limits_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dentro da Normalidade\" (exam.within_normal_limits_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Dentro da Normalidade
     years:
     - 2013
@@ -657,6 +715,8 @@ columns:
     role: exam.other_malignant_neoplasms_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Outras Neoplasias\" (exam.other_malignant_neoplasms_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Outras Neoplasias
     years:
     - 2013

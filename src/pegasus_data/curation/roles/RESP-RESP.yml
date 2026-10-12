@@ -5,6 +5,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de nascimento da crianca, recem-nascido ou do feto\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ano de nascimento da crianca, recem-nascido ou do feto
     years:
     - 2015
@@ -15,6 +17,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificacao\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificacao
     years:
     - 2015
@@ -67,6 +71,8 @@ columns:
     role: notification.notifying_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Municipio do local de notificacao\" (notification.notifying_municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - MUNICBR
     name: Municipio do local de notificacao
@@ -77,6 +83,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Municipio de residencia da gestante/mae\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -90,6 +98,8 @@ columns:
     role: notification.birth_length
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Comprimento ao nascer (ou do natimorto)\" (notification.birth_length): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     name: Comprimento ao nascer (ou do natimorto)
     years:
     - 2015
@@ -176,6 +186,8 @@ columns:
     role: patient.intrauterine_head_diameter
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Medida da circunferencia craniana (deteccao intrauterina)\" (patient.intrauterine_head_diameter): newborn measurement, habit or vaccination history of the patient: clinical"
     name: Medida da circunferencia craniana (deteccao intrauterina)
     years:
     - 2015
@@ -212,6 +224,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento da crianca, recem-nascido ou do feto\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento da crianca, recem-nascido ou do feto
     years:
     - 2015
@@ -220,6 +234,8 @@ columns:
     role: mother.birth_date
     kind: date
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento da gestante/mae\" (mother.birth_date): attribute of the mother (age, birth, residence, occupation)"
     name: Data de nascimento da gestante/mae
     years:
     - 2015
@@ -228,6 +244,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da notificacao\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da notificacao
     years:
     - 2015
@@ -236,6 +254,8 @@ columns:
     role: notification.date_of_death
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do obito\" (notification.date_of_death): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     name: Data do obito
     years:
     - 2015
@@ -244,6 +264,8 @@ columns:
     role: notification.mri_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da ressonancia magnetica\" (notification.mri_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da ressonancia magnetica
     years:
     - 2015
@@ -252,6 +274,8 @@ columns:
     role: notification.probable_symptom_onset_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data provavel de inicio de sintomas\" (notification.probable_symptom_onset_date): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     name: Data provavel de inicio de sintomas
     years:
     - 2015
@@ -260,6 +284,8 @@ columns:
     role: notification.ct_scan_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da tomografia computadorizada\" (notification.ct_scan_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da tomografia computadorizada
     years:
     - 2015
@@ -268,6 +294,8 @@ columns:
     role: notification.transfontanellar_ultrasound_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da ultrassonografia transfontanela\" (notification.transfontanellar_ultrasound_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da ultrassonografia transfontanela
     years:
     - 2015
@@ -276,6 +304,8 @@ columns:
     role: notification.last_update_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da ultima atualizacao do registro\" (notification.last_update_date): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Data da ultima atualizacao do registro
     years:
     - 2015
@@ -284,6 +314,8 @@ columns:
     role: notification.prenatal_ultrasound_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da ultrassonografia realizada durante a gestacao\" (notification.prenatal_ultrasound_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da ultrassonografia realizada durante a gestacao
     years:
     - 2015
@@ -417,6 +449,8 @@ columns:
     role: notification.frequency
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"(not in the RESP-Microcefalia dictionary)\" (notification.frequency): treatment prescribed: care delivered"
     name: (not in the RESP-Microcefalia dictionary)
     years:
     - 2015
@@ -429,6 +463,8 @@ columns:
     role: pregnancy.weeks_at_detection
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Idade gestacional na deteccao da alteracao congenita\" (pregnancy.weeks_at_detection): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Idade gestacional na deteccao da alteracao congenita
     years:
     - 2015
@@ -496,6 +532,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: The child's age at notification, derived from DT_NASC and DT_NOTIFIC (encoding dates); none for a stillbirth or abortion.
   IDADEGES:
@@ -505,6 +543,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da gestante/mae\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da gestante/mae
     years:
     - 2015
@@ -513,6 +553,8 @@ columns:
     role: patient.residence_alias
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"(not in the RESP-Microcefalia dictionary)\" (patient.residence_alias): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -565,6 +607,8 @@ columns:
     role: notification.head_circumference_at_birth
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Perimetro cefalico ao nascer\" (notification.head_circumference_at_birth): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     name: Perimetro cefalico ao nascer
     years:
     - 2015
@@ -576,6 +620,8 @@ columns:
     role: patient.birth_weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso ao nascer (ou do natimorto)\" (patient.birth_weight): newborn measurement, habit or vaccination history of the patient: clinical"
     name: Peso ao nascer (ou do natimorto)
     years:
     - 2015
@@ -612,6 +658,8 @@ columns:
     role: notification.notifying_region
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Macrorregiao do local de notificacao\" (notification.notifying_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - REGIAO
     name: Macrorregiao do local de notificacao
@@ -622,6 +670,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Macrorregiao de residencia da gestante/mae\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - REGIAO
     name: Macrorregiao de residencia da gestante/mae
@@ -940,6 +990,8 @@ columns:
     role: notification.notifying_state_uf
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Unidade da Federacao do local de notificacao\" (notification.notifying_state_uf): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - UF_BR
     name: Unidade da Federacao do local de notificacao
@@ -950,6 +1002,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Unidade da federacao de residencia da gestante/mae\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: Unidade da federacao de residencia da gestante/mae

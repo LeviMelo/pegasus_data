@@ -677,6 +677,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -687,6 +689,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -792,6 +796,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -815,6 +821,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2005
@@ -884,6 +892,8 @@ columns:
     role: establishment.radiotherapy_high_dose_rate_brachytherapy_units
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Braquiterapia Alta\" (establishment.radiotherapy_high_dose_rate_brachytherapy_units): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de Equipamentos de Braquiterapia Alta
     years:
     - 2005
@@ -892,6 +902,8 @@ columns:
     role: establishment.radiotherapy_low_dose_rate_brachytherapy_units
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Braquiterapia Baixa\" (establishment.radiotherapy_low_dose_rate_brachytherapy_units): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de Equipamentos de Braquiterapia Baixa
     years:
     - 2005
@@ -900,6 +912,8 @@ columns:
     role: establishment.radiotherapy_medium_dose_rate_brachytherapy_units
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de Equipamentos de Braquiterapia Media\" (establishment.radiotherapy_medium_dose_rate_brachytherapy_units): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de Equipamentos de Braquiterapia Media
     years:
     - 2005
@@ -1251,6 +1265,8 @@ columns:
     role: establishment.hemotherapy_platelet_agitators
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de agitadores de plaquetas\" (establishment.hemotherapy_platelet_agitators): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de agitadores de plaquetas
     years:
     - 2005
@@ -1259,6 +1275,8 @@ columns:
     role: establishment.hemotherapy_agglutinoscopes
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de aglutinoscopio\" (establishment.hemotherapy_agglutinoscopes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de aglutinoscopio
     years:
     - 2005
@@ -1267,6 +1285,8 @@ columns:
     role: establishment.hemotherapy_reclining_donor_chairs
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de cadeiras reclinaveis\" (establishment.hemotherapy_reclining_donor_chairs): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de cadeiras reclinaveis
     years:
     - 2005
@@ -1275,6 +1295,8 @@ columns:
     role: establishment.hemotherapy_laminar_flow_cabinets
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de capelas fluxo laminar\" (establishment.hemotherapy_laminar_flow_cabinets): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de capelas fluxo laminar
     years:
     - 2005
@@ -1283,6 +1305,8 @@ columns:
     role: establishment.hemotherapy_refrigerated_centrifuges
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de centrifugas refrigeradas\" (establishment.hemotherapy_refrigerated_centrifuges): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de centrifugas refrigeradas
     years:
     - 2005
@@ -1291,6 +1315,8 @@ columns:
     role: establishment.hemotherapy_rapid_blast_freezers
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de congeladores rapidos\" (establishment.hemotherapy_rapid_blast_freezers): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de congeladores rapidos
     years:
     - 2005
@@ -1299,6 +1325,8 @@ columns:
     role: establishment.hemotherapy_automatic_plasma_extractors
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de extratores automaticos de plasma\" (establishment.hemotherapy_automatic_plasma_extractors): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de extratores automaticos de plasma
     years:
     - 2005
@@ -1307,6 +1335,8 @@ columns:
     role: establishment.hemotherapy_18c_freezers
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de freezers -18C\" (establishment.hemotherapy_18c_freezers): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de freezers -18C
     years:
     - 2005
@@ -1315,6 +1345,8 @@ columns:
     role: establishment.hemotherapy_30c_freezers
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de freezers -30C\" (establishment.hemotherapy_30c_freezers): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de freezers -30C
     years:
     - 2005
@@ -1323,6 +1355,8 @@ columns:
     role: establishment.hemotherapy_blood_component_irradiators
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de irradiadores de hemocomponentes\" (establishment.hemotherapy_blood_component_irradiators): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de irradiadores de hemocomponentes
     years:
     - 2005
@@ -1331,6 +1365,8 @@ columns:
     role: establishment.hemotherapy_apheresis_machines
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de maquinas de aferese\" (establishment.hemotherapy_apheresis_machines): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de maquinas de aferese
     years:
     - 2005
@@ -1339,6 +1375,8 @@ columns:
     role: establishment.hemotherapy_blood_sample_storage_refrigerators
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de refrigeradores para guarda de amostras de sangue\" (establishment.hemotherapy_blood_sample_storage_refrigerators): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de refrigeradores para guarda de amostras de sangue
     years:
     - 2005
@@ -1347,6 +1385,8 @@ columns:
     role: establishment.hemotherapy_reagent_storage_refrigerators
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de refrigeradores para guarda de reagentes\" (establishment.hemotherapy_reagent_storage_refrigerators): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de refrigeradores para guarda de reagentes
     years:
     - 2005
@@ -1355,6 +1395,8 @@ columns:
     role: establishment.hemotherapy_blood_storage_refrigerators
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de refrigeradores para guarda de sangue\" (establishment.hemotherapy_blood_storage_refrigerators): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de refrigeradores para guarda de sangue
     years:
     - 2005
@@ -1363,6 +1405,8 @@ columns:
     role: establishment.hemotherapy_tube_bag_sealers
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de seladoras\" (establishment.hemotherapy_tube_bag_sealers): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de seladoras
     years:
     - 2005

@@ -5,6 +5,8 @@ columns:
     role: act.processing_competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Processing year-month (professional-acts file)\" (act.processing_competence): payment points, value or processing competence of the professional act: billing"
     name: Processing year-month (professional-acts file)
     years:
     - 1995
@@ -14,6 +16,8 @@ columns:
     role: act.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Professional-act (procedure) code\" (act.procedure): procedure or quantity of acts performed: care delivered"
     codelists:
     - TPROC
     name: Professional-act (procedure) code
@@ -35,6 +39,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento
     codelists:
     - CNPJ_BR
@@ -86,6 +92,8 @@ columns:
     role: act.quantity
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantity of the act\" (act.quantity): procedure or quantity of acts performed: care delivered"
     name: Quantity of the act
     years:
     - 1995
@@ -104,6 +112,8 @@ columns:
     role: act.points
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Professional-service points\" (act.points): payment points, value or processing competence of the professional act: billing"
     name: Professional-service points
     years:
     - 1995
@@ -132,6 +142,8 @@ columns:
     role: professional.domicile_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"State of the professional's domicile\" (professional.domicile_state): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - UF_BR
     name: State of the professional's domicile
@@ -142,6 +154,8 @@ columns:
     role: professional.link_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"State of the professional's institutional link\" (professional.link_state): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - UF_BR
     name: State of the professional's institutional link
@@ -152,6 +166,8 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município Gestor\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     name: Município Gestor
     codelists:
     - BR_MUNICGESTOR
@@ -163,6 +179,8 @@ columns:
     role: act.value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Value of the act\" (act.value): payment points, value or processing competence of the professional act: billing"
     name: Value of the act
     years:
     - 1995

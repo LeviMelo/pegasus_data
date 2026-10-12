@@ -6,6 +6,8 @@ columns:
     role: procedure.procedures_maximum_eligible_age
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Idade maxima do paciente para o procedimento\" (procedure.procedures_maximum_eligible_age): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Idade maxima do paciente para o procedimento
     years:
     - 2008
@@ -15,6 +17,8 @@ columns:
     role: procedure.procedures_minimum_eligible_age
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Idade minima do paciente para o procedimento\" (procedure.procedures_minimum_eligible_age): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Idade minima do paciente para o procedimento
     years:
     - 2008
@@ -24,6 +28,8 @@ columns:
     role: procedure.sigtap_unit_price
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Unitario do Procedimento da Tabela SIGTAP\" (procedure.sigtap_unit_price): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Unitario do Procedimento da Tabela SIGTAP
     years:
     - 2008
@@ -33,6 +39,8 @@ columns:
     role: procedure.vpa_unit_price
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Unitario do Procedimento da Tabela VPA\" (procedure.vpa_unit_price): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Unitario do Procedimento da Tabela VPA
     years:
     - 2008
@@ -79,6 +87,8 @@ columns:
     role: professional.occupation
     kind: code_tree
     model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da Ocupacao (CBO)\" (professional.occupation): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CBO2002
     name: Codigo da Ocupacao (CBO)
@@ -89,6 +99,8 @@ columns:
     role: procedure.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Causas Associadas (APAC)\" (procedure.associated_cause): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -100,6 +112,8 @@ columns:
     role: procedure.diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal (APAC ou BPA-I)\" (procedure.diagnosis): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -111,6 +125,8 @@ columns:
     role: procedure.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Secundario (APAC)\" (procedure.secondary_diagnosis): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -122,6 +138,8 @@ columns:
     role: procedure.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da Realizacao do Procedimento / Competencia\" (procedure.competence): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Data da Realizacao do Procedimento / Competencia
     years:
     - 2008
@@ -130,6 +148,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento executante\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ do Estabelecimento executante
@@ -142,6 +162,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da Mantenedora
@@ -152,6 +174,8 @@ columns:
     role: procedure.credit_assignment_recipients_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Orgao que recebeu por cessao de credito\" (procedure.credit_assignment_recipients_cnpj): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - S_FORNEC
     - CNPJ_BR
@@ -198,6 +222,8 @@ columns:
     role: procedure.procedure_legacy
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Código do Procedimento (inferido)\" (procedure.procedure_legacy): procedure, attendance, dates or counts of care delivered"
     codelists:
     - PROC1199
     - PROCSIA
@@ -211,6 +237,8 @@ columns:
     role: procedure.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Estabelecimento no CNES\" (procedure.facility): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CADGERBR
     name: Codigo do Estabelecimento no CNES
@@ -238,6 +266,8 @@ columns:
     role: procedure.competence_legacy
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data do Procedimento / Competência (inferido)\" (procedure.competence_legacy): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Data do Procedimento / Competência (inferido)
     years:
     - 1994
@@ -247,6 +277,8 @@ columns:
     role: procedure.reference_month_legacy
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Referência (inferido)\" (procedure.reference_month_legacy): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Data de Referência (inferido)
     years:
     - 1994
@@ -257,6 +289,8 @@ columns:
     role: procedure.unit_price_gap_x_approved_quantity_brl
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Diferenca do Valor Unitario\" (procedure.unit_price_gap_x_approved_quantity_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Diferenca do Valor Unitario
     years:
     - 2008
@@ -370,6 +404,8 @@ columns:
     role: procedure.management_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (procedure.management_municipality): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - BR_MUNICGESTOR
     - MUNICBR
@@ -381,6 +417,8 @@ columns:
     role: patient.age
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do paciente em anos\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     missing:
     - '998'
     - '999'
@@ -481,6 +519,8 @@ columns:
     role: procedure.tumour_morphology
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Morfologia do tumor\" (procedure.tumour_morphology): diagnosis or tumour code: the health event"
     name: Morfologia do tumor
     years:
     - 1999
@@ -505,6 +545,8 @@ columns:
     role: procedure.attendance_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Atendimento (inferido)\" (procedure.attendance_municipality): procedure, attendance, dates or counts of care delivered"
     codelists:
     - BR_MUNICIPALFA
     name: Município de Atendimento (inferido)
@@ -515,6 +557,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -526,6 +570,8 @@ columns:
     role: procedure.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Processamento / Movimento\" (procedure.processing_month): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Data de Processamento / Movimento
     years:
     - 2008
@@ -619,6 +665,8 @@ columns:
     role: procedure.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Codigo do Procedimento Ambulatorial\" (procedure.procedure): procedure, attendance, dates or counts of care delivered"
     codelists:
     - SIGTAP
     name: Codigo do Procedimento Ambulatorial
@@ -630,6 +678,8 @@ columns:
     role: procedure.approved_quantity
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Aprovada\" (procedure.approved_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Aprovada
     years:
     - 1994
@@ -639,6 +689,8 @@ columns:
     role: procedure.submitted_presented_quantity
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Produzida (APRESENTADA)\" (procedure.submitted_presented_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Produzida (APRESENTADA)
     years:
     - 1994
@@ -833,6 +885,8 @@ columns:
     role: procedure.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do estabelecimento\" (procedure.facility_municipality): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -845,6 +899,8 @@ columns:
     role: procedure.approved_value_brl
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Aprovado do procedimento\" (procedure.approved_value_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Aprovado do procedimento
     years:
     - 1994
@@ -854,6 +910,8 @@ columns:
     role: procedure.submitted_value_brl
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Produzido (APRESENTADO)\" (procedure.submitted_value_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Produzido (APRESENTADO)
     years:
     - 1994
@@ -863,6 +921,8 @@ columns:
     role: procedure.federal_supplement_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do Complemento Federal\" (procedure.federal_supplement_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Complemento Federal
     years:
     - 2011
@@ -872,6 +932,8 @@ columns:
     role: procedure.local_supplement_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do Complemento Local\" (procedure.local_supplement_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Complemento Local
     years:
     - 2011
@@ -880,6 +942,8 @@ columns:
     role: procedure.value_credit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"PA_VL_CRD\" (procedure.value_credit): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     years:
     - 2025
     - 2026
@@ -889,6 +953,8 @@ columns:
     role: procedure.increment_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do Incremento\" (procedure.increment_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Incremento
     years:
     - 2011

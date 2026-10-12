@@ -33,6 +33,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -43,6 +45,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -63,6 +67,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -74,6 +80,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2005
@@ -200,6 +208,8 @@ columns:
     role: bed.contracted
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos contratados\" (bed.contracted): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos contratados
     years:
     - 2005
@@ -208,6 +218,8 @@ columns:
     role: bed.existing
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade existente\" (bed.existing): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade existente
     years:
     - 2005
@@ -216,6 +228,8 @@ columns:
     role: bed.not_sus
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos não SUS\" (bed.not_sus): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos não SUS
     years:
     - 2005
@@ -224,6 +238,8 @@ columns:
     role: bed.sus
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos SUS\" (bed.sus): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos SUS
     years:
     - 2005

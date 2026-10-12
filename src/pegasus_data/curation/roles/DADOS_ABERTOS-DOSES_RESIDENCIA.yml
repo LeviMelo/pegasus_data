@@ -38,6 +38,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Código do município\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Código do município
@@ -97,6 +99,8 @@ columns:
     role: vaccination.load_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de carga\" (vaccination.load_date): reference period or load date of the published aggregate"
     name: Data de carga
     years:
     - 
@@ -106,6 +110,8 @@ columns:
     role: vaccination.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (vaccination.year): reference period or load date of the published aggregate"
     name: Ano
     years:
     - 
@@ -126,6 +132,8 @@ columns:
     role: vaccination.month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês\" (vaccination.month): reference period or load date of the published aggregate"
     name: Mês
     years:
     - 
@@ -134,6 +142,8 @@ columns:
     role: vaccination.doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de doses\" (vaccination.doses): doses applied and coverage: care delivered"
     name: Quantidade de doses
     years:
     - 

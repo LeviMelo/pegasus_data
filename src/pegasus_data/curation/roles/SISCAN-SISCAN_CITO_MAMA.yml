@@ -5,6 +5,8 @@ columns:
     role: exam.year_month_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano Resultado
     years:
     - 2013
@@ -13,6 +15,8 @@ columns:
     role: exam.year_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de resultado\" (exam.year_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de resultado
     years:
     - 2013
@@ -61,6 +65,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Munic. de residência
@@ -118,6 +124,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -128,6 +136,8 @@ columns:
     role: exam.year_of_compet_ncia_billing_period
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de competência\" (exam.year_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Ano de competência
     years:
     - 2013
@@ -136,6 +146,8 @@ columns:
     role: exam.year_month_of_compet_ncia_billing_period
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano competência\" (exam.year_month_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Mês/Ano competência
     years:
     - 2013
@@ -144,6 +156,8 @@ columns:
     role: exam.count_of_benign_fna_results_subareolar_abscess
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_ABC_SUBARE\" (exam.count_of_benign_fna_results_subareolar_abscess): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -152,6 +166,8 @@ columns:
     role: exam.count_of_benign_fna_results_fibrocystic_breast_condition
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_COM_FIB_MAM\" (exam.count_of_benign_fna_results_fibrocystic_breast_condition): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -160,6 +176,8 @@ columns:
     role: exam.count_of_benign_fna_results_fibroadenoma
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_FIBROAD\" (exam.count_of_benign_fna_results_fibroadenoma): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -168,6 +186,8 @@ columns:
     role: exam.count_of_benign_fna_results_proliferative_epithelial_lesion_
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_L_E_P\" (exam.count_of_benign_fna_results_proliferative_epithelial_lesion_): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -176,6 +196,8 @@ columns:
     role: exam.count_of_benign_fna_results_mastitis
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_MASTITE\" (exam.count_of_benign_fna_results_mastitis): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -184,6 +206,8 @@ columns:
     role: exam.count_of_benign_fna_results_fat_necrosis
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_NECR_GORDUR\" (exam.count_of_benign_fna_results_fat_necrosis): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -192,6 +216,8 @@ columns:
     role: exam.count_of_other_benign_fna_results
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_B_OUTRAS\" (exam.count_of_other_benign_fna_results): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -200,6 +226,8 @@ columns:
     role: exam.count_of_fna_results_of_indeterminate_malignancy_other
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_M_IND_OUTROS\" (exam.count_of_fna_results_of_indeterminate_malignancy_other): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -208,6 +236,8 @@ columns:
     role: exam.count_of_fna_results_of_indeterminate_malignancy_phyllodes_t
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_M_IND_TUMF\" (exam.count_of_fna_results_of_indeterminate_malignancy_phyllodes_t): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -216,6 +246,8 @@ columns:
     role: exam.count_of_fna_results_of_indeterminate_malignancy_papillary_t
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_M_IND_TUMPA\" (exam.count_of_fna_results_of_indeterminate_malignancy_papillary_t): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -224,6 +256,8 @@ columns:
     role: exam.count_of_malignant_fna_results_ductal_carcinoma
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_P_M_CARC_DUC\" (exam.count_of_malignant_fna_results_ductal_carcinoma): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -232,6 +266,8 @@ columns:
     role: exam.count_of_malignant_fna_results_lobular_carcinoma
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_P_M_CARC_LOB\" (exam.count_of_malignant_fna_results_lobular_carcinoma): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -240,6 +276,8 @@ columns:
     role: exam.count_of_malignant_fna_results_other_type
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_P_M_OUTROS\" (exam.count_of_malignant_fna_results_other_type): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -248,6 +286,8 @@ columns:
     role: exam.count_of_suspicious_fna_results_other
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_SUSM_OUTROS\" (exam.count_of_suspicious_fna_results_other): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -256,6 +296,8 @@ columns:
     role: exam.count_of_suspicious_fna_results_proliferative_epithelial_les
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAAF_SUS_L_E_P\" (exam.count_of_suspicious_fna_results_proliferative_epithelial_les): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -264,6 +306,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_papillary_lesion
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_LES_PAPIL\" (exam.count_of_nipple_discharge_cytology_results_papillary_lesion): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -272,6 +316,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_indeterminate_mal
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_MALIG_INDT\" (exam.count_of_nipple_discharge_cytology_results_indeterminate_mal): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -280,6 +326,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_acellular_materia
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_MAT_ACELULAR\" (exam.count_of_nipple_discharge_cytology_results_acellular_materia): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -288,6 +336,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_negative_for_mali
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_NEG_MALIG\" (exam.count_of_nipple_discharge_cytology_results_negative_for_mali): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -296,6 +346,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_positive_for_mali
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_POS_MALIG\" (exam.count_of_nipple_discharge_cytology_results_positive_for_mali): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -304,6 +356,8 @@ columns:
     role: exam.count_of_nipple_discharge_cytology_results_inflammatory_proc
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_QDESC_PROC_INFL\" (exam.count_of_nipple_discharge_cytology_results_inflammatory_proc): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -312,6 +366,8 @@ columns:
     role: exam.total_exam_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"QT_EXAME\" (exam.total_exam_count): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -329,6 +385,8 @@ columns:
     role: exam.state_of_residence_abbreviation
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência (sigla)\" (exam.state_of_residence_abbreviation): residence or birth date of the person"
     codelists:
     - UF_BR
     name: UF de residência (sigla)

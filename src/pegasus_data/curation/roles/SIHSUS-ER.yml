@@ -13,6 +13,8 @@ columns:
     role: admission.processing_year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano processamento\" (admission.processing_year): processing competence or manager authorisation of the AIH: billing and management"
     name: Ano processamento
     years:
     - 2011
@@ -25,6 +27,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     name: Código CNES do estabelecimento
     codelists:
     - CADGERBR
@@ -48,6 +52,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de internação\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de internação
     years:
     - 2011
@@ -57,6 +63,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 2011
@@ -66,6 +74,8 @@ columns:
     role: admission.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês processamento\" (admission.processing_month): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
     - MESES
     name: Mês processamento
@@ -76,6 +86,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Municipality of the establishment (error file)\" (admission.facility_municipality): facility or its location: the facility register"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -87,6 +99,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Municipality of the patient's residence (error file)\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -116,6 +130,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"State of residence (error file)\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: State of residence (error file)
@@ -126,6 +142,8 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município Gestor\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     name: Município Gestor
     codelists:
     - BR_MUNICGESTOR

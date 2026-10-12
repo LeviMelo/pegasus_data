@@ -5,6 +5,8 @@ columns:
     role: exam.year_month_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano Resultado
     years:
     - 2013
@@ -13,6 +15,8 @@ columns:
     role: exam.year_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de resultado\" (exam.year_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de resultado
     years:
     - 2013
@@ -31,6 +35,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2013
@@ -59,6 +65,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Munic. de residência
@@ -96,6 +104,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -106,6 +116,8 @@ columns:
     role: exam.count_of_adenosis_diagnoses_not_otherwise_specified
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ADENOSE_SOE\" (exam.count_of_adenosis_diagnoses_not_otherwise_specified): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -114,6 +126,8 @@ columns:
     role: exam.year_of_compet_ncia_billing_period
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de competência\" (exam.year_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Ano de competência
     years:
     - 2013
@@ -122,6 +136,8 @@ columns:
     role: exam.year_month_of_compet_ncia_billing_period
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano competência\" (exam.year_month_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Mês/Ano competência
     years:
     - 2013
@@ -130,6 +146,8 @@ columns:
     role: exam.count_of_fibrocystic_change_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CONDICAO_FIBROCISTICA\" (exam.count_of_fibrocystic_change_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -138,6 +156,8 @@ columns:
     role: exam.count_of_fibroadenoma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_FIBROADENOMA\" (exam.count_of_fibroadenoma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -146,6 +166,8 @@ columns:
     role: exam.count_of_atypical_ductal_hyperplasia_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_HIPERPLAS_DUCTAL_COM_ATIP\" (exam.count_of_atypical_ductal_hyperplasia_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -154,6 +176,8 @@ columns:
     role: exam.count_of_usual_ductal_hyperplasia_diagnoses_without_atypia
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_HIPERPLAS_DUCTAL_SEM_ATIP\" (exam.count_of_usual_ductal_hyperplasia_diagnoses_without_atypia): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -162,6 +186,8 @@ columns:
     role: exam.count_of_atypical_lobular_hyperplasia_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_HIPERPLAS_LOBULAR_COM_ATIP\" (exam.count_of_atypical_lobular_hyperplasia_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -170,6 +196,8 @@ columns:
     role: exam.count_of_radial_scar_complex_sclerosing_lesion_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LESAO_ESCLEROSANTE_RADIAL\" (exam.count_of_radial_scar_complex_sclerosing_lesion_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -178,6 +206,8 @@ columns:
     role: exam.count_of_mastitis_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_MASTITE\" (exam.count_of_mastitis_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -186,6 +216,8 @@ columns:
     role: exam.count_of_other_benign_lesions
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_OUTROS\" (exam.count_of_other_benign_lesions): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -194,6 +226,8 @@ columns:
     role: exam.count_of_florid_papillomatosis_of_the_nipple_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAPILOMATOSE_FLORIDA_DO_MAM\" (exam.count_of_florid_papillomatosis_of_the_nipple_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -202,6 +236,8 @@ columns:
     role: exam.count_of_multiple_intraductal_papilloma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAPILOMA_MULTIPLO\" (exam.count_of_multiple_intraductal_papilloma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -210,6 +246,8 @@ columns:
     role: exam.count_of_solitary_intraductal_papilloma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_PAPILOMA_SOLITARIO\" (exam.count_of_solitary_intraductal_papilloma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -228,6 +266,8 @@ columns:
     role: exam.state_of_residence_abbreviation
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência (sigla)\" (exam.state_of_residence_abbreviation): residence or birth date of the person"
     codelists:
     - UF_BR
     name: UF de residência (sigla)

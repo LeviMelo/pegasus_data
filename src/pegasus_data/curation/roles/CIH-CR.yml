@@ -5,6 +5,8 @@ columns:
     role: admission.processing_year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de competência\" (admission.processing_year): processing competence or manager authorisation of the AIH: billing and management"
     name: Ano de competência
     years:
     - 2008
@@ -23,6 +25,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CGC (CNPJ) do hospital\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CGC (CNPJ) do hospital
@@ -33,6 +37,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -73,6 +79,8 @@ columns:
     role: admission.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico principal\" (admission.diagnosis): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -84,6 +92,8 @@ columns:
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário\" (admission.secondary_diagnosis): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -98,6 +108,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dias de permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de permanência
     years:
     - 2008
@@ -106,6 +118,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de internação\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de internação
     years:
     - 2008
@@ -114,6 +128,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 2008
@@ -169,6 +185,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2008
@@ -177,6 +195,8 @@ columns:
     role: admission.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês de competência\" (admission.processing_month): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
     - MESES
     name: Mês de competência
@@ -201,6 +221,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município de internação (movimentação)\" (admission.facility_municipality): facility or its location: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município de internação (movimentação)
@@ -211,6 +233,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Município de residência
@@ -233,6 +257,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento
     years:
     - 2008
@@ -256,6 +282,8 @@ columns:
     role: admission.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento realizado\" (admission.procedure): procedure performed or requested: care delivered"
     codelists:
     - SIGTAP
     name: Procedimento realizado
@@ -279,6 +307,8 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diárias de UTI intermediária\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Diárias de UTI intermediária
     years:
     - 2008
@@ -288,6 +318,8 @@ columns:
     role: admission.icu_days_month
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Total de dias de UTI durante a internação\" (admission.icu_days_month): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Total de dias de UTI durante a internação
     years:
     - 2008
@@ -297,6 +329,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos (derivada de IDADE e COD_IDADE)\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     name: Idade em anos (derivada de IDADE e COD_IDADE)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.

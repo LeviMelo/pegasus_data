@@ -5,6 +5,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ano de Nascimento
     years:
     - 2000
@@ -16,6 +18,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da investigação (bloco de conclusão legado)\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da investigação (bloco de conclusão legado)
     years:
     - 2000
@@ -120,6 +124,8 @@ columns:
     role: case.infection_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável da Fonte de Infecção
     codelists:
     - BR_MUNICIPALFA
@@ -204,6 +210,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de encerramento (bloco de conclusão legado)\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de encerramento (bloco de conclusão legado)
     years:
     - 2000
@@ -212,6 +220,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do óbito (bloco de conclusão legado)\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do óbito (bloco de conclusão legado)
     years:
     - 2000
@@ -242,6 +252,8 @@ columns:
     role: case.infection_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município provável de infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município provável de infecção
     codelists:
     - BR_MUNICIPALFA
@@ -253,6 +265,8 @@ columns:
     role: case.infection_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"País de contágio\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País de contágio
     years:
     - 2000
@@ -261,6 +275,8 @@ columns:
     role: case.infection_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF de contágio\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF de contágio
     years:
     - 2000
@@ -269,6 +285,8 @@ columns:
     role: case.infection_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País Provável da Fonte de Infecção
     codelists:
     - PAISNET
@@ -279,6 +297,8 @@ columns:
     role: case.infection_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF Provável da Fonte de Infecção
     codelists:
     - UF_BR
@@ -293,6 +313,8 @@ columns:
     role: case.travel_state_1
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – UF 1\" (case.travel_state_1): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – UF 1
     codelists:
     - UF_BR
@@ -303,6 +325,8 @@ columns:
     role: case.travel_state_2
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – UF 2\" (case.travel_state_2): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – UF 2
     codelists:
     - UF_BR
@@ -313,6 +337,8 @@ columns:
     role: case.travel_state_3
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – UF 3\" (case.travel_state_3): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – UF 3
     codelists:
     - UF_BR
@@ -438,6 +464,8 @@ columns:
     role: case.travel_date_1
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Data 1\" (case.travel_date_1): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Deslocamento – Data 1
     years:
     - 2007
@@ -446,6 +474,8 @@ columns:
     role: case.travel_date_2
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Data 2\" (case.travel_date_2): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Deslocamento – Data 2
     years:
     - 2007
@@ -454,6 +484,8 @@ columns:
     role: case.travel_date_3
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Data 3\" (case.travel_date_3): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Deslocamento – Data 3
     years:
     - 2007
@@ -462,6 +494,8 @@ columns:
     role: case.diagnosis_date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do Diagnóstico\" (case.diagnosis_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do Diagnóstico
     years:
     - 2000
@@ -470,6 +504,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Digitação
     years:
     - 2007
@@ -478,6 +514,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2007
@@ -486,6 +524,8 @@ columns:
     role: treatment.start_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do início do tratamento\" (treatment.start_date): treatment given: serum, drug, doses, dates or transfer"
     name: Data do início do tratamento
     years:
     - 2000
@@ -494,6 +534,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Investigação\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Investigação
     years:
     - 2007
@@ -502,6 +544,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2000
@@ -510,6 +554,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2007
@@ -756,6 +802,8 @@ columns:
     role: notification.entomological_distance_legacy
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Investigação entomológica - vetor próximo ao domicílio\" (notification.entomological_distance_legacy): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     name: Investigação entomológica - vetor próximo ao domicílio
     years:
     - 2000
@@ -808,6 +856,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -848,6 +898,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
     codelists:
     - BR_MUNICIPALFA
@@ -864,6 +916,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -880,6 +934,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação do paciente\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação do paciente
     years:
     - 2000
@@ -888,6 +944,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -900,6 +958,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -910,6 +970,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -921,6 +983,8 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -932,6 +996,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -996,6 +1062,8 @@ columns:
     role: case.travel_municipality_1
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Município 1\" (case.travel_municipality_1): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – Município 1
     codelists:
     - BR_MUNICIPALFA
@@ -1006,6 +1074,8 @@ columns:
     role: case.travel_municipality_2
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Município 2\" (case.travel_municipality_2): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – Município 2
     codelists:
     - BR_MUNICIPALFA
@@ -1016,6 +1086,8 @@ columns:
     role: case.travel_municipality_3
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – Município 3\" (case.travel_municipality_3): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – Município 3
     codelists:
     - BR_MUNICIPALFA
@@ -1038,6 +1110,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2000
@@ -1046,6 +1120,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2000
@@ -1054,6 +1130,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
       is the derived IDADE_anos.
@@ -1088,6 +1166,8 @@ columns:
     role: case.travel_country_1
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 1\" (case.travel_country_1): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – País 1
     years:
     - 2007
@@ -1096,6 +1176,8 @@ columns:
     role: case.travel_country_2
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 2\" (case.travel_country_2): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – País 2
     years:
     - 2007
@@ -1104,6 +1186,8 @@ columns:
     role: case.travel_country_3
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Deslocamento – País 3\" (case.travel_country_3): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Deslocamento – País 3
     years:
     - 2007
@@ -1112,6 +1196,8 @@ columns:
     role: case.diagnosis_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica do Diagnóstico\" (case.diagnosis_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica do Diagnóstico
     years:
     - 2007
@@ -1120,6 +1206,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2000
@@ -1128,6 +1216,8 @@ columns:
     role: case.onset_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (case.onset_epi_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
     - 2000
@@ -1136,6 +1226,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -1148,6 +1240,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -1185,6 +1279,8 @@ columns:
     role: treatment.ampoules
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de ampolas\" (treatment.ampoules): treatment given: serum, drug, doses, dates or transfer"
     name: Número de ampolas
     years:
     - 2000
@@ -1242,6 +1338,8 @@ columns:
     role: case.weight_kg
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso\" (case.weight_kg): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Peso
     years:
     - 2000
@@ -1251,5 +1349,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

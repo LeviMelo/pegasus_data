@@ -750,6 +750,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -760,6 +762,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -770,6 +774,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -993,6 +999,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2005
@@ -1080,6 +1088,8 @@ columns:
     role: establishment.accreditation_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes da Acreditacao (AAAAMM)\" (establishment.accreditation_month): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes da Acreditacao (AAAAMM)
     years:
     - 2005
@@ -1088,6 +1098,8 @@ columns:
     role: establishment.year_month_the_establishment_last_updated_its_registration_d
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes de competencia da atualizacao da informacao pelo estabelecimento (AAAAMM)\" (establishment.year_month_the_establishment_last_updated_its_registration_d): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes de competencia da atualizacao da informacao pelo estabelecimento (AAAAMM)
     years:
     - 2005
@@ -1098,6 +1110,8 @@ columns:
     role: establishment.year_month_the_operating_license_alvara_was_issued
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes de da expedicao do alvara (AAAAMM)\" (establishment.year_month_the_operating_license_alvara_was_issued): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes de da expedicao do alvara (AAAAMM)
     years:
     - 2005
@@ -1108,6 +1122,8 @@ columns:
     role: establishment.pnass_evaluation_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes da Avaliacao PNASS (AAAAMM)\" (establishment.pnass_evaluation_month): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes da Avaliacao PNASS (AAAAMM)
     years:
     - 2005
@@ -1116,6 +1132,8 @@ columns:
     role: establishment.year_month_the_state_sus_contract_was_published
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes de publicacao do contrato/convenio ESTADUAL (AAAAMM)\" (establishment.year_month_the_state_sus_contract_was_published): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes de publicacao do contrato/convenio ESTADUAL (AAAAMM)
     years:
     - 2005
@@ -1126,6 +1144,8 @@ columns:
     role: establishment.year_month_the_municipal_sus_contract_was_published
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e Mes de publicacao do contrato/convenio MUNICIPAL (AAAAMM)\" (establishment.year_month_the_municipal_sus_contract_was_published): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Ano e Mes de publicacao do contrato/convenio MUNICIPAL (AAAAMM)
     years:
     - 2005
@@ -1417,6 +1437,8 @@ columns:
     role: establishment.pediatric_emergency_treatment_rooms_count_installations_grid
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Atendimento Pediatria\" (establishment.pediatric_emergency_treatment_rooms_count_installations_grid): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Atendimento Pediatria
     years:
     - 2005
@@ -1425,6 +1447,8 @@ columns:
     role: establishment.female_emergency_treatment_rooms_count_installations_grid_po
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Atendimento Feminino\" (establishment.female_emergency_treatment_rooms_count_installations_grid_po): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Atendimento Feminino
     years:
     - 2005
@@ -1433,6 +1457,8 @@ columns:
     role: establishment.male_emergency_treatment_rooms_count_installations_grid_posi
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Atendimento Masculino\" (establishment.male_emergency_treatment_rooms_count_installations_grid_posi): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Atendimento Masculino
     years:
     - 2005
@@ -1441,6 +1467,8 @@ columns:
     role: establishment.unsegregated_emergency_treatment_rooms_count_installations_g
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Atendimento Indifer.\" (establishment.unsegregated_emergency_treatment_rooms_count_installations_g): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Atendimento Indifer.
     years:
     - 2005
@@ -1449,6 +1477,8 @@ columns:
     role: establishment.pediatric_rest_observation_rooms_count_installations_grid_po
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs. Pediatria\" (establishment.pediatric_rest_observation_rooms_count_installations_grid_po): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs. Pediatria
     years:
     - 2005
@@ -1457,6 +1487,8 @@ columns:
     role: establishment.female_rest_observation_rooms_count_installations_grid_posit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs. Feminino\" (establishment.female_rest_observation_rooms_count_installations_grid_posit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs. Feminino
     years:
     - 2005
@@ -1465,6 +1497,8 @@ columns:
     role: establishment.male_rest_observation_rooms_count_installations_grid_positio
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Masculino\" (establishment.male_rest_observation_rooms_count_installations_grid_positio): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Masculino
     years:
     - 2005
@@ -1473,6 +1507,8 @@ columns:
     role: establishment.unsegregated_rest_observation_rooms_count_installations_grid
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Indiferen.\" (establishment.unsegregated_rest_observation_rooms_count_installations_grid): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Indiferen.
     years:
     - 2005
@@ -1481,6 +1517,8 @@ columns:
     role: establishment.dental_consulting_rooms_count_installations_grid_position_9
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Odontologia\" (establishment.dental_consulting_rooms_count_installations_grid_position_9): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Odontologia
     years:
     - 2005
@@ -1489,6 +1527,8 @@ columns:
     role: establishment.hygiene_cleaning_rooms_count_installations_grid_position_10
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Higienizacao\" (establishment.hygiene_cleaning_rooms_count_installations_grid_position_10): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Higienizacao
     years:
     - 2005
@@ -1497,6 +1537,8 @@ columns:
     role: establishment.orthopedic_cast_rooms_count_installations_grid_position_11
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala de Gesso\" (establishment.orthopedic_cast_rooms_count_installations_grid_position_11): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala de Gesso
     years:
     - 2005
@@ -1505,6 +1547,8 @@ columns:
     role: establishment.dressing_wound_care_rooms_count_installations_grid_position_
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala de Curativo\" (establishment.dressing_wound_care_rooms_count_installations_grid_position_): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala de Curativo
     years:
     - 2005
@@ -1513,6 +1557,8 @@ columns:
     role: establishment.minor_surgery_rooms_count_installations_grid_position_13
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Pequena Cirurgia\" (establishment.minor_surgery_rooms_count_installations_grid_position_13): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Pequena Cirurgia
     years:
     - 2005
@@ -1521,6 +1567,8 @@ columns:
     role: establishment.general_physician_consulting_rooms_count_installations_grid_
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorios Medico\" (establishment.general_physician_consulting_rooms_count_installations_grid_): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorios Medico
     years:
     - 2005
@@ -1529,6 +1577,8 @@ columns:
     role: establishment.primary_care_consulting_rooms_count_installations_grid_posit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Clinica Basica\" (establishment.primary_care_consulting_rooms_count_installations_grid_posit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Clinica Basica
     years:
     - 2005
@@ -1537,6 +1587,8 @@ columns:
     role: establishment.specialty_clinic_consulting_rooms_count_installations_grid_p
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Clinica Especial.\" (establishment.specialty_clinic_consulting_rooms_count_installations_grid_p): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Clinica Especial.
     years:
     - 2005
@@ -1545,6 +1597,8 @@ columns:
     role: establishment.unsegregated_clinic_consulting_rooms_count_installations_gri
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Clinica Indiferen.\" (establishment.unsegregated_clinic_consulting_rooms_count_installations_gri): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Clinica Indiferen.
     years:
     - 2005
@@ -1553,6 +1607,8 @@ columns:
     role: establishment.non_physician_consulting_rooms_count_installations_grid_posi
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Nao Medico\" (establishment.non_physician_consulting_rooms_count_installations_grid_posi): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Nao Medico
     years:
     - 2005
@@ -1561,6 +1617,8 @@ columns:
     role: establishment.female_rest_observation_rooms_count_installations_grid_posit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Feminino\" (establishment.female_rest_observation_rooms_count_installations_grid_posit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Feminino
     years:
     - 2005
@@ -1569,6 +1627,8 @@ columns:
     role: establishment.male_rest_observation_rooms_count_installations_grid_positio
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Masculino\" (establishment.male_rest_observation_rooms_count_installations_grid_positio): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Masculino
     years:
     - 2005
@@ -1577,6 +1637,8 @@ columns:
     role: establishment.pediatric_rest_observation_rooms_count_installations_grid_po
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Pediatria\" (establishment.pediatric_rest_observation_rooms_count_installations_grid_po): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Pediatria
     years:
     - 2005
@@ -1585,6 +1647,8 @@ columns:
     role: establishment.unsegregated_rest_observation_rooms_count_installations_grid
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Sala Repouso/Obs.Indiferen.\" (establishment.unsegregated_rest_observation_rooms_count_installations_grid): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Sala Repouso/Obs.Indiferen.
     years:
     - 2005
@@ -1593,6 +1657,8 @@ columns:
     role: establishment.dental_consulting_rooms_count_installations_grid_position_23
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.Consultorio Odontologia\" (establishment.dental_consulting_rooms_count_installations_grid_position_23): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.Consultorio Odontologia
     years:
     - 2005
@@ -1601,6 +1667,8 @@ columns:
     role: establishment.minor_surgery_rooms_count_installations_grid_position_24
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Pequenas Cirurgias\" (establishment.minor_surgery_rooms_count_installations_grid_position_24): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Pequenas Cirurgias
     years:
     - 2005
@@ -1609,6 +1677,8 @@ columns:
     role: establishment.nursing_rooms_count_installations_grid_position_25
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Enfermagem\" (establishment.nursing_rooms_count_installations_grid_position_25): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Enfermagem
     years:
     - 2005
@@ -1617,6 +1687,8 @@ columns:
     role: establishment.immunization_rooms_count_installations_grid_position_26
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Imunizacao\" (establishment.immunization_rooms_count_installations_grid_position_26): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Imunizacao
     years:
     - 2005
@@ -1625,6 +1697,8 @@ columns:
     role: establishment.nebulization_inhalation_therapy_rooms_count_installations_gr
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Nebulizacao\" (establishment.nebulization_inhalation_therapy_rooms_count_installations_gr): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Nebulizacao
     years:
     - 2005
@@ -1633,6 +1707,8 @@ columns:
     role: establishment.orthopedic_cast_rooms_count_installations_grid_position_28
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala de Gesso\" (establishment.orthopedic_cast_rooms_count_installations_grid_position_28): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala de Gesso
     years:
     - 2005
@@ -1641,6 +1717,8 @@ columns:
     role: establishment.dressing_wound_care_rooms_count_installations_grid_position_
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala de Curativo\" (establishment.dressing_wound_care_rooms_count_installations_grid_position_): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala de Curativo
     years:
     - 2005
@@ -1649,6 +1727,8 @@ columns:
     role: establishment.outpatient_ambulatory_surgery_rooms_count_installations_grid
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Cirurgia Ambulatorial\" (establishment.outpatient_ambulatory_surgery_rooms_count_installations_grid): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Cirurgia Ambulatorial
     years:
     - 2005
@@ -1657,6 +1737,8 @@ columns:
     role: establishment.surgical_operating_rooms_count_installations_grid_position_3
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt.sala Cirurgia\" (establishment.surgical_operating_rooms_count_installations_grid_position_3): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt.sala Cirurgia
     years:
     - 2005
@@ -1665,6 +1747,8 @@ columns:
     role: establishment.recovery_rooms_surgical_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Recuperação\" (establishment.recovery_rooms_surgical_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Recuperação
     years:
     - 2005
@@ -1673,6 +1757,8 @@ columns:
     role: establishment.outpatient_surgery_rooms_surgical_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Cirurgia Ambulatorial\" (establishment.outpatient_surgery_rooms_surgical_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Cirurgia Ambulatorial
     years:
     - 2005
@@ -1681,6 +1767,8 @@ columns:
     role: establishment.pre_delivery_rooms_obstetric_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Pré Parto\" (establishment.pre_delivery_rooms_obstetric_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Pré Parto
     years:
     - 2005
@@ -1689,6 +1777,8 @@ columns:
     role: establishment.normal_delivery_rooms_obstetric_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Parto Normal\" (establishment.normal_delivery_rooms_obstetric_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Parto Normal
     years:
     - 2005
@@ -1697,6 +1787,8 @@ columns:
     role: establishment.curettage_rooms_obstetric_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Curetagem\" (establishment.curettage_rooms_obstetric_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Curetagem
     years:
     - 2005
@@ -1705,6 +1797,8 @@ columns:
     role: establishment.surgery_rooms_obstetric_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. sala Cirurgia\" (establishment.surgery_rooms_obstetric_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. sala Cirurgia
     years:
     - 2005
@@ -1713,6 +1807,8 @@ columns:
     role: establishment.paediatric_rest_observation_beds_emergency
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Pediatria\" (establishment.paediatric_rest_observation_beds_emergency): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Pediatria
     years:
     - 2005
@@ -1721,6 +1817,8 @@ columns:
     role: establishment.female_rest_observation_beds_emergency
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Feminino\" (establishment.female_rest_observation_beds_emergency): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Feminino
     years:
     - 2005
@@ -1729,6 +1827,8 @@ columns:
     role: establishment.male_rest_observation_beds_emergency
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Masculino\" (establishment.male_rest_observation_beds_emergency): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Masculino
     years:
     - 2005
@@ -1737,6 +1837,8 @@ columns:
     role: establishment.undifferentiated_rest_observation_beds_emergency
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Indiferenciado\" (establishment.undifferentiated_rest_observation_beds_emergency): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Indiferenciado
     years:
     - 2005
@@ -1745,6 +1847,8 @@ columns:
     role: establishment.dental_units_emergency
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Equipo Odontologia\" (establishment.dental_units_emergency): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Equipo Odontologia
     years:
     - 2005
@@ -1753,6 +1857,8 @@ columns:
     role: establishment.female_rest_observation_beds_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Feminino\" (establishment.female_rest_observation_beds_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Feminino
     years:
     - 2005
@@ -1761,6 +1867,8 @@ columns:
     role: establishment.male_rest_observation_beds_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Masculino\" (establishment.male_rest_observation_beds_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Masculino
     years:
     - 2005
@@ -1769,6 +1877,8 @@ columns:
     role: establishment.paediatric_rest_observation_beds_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leitos Repouso/Obs. Pediatria\" (establishment.paediatric_rest_observation_beds_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leitos Repouso/Obs. Pediatria
     years:
     - 2005
@@ -1777,6 +1887,8 @@ columns:
     role: establishment.undifferentiated_rest_observation_beds_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Repouso/Obs. Indiferenciado\" (establishment.undifferentiated_rest_observation_beds_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Repouso/Obs. Indiferenciado
     years:
     - 2005
@@ -1785,6 +1897,8 @@ columns:
     role: establishment.dental_units_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Equipo Odontologia\" (establishment.dental_units_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Equipo Odontologia
     years:
     - 2005
@@ -1793,6 +1907,8 @@ columns:
     role: establishment.recovery_beds_surgical_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Recuperação\" (establishment.recovery_beds_surgical_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Recuperação
     years:
     - 2005
@@ -1801,6 +1917,8 @@ columns:
     role: establishment.pre_delivery_beds_obstetric_centre
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Pré Parto\" (establishment.pre_delivery_beds_obstetric_centre): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Pré Parto
     years:
     - 2005
@@ -1809,6 +1927,8 @@ columns:
     role: establishment.normal_newborn_cots_neonatal_unit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito RN Normal\" (establishment.normal_newborn_cots_neonatal_unit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito RN Normal
     years:
     - 2005
@@ -1817,6 +1937,8 @@ columns:
     role: establishment.sick_newborn_cots_neonatal_unit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito RN Patológico\" (establishment.sick_newborn_cots_neonatal_unit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito RN Patológico
     years:
     - 2005
@@ -1825,6 +1947,8 @@ columns:
     role: establishment.rooming_in_beds_neonatal_unit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Qt. Leito Alojamento Conjunto\" (establishment.rooming_in_beds_neonatal_unit): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Qt. Leito Alojamento Conjunto
     years:
     - 2005
@@ -1833,6 +1957,8 @@ columns:
     role: establishment.existing_surgical_beds_legacy_rollup
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos tipo 1 (cirurgico) existentes\" (establishment.existing_surgical_beds_legacy_rollup): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos tipo 1 (cirurgico) existentes
     years:
     - 2005
@@ -1841,6 +1967,8 @@ columns:
     role: establishment.existing_clinical_beds_legacy_rollup
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos tipo 2 (clinico) existentes\" (establishment.existing_clinical_beds_legacy_rollup): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos tipo 2 (clinico) existentes
     years:
     - 2005
@@ -1849,6 +1977,8 @@ columns:
     role: establishment.existing_complementary_beds_legacy_rollup
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de leitos tipo 3 (complementar) existentes\" (establishment.existing_complementary_beds_legacy_rollup): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Quantidade de leitos tipo 3 (complementar) existentes
     years:
     - 2005

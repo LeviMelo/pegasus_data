@@ -39,6 +39,8 @@ columns:
     role: pregnancy.health_unit_municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município da UBS\" (pregnancy.health_unit_municipality): prenatal care, test dates and delivery type: how care happened"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -98,6 +100,8 @@ columns:
     role: pregnancy.state_uf_of_the_pregnant_woman
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF da Gestante\" (pregnancy.state_uf_of_the_pregnant_woman): UF of the pregnant woman: attribute of the person"
     codelists:
     - UF_BR
     name: UF da Gestante
@@ -118,6 +122,8 @@ columns:
     role: pregnancy.consultation_month
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Ano/Mês de Atendimento\" (pregnancy.consultation_month): prenatal care, test dates and delivery type: how care happened"
     name: Ano/Mês de Atendimento
     years:
     - 2012
@@ -126,6 +132,8 @@ columns:
     role: pregnancy.expected_delivery_date_edd
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data Provável do Parto\" (pregnancy.expected_delivery_date_edd): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Data Provável do Parto
     years:
     - 2012
@@ -134,6 +142,8 @@ columns:
     role: pregnancy.last_menstrual_period_date_lmp
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da Última Menstruação (DUM)\" (pregnancy.last_menstrual_period_date_lmp): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Data da Última Menstruação (DUM)
     years:
     - 2012
@@ -142,6 +152,8 @@ columns:
     role: pregnancy.registration_inclusion_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Inclusão\" (pregnancy.registration_inclusion_date): prenatal care, test dates and delivery type: how care happened"
     name: Data de Inclusão
     years:
     - 2012
@@ -150,6 +162,8 @@ columns:
     role: pregnancy.record_year
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ano da Gestação\" (pregnancy.record_year): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Ano da Gestação
     years:
     - 2012
@@ -167,6 +181,8 @@ columns:
     role: pregnancy.number_of_pregnancies_gravidity
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de Gestações\" (pregnancy.number_of_pregnancies_gravidity): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de Gestações
     years:
     - 2012
@@ -178,6 +194,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da Gestante\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da Gestante
     years:
     - 2012
@@ -204,6 +222,8 @@ columns:
     role: pregnancy.ectopic_pregnancy_count_obstetric_history
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de Abortos Ectópicos\" (pregnancy.ectopic_pregnancy_count_obstetric_history): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Quantidade de Abortos Ectópicos
     years:
     - 2012
@@ -212,6 +232,8 @@ columns:
     role: pregnancy.abortion_count_general_other
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de Abortos (Geral)\" (pregnancy.abortion_count_general_other): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Quantidade de Abortos (Geral)
     years:
     - 2012
@@ -220,6 +242,8 @@ columns:
     role: pregnancy.molar_pregnancy_count_obstetric_history
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de Abortos Molares\" (pregnancy.molar_pregnancy_count_obstetric_history): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Quantidade de Abortos Molares
     years:
     - 2012
@@ -228,6 +252,8 @@ columns:
     role: pregnancy.consultation_count_summable
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Qt Consultas\" (pregnancy.consultation_count_summable): prenatal care, test dates and delivery type: how care happened"
     name: Qt Consultas
     years:
     - 2012
@@ -239,6 +265,8 @@ columns:
     role: pregnancy.number_of_consultations_categorised
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Consultas\" (pregnancy.number_of_consultations_categorised): prenatal care, test dates and delivery type: how care happened"
     name: Consultas
     years:
     - 2012
@@ -247,6 +275,8 @@ columns:
     role: pregnancy.early_death_count_before_completing_1_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbitos de Nascidos Vivos até 1 Semana\" (pregnancy.early_death_count_before_completing_1_week): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Óbitos de Nascidos Vivos até 1 Semana
     years:
     - 2012
@@ -255,6 +285,8 @@ columns:
     role: pregnancy.later_death_count_after_1_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Óbitos de Nascidos Vivos após 1 Semana\" (pregnancy.later_death_count_after_1_week): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Óbitos de Nascidos Vivos após 1 Semana
     years:
     - 2012
@@ -263,6 +295,8 @@ columns:
     role: pregnancy.stillbirth_count_obstetric_history
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de Nascidos Mortos\" (pregnancy.stillbirth_count_obstetric_history): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Quantidade de Nascidos Mortos
     years:
     - 2012
@@ -271,6 +305,8 @@ columns:
     role: pregnancy.live_birth_count_obstetric_history
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de Nascidos Vivos\" (pregnancy.live_birth_count_obstetric_history): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Quantidade de Nascidos Vivos
     years:
     - 2012
@@ -279,6 +315,8 @@ columns:
     role: pregnancy.surgical_cesarean_delivery_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Partos Cirúrgicos\" (pregnancy.surgical_cesarean_delivery_count): prenatal care, test dates and delivery type: how care happened"
     name: Quantidade de Partos Cirúrgicos
     years:
     - 2012
@@ -287,6 +325,8 @@ columns:
     role: pregnancy.forceps_delivery_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Partos Fórceps\" (pregnancy.forceps_delivery_count): prenatal care, test dates and delivery type: how care happened"
     name: Quantidade de Partos Fórceps
     years:
     - 2012
@@ -295,6 +335,8 @@ columns:
     role: pregnancy.vaginal_delivery_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Partos Vaginais\" (pregnancy.vaginal_delivery_count): prenatal care, test dates and delivery type: how care happened"
     name: Quantidade de Partos Vaginais
     years:
     - 2012

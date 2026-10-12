@@ -5,6 +5,8 @@ columns:
     role: authorisation.follow_up_year
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano do acompanhamento\" (authorisation.follow_up_year): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Ano do acompanhamento
     years:
     - 2014
@@ -13,6 +15,8 @@ columns:
     role: authorisation.date_of_second_surgery
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da segunda cirurgia\" (authorisation.date_of_second_surgery): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da segunda cirurgia
     years:
     - 2014
@@ -21,6 +25,8 @@ columns:
     role: authorisation.date_of_bariatric_surgery
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da cirurgia bariátrica\" (authorisation.date_of_bariatric_surgery): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da cirurgia bariátrica
     years:
     - 2014
@@ -29,6 +35,8 @@ columns:
     role: authorisation.body_mass_index
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Índice de massa corporal\" (authorisation.body_mass_index): measurement or laboratory result of the patient: clinical"
     name: Índice de massa corporal
     years:
     - 2014
@@ -37,6 +45,8 @@ columns:
     role: authorisation.months_of_follow_up
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número em meses de acompanhamento\" (authorisation.months_of_follow_up): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Número em meses de acompanhamento
     years:
     - 2014
@@ -61,6 +71,8 @@ columns:
     role: authorisation.barros_score
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Pontuação de Barros\" (authorisation.barros_score): measurement or laboratory result of the patient: clinical"
     name: Pontuação de Barros
     years:
     - 2014
@@ -69,6 +81,8 @@ columns:
     role: authorisation.aih_procedure_2
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Segundo procedimento da AIH\" (authorisation.aih_procedure_2): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Segundo procedimento da AIH
@@ -79,6 +93,8 @@ columns:
     role: authorisation.aih_procedure_3
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Terceiro procedimento da AIH\" (authorisation.aih_procedure_3): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Terceiro procedimento da AIH
@@ -89,6 +105,8 @@ columns:
     role: authorisation.aih_procedure_4
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quarto procedimento da AIH\" (authorisation.aih_procedure_4): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Quarto procedimento da AIH
@@ -99,6 +117,8 @@ columns:
     role: authorisation.aih_procedure_5
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quinto procedimento da AIH\" (authorisation.aih_procedure_5): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Quinto procedimento da AIH
@@ -109,6 +129,8 @@ columns:
     role: authorisation.aih_procedure_6
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Sexto procedimento da AIH\" (authorisation.aih_procedure_6): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Sexto procedimento da AIH
@@ -119,6 +141,8 @@ columns:
     role: authorisation.principal_aih_procedure
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento principal da AIH\" (authorisation.principal_aih_procedure): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Procedimento principal da AIH
@@ -139,6 +163,8 @@ columns:
     role: authorisation.post_bariatric_follow_up_field_2_probably_months_since_surge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Campo AB_T_PRC2 (rótulo não documentado)\" (authorisation.post_bariatric_follow_up_field_2_probably_months_since_surge): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Campo AB_T_PRC2 (rótulo não documentado)
     years:
     - 2014
@@ -147,6 +173,8 @@ columns:
     role: authorisation.post_bariatric_follow_up_field_3_probably_months_since_surge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Campo AB_T_PRC3 (rótulo não documentado)\" (authorisation.post_bariatric_follow_up_field_3_probably_months_since_surge): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Campo AB_T_PRC3 (rótulo não documentado)
     years:
     - 2014
@@ -155,6 +183,8 @@ columns:
     role: authorisation.post_bariatric_follow_up_field_4_probably_months_since_surge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Campo AB_T_PRC4 (rótulo não documentado)\" (authorisation.post_bariatric_follow_up_field_4_probably_months_since_surge): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Campo AB_T_PRC4 (rótulo não documentado)
     years:
     - 2014
@@ -163,6 +193,8 @@ columns:
     role: authorisation.post_bariatric_follow_up_field_5_probably_months_since_surge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Campo AB_T_PRC5 (rótulo não documentado)\" (authorisation.post_bariatric_follow_up_field_5_probably_months_since_surge): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Campo AB_T_PRC5 (rótulo não documentado)
     years:
     - 2014
@@ -171,6 +203,8 @@ columns:
     role: authorisation.post_bariatric_follow_up_field_6_probably_months_since_surge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Campo AB_T_PRC6 (rótulo não documentado)\" (authorisation.post_bariatric_follow_up_field_6_probably_months_since_surge): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Campo AB_T_PRC6 (rótulo não documentado)
     years:
     - 2014
@@ -257,6 +291,8 @@ columns:
     role: authorisation.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Causas Associadas\" (authorisation.associated_cause): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID Causas Associadas
@@ -267,6 +303,8 @@ columns:
     role: authorisation.comorbidity_1
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade 1\" (authorisation.comorbidity_1): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade 1
@@ -277,6 +315,8 @@ columns:
     role: authorisation.comorbidity_2
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade 2\" (authorisation.comorbidity_2): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade 2
@@ -287,6 +327,8 @@ columns:
     role: authorisation.comorbidity_3
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade 3\" (authorisation.comorbidity_3): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade 3
@@ -297,6 +339,8 @@ columns:
     role: authorisation.comorbidity_4
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade 4\" (authorisation.comorbidity_4): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade 4
@@ -307,6 +351,8 @@ columns:
     role: authorisation.comorbidity_5
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade 5\" (authorisation.comorbidity_5): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade 5
@@ -317,6 +363,8 @@ columns:
     role: authorisation.comorbidity_icd_10_code
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de comorbidade\" (authorisation.comorbidity_icd_10_code): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID de comorbidade
@@ -327,6 +375,8 @@ columns:
     role: authorisation.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Atendimento ao paciente / Competencia\" (authorisation.competence): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Atendimento ao paciente / Competencia
     years:
     - 2014
@@ -336,6 +386,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento executante\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento executante
     years:
     - 2014
@@ -345,6 +397,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora do estabelecimento\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ da Mantenedora do estabelecimento
     codelists:
     - CNPJ_BR
@@ -376,6 +430,8 @@ columns:
     role: authorisation.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Estabelecimento no CNES\" (authorisation.facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo do Estabelecimento no CNES
     codelists:
     - CADGERBR
@@ -428,6 +484,8 @@ columns:
     role: authorisation.authorised
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Autorizacao\" (authorisation.authorised): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Autorizacao
     years:
     - 2014
@@ -437,6 +495,8 @@ columns:
     role: authorisation.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de FIM validade\" (authorisation.end): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de FIM validade
     years:
     - 2014
@@ -446,6 +506,8 @@ columns:
     role: authorisation.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de INICIO validade\" (authorisation.start): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de INICIO validade
     years:
     - 2014
@@ -455,6 +517,8 @@ columns:
     role: authorisation.date_of_the_event
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da ocorrência\" (authorisation.date_of_the_event): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data da ocorrência
     years:
     - 2014
@@ -463,6 +527,8 @@ columns:
     role: authorisation.requested
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Solicitacao\" (authorisation.requested): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Solicitacao
     years:
     - 2014
@@ -500,6 +566,8 @@ columns:
     role: authorisation.management_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (authorisation.management_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo da UF+Municipio de Gestao
     codelists:
     - BR_MUNICGESTOR
@@ -563,6 +631,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de Residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF+Municipio de Residencia do paciente
     codelists:
     - BR_MUNICIPALFA
@@ -575,6 +645,8 @@ columns:
     role: authorisation.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Processamento / Movimento\" (authorisation.processing_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Processamento / Movimento
     years:
     - 2014
@@ -600,6 +672,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Numero da Idade
     years:
     - 2014
@@ -655,6 +729,8 @@ columns:
     role: authorisation.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento Principal da APAC\" (authorisation.procedure): procedure authorised or billed: care delivered"
     name: Procedimento Principal da APAC
     codelists:
     - SIGTAP
@@ -782,6 +858,8 @@ columns:
     role: authorisation.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do Estabelecimento\" (authorisation.facility_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: UF+Municipio do Estabelecimento
     codelists:
     - AC_MUNICIP
@@ -808,6 +886,8 @@ columns:
     role: authorisation.requesting_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo CNES do Estabelecimento Solicitante\" (authorisation.requesting_facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo CNES do Estabelecimento Solicitante
     codelists:
     - CADGERBR
@@ -819,6 +899,8 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
     years:
     - 2014
@@ -828,6 +910,8 @@ columns:
     role: authorisation.primary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID primário\" (authorisation.primary_diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID primário
@@ -838,6 +922,8 @@ columns:
     role: authorisation.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID secundário\" (authorisation.secondary_diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID secundário
@@ -849,6 +935,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years from AP_NUIDADE and AP_COIDADE (ADR-0070)
     name: Idade em anos

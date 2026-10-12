@@ -659,6 +659,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -669,6 +671,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -679,6 +683,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -710,6 +716,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2007
@@ -757,6 +765,8 @@ columns:
     role: team.activation_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência de ativação da equipe\" (team.activation_month): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência de ativação da equipe
     years:
     - 2007
@@ -765,6 +775,8 @@ columns:
     role: team.deactivation_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência de desativação da equipe\" (team.deactivation_month): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência de desativação da equipe
     years:
     - 2007

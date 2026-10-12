@@ -5,6 +5,8 @@ columns:
     role: population.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (population.year): reference year of the population table"
     name: Ano
     years:
     - 2000
@@ -13,6 +15,8 @@ columns:
     role: population.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"COD_MUN\" (population.residence): count of persons in the population table"
     codelists:
     - BR_MUNICIPALFA
     years:
@@ -36,6 +40,8 @@ columns:
     role: population.count
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"POP\" (population.count): count of persons in the population table"
     years:
     - 2000
     - 2025

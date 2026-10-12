@@ -5,6 +5,8 @@ columns:
     role: admission.processing_year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de processamento da AIH\" (admission.processing_year): processing competence or manager authorisation of the AIH: billing and management"
     note: Year of the competencia (billing month), not of admission; axis competence = ANO_CMPT+MES_CMPT.
     name: Ano de processamento da AIH
     years:
@@ -34,6 +36,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação do paciente (CBO)\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Three-character CBO vintage; see curation.
     name: Ocupação do paciente (CBO)
     codelists:
@@ -53,6 +57,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento
     codelists:
     - CNPJ_BR
@@ -63,6 +69,8 @@ columns:
     role: admission.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID causa associada\" (admission.associated_cause): diagnosis or cause code: the health event"
     name: CID causa associada
     codelists:
     - ICD10
@@ -75,6 +83,8 @@ columns:
     role: admission.death_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID da morte\" (admission.death_cause): diagnosis or cause code: the health event"
     name: CID da morte
     codelists:
     - ICD10
@@ -87,6 +97,8 @@ columns:
     role: admission.notifiable_condition
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID de Notificação\" (admission.notifiable_condition): diagnosis or cause code: the health event"
     name: CID de Notificação
     codelists:
     - ICD10
@@ -110,6 +122,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     name: Código CNES do estabelecimento
     codelists:
     - CADGERBR
@@ -120,6 +134,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ da mantenedora
     codelists:
     - CNPJ_BR
@@ -235,6 +251,8 @@ columns:
     role: admission.secondary_diagnosis_1
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 1\" (admission.secondary_diagnosis_1): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 1
     codelists:
     - ICD10
@@ -246,6 +264,8 @@ columns:
     role: admission.secondary_diagnosis_2
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 2\" (admission.secondary_diagnosis_2): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 2
     codelists:
     - ICD10
@@ -257,6 +277,8 @@ columns:
     role: admission.secondary_diagnosis_3
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 3\" (admission.secondary_diagnosis_3): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 3
     codelists:
     - ICD10
@@ -268,6 +290,8 @@ columns:
     role: admission.secondary_diagnosis_4
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 4\" (admission.secondary_diagnosis_4): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 4
     codelists:
     - ICD10
@@ -279,6 +303,8 @@ columns:
     role: admission.secondary_diagnosis_5
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 5\" (admission.secondary_diagnosis_5): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 5
     codelists:
     - ICD10
@@ -290,6 +316,8 @@ columns:
     role: admission.secondary_diagnosis_6
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 6\" (admission.secondary_diagnosis_6): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 6
     codelists:
     - ICD10
@@ -301,6 +329,8 @@ columns:
     role: admission.secondary_diagnosis_7
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 7\" (admission.secondary_diagnosis_7): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 7
     codelists:
     - ICD10
@@ -312,6 +342,8 @@ columns:
     role: admission.secondary_diagnosis_8
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 8\" (admission.secondary_diagnosis_8): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 8
     codelists:
     - ICD10
@@ -323,6 +355,8 @@ columns:
     role: admission.secondary_diagnosis_9
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 9\" (admission.secondary_diagnosis_9): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 9
     codelists:
     - ICD10
@@ -334,6 +368,8 @@ columns:
     role: admission.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código do diagnóstico principal\" (admission.diagnosis): diagnosis or cause code: the health event"
     also:
     - admission.diagnoses
     name: Código do diagnóstico principal
@@ -366,6 +402,8 @@ columns:
     role: admission.secondary_diagnosis_icd9
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário (CID-9)\" (admission.secondary_diagnosis_icd9): diagnosis or cause code: the health event"
     name: Diagnóstico secundário (CID-9)
     codelists:
     - CID9X01
@@ -381,6 +419,8 @@ columns:
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código do diagnóstico secundário\" (admission.secondary_diagnosis): diagnosis or cause code: the health event"
     note: Dead (filled with 0000) from the 113-column generation.
     name: Código do diagnóstico secundário
     codelists:
@@ -414,6 +454,8 @@ columns:
     role: admission.companion_days
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de diárias de acompanhante\" (admission.companion_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias de acompanhante
     years:
     - 2005
@@ -424,6 +466,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dias de Permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de Permanência
     years:
     - 1992
@@ -432,6 +476,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de internação\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de internação
     years:
     - 1992
@@ -440,6 +486,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 1992
@@ -544,6 +592,8 @@ columns:
     role: admission.manager_authorisation_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da autorização dada pelo Gestor\" (admission.manager_authorisation_date): processing competence or manager authorisation of the AIH: billing and management"
     name: Data da autorização dada pelo Gestor
     years:
     - 2003
@@ -588,6 +638,8 @@ columns:
     measure: false
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Value packs a unit given by COD_IDADE; IDADE_anos is the age stratum.
     name: Idade
     years:
@@ -675,6 +727,8 @@ columns:
     role: admission.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês processamento\" (admission.processing_month): processing competence or manager authorisation of the AIH: billing and management"
     note: Month of the competencia; pairs with ANO_CMPT.
     name: Mês processamento
     codelists:
@@ -698,6 +752,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do Estabelecimento\" (admission.facility_municipality): facility or its location: the facility register"
     name: Município do Estabelecimento
     codelists:
     - BR_MUNICIPALFA
@@ -709,6 +765,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência do Paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência do Paciente
     codelists:
     - BR_MUNICIPALFA
@@ -732,6 +790,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento do paciente\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento do paciente
     years:
     - 1992
@@ -767,6 +827,8 @@ columns:
     role: patient.children_count
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Número de filhos do paciente\" (patient.children_count): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Person attribute but a count, collected on obstetric admissions only.
     name: Número de filhos do paciente
     years:
@@ -797,6 +859,8 @@ columns:
     role: admission.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento realizado\" (admission.procedure): procedure performed or requested: care delivered"
     name: Procedimento realizado
     codelists:
     - SIGTAP
@@ -813,6 +877,8 @@ columns:
     role: admission.requested_procedure
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento solicitado\" (admission.requested_procedure): procedure performed or requested: care delivered"
     name: Procedimento solicitado
     codelists:
     - SIGTAP
@@ -826,6 +892,8 @@ columns:
     role: admission.billed_days
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de diárias\" (admission.billed_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias
     years:
     - 2008
@@ -927,6 +995,8 @@ columns:
     role: admission.professional_points
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Total de pontos SP\" (admission.professional_points): a value, point or billed-day count of the AIH: billing"
     name: Total de pontos SP
     years:
     - 1999
@@ -1061,6 +1131,8 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município Gestor\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     note: Managing municipality, not place of care or residence.
     name: Município Gestor
     codelists:
@@ -1074,6 +1146,8 @@ columns:
     role: admission.usd_orthotics
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Orthotics/prosthetics value, in US dollars\" (admission.usd_orthotics): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Orthotics/prosthetics value, in US dollars
     years:
@@ -1085,6 +1159,8 @@ columns:
     role: admission.usd_newborn
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Newborn-nursery value, in US dollars\" (admission.usd_newborn): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Newborn-nursery value, in US dollars
     years:
@@ -1096,6 +1172,8 @@ columns:
     role: admission.usd_sadt
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"SADT-services value, in US dollars\" (admission.usd_sadt): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: SADT-services value, in US dollars
     years:
@@ -1107,6 +1185,8 @@ columns:
     role: admission.usd_blood
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Blood/hemoderivatives value, in US dollars\" (admission.usd_blood): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Blood/hemoderivatives value, in US dollars
     years:
@@ -1118,6 +1198,8 @@ columns:
     role: admission.usd_hospital_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Hospital-services value, in US dollars\" (admission.usd_hospital_services): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Hospital-services value, in US dollars
     years:
@@ -1129,6 +1211,8 @@ columns:
     role: admission.usd_professional_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Professional-services value, in US dollars\" (admission.usd_professional_services): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Professional-services value, in US dollars
     years:
@@ -1140,6 +1224,8 @@ columns:
     role: admission.usd_total
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor total, em dólar\" (admission.usd_total): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
     name: Valor total, em dólar
     years:
@@ -1151,6 +1237,8 @@ columns:
     role: admission.intermediate_days_discharge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI intermediária - alta\" (admission.intermediate_days_discharge): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - alta
     years:
     - 2000
@@ -1161,6 +1249,8 @@ columns:
     role: admission.intermediate_days_previous
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI intermediária - anterior\" (admission.intermediate_days_previous): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - anterior
     years:
     - 2000
@@ -1171,6 +1261,8 @@ columns:
     role: admission.intermediate_days_start
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI intermediária - início\" (admission.intermediate_days_start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - início
     years:
     - 2000
@@ -1181,6 +1273,8 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de diárias em unidade intermediária\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de diárias em unidade intermediária
     years:
     - 2000
@@ -1191,6 +1285,8 @@ columns:
     role: admission.icu_days_discharge
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI mês - alta\" (admission.icu_days_discharge): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - alta
     years:
     - 1999
@@ -1201,6 +1297,8 @@ columns:
     role: admission.icu_days_previous
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI mês - anterior\" (admission.icu_days_previous): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - anterior
     years:
     - 1999
@@ -1211,6 +1309,8 @@ columns:
     role: admission.icu_days_start
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UTI mês - início\" (admission.icu_days_start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - início
     years:
     - 1999
@@ -1221,6 +1321,8 @@ columns:
     role: admission.icu_days_month
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de dias de UTI no mês\" (admission.icu_days_month): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de dias de UTI no mês
     years:
     - 2000
@@ -1231,6 +1333,8 @@ columns:
     role: admission.icu_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diárias de UTI\" (admission.icu_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Diárias de UTI
     years:
     - 1992
@@ -1241,6 +1345,8 @@ columns:
     role: admission.value_companion
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor acompanhante\" (admission.value_companion): a value, point or billed-day count of the AIH: billing"
     name: Valor acompanhante
     years:
     - 2005
@@ -1251,6 +1357,8 @@ columns:
     role: admission.value_blood_observation
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor observação sangue\" (admission.value_blood_observation): a value, point or billed-day count of the AIH: billing"
     name: Valor observação sangue
     years:
     - 2000
@@ -1261,6 +1369,8 @@ columns:
     role: admission.value_orthotics
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor órtese/prótese\" (admission.value_orthotics): a value, point or billed-day count of the AIH: billing"
     name: Valor órtese/prótese
     years:
     - 1992
@@ -1271,6 +1381,8 @@ columns:
     role: admission.value_paediatric_companion
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor pediátrico 1º acompanhante\" (admission.value_paediatric_companion): a value, point or billed-day count of the AIH: billing"
     name: Valor pediátrico 1º acompanhante
     years:
     - 2000
@@ -1281,6 +1393,8 @@ columns:
     role: admission.value_newborn
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor recém-nato\" (admission.value_newborn): a value, point or billed-day count of the AIH: billing"
     name: Valor recém-nato
     years:
     - 1994
@@ -1291,6 +1405,8 @@ columns:
     role: admission.value_sadt
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor SADT\" (admission.value_sadt): a value, point or billed-day count of the AIH: billing"
     name: Valor SADT
     years:
     - 1992
@@ -1301,6 +1417,8 @@ columns:
     role: admission.value_sadt_unregistered
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor SADT sem registro\" (admission.value_sadt_unregistered): a value, point or billed-day count of the AIH: billing"
     name: Valor SADT sem registro
     years:
     - 1998
@@ -1311,6 +1429,8 @@ columns:
     role: admission.value_blood
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor sangue\" (admission.value_blood): a value, point or billed-day count of the AIH: billing"
     name: Valor sangue
     years:
     - 1992
@@ -1321,6 +1441,8 @@ columns:
     role: admission.value_hospital_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de serviços hospitalares\" (admission.value_hospital_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços hospitalares
     years:
     - 1992
@@ -1331,6 +1453,8 @@ columns:
     role: admission.value_hospital_services_federal
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento federal de serviços hospitalares\" (admission.value_hospital_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços hospitalares
     years:
     - 2011
@@ -1341,6 +1465,8 @@ columns:
     role: admission.value_hospital_services_manager
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento do gestor de serviços hospitalares\" (admission.value_hospital_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços hospitalares
     years:
     - 2011
@@ -1351,6 +1477,8 @@ columns:
     role: admission.value_professional_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de serviços profissionais\" (admission.value_professional_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços profissionais
     years:
     - 1992
@@ -1361,6 +1489,8 @@ columns:
     role: admission.value_professional_services_federal
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento federal de serviços profissionais\" (admission.value_professional_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços profissionais
     years:
     - 2011
@@ -1371,6 +1501,8 @@ columns:
     role: admission.value_professional_services_manager
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento do gestor de serviços profissionais\" (admission.value_professional_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços profissionais
     years:
     - 2011
@@ -1381,6 +1513,8 @@ columns:
     role: admission.value_total
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor total da AIH\" (admission.value_total): a value, point or billed-day count of the AIH: billing"
     name: Valor total da AIH
     years:
     - 1992
@@ -1391,6 +1525,8 @@ columns:
     role: admission.value_transport
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor transporte\" (admission.value_transport): a value, point or billed-day count of the AIH: billing"
     name: Valor transporte
     years:
     - 1998
@@ -1401,6 +1537,8 @@ columns:
     role: admission.value_intermediate_unit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de UCI\" (admission.value_intermediate_unit): a value, point or billed-day count of the AIH: billing"
     name: Valor de UCI
     years:
     - 2013
@@ -1411,6 +1549,8 @@ columns:
     role: admission.value_icu
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de UTI\" (admission.value_icu): a value, point or billed-day count of the AIH: billing"
     name: Valor de UTI
     years:
     - 1999
@@ -1431,4 +1571,6 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true

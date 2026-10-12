@@ -6,6 +6,8 @@ columns:
     role: procedure.authorization_number
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Número da APAC ou número de autorização do BPA-I\" (procedure.authorization_number): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Número da APAC ou número de autorização do BPA-I
     years:
     - 2008
@@ -28,6 +30,8 @@ columns:
     role: professional.occupation
     kind: code_tree
     model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da Ocupação do profissional na Classificação Brasileira de Ocupações\" (professional.occupation): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CBO2002
     name: Código da Ocupação do profissional na Classificação Brasileira de Ocupações
@@ -38,6 +42,8 @@ columns:
     role: procedure.diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (procedure.diagnosis): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -57,6 +63,8 @@ columns:
     role: procedure.establishments_parent_organization_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora\" (procedure.establishments_parent_organization_cnpj): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CNPJ_BR
     name: CNPJ da Mantenedora
@@ -67,6 +75,8 @@ columns:
     role: procedure.credit_cession_recipient_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Órgão que recebeu pela produção por cessão de crédito\" (procedure.credit_cession_recipient_cnpj): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CNPJ_BR
     name: CNPJ do Órgão que recebeu pela produção por cessão de crédito
@@ -94,6 +104,8 @@ columns:
     role: procedure.cnes_establishment_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Estabelecimento no CNES\" (procedure.cnes_establishment_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CADGERBR
     name: Código do Estabelecimento no CNES
@@ -133,6 +145,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento
     years:
     - 2008
@@ -141,6 +155,8 @@ columns:
     role: procedure.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e mes do Atendimento\" (procedure.competence): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Ano e mes do Atendimento
     years:
     - 2008
@@ -149,6 +165,8 @@ columns:
     role: procedure.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e mes de Processamento\" (procedure.processing_month): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Ano e mes de Processamento
     years:
     - 2008
@@ -168,6 +186,8 @@ columns:
     role: procedure.managing_authority
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestão\" (procedure.managing_authority): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - BR_MUNICGESTOR
     name: Gestão
@@ -179,6 +199,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos (derivada de IDADEPAC e TPIDADEPAC)\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     name: Idade em anos (derivada de IDADEPAC e TPIDADEPAC)
     note: Fractional years from the curated recipe (ADR-0070), the subject's age stratum.
@@ -187,6 +209,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do Paciente\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade do Paciente
     years:
     - 2008
@@ -224,6 +248,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -251,6 +277,8 @@ columns:
     role: procedure.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Código do Procedimento Ambulatorial\" (procedure.procedure): procedure, attendance, dates or counts of care delivered"
     codelists:
     - SIGTAP
     name: Código do Procedimento Ambulatorial
@@ -262,6 +290,8 @@ columns:
     role: procedure.quantity_presented_produced
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Produzida (APRESENTADA)\" (procedure.quantity_presented_produced): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Produzida (APRESENTADA)
     years:
     - 2008
@@ -271,6 +301,8 @@ columns:
     role: procedure.quantity_approved
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Aprovada do procedimento\" (procedure.quantity_approved): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Aprovada do procedimento
     years:
     - 2008
@@ -355,6 +387,8 @@ columns:
     role: procedure.establishment_type_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Estabelecimento\" (procedure.establishment_type_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - TP_ESTAB
     name: Tipo de Estabelecimento
@@ -379,6 +413,8 @@ columns:
     role: procedure.establishments_municipality_ibge_code
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do estabelecimento\" (procedure.establishments_municipality_ibge_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - AC_MUNICIP
     name: UF+Municipio do estabelecimento
@@ -390,6 +426,8 @@ columns:
     role: procedure.value_presented_produced
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Produzido (APRESENTADO)\" (procedure.value_presented_produced): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Produzido (APRESENTADO)
     years:
     - 2008
@@ -399,6 +437,8 @@ columns:
     role: procedure.value_approved
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Aprovado do procedimento\" (procedure.value_approved): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Aprovado do procedimento
     years:
     - 2008

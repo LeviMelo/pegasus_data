@@ -62,6 +62,8 @@ columns:
     role: admission.processing_year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano da internação\" (admission.processing_year): processing competence or manager authorisation of the AIH: billing and management"
     name: Ano da internação
     years:
     - 1997
@@ -76,6 +78,8 @@ columns:
     role: act.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento referente ao ato profissional\" (act.procedure): procedure or quantity of acts performed: care delivered"
     codelists:
     - SIGTAP
     - TPROC
@@ -87,6 +91,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Hospital BR(CNPJ)\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: Hospital BR(CNPJ)
@@ -97,6 +103,8 @@ columns:
     role: admission.diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (admission.diagnosis): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -109,6 +117,8 @@ columns:
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Secundário\" (admission.secondary_diagnosis): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -120,6 +130,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do CNES do Estabelecimento executante\" (admission.facility): facility or its location: the facility register"
     codelists:
     - CADGERBR
     name: Código do CNES do Estabelecimento executante
@@ -192,6 +204,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da internação\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data da internação
     years:
     - 1997
@@ -200,6 +214,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 1997
@@ -222,6 +238,8 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestor do estabelecimento\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
     - BR_MUNICGESTOR
     name: Gestor do estabelecimento
@@ -232,6 +250,8 @@ columns:
     role: admission.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês da internação\" (admission.processing_month): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
     - MESES
     name: Mês da internação
@@ -242,6 +262,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do Estabelecimento Executante\" (admission.facility_municipality): facility or its location: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município do Estabelecimento Executante
@@ -252,6 +274,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Município de residência do paciente
@@ -289,6 +313,8 @@ columns:
     role: professional.occupation
     kind: code_tree
     model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de Ocupação Brasileira do profissional\" (professional.occupation): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CBO2002
     name: Código de Ocupação Brasileira do profissional
@@ -323,6 +349,8 @@ columns:
     role: admission.procedure
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento principal realizado na AIH\" (admission.procedure): procedure performed or requested: care delivered"
     codelists:
     - SIGTAP
     - TPROC
@@ -334,6 +362,8 @@ columns:
     role: act.points
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de pontos\" (act.points): payment points, value or processing competence of the professional act: billing"
     name: Quantidade de pontos
     years:
     - 2006
@@ -342,6 +372,8 @@ columns:
     role: act.points_legacy
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Professional-service points (1997 SP file)\" (act.points_legacy): payment points, value or processing competence of the professional act: billing"
     name: Professional-service points (1997 SP file)
     years:
     - 1997
@@ -350,6 +382,8 @@ columns:
     role: act.quantity
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de atos profissionais\" (act.quantity): procedure or quantity of acts performed: care delivered"
     name: Quantidade de atos profissionais
     years:
     - 1997
@@ -358,6 +392,8 @@ columns:
     role: act.procedures_performed
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de procedimentos realizados\" (act.procedures_performed): procedure or quantity of acts performed: care delivered"
     name: Quantidade de procedimentos realizados
     years:
     - 2008
@@ -387,6 +423,8 @@ columns:
     role: admission.state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade da Federação\" (admission.state): facility or its location: the facility register"
     codelists:
     - UF_BR
     name: Unidade da Federação
@@ -410,6 +448,8 @@ columns:
     role: act.value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do ato profissional\" (act.value): payment points, value or processing competence of the professional act: billing"
     name: Valor do ato profissional
     years:
     - 1997

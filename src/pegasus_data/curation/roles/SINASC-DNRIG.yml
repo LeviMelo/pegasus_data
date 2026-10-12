@@ -9,6 +9,8 @@ columns:
     role: birth.apgar1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Índice de Apgar - 1º minuto\" (birth.apgar1): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 1º minuto
     years:
     - 1995
@@ -22,6 +24,8 @@ columns:
     role: birth.apgar5
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Índice de Apgar - 5º minuto\" (birth.apgar5): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 5º minuto
     years:
     - 1995
@@ -31,6 +35,8 @@ columns:
     role: mother.residence_area
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Área de residência\" (mother.residence_area): attribute of the mother (age, birth, residence, occupation)"
     name: Área de residência
     years:
     - 1995
@@ -40,6 +46,8 @@ columns:
     role: mother.residence_neighborhood
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Bairro de residência da mãe\" (mother.residence_neighborhood): attribute of the mother (age, birth, residence, occupation)"
     name: Bairro de residência da mãe
     years:
     - 1995
@@ -78,6 +86,8 @@ columns:
     role: mother.residence_health_region
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"CRS de residência da mãe\" (mother.residence_health_region): attribute of the mother (age, birth, residence, occupation)"
     name: CRS de residência da mãe
     years:
     - 1995
@@ -87,6 +97,8 @@ columns:
     role: birth.health_region
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"CRS de ocorrência\" (birth.health_region): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: CRS de ocorrência
     years:
     - 1995
@@ -96,6 +108,8 @@ columns:
     role: birth.registry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do registro em cartório\" (birth.registry_date): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Data do registro em cartório
     years:
     - 1995
@@ -105,6 +119,8 @@ columns:
     role: baby.birth_date
     kind: date
     model: when
+    fact_domain: person
+    fact_domain_evidence: "\"Data do nascimento\" (baby.birth_date): attribute of the person"
     name: Data do nascimento
     years:
     - 1995
@@ -137,6 +153,8 @@ columns:
     role: pregnancy.previous_abortions
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Abortos\" (pregnancy.previous_abortions): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Abortos
     years:
     - 1995
@@ -149,6 +167,8 @@ columns:
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Filhos nascidos mortos\" (pregnancy.previous_stillbirths): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos mortos
     years:
     - 1995
@@ -161,6 +181,8 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Filhos nascidos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos vivos
     years:
     - 1995
@@ -187,6 +209,8 @@ columns:
     role: mother.age
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da mãe
     years:
     - 1995
@@ -223,6 +247,8 @@ columns:
     role: mother.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência da mãe\" (mother.residence): attribute of the mother (age, birth, residence, occupation)"
     codelists:
     - BR_MUNICIPALFA
     name: Município de residência da mãe
@@ -234,6 +260,8 @@ columns:
     role: birth.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de ocorrência\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     codelists:
     - BR_MUNICIPALFA
     name: Município de ocorrência
@@ -258,6 +286,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer
     years:
     - 1995

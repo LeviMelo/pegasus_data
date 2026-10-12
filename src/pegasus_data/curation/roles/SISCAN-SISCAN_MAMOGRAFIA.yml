@@ -5,6 +5,8 @@ columns:
     role: exam.year_month_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano Resultado
     years:
     - 2013
@@ -13,6 +15,8 @@ columns:
     role: exam.year_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de resultado\" (exam.year_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de resultado
     years:
     - 2013
@@ -54,6 +58,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2013
@@ -92,6 +98,8 @@ columns:
     role: exam.providers_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do prestador de serviço\" (exam.providers_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município do prestador de serviço
@@ -102,6 +110,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Munic. de residência
@@ -112,6 +122,8 @@ columns:
     role: exam.requesting_units_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município da unidade de saúde\" (exam.requesting_units_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município da unidade de saúde
@@ -122,6 +134,8 @@ columns:
     role: exam.service_provider
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Prestador do serviço\" (exam.service_provider): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Prestador do serviço
@@ -197,6 +211,8 @@ columns:
     role: exam.providers_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF do prest.serviço\" (exam.providers_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF do prest.serviço
@@ -207,6 +223,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -217,6 +235,8 @@ columns:
     role: exam.collecting_units_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF da un.saúde\" (exam.collecting_units_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF da un.saúde
@@ -227,6 +247,8 @@ columns:
     role: exam.collecting_health_unit
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de saúde\" (exam.collecting_health_unit): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Unidade de saúde
@@ -237,6 +259,8 @@ columns:
     role: exam.year_of_compet_ncia_billing_period
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de competência\" (exam.year_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Ano de competência
     years:
     - 2013
@@ -245,6 +269,8 @@ columns:
     role: exam.year_month_of_compet_ncia_billing_period
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano competência\" (exam.year_month_of_compet_ncia_billing_period): billing competence or reference period of the exam record"
     name: Mês/Ano competência
     years:
     - 2013
@@ -253,6 +279,8 @@ columns:
     role: exam.count_of_typically_benign_calcifications_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CALC_TIPICA_BENIG_MD\" (exam.count_of_typically_benign_calcifications_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -261,6 +289,8 @@ columns:
     role: exam.count_of_typically_benign_calcifications_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CALC_TIPICA_BENIG_ME\" (exam.count_of_typically_benign_calcifications_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -269,6 +299,8 @@ columns:
     role: exam.count_of_vascular_calcifications_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CALC_VASCULARES_MD\" (exam.count_of_vascular_calcifications_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -277,6 +309,8 @@ columns:
     role: exam.count_of_vascular_calcifications_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CALC_VASCULARES_ME\" (exam.count_of_vascular_calcifications_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -285,6 +319,8 @@ columns:
     role: exam.count_of_oil_cysts_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CISTO_OLEOSO_MD\" (exam.count_of_oil_cysts_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -293,6 +329,8 @@ columns:
     role: exam.count_of_oil_cysts_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_CISTO_OLEOSO_ME\" (exam.count_of_oil_cysts_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -301,6 +339,8 @@ columns:
     role: exam.count_of_diagnostic_mammograms_for_category_3_follow_up
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_CONTROLE_CATEGORIA3\" (exam.count_of_diagnostic_mammograms_for_category_3_follow_up): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -309,6 +349,8 @@ columns:
     role: exam.count_of_diagnostic_exams_performed_for_clinical_imaging_fin
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_DIAG_ACHADOS\" (exam.count_of_diagnostic_exams_performed_for_clinical_imaging_fin): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -317,6 +359,8 @@ columns:
     role: exam.count_of_diagnostic_exams_performed_to_evaluate_chemotherapy
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_DIAG_AVAL_QT\" (exam.count_of_diagnostic_exams_performed_to_evaluate_chemotherapy): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -325,6 +369,8 @@ columns:
     role: exam.count_of_surgery_related_architectural_distortion_right_brea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_DIS_ARQ_POR_CIR_MD\" (exam.count_of_surgery_related_architectural_distortion_right_brea): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -333,6 +379,8 @@ columns:
     role: exam.count_of_surgery_related_architectural_distortion_left_breas
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_DIS_ARQ_POR_CIR_ME\" (exam.count_of_surgery_related_architectural_distortion_left_breas): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -341,6 +389,8 @@ columns:
     role: exam.count_of_duct_ectasia_findings_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ECTASIA_DUCTAL_MD\" (exam.count_of_duct_ectasia_findings_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -349,6 +399,8 @@ columns:
     role: exam.count_of_duct_ectasia_findings_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ECTASIA_DUCTAL_ME\" (exam.count_of_duct_ectasia_findings_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -357,6 +409,8 @@ columns:
     role: exam.count_of_patients_with_prior_right_breast_surgery
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_FEZ_CIRURGIA_DIR\" (exam.count_of_patients_with_prior_right_breast_surgery): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -365,6 +419,8 @@ columns:
     role: exam.count_of_patients_with_prior_left_breast_surgery
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_FEZ_CIRURGIA_ESQ\" (exam.count_of_patients_with_prior_left_breast_surgery): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -373,6 +429,8 @@ columns:
     role: exam.count_of_gynecomastia_findings_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_GINECOMASTIA_MD\" (exam.count_of_gynecomastia_findings_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -381,6 +439,8 @@ columns:
     role: exam.count_of_gynecomastia_findings_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_GINECOMASTIA_ME\" (exam.count_of_gynecomastia_findings_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -389,6 +449,8 @@ columns:
     role: exam.count_of_intact_implant_findings_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_IMPLANT_SEM_SIN_RUPTU_MD\" (exam.count_of_intact_implant_findings_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -397,6 +459,8 @@ columns:
     role: exam.count_of_intact_implant_findings_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_IMPLANT_SEM_SIN_RUPTU_ME\" (exam.count_of_intact_implant_findings_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -405,6 +469,8 @@ columns:
     role: exam.count_of_ruptured_implant_findings_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_IMP_COM_SIN_RUPTU_MD\" (exam.count_of_ruptured_implant_findings_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -413,6 +479,8 @@ columns:
     role: exam.count_of_ruptured_implant_findings_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_IMP_COM_SIN_RUPTU_ME\" (exam.count_of_ruptured_implant_findings_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -421,6 +489,8 @@ columns:
     role: exam.count_of_diagnostic_mammograms_after_biopsy_fna_of_a_benign_
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_LES_BIOSPIA_PAAF\" (exam.count_of_diagnostic_mammograms_after_biopsy_fna_of_a_benign_): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -429,6 +499,8 @@ columns:
     role: exam.count_of_diagnostic_mammograms_in_diagnosed_cancer_before_tr
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_LES_DIAG_CANCER\" (exam.count_of_diagnostic_mammograms_in_diagnosed_cancer_before_tr): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -437,6 +509,8 @@ columns:
     role: exam.count_of_intramammary_lymph_node_findings_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LINFON_INTRAMAM_MD\" (exam.count_of_intramammary_lymph_node_findings_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -445,6 +519,8 @@ columns:
     role: exam.count_of_intramammary_lymph_node_findings_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LINFON_INTRAMAM_ME\" (exam.count_of_intramammary_lymph_node_findings_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -453,6 +529,8 @@ columns:
     role: exam.count_of_patients_with_no_prior_breast_surgery
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NAO_FEZ_CIRURGIAS\" (exam.count_of_patients_with_no_prior_breast_surgery): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -461,6 +539,8 @@ columns:
     role: exam.count_of_calcified_nodules_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_CALCIFIC_MD\" (exam.count_of_calcified_nodules_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -469,6 +549,8 @@ columns:
     role: exam.count_of_calcified_nodules_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_CALCIFIC_ME\" (exam.count_of_calcified_nodules_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -477,6 +559,8 @@ columns:
     role: exam.count_of_fat_density_nodules_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_DENS_GORD_MD\" (exam.count_of_fat_density_nodules_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -485,6 +569,8 @@ columns:
     role: exam.count_of_fat_density_nodules_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_DENS_GORD_ME\" (exam.count_of_fat_density_nodules_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -493,6 +579,8 @@ columns:
     role: exam.count_of_heterogeneous_dense_nodules_right_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_DEN_HETEROG_MD\" (exam.count_of_heterogeneous_dense_nodules_right_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -501,6 +589,8 @@ columns:
     role: exam.count_of_heterogeneous_dense_nodules_left_breast
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NODULO_DEN_HETEROG_ME\" (exam.count_of_heterogeneous_dense_nodules_left_breast): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -509,6 +599,8 @@ columns:
     role: exam.count_of_diagnostic_mammograms_reviewing_an_outside_report
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_REV_MAMOGRAFIA\" (exam.count_of_diagnostic_mammograms_reviewing_an_outside_report): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -517,6 +609,8 @@ columns:
     role: exam.nodule_size_band
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tamanho do nódulo\" (exam.nodule_size_band): count of a result or finding of the screening exam, or its size: the health event"
     name: Tamanho do nódulo
     years:
     - 2013
@@ -536,6 +630,8 @@ columns:
     role: exam.state_of_residence_abbreviation
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência (sigla)\" (exam.state_of_residence_abbreviation): residence or birth date of the person"
     codelists:
     - UF_BR
     name: UF de residência (sigla)

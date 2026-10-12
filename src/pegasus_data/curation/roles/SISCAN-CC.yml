@@ -15,6 +15,8 @@ columns:
     role: exam.abnormal_exams_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exames Alterados\" (exam.abnormal_exams_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Exames Alterados
     years:
     - 2006
@@ -63,6 +65,8 @@ columns:
     role: exam.competence_year
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de Competência\" (exam.competence_year): billing competence or reference period of the exam record"
     name: Ano de Competência
     years:
     - 2006
@@ -141,6 +145,8 @@ columns:
     role: exam.laboratory_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do prestador de serviço\" (exam.laboratory_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - MUNICBR
     name: Município do prestador de serviço
@@ -151,6 +157,8 @@ columns:
     role: exam.laboratory_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF do prestador de serviço\" (exam.laboratory_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF do prestador de serviço
@@ -415,6 +423,8 @@ columns:
     role: exam.laboratory_cnes_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Prestador de serviço (CNES)\" (exam.laboratory_cnes_code): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Prestador de serviço (CNES)
@@ -643,6 +653,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -654,6 +666,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do paciente\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade do paciente
     years:
     - 2006
@@ -674,6 +688,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -698,6 +714,8 @@ columns:
     role: exam.health_unit_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de coleta (CNES)\" (exam.health_unit_code): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Unidade de coleta (CNES)
@@ -708,6 +726,8 @@ columns:
     role: exam.health_unit_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município da unidade de coleta\" (exam.health_unit_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - MUNICBR
     name: Município da unidade de coleta
@@ -718,6 +738,8 @@ columns:
     role: exam.health_unit_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF da unidade de coleta\" (exam.health_unit_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF da unidade de coleta
@@ -810,6 +832,8 @@ columns:
     role: exam.year_of_previously_reported_pap_smear
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ano do exame preventivo anterior informado na anamnese\" (exam.year_of_previously_reported_pap_smear): year of the previous Pap smear: the person's screening history"
     name: Ano do exame preventivo anterior informado na anamnese
     years:
     - 2006
@@ -818,6 +842,8 @@ columns:
     role: exam.competence_year_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano de Competência\" (exam.competence_year_month): billing competence or reference period of the exam record"
     name: Mês/Ano de Competência
     years:
     - 2006
@@ -846,6 +872,8 @@ columns:
     role: exam.count_of_high_grade_lesion_cytology_results_that_cannot_excl
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Lesão intra-epitelial de alto grau, não podendo excluir microinvasão (citologia)\" (exam.count_of_high_grade_lesion_cytology_results_that_cannot_excl): count of a result or finding of the screening exam, or its size: the health event"
     name: Lesão intra-epitelial de alto grau, não podendo excluir microinvasão (citologia)
     years:
     - 2006
@@ -944,6 +972,8 @@ columns:
     role: exam.number_of_exams
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de exames\" (exam.number_of_exams): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Quantidade de exames
     years:
     - 2006
@@ -952,6 +982,8 @@ columns:
     role: exam.number_of_exams
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de exames\" (exam.number_of_exams): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Quantidade de exames
     years:
     - 2011
@@ -960,6 +992,8 @@ columns:
     role: exam.laboratory_region
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região do laboratório\" (exam.laboratory_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - REGIAO
     name: Região do laboratório
@@ -970,6 +1004,8 @@ columns:
     role: exam.region_of_residence
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Região de residência\" (exam.region_of_residence): residence or birth date of the person"
     codelists:
     - REGIAO
     name: Região de residência
@@ -980,6 +1016,8 @@ columns:
     role: exam.health_unit_region
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região da unidade de coleta\" (exam.health_unit_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - REGIAO
     name: Região da unidade de coleta
@@ -1000,6 +1038,8 @@ columns:
     role: exam.transformation_zone_represented_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Representatividade da Zona de Transformação\" (exam.transformation_zone_represented_count): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Representatividade da Zona de Transformação
     years:
     - 2006
@@ -1018,6 +1058,8 @@ columns:
     role: exam.count_of_satisfactory_cytology_exams
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exames satisfatórios (citologia)\" (exam.count_of_satisfactory_cytology_exams): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Exames satisfatórios (citologia)
     years:
     - 2006

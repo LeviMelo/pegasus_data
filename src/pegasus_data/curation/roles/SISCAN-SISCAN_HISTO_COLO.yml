@@ -5,6 +5,8 @@ columns:
     role: exam.reference_year
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"CO_ANO_COMPETENCIA\" (exam.reference_year): billing competence or reference period of the exam record"
     years:
     - 2013
     - 2025
@@ -12,6 +14,8 @@ columns:
     role: exam.reference_year_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"CO_ANO_MES_COMPETENCIA\" (exam.reference_year_month): billing competence or reference period of the exam record"
     years:
     - 2013
     - 2025
@@ -19,6 +23,8 @@ columns:
     role: exam.year_month_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Mês/Ano Resultado
     years:
     - 2013
@@ -27,6 +33,8 @@ columns:
     role: exam.year_of_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano de resultado\" (exam.year_of_result): date of collection, receipt or result of the exam: how the exam was done"
     name: Ano de resultado
     years:
     - 2013
@@ -74,6 +82,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Munic. de residência
@@ -122,6 +132,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -132,6 +144,8 @@ columns:
     role: exam.colposcopy_abnormal_major_changes_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_AC_ANORMAL_C_ALT_MAIOR\" (exam.colposcopy_abnormal_major_changes_count): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -139,6 +153,8 @@ columns:
     role: exam.colposcopy_abnormal_minor_changes_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_AC_ANORMAL_C_ALT_MENOR\" (exam.colposcopy_abnormal_minor_changes_count): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -146,6 +162,8 @@ columns:
     role: exam.colposcopy_miscellaneous_findings_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_AC_ANORMAL_C_MISCELANIA\" (exam.colposcopy_miscellaneous_findings_count): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -153,6 +171,8 @@ columns:
     role: exam.colposcopy_suggestive_of_cancer_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_AC_ANORMAL_C_SUGEST_CANCER\" (exam.colposcopy_suggestive_of_cancer_count): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -160,6 +180,8 @@ columns:
     role: exam.count_of_hpv_compatible_cytopathic_changes_benign
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LES_BEN_ALTO_CITO_COMPA\" (exam.count_of_hpv_compatible_cytopathic_changes_benign): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -168,6 +190,8 @@ columns:
     role: exam.count_of_chronic_cervicitis_diagnoses_benign
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LES_BEN_CERVICITE_CRON\" (exam.count_of_chronic_cervicitis_diagnoses_benign): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -176,6 +200,8 @@ columns:
     role: exam.count_of_squamous_metaplasia_diagnoses_benign
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LES_BEN_METAPLASIA_ESC\" (exam.count_of_squamous_metaplasia_diagnoses_benign): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -184,6 +210,8 @@ columns:
     role: exam.count_of_endocervical_polyp_diagnoses_benign
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_LES_BEN_POLIPO_ENDOCERVICAL\" (exam.count_of_endocervical_polyp_diagnoses_benign): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -192,6 +220,8 @@ columns:
     role: exam.count_of_cin_1_mild_dysplasia_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEOPLASICO_NIC_I\" (exam.count_of_cin_1_mild_dysplasia_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -200,6 +230,8 @@ columns:
     role: exam.count_of_cin_2_moderate_dysplasia_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEOPLASICO_NIC_II\" (exam.count_of_cin_2_moderate_dysplasia_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -208,6 +240,8 @@ columns:
     role: exam.count_of_cin_3_severe_dysplasia_carcinoma_in_situ_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEOPLASICO_NIC_III\" (exam.count_of_cin_3_severe_dysplasia_carcinoma_in_situ_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -216,6 +250,8 @@ columns:
     role: exam.count_of_invasive_adenocarcinoma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEO_ADENO_INVASOR\" (exam.count_of_invasive_adenocarcinoma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -224,6 +260,8 @@ columns:
     role: exam.count_of_adenocarcinoma_in_situ_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEO_ADENO_IN_SITU\" (exam.count_of_adenocarcinoma_in_situ_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -232,6 +270,8 @@ columns:
     role: exam.count_of_squamous_cell_carcinoma_with_invasion_not_assessabl
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEO_CARC_EPID_IMPOSSIVEL\" (exam.count_of_squamous_cell_carcinoma_with_invasion_not_assessabl): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -240,6 +280,8 @@ columns:
     role: exam.count_of_invasive_squamous_cell_carcinoma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEO_CARC_EPID_INVASIVO\" (exam.count_of_invasive_squamous_cell_carcinoma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -248,6 +290,8 @@ columns:
     role: exam.count_of_microinvasive_squamous_cell_carcinoma_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_NEO_CARC_EPID_MICRO_INVASIV\" (exam.count_of_microinvasive_squamous_cell_carcinoma_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -256,6 +300,8 @@ columns:
     role: exam.count_of_other_malignant_neoplasm_diagnoses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_OUTRAS_NEOPL_MALIG\" (exam.count_of_other_malignant_neoplasm_diagnoses): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -264,6 +310,8 @@ columns:
     role: exam.count_of_biopsy_procedures
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_PROC_BIOPSIA\" (exam.count_of_biopsy_procedures): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -272,6 +320,8 @@ columns:
     role: exam.count_of_conization_excision_procedures
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_PROC_EXERESE_CONIZACAO\" (exam.count_of_conization_excision_procedures): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -280,6 +330,8 @@ columns:
     role: exam.count_of_other_procedures
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_PROC_EXERESE_OUTROS\" (exam.count_of_other_procedures): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -288,6 +340,8 @@ columns:
     role: exam.count_of_excisions_performed_after_a_prior_biopsy
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_PROC_EXERESE_POS_BIOPSIA\" (exam.count_of_excisions_performed_after_a_prior_biopsy): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -296,6 +350,8 @@ columns:
     role: exam.count_of_see_and_treat_excision_procedures
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"NU_PROC_EXERESE_VER_E_TRATAR\" (exam.count_of_see_and_treat_excision_procedures): count of exams or procedures performed, and sample adequacy: how the exam was done"
     years:
     - 2013
     - 2025
@@ -304,6 +360,8 @@ columns:
     role: exam.count_of_neoplastic_pre_neoplastic_results
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_RES_EXAMES_NEO_PRENEO\" (exam.count_of_neoplastic_pre_neoplastic_results): count of a result or finding of the screening exam, or its size: the health event"
     years:
     - 2013
     - 2025
@@ -311,6 +369,8 @@ columns:
     role: exam.count_of_satisfactory_transformation_zones_indeterminate_typ
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ZT_SATIF_IND\" (exam.count_of_satisfactory_transformation_zones_indeterminate_typ): colposcopic transformation-zone finding: the health event"
     years:
     - 2013
     - 2025
@@ -319,6 +379,8 @@ columns:
     role: exam.count_of_satisfactory_transformation_zones_type_i
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ZT_SATIF_TP_I\" (exam.count_of_satisfactory_transformation_zones_type_i): colposcopic transformation-zone finding: the health event"
     years:
     - 2013
     - 2025
@@ -327,6 +389,8 @@ columns:
     role: exam.count_of_satisfactory_transformation_zones_type_ii
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ZT_SATIF_TP_II\" (exam.count_of_satisfactory_transformation_zones_type_ii): colposcopic transformation-zone finding: the health event"
     years:
     - 2013
     - 2025
@@ -335,6 +399,8 @@ columns:
     role: exam.count_of_satisfactory_transformation_zones_type_iii
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"NU_ZT_SATIF_TP_III\" (exam.count_of_satisfactory_transformation_zones_type_iii): colposcopic transformation-zone finding: the health event"
     years:
     - 2013
     - 2025
@@ -353,6 +419,8 @@ columns:
     role: exam.state_of_residence_abbreviation
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência (sigla)\" (exam.state_of_residence_abbreviation): residence or birth date of the person"
     codelists:
     - UF_BR
     name: UF de residência (sigla)

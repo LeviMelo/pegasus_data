@@ -65,6 +65,8 @@ columns:
     role: case.comorbidity_other_text
     kind: text
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Doenças e agravos associados - Outro (especificar)\" (case.comorbidity_other_text): free text on a sign, comorbidity or site of the case: the health event"
     note: Draft typing said number; curation says free text.
     name: Doenças e agravos associados - Outro (especificar)
     years:
@@ -98,6 +100,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Year only; a stratum needs a population-account property (birth_date or age_*), so mark.
     name: Ano de Nascimento
     years:
@@ -370,6 +374,8 @@ columns:
     role: case.diagnosis_date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do Diagnóstico\" (case.diagnosis_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do Diagnóstico
     years:
     - 2001
@@ -387,6 +393,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2001
@@ -395,6 +403,8 @@ columns:
     role: treatment.start_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do início do tratamento\" (treatment.start_date): treatment given: serum, drug, doses, dates or transfer"
     name: Data do início do tratamento
     years:
     - 2001
@@ -403,6 +413,8 @@ columns:
     role: treatment.change_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da mudança de tratamento\" (treatment.change_date): treatment given: serum, drug, doses, dates or transfer"
     name: Data da mudança de tratamento
     years:
     - 2001
@@ -411,6 +423,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2001
@@ -419,6 +433,8 @@ columns:
     role: notification.followup_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação Atual\" (notification.followup_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Date of the current follow-up visit, not the index notification (curation _shared.yml).
     name: Data da Notificação Atual
     years:
@@ -552,6 +568,8 @@ columns:
     role: case.extrapulmonary_site_other
     kind: text
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se extrapulmonar - Outras (especificar)\" (case.extrapulmonary_site_other): free text on a sign, comorbidity or site of the case: the health event"
     name: Se extrapulmonar - Outras (especificar)
     years:
     - 2001
@@ -608,6 +626,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -624,6 +644,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
     codelists:
     - BR_MUNICIPALFA
@@ -640,6 +662,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -656,6 +680,8 @@ columns:
     role: patient.current_residence_municipality
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência atual\" (patient.current_residence_municipality): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de residência atual
     codelists:
     - BR_MUNICIPALFA
@@ -666,6 +692,8 @@ columns:
     role: notification.current_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município de atendimento/notificação atual\" (notification.current_municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de atendimento/notificação atual
     codelists:
     - BR_MUNICIPALFA
@@ -676,6 +704,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -688,6 +718,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -698,6 +730,8 @@ columns:
     role: notification.region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -709,6 +743,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -767,6 +803,8 @@ columns:
     role: treatment.transfer_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município de transferência (destino do paciente)\" (treatment.transfer_municipality): treatment given: serum, drug, doses, dates or transfer"
     name: Município de transferência (destino do paciente)
     codelists:
     - BR_MUNICIPALFA
@@ -789,6 +827,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2001
@@ -798,6 +838,8 @@ columns:
     role: case.contacts_examined
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de contatos examinados\" (case.contacts_examined): contact tracing, blockade, treatment delay or visits: how care happened"
     name: Número de contatos examinados
     years:
     - 2001
@@ -807,6 +849,8 @@ columns:
     role: case.contacts_registered
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de contatos registrados\" (case.contacts_registered): contact tracing, blockade, treatment delay or visits: how care happened"
     name: Número de contatos registrados
     years:
     - 2001
@@ -815,6 +859,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
       is the derived IDADE_anos.
     name: Idade
@@ -940,6 +986,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -950,6 +998,8 @@ columns:
     role: patient.current_residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência atual\" (patient.current_residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     note: "IBGE state codes: the form's width 2, and 70,875 of 70,875 values in 2021."
     name: UF de residência atual
     years:
@@ -961,6 +1011,8 @@ columns:
     role: notification.current_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de notificação atual\" (notification.current_state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de notificação atual
     codelists:
     - UF_BR
@@ -971,6 +1023,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -1130,6 +1184,8 @@ columns:
     role: treatment.transfer_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de transferência\" (treatment.transfer_state): treatment given: serum, drug, doses, dates or transfer"
     name: UF de transferência
     codelists:
     - UF_BR
@@ -1141,5 +1197,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

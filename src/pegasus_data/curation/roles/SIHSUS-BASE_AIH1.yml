@@ -45,6 +45,8 @@ columns:
     role: admission.external_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa externa (CID-10)\" (admission.external_cause): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     name: Causa externa (CID-10)
@@ -55,6 +57,8 @@ columns:
     role: admission.death_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID da morte\" (admission.death_cause): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -66,6 +70,8 @@ columns:
     role: admission.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código do diagnóstico principal\" (admission.diagnosis): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -77,6 +83,8 @@ columns:
     role: admission.secondary_diagnosis_1
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 1\" (admission.secondary_diagnosis_1): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -88,6 +96,8 @@ columns:
     role: admission.secondary_diagnosis_2
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 2\" (admission.secondary_diagnosis_2): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -99,6 +109,8 @@ columns:
     role: admission.secondary_diagnosis_3
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 3\" (admission.secondary_diagnosis_3): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -110,6 +122,8 @@ columns:
     role: admission.secondary_diagnosis_4
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 4\" (admission.secondary_diagnosis_4): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -121,6 +135,8 @@ columns:
     role: admission.secondary_diagnosis_5
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 5\" (admission.secondary_diagnosis_5): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -132,6 +148,8 @@ columns:
     role: admission.secondary_diagnosis_6
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 6\" (admission.secondary_diagnosis_6): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -143,6 +161,8 @@ columns:
     role: admission.secondary_diagnosis_7
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 7\" (admission.secondary_diagnosis_7): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -154,6 +174,8 @@ columns:
     role: admission.secondary_diagnosis_8
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 8\" (admission.secondary_diagnosis_8): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -165,6 +187,8 @@ columns:
     role: admission.secondary_diagnosis_9
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário 9\" (admission.secondary_diagnosis_9): diagnosis or cause code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -176,6 +200,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -252,6 +278,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -272,6 +300,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do Estabelecimento\" (admission.facility_municipality): facility or its location: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município do Estabelecimento
@@ -282,6 +312,8 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município Gestor\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
     - BR_MUNICIPALFA
     name: Município Gestor
@@ -292,6 +324,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência do Paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Município de Residência do Paciente
@@ -316,6 +350,8 @@ columns:
     role: admission.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento realizado\" (admission.procedure): procedure performed or requested: care delivered"
     codelists:
     - SIGTAP
     - TPROC
@@ -331,6 +367,8 @@ columns:
     role: admission.requested_procedure
     kind: code_tree
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento solicitado\" (admission.requested_procedure): procedure performed or requested: care delivered"
     codelists:
     - SIGTAP
     - TPROC
@@ -534,6 +572,8 @@ columns:
     role: admission.processing_competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (ano/mês de processamento)\" (admission.processing_competence): processing competence or manager authorisation of the AIH: billing and management"
     name: Competência (ano/mês de processamento)
     years:
     - 
@@ -543,6 +583,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de internação\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de internação
     years:
     - 
@@ -551,6 +593,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento do paciente\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento do paciente
     years:
     - 
@@ -559,6 +603,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 
@@ -599,6 +645,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 
@@ -615,6 +663,8 @@ columns:
     role: admission.aih_count
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de AIH\" (admission.aih_count): count or payer of AIH documents: billing"
     name: Quantidade de AIH
     years:
     - 
@@ -625,6 +675,8 @@ columns:
     role: admission.billed_days
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de diárias\" (admission.billed_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias
     years:
     - 
@@ -634,6 +686,8 @@ columns:
     role: admission.companion_days
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade de diárias de acompanhante\" (admission.companion_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias de acompanhante
     years:
     - 
@@ -642,6 +696,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dias de Permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de Permanência
     years:
     - 
@@ -650,6 +706,8 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"QT_DIAS_UI\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     years:
     - 
     - 
@@ -658,6 +716,8 @@ columns:
     role: admission.icu_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de diárias em unidade intermediária (per layout text)\" (admission.icu_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de diárias em unidade intermediária (per layout text)
     years:
     - 
@@ -666,6 +726,8 @@ columns:
     role: admission.admission_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de internações\" (admission.admission_count): count of admissions or procedures: how care was delivered"
     name: Quantidade de internações
     years:
     - 
@@ -674,6 +736,8 @@ columns:
     role: admission.death_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de óbitos\" (admission.death_count): count of deaths: outcome"
     name: Quantidade de óbitos
     years:
     - 
@@ -682,6 +746,8 @@ columns:
     role: admission.value_total
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor total da AIH\" (admission.value_total): a value, point or billed-day count of the AIH: billing"
     name: Valor total da AIH
     years:
     - 
@@ -690,6 +756,8 @@ columns:
     role: admission.value_hospital_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de serviços hospitalares\" (admission.value_hospital_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços hospitalares
     years:
     - 
@@ -698,6 +766,8 @@ columns:
     role: admission.value_professional_services
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de serviços profissionais\" (admission.value_professional_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços profissionais
     years:
     - 
@@ -706,6 +776,8 @@ columns:
     role: admission.value_hospital_services_federal
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento federal de serviços hospitalares\" (admission.value_hospital_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços hospitalares
     years:
     - 
@@ -714,6 +786,8 @@ columns:
     role: admission.value_hospital_services_manager
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento do gestor de serviços hospitalares\" (admission.value_hospital_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços hospitalares
     years:
     - 
@@ -722,6 +796,8 @@ columns:
     role: admission.value_professional_services_federal
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento federal de serviços profissionais\" (admission.value_professional_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços profissionais
     years:
     - 
@@ -730,6 +806,8 @@ columns:
     role: admission.value_professional_services_manager
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor do complemento do gestor de serviços profissionais\" (admission.value_professional_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços profissionais
     years:
     - 
@@ -738,6 +816,8 @@ columns:
     role: admission.value_intermediate_unit
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de UCI\" (admission.value_intermediate_unit): a value, point or billed-day count of the AIH: billing"
     name: Valor de UCI
     years:
     - 
@@ -746,6 +826,8 @@ columns:
     role: admission.value_icu
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor de UTI\" (admission.value_icu): a value, point or billed-day count of the AIH: billing"
     name: Valor de UTI
     years:
     - 

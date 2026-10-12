@@ -162,6 +162,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Legacy 2000-2006 year; undocumented, read from the name and C4 width.
     name: Ano
     years:
@@ -171,6 +173,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Birth year alone; birth_year is not a stratum property (STRATA lists birth_date and age_*).
     name: Ano de Nascimento
     years:
@@ -180,6 +184,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da investigação (bloco de conclusão legado)\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Legacy 2000-2006 name of DT_INVEST; draft typed it number.
     name: Data da investigação (bloco de conclusão legado)
     years:
@@ -305,6 +311,8 @@ columns:
     role: case.infection_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável da Fonte de Infecção
     codelists:
     - BR_MUNICIPALFA
@@ -366,6 +374,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de encerramento (bloco de conclusão legado)\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Legacy 2000-2006 name of DT_ENCERRA; draft typed it number.
     name: Data de encerramento (bloco de conclusão legado)
     years:
@@ -375,6 +385,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do óbito (bloco de conclusão legado)\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     note: Legacy 2000-2006 predecessor of DT_OBITO; draft typed it number.
     name: Data do óbito (bloco de conclusão legado)
     years:
@@ -410,6 +422,8 @@ columns:
     role: case.infection_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município provável de infecção (nome de campo legado)\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name.
     name: Município provável de infecção (nome de campo legado)
     codelists:
@@ -422,6 +436,8 @@ columns:
     role: case.infection_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"País de infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name; draft typed it number, but it is a country code.
     name: País de infecção
     years:
@@ -431,6 +447,8 @@ columns:
     role: case.infection_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF provável de infecção (nome de campo legado)\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name.
     name: UF provável de infecção (nome de campo legado)
     codelists:
@@ -442,6 +460,8 @@ columns:
     role: case.infection_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País Provável da Fonte de Infecção
     codelists:
     - PAISNET
@@ -452,6 +472,8 @@ columns:
     role: case.infection_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF Provável da Fonte de Infecção
     codelists:
     - UF_BR
@@ -658,6 +680,8 @@ columns:
     role: case.alarm_onset_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue com sinais de alarme - Data de início dos sintomas\" (case.alarm_onset_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Dengue com sinais de alarme - Data de início dos sintomas
     years:
     - 2014
@@ -666,6 +690,8 @@ columns:
     role: case.chik_igm1_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame sorológico (IgM) Chikungunya Soro 1 - Data da Coleta\" (case.chik_igm1_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Exame sorológico (IgM) Chikungunya Soro 1 - Data da Coleta
     years:
     - 2014
@@ -674,6 +700,8 @@ columns:
     role: case.chik_igm2_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame sorológico (IgM) Chikungunya Soro 2 - Data da Coleta\" (case.chik_igm2_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Exame sorológico (IgM) Chikungunya Soro 2 - Data da Coleta
     years:
     - 2014
@@ -682,6 +710,8 @@ columns:
     role: case.shock_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do choque\" (case.shock_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data do choque
     years:
@@ -691,6 +721,8 @@ columns:
     role: case.blood_sample2_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta - Hemograma 2\" (case.blood_sample2_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da coleta - Hemograma 2
     years:
@@ -700,6 +732,8 @@ columns:
     role: case.blood_sample_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta de sangue\" (case.blood_sample_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da coleta de sangue
     years:
@@ -709,6 +743,8 @@ columns:
     role: case.platelet_sample2_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da 2ª coleta de plaquetas\" (case.platelet_sample2_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da 2ª coleta de plaquetas
     years:
@@ -718,6 +754,8 @@ columns:
     role: case.platelet_sample_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de coleta de plaquetas\" (case.platelet_sample_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data de coleta de plaquetas
     years:
@@ -727,6 +765,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Data-entry date; measures entry lag, not the clinical timeline.
     name: Data de Digitação
     years:
@@ -736,6 +776,8 @@ columns:
     role: case.vaccine_dose_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da dose (vacina dengue)\" (case.vaccine_dose_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data da dose (vacina dengue)
     years:
     - 2000
@@ -744,6 +786,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2007
@@ -752,6 +796,8 @@ columns:
     role: case.fever_onset_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do início da febre\" (case.fever_onset_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data do início da febre
     years:
@@ -761,6 +807,8 @@ columns:
     role: case.severe_onset_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Dengue grave - Data de início dos sintomas\" (case.severe_onset_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Dengue grave - Data de início dos sintomas
     years:
     - 2014
@@ -769,6 +817,8 @@ columns:
     role: case.hospitalization_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da internação\" (case.hospitalization_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da internação
     years:
     - 2000
@@ -777,6 +827,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Investigação\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Investigação
     years:
     - 2007
@@ -785,6 +837,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2000
@@ -793,6 +847,8 @@ columns:
     role: case.ns1_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta do exame NS1\" (case.ns1_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da coleta do exame NS1
     years:
     - 2007
@@ -801,6 +857,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2007
@@ -809,6 +867,8 @@ columns:
     role: case.pcr_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"RT-PCR – Data da Coleta\" (case.pcr_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: RT-PCR – Data da Coleta
     years:
     - 2007
@@ -817,6 +877,8 @@ columns:
     role: case.prnt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame PRNT - Data da Coleta\" (case.prnt_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Exame PRNT - Data da Coleta
     years:
     - 2014
@@ -825,6 +887,8 @@ columns:
     role: case.onset
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data dos Primeiros Sintomas / Data do Diagnóstico\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data dos Primeiros Sintomas / Data do Diagnóstico
     years:
     - 2000
@@ -833,6 +897,8 @@ columns:
     role: case.igm_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta da sorologia IgM\" (case.igm_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da coleta da sorologia IgM
     years:
     - 2007
@@ -841,6 +907,8 @@ columns:
     role: case.serum1_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta do 1º soro\" (case.serum1_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da coleta do 1º soro
     years:
@@ -850,6 +918,8 @@ columns:
     role: case.serum2_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da 2ª sorologia\" (case.serum2_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da 2ª sorologia
     years:
@@ -859,6 +929,8 @@ columns:
     role: case.serology1_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da 1ª sorologia\" (case.serology1_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da 1ª sorologia
     years:
@@ -868,6 +940,8 @@ columns:
     role: case.serology2_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da sorologia 2\" (case.serology2_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Data da sorologia 2
     years:
@@ -877,6 +951,8 @@ columns:
     role: case.viral_isolation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta para isolamento viral\" (case.viral_isolation_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da coleta para isolamento viral
     years:
     - 2007
@@ -1197,6 +1273,8 @@ columns:
     role: case.hematocrit_max
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Maior valor de hematócrito\" (case.hematocrit_max): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Maior valor de hematócrito
     years:
@@ -1206,6 +1284,8 @@ columns:
     role: case.hematocrit_min
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hematócrito menor\" (case.hematocrit_min): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Hematócrito menor
     years:
@@ -1297,6 +1377,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     note: An ordinary coded column (CID-10 based agravo list), not a record identifier; draft typed it 
       identifier.
     name: Agravo/doença
@@ -1339,6 +1421,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
     - case.residence
     name: Município de Residência
@@ -1357,6 +1441,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -1373,6 +1459,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -1385,6 +1473,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -1395,6 +1485,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -1406,6 +1498,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Health region of residence, derived from ID_MN_RESI.
     name: Regional de Saúde da Residência
     codelists:
@@ -1418,6 +1512,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -1615,6 +1711,8 @@ columns:
     role: case.hospital_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município (da hospitalização)\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.
     name: Município (da hospitalização)
     codelists:
@@ -1675,6 +1773,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: Filled by the system from DT_NOTIFIC; not year of illness.
     name: Ano da notificação
     years:
@@ -1684,6 +1784,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Legacy 2000-2006 packed age, unit digit then value, same layout as NU_IDADE_N. The age stratum is 
       the derived IDADE_anos.
     name: Idade
@@ -1694,6 +1796,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
       is the derived IDADE_anos.
     name: Idade
@@ -1704,6 +1808,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Legacy 2000-2006 field, undocumented, declared width varies (5 or 11) across files; coding scheme 
       unverified, code_tree assumed from ID_OCUPA_N.
     name: Ocupação
@@ -1768,6 +1874,8 @@ columns:
     role: case.platelets_max
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Plaquetas maior\" (case.platelets_max): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: Legacy 2000-2006, undocumented; role read from the field name and width.
     name: Plaquetas maior
     years:
@@ -1815,6 +1923,8 @@ columns:
     role: case.platelets_min
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Menor Contagem de Plaquetas\n\" (case.platelets_min): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Menor Contagem de Plaquetas\n"
     years:
     - 2000
@@ -2014,6 +2124,8 @@ columns:
     role: case.serology1_titer
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Título do 1º soro\" (case.serology1_titer): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: Legacy 2000-2006 antibody titer; undocumented, assumed numeric.
     name: Título do 1º soro
     years:
@@ -2045,6 +2157,8 @@ columns:
     role: case.serology2_titer
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Título da 2ª sorologia\" (case.serology2_titer): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: Legacy 2000-2006 antibody titer; undocumented, assumed numeric.
     name: Título da 2ª sorologia
     years:
@@ -2068,6 +2182,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     note: AAAASS, published by the source; never recomputed.
     name: Semana Epidemiológica da Notificação
     years:
@@ -2077,6 +2193,8 @@ columns:
     role: case.onset_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (case.onset_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     note: AAAASS epidemiological week of onset, published by the source.
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
@@ -2086,6 +2204,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     note: State level of ID_MN_RESI, the residence stratum.
     name: UF de Residência
     codelists:
@@ -2097,6 +2217,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -2208,6 +2330,8 @@ columns:
     role: case.hospital_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de hospitalização\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.
     name: UF de hospitalização
     codelists:
@@ -2244,6 +2368,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
     - case.age_years
     note: Derived from NU_IDADE_N / NU_IDADE by the query (ADR-0070).

@@ -12,6 +12,8 @@ columns:
     role: authorisation.establishment_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"PAC_CODUNI\" (authorisation.establishment_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     years:
@@ -51,6 +53,8 @@ columns:
     role: authorisation.cause_of_renal_failure_icd_10
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAC_DIAGPR\" (authorisation.cause_of_renal_failure_icd_10): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     years:
@@ -60,6 +64,8 @@ columns:
     role: authorisation.renal_failure_diagnosis_icd_10
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAC_DIAGSE\" (authorisation.renal_failure_diagnosis_icd_10): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     years:
@@ -69,6 +75,8 @@ columns:
     role: authorisation.transplant_waiting_list_enrolment_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_DTINSC\" (authorisation.transplant_waiting_list_enrolment_date): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -76,6 +84,8 @@ columns:
     role: authorisation.date_of_first_kidney_transplant
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_DTTRS1\" (authorisation.date_of_first_kidney_transplant): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -83,6 +93,8 @@ columns:
     role: authorisation.date_of_second_kidney_transplant
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_DTTRS2\" (authorisation.date_of_second_kidney_transplant): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -90,6 +102,8 @@ columns:
     role: authorisation.date_of_third_kidney_transplant
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_DTTRS3\" (authorisation.date_of_third_kidney_transplant): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -97,6 +111,8 @@ columns:
     role: authorisation.managing_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"PAC_GESTAO\" (authorisation.managing_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - BR_MUNICIPALFA
     years:
@@ -115,6 +131,8 @@ columns:
     role: authorisation.treatment_start_year_month
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_INITRA\" (authorisation.treatment_start_year_month): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -131,6 +149,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"PAC_MUNPCN\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -141,6 +161,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"PAC_NASCPC\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     years:
     - 2001
     - 2007
@@ -164,6 +186,8 @@ columns:
     role: authorisation.number_of_transplants_performed
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAC_SITTRA\" (authorisation.number_of_transplants_performed): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007

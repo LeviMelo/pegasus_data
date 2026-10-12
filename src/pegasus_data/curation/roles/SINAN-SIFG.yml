@@ -82,6 +82,8 @@ columns:
     role: treatment.partner_untreated_reason_text
     kind: text
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Outro motivo\" (treatment.partner_untreated_reason_text): treatment given: serum, drug, doses, dates or transfer"
     note: Draft typing said number; curation says free text.
     name: Outro motivo
     years:
@@ -91,6 +93,8 @@ columns:
     role: pregnancy.prenatal_test_titre
     kind: text
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Título\" (pregnancy.prenatal_test_titre): obstetric history, gestation or test result of the pregnancy: clinical"
     note: Free-text titre (curation sifg.yml:21), e.g. 1:16; kept text.
     name: Título
     years:
@@ -100,6 +104,8 @@ columns:
     role: pregnancy.prenatal_test_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do teste não treponêmico no pré-natal\" (pregnancy.prenatal_test_date): prenatal care, test dates and delivery type: how care happened"
     name: Data do teste não treponêmico no pré-natal
     years:
     - 2007
@@ -108,6 +114,8 @@ columns:
     role: case.diagnosis_date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do Diagnóstico\" (case.diagnosis_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do Diagnóstico
     years:
     - 2007
@@ -116,6 +124,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2007
@@ -124,6 +134,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -140,6 +152,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
     codelists:
     - BR_MUNICIPALFA
@@ -156,6 +170,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -172,6 +188,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -184,6 +202,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -194,6 +214,8 @@ columns:
     role: notification.region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -205,6 +227,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -216,6 +240,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2007
@@ -224,6 +250,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
       the derived IDADE_anos.
     name: Idade
@@ -234,6 +262,8 @@ columns:
     role: pregnancy.prenatal_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município de realização do pré-natal\" (pregnancy.prenatal_municipality): prenatal care, test dates and delivery type: how care happened"
     name: Município de realização do pré-natal
     codelists:
     - BR_MUNICIPALFA
@@ -244,6 +274,8 @@ columns:
     role: pregnancy.prenatal_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF de realização do pré-natal\" (pregnancy.prenatal_state): prenatal care, test dates and delivery type: how care happened"
     name: UF de realização do pré-natal
     codelists:
     - UF_BR
@@ -254,6 +286,8 @@ columns:
     role: case.diagnosis_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica do Diagnóstico\" (case.diagnosis_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica do Diagnóstico
     years:
     - 2007
@@ -262,6 +296,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -272,6 +308,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -381,5 +419,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

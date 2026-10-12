@@ -5,6 +5,8 @@ columns:
     role: authorisation.linked_entity_tax_id_slot_1
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_APCGC1\" (authorisation.linked_entity_tax_id_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -14,6 +16,8 @@ columns:
     role: authorisation.linked_entity_tax_id_slot_2
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_APCGC2\" (authorisation.linked_entity_tax_id_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -23,6 +27,8 @@ columns:
     role: authorisation.linked_entity_municipality_slot_1
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_APMN1\" (authorisation.linked_entity_municipality_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -32,6 +38,8 @@ columns:
     role: authorisation.linked_entity_municipality_slot_2
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_APMN2\" (authorisation.linked_entity_municipality_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -57,6 +65,8 @@ columns:
     role: authorisation.establishment_code_dialysis_unit
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_CODUNI\" (authorisation.establishment_code_dialysis_unit): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     years:
@@ -75,6 +85,8 @@ columns:
     role: authorisation.reference_year_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_DATREF\" (authorisation.reference_year_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2004
@@ -96,6 +108,8 @@ columns:
     role: authorisation.managing_authority
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_GESTAO\" (authorisation.managing_authority): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -105,6 +119,8 @@ columns:
     role: authorisation.backup_general_hospital_tax_id_slot_1
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HGCGC1\" (authorisation.backup_general_hospital_tax_id_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -114,6 +130,8 @@ columns:
     role: authorisation.backup_general_hospital_tax_id_slot_2
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HGCGC2\" (authorisation.backup_general_hospital_tax_id_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -123,6 +141,8 @@ columns:
     role: authorisation.backup_general_hospital_municipality_slot_1
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HGMN1\" (authorisation.backup_general_hospital_municipality_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -132,6 +152,8 @@ columns:
     role: authorisation.backup_general_hospital_municipality_slot_2
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HGMN2\" (authorisation.backup_general_hospital_municipality_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -157,6 +179,8 @@ columns:
     role: authorisation.renal_transplant_referral_hospital_tax_id
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HTPCGC\" (authorisation.renal_transplant_referral_hospital_tax_id): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -166,6 +190,8 @@ columns:
     role: authorisation.renal_transplant_referral_hospital_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_HTPMN\" (authorisation.renal_transplant_referral_hospital_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -237,6 +263,8 @@ columns:
     role: authorisation.analysis_laboratory_tax_id
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_LAACGC\" (authorisation.analysis_laboratory_tax_id): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -246,6 +274,8 @@ columns:
     role: authorisation.analysis_laboratory_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_LAAMN\" (authorisation.analysis_laboratory_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -263,6 +293,8 @@ columns:
     role: authorisation.histocompatibility_laboratory_tax_id
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_LHCCGC\" (authorisation.histocompatibility_laboratory_tax_id): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -272,6 +304,8 @@ columns:
     role: authorisation.histocompatibility_laboratory_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_LHCMN\" (authorisation.histocompatibility_laboratory_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -289,6 +323,8 @@ columns:
     role: authorisation.medical_supplies_vendor_tax_id
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_MEDCGC\" (authorisation.medical_supplies_vendor_tax_id): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -298,6 +334,8 @@ columns:
     role: authorisation.medical_supplies_vendor_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_MEDMN\" (authorisation.medical_supplies_vendor_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -315,6 +353,8 @@ columns:
     role: authorisation.maintenance_contractor_tax_id
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_MTACGC\" (authorisation.maintenance_contractor_tax_id): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CNPJ_BR
     years:
@@ -324,6 +364,8 @@ columns:
     role: authorisation.maintenance_contractor_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_MTAMN\" (authorisation.maintenance_contractor_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -355,6 +397,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_1
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_PCCGC1\" (authorisation.reference_entity_tax_id_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -364,6 +408,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_2
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_PCCGC2\" (authorisation.reference_entity_tax_id_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -373,6 +419,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_PCMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:
@@ -382,6 +430,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_PCMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:
@@ -443,6 +493,8 @@ columns:
     role: authorisation.dialysis_machine_count_category_d
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_QTDMQD\" (authorisation.dialysis_machine_count_category_d): facility, partner service, equipment or management of the authorising unit: the facility register"
     years:
     - 2001
     - 2004
@@ -450,6 +502,8 @@ columns:
     role: authorisation.dialysis_machine_count_category_o
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_QTDMQO\" (authorisation.dialysis_machine_count_category_o): facility, partner service, equipment or management of the authorising unit: the facility register"
     years:
     - 2001
     - 2004
@@ -457,6 +511,8 @@ columns:
     role: authorisation.dialysis_machine_count_category_p
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_QTDMQP\" (authorisation.dialysis_machine_count_category_p): facility, partner service, equipment or management of the authorising unit: the facility register"
     years:
     - 2001
     - 2004
@@ -464,6 +520,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_1
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_RDCGC1\" (authorisation.reference_entity_tax_id_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -473,6 +531,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_2
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_RDCGC2\" (authorisation.reference_entity_tax_id_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -482,6 +542,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_RDMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:
@@ -491,6 +553,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_RDMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:
@@ -516,6 +580,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_1
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_USCGC1\" (authorisation.reference_entity_tax_id_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -525,6 +591,8 @@ columns:
     role: authorisation.reference_entity_tax_id_slot_2
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_USCGC2\" (authorisation.reference_entity_tax_id_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - CNPJ_BR
     years:
@@ -534,6 +602,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_USMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:
@@ -543,6 +613,8 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UDI_USMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
     - MUNICBR
     years:

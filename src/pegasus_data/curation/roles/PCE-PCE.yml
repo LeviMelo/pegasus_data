@@ -15,6 +15,8 @@ columns:
     role: survey.reporting_period_month_year_of_activity
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (mês/ano) da atividade\" (survey.reporting_period_month_year_of_activity): reporting period or state of execution of the survey record"
     name: Competência (mês/ano) da atividade
     years:
     - 1995
@@ -58,6 +60,8 @@ columns:
     role: survey.state
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF de execução da atividade (código)\" (survey.state): reporting period or state of execution of the survey record"
     codelists:
     - UF_BR
     name: UF de execução da atividade (código)
@@ -68,6 +72,8 @@ columns:
     role: survey.work_cycle_number
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número do ciclo de trabalho\" (survey.work_cycle_number): survey work done: visits, exams, treatment and cycle"
     name: Número do ciclo de trabalho
     years:
     - 2024
@@ -76,6 +82,8 @@ columns:
     role: survey.positives_17_eggs
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, 17 ou mais ovos\" (survey.positives_17_eggs): cases, positives or specimens found by the survey: the health event"
     name: Positivos, 17 ou mais ovos
     years:
     - 1995
@@ -84,6 +92,8 @@ columns:
     role: survey.positives_1_4_eggs
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, 1 a 4 ovos\" (survey.positives_1_4_eggs): cases, positives or specimens found by the survey: the health event"
     name: Positivos, 1 a 4 ovos
     years:
     - 1995
@@ -92,6 +102,8 @@ columns:
     role: survey.positives_5_16_eggs
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, 5 a 16 ovos\" (survey.positives_5_16_eggs): cases, positives or specimens found by the survey: the health event"
     name: Positivos, 5 a 16 ovos
     years:
     - 1995
@@ -100,6 +112,8 @@ columns:
     role: survey.positive_for_hookworm_ancylostoma_duodenale
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Ancylostoma duodenale\" (survey.positive_for_hookworm_ancylostoma_duodenale): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Ancylostoma duodenale
     years:
     - 1995
@@ -108,6 +122,8 @@ columns:
     role: survey.positive_for_ascaris_lumbricoides
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Ascaris lumbricoides\" (survey.positive_for_ascaris_lumbricoides): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Ascaris lumbricoides
     years:
     - 1995
@@ -116,6 +132,8 @@ columns:
     role: survey.scheduled_for_treatment
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Previstos para tratamento\" (survey.scheduled_for_treatment): survey work done: visits, exams, treatment and cycle"
     name: Previstos para tratamento
     years:
     - 1995
@@ -124,6 +142,8 @@ columns:
     role: survey.untreated_absent
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Não tratados por ausência\" (survey.untreated_absent): survey work done: visits, exams, treatment and cycle"
     name: Não tratados por ausência
     years:
     - 1995
@@ -132,6 +152,8 @@ columns:
     role: survey.captured_biomphalaria_glabrata
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Capturados, Biomphalaria glabrata\" (survey.captured_biomphalaria_glabrata): cases, positives or specimens found by the survey: the health event"
     name: Capturados, Biomphalaria glabrata
     years:
     - 1995
@@ -140,6 +162,8 @@ columns:
     role: survey.captured_biomphalaria_straminea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Capturados, Biomphalaria straminea\" (survey.captured_biomphalaria_straminea): cases, positives or specimens found by the survey: the health event"
     name: Capturados, Biomphalaria straminea
     years:
     - 1995
@@ -148,6 +172,8 @@ columns:
     role: survey.captured_biomphalaria_tenagophila
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Capturados, Biomphalaria tenagophila\" (survey.captured_biomphalaria_tenagophila): cases, positives or specimens found by the survey: the health event"
     name: Capturados, Biomphalaria tenagophila
     years:
     - 1995
@@ -156,6 +182,8 @@ columns:
     role: survey.snails_captured_total
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caramujos capturados (total)\" (survey.snails_captured_total): cases, positives or specimens found by the survey: the health event"
     name: Caramujos capturados (total)
     years:
     - 1995
@@ -164,6 +192,8 @@ columns:
     role: survey.untreated_due_to_contraindication
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Não tratados por contraindicação\" (survey.untreated_due_to_contraindication): survey work done: visits, exams, treatment and cycle"
     name: Não tratados por contraindicação
     years:
     - 1995
@@ -172,6 +202,8 @@ columns:
     role: survey.positive_for_enterobius_vermicularis
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Enterobius vermicularis\" (survey.positive_for_enterobius_vermicularis): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Enterobius vermicularis
     years:
     - 1995
@@ -180,6 +212,8 @@ columns:
     role: survey.stool_exams_performed
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exames realizados\" (survey.stool_exams_performed): survey work done: visits, exams, treatment and cycle"
     name: Exames realizados
     years:
     - 1995
@@ -188,6 +222,8 @@ columns:
     role: survey.positive_for_hymenolepis_nana
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Hymenolepis nana\" (survey.positive_for_hymenolepis_nana): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Hymenolepis nana
     years:
     - 1995
@@ -196,6 +232,8 @@ columns:
     role: survey.containers_not_collected_back
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Recipientes não recolhidos\" (survey.containers_not_collected_back): survey work done: visits, exams, treatment and cycle"
     name: Recipientes não recolhidos
     years:
     - 1995
@@ -204,6 +242,8 @@ columns:
     role: survey.positive_for_other_intestinal_worms
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para outras verminoses\" (survey.positive_for_other_intestinal_worms): cases, positives or specimens found by the survey: the health event"
     name: Positivos para outras verminoses
     years:
     - 1995
@@ -212,6 +252,8 @@ columns:
     role: survey.captured_other_snail_species
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Capturados, outras espécies de caramujo\" (survey.captured_other_snail_species): cases, positives or specimens found by the survey: the health event"
     name: Capturados, outras espécies de caramujo
     years:
     - 1995
@@ -220,6 +262,8 @@ columns:
     role: survey.sites_water_collections_surveyed
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Estações pesquisadas\" (survey.sites_water_collections_surveyed): survey work done: visits, exams, treatment and cycle"
     name: Estações pesquisadas
     years:
     - 1995
@@ -228,6 +272,8 @@ columns:
     role: survey.population_worked_people_given_a_collection_container
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"População trabalhada\" (survey.population_worked_people_given_a_collection_container): survey work done: visits, exams, treatment and cycle"
     name: População trabalhada
     years:
     - 1995
@@ -236,6 +282,8 @@ columns:
     role: survey.total_positives
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Total de positivos\" (survey.total_positives): cases, positives or specimens found by the survey: the health event"
     name: Total de positivos
     years:
     - 1995
@@ -244,6 +292,8 @@ columns:
     role: survey.positive_biomphalaria_glabrata
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, Biomphalaria glabrata\" (survey.positive_biomphalaria_glabrata): cases, positives or specimens found by the survey: the health event"
     name: Positivos, Biomphalaria glabrata
     years:
     - 1995
@@ -252,6 +302,8 @@ columns:
     role: survey.positive_biomphalaria_straminea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, Biomphalaria straminea\" (survey.positive_biomphalaria_straminea): cases, positives or specimens found by the survey: the health event"
     name: Positivos, Biomphalaria straminea
     years:
     - 1995
@@ -260,6 +312,8 @@ columns:
     role: survey.positive_biomphalaria_tenagophila
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, Biomphalaria tenagophila\" (survey.positive_biomphalaria_tenagophila): cases, positives or specimens found by the survey: the health event"
     name: Positivos, Biomphalaria tenagophila
     years:
     - 1995
@@ -268,6 +322,8 @@ columns:
     role: survey.positive_other_snail_species
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos, outras espécies de caramujo\" (survey.positive_other_snail_species): cases, positives or specimens found by the survey: the health event"
     name: Positivos, outras espécies de caramujo
     years:
     - 1995
@@ -276,6 +332,8 @@ columns:
     role: survey.buildings_households_visited
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Prédios/domicílios visitados\" (survey.buildings_households_visited): survey work done: visits, exams, treatment and cycle"
     name: Prédios/domicílios visitados
     years:
     - 1995
@@ -284,6 +342,8 @@ columns:
     role: survey.untreated_refused
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Não tratados por recusa\" (survey.untreated_refused): survey work done: visits, exams, treatment and cycle"
     name: Não tratados por recusa
     years:
     - 1995
@@ -292,6 +352,8 @@ columns:
     role: survey.positive_for_strongyloides_stercoralis
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Strongyloides stercoralis\" (survey.positive_for_strongyloides_stercoralis): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Strongyloides stercoralis
     years:
     - 1995
@@ -300,6 +362,8 @@ columns:
     role: survey.positive_for_taenia_sp
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Taenia sp.\" (survey.positive_for_taenia_sp): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Taenia sp.
     years:
     - 1995
@@ -308,6 +372,8 @@ columns:
     role: survey.treated
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tratados\" (survey.treated): survey work done: visits, exams, treatment and cycle"
     name: Tratados
     years:
     - 1995
@@ -316,6 +382,8 @@ columns:
     role: survey.positive_for_trichuris_trichiura
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Positivos para Trichuris trichiura\" (survey.positive_for_trichuris_trichiura): cases, positives or specimens found by the survey: the health event"
     name: Positivos para Trichuris trichiura
     years:
     - 1995
@@ -324,6 +392,8 @@ columns:
     role: survey.state_uf_where_the_activity_was_carried_out_abbreviation
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF de execução da atividade (sigla)\" (survey.state_uf_where_the_activity_was_carried_out_abbreviation): reporting period or state of execution of the survey record"
     codelists:
     - UF_BR
     name: UF de execução da atividade (sigla)

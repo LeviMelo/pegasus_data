@@ -5,6 +5,8 @@ columns:
     role: exam.competence_year
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de Competência\" (exam.competence_year): billing competence or reference period of the exam record"
     name: Ano de Competência
     years:
     - 2009
@@ -225,6 +227,8 @@ columns:
     role: exam.axillary_lymph_nodes_right_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodos axilares, mama direita\" (exam.axillary_lymph_nodes_right_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Linfonodos axilares, mama direita
     years:
     - 2009
@@ -243,6 +247,8 @@ columns:
     role: exam.axillary_lymph_nodes_left_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linfonodos axilares, mama esquerda\" (exam.axillary_lymph_nodes_left_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Linfonodos axilares, mama esquerda
     years:
     - 2009
@@ -361,6 +367,8 @@ columns:
     role: exam.laboratory_cnes_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Prestador de serviço (CNES)\" (exam.laboratory_cnes_code): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Prestador de serviço (CNES)
@@ -385,6 +393,8 @@ columns:
     role: exam.provider_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do prestador de serviço\" (exam.provider_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - BR_MUNICIPALFA
     name: Município do prestador de serviço
@@ -409,6 +419,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -444,6 +456,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -454,6 +468,8 @@ columns:
     role: exam.health_unit_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de coleta (CNES)\" (exam.health_unit_code): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - CADGERBR
     name: Unidade de coleta (CNES)
@@ -464,6 +480,8 @@ columns:
     role: exam.health_unit_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município da unidade de coleta\" (exam.health_unit_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - MUNICBR
     name: Município da unidade de coleta
@@ -474,6 +492,8 @@ columns:
     role: exam.health_unit_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF da unidade de coleta\" (exam.health_unit_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF da unidade de coleta
@@ -564,6 +584,8 @@ columns:
     role: exam.competence_year_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês/Ano de Competência\" (exam.competence_year_month): billing competence or reference period of the exam record"
     name: Mês/Ano de Competência
     years:
     - 2009
@@ -604,6 +626,8 @@ columns:
     role: exam.no_previous_breast_surgery_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Não fez cirurgia de mama\" (exam.no_previous_breast_surgery_count): count of a result or finding of the screening exam, or its size: the health event"
     name: Não fez cirurgia de mama
     years:
     - 2009
@@ -642,6 +666,8 @@ columns:
     role: exam.provider_state
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF do prestador\" (exam.provider_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - UF_BR
     name: UF do prestador
@@ -652,6 +678,8 @@ columns:
     role: exam.number_of_exams
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de exames\" (exam.number_of_exams): count of exams or procedures performed, and sample adequacy: how the exam was done"
     name: Quantidade de exames
     years:
     - 2009
@@ -660,6 +688,8 @@ columns:
     role: exam.laboratory_region
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região do laboratório\" (exam.laboratory_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - REGIAO
     name: Região do laboratório
@@ -670,6 +700,8 @@ columns:
     role: exam.region_of_residence
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Região de residência\" (exam.region_of_residence): residence or birth date of the person"
     codelists:
     - REGIAO
     name: Região de residência
@@ -680,6 +712,8 @@ columns:
     role: exam.health_unit_region
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Região da unidade de coleta\" (exam.health_unit_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
     - REGIAO
     name: Região da unidade de coleta

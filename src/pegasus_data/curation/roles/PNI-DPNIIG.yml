@@ -5,6 +5,8 @@ columns:
     role: vaccination.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (vaccination.year): reference period or load date of the published aggregate"
     name: Ano
     years:
     - 2013
@@ -14,6 +16,8 @@ columns:
     role: vaccination.month_yyyymm
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"ANOMES\" (vaccination.month_yyyymm): reference period or load date of the published aggregate"
     years:
     - 2013
     - 2019
@@ -22,6 +26,8 @@ columns:
     role: vaccination.dropout_difference
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DIFER\" (vaccination.dropout_difference): doses applied and coverage: care delivered"
     years:
     - 2013
     - 2019
@@ -43,6 +49,8 @@ columns:
     role: vaccination.first_doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DOSE1\" (vaccination.first_doses): doses applied and coverage: care delivered"
     years:
     - 2013
     - 2019
@@ -51,6 +59,8 @@ columns:
     role: vaccination.closing_doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DOSEN\" (vaccination.closing_doses): doses applied and coverage: care delivered"
     years:
     - 2013
     - 2019
@@ -88,6 +98,8 @@ columns:
     role: vaccination.month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"MES\" (vaccination.month): reference period or load date of the published aggregate"
     codelists:
     - MESES
     years:
@@ -109,6 +121,8 @@ columns:
     role: vaccination.doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Doses Aplicadas\" (vaccination.doses): doses applied and coverage: care delivered"
     name: Quantidade de Doses Aplicadas
     years:
     - 2013

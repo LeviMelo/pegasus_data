@@ -12,7 +12,8 @@ PegaSUS; handoff 2026-10-04 §2). Each column states three things:
   be carried by a population account (age, sex, race, residence); every other
   categorical fact about persons is a dimension or a mark.
 
-A categorical column also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
+Every column a study reads as a field (any kind, model not ``link_only`` or ``excluded``: categories, numbers, dates,
+codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
 administrative) with the evidence it rests on; one no documentation places stays undeclared.
 
 The linkage roles of ``curation/roles.yml`` name some of these columns for
@@ -35,10 +36,13 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence"})
-#: What a categorical column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
+#: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
 FACT_DOMAINS = ("person", "clinical", "process", "administrative")
+#: The models a study reads as a field (not a link key and not set aside): the non-categorical columns that state a
+#: ``fact_domain``.
+FIELD_MODELS = MODELS - {"link_only", "excluded"}
 #: SIGTAP's registration instruments (``tb_registro``): 01 BPA consolidado, 02 BPA individualizado, 03-05 AIH principal,
 #: especial and secundário, 06-07 APAC principal and secundário, 08-09 RAAS domiciliar and psicossocial, 10 e-SUS APS.
 INSTRUMENTS = frozenset(f"{n:02d}" for n in range(1, 11))
@@ -236,11 +240,12 @@ def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
 
 
 def undeclared_fact_domains(dataset: str | None = None) -> list[tuple[str, str]]:
-    """The categorical columns no ``fact_domain`` places (``(dataset, column)``), for one dataset or all: the list a
-    reviewer closes, never a default."""
+    """The columns no ``fact_domain`` places (``(dataset, column)``), for one dataset or all: every categorical column
+    and every other column a study reads as a field (``FIELD_MODELS``). The list a reviewer closes, never a default."""
     declared = load_column_roles()
     keys = [dataset.upper().replace(".", "-")] if dataset else sorted(declared)
-    return [(d, c.column) for d in keys for c in declared.get(d, ()) if c.kind == "category" and c.fact_domain is None]
+    return [(d, c.column) for d in keys for c in declared.get(d, ())
+            if (c.kind == "category" or c.model in FIELD_MODELS) and c.fact_domain is None]
 
 
 def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:

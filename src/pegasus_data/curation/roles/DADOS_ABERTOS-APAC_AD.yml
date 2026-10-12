@@ -62,6 +62,8 @@ columns:
     role: authorisation.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Causas Associadas\" (authorisation.associated_cause): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID Causas Associadas
@@ -73,6 +75,8 @@ columns:
     role: authorisation.diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (authorisation.diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - S_CID
     name: CID Principal
@@ -84,6 +88,8 @@ columns:
     role: authorisation.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Secundario\" (authorisation.secondary_diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -96,6 +102,8 @@ columns:
     role: authorisation.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Atendimento ao paciente / Competencia\" (authorisation.competence): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Atendimento ao paciente / Competencia
     years:
     - 
@@ -105,6 +113,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento executante\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento executante
     years:
     - 
@@ -114,6 +124,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora do estabelecimento\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da Mantenedora do estabelecimento
@@ -145,6 +157,8 @@ columns:
     role: authorisation.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Estabelecimento no CNES\" (authorisation.facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CADGERBR
     name: Codigo do Estabelecimento no CNES
@@ -185,6 +199,8 @@ columns:
     role: authorisation.authorised
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Autorizacao\" (authorisation.authorised): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Autorizacao
     years:
     - 
@@ -194,6 +210,8 @@ columns:
     role: authorisation.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de FIM validade\" (authorisation.end): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de FIM validade
     years:
     - 
@@ -203,6 +221,8 @@ columns:
     role: authorisation.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de INICIO validade\" (authorisation.start): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de INICIO validade
     years:
     - 
@@ -212,6 +232,8 @@ columns:
     role: authorisation.exit_date
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Ocorrencia\" (authorisation.exit_date): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Ocorrencia
     years:
     - 
@@ -221,6 +243,8 @@ columns:
     role: authorisation.requested
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Solicitacao\" (authorisation.requested): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Solicitacao
     years:
     - 
@@ -260,6 +284,8 @@ columns:
     role: authorisation.management_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (authorisation.management_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - BR_MUNICGESTOR
     - MUNICBR
@@ -313,6 +339,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de Residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -325,6 +353,8 @@ columns:
     role: authorisation.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Processamento / Movimento\" (authorisation.processing_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Processamento / Movimento
     years:
     - 
@@ -350,6 +380,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Numero da Idade
     years:
     - 
@@ -395,6 +427,8 @@ columns:
     role: authorisation.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento Principal da APAC\" (authorisation.procedure): procedure authorised or billed: care delivered"
     codelists:
     - SIGTAP
     name: Procedimento Principal da APAC
@@ -522,6 +556,8 @@ columns:
     role: authorisation.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do Estabelecimento\" (authorisation.facility_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - AC_MUNICIP
     name: UF+Municipio do Estabelecimento
@@ -546,6 +582,8 @@ columns:
     role: authorisation.requesting_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo CNES do Estabelecimento Solicitante\" (authorisation.requesting_facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - CADGERBR
     name: Codigo CNES do Estabelecimento Solicitante
@@ -557,6 +595,8 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
     years:
     - 

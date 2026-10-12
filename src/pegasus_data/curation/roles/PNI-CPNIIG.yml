@@ -5,6 +5,8 @@ columns:
     role: vaccination.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (vaccination.year): reference period or load date of the published aggregate"
     name: Ano
     years:
     - 2013
@@ -14,6 +16,8 @@ columns:
     role: vaccination.coverage_percent
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"COBERT\" (vaccination.coverage_percent): doses applied and coverage: care delivered"
     measure: false
     years:
     - 2013
@@ -50,6 +54,8 @@ columns:
     role: vaccination.target_population
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"POP\" (vaccination.target_population): population targeted: persons"
     years:
     - 2013
     - 2019
@@ -58,6 +64,8 @@ columns:
     role: vaccination.doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Doses Aplicadas\" (vaccination.doses): doses applied and coverage: care delivered"
     name: Quantidade de Doses Aplicadas
     years:
     - 2013

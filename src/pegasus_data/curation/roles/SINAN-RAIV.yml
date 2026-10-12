@@ -41,6 +41,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ano de Nascimento
     years:
     - 2007
@@ -127,6 +129,8 @@ columns:
     role: case.infection_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável da Fonte de Infecção
     codelists:
     - BR_MUNICIPALFA
@@ -155,6 +159,8 @@ columns:
     role: case.infection_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País Provável da Fonte de Infecção
     codelists:
     - PAISNET
@@ -165,6 +171,8 @@ columns:
     role: case.infection_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF Provável da Fonte de Infecção
     codelists:
     - UF_BR
@@ -315,6 +323,8 @@ columns:
     role: treatment.vaccine_doses_current
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de doses aplicadas (tratamento atual)\" (treatment.vaccine_doses_current): treatment given: serum, drug, doses, dates or transfer"
     name: Número de doses aplicadas (tratamento atual)
     years:
     - 2007
@@ -323,6 +333,8 @@ columns:
     role: case.date_serum_applied
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da aplicação do soro\" (case.date_serum_applied): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da aplicação do soro
     years:
     - 2007
@@ -331,6 +343,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Digitação
     years:
     - 2007
@@ -339,6 +353,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2007
@@ -347,6 +363,8 @@ columns:
     role: case.date_of_exposure
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da exposição\" (case.date_of_exposure): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data da exposição
     years:
     - 2007
@@ -355,6 +373,8 @@ columns:
     role: case.hospitalization_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da internação\" (case.hospitalization_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da internação
     years:
     - 2007
@@ -364,6 +384,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Investigação\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Investigação
     years:
     - 2007
@@ -372,6 +394,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2007
@@ -381,6 +405,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2007
@@ -389,6 +415,8 @@ columns:
     role: case.date_current_treatment_started
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do início do tratamento\" (case.date_current_treatment_started): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do início do tratamento
     years:
     - 2007
@@ -397,6 +425,8 @@ columns:
     role: case.onset
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data dos Primeiros Sintomas / Data do Diagnóstico\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data dos Primeiros Sintomas / Data do Diagnóstico
     years:
     - 2007
@@ -454,6 +484,8 @@ columns:
     role: case.date_of_last_dose_of_previous_treatment
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da última dose (tratamento anterior)\" (case.date_of_last_dose_of_previous_treatment): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da última dose (tratamento anterior)
     years:
     - 2007
@@ -462,6 +494,8 @@ columns:
     role: case.date_of_first_dose
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da 1ª dose da vacina\" (case.date_of_first_dose): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data da 1ª dose da vacina
     years:
     - 2007
@@ -470,6 +504,8 @@ columns:
     role: case.date_of_last_dose
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da última dose da vacina\" (case.date_of_last_dose): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data da última dose da vacina
     years:
     - 2007
@@ -571,6 +607,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -588,6 +626,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
     - case.residence
     name: Município de Residência
@@ -607,6 +647,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -624,6 +666,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -636,6 +680,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -647,6 +693,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -659,6 +707,8 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -671,6 +721,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -798,6 +850,8 @@ columns:
     role: case.hospital_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município (da hospitalização)\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: Município (da hospitalização)
     codelists:
     - BR_MUNICIPALFA
@@ -822,6 +876,8 @@ columns:
     role: treatment.vaccine_doses_previous
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de doses aplicadas (tratamento anterior)\" (treatment.vaccine_doses_previous): treatment given: serum, drug, doses, dates or transfer"
     name: Número de doses aplicadas (tratamento anterior)
     years:
     - 2007
@@ -830,6 +886,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2007
@@ -839,6 +897,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2007
@@ -929,6 +989,8 @@ columns:
     role: treatment.serum_ml
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de soro aplicada\" (treatment.serum_ml): treatment given: serum, drug, doses, dates or transfer"
     name: Quantidade de soro aplicada
     years:
     - 2007
@@ -937,6 +999,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2007
@@ -945,6 +1009,8 @@ columns:
     role: case.onset_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (case.onset_epi_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
     - 2007
@@ -953,6 +1019,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -964,6 +1032,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -1087,5 +1157,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

@@ -18,6 +18,8 @@ columns:
     role: authorisation.albumi
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Albumina\" (authorisation.albumi): measurement or laboratory result of the patient: clinical"
     name: Albumina
     years:
     - 2008
@@ -29,6 +31,8 @@ columns:
     role: authorisation.altura
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Altura\" (authorisation.altura): measurement or laboratory result of the patient: clinical"
     name: Altura
     years:
     - 2008
@@ -50,6 +54,8 @@ columns:
     role: authorisation.diures
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diurese\" (authorisation.diures): measurement or laboratory result of the patient: clinical"
     name: Diurese
     years:
     - 2008
@@ -58,6 +64,8 @@ columns:
     role: authorisation.first_dialysis_date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da primeira diálise realizada\" (authorisation.first_dialysis_date): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da primeira diálise realizada
     years:
     - 2008
@@ -67,6 +75,8 @@ columns:
     role: authorisation.glicos
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Glicose\" (authorisation.glicos): measurement or laboratory result of the patient: clinical"
     name: Glicose
     years:
     - 2008
@@ -78,6 +88,8 @@ columns:
     role: authorisation.hb
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hemoglobina\" (authorisation.hb): measurement or laboratory result of the patient: clinical"
     name: Hemoglobina
     years:
     - 2008
@@ -123,6 +135,8 @@ columns:
     role: authorisation.intfis
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Quantidade de fístulas\" (authorisation.intfis): measurement or laboratory result of the patient: clinical"
     name: Quantidade de fístulas
     years:
     - 2008
@@ -134,6 +148,8 @@ columns:
     role: authorisation.peso
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso\" (authorisation.peso): measurement or laboratory result of the patient: clinical"
     name: Peso
     years:
     - 2008
@@ -143,6 +159,8 @@ columns:
     role: authorisation.tru
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Taxa de redução de ureia\" (authorisation.tru): measurement or laboratory result of the patient: clinical"
     name: Taxa de redução de ureia
     years:
     - 2008
@@ -217,6 +235,8 @@ columns:
     role: authorisation.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Causas Associadas\" (authorisation.associated_cause): diagnosis, comorbidity or diagnosis date: the health event"
     note: 0000 when none
     name: CID Causas Associadas
     codelists:
@@ -229,6 +249,8 @@ columns:
     role: authorisation.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (authorisation.diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     name: CID Principal
     codelists:
     - ICD10
@@ -240,6 +262,8 @@ columns:
     role: authorisation.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Secundario\" (authorisation.secondary_diagnosis): diagnosis, comorbidity or diagnosis date: the health event"
     note: 0000 when none
     name: CID Secundario
     codelists:
@@ -252,6 +276,8 @@ columns:
     role: authorisation.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Atendimento ao paciente / Competencia\" (authorisation.competence): billing value or quantity, competence, validity or exit of the authorisation: billing"
     note: YYYYMM of the care month this row bills; an APAC has one row per competence
     name: Data de Atendimento ao paciente / Competencia
     years:
@@ -261,6 +287,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento executante\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento executante
     years:
     - 2008
@@ -269,6 +297,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora do estabelecimento\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ da Mantenedora do estabelecimento
     codelists:
     - CNPJ_BR
@@ -300,6 +330,8 @@ columns:
     role: authorisation.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo do Estabelecimento no CNES\" (authorisation.facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo do Estabelecimento no CNES
     codelists:
     - CADGERBR
@@ -339,6 +371,8 @@ columns:
     role: authorisation.authorised
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Autorizacao\" (authorisation.authorised): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Autorizacao
     years:
     - 2008
@@ -347,6 +381,8 @@ columns:
     role: authorisation.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de FIM validade\" (authorisation.end): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de FIM validade
     years:
     - 2008
@@ -355,6 +391,8 @@ columns:
     role: authorisation.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de INICIO validade\" (authorisation.start): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     note: Start of the APAC validity; its month is the competence of the first row
     name: Data de INICIO validade
     years:
@@ -364,6 +402,8 @@ columns:
     role: authorisation.exit_date
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Ocorrencia\" (authorisation.exit_date): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de Ocorrencia
     years:
     - 2008
@@ -372,6 +412,8 @@ columns:
     role: authorisation.requested
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Solicitacao\" (authorisation.requested): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data da Solicitacao
     years:
     - 2008
@@ -408,6 +450,8 @@ columns:
     role: authorisation.management_municipality
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (authorisation.management_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo da UF+Municipio de Gestao
     codelists:
     - BR_MUNICGESTOR
@@ -458,6 +502,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de Residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Brasilia residents carry administrative-region codes 53xxxx in some years (AP_MUNPCN_municipio maps them, 2008-2021);
       the pegasus gateway maps any 53xxxx to 530010
     name: UF+Municipio de Residencia do paciente
@@ -471,6 +517,8 @@ columns:
     role: authorisation.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de Processamento / Movimento\" (authorisation.processing_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     note: YYYYMM of the file the row was processed in
     name: Data de Processamento / Movimento
     years:
@@ -496,6 +544,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Value in the unit given by AP_COIDADE; IDADE_anos is the age stratum
     name: Numero da Idade
     years:
@@ -539,6 +589,8 @@ columns:
     role: authorisation.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento Principal da APAC\" (authorisation.procedure): procedure authorised or billed: care delivered"
     note: SIGTAP, ten digits
     name: Procedimento Principal da APAC
     codelists:
@@ -660,6 +712,8 @@ columns:
     role: authorisation.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do Estabelecimento\" (authorisation.facility_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: UF+Municipio do Estabelecimento
     codelists:
     - AC_MUNICIP
@@ -684,6 +738,8 @@ columns:
     role: authorisation.requesting_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo CNES do Estabelecimento Solicitante\" (authorisation.requesting_facility): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo CNES do Estabelecimento Solicitante
     codelists:
     - CADGERBR
@@ -695,6 +751,8 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
     years:
     - 2008
@@ -704,6 +762,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years from AP_NUIDADE and AP_COIDADE (ADR-0070)
     name: Idade em anos

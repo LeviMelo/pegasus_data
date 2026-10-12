@@ -5,6 +5,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento
     codelists:
     - CNPJ_BR
@@ -16,6 +18,8 @@ columns:
     role: facility.snapshot_competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Reference period of the hospital-registry snapshot\" (facility.snapshot_competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Reference period of the hospital-registry snapshot
     years:
     - 2019
@@ -25,6 +29,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     name: Código CNES do estabelecimento
     codelists:
     - CADGERBR
@@ -36,6 +42,8 @@ columns:
     role: facility.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (facility.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ da mantenedora
     codelists:
     - CNPJ_BR
@@ -47,6 +55,8 @@ columns:
     role: facility.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Municipality where the establishment is located\" (facility.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR

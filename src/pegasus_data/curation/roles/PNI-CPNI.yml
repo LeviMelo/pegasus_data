@@ -5,6 +5,8 @@ columns:
     role: vaccination.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (vaccination.year): reference period or load date of the published aggregate"
     name: Ano
     years:
     - 1994
@@ -13,6 +15,8 @@ columns:
     role: vaccination.coverage_percent
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Cobertura Vacinal\" (vaccination.coverage_percent): doses applied and coverage: care delivered"
     measure: false
     name: Cobertura Vacinal
     years:
@@ -79,6 +83,8 @@ columns:
     role: vaccination.target_population
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"População Alvo\" (vaccination.target_population): population targeted: persons"
     name: População Alvo
     years:
     - 1994
@@ -88,6 +94,8 @@ columns:
     role: vaccination.doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Doses Aplicadas\" (vaccination.doses): doses applied and coverage: care delivered"
     name: Quantidade de Doses Aplicadas
     years:
     - 1994

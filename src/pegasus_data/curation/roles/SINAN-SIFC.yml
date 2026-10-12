@@ -29,6 +29,8 @@ columns:
     role: birth.municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do nascimento/aborto/natimorto\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     note: Place of birth/abortion/stillbirth, not residence.
     name: Município do nascimento/aborto/natimorto
     codelists:
@@ -76,6 +78,8 @@ columns:
     role: birth.state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do nascimento/aborto/natimorto\" (birth.state): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     note: "Mostly state abbreviations (AC, AL, ...): 525 of 26,570 values in 2021 are IBGE codes; two code systems
       in one column, no place reader compares it with the residence's code."
     name: UF do nascimento/aborto/natimorto
@@ -230,6 +234,8 @@ columns:
     role: treatment.child_regimen_other
     kind: text
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Esquema de tratamento - Outro esquema\" (treatment.child_regimen_other): treatment given: serum, drug, doses, dates or transfer"
     name: Esquema de tratamento - Outro esquema
     years:
     - 2007
@@ -238,6 +244,8 @@ columns:
     role: case.diagnosis_date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do Diagnóstico\" (case.diagnosis_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do Diagnóstico
     years:
     - 2007
@@ -246,6 +254,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de Nascimento\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de Nascimento
     years:
     - 2023
@@ -254,6 +264,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2007
@@ -262,6 +274,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2007
@@ -325,6 +339,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -341,6 +357,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
     codelists:
     - BR_MUNICIPALFA
@@ -357,6 +375,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -373,6 +393,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     note: SINAN notification block; in SIFC the patient is the baby, so expected not applicable.
     name: Ocupação
     codelists:
@@ -386,6 +408,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -396,6 +420,8 @@ columns:
     role: notification.region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -407,6 +433,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -418,6 +446,8 @@ columns:
     role: case.treponemal_test_18m_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Teste treponêmico após 18 meses - Data\" (case.treponemal_test_18m_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Draft typing said number; a date.
     name: Teste treponêmico após 18 meses - Data
     years:
@@ -427,6 +457,8 @@ columns:
     role: case.blood_test_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Teste não treponêmico - Sangue periférico - Data\" (case.blood_test_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Draft typing said number; a date.
     name: Teste não treponêmico - Sangue periférico - Data
     years:
@@ -436,6 +468,8 @@ columns:
     role: case.csf_test_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Teste não treponêmico - Líquor - Data\" (case.csf_test_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     note: Draft typing said number; a date.
     name: Teste não treponêmico - Líquor - Data
     years:
@@ -518,6 +552,8 @@ columns:
     role: case.blood_test_titre
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste não treponêmico - Sangue periférico - Título\" (case.blood_test_titre): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Teste não treponêmico - Sangue periférico - Título
     years:
     - 2007
@@ -527,6 +563,8 @@ columns:
     role: case.csf_test_titre
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Teste não treponêmico - Líquor - Título\" (case.csf_test_titre): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Teste não treponêmico - Líquor - Título
     years:
     - 2007
@@ -547,6 +585,8 @@ columns:
     role: pregnancy.delivery_test_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta teste não treponêmico no parto/curetagem\" (pregnancy.delivery_test_date): prenatal care, test dates and delivery type: how care happened"
     note: Draft typing said number; a date.
     name: Data da coleta teste não treponêmico no parto/curetagem
     years:
@@ -569,6 +609,8 @@ columns:
     role: pregnancy.delivery_test_titre
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado teste não treponêmico no parto/curetagem - Título\" (pregnancy.delivery_test_titre): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Resultado teste não treponêmico no parto/curetagem - Título
     years:
     - 2007
@@ -589,6 +631,8 @@ columns:
     role: pregnancy.prenatal_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do local da realização do pré-natal\" (pregnancy.prenatal_municipality): prenatal care, test dates and delivery type: how care happened"
     name: Município do local da realização do pré-natal
     codelists:
     - BR_MUNICIPALFA
@@ -599,6 +643,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2007
@@ -607,6 +653,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum 
       is the derived IDADE_anos.
     name: Idade
@@ -617,6 +665,8 @@ columns:
     role: case.diagnosis_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica do Diagnóstico\" (case.diagnosis_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica do Diagnóstico
     years:
     - 2007
@@ -625,6 +675,8 @@ columns:
     role: notification.week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2007
@@ -633,6 +685,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -643,6 +697,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -653,6 +709,8 @@ columns:
     role: case.sign_other_text
     kind: text
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Presença de sinais e sintomas - Outro (especificar)\" (case.sign_other_text): free text on a sign, comorbidity or site of the case: the health event"
     note: Draft typing said number; curation says free text.
     name: Presença de sinais e sintomas - Outro (especificar)
     years:
@@ -696,6 +754,8 @@ columns:
     role: pregnancy.maternal_treatment_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do início do tratamento\" (pregnancy.maternal_treatment_date): prenatal care, test dates and delivery type: how care happened"
     note: Draft typing said number; a date.
     name: Data do início do tratamento
     years:
@@ -730,6 +790,8 @@ columns:
     role: pregnancy.prenatal_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do local da realização do pré-natal\" (pregnancy.prenatal_state): prenatal care, test dates and delivery type: how care happened"
     note: "Mostly state abbreviations (AC, AL, ...): 525 of 21,504 values in 2021 are IBGE codes; two code systems
       in one column, no place reader compares it with the residence's code."
     name: UF do local da realização do pré-natal
@@ -741,5 +803,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

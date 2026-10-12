@@ -5,6 +5,8 @@ columns:
     role: population.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (population.year): reference year of the population table"
     name: Ano
     years:
     - 1991
@@ -34,6 +36,8 @@ columns:
     role: population.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Municipality code (6-digit)\" (population.residence): count of persons in the population table"
     codelists:
     - BR_MUNICIPALFA
     name: Municipality code (6-digit)
@@ -44,6 +48,8 @@ columns:
     role: population.literate
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"População alfabetizada\" (population.literate): count of persons in the population table"
     name: População alfabetizada
     years:
     - 1991
@@ -52,6 +58,8 @@ columns:
     role: population.illiterate
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"População não alfabetizada\" (population.illiterate): count of persons in the population table"
     name: População não alfabetizada
     years:
     - 1991
@@ -60,6 +68,8 @@ columns:
     role: population.total
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Total population (indicator base)\" (population.total): count of persons in the population table"
     name: Total population (indicator base)
     years:
     - 1991

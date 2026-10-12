@@ -5,6 +5,8 @@ columns:
     role: admission.processing_year
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano de processamento\" (admission.processing_year): processing competence or manager authorisation of the AIH: billing and management"
     name: Ano de processamento
     years:
     - 2011
@@ -24,6 +26,8 @@ columns:
     role: admission.payer_consortium_cnpj
     kind: institution
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Fonte de Remuneração - Consórcios Públicos\" (admission.payer_consortium_cnpj): count or payer of AIH documents: billing"
     note: Filled only when FONTE is 13 (public consortium).
     name: CNPJ da Fonte de Remuneração - Consórcios Públicos
     codelists:
@@ -35,6 +39,8 @@ columns:
     role: facility.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ do Estabelecimento de Saúde\" (facility.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: CNPJ do Estabelecimento de Saúde
     codelists:
     - CNPJ_BR
@@ -45,6 +51,8 @@ columns:
     role: admission.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (admission.facility): facility or its location: the facility register"
     name: Código CNES do estabelecimento
     codelists:
     - CADGERBR
@@ -80,6 +88,8 @@ columns:
     role: admission.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código do diagnóstico principal\" (admission.diagnosis): diagnosis or cause code: the health event"
     name: Código do diagnóstico principal
     codelists:
     - ICD10
@@ -91,6 +101,8 @@ columns:
     role: admission.secondary_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico secundário (CID-10)\" (admission.secondary_diagnosis): diagnosis or cause code: the health event"
     name: Diagnóstico secundário (CID-10)
     codelists:
     - ICD10
@@ -105,6 +117,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dias de permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de permanência
     years:
     - 2011
@@ -113,6 +127,8 @@ columns:
     role: admission.start
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data do atendimento\" (admission.start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data do atendimento
     years:
     - 2011
@@ -121,6 +137,8 @@ columns:
     role: admission.end
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de saída\" (admission.end): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Data de saída
     years:
     - 2011
@@ -180,6 +198,8 @@ columns:
     measure: false
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Value packs a unit given by COD_IDADE; IDADE_anos is the age stratum.
     name: Idade
     years:
@@ -189,6 +209,8 @@ columns:
     role: admission.processing_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês de processamento\" (admission.processing_month): processing competence or manager authorisation of the AIH: billing and management"
     name: Mês de processamento
     years:
     - 2011
@@ -225,6 +247,8 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Município do estabelecimento\" (admission.facility_municipality): facility or its location: the facility register"
     name: Município do estabelecimento
     codelists:
     - BR_MUNICIPALFA
@@ -240,6 +264,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de residência
     codelists:
     - BR_MUNICIPALFA
@@ -266,6 +292,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento do paciente\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento do paciente
     years:
     - 2011
@@ -287,6 +315,8 @@ columns:
     role: admission.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento realizado\" (admission.procedure): procedure performed or requested: care delivered"
     name: Procedimento realizado
     codelists:
     - SIGTAP
@@ -297,6 +327,8 @@ columns:
     role: admission.procedure_count
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de procedimento\" (admission.procedure_count): count of admissions or procedures: how care was delivered"
     name: Quantidade de procedimento
     years:
     - 2011
@@ -317,6 +349,8 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de diárias em unidade intermediária\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de diárias em unidade intermediária
     years:
     - 2011
@@ -325,6 +359,8 @@ columns:
     role: admission.icu_days_month
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de dias de UTI no mês\" (admission.icu_days_month): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de dias de UTI no mês
     years:
     - 2011
@@ -333,6 +369,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade em anos (derivada de IDADE e COD_IDADE)\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     name: Idade em anos (derivada de IDADE e COD_IDADE)
     note: Fractional years by CIH's rule (unit 5 in decades, OQ-74 resolved 2026-10-08).

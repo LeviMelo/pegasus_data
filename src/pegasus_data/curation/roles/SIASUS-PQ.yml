@@ -13,6 +13,8 @@ columns:
     role: authorisation.executing_establishment_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"UPS Código (per-state lookup)\" (authorisation.executing_establishment_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     name: UPS Código (per-state lookup)
@@ -63,6 +65,8 @@ columns:
     role: authorisation.primary_icd_code
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (authorisation.primary_icd_code): diagnosis, comorbidity or diagnosis date: the health event"
     codelists:
     - CID
     name: CID Principal
@@ -82,6 +86,8 @@ columns:
     role: authorisation.diagnosis_date_year_month
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PAQ_DTDIAG\" (authorisation.diagnosis_date_year_month): diagnosis, comorbidity or diagnosis date: the health event"
     years:
     - 2001
     - 2007
@@ -89,6 +95,8 @@ columns:
     role: authorisation.previous_treatment_1_year_month
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAQ_DTTRA1\" (authorisation.previous_treatment_1_year_month): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -96,6 +104,8 @@ columns:
     role: authorisation.previous_treatment_2_year_month
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAQ_DTTRA2\" (authorisation.previous_treatment_2_year_month): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -103,6 +113,8 @@ columns:
     role: authorisation.previous_treatment_3_year_month
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAQ_DTTRA3\" (authorisation.previous_treatment_3_year_month): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -120,6 +132,8 @@ columns:
     role: authorisation.managing_uf_municipality_ibge_code
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestor - BR\" (authorisation.managing_uf_municipality_ibge_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     name: Gestor - BR
@@ -130,6 +144,8 @@ columns:
     role: authorisation.treatment_start_year_month
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Início do Tratamento (AAAAMM)\" (authorisation.treatment_start_year_month): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Data de Início do Tratamento (AAAAMM)
     years:
     - 2001
@@ -138,6 +154,8 @@ columns:
     role: authorisation.planned_months_of_chemotherapy
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"PAQ_MEPREV\" (authorisation.planned_months_of_chemotherapy): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2001
     - 2007
@@ -154,6 +172,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -165,6 +185,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento do paciente (AAAAMMDD)\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento do paciente (AAAAMMDD)
     years:
     - 2001

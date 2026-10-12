@@ -20,6 +20,8 @@ columns:
     role: care.associated_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Causas Associadas\" (care.associated_cause): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -32,6 +34,8 @@ columns:
     role: care.diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CID Principal\" (care.diagnosis): diagnosis or tumour code: the health event"
     codelists:
     - ICD10
     - S_CID
@@ -44,6 +48,8 @@ columns:
     role: care.cnes_code_of_the_areas_family_health_unit
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da Família da região\" (care.cnes_code_of_the_areas_family_health_unit): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CADGERBR
     name: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da Família da região
@@ -55,6 +61,8 @@ columns:
     role: care.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do SCNES do Estabelecimento de Saúde\" (care.facility): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CADGERBR
     name: Código do SCNES do Estabelecimento de Saúde
@@ -75,6 +83,8 @@ columns:
     role: care.establishments_parent_organization_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da Mantenedora\" (care.establishments_parent_organization_cnpj): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - CNPJ_BR
     name: CNPJ da Mantenedora
@@ -144,6 +154,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento
     years:
     - 
@@ -153,6 +165,8 @@ columns:
     role: care.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e mes do Atendimento\" (care.competence): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Ano e mes do Atendimento
     years:
     - 
@@ -162,6 +176,8 @@ columns:
     role: care.record_end_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Fim\" (care.record_end_date): procedure, attendance, dates or counts of care delivered"
     name: Data de Fim
     years:
     - 
@@ -171,6 +187,8 @@ columns:
     role: treatment.start
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Início\" (treatment.start): treatment given: serum, drug, doses, dates or transfer"
     name: Data de Início
     years:
     - 
@@ -180,6 +198,8 @@ columns:
     role: care.date_of_discharge_transfer_death
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da ocorrência no caso de alta, transferência ou óbito\" (care.date_of_discharge_transfer_death): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Data da ocorrência no caso de alta, transferência ou óbito
     years:
     - 
@@ -189,6 +209,8 @@ columns:
     role: care.processing_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano e mes de Processamento\" (care.processing_month): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Ano e mes de Processamento
     years:
     - 
@@ -209,6 +231,8 @@ columns:
     role: care.end
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Fim do Atendimento (DDMMAAAA)\" (care.end): procedure, attendance, dates or counts of care delivered"
     name: Data de Fim do Atendimento (DDMMAAAA)
     years:
     - 
@@ -218,6 +242,8 @@ columns:
     role: care.managing_authority
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Gestão\" (care.managing_authority): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - BR_MUNICGESTOR
     name: Gestão
@@ -229,6 +255,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do Paciente\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade do Paciente
     years:
     - 
@@ -238,6 +266,8 @@ columns:
     role: care.start
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Início do Atendimento (DDMMAAAA)\" (care.start): procedure, attendance, dates or counts of care delivered"
     name: Data de Início do Atendimento (DDMMAAAA)
     years:
     - 
@@ -290,6 +320,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"UF+Municipio de residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -360,6 +392,8 @@ columns:
     role: care.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Codigo do Procedimento Ambulatorial\" (care.procedure): procedure, attendance, dates or counts of care delivered"
     codelists:
     - SIGTAP
     name: Codigo do Procedimento Ambulatorial
@@ -371,6 +405,8 @@ columns:
     role: care.approved_quantity
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Aprovada\" (care.approved_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Aprovada
     years:
     - 
@@ -380,6 +416,8 @@ columns:
     role: care.submitted_presented_quantity
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Quantidade Produzida (APRESENTADA)\" (care.submitted_presented_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Produzida (APRESENTADA)
     years:
     - 
@@ -404,6 +442,8 @@ columns:
     role: care.time_in_attendance
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Permanência em Atendimento\" (care.time_in_attendance): procedure, attendance, dates or counts of care delivered"
     name: Permanência em Atendimento
     years:
     - 
@@ -413,6 +453,8 @@ columns:
     role: care.number_of_attendances
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Atendimentos\" (care.number_of_attendances): procedure, attendance, dates or counts of care delivered"
     name: Quantidade de Atendimentos
     years:
     - 
@@ -422,6 +464,8 @@ columns:
     role: care.number_of_patients
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de pacientes\" (care.number_of_patients): procedure, attendance, dates or counts of care delivered"
     name: Quantidade de pacientes
     years:
     - 
@@ -498,6 +542,8 @@ columns:
     role: care.establishment_type_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tipo de Estabelecimento\" (care.establishment_type_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - TP_ESTAB
     name: Tipo de Estabelecimento
@@ -522,6 +568,8 @@ columns:
     role: care.establishments_municipality_ibge_code
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF+Municipio do estabelecimento\" (care.establishments_municipality_ibge_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
     - AC_MUNICIP
     name: UF+Municipio do estabelecimento

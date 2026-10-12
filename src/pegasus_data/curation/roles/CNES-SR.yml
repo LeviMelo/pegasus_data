@@ -79,6 +79,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -89,6 +91,8 @@ columns:
     role: service.contracted_provider_cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNES do terceiro\" (service.contracted_provider_cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: CNES do terceiro
@@ -99,6 +103,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -109,6 +115,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -120,6 +128,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2005

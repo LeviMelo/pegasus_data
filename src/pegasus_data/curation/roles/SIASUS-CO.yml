@@ -24,6 +24,8 @@ columns:
     role: authorisation.billed_procedure
     kind: code_tree
     model: event_type
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_CODPR\" (authorisation.billed_procedure): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -34,6 +36,8 @@ columns:
     role: authorisation.facility_identifier
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_CODUNI\" (authorisation.facility_identifier): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     years:
@@ -60,6 +64,8 @@ columns:
     role: authorisation.reference_month_compet_ncia
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_DATREF\" (authorisation.reference_month_compet_ncia): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -67,6 +73,8 @@ columns:
     role: authorisation.managing_authority_code
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_GESTAO\" (authorisation.managing_authority_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - BR_MUNICGESTOR
     years:
@@ -86,6 +94,8 @@ columns:
     role: authorisation.apac_number
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_NUM\" (authorisation.apac_number): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -93,6 +103,8 @@ columns:
     role: authorisation.quantity_presented
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_QTAP\" (authorisation.quantity_presented): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -100,6 +112,8 @@ columns:
     role: authorisation.quantity_approved_produced
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_QTPR\" (authorisation.quantity_approved_produced): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -125,6 +139,8 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_VALAP\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -132,6 +148,8 @@ columns:
     role: authorisation.presented_value
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"COB_VALPR\" (authorisation.presented_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007

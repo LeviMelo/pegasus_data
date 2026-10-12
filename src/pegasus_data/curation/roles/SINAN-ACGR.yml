@@ -5,6 +5,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ano de Nascimento
     years:
     - 2006
@@ -40,6 +42,8 @@ columns:
     role: case.accident_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código da causa do acidente (CID 10, de V01 a Y98)\" (case.accident_cause): diagnosis, classification or injury code of the case: the health event"
     codelists:
     - ICD10
     name: Código da causa do acidente (CID 10, de V01 a Y98)
@@ -50,6 +54,8 @@ columns:
     role: case.injury_diagnosis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico da lesão (CID 10)\" (case.injury_diagnosis): diagnosis, classification or injury code of the case: the health event"
     codelists:
     - ICD10
     name: Diagnóstico da lesão (CID 10)
@@ -62,6 +68,8 @@ columns:
     role: patient.employer_activity
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código da Atividade Econômica (CNAE)\" (patient.employer_activity): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Código da Atividade Econômica (CNAE)
     codelists:
     - CNAENET
@@ -74,6 +82,8 @@ columns:
     role: patient.subcontractor_activity
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Se empresa terceirizada, qual o CNAE da empresa terceirizada\" (patient.subcontractor_activity): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - CNAENET
     - CNAE20
@@ -151,6 +161,8 @@ columns:
     role: case.accident_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do acidente\" (case.accident_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do acidente
     years:
     - 2006
@@ -159,6 +171,8 @@ columns:
     role: case.care_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do Atendimento\n\" (case.care_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: "Data do Atendimento\n"
     years:
     - 2006
@@ -167,6 +181,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2006
@@ -176,6 +192,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2006
@@ -203,6 +221,8 @@ columns:
     role: case.accident_hour
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hora do Acidente\" (case.accident_hour): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     measure: false
     name: Hora do Acidente
     years:
@@ -213,6 +233,8 @@ columns:
     role: case.hours_into_shift
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Horas após início da jornada\" (case.hours_into_shift): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Horas após início da jornada
     years:
     - 2006
@@ -221,6 +243,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -238,6 +262,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
     - case.residence
     name: Município de Residência
@@ -257,6 +283,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -274,6 +302,8 @@ columns:
     role: patient.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ocupação
     codelists:
     - CBO2002
@@ -286,6 +316,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -297,6 +329,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -309,6 +343,8 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -321,6 +357,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -362,6 +400,8 @@ columns:
     role: case.accident_minute
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Minutos do acidente\" (case.accident_minute): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     measure: false
     name: Minutos do acidente
     years:
@@ -371,6 +411,8 @@ columns:
     role: case.minutes_into_shift
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Minutos após início da jornada\" (case.minutes_into_shift): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     measure: false
     name: Minutos após início da jornada
     years:
@@ -381,6 +423,8 @@ columns:
     role: case.accident_municipality
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Município de ocorrência do acidente\" (case.accident_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município de ocorrência do acidente
     codelists:
     - BR_MUNICIPALFA
@@ -391,6 +435,8 @@ columns:
     role: case.care_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do atendimento\" (case.care_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: Município do atendimento
     codelists:
     - BR_MUNICIPALFA
@@ -401,6 +447,8 @@ columns:
     role: patient.employer_municipality
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Município da Empresa Contratante\" (patient.employer_municipality): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município da Empresa Contratante
     codelists:
     - BR_MUNICIPALFA
@@ -417,6 +465,8 @@ columns:
     role: patient.time_in_occupation
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Tempo de Trabalho na Ocupação (valor)\" (patient.time_in_occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     measure: false
     name: Tempo de Trabalho na Ocupação (valor)
     years:
@@ -427,6 +477,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2006
@@ -436,6 +488,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2006
@@ -446,6 +500,8 @@ columns:
     role: case.other_workers_count
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se sim, quantos (outros trabalhadores atingidos)\" (case.other_workers_count): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Se sim, quantos (outros trabalhadores atingidos)
     years:
     - 2006
@@ -503,6 +559,8 @@ columns:
     role: case.accident_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana epidemiológica do acidente\" (case.accident_epi_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana epidemiológica do acidente
     years:
     - 2006
@@ -511,6 +569,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2006
@@ -519,6 +579,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -530,6 +592,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -606,6 +670,8 @@ columns:
     role: case.accident_state
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"UF do acidente\" (case.accident_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     codelists:
     - UF_BR
     name: UF do acidente
@@ -617,6 +683,8 @@ columns:
     role: case.care_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do atendimento\" (case.care_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
     - UF_BR
     name: UF do atendimento
@@ -628,6 +696,8 @@ columns:
     role: patient.employer_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF da Empresa Contratante\" (patient.employer_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF da Empresa Contratante
     codelists:
     - UF_BR
@@ -639,6 +709,8 @@ columns:
     role: case.care_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de atendimento\" (case.care_facility): facility: the facility register"
     name: Unidade de atendimento
     codelists:
     - CADGERBR
@@ -650,5 +722,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

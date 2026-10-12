@@ -32,6 +32,8 @@ columns:
     role: authorisation.provider_unit_cnes_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código da Unidade\" (authorisation.provider_unit_cnes_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     name: Código da Unidade
@@ -90,6 +92,8 @@ columns:
     role: authorisation.emission_month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de emissão\" (authorisation.emission_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de emissão
     years:
     - 2001
@@ -98,6 +102,8 @@ columns:
     role: authorisation.reference_month_compet_ncia
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de referência\" (authorisation.reference_month_compet_ncia): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de referência
     years:
     - 2001
@@ -106,6 +112,8 @@ columns:
     role: authorisation.end_date_aaaammdd
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"APA_DTFIM\" (authorisation.end_date_aaaammdd): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     years:
     - 2005
     - 2007
@@ -113,6 +121,8 @@ columns:
     role: authorisation.validity_end_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data final de validade\" (authorisation.validity_end_date): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data final de validade
     years:
     - 2001
@@ -121,6 +131,8 @@ columns:
     role: authorisation.validity_start_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data inicial de validade\" (authorisation.validity_start_date): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data inicial de validade
     years:
     - 2001
@@ -129,6 +141,8 @@ columns:
     role: authorisation.occurrence_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data de ocorrência\" (authorisation.occurrence_date): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Data de ocorrência
     years:
     - 2001
@@ -137,6 +151,8 @@ columns:
     role: authorisation.managing_authority_code
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código de gestão\" (authorisation.managing_authority_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - BR_MUNICGESTOR
     name: Código de gestão
@@ -182,6 +198,8 @@ columns:
     role: authorisation.procedure
     kind: code_tree
     model: event_type
+    fact_domain: process
+    fact_domain_evidence: "\"Procedimento principal\" (authorisation.procedure): procedure authorised or billed: care delivered"
     name: Procedimento principal
     years:
     - 2001

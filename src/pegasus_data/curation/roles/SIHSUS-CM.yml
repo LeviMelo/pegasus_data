@@ -5,6 +5,8 @@ columns:
     role: maintainer.cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (maintainer.cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -15,6 +17,8 @@ columns:
     role: maintainer.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"COMPET\" (maintainer.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     years:
     - 2019
     - 2026

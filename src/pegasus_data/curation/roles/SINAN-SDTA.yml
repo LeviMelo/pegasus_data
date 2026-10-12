@@ -114,6 +114,8 @@ columns:
     role: notification.transfer_date_municipal_region
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de transferência da regional municipal\" (notification.transfer_date_municipal_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de transferência da regional municipal
     years:
     - 2007
@@ -155,6 +157,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Digitação
     years:
     - 2007
@@ -163,6 +167,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2007
@@ -171,6 +177,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Investigação\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Investigação
     years:
     - 2007
@@ -179,6 +187,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2007
@@ -188,6 +198,8 @@ columns:
     role: case.onset
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data dos Primeiros Sintomas / Data do Diagnóstico\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data dos Primeiros Sintomas / Data do Diagnóstico
     years:
     - 2007
@@ -197,6 +209,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -214,6 +228,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -231,6 +247,8 @@ columns:
     role: outbreak.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de ocorrência do surto\" (outbreak.municipality): samples, interviews and place of the outbreak investigation: how it was investigated"
     name: Município de ocorrência do surto
     note: 'Named RE and tabulated by TabNet as residence, but the form''s field 11 is the municipality where the outbreak occurred (SDTA_DIC_DADOS.pdf); the place of its ill, who have no residence on the form.'
     codelists:
@@ -242,6 +260,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -253,6 +273,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -265,6 +287,8 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -277,6 +301,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -294,6 +320,8 @@ columns:
     role: outbreak.maximum_incubation_period_observed
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período de incubação máximo (em horas ou dias) - período\" (outbreak.maximum_incubation_period_observed): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     measure: false
     name: Período de incubação máximo (em horas ou dias) - período
     years:
@@ -318,6 +346,8 @@ columns:
     role: outbreak.female_cases_10_to_19
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino 10 a 19\" (outbreak.female_cases_10_to_19): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino 10 a 19
     years:
     - 2007
@@ -329,6 +359,8 @@ columns:
     role: outbreak.female_cases_1_to_4
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino 1 a 4\" (outbreak.female_cases_1_to_4): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino 1 a 4
     years:
     - 2007
@@ -340,6 +372,8 @@ columns:
     role: outbreak.female_cases_5_to_9
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino 5 a 9\" (outbreak.female_cases_5_to_9): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino 5 a 9
     years:
     - 2007
@@ -351,6 +385,8 @@ columns:
     role: outbreak.total_cases_10_to_19
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total 10 a 19\" (outbreak.total_cases_10_to_19): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total 10 a 19
     years:
     - 2007
@@ -362,6 +398,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_10_to_19
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado 10 a 19\" (outbreak.cases_of_unknown_sex_10_to_19): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado 10 a 19
     years:
     - 2007
@@ -373,6 +411,8 @@ columns:
     role: outbreak.male_cases_10_to_19
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino 10 a 19\" (outbreak.male_cases_10_to_19): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino 10 a 19
     years:
     - 2007
@@ -384,6 +424,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_1_to_4
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado 1 a 4\" (outbreak.cases_of_unknown_sex_1_to_4): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado 1 a 4
     years:
     - 2007
@@ -395,6 +437,8 @@ columns:
     role: outbreak.male_cases_1_to_4
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino 1 a 4\" (outbreak.male_cases_1_to_4): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino 1 a 4
     years:
     - 2007
@@ -406,6 +450,8 @@ columns:
     role: outbreak.total_cases_1_to_4
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total 1 a 4\" (outbreak.total_cases_1_to_4): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total 1 a 4
     years:
     - 2007
@@ -417,6 +463,8 @@ columns:
     role: outbreak.female_cases_under_1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino < 1\" (outbreak.female_cases_under_1): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino < 1
     years:
     - 2007
@@ -428,6 +476,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_under_1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado < 1\" (outbreak.cases_of_unknown_sex_under_1): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado < 1
     years:
     - 2007
@@ -439,6 +489,8 @@ columns:
     role: outbreak.male_cases_under_1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino < 1\" (outbreak.male_cases_under_1): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino < 1
     years:
     - 2007
@@ -450,6 +502,8 @@ columns:
     role: outbreak.total_cases_under_1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total < 1\" (outbreak.total_cases_under_1): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total < 1
     years:
     - 2007
@@ -461,6 +515,8 @@ columns:
     role: outbreak.total_cases_20_to_49
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total 20 a 49\" (outbreak.total_cases_20_to_49): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total 20 a 49
     years:
     - 2007
@@ -472,6 +528,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_20_to_49
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado 20 a 49\" (outbreak.cases_of_unknown_sex_20_to_49): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado 20 a 49
     years:
     - 2007
@@ -483,6 +541,8 @@ columns:
     role: outbreak.female_cases_20_to_49
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino 20 a 49\" (outbreak.female_cases_20_to_49): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino 20 a 49
     years:
     - 2007
@@ -494,6 +554,8 @@ columns:
     role: outbreak.male_cases_20_to_49
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino 20 a 49\" (outbreak.male_cases_20_to_49): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino 20 a 49
     years:
     - 2007
@@ -505,6 +567,8 @@ columns:
     role: outbreak.female_cases_50_and_over
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino 50 e +\" (outbreak.female_cases_50_and_over): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino 50 e +
     years:
     - 2007
@@ -516,6 +580,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_50_and_over
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado 50 e +\" (outbreak.cases_of_unknown_sex_50_and_over): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado 50 e +
     years:
     - 2007
@@ -527,6 +593,8 @@ columns:
     role: outbreak.male_cases_50_and_over
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino 50 e +\" (outbreak.male_cases_50_and_over): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino 50 e +
     years:
     - 2007
@@ -538,6 +606,8 @@ columns:
     role: outbreak.total_cases_50_and_over
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total 50 e +\" (outbreak.total_cases_50_and_over): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total 50 e +
     years:
     - 2007
@@ -549,6 +619,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_5_to_9
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado 5 a 9\" (outbreak.cases_of_unknown_sex_5_to_9): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado 5 a 9
     years:
     - 2007
@@ -560,6 +632,8 @@ columns:
     role: outbreak.male_cases_5_to_9
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino 5 a 9\" (outbreak.male_cases_5_to_9): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino 5 a 9
     years:
     - 2007
@@ -571,6 +645,8 @@ columns:
     role: outbreak.total_cases_5_to_9
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total 5 a 9\" (outbreak.total_cases_5_to_9): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total 5 a 9
     years:
     - 2007
@@ -582,6 +658,8 @@ columns:
     role: outbreak.cases_with_abdominal_pain
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Dor abdominal (número)\" (outbreak.cases_with_abdominal_pain): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Dor abdominal (número)
     years:
     - 2007
@@ -590,6 +668,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2007
@@ -602,6 +682,8 @@ columns:
     role: outbreak.food_samples_taken
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Se sim, nº de amostras (bromatológicas)\" (outbreak.food_samples_taken): samples, interviews and place of the outbreak investigation: how it was investigated"
     name: Se sim, nº de amostras (bromatológicas)
     years:
     - 2022
@@ -613,6 +695,8 @@ columns:
     role: outbreak.number_of_clinical_samples_collected
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Se sim, nº de amostras (clínicas)\" (outbreak.number_of_clinical_samples_collected): samples, interviews and place of the outbreak investigation: how it was investigated"
     name: Se sim, nº de amostras (clínicas)
     years:
     - 2022
@@ -657,6 +741,8 @@ columns:
     role: outbreak.cases_with_headache
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Cefaléia (número)\" (outbreak.cases_with_headache): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Cefaléia (número)
     years:
     - 2007
@@ -679,6 +765,8 @@ columns:
     role: outbreak.cases_with_diarrhoea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Diarréia (número)\" (outbreak.cases_with_diarrhoea): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Diarréia (número)
     years:
     - 2007
@@ -690,6 +778,8 @@ columns:
     role: outbreak.people_interviewed
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de entrevistados\" (outbreak.people_interviewed): samples, interviews and place of the outbreak investigation: how it was investigated"
     name: Número de entrevistados
     years:
     - 2007
@@ -701,6 +791,8 @@ columns:
     role: outbreak.interviewed_who_fell_ill
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de doentes entrevistados\" (outbreak.interviewed_who_fell_ill): samples, interviews and place of the outbreak investigation: how it was investigated"
     name: Número de doentes entrevistados
     years:
     - 2007
@@ -712,6 +804,8 @@ columns:
     role: outbreak.cases_with_fever
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Febre (número)\" (outbreak.cases_with_fever): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Febre (número)
     years:
     - 2007
@@ -723,6 +817,8 @@ columns:
     role: outbreak.ill_persons_by_age_and_sex_grand_total
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total Total\" (outbreak.ill_persons_by_age_and_sex_grand_total): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total Total
     years:
     - 2007
@@ -734,6 +830,8 @@ columns:
     role: outbreak.male_cases_total
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino Total\" (outbreak.male_cases_total): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino Total
     years:
     - 2007
@@ -745,6 +843,8 @@ columns:
     role: outbreak.total_cases_age_unknown
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Total Ignorada\" (outbreak.total_cases_age_unknown): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Total Ignorada
     years:
     - 2007
@@ -756,6 +856,8 @@ columns:
     role: outbreak.male_cases_age_unknown
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Masculino Ignorada\" (outbreak.male_cases_age_unknown): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Masculino Ignorada
     years:
     - 2007
@@ -767,6 +869,8 @@ columns:
     role: outbreak.female_cases_age_unknown
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino Ignorada\" (outbreak.female_cases_age_unknown): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino Ignorada
     years:
     - 2007
@@ -778,6 +882,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_and_age
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado Ignorada\" (outbreak.cases_of_unknown_sex_and_age): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado Ignorada
     years:
     - 2007
@@ -786,6 +892,8 @@ columns:
     role: outbreak.minimum_incubation_period_observed
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período de incubação mínimo (em horas ou dias) - período\" (outbreak.minimum_incubation_period_observed): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     measure: false
     name: Período de incubação mínimo (em horas ou dias) - período
     years:
@@ -796,6 +904,8 @@ columns:
     role: outbreak.median_incubation_period
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mediana do período de incubação (em horas ou dias) - período\" (outbreak.median_incubation_period): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     measure: false
     name: Mediana do período de incubação (em horas ou dias) - período
     years:
@@ -809,6 +919,8 @@ columns:
     role: outbreak.cases_with_nausea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Náuseas (número)\" (outbreak.cases_with_nausea): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Náuseas (número)
     years:
     - 2007
@@ -820,6 +932,8 @@ columns:
     role: outbreak.cases_with_neurological_symptoms
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Neurológicos (número)\" (outbreak.cases_with_neurological_symptoms): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Neurológicos (número)
     years:
     - 2007
@@ -853,6 +967,8 @@ columns:
     role: outbreak.deaths
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de óbitos\" (outbreak.deaths): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de óbitos
     years:
     - 2007
@@ -864,6 +980,8 @@ columns:
     role: outbreak.cases_with_other_symptoms
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Outros (número)\" (outbreak.cases_with_other_symptoms): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Outros (número)
     years:
     - 2007
@@ -888,6 +1006,8 @@ columns:
     role: outbreak.total_cases
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número total de doentes\" (outbreak.total_cases): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número total de doentes
     years:
     - 2007
@@ -899,6 +1019,8 @@ columns:
     role: outbreak.hospitalised
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número total de hospitalizados\" (outbreak.hospitalised): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número total de hospitalizados
     years:
     - 2007
@@ -910,6 +1032,8 @@ columns:
     role: outbreak.cases_of_unknown_sex_total
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Ignorado Total\" (outbreak.cases_of_unknown_sex_total): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Ignorado Total
     years:
     - 2007
@@ -921,6 +1045,8 @@ columns:
     role: outbreak.female_cases_total
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doentes por faixa etária e sexo - Feminino Total\" (outbreak.female_cases_total): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Número de doentes por faixa etária e sexo - Feminino Total
     years:
     - 2007
@@ -932,6 +1058,8 @@ columns:
     role: outbreak.cases_with_vomiting
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e sintomas - Doentes Vômitos (número)\" (outbreak.cases_with_vomiting): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Sinais e sintomas - Doentes Vômitos (número)
     years:
     - 2007
@@ -943,6 +1071,8 @@ columns:
     role: outbreak.suspected_exposed_cases_up_to_notification
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de casos suspeitos/expostos até a data de notificação\" (outbreak.suspected_exposed_cases_up_to_notification): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Nº de casos suspeitos/expostos até a data de notificação
     years:
     - 2007
@@ -951,6 +1081,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2007
@@ -959,6 +1091,8 @@ columns:
     role: outbreak.onset_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (outbreak.onset_epi_week): cases, deaths, symptoms, incubation or onset of the outbreak: the health event"
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
     - 2007
@@ -967,6 +1101,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -978,6 +1114,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR

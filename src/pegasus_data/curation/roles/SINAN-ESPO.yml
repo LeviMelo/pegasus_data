@@ -5,6 +5,8 @@ columns:
     role: epizootic.dogs_sick
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de cães doentes\" (epizootic.dogs_sick): animal cases, deaths or onset of the epizootic: the health event"
     name: Número de cães doentes
     years:
     - 2013
@@ -14,6 +16,8 @@ columns:
     role: epizootic.dogs_dead
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de cães mortos\" (epizootic.dogs_dead): animal cases, deaths or onset of the epizootic: the health event"
     name: Número de cães mortos
     years:
     - 2013
@@ -31,6 +35,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Digitação
     years:
     - 2013
@@ -39,6 +45,8 @@ columns:
     role: epizootic.start
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do início da epizootia\" (epizootic.start): animal cases, deaths or onset of the epizootic: the health event"
     name: Data do início da epizootia
     years:
     - 2013
@@ -47,6 +55,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2013
@@ -69,6 +79,8 @@ columns:
     role: epizootic.cats_sick
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de gatos doentes\" (epizootic.cats_sick): animal cases, deaths or onset of the epizootic: the health event"
     name: Número de gatos doentes
     years:
     - 2013
@@ -78,6 +90,8 @@ columns:
     role: epizootic.cats_dead
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de gatos mortos\" (epizootic.cats_dead): animal cases, deaths or onset of the epizootic: the health event"
     name: Número de gatos mortos
     years:
     - 2013
@@ -87,6 +101,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -112,6 +128,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2013
@@ -121,6 +139,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2013
@@ -129,6 +149,8 @@ columns:
     role: case.onset_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (case.onset_epi_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
     - 2013
@@ -137,6 +159,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR

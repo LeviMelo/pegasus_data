@@ -19,6 +19,8 @@ columns:
     role: professional.occupation
     kind: code_tree
     model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: "\"Codigo da especialidade do profissional\" (professional.occupation): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CBO2002
     name: Codigo da especialidade do profissional
@@ -54,6 +56,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -64,6 +68,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -83,6 +89,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -94,6 +102,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2005
@@ -177,6 +187,8 @@ columns:
     role: professional.weekly_hours_hospital
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Carga horaria HOSPITALAR\" (professional.weekly_hours_hospital): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Carga horaria HOSPITALAR
     years:
     - 2005
@@ -185,6 +197,8 @@ columns:
     role: professional.weekly_hours_other_setting
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Carga horaria nao ambulatorial, nem hospitalar\" (professional.weekly_hours_other_setting): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Carga horaria nao ambulatorial, nem hospitalar
     years:
     - 2005
@@ -193,6 +207,8 @@ columns:
     role: professional.weekly_hours_outpatient
     kind: number
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Carga horaria AMBULATORIAL\" (professional.weekly_hours_outpatient): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Carga horaria AMBULATORIAL
     years:
     - 2005
@@ -388,6 +404,8 @@ columns:
     role: professional.residence
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"UF e município de residência do profissional\" (professional.residence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR

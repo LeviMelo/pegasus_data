@@ -43,6 +43,8 @@ columns:
     role: death.certificate_codes
     kind: text
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"CIDs informados no atestado\" (death.certificate_codes): cause of death, certificate lines, date and time of death: the health event"
     name: CIDs informados no atestado
     years:
     - 2014
@@ -64,6 +66,8 @@ columns:
     role: death.cause
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa básica do óbito\" (death.cause): cause of death, certificate lines, date and time of death: the health event"
     name: Causa básica do óbito
     codelists:
     - ICD10
@@ -75,6 +79,8 @@ columns:
     role: death.original_underlying_cause
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa básica original\" (death.original_underlying_cause): cause of death, certificate lines, date and time of death: the health event"
     name: Causa básica original
     codelists:
     - ICD10
@@ -98,6 +104,8 @@ columns:
     role: death.prior_underlying_cause
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Causa básica informada antes da resseleção (localidade)\" (death.prior_underlying_cause): cause of death, certificate lines, date and time of death: the health event"
     name: Causa básica informada antes da resseleção (localidade)
     codelists:
     - ICD10
@@ -134,6 +142,8 @@ columns:
     role: death.neighborhood
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Código do bairro de ocorrência\" (death.neighborhood): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Código do bairro de ocorrência
     years:
     - 2006
@@ -143,6 +153,8 @@ columns:
     role: deceased.residence_neighborhood
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Código do bairro de residência\" (deceased.residence_neighborhood): attribute of the person"
     name: Código do bairro de residência
     years:
     - 1996
@@ -160,6 +172,8 @@ columns:
     role: death.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Estabelecimento\" (death.facility): facility: the facility register"
     name: Estabelecimento
     codelists:
     - CADGERBR
@@ -180,6 +194,8 @@ columns:
     role: death.registry_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Código do município do cartório\" (death.registry_municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Código do município do cartório
     codelists:
     - BR_MUNICIPALFA
@@ -191,6 +207,8 @@ columns:
     role: deceased.birth_municipality
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código do município de naturalidade\" (deceased.birth_municipality): attribute of the person"
     name: Código do município de naturalidade
     codelists:
     - BR_MUNICIPALFA
@@ -201,6 +219,8 @@ columns:
     role: death.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de ocorrência\" (death.municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Município de ocorrência
     codelists:
     - BR_MUNICIPALFA
@@ -212,6 +232,8 @@ columns:
     role: deceased.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (deceased.residence): attribute of the person"
     name: Município de residência
     codelists:
     - BR_MUNICIPALFA
@@ -223,6 +245,8 @@ columns:
     role: death.svo_iml_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do SVO ou IML\" (death.svo_iml_municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Município do SVO ou IML
     codelists:
     - BR_MUNICIPALFA
@@ -261,6 +285,8 @@ columns:
     role: death.certificate_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do atestado\" (death.certificate_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do atestado
     years:
     - 2006
@@ -269,6 +295,8 @@ columns:
     role: death.registration_date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data do cadastro\" (death.registration_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do cadastro
     years:
     - 2006
@@ -277,6 +305,8 @@ columns:
     role: death.infant_investigation_registration_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do cadastro da investigação de óbito infantil\" (death.infant_investigation_registration_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do cadastro da investigação de óbito infantil
     years:
     - 2009
@@ -285,6 +315,8 @@ columns:
     role: death.investigation_registration_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do cadastro de investigação\" (death.investigation_registration_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do cadastro de investigação
     years:
     - 2009
@@ -293,6 +325,8 @@ columns:
     role: death.case_conclusion_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de conclusão do caso\" (death.case_conclusion_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data de conclusão do caso
     years:
     - 2012
@@ -303,6 +337,8 @@ columns:
     role: death.investigation_conclusion_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da conclusão da investigação\" (death.investigation_conclusion_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data da conclusão da investigação
     years:
     - 2012
@@ -311,6 +347,8 @@ columns:
     role: death.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da investigação\" (death.investigation_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data da investigação
     years:
     - 2006
@@ -319,6 +357,8 @@ columns:
     role: deceased.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (deceased.birth_date): attribute of the person"
     name: Data de nascimento
     years:
     - 1996
@@ -327,6 +367,8 @@ columns:
     role: death.date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do Óbito\" (death.date): cause of death, certificate lines, date and time of death: the health event"
     name: Data do Óbito
     years:
     - 1996
@@ -335,6 +377,8 @@ columns:
     role: death.receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do recebimento\" (death.receipt_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do recebimento
     years:
     - 2006
@@ -343,6 +387,8 @@ columns:
     role: death.original_receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do recebimento original\" (death.original_receipt_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do recebimento original
     years:
     - 2011
@@ -351,6 +397,8 @@ columns:
     role: death.original_receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do recebimento original (tratada)\" (death.original_receipt_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do recebimento original (tratada)
     years:
     - 2011
@@ -360,6 +408,8 @@ columns:
     role: death.registry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do registro do cartório\" (death.registry_date): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Data do registro do cartório
     years:
     - 2012
@@ -514,6 +564,8 @@ columns:
     role: death.sources_consulted
     kind: text
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Fontes consultadas\" (death.sources_consulted): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Fontes consultadas
     years:
     - 2014
@@ -561,6 +613,8 @@ columns:
     role: death.time
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hora do óbito\" (death.time): cause of death, certificate lines, date and time of death: the health event"
     name: Hora do óbito
     years:
     - 2006
@@ -570,6 +624,8 @@ columns:
     role: deceased.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (deceased.age_coded): attribute of the person"
     name: Idade
     codelists:
     - IDADE
@@ -585,6 +641,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     also:
     - death.maternal_age
     name: Idade da mãe
@@ -597,6 +655,8 @@ columns:
     - death.causes
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linha A da declaração de óbito\" (death.certificate_line_a): cause of death, certificate lines, date and time of death: the health event"
     name: Linha A da declaração de óbito
     codelists:
     - ICD10
@@ -608,6 +668,8 @@ columns:
     role: death.certificate_line_b
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linha B da declaração de óbito\" (death.certificate_line_b): cause of death, certificate lines, date and time of death: the health event"
     name: Linha B da declaração de óbito
     codelists:
     - ICD10
@@ -619,6 +681,8 @@ columns:
     role: death.certificate_line_c
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linha C da declaração de óbito\" (death.certificate_line_c): cause of death, certificate lines, date and time of death: the health event"
     name: Linha C da declaração de óbito
     codelists:
     - ICD10
@@ -630,6 +694,8 @@ columns:
     role: death.certificate_line_d
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linha D da declaração de óbito\" (death.certificate_line_d): cause of death, certificate lines, date and time of death: the health event"
     name: Linha D da declaração de óbito
     codelists:
     - ICD10
@@ -641,6 +707,8 @@ columns:
     role: death.certificate_part_ii
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linha II da declaração de óbito\" (death.certificate_part_ii): cause of death, certificate lines, date and time of death: the health event"
     name: Linha II da declaração de óbito
     codelists:
     - ICD10
@@ -677,6 +745,8 @@ columns:
     role: deceased.birth_place
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Naturalidade\" (deceased.birth_place): attribute of the person"
     name: Naturalidade
     codelists:
     - NATURALIDADE
@@ -699,6 +769,8 @@ columns:
     role: death.investigation_days
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Day-count field, 2014 investigation-outcome block\" (death.investigation_days): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     measure: false
     name: Day-count field, 2014 investigation-outcome block
     years:
@@ -712,6 +784,8 @@ columns:
     role: death.days_to_investigation_conclusion
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Dias entre óbito e conclusão da investigação\" (death.days_to_investigation_conclusion): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Dias entre óbito e conclusão da investigação
     years:
     - 2014
@@ -723,6 +797,8 @@ columns:
     role: death.days_to_investigation
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de dias óbito-investigação\" (death.days_to_investigation): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Número de dias óbito-investigação
     years:
     - 2012
@@ -797,6 +873,8 @@ columns:
     role: deceased.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação habitual\" (deceased.occupation): attribute of the person"
     name: Ocupação habitual
     codelists:
     - CBO2002
@@ -808,6 +886,8 @@ columns:
     role: mother.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação habitual da mãe\" (mother.occupation): attribute of the mother (age, birth, residence, occupation)"
     name: Ocupação habitual da mãe
     codelists:
     - CBO2002
@@ -846,6 +926,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     also:
     - death.birth_weight
     name: Peso ao nascer
@@ -862,6 +944,8 @@ columns:
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de perdas fetais/abortos\" (pregnancy.previous_fetal_losses): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de perdas fetais/abortos
     years:
     - 1996
@@ -876,6 +960,8 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de filhos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de filhos vivos
     years:
     - 1996
@@ -897,6 +983,8 @@ columns:
     role: birth.gestation_weeks
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de semanas de gestação\" (birth.gestation_weeks): newborn condition or gestation at birth: the health event"
     also:
     - death.gestation_weeks
     name: Nº de semanas de gestação
@@ -1082,4 +1170,6 @@ columns:
     role: deceased.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (deceased.age_years): attribute of the person"
     derived: true

@@ -5,6 +5,8 @@ columns:
     role: population.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (population.year): reference year of the population table"
     name: Ano
     years:
     - 1991
@@ -23,6 +25,8 @@ columns:
     role: population.child_poverty_denominator
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Child-poverty rate denominator\" (population.child_poverty_denominator): count of persons in the population table"
     name: Child-poverty rate denominator
     years:
     - 1991
@@ -31,6 +35,8 @@ columns:
     role: population.unemployment_denominator
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Unemployment rate denominator\" (population.unemployment_denominator): count of persons in the population table"
     name: Unemployment rate denominator
     years:
     - 1991
@@ -39,6 +45,8 @@ columns:
     role: population.income_denominator
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Income/poverty rate denominator\" (population.income_denominator): count of persons in the population table"
     name: Income/poverty rate denominator
     years:
     - 1991
@@ -47,6 +55,8 @@ columns:
     role: population.child_labour_denominator
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Child-labor rate denominator\" (population.child_labour_denominator): count of persons in the population table"
     name: Child-labor rate denominator
     years:
     - 1991
@@ -55,6 +65,8 @@ columns:
     role: population.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Municipality code (6-digit)\" (population.residence): count of persons in the population table"
     codelists:
     - BR_MUNICIPALFA
     name: Municipality code (6-digit)
@@ -65,6 +77,8 @@ columns:
     role: population.children_below_half_minimum_wage
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Children below half minimum wage\" (population.children_below_half_minimum_wage): count of persons in the population table"
     name: Children below half minimum wage
     years:
     - 1991
@@ -73,6 +87,8 @@ columns:
     role: population.children_below_quarter_minimum_wage
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Children below quarter minimum wage\" (population.children_below_quarter_minimum_wage): count of persons in the population table"
     name: Children below quarter minimum wage
     years:
     - 1991
@@ -81,6 +97,8 @@ columns:
     role: population.unemployed
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Unemployed population\" (population.unemployed): count of persons in the population table"
     name: Unemployed population
     years:
     - 1991
@@ -89,6 +107,8 @@ columns:
     role: population.below_half_minimum_wage
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Population below half minimum wage\" (population.below_half_minimum_wage): count of persons in the population table"
     name: Population below half minimum wage
     years:
     - 1991
@@ -97,6 +117,8 @@ columns:
     role: population.below_quarter_minimum_wage
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Population below quarter minimum wage\" (population.below_quarter_minimum_wage): count of persons in the population table"
     name: Population below quarter minimum wage
     years:
     - 1991
@@ -105,6 +127,8 @@ columns:
     role: population.per_capita_income_sum
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Sum of per-capita household income\" (population.per_capita_income_sum): count of persons in the population table"
     name: Sum of per-capita household income
     years:
     - 1991
@@ -114,6 +138,8 @@ columns:
     role: population.child_labourers
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Child laborers\" (population.child_labourers): count of persons in the population table"
     name: Child laborers
     years:
     - 1991

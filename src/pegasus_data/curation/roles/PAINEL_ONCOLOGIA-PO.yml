@@ -5,6 +5,8 @@ columns:
     role: case.diagnosis_month
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ano e mês do diagnóstico\" (case.diagnosis_month): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Ano e mês do diagnóstico
     years:
     - 2013
@@ -13,6 +15,8 @@ columns:
     role: case.treatment_month
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano e mês do tratamento\" (case.treatment_month): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Ano e mês do tratamento
     years:
     - 2013
@@ -21,6 +25,8 @@ columns:
     role: case.diagnosis_year
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ano do diagnóstico\" (case.diagnosis_year): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Ano do diagnóstico
     years:
     - 2013
@@ -29,6 +35,8 @@ columns:
     role: case.treatment_year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano do tratamento\" (case.treatment_year): contact tracing, blockade, treatment delay or visits: how care happened"
     name: Ano do tratamento
     years:
     - 2013
@@ -37,6 +45,8 @@ columns:
     role: case.diagnosis_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNES do estabelecimento de diagnóstico\" (case.diagnosis_facility): facility: the facility register"
     codelists:
     - CADGERBR
     name: CNES do estabelecimento de diagnóstico
@@ -47,6 +57,8 @@ columns:
     role: case.treatment_facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNES do estabelecimento de tratamento\" (case.treatment_facility): facility: the facility register"
     codelists:
     - CADGERBR
     name: CNES do estabelecimento de tratamento
@@ -79,6 +91,8 @@ columns:
     role: case.diagnosis
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Diagnóstico detalhado\" (case.diagnosis): diagnosis, classification or injury code of the case: the health event"
     name: Diagnóstico detalhado
     years:
     - 2013
@@ -90,6 +104,8 @@ columns:
     role: case.diagnosis_date
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do diagnóstico\" (case.diagnosis_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data do diagnóstico
     years:
     - 2013
@@ -98,6 +114,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Data de nascimento
     years:
     - 2013
@@ -106,6 +124,8 @@ columns:
     role: case.treatment_start_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data detalhada do primeiro tratamento registrado\" (case.treatment_start_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data detalhada do primeiro tratamento registrado
     years:
     - 2013
@@ -128,6 +148,8 @@ columns:
     role: patient.age
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2013
@@ -140,6 +162,8 @@ columns:
     role: case.diagnosis_municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município do diagnóstico\" (case.diagnosis_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
     - BR_MUNICIPALFA
     name: Município do diagnóstico
@@ -150,6 +174,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     name: Município de residência
@@ -160,6 +186,8 @@ columns:
     role: case.treatment_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do tratamento\" (case.treatment_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
     - BR_MUNICIPALFA
     name: Município do tratamento
@@ -182,6 +210,8 @@ columns:
     role: case.days_to_treatment
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Tempo até o tratamento\" (case.days_to_treatment): contact tracing, blockade, treatment delay or visits: how care happened"
     name: Tempo até o tratamento
     years:
     - 2013
@@ -208,6 +238,8 @@ columns:
     role: case.state_of_diagnosis
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do diagnóstico\" (case.state_of_diagnosis): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
     - UF_BR
     name: UF do diagnóstico
@@ -218,6 +250,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     name: UF de residência
@@ -228,6 +262,8 @@ columns:
     role: case.state_of_treatment
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do tratamento\" (case.state_of_treatment): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
     - UF_BR
     name: UF do tratamento

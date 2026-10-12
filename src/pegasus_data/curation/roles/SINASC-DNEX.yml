@@ -9,6 +9,8 @@ columns:
     role: birth.apgar1
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Índice de Apgar - 1º minuto\" (birth.apgar1): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 1º minuto
     years:
     - 2014
@@ -22,6 +24,8 @@ columns:
     role: birth.apgar5
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Índice de Apgar - 5º minuto\" (birth.apgar5): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 5º minuto
     years:
     - 2014
@@ -31,6 +35,8 @@ columns:
     role: birth.anomaly_code
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código da anomalia congênita (CID-10)\" (birth.anomaly_code): newborn condition or gestation at birth: the health event"
     name: Código da anomalia congênita (CID-10)
     codelists:
     - ICD10
@@ -43,6 +49,8 @@ columns:
     role: birth.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (birth.facility): facility: the facility register"
     name: Código CNES do estabelecimento
     codelists:
     - CADGERBR
@@ -54,6 +62,8 @@ columns:
     role: birth.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de ocorrência do nascimento (código)\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Município de ocorrência do nascimento (código)
     codelists:
     - BR_MUNICIPALFA
@@ -71,6 +81,8 @@ columns:
     role: mother.birth_municipality
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código do município de naturalidade da mãe\" (mother.birth_municipality): attribute of the mother (age, birth, residence, occupation)"
     name: Código do município de naturalidade da mãe
     codelists:
     - BR_MUNICIPALFA
@@ -82,6 +94,8 @@ columns:
     role: mother.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Código do município de residência\" (mother.residence): attribute of the mother (age, birth, residence, occupation)"
     name: Código do município de residência
     codelists:
     - BR_MUNICIPALFA
@@ -93,6 +107,8 @@ columns:
     role: mother.occupation
     kind: code_tree
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código de ocupação da mãe (CBO)\" (mother.occupation): attribute of the mother (age, birth, residence, occupation)"
     name: Código de ocupação da mãe (CBO)
     codelists:
     - CBO2002
@@ -105,6 +121,8 @@ columns:
     role: mother.residence_country
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Código do país de residência\" (mother.residence_country): attribute of the mother (age, birth, residence, occupation)"
     name: Código do país de residência
     codelists:
     - NATURALIDADE
@@ -116,6 +134,8 @@ columns:
     role: mother.birth_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Código da UF de naturalidade da mãe\" (mother.birth_state): attribute of the mother (age, birth, residence, occupation)"
     name: Código da UF de naturalidade da mãe
     codelists:
     - UF_BR
@@ -131,6 +151,8 @@ columns:
     role: pregnancy.prenatal_visits
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Número de consultas de pré-natal\" (pregnancy.prenatal_visits): prenatal care, test dates and delivery type: how care happened"
     name: Número de consultas de pré-natal
     years:
     - 2014
@@ -180,6 +202,8 @@ columns:
     role: birth.registration_date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data do cadastro da DN\" (birth.registration_date): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Data do cadastro da DN
     years:
     - 2014
@@ -189,6 +213,8 @@ columns:
     role: birth.declaration_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do preenchimento da declaração\" (birth.declaration_date): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Data do preenchimento da declaração
     years:
     - 2014
@@ -198,6 +224,8 @@ columns:
     role: baby.birth_date
     kind: date
     model: when
+    fact_domain: person
+    fact_domain_evidence: "\"Data do nascimento\" (baby.birth_date): attribute of the person"
     also:
     - birth.date
     name: Data do nascimento
@@ -209,6 +237,8 @@ columns:
     role: mother.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Data de nascimento da mãe\" (mother.birth_date): attribute of the mother (age, birth, residence, occupation)"
     name: Data de nascimento da mãe
     years:
     - 2014
@@ -218,6 +248,8 @@ columns:
     role: birth.receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do último recebimento do lote\" (birth.receipt_date): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Data do último recebimento do lote
     years:
     - 2014
@@ -227,6 +259,8 @@ columns:
     role: birth.original_receipt_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de recebimento original calculada\" (birth.original_receipt_date): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Data de recebimento original calculada
     years:
     - 2014
@@ -236,6 +270,8 @@ columns:
     role: pregnancy.last_menstrual_period_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da última menstruação (DUM)\" (pregnancy.last_menstrual_period_date): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Data da última menstruação (DUM)
     years:
     - 2014
@@ -339,6 +375,8 @@ columns:
     role: birth.time
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hora do nascimento\" (birth.time): newborn condition or gestation at birth: the health event"
     name: Hora do nascimento
     years:
     - 2014
@@ -352,6 +390,8 @@ columns:
     role: mother.age
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da mãe
     years:
     - 2014
@@ -362,6 +402,8 @@ columns:
     role: father.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do pai\" (father.age): attribute of the person"
     name: Idade do pai
     years:
     - 2014
@@ -438,6 +480,8 @@ columns:
     role: mother.birth_place
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Naturalidade da mãe\" (mother.birth_place): attribute of the mother (age, birth, residence, occupation)"
     name: Naturalidade da mãe
     codelists:
     - NATURALIDADE
@@ -507,6 +551,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer
     years:
     - 2014
@@ -520,6 +566,8 @@ columns:
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de perdas fetais e abortos\" (pregnancy.previous_fetal_losses): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de perdas fetais e abortos
     years:
     - 2014
@@ -533,6 +581,8 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de filhos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de filhos vivos
     years:
     - 2014
@@ -546,6 +596,8 @@ columns:
     role: pregnancy.previous_pregnancies
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de gestações anteriores\" (pregnancy.previous_pregnancies): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de gestações anteriores
     years:
     - 2014
@@ -556,6 +608,8 @@ columns:
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de partos cesáreos anteriores\" (pregnancy.previous_cesareans): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de partos cesáreos anteriores
     years:
     - 2014
@@ -569,6 +623,8 @@ columns:
     role: pregnancy.previous_vaginal_births
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de partos vaginais anteriores\" (pregnancy.previous_vaginal_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de partos vaginais anteriores
     years:
     - 2014
@@ -608,6 +664,8 @@ columns:
     role: birth.gestation_weeks
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Nº de semanas de gestação\" (birth.gestation_weeks): newborn condition or gestation at birth: the health event"
     name: Nº de semanas de gestação
     years:
     - 2014

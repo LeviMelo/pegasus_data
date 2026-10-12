@@ -5,6 +5,8 @@ columns:
     role: authorisation.establishment_code
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"EXA_CODUNI\" (authorisation.establishment_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - SIA_UPS_BR
     years:
@@ -31,6 +33,8 @@ columns:
     role: authorisation.reference_year_month
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"EXA_DATREF\" (authorisation.reference_year_month): billing value or quantity, competence, validity or exit of the authorisation: billing"
     years:
     - 2001
     - 2007
@@ -38,6 +42,8 @@ columns:
     role: authorisation.managing_authority
     kind: place
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"EXA_GESTAO\" (authorisation.managing_authority): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
     - MUNICBR
     years:
@@ -91,6 +97,8 @@ columns:
     role: authorisation.serum_creatinine
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"EXA_INDCRE\" (authorisation.serum_creatinine): measurement or laboratory result of the patient: clinical"
     years:
     - 2001
     - 2007
@@ -98,6 +106,8 @@ columns:
     role: authorisation.pre_dialysis_urea
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"EXA_INDUPR\" (authorisation.pre_dialysis_urea): measurement or laboratory result of the patient: clinical"
     years:
     - 2001
     - 2007

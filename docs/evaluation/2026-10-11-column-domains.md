@@ -45,3 +45,27 @@ fact domain).
 
 **Limits.** The reasons are family-level; a column's call rests on its label and role, not on a value-by-value reading. A person
 condition recorded on a SINAN form (pregnancy, comorbidity, vaccination, habits) is `clinical`, not `person`.
+
+## Extension: every column a study reads as a field (2026-10-11)
+
+`fact_domain` now covers every other role a reader uses: any kind (number, date, code_tree, place, institution, text) whose model is not
+`link_only` or `excluded` (`FIELD_MODELS`); `undeclared_fact_domains()` lists them with the categories. Placed by entity.property and
+the dictionary label, then read entity by entity: diagnoses, causes, lab results, measurements, symptom, exposure and death dates are
+clinical; procedures, care and ICU days, length of stay, sample, test, notification, investigation, registration and receipt dates and
+places of care or occurrence are process; billing values, billed days, competence, manager and exit fields, system timestamps and the
+CNES register (establishment, bed, team, professional, CNPJ) are administrative; age, birth, residence, occupation and the parents'
+attributes are person. Obstetric and vaccination histories on a form are clinical.
+
+Result (branch `fact-domains-all`, no lake, no network): 4,193 non-categorical field roles in 167 files, 4,176 placed (person 845,
+clinical 1,157, process 1,325, administrative 849). With the categories: 9,560 of 9,604 placed (person 1,435, clinical 3,803, process
+2,091, administrative 2,231); 44 undeclared. Studied datasets (non-categorical field columns): SIH-RD 71 (36 administrative: the 19 `VAL_*`,
+the `US_*`, `QT_DIARIAS`, `DIAR_ACOM`, `ANO_CMPT`, `MES_CMPT`, `GESTOR_DT`, facility and manager fields; 14 process: `DIAS_PERM`,
+`UTI_*`, dates, procedures; 15 clinical: the diagnoses; 6 person), SIM-DO 45 (15 clinical, 19 process incl. `DTCADASTRO`, `DTRECEBIM`,
+`DTINVESTIG`, `NUDIAS*`; 10 person; 1 administrative), SINASC-DN 41 (15 clinical incl. `PESO`, `SEMAGESTAC`, `APGAR1/5`, `QTDFILVIVO`;
+14 person; 11 process incl. `CONSPRENAT`; 1), SINAN-TOXG and TOXC 24 each (8 person, 7 clinical, 8 process, 1 administrative).
+
+Undeclared, new (17): `DURACAO` (CHAG, DENG: "Duração", no unit or object), `NU_AFAST` (DERM, LER, LERD, PAIR) and `DTDIASINAC` (HANT)
+(work leave, as `AFASTAMENT` before), `MUNIC`/`UF` of the PNI coverage tables (10: the label does not say whether it is where the dose
+was given or where the person lives). Judgement calls: system timestamps (`DT_DIGITA`, `DTRECEBIM`) are process (a delay in the
+notification chain) while `DT_ULT_ALT`, `DT_CRIACAO`, `DT_CARGA` are administrative; SIA/APAC exit dates follow the exit codes
+(administrative).

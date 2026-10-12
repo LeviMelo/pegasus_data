@@ -5,6 +5,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Ano de Nascimento\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Ano de Nascimento
     years:
     - 2007
@@ -27,6 +29,8 @@ columns:
     role: case.number_of_polio_doses_received
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Número de doses válidas\" (case.number_of_polio_doses_received): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Número de doses válidas
     years:
     - 2007
@@ -35,6 +39,8 @@ columns:
     role: case.date_of_last_polio_dose
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da última dose da vacina\" (case.date_of_last_polio_dose): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data da última dose da vacina
     years:
     - 2007
@@ -43,6 +49,8 @@ columns:
     role: case.travel_country
     kind: place
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se sim, país origem\" (case.travel_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Se sim, país origem
     years:
     - 2007
@@ -63,6 +71,8 @@ columns:
     role: case.hospital_admission_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da internação\" (case.hospital_admission_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da internação
     years:
     - 2007
@@ -71,6 +81,8 @@ columns:
     role: case.encounter_diagnostic_hypothesis
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Hipótese diagnóstica\" (case.encounter_diagnostic_hypothesis): diagnosis, classification or injury code of the case: the health event"
     codelists:
     - ICD10
     name: Hipótese diagnóstica
@@ -94,6 +106,8 @@ columns:
     role: case.hospital_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Município do hospital\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: Município do hospital
     codelists:
     - BR_MUNICIPALFA
@@ -110,6 +124,8 @@ columns:
     role: case.hospital_state
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UF do hospital\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: UF do hospital
     codelists:
     - UF_BR
@@ -497,6 +513,8 @@ columns:
     role: case.date_motor_deficit_began
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de início da deficiência motora\" (case.date_motor_deficit_began): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de início da deficiência motora
     years:
     - 2007
@@ -505,6 +523,8 @@ columns:
     role: case.date_of_neurological_examination
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do exame\" (case.date_of_neurological_examination): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do exame
     years:
     - 2007
@@ -818,6 +838,8 @@ columns:
     role: case.reason_the_case_was_discarded
     kind: code_tree
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Motivo do descarte\" (case.reason_the_case_was_discarded): diagnosis, classification or injury code of the case: the health event"
     codelists:
     - ICD10
     name: Motivo do descarte
@@ -926,6 +948,8 @@ columns:
     role: case.date_of_first_consultation
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da 1ª consulta\" (case.date_of_first_consultation): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da 1ª consulta
     years:
     - 2007
@@ -934,6 +958,8 @@ columns:
     role: notification.entry_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Digitação
     years:
     - 2007
@@ -942,6 +968,8 @@ columns:
     role: notification.closing_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data de Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data de Encerramento
     years:
     - 2007
@@ -950,6 +978,8 @@ columns:
     role: notification.investigation_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Investigação\" (notification.investigation_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Investigação
     years:
     - 2007
@@ -958,6 +988,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Data da Notificação
     years:
     - 2007
@@ -967,6 +999,8 @@ columns:
     role: case.death_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de Óbito\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data de Óbito
     years:
     - 2007
@@ -975,6 +1009,8 @@ columns:
     role: case.onset
     kind: date
     model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data dos Primeiros Sintomas / Data do Diagnóstico\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
     name: Data dos Primeiros Sintomas / Data do Diagnóstico
     years:
     - 2007
@@ -1051,6 +1087,8 @@ columns:
     role: case.date_of_review
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da revisão\" (case.date_of_review): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da revisão
     years:
     - 2007
@@ -1107,6 +1145,8 @@ columns:
     role: case.date_of_revisit
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da revisita\" (case.date_of_revisit): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da revisita
     years:
     - 2007
@@ -1281,6 +1321,8 @@ columns:
     role: case.disease
     kind: code_tree
     model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agravo/doença\" (case.disease): diagnosis, classification or injury code of the case: the health event"
     name: Agravo/doença
     codelists:
     - ICD10
@@ -1298,6 +1340,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
     - case.residence
     name: Município de Residência
@@ -1317,6 +1361,8 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -1334,6 +1380,8 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
     codelists:
     - PAISNET
@@ -1345,6 +1393,8 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
     codelists:
     - REGIONET
@@ -1357,6 +1407,8 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
     codelists:
     - REGIONET
@@ -1369,6 +1421,8 @@ columns:
     role: notification.facility
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
     - AB
@@ -1410,6 +1464,8 @@ columns:
     role: case.date_anatomopathological_material_collected
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta (material anatomopatológico)\" (case.date_anatomopathological_material_collected): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da coleta (material anatomopatológico)
     years:
     - 2007
@@ -1418,6 +1474,8 @@ columns:
     role: case.date_stool_sample_sent_from_state_level_to_reference_laborat
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do envio do nível estadual para LRR\" (case.date_stool_sample_sent_from_state_level_to_reference_laborat): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do envio do nível estadual para LRR
     years:
     - 2007
@@ -1426,6 +1484,8 @@ columns:
     role: case.date_of_electroneuromyography
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Eletroneuromiografia - data da realização\" (case.date_of_electroneuromyography): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Eletroneuromiografia - data da realização
     years:
     - 2007
@@ -1434,6 +1494,8 @@ columns:
     role: case.date_first_stool_sample_collected
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta (amostra de fezes)\" (case.date_first_stool_sample_collected): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data da coleta (amostra de fezes)
     years:
     - 2007
@@ -1442,6 +1504,8 @@ columns:
     role: case.date_first_csf_sample_taken
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Data da coleta\" (case.date_first_csf_sample_taken): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Exame complementar 1 Líquor - Data da coleta
     years:
     - 2007
@@ -1450,6 +1514,8 @@ columns:
     role: case.date_second_csf_sample_taken
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Data da coleta\" (case.date_second_csf_sample_taken): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Exame complementar 2 Líquor - Data da coleta
     years:
     - 2007
@@ -1458,6 +1524,8 @@ columns:
     role: case.date_stool_sample_sent_from_local_to_state_level
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do envio do nível local para estadual\" (case.date_stool_sample_sent_from_local_to_state_level): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do envio do nível local para estadual
     years:
     - 2007
@@ -1466,6 +1534,8 @@ columns:
     role: case.date_stool_sample_received_at_reference_laboratory
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do recebimento no LRR\" (case.date_stool_sample_received_at_reference_laboratory): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do recebimento no LRR
     years:
     - 2007
@@ -1474,6 +1544,8 @@ columns:
     role: case.date_of_stool_sample_result
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do resultado\" (case.date_of_stool_sample_result): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
     name: Data do resultado
     years:
     - 2007
@@ -1503,6 +1575,8 @@ columns:
     role: case.csf_cell_count_first_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Nº de células/mm³\" (case.csf_cell_count_first_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 1 Líquor - Nº de células/mm³
     years:
     - 2007
@@ -1512,6 +1586,8 @@ columns:
     role: case.csf_cell_count_second_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Nº de células/mm³\" (case.csf_cell_count_second_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 2 Líquor - Nº de células/mm³
     years:
     - 2007
@@ -1521,6 +1597,8 @@ columns:
     role: case.csf_chloride_first_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Cloreto mg%\" (case.csf_chloride_first_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 1 Líquor - Cloreto mg%
     years:
     - 2007
@@ -1530,6 +1608,8 @@ columns:
     role: case.csf_chloride_second_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Cloreto mg%\" (case.csf_chloride_second_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 2 Líquor - Cloreto mg%
     years:
     - 2007
@@ -1539,6 +1619,8 @@ columns:
     role: case.csf_glucose_first_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Glicose mg%\" (case.csf_glucose_first_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 1 Líquor - Glicose mg%
     years:
     - 2007
@@ -1548,6 +1630,8 @@ columns:
     role: case.csf_glucose_second_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Glicose mg%\" (case.csf_glucose_second_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 2 Líquor - Glicose mg%
     years:
     - 2007
@@ -1557,6 +1641,8 @@ columns:
     role: case.csf_lymphocytes_first_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Linfócitos %\" (case.csf_lymphocytes_first_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 1 Líquor - Linfócitos %
     years:
     - 2007
@@ -1566,6 +1652,8 @@ columns:
     role: case.csf_lymphocytes_second_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Linfócitos %\" (case.csf_lymphocytes_second_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 2 Líquor - Linfócitos %
     years:
     - 2007
@@ -1575,6 +1663,8 @@ columns:
     role: case.csf_protein_first_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 1 Líquor - Proteínas mg%\" (case.csf_protein_first_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 1 Líquor - Proteínas mg%
     years:
     - 2007
@@ -1584,6 +1674,8 @@ columns:
     role: case.csf_protein_second_sample
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Exame complementar 2 Líquor - Proteínas mg%\" (case.csf_protein_second_sample): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Exame complementar 2 Líquor - Proteínas mg%
     years:
     - 2007
@@ -1734,6 +1826,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Ano da notificação\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Ano da notificação
     years:
     - 2007
@@ -1743,6 +1837,8 @@ columns:
     role: patient.age_coded
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
     years:
     - 2007
@@ -1880,6 +1976,8 @@ columns:
     role: notification.epi_week
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica da Notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Semana Epidemiológica da Notificação
     years:
     - 2007
@@ -1888,6 +1986,8 @@ columns:
     role: case.onset_epi_week
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico\" (case.onset_epi_week): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
     years:
     - 2007
@@ -1896,6 +1996,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
     codelists:
     - UF_BR
@@ -1907,6 +2009,8 @@ columns:
     role: notification.state
     kind: place
     model: where
+    fact_domain: process
+    fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
     codelists:
     - UF_BR
@@ -2003,5 +2107,7 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
     note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

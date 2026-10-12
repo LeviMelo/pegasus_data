@@ -5,6 +5,8 @@ columns:
     role: patient.birth_year
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"ANO_NASC\" (patient.birth_year): attribute of the patient (age, birth, residence, occupation, employer)"
     years:
     - 
     - 
@@ -12,6 +14,8 @@ columns:
     role: notification.year
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"ANO_NOT\" (notification.year): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -52,6 +56,8 @@ columns:
     role: notification.notifying_municipality
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"CODMUNNOT\" (notification.notifying_municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - MUNICBR
     years:
@@ -61,6 +67,8 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"CODMUNRES\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -72,6 +80,8 @@ columns:
     role: notification.birth_length
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"COMPRIMENT\" (notification.birth_length): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     years:
     - 
     - 
@@ -139,6 +149,8 @@ columns:
     role: patient.intrauterine_head_diameter
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"DIAMCEFAL\" (patient.intrauterine_head_diameter): newborn measurement, habit or vaccination history of the patient: clinical"
     years:
     - 
     - 
@@ -168,6 +180,8 @@ columns:
     role: patient.birth_date
     kind: date
     model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"DT_NASC\" (patient.birth_date): attribute of the patient (age, birth, residence, occupation, employer)"
     years:
     - 
     - 
@@ -175,6 +189,8 @@ columns:
     role: mother.birth_date
     kind: date
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"DT_NASCMAE\" (mother.birth_date): attribute of the mother (age, birth, residence, occupation)"
     years:
     - 
     - 
@@ -182,6 +198,8 @@ columns:
     role: notification.date
     kind: date
     model: when
+    fact_domain: process
+    fact_domain_evidence: "\"DT_NOTIFIC\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -189,6 +207,8 @@ columns:
     role: notification.date_of_death
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"DT_OBITO\" (notification.date_of_death): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     years:
     - 
     - 
@@ -196,6 +216,8 @@ columns:
     role: notification.mri_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DT_RS\" (notification.mri_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -203,6 +225,8 @@ columns:
     role: notification.probable_symptom_onset_date
     kind: date
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"DT_SINTOMA\" (notification.probable_symptom_onset_date): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     years:
     - 
     - 
@@ -210,6 +234,8 @@ columns:
     role: notification.ct_scan_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DT_TC\" (notification.ct_scan_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -217,6 +243,8 @@ columns:
     role: notification.transfontanellar_ultrasound_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DT_TRANSF\" (notification.transfontanellar_ultrasound_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -224,6 +252,8 @@ columns:
     role: notification.last_update_date
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"DT_ULT_ALT\" (notification.last_update_date): notifying unit, or the record's own system timestamp: facility register and record keeping"
     years:
     - 
     - 
@@ -231,6 +261,8 @@ columns:
     role: notification.prenatal_ultrasound_date
     kind: date
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"DT_USS\" (notification.prenatal_ultrasound_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     years:
     - 
     - 
@@ -337,6 +369,8 @@ columns:
     role: notification.frequency
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"FREQUENCIA\" (notification.frequency): treatment prescribed: care delivered"
     years:
     - 
     - 
@@ -348,6 +382,8 @@ columns:
     role: pregnancy.weeks_at_detection
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"GEST_DIAG\" (pregnancy.weeks_at_detection): obstetric history, gestation or test result of the pregnancy: clinical"
     years:
     - 
     - 
@@ -402,6 +438,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"IDADEGES\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     years:
     - 
     - 
@@ -409,6 +447,8 @@ columns:
     role: patient.residence_alias
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"ID_MN_RESI\" (patient.residence_alias): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -450,6 +490,8 @@ columns:
     role: notification.head_circumference_at_birth
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PERIMCEFAL\" (notification.head_circumference_at_birth): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     years:
     - 
     - 
@@ -460,6 +502,8 @@ columns:
     role: patient.birth_weight
     kind: number
     model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"PESO\" (patient.birth_weight): newborn measurement, habit or vaccination history of the patient: clinical"
     years:
     - 
     - 
@@ -487,6 +531,8 @@ columns:
     role: notification.notifying_region
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"REGIAONOT\" (notification.notifying_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - REGIAO
     years:
@@ -496,6 +542,8 @@ columns:
     role: patient.residence_region
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"REGIAORES\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - REGIAO
     years:
@@ -738,6 +786,8 @@ columns:
     role: notification.notifying_state_uf
     kind: place
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"UFNOT\" (notification.notifying_state_uf): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
     - UF_BR
     years:
@@ -747,6 +797,8 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"UFRES\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
     - UF_BR
     years:

@@ -33,6 +33,8 @@ columns:
     role: establishment.end_year_month_of_the_habilita_o_records_validity_period
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência final\" (establishment.end_year_month_of_the_habilita_o_records_validity_period): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência final
     years:
     - 2007
@@ -41,6 +43,8 @@ columns:
     role: establishment.start_year_month_of_the_habilita_o_records_validity_period
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência inicial\" (establishment.start_year_month_of_the_habilita_o_records_validity_period): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência inicial
     years:
     - 2007
@@ -49,6 +53,8 @@ columns:
     role: establishment.cnes
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código CNES do estabelecimento\" (establishment.cnes): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CADGERBR
     name: Código CNES do estabelecimento
@@ -59,6 +65,8 @@ columns:
     role: establishment.maintainer_cnpj
     kind: institution
     model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"CNPJ da mantenedora\" (establishment.maintainer_cnpj): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - CNPJ_BR
     name: CNPJ da mantenedora
@@ -69,6 +77,8 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
     - BR_MUNICIPALFA
     - MUNICBR
@@ -88,6 +98,8 @@ columns:
     role: establishment.competence
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Competência (Ano/Mês)
     years:
     - 2007
@@ -127,6 +139,8 @@ columns:
     role: establishment.date_of_the_ordinance_portaria_granting_the_habilita_o
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Data da portaria\" (establishment.date_of_the_ordinance_portaria_granting_the_habilita_o): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Data da portaria
     years:
     - 2007
@@ -147,6 +161,8 @@ columns:
     role: establishment.year_month_of_the_ordinance_portaria
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Campo DT_PORTARIA formatado como AAAAMM\" (establishment.year_month_of_the_ordinance_portaria): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     name: Campo DT_PORTARIA formatado como AAAAMM
     years:
     - 2007

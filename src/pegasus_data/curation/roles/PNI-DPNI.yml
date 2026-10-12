@@ -5,6 +5,8 @@ columns:
     role: vaccination.year
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano\" (vaccination.year): reference period or load date of the published aggregate"
     name: Ano
     years:
     - 1994
@@ -13,6 +15,8 @@ columns:
     role: vaccination.month_yyyymm
     kind: date
     model: when
+    fact_domain: administrative
+    fact_domain_evidence: "\"Ano/Mês\" (vaccination.month_yyyymm): reference period or load date of the published aggregate"
     name: Ano/Mês
     years:
     - 2004
@@ -21,6 +25,8 @@ columns:
     role: vaccination.dropout_difference
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Diferença D1-Dn\" (vaccination.dropout_difference): doses applied and coverage: care delivered"
     name: Diferença D1-Dn
     years:
     - 2004
@@ -42,6 +48,8 @@ columns:
     role: vaccination.first_doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Doses D1 (dose inicial do esquema)\" (vaccination.first_doses): doses applied and coverage: care delivered"
     name: Doses D1 (dose inicial do esquema)
     years:
     - 2004
@@ -50,6 +58,8 @@ columns:
     role: vaccination.closing_doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Doses Dn (dose final do esquema)\" (vaccination.closing_doses): doses applied and coverage: care delivered"
     name: Doses Dn (dose final do esquema)
     years:
     - 2004
@@ -85,6 +95,8 @@ columns:
     role: vaccination.month
     kind: date
     model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Mês\" (vaccination.month): reference period or load date of the published aggregate"
     codelists:
     - MESES
     name: Mês
@@ -107,6 +119,8 @@ columns:
     role: vaccination.doses
     kind: number
     model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Quantidade de Doses Aplicadas\" (vaccination.doses): doses applied and coverage: care delivered"
     name: Quantidade de Doses Aplicadas
     years:
     - 1994
