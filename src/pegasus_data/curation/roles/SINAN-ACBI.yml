@@ -474,6 +474,8 @@ columns:
   ID_UNIDADE:
     role: notification.facility
     kind: institution
+    width: 7
+    width_evidence: "SINAN stores the notifying unit as a number: zero-filled to CNES's 7 digits, the commonest short codes are CNES establishments registered in their notifications' municipality (TOXC 2023 8 of 8, DENG 2023 20 of 20; 2026-10-12)"
     model: institution
     fact_domain: administrative
     fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"

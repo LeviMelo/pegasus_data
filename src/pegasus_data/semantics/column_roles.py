@@ -35,7 +35,7 @@ MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
-                  "fact_domain", "fact_domain_evidence"})
+                  "fact_domain", "fact_domain_evidence", "width", "width_evidence"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -93,6 +93,11 @@ class ColumnRole:
     #: from the documentation, listed by `undeclared_fact_domains`, never guessed.
     fact_domain: str | None = None
     fact_domain_evidence: str | None = None
+    #: A code the source stores as a number (a DBF ``N`` field): its code system's width, the leading zeros the number
+    #: lost (`canonical_codes` restores them for a join; the lake keeps the value as filed), with the measurement that
+    #: shows it. SINAN's ID_UNIDADE: "477" is CNES 0000477, Hospital Oswaldo Cruz in its notifications' Recife.
+    width: int | None = None
+    width_evidence: str | None = None
 
     @property
     def entity(self) -> str:
@@ -110,6 +115,7 @@ class ColumnRole:
                 "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
                 "domain": None if self.domain is None else list(self.domain), "fact_domain": self.fact_domain,
                 **({"fact_domain_evidence": self.fact_domain_evidence} if self.fact_domain else {}),
+                **({"width": self.width, "width_evidence": self.width_evidence} if self.width else {}),
                 **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {}),
                 **({"unfilled": list(self.unfilled)} if self.unfilled else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
@@ -202,6 +208,13 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad("a fact_domain needs its fact_domain_evidence: the dictionary or layout line it rests on")
     if fact is None and "fact_domain_evidence" in spec:
         raise bad("fact_domain_evidence without fact_domain")
+    width = spec.get("width")
+    if width is not None and (not isinstance(width, int) or width < 1):
+        raise bad(f"width {width!r} is the code system's number of characters")
+    if width is not None and not str(spec.get("width_evidence") or "").strip():
+        raise bad("a width needs its width_evidence: the layout's numeric field, or codes matched at that width")
+    if width is None and "width_evidence" in spec:
+        raise bad("width_evidence without width")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
         raise bad(f"unfilled years {list(unfilled)} lie outside its years {list(years)}")
@@ -212,7 +225,9 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       domain, str(unknown).strip() if unknown is not None else None, unfilled, instruments,
                       " ".join(str(spec["instruments_evidence"]).split()) if instruments else None,
                       str(fact) if fact is not None else None,
-                      " ".join(str(spec["fact_domain_evidence"]).split()) if fact is not None else None)
+                      " ".join(str(spec["fact_domain_evidence"]).split()) if fact is not None else None,
+                      int(width) if width is not None else None,
+                      " ".join(str(spec["width_evidence"]).split()) if width is not None else None)
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

@@ -601,6 +601,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     The kit defines no type: Tp 5 holds the R codes, Tp 4 the unspecified ones. It is served as the code list
     `SIM-POUCO-UTEIS`, item = the type as written (3,090 codes in the tree).
 
+- **SINAN's notifying unit is stored as a number (2026-10-12).** `ID_UNIDADE` has 2 to 6 digits on a sixth of DENG 2023's
+  notifications and of TOXC 2023's ("477", "11843"). Zero-filled to CNES's 7 digits, the commonest short codes are CNES
+  establishments registered in their notifications' municipality: TOXC 8 of 8 (0000477 is Hospital Oswaldo Cruz, Recife),
+  DENG 20 of 20. Declared `width: 7` on the column's role in every SINAN agravo. The lake keeps the value as filed; a
+  join restores the width (PegaSUS `facility.facility_cube`).
+
 ## 4. SIGTAP (2026-08-19, F §3d)
 
 - HTTPS times out on `sigtap.datasus.gov.br` and
