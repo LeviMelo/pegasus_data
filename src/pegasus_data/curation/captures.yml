@@ -1,0 +1,28 @@
+# Populations several systems list, for capture–recapture (`concepts.captures`; PegaSUS `capture`): each list is one
+# system's records of the population by one definition across systems, so a person missing from a list is one that
+# system could have recorded. The links that pair the lists' records are the declared ones (`links.yml`); a link's own
+# side filter is written for pairing and may be broader (SIM's B58 at any age), never a population.
+#
+# ``where`` is SQL on the system's role table (`roles.yml`); ``group`` makes one person of the records sharing those
+# roles (a child's admissions); ``death`` keeps the records of members who died of the condition, cited from the
+# column's own labels (a death certificate is a death).
+captures:
+  congenital_toxoplasmosis:
+    conditions: [P37.1]
+    description: >-
+      Congenital toxoplasmosis: a SINAN-TOXC notification confirmed; an admission or a death certificate naming P37.1 on any
+      diagnosis or line, or B58 under two years of age (the links' definition of a child's toxoplasmosis,
+      `sinan_toxc_to_sih_admission`).
+    lists:
+      SINAN-TOXC:
+        where: "\"case.classification\" = '1'"   # CLASSI_FIN 1 "Confirmado" (2 "Descartado", 8 "Inconclusivo")
+        death: "\"case.outcome\" = '2'"          # EVOLUCAO 2 "Óbito pelo agravo notificado"
+      SIH-RD:
+        where: >-
+          "admission.diagnoses" LIKE '%P371%' OR ("admission.diagnoses" LIKE '%B58%' AND "patient.age_years" < 2)
+        group: [patient.birth_date, patient.sex, patient.residence]
+        death: "\"admission.death\" = '1'"   # MORTE 1: "Sim"
+      SIM-DO:
+        where: >-
+          "death.cause" = 'P371' OR "death.causes" LIKE '%P371%'
+          OR (("death.cause" LIKE 'B58%' OR "death.causes" LIKE '%B58%') AND "deceased.age_years" < 2)

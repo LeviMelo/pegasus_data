@@ -49,6 +49,31 @@ def _norm(code: str) -> str:
 _SUBSTANCE_KEYS = {"name", "reads", "catmat", "use"}
 
 
+def captures(codes: list[str]) -> list[dict[str, Any]]:
+    """The declared capture populations (`curation/captures.yml`) of any of ICD-10 ``codes`` (a code holds its
+    subcodes): each with its description and its lists, one per system (``where`` on the role table, ``group``, and
+    ``death`` for a population of deaths). A list's filter is the population's definition, not a link's."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    asked = [_norm(c) for c in codes]
+    out = []
+    for key, c in (read_yaml(curation_root() / "captures.yml").get("captures") or {}).items():
+        lists = c.get("lists") or {}
+        if len(lists) < 2 or not c.get("conditions") or not str(c.get("description") or "").strip():
+            raise ValueError(f"captures.yml {key}: a capture needs its conditions, description and two lists or more")
+        for name, lst in lists.items():
+            if set(lst) - {"where", "group", "death"} or "where" not in lst:
+                raise ValueError(f"captures.yml {key} {name}: a list has where, and may have group and death")
+        conditions = [_norm(x) for x in c["conditions"]]
+        if any(a.startswith(x) or x.startswith(a) for a in asked for x in conditions):
+            out.append({"capture": key, "conditions": conditions, "description": " ".join(str(c["description"]).split()),
+                        "lists": {name: {"where": " ".join(str(lst.get("where") or "").split()),
+                                         "group": list(lst.get("group") or ()), "death": lst.get("death")}
+                                  for name, lst in lists.items()}})
+    return out
+
+
 def treatments(codes: list[str]) -> list[dict[str, Any]]:
     """The declared treatments (`curation/treatments.yml`) of any of ICD-10 ``codes`` (a code holds its subcodes, as
     B58 holds B58.0, and a subcode reaches its category's treatment): each with its conditions, source and substances

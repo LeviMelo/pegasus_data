@@ -102,6 +102,7 @@ _EXPORTS: dict[str, str] = {
     "label_matches": ".concepts",
     "dispensed": ".concepts",
     "stock_by_state": ".concepts",
+    "captures": ".concepts",
     "treatments": ".concepts",
     "distance_km": ".geography",
     "MembershipSet": ".geography",

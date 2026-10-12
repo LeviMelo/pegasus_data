@@ -182,6 +182,7 @@ build_extract("SIASUS-PA", range(2010, 2026), {"PA_PROC_ID": ["0202030768"]})  #
                                      # files read one by one (a dataset larger than the lake); extract_table reads them back
 treatments(["B58"])                  # the medicines an official document gives for the codes (curation/treatments.yml),
                                      # with each one's SNGPC and CATMAT spelling; concept_index returns them too
+captures(["P37.1"])                  # the populations systems list for capture–recapture (curation/captures.yml)
 condition_codes(); procedure_compatibility()  # its two tables: each record's own condition code (SINAN's ID_AGRAVO), SIGTAP's
                                      # procedure-ICD compatibility; label_matches(terms, "SIGTAP") its label search
 procedure_instruments(["0202030768"])  # the instruments SIGTAP registers a procedure on (BPA, AIH, APAC, RAAS, e-SUS APS): ["01", "02", "05"]

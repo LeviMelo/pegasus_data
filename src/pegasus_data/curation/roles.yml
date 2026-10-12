@@ -163,6 +163,7 @@ datasets:
       case.onset: {column: DT_SIN_PRI, type: date, format: YYYY-MM-DD}
       case.death_date: {column: DT_OBITO, type: date, format: YYYY-MM-DD}
       case.outcome: {column: EVOLUCAO, type: code}
+      case.classification: {column: CLASSI_FIN, type: code}
       case.disease: {column: ID_AGRAVO, type: code}
       notification.date: {column: DT_NOTIFIC, type: date, format: YYYY-MM-DD}
       notification.facility: {column: ID_UNIDADE, type: facility}
