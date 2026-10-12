@@ -66,6 +66,14 @@ datasets:
       death.cause: {column: CAUSABAS, type: code}
       death.causes: {column: LINHAA, also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}   # every cause the certificate mentions
 
+  SIM-DOREXT:
+    record: death
+    roles:
+      deceased.residence: {column: CODMUNRES, type: municipality}
+      death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
+      death.cause: {column: CAUSABAS, type: code}
+      death.causes: {column: LINHAA, also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}   # every cause the certificate mentions
+
   SIM-DO:
     record: death
     setting: deceased.residence
