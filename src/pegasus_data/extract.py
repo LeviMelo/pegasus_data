@@ -98,6 +98,30 @@ def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | 
 EXTRACT_WORKERS = 6
 
 
+def _write_manifest(path: Path, manifest: dict[str, Any]) -> None:
+    """The manifest written whole or not at all (a temporary file replaced): rewritten in place every few files, a
+    reader caught it half written and took the extract for absent (PegaSUS's tests, 2026-10-12)."""
+    import os
+
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _read_manifest(path: Path) -> dict[str, Any] | None:
+    """A manifest, read again when caught mid-write by a builder of the older, in-place kind; None when absent."""
+    import time
+
+    for _ in range(5):
+        if not path.exists():
+            return None
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            time.sleep(0.2)
+    return None
+
+
 def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
                   ufs: Sequence[str] | None = None, root: str | Path | None = None, settings: Any = None,
                   log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS) -> dict[str, Any]:
@@ -118,8 +142,7 @@ def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequenc
     except Timeout:
         mpath = target / "manifest.json"
         log(f"extract {dataset}: another process is building it; read as it stands")
-        return json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
-            "dataset": dataset, "filters": _filters(filters), "files": {}, "failed": {}}
+        return _read_manifest(mpath) or {"dataset": dataset, "filters": _filters(filters), "files": {}, "failed": {}}
     try:
         return _build_extract(dataset, years, filters, ufs=ufs, settings=settings, log=log, workers=workers)
     finally:
@@ -143,8 +166,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     target = extract_dir(settings, dataset, filt)
     target.mkdir(parents=True, exist_ok=True)
     mpath = target / "manifest.json"
-    manifest = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
-        "dataset": dataset, "filters": filt, "files": {}, "failed": {}}
+    manifest = _read_manifest(mpath) or {"dataset": dataset, "filters": filt, "files": {}, "failed": {}}
     files = _files(settings, dataset, years, ufs)
     todo = [f for f in files if f["path"] not in manifest["files"]]
     log(f"extract {dataset} {filt}: {len(files)} files in {sorted(set(map(int, years)))}, {len(todo)} to read")
@@ -192,12 +214,12 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
                                         "downloaded": int(getattr(report, "bytes_downloaded", 0) or 0)}
         _release(settings, [f["path"]])
         if (i + 1) % 25 == 0 or i + 1 == len(todo):
-            mpath.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+            _write_manifest(mpath, manifest)
             done = sum(v["rows"] for v in manifest["files"].values())
             log(f"extract {dataset}: {i + 1}/{len(todo)} files, {done:,} rows read, "
                 f"{sum(v['kept'] for v in manifest['files'].values()):,} kept, {time.time() - t0:.0f} s")
     pool.shutdown()
-    mpath.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    _write_manifest(mpath, manifest)
     return manifest
 
 
@@ -215,7 +237,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
     system, series = parse_dataset(dataset)
     base = Path(settings.lake_dir) / "extracts" / f"{system}-{series or system}"
     for d in sorted(base.iterdir()) if base.exists() else []:
-        m = json.loads((d / "manifest.json").read_text(encoding="utf-8")) if (d / "manifest.json").exists() else None
+        m = _read_manifest(d / "manifest.json")
         held = ((m or {}).get("filters") or {}).get(column)
         if not held or not all(any(a.startswith(p) for p in held) for a in asked):
             continue
