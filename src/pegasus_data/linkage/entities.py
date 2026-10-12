@@ -109,12 +109,15 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
 
 
 def build_entities(*, period: object, geography: object, method: str | None = None,
-                   settings: Any = None, draw: int | None = None, exclude: frozenset[str] = frozenset()) -> Entities:
+                   settings: Any = None, draw: int | None = None, exclude: frozenset[str] = frozenset(),
+                   seeds: tuple[str, str, Any] | None = None) -> Entities:
     """Merge every stored link of the scope into persons, strongest evidence first, each link's run by its own method
     (`link_method`) unless ``method`` names one. ``draw`` (a seed) merges one
     plausible link set: each edge kept with its p_match (`uncertainty.draws`), so an analysis over persons carries the
     linkage's uncertainty by repeating it over draws and combining (`uncertainty.combine`). ``exclude`` leaves links
-    out (`triangles`: the persons the other links make)."""
+    out (`triangles`: the persons the other links make). ``seeds`` (dataset, role, record ids) merges only the link
+    graph's components that hold those records: components never interact, so their persons are exactly those of the
+    whole merge (a cohort of 2,000 notifications needs not the year's 500,000 deaths-to-admissions pairs)."""
     from ..config import load_settings
 
     settings = settings or load_settings()
@@ -125,6 +128,9 @@ def build_entities(*, period: object, geography: object, method: str | None = No
 
         rng = np.random.default_rng([int(draw), zlib.crc32(str(period).encode())])     # reproducible across processes
         edges = edges.filter(pa.array(rng.random(len(p)) < p))
+    if seeds is not None and edges.num_rows:
+        # after the draw: each edge keeps its own draw from the whole set, so a seeded merge is the whole merge's
+        edges = _components_of(edges, seeds)
     spec = edges.column("spec").to_pylist()
     lnode = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
                                                 edges.column("l").to_pylist(), strict=True)]
@@ -185,6 +191,28 @@ def build_entities(*, period: object, geography: object, method: str | None = No
         "person": pa.array(persons, pa.int64()),
     })
     return Entities(nodes, kept, refused, by_spec)
+
+
+def _components_of(edges: pa.Table, seeds: tuple[str, str, Any]) -> pa.Table:
+    """The edges of the link graph's connected components that hold a seed record (``seeds``: dataset, role, ids)."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+
+    ds, role, ids = seeds
+    left = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
+                                               edges.column("l").to_pylist(), strict=True)]
+    right = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("rds").to_pylist(), edges.column("rrole").to_pylist(),
+                                                edges.column("r").to_pylist(), strict=True)]
+    index: dict[str, int] = {}
+    for name in left + right:
+        index.setdefault(name, len(index))
+    li = np.fromiter((index[n] for n in left), dtype=np.int64, count=len(left))
+    ri = np.fromiter((index[n] for n in right), dtype=np.int64, count=len(right))
+    n = len(index)
+    _, label = connected_components(coo_matrix((np.ones(len(li)), (li, ri)), shape=(n, n)), directed=False)
+    wanted = {label[index[k]] for k in (f"{ds}|{role}|{x}" for x in ids) if k in index}
+    keep = np.isin(label[li], np.fromiter(wanted, dtype=label.dtype, count=len(wanted)))
+    return edges.filter(pa.array(keep))
 
 
 def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, str]) -> pa.Table:

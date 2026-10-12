@@ -33,3 +33,8 @@ filtered on arrival. Period and geography still never filter records; this is a 
 SIH-RD 2016 with B58, P37.1 and O98.6: 2,205 records, identical to filtering after a full read of 11,527,712. Fixed on
 the way: `Lake.read` let a state filter replace the caller's predicate.
 
+**Persons of a cohort.** `build_entities(seeds=(dataset, role, ids))` merges only the link-graph components holding the
+seeds, after the draw, so each edge keeps its draw from the whole set. On SINAN-TOXC 2022, 4,583 notifications, against
+the 5 links among TOXC, SIH and SIM, the cohort's persons with an SIH record are identical: 652 undrawn, 617 and 626 in
+draws 0 and 3. It takes 3.8–5.8 s against 12.6–13.4 s. `triangles(exclude=)` came the same day.
+
