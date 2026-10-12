@@ -138,6 +138,16 @@ def query(
                 f"{max_download / 2**30:.2f} GiB. Narrow period or geography, or pass a larger "
                 "max_download (None for no limit) after checking plan(...).explain()"
             )
+    # max_download=0 reads the lake only: no source file is fetched or decoded, whatever the cache claims. SIA-PA 2016
+    # planned 6.75 GB "cached" whose blobs an extract had released, and fetched them again, 324 files, inside a study
+    # that had set 0 (2026-10-12); a dataset with no lake at all plans "fetch" with no fetch_years
+    fetching = bool(retrieval.fetch_years) or retrieval.source_strategy == "fetch"
+    if as_of is None and max_download == 0 and fetching:
+        from ..retrieve import DownloadBudgetExceeded
+
+        raise DownloadBudgetExceeded(
+            f"this query would fetch {query_plan.spec.dataset} files ({retrieval.source_strategy}, years "
+            f"{list(retrieval.fetch_years or retrieval.years or ())}), and max_download=0 forbids any download")
     missing_resources = [
         item for item in query_plan.semantics.resource_requirements if not item.local
     ]

@@ -293,12 +293,22 @@ def download_estimate(
         total = sum(int(r.get("size") or 0) for r in {str(r["path"]): r for r in selected}.values())
         cached = 0
         if paths:
+            # a file is cached while one of its fetched blobs is on disk: the fetch history is append-only, and a blob
+            # an extract released after reading (`BlobStore.prune_verified`) had counted as cached, SIA-PA 2016's
+            # 6.75 GB "cached" fetched again (2026-10-12)
+            from pathlib import Path as _Path
+
             marks = ",".join("?" for _ in paths)
-            cached = int(store.scalar(
-                f"SELECT COALESCE(SUM(f.size), 0) FROM files f WHERE f.path IN ({marks}) "
-                f"AND EXISTS (SELECT 1 FROM fetches x WHERE x.source_path = f.path)",
-                tuple(paths),
-            ) or 0)
+            blobs = _Path(settings.blobs_dir) / "sha256"
+            fetched = store.query(
+                f"SELECT DISTINCT f.path, f.size, x.sha256 FROM files f JOIN fetches x ON x.source_path = f.path "
+                f"WHERE f.path IN ({marks})", tuple(paths))
+            held: dict[str, int] = {}
+            for row in fetched:
+                digest = str(row["sha256"])
+                if (blobs / digest[:2] / digest).exists():
+                    held[str(row["path"])] = int(row["size"] or 0)
+            cached = sum(held.values())
         return total, cached
     finally:
         store.close()
