@@ -38,3 +38,11 @@ seeds, after the draw, so each edge keeps its draw from the whole set. On SINAN-
 the 5 links among TOXC, SIH and SIM, the cohort's persons with an SIH record are identical: 652 undrawn, 617 and 626 in
 draws 0 and 3. It takes 3.8–5.8 s against 12.6–13.4 s. `triangles(exclude=)` came the same day.
 
+
+**Draws reproducible, seeds' components once (2026-10-12).** The stored edges were ordered by bits alone, and every pair
+of a deterministic run has the same bits, so ties came back in any order and one draw was a different link set on each
+call: TOXC 2021's cohort reached 592 then 593 SIH patients in draw 3 on identical calls. The order is now total (bits,
+spec, l, r): repeated draws agree, and each draw's persons equal the whole merge's (593, 593, 591 in draws 3, 5, 7). The
+seeds' components of the undrawn graph are found once per scope and cohort, with Arrow's dictionary encoding in place
+of a Python dictionary over 1.1 M node names; a draw cuts within them. A seeded draw: 3.4 s to 0.37 s; a PegaSUS cohort
+year of 10 draws: 50 s to 8.5 s.

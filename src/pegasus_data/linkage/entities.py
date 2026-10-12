@@ -105,7 +105,9 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
                           FROM {view}""")
     if not parts:
         raise FileNotFoundError("no stored links for this scope: run link() first")
-    return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").to_arrow_table()
+    # a total order: a draw keeps each edge by its position, and ties on bits (every pair of a deterministic run has
+    # the same) came back in any order, so one draw was another link set on each call (2026-10-12)
+    return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC, spec, l, r").to_arrow_table()
 
 
 def build_entities(*, period: object, geography: object, method: str | None = None,
@@ -122,15 +124,27 @@ def build_entities(*, period: object, geography: object, method: str | None = No
 
     settings = settings or load_settings()
     edges = _stored_edges(settings, period, geography, method, exclude)
+    keep = None
+    if seeds is not None and edges.num_rows:
+        # the seeds' components of the undrawn graph, once per scope and cohort: a draw only removes edges, so its
+        # seeded components lie inside them (a cohort's ten draws had each rebuilt them over 552,219 edges, 2026-10-12)
+        key = (str(period), str(geography), method, tuple(sorted(exclude)), edges.num_rows, _seeds_digest(seeds))
+        keep = _SEEDED.get(key)
+        if keep is None:
+            keep = _SEEDED[key] = _component_mask(edges, seeds)
+            while len(_SEEDED) > 16:
+                _SEEDED.pop(next(iter(_SEEDED)))
     if draw is not None:
         p = edges.column("p_match").to_numpy(zero_copy_only=False)
         import zlib
 
         rng = np.random.default_rng([int(draw), zlib.crc32(str(period).encode())])     # reproducible across processes
-        edges = edges.filter(pa.array(rng.random(len(p)) < p))
-    if seeds is not None and edges.num_rows:
-        # after the draw: each edge keeps its own draw from the whole set, so a seeded merge is the whole merge's
-        edges = _components_of(edges, seeds)
+        drawn = rng.random(len(p)) < p      # over the whole set: each edge keeps its own draw, seeded or not
+        edges = edges.filter(pa.array(drawn if keep is None else drawn & keep))
+        if keep is not None and edges.num_rows:
+            edges = edges.filter(pa.array(_component_mask(edges, seeds)))   # the draw may split a seed's component
+    elif keep is not None:
+        edges = edges.filter(pa.array(keep))
     spec = edges.column("spec").to_pylist()
     lnode = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
                                                 edges.column("l").to_pylist(), strict=True)]
@@ -193,26 +207,39 @@ def build_entities(*, period: object, geography: object, method: str | None = No
     return Entities(nodes, kept, refused, by_spec)
 
 
-def _components_of(edges: pa.Table, seeds: tuple[str, str, Any]) -> pa.Table:
-    """The edges of the link graph's connected components that hold a seed record (``seeds``: dataset, role, ids)."""
+#: the seeds' component masks of undrawn edge sets, by scope and cohort (`build_entities`)
+_SEEDED: dict[tuple, np.ndarray] = {}
+
+
+def _seeds_digest(seeds: tuple[str, str, Any]) -> str:
+    import hashlib
+
+    ds, role, ids = seeds
+    return hashlib.sha256("|".join([ds, role, *sorted(map(str, ids))]).encode()).hexdigest()
+
+
+def _component_mask(edges: pa.Table, seeds: tuple[str, str, Any]) -> np.ndarray:
+    """Which edges lie in a connected component of the link graph holding a seed record (``seeds``: dataset, role,
+    ids). Nodes are numbered by Arrow's dictionary encoding (a Python dictionary over 1.1 M node names took 2 s)."""
+    import pyarrow.compute as pc
     from scipy.sparse import coo_matrix
     from scipy.sparse.csgraph import connected_components
 
     ds, role, ids = seeds
-    left = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
-                                               edges.column("l").to_pylist(), strict=True)]
-    right = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("rds").to_pylist(), edges.column("rrole").to_pylist(),
-                                                edges.column("r").to_pylist(), strict=True)]
-    index: dict[str, int] = {}
-    for name in left + right:
-        index.setdefault(name, len(index))
-    li = np.fromiter((index[n] for n in left), dtype=np.int64, count=len(left))
-    ri = np.fromiter((index[n] for n in right), dtype=np.int64, count=len(right))
-    n = len(index)
-    _, label = connected_components(coo_matrix((np.ones(len(li)), (li, ri)), shape=(n, n)), directed=False)
-    wanted = {label[index[k]] for k in (f"{ds}|{role}|{x}" for x in ids) if k in index}
-    keep = np.isin(label[li], np.fromiter(wanted, dtype=label.dtype, count=len(wanted)))
-    return edges.filter(pa.array(keep))
+
+    def names(side):
+        cols = [edges.column(f"{side}ds"), edges.column(f"{side}role"), edges.column(side)]
+        return pc.binary_join_element_wise(*[pc.cast(c, pa.string()) for c in cols], "|").combine_chunks()
+
+    enc = pc.dictionary_encode(pa.concat_arrays([names("l"), names("r")]))
+    idx = enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    m = edges.num_rows
+    li, ri = idx[:m], idx[m:]
+    n = len(enc.dictionary)
+    _, label = connected_components(coo_matrix((np.ones(m), (li, ri)), shape=(n, n)), directed=False)
+    at = pc.index_in(pa.array([f"{ds}|{role}|{x}" for x in ids], pa.string()), value_set=enc.dictionary)
+    at = at.drop_null().to_numpy(zero_copy_only=False).astype(np.int64)
+    return np.isin(label[li], np.unique(label[at]))
 
 
 def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, str]) -> pa.Table:
