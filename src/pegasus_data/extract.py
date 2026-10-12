@@ -243,10 +243,14 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
             continue
         read = {int(v["year"]) for v in m["files"].values()}
         want = sorted(set(map(int, years))) if years else sorted(read)
-        unread = [f["path"] for f in _files(settings, dataset, want) if f["path"] not in m["files"]]
-        if unread or m["failed"]:
+        listed = {f["path"] for f in _files(settings, dataset, want)}
+        unread = [p for p in listed if p not in m["files"]]
+        # a failure counts against its own year only: one stray file of DATASUS's "teste" folder (2024) had made
+        # every year of SIA-PA's extract unheld (2026-10-12)
+        failed = [p for p in m["failed"] if p in listed]
+        if unread or failed:
             raise LookupError(f"{dataset} {column} {asked}: the extract does not hold {want} whole "
-                              f"({len(unread)} files unread, {len(m['failed'])} failed)")
+                              f"({len(unread)} files unread, {len(failed)} failed)")
         parts = [p for y in want for p in sorted((d / f"year={y}").glob("*.parquet"))]
         table = pa.concat_tables([pq.read_table(p) for p in parts], promote_options="default") if parts else pa.table({})
         if table.num_rows:
