@@ -101,6 +101,34 @@ EXTRACT_WORKERS = 6
 def build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
                   ufs: Sequence[str] | None = None, root: str | Path | None = None, settings: Any = None,
                   log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS) -> dict[str, Any]:
+    """`_build_extract` under the extract's own lock: one builder at a time. Two would each read the files the manifest
+    lacks and each write the manifest as it saw it, losing entries and writing a file's records twice (a study's
+    store step beside the long SIA-PA extract, 2026-10-12). A second caller does not wait for hours: it returns the
+    manifest as it stands, and a reader takes only the years held whole."""
+    from filelock import FileLock, Timeout
+
+    from .config import load_settings
+
+    settings = settings or load_settings(root=Path(root) if root else None)
+    target = extract_dir(settings, dataset, _filters(filters))
+    target.mkdir(parents=True, exist_ok=True)
+    lock = FileLock(str(target / ".build.lock"))
+    try:
+        lock.acquire(timeout=0)
+    except Timeout:
+        mpath = target / "manifest.json"
+        log(f"extract {dataset}: another process is building it; read as it stands")
+        return json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {
+            "dataset": dataset, "filters": _filters(filters), "files": {}, "failed": {}}
+    try:
+        return _build_extract(dataset, years, filters, ufs=ufs, settings=settings, log=log, workers=workers)
+    finally:
+        lock.release()
+
+
+def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequence[str]], *,
+                   ufs: Sequence[str] | None = None, root: str | Path | None = None, settings: Any = None,
+                   log: Callable[[str], None] = print, workers: int = EXTRACT_WORKERS) -> dict[str, Any]:
     """Extract the records of ``dataset`` in ``years`` that any of ``filters`` (column -> code prefixes) matches, file
     by file (module docstring), ``workers`` files at a time. A file already in the manifest is not read again, so an
     interrupted extract resumes. Returns the manifest. ``ufs`` reads only those states' files (an extract that is not

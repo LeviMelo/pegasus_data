@@ -30,6 +30,7 @@ dependencies = [
   "pyyaml>=6",
   "scipy>=1.10",
   "psutil>=5.9",
+  "filelock>=3.12",
 ]
 
 [project.optional-dependencies]
