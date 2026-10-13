@@ -242,6 +242,11 @@ def _categories(cell: str) -> dict[str, str]:
     cell = re.sub(r"(?<=[a-zà-ú)])\s*(\d{1,2})(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-zà-ú])", r"\n\1 ", cell)
     cell = re.sub(r"(?<=[a-zà-ú)])\s+(\d{1,2})\s*[–—]\s+", r"\n\1 – ", cell)
     cell = re.sub(r"(?<=[a-zà-ú)])\s+(\d{1,2})-\s*(?=[a-zà-ú]{3})", r"\n\1 – ", cell)
+    # an inline list after a comma, its labels capitalised: SIM's TPOBITOCOR ("1-Durante a gestação, 2- Durante o
+    # abortamento, ...") had read as one label of code 1 holding the eight others (2026-10-12)
+    cell = re.sub(r",\s*(\d{1,2})\s*[–—-]\s*(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])", r"\n\1 – ", cell)
+    # "Branco - Não investigado": what a blank means, not a code (a blank is read as missing); glued to code 9's label
+    cell = re.sub(r",?\s*\bBranco\s*[–—-]\s*[^\n;,]*", "", cell)
     for raw in re.split(r"\n|;", cell):
         line = raw.strip()
         if not line:

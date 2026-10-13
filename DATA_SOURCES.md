@@ -889,3 +889,8 @@ The SIM kits `CID9/TAB/OBITOS_CID9_TAB.zip` (1997 files) and `CID10/TAB/OBITOS_C
 
 The 1996 `.DEF` binds `CIRCOBITO` to `TIPOVIOL.CNV`, which in that kit is the new coding. The schema, not the year, decides in 1996-98: `DOFET96` and `DOFET98` still carry `TIPOVIOL` with the old codes, `DOFET97`, `DOFET99` and `DORES` 1996 on carry `CIRCOBITO` with the new ones. `SINASC` kits split the same way (`ANT` 1994-95, `NOV` 1996 on; `RACACOR` 1 is Amarela before 1996, Branca after).
 - **Extent.** 35 same-named codelists differ between the two eras of the kits (SIM 21, SINASC 14), 19 of them in meaning (SIM TIPOVIOL/CIRCOBITO, LOCOCOR, ESTCIV 5, GRAVIDEZ, INSTRUC, SEMANAS, PARTO, IDADEMAE, NUMFILH; SINASC RACACOR, GESTACAO, PRENATAL, GRAVIDEZ, INSTRUC, PARTO, PAISES), the rest an age band the 1979-95 kit leaves "Ign" or a spelling. EVALUATION 2026-10-05 (SIM code eras).
+- **SIM's dictionary (tabela DO, updated 07/2025) writes some code lists inline (2026-10-12).** `TPOBITOCOR`'s nine
+  codes run on as "1-Durante a gestação, 2- Durante o abortamento, …, 9- O óbito não ocorreu nas circunstancias
+  anteriores, Branco - Não investigado". The harvester had read them as one label of code 1, which was wrong. It now splits
+  them and reads "Branco" as the meaning of a blank, not as a code. `SERIESCMAE` and `SERIESCFAL` hold "Números de 1 a 8",
+  the last school grade completed: the value is the grade itself, and no code table exists.

@@ -522,11 +522,15 @@ series:
       type: text
       width: 1
       codes: &id032
-        '1': Durante a gestação, 2- Durante o abortamento, 3- Após o abortamento , 4- No parto ou até
-          1 hora após o parto, 5- No puerpério - até 42 dias após o parto, 6- Entre 43 dias e até 1 ano
-          após o parto, 7- A investigação não identificou o momento do óbito,
-        '8': Mais de um ano após o parto , 9- O óbito não ocorreu nas circunstancias anteriores, Branco
-          - Não investigado
+        '1': Durante a gestação
+        '2': Durante o abortamento
+        '3': Após o abortamento
+        '4': No parto ou até 1 hora após o parto
+        '5': No puerpério - até 42 dias após o parto
+        '6': Entre 43 dias e até 1 ano após o parto
+        '7': A investigação não identificou o momento do óbito
+        '8': Mais de um ano após o parto
+        '9': O óbito não ocorreu nas circunstancias anteriores
       source_ref: dicionario-de-dados-SIM-tabela-DO.pdf
     TPPOS:
       type: text
