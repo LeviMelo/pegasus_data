@@ -902,6 +902,11 @@ columns:
     role: patient.race
     kind: category
     model: stratum
+    note: >-
+      Not reliable for race-specific rates: code 04 ("amarela") is a default given to almost everyone in some hospitals,
+      and SIM's code for "parda" in others (DATA_SOURCES, OQ-66: 16,252 of 908,601 linked persons brown in SIM and
+      SINASC are "amarela" here); Rio Grande do Sul's congenital toxoplasmosis admissions read amarela 11.6x its
+      expected, parda 0.36x (2026-10-13)
     fact_domain: person
     fact_domain_evidence: "\"Raça/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor do paciente
