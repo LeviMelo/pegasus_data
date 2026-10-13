@@ -820,7 +820,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 
 ### Facts read off SINAN forms and files during role review (2026-10-08)
 
-- **Toxoplasmosis' entry dates are 70 years early in two years.** In the FINAIS `.dbc` of TOXG (and TOXC) for 2021 and 2022, `DT_DIGITA` holds the year minus 70 on most records: TOXG 2022 has 11,190 of 12,447 in 1952–53, and 2021 has 8,998 in 1951, raw in the file. 2020 and 2023 are clean. Whether the Dados Abertos CSV republication carries the right year is not yet read.
+- **Toxoplasmosis' entry dates are 70 years early in two years.** In the FINAIS `.dbc` of TOXG (and TOXC) for 2021 and 2022, `DT_DIGITA` holds the year minus 70 on most records: TOXG 2022 has 11,190 of 12,447 in 1952–53, and 2021 has 8,998 in 1951, raw in the file. 2020 and 2023 are clean. The Dados Abertos CSV republication, which the lake holds for 2019–2023, carries the same defect (TOXC 2021: 3,766 of 3,876 entry dates before 2000; 2022: 4,412 of 4,583; read 2026-10-13, correcting "not yet read"); no count uses DT_DIGITA.
 - **A test file among SIA-PA's (2026-10-12).** `/dissemin/publicos/SIASUS/teste/PAPR2408.dbc`, in a `teste` folder beside the published ones, is listed with SIA-PA's 2024 files and matches no family ("DATASUS publishes nothing in SIASUS/PA"); the extract records it failed, against 2024 only.
 - **SINAN-TOXC's classification and outcome, and what its links can match (2026-10-12).** `CLASSI_FIN` holds 1, 2 and 8 (2021: 2,346 / 794 / 372, 364 blank): the generic form names 1 "Confirmado" and 2 "Descartado" (Protocolo de notificação e investigação, 2018, p. 23, Figura 1); DATASUS's `CLASSIFI` table names 8 "Inconclusivo". `EVOLUCAO` 1 is "Vivo" in DATASUS's table and "Cura" on the generic form: two claims, both kept here; the labels follow DATASUS's table (2 and 3 agree: deaths by the condition and by another cause). TOXC carries an age (`NU_IDADE_N`), not a birth date: its links match a birth date derived from age and onset, so a pair they miss is a person counted twice in a capture–recapture (TOXC × SIH 2021: 365 children on both lists of 2,337 confirmed notifications and 2,110 admitted). SINAN-SDTA holds 2 B58 outbreaks in 2018, none notified in Santa Maria.
 - **Toxoplasmosis' Nota Técnica 133/2022-CGZV/DEDT/SVSA/MS** (`sources/sinan_docs/Nota_Tecnica_Toxoplasmose.pdf`). Gestational = a notification with ICD-10 O98.6, P37.1 or B58 of a pregnant woman aged 10-49; congenital = the same codes in a child under one year. Data valid only from 2019; a year's national database is frozen three years after the notification year; ICD codes are sometimes entered wrongly (pregnant women with B58 or P37.1); the data may not be representative; the form is the generic Ficha de Notificação/Conclusão. Declared as `source_notes` (ADR-0160), as is Rotavirus' 30/2024 (sentinel surveillance of under-5 diarrhoea, not compulsory notification). Also declared
@@ -894,3 +894,11 @@ The 1996 `.DEF` binds `CIRCOBITO` to `TIPOVIOL.CNV`, which in that kit is the ne
   anteriores, Branco - Não investigado". The harvester had read them as one label of code 1, which was wrong. It now splits
   them and reads "Branco" as the meaning of a blank, not as a code. `SERIESCMAE` and `SERIESCFAL` hold "Números de 1 a 8",
   the last school grade completed: the value is the grade itself, and no code table exists.
+- **SIH's congenital toxoplasmosis admissions (P37.1) in Rio Grande do Sul step up from 2018 because two hospitals
+  begin coding it (2026-10-13).** Principal AIHs with P37.1 as the main diagnosis, nearly all "tratamento de infecções
+  específicas do período perinatal", rise from 66 (2017) to 118 (2018), 124, 118, 111, then 76 and 70 (2022–2023):
+  - Hospital Universitário de Canoas (CNES 3508528): 0, 11, 50, 52, 42, 28, 15, 25 over 2016–2023;
+  - Hospital Materno-Infantil Presidente Vargas (2237822): 0 until 2018, then 17, 15, 28, 19, 6;
+  - the other hospitals are flat.
+  It is recording at two facilities, not incidence. Nationally, P37.1 admissions per 1,000 live births rise 4-fold over
+  2010–2024 (0.21 → 0.87), with deaths flat (about 30 a year).

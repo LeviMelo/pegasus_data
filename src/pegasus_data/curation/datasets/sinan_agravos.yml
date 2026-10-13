@@ -625,7 +625,17 @@ datasets:
           final_after_years: 3
           known_errors:
             - ICD-10 codes entered wrongly (pregnant women notified with B58 or P37.1, for example).
+            - >-
+              EVOLUCAO 1 is "Vivo" in DATASUS's table and "Cura" (serological negativation) on the form and in the
+              protocol (p. 24); both are kept, the label shown is DATASUS's (DATA_SOURCES).
           limitations:
+            - >-
+              EVOLUCAO is blank or "Ignorado" for over half the records (55.5 % in 2023) and is enabled only for classes
+              1, 2 or blank (protocol p. 26): deaths of probable cases are not in it.
+            - >-
+              No name, mother or birth date: a child is linked by a birth date derived from the age at onset, sex and
+              residence; 14.5 % of records (5,172 of 35,650, 2019-2025) carry no usable age and link to nothing, and
+              twins merge.
             - The data may not represent the disease's behaviour in the country (implementation of the 2018 guidelines differs between places).
             - The period available for tabulation is the one after surveillance was implemented (2019 on); nothing earlier can be validated.
           form: >-
@@ -640,13 +650,20 @@ datasets:
           column: CLASSI_FIN
           values: ["1"]
           evidence: >-
-            CLASSI_FIN 1 Confirmado, 2 Descartado (Protocolo de notificação e investigação, 2018, p. 23, Figura 1), 8
-            Inconclusivo (DATASUS's CLASSIFI table); a notification is not a case: of 2019's 2,858 congenital
-            notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake, 2026-10-12)
+            CLASSI_FIN 1 Confirmado, 2 Descartado, 8 Inconclusivo (Protocolo de notificação e investigação, 2018, p. 23
+            Figura 1 and p. 26 Quadro 3); 8 is given when the case is not closed within its deadline, 300 days for the
+            gestational form and 420 for the congenital (pp. 21, 24), and a probable case is notified as suspected (p.
+            21): confirmed cases are a lower bound, the probable among the inconclusive and the blank. A notification is
+            not a case: of 2019's 2,858 congenital notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake,
+            2026-10-12)
         exposure:
           events: ["SINASC-DN:birth"]
           per: 1000
-          evidence: "live births, as the notification's (above)"
+          evidence: >-
+            live births, as the notification's (above): a convention of the literature and of the syphilis indicators,
+            no official indicator (Nota Técnica 133/2022 states none; the protocol's one figure is a study's 8 per
+            10,000 live births, p. 7); for the gestational form a detection rate per birth, not an incidence among
+            pregnancies
     system: SINAN
     series: TOXC
     official_name: Toxoplasmose congênita
@@ -696,13 +713,20 @@ datasets:
           column: CLASSI_FIN
           values: ["1"]
           evidence: >-
-            CLASSI_FIN 1 Confirmado, 2 Descartado (Protocolo de notificação e investigação, 2018, p. 23, Figura 1), 8
-            Inconclusivo (DATASUS's CLASSIFI table); a notification is not a case: of 2019's 2,858 congenital
-            notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake, 2026-10-12)
+            CLASSI_FIN 1 Confirmado, 2 Descartado, 8 Inconclusivo (Protocolo de notificação e investigação, 2018, p. 23
+            Figura 1 and p. 26 Quadro 3); 8 is given when the case is not closed within its deadline, 300 days for the
+            gestational form and 420 for the congenital (pp. 21, 24), and a probable case is notified as suspected (p.
+            21): confirmed cases are a lower bound, the probable among the inconclusive and the blank. A notification is
+            not a case: of 2019's 2,858 congenital notifications 1,642 were confirmed, of 8,436 gestational 6,346 (lake,
+            2026-10-12)
         exposure:
           events: ["SINASC-DN:birth"]
           per: 1000
-          evidence: "live births, as the notification's (above)"
+          evidence: >-
+            live births, as the notification's (above): a convention of the literature and of the syphilis indicators,
+            no official indicator (Nota Técnica 133/2022 states none; the protocol's one figure is a study's 8 per
+            10,000 live births, p. 7); for the gestational form a detection rate per birth, not an incidence among
+            pregnancies
     system: SINAN
     series: TOXG
     official_name: Toxoplasmose gestacional

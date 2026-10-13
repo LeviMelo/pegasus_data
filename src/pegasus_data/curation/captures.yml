@@ -10,19 +10,28 @@ captures:
   congenital_toxoplasmosis:
     conditions: [P37.1]
     description: >-
-      Congenital toxoplasmosis: a SINAN-TOXC notification confirmed; an admission or a death certificate naming P37.1 on any
-      diagnosis or line, or B58 under two years of age (the links' definition of a child's toxoplasmosis,
-      `sinan_toxc_to_sih_admission`).
+      Congenital toxoplasmosis in a child under one year of age (Nota Técnica 133/2022, p. 1: the notified population):
+      a confirmed SINAN-TOXC notification; an admission naming P37.1 on any diagnosis, or B58, of a child under one; a
+      death certificate naming P37.1 on any line, or B58 as the underlying cause, of a child under one. Its deaths are
+      deaths of the condition in each list: SINAN's outcome "óbito pelo agravo", an admission ending in death with P37.1
+      or B58 as its principal diagnosis, a certificate with P37.1 or B58 as the underlying cause. The lists had taken
+      every age (30 % of SIM's 2022 P37.1 certificates were of people aged 2 or more, cerebral palsy and its like, never
+      on SINAN's list of children) and three different deaths (the semantic review, 2026-10-13). Confirmed cases are a
+      lower bound: a probable case is notified as suspected and, unclosed by the deadline (420 days), is classed 8
+      "Inconclusivo" (Protocolo de notificação e investigação, 2018, pp. 21, 24, 26).
     lists:
       SINAN-TOXC:
         where: "\"case.classification\" = '1'"   # CLASSI_FIN 1 "Confirmado" (2 "Descartado", 8 "Inconclusivo")
-        death: "\"case.outcome\" = '2'"          # EVOLUCAO 2 "Óbito pelo agravo notificado"
+        death: "\"case.outcome\" = '2'"          # EVOLUCAO 2 "Óbito pelo agravo notificado" (protocol p. 26)
       SIH-RD:
         where: >-
-          "admission.diagnoses" LIKE '%P371%' OR ("admission.diagnoses" LIKE '%B58%' AND "patient.age_years" < 2)
+          ("admission.diagnoses" LIKE '%P371%' OR "admission.diagnoses" LIKE '%B58%') AND "patient.age_years" < 1
         group: [patient.birth_date, patient.sex, patient.residence]
-        death: "\"admission.death\" = '1'"   # MORTE 1: "Sim"
+        death: >-
+          "admission.death" = '1' AND ("admission.diagnosis" LIKE 'P371%' OR "admission.diagnosis" LIKE 'B58%')
       SIM-DO:
         where: >-
-          "death.cause" = 'P371' OR "death.causes" LIKE '%P371%'
-          OR (("death.cause" LIKE 'B58%' OR "death.causes" LIKE '%B58%') AND "deceased.age_years" < 2)
+          ("death.cause" = 'P371' OR "death.causes" LIKE '%P371%' OR "death.cause" LIKE 'B58%')
+          AND "deceased.age_years" < 1
+        death: >-
+          "death.cause" = 'P371' OR "death.cause" LIKE 'B58%'
