@@ -249,6 +249,7 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Município do estabelecimento\" (admission.facility_municipality): facility or its location: the facility register"
     name: Município do estabelecimento
@@ -266,6 +267,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de residência

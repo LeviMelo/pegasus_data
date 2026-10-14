@@ -23,7 +23,6 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +30,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
+from ..semantics.epoch import curated
 
 
 def roles_file() -> Path:
@@ -67,7 +67,7 @@ class DatasetRoles:
     setting: str | None = None   # the municipality role whose state publishes the record
 
 
-@lru_cache(maxsize=1)
+@curated
 def load_roles() -> dict[str, DatasetRoles]:
     """Every dataset's roles, validated: an unknown type or format is an error."""
     data = read_yaml(roles_file())

@@ -272,6 +272,10 @@ def draft(dataset: str, conn: sqlite3.Connection) -> dict:
             kind, model = "number" if doc.get("code_system") == "none" else "category", "mark"
         role = roles[0] if roles else f"{record}.{name.lower()}"
         entry: dict = {"role": role, "kind": kind, "model": model, "review": "draft"}
+        if kind == "place":
+            # until a reviewer places it a drafted place is the record's (the one no field or flow reads); the dataset's
+            # geography axis is where its events are placed
+            entry["place_of"] = "event" if model == "where" else "record"
         if len(roles) > 1:
             entry["also"] = roles[1:]
         hint = doc.get("official_name") or doc.get("translated_name")

@@ -308,7 +308,7 @@ def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
     import hashlib
 
     from ..config import curation_root
-    from ..semantics.curation import codelist_fingerprint
+    from ..semantics.epoch import codelist_fingerprint
 
     path = getattr(catalog, "path", None) or getattr(catalog, "db_path", None)
     state = (str(path), Path(path).stat().st_mtime_ns if path and Path(path).exists() else None, system)
@@ -635,64 +635,42 @@ def _read_reference_table(
     table, _scope = _scoped_table(base, table_id, system, code_width)
     if valid_from is not None:
         return table.filter(pc.fill_null(pc.equal(pc.cast(table.column("valid_from"), pa.string()), valid_from), False))
-    if competencia is not None or year is not None:
-        # A competencia is one month; a year is any window overlapping it.
-        if competencia is not None:
-            span_lo = span_hi = int(competencia)
-            asked = str(int(competencia))
-        else:
-            span_lo, span_hi = year * 100 + 1, year * 100 + 12  # type: ignore[operator]
-            asked = str(year)
-        # as text: an all-null column (an open-ended table's bounds) is typed null, which the string kernels refuse
-        start = pc.cast(table.column("valid_from"), pa.string())
-        end = pc.cast(table.column("valid_to"), pa.string())
-        # a window is dated by AAAAMM bounds, an open end running on; anything else is the open-ended table published
-        # today. Judged in Arrow: a Python loop over the table's rows was 153 ms of MUNICBR's 25,733 on its own.
-        is_dated = pc.fill_null(pc.match_substring_regex(start, r"^\d+$"), False)
-        lo = pc.cast(pc.if_else(is_dated, start, "0"), pa.int64())
-        has_end = pc.fill_null(pc.match_substring_regex(end, r"^\d+$"), False)
-        hi = pc.cast(pc.if_else(has_end, end, "999912"), pa.int64())
-        covers = pc.and_(is_dated, pc.and_(pc.less_equal(lo, span_hi), pc.less_equal(span_lo, hi)))
-        # A window that explicitly covers the request wins.
-        matched = table.filter(covers)
-        if matched.num_rows:
-            return matched
-        # Otherwise the open-ended table stands in. That is a real answer, but
-        # it is not the vintage that was asked for, so it is RECORDED.
-        fallback = table.filter(pc.invert(is_dated))
-        table_key = _SAFE.sub("_", table_id)
-        if fallback.num_rows:
-            note_fallback(table_key, asked, "current")
-            return fallback
-        # Nothing covers the request and there is no open-ended table either.
-        # This used to return the WHOLE table — every historical window at once
-        # — which is the one thing the no-year branch below exists to prevent:
-        # it merges windows that disagree and manufactures a contradiction out
-        # of ordinary editorial drift. An unresolved request is answered as
-        # unresolved.
-        note_fallback(table_key, asked, "unresolved")
-        return table.slice(0, 0)
+    # The vintage: which validity windows answer the request is `labelpack.select_windows`, the one rule the shipped pack
+    # follows too. A competencia is one month; a year is any window overlapping it; no period is the current vintage.
+    span: tuple[int, int] | None = None
+    if competencia is not None:
+        span = (int(competencia), int(competencia))
+    elif year is not None:
+        span = (year * 100 + 1, year * 100 + 12)
+    return _in_answering_windows(table, table_id, span, str(competencia if competencia is not None else year))
 
-    # No year asked for: give the CURRENT vintage, not every vintage at once.
-    # RECORDED all the same (translate()'s docstring promises the report says
-    # which vintage was applied): "correct for recent data and wrong for a 1998
-    # extract" is a judgement only the caller can make, and they can only make
-    # it if the substitution is visible.
-    # Merging windows is never what a caller wants and manufactures a
-    # contradiction out of ordinary editorial drift — SIHSUS's CID10 renders
-    # C96.7 as "…tec linf hematop e relac" today and "…e corr" in the 1992–1997
-    # kit, which is one code with a reworded label, not two meanings. A caller
-    # who wants a specific vintage names a year; everyone else means "now".
-    if "valid_from" in table.schema.names:
-        start = pc.cast(table.column("valid_from"), pa.string())
-        open_ended = pc.fill_null(pc.equal(pc.utf8_trim_whitespace(start), ""), True)
-        if pc.any(open_ended).as_py():
-            note_fallback(_SAFE.sub("_", table_id), "unscoped", "current")
-            return table.filter(open_ended)
-        if pc.any(pc.is_valid(start)).as_py():
-            newest = pc.max(start).as_py()
-            return table.filter(pc.fill_null(pc.equal(start, newest), False))
-    return table
+
+def _in_answering_windows(table: pa.Table, table_id: str, span: tuple[int, int] | None, asked: str) -> pa.Table:
+    """The rows of ``table`` in the validity windows that answer ``span`` (``None``: no period asked), by
+    :func:`~pegasus_data.labelpack.select_windows`; a request answered by another window than the one asked for is
+    RECORDED (`note_fallback`: "correct for recent data and wrong for a 1998 extract" is a judgement only the caller can
+    make, and only if the substitution is visible), and one nothing answers is an empty table, never every vintage
+    merged (windows that disagree manufacture a contradiction out of ordinary editorial drift: SIHSUS's CID10 renders
+    C96.7 reworded in the 1992-1997 kit and today's)."""
+    from ..labelpack import select_windows
+
+    def bound(name: str) -> pa.Array:
+        # a bound is AAAAMM digits, or open; judged in Arrow (a Python loop over MUNICBR's 25,733 rows was 153 ms)
+        if name not in table.schema.names:
+            return pa.repeat(pa.scalar("", pa.string()), table.num_rows)
+        text = pc.utf8_trim_whitespace(pc.cast(table.column(name), pa.string()))
+        return pc.if_else(pc.fill_null(pc.match_substring_regex(text, r"^\d+$"), False), text, "")
+
+    window_of = pc.binary_join_element_wise(bound("valid_from"), bound("valid_to"), "|")
+    windows = pc.unique(window_of).to_pylist()
+    chosen, served = select_windows([tuple(w.split("|", 1)) for w in windows], span)
+    if served is not None:
+        note_fallback(_SAFE.sub("_", table_id), asked if span is not None else "unscoped", served)
+    if not chosen:
+        return table.slice(0, 0)
+    if len(chosen) == len(windows):
+        return table
+    return table.filter(pc.is_in(window_of, value_set=pa.array([windows[i] for i in chosen], pa.string())))
 
 
 def _scoped_table(

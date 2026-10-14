@@ -51,6 +51,7 @@ columns:
     role: patient.postcode
     kind: place
     model: link_only
+    place_of: subject
     name: CEP do endereco do paciente
     years:
     - 2014
@@ -275,6 +276,7 @@ columns:
     role: authorisation.management_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (authorisation.management_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: Codigo da UF+Municipio de Gestao
@@ -327,6 +329,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF+Municipio de Residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Brasilia residents carry administrative-region codes 53xxxx in some years (AP_MUNPCN_municipio maps them, 2008-2021);
@@ -538,6 +541,7 @@ columns:
     role: authorisation.facility_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF+Municipio do Estabelecimento\" (authorisation.facility_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     name: UF+Municipio do Estabelecimento

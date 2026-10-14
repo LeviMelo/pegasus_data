@@ -37,6 +37,7 @@ columns:
     role: mother.residence_area
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Área de residência\" (mother.residence_area): attribute of the mother (age, birth, residence, occupation)"
     name: Área de residência
@@ -48,6 +49,7 @@ columns:
     role: mother.residence_neighborhood
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Bairro de residência da mãe\" (mother.residence_neighborhood): attribute of the mother (age, birth, residence, occupation)"
     name: Bairro de residência da mãe
@@ -80,6 +82,7 @@ columns:
     role: birth.neighborhood
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"CODBAINASC\" (birth.neighborhood): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     years:
@@ -90,6 +93,7 @@ columns:
     role: mother.residence_neighborhood
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"CODBAIRES\" (mother.residence_neighborhood): attribute of the mother (age, birth, residence, occupation)"
     years:
@@ -119,6 +123,7 @@ columns:
     role: birth.registry_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: process
     fact_domain_evidence: "\"CODMUNCART\" (birth.registry_municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     years:
@@ -128,6 +133,7 @@ columns:
     role: birth.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de ocorrência do nascimento (código)\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: Município de ocorrência do nascimento (código)
@@ -146,6 +152,7 @@ columns:
     role: mother.birth_municipality
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do município de naturalidade da mãe\" (mother.birth_municipality): attribute of the mother (age, birth, residence, occupation)"
     name: Código do município de naturalidade da mãe
@@ -158,6 +165,7 @@ columns:
     role: mother.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do município de residência\" (mother.residence): attribute of the mother (age, birth, residence, occupation)"
     name: Código do município de residência
@@ -183,6 +191,7 @@ columns:
     role: mother.residence_country
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do país de residência\" (mother.residence_country): attribute of the mother (age, birth, residence, occupation)"
     name: Código do país de residência
@@ -197,6 +206,7 @@ columns:
     role: mother.birth_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código da UF de naturalidade da mãe\" (mother.birth_state): attribute of the mother (age, birth, residence, occupation)"
     name: Código da UF de naturalidade da mãe
@@ -261,6 +271,7 @@ columns:
     role: mother.residence_health_region
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"CRS de residência da mãe\" (mother.residence_health_region): attribute of the mother (age, birth, residence, occupation)"
     name: CRS de residência da mãe
@@ -271,6 +282,7 @@ columns:
     role: birth.health_region
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"CRS de ocorrência\" (birth.health_region): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: CRS de ocorrência
@@ -610,6 +622,7 @@ columns:
     role: mother.birth_place
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Naturalidade da mãe\" (mother.birth_place): attribute of the mother (age, birth, residence, occupation)"
     name: Naturalidade da mãe
@@ -1018,6 +1031,7 @@ columns:
     role: birth.reporting_state
     kind: place
     model: excluded
+    place_of: record
     name: UF informante
     codelists:
     - UF_BR

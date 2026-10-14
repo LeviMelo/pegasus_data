@@ -23,6 +23,7 @@ the data home's ``registries/concepts``:
 
 from __future__ import annotations
 
+import copy
 import functools
 import io
 import json
@@ -34,6 +35,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .fields import write_parquet_atomic
+from .semantics.epoch import curated
 from .textenc import fold
 
 
@@ -52,41 +54,45 @@ def _norm(code: str) -> str:
 _SUBSTANCE_KEYS = {"name", "reads", "catmat", "use"}
 
 
-def captures(codes: list[str]) -> list[dict[str, Any]]:
-    """The declared capture populations (`curation/captures.yml`) of any of ICD-10 ``codes`` (a code holds its
-    subcodes): each with its description and its lists, one per system (``where`` on the role table, ``group``, and
-    ``death`` for a population of deaths). A list's filter is the population's definition, not a link's."""
+@curated
+def _declared_captures() -> tuple[dict[str, Any], ...]:
+    """Every declared capture population (`curation/captures.yml`), validated, once per curation epoch."""
     from .config import curation_root
     from .semantics.curation import read_yaml
 
-    asked = [_norm(c) for c in codes]
     out = []
-    for key, c in (read_yaml(curation_root() / "captures.yml").get("captures") or {}).items():
+    for key, c in (read_yaml(curation_root() / "captures.yml", shared=True).get("captures") or {}).items():
         lists = c.get("lists") or {}
         if len(lists) < 2 or not c.get("conditions") or not str(c.get("description") or "").strip():
             raise ValueError(f"captures.yml {key}: a capture needs its conditions, description and two lists or more")
         for name, lst in lists.items():
             if set(lst) - {"where", "group", "death"} or "where" not in lst:
                 raise ValueError(f"captures.yml {key} {name}: a list has where, and may have group and death")
-        conditions = [_norm(x) for x in c["conditions"]]
-        if any(a.startswith(x) or x.startswith(a) for a in asked for x in conditions):
-            out.append({"capture": key, "conditions": conditions, "description": " ".join(str(c["description"]).split()),
-                        "lists": {name: {"where": " ".join(str(lst.get("where") or "").split()),
-                                         "group": list(lst.get("group") or ()), "death": lst.get("death")}
-                                  for name, lst in lists.items()}})
-    return out
+        out.append({"capture": key, "conditions": [_norm(x) for x in c["conditions"]],
+                    "description": " ".join(str(c["description"]).split()),
+                    "lists": {name: {"where": " ".join(str(lst.get("where") or "").split()),
+                                     "group": list(lst.get("group") or ()), "death": lst.get("death")}
+                              for name, lst in lists.items()}})
+    return tuple(out)
 
 
-def treatments(codes: list[str]) -> list[dict[str, Any]]:
-    """The declared treatments (`curation/treatments.yml`) of any of ICD-10 ``codes`` (a code holds its subcodes, as
-    B58 holds B58.0, and a subcode reaches its category's treatment): each with its conditions, source and substances
-    (their names in SNGPC and CATMAT). A treatment is read from the document it cites, never from records."""
+def captures(codes: list[str]) -> list[dict[str, Any]]:
+    """The declared capture populations (`curation/captures.yml`) of any of ICD-10 ``codes`` (a code holds its
+    subcodes): each with its description and its lists, one per system (``where`` on the role table, ``group``, and
+    ``death`` for a population of deaths). A list's filter is the population's definition, not a link's."""
+    asked = [_norm(c) for c in codes]
+    return [copy.deepcopy(c) for c in _declared_captures()
+            if any(a.startswith(x) or x.startswith(a) for a in asked for x in c["conditions"])]
+
+
+@curated
+def _declared_treatments() -> tuple[dict[str, Any], ...]:
+    """Every declared treatment (`curation/treatments.yml`), validated, once per curation epoch."""
     from .config import curation_root
     from .semantics.curation import read_yaml
 
-    asked = [_norm(c) for c in codes]
     out = []
-    for key, t in (read_yaml(curation_root() / "treatments.yml").get("treatments") or {}).items():
+    for key, t in (read_yaml(curation_root() / "treatments.yml", shared=True).get("treatments") or {}).items():
         if not str(t.get("source") or "").strip() or not t.get("substances") or not t.get("conditions"):
             raise ValueError(f"treatments.yml {key}: a treatment needs its conditions, substances and source")
         for sub in t["substances"]:
@@ -95,11 +101,19 @@ def treatments(codes: list[str]) -> list[dict[str, Any]]:
                                  f"keys {sorted(_SUBSTANCE_KEYS)}")
             for read in sub.get("reads") or ():
                 _check_read(read, f"treatments.yml {key} {sub['name']}")
-        conditions = [_norm(c) for c in t["conditions"]]
-        if any(a.startswith(c) or c.startswith(a) for a in asked for c in conditions):
-            out.append({"treatment": key, "conditions": conditions, "source": " ".join(str(t["source"]).split()),
-                        "note": " ".join(str(t.get("note") or "").split()), "substances": list(t["substances"])})
-    return out
+        out.append({"treatment": key, "conditions": [_norm(c) for c in t["conditions"]],
+                    "source": " ".join(str(t["source"]).split()), "note": " ".join(str(t.get("note") or "").split()),
+                    "substances": list(t["substances"])})
+    return tuple(out)
+
+
+def treatments(codes: list[str]) -> list[dict[str, Any]]:
+    """The declared treatments (`curation/treatments.yml`) of any of ICD-10 ``codes`` (a code holds its subcodes, as
+    B58 holds B58.0, and a subcode reaches its category's treatment): each with its conditions, source and substances
+    (their names in SNGPC and CATMAT). A treatment is read from the document it cites, never from records."""
+    asked = [_norm(c) for c in codes]
+    return [copy.deepcopy(t) for t in _declared_treatments()
+            if any(a.startswith(c) or c.startswith(a) for a in asked for c in t["conditions"])]
 
 
 def _check_read(read: dict[str, Any], where: str) -> None:

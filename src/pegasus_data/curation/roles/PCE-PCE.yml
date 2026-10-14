@@ -60,6 +60,7 @@ columns:
     role: survey.state
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF de execução da atividade (código)\" (survey.state): reporting period or state of execution of the survey record"
     codelists:
@@ -392,6 +393,7 @@ columns:
     role: survey.state_uf_where_the_activity_was_carried_out_abbreviation
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF de execução da atividade (sigla)\" (survey.state_uf_where_the_activity_was_carried_out_abbreviation): reporting period or state of execution of the survey record"
     codelists:

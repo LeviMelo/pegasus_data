@@ -55,6 +55,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -101,6 +102,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -143,6 +145,7 @@ columns:
     role: exam.state_of_residence_abbreviation
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência (sigla)\" (exam.state_of_residence_abbreviation): residence or birth date of the person"
     codelists:

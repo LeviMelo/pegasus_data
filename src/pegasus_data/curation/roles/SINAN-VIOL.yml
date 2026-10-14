@@ -892,6 +892,7 @@ columns:
     role: case.occurrence_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Município de ocorrência\" (case.occurrence_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município de ocorrência
@@ -904,6 +905,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
@@ -924,6 +926,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
@@ -956,6 +959,7 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
@@ -1640,6 +1644,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
@@ -1654,6 +1659,7 @@ columns:
     role: notification.state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
@@ -1666,6 +1672,7 @@ columns:
     role: case.occurrence_state
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"UF de ocorrência\" (case.occurrence_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF de ocorrência

@@ -29,6 +29,7 @@ columns:
     role: birth.municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município do nascimento/aborto/natimorto\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     note: Place of birth/abortion/stillbirth, not residence.
@@ -78,6 +79,7 @@ columns:
     role: birth.state
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF do nascimento/aborto/natimorto\" (birth.state): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     note: "Mostly state abbreviations (AC, AL, ...): 525 of 26,570 values in 2021 are IBGE codes; two code systems
@@ -357,6 +359,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
@@ -375,6 +378,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
@@ -408,6 +412,7 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
@@ -420,6 +425,7 @@ columns:
     role: notification.region
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
@@ -433,6 +439,7 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
@@ -631,6 +638,7 @@ columns:
     role: pregnancy.prenatal_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município do local da realização do pré-natal\" (pregnancy.prenatal_municipality): prenatal care, test dates and delivery type: how care happened"
     name: Município do local da realização do pré-natal
@@ -685,6 +693,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
@@ -697,6 +706,7 @@ columns:
     role: notification.state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
@@ -790,6 +800,7 @@ columns:
     role: pregnancy.prenatal_state
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF do local da realização do pré-natal\" (pregnancy.prenatal_state): prenatal care, test dates and delivery type: how care happened"
     note: "Mostly state abbreviations (AC, AL, ...): 525 of 21,504 values in 2021 are IBGE codes; two code systems

@@ -42,6 +42,7 @@ columns:
     role: authorisation.managing_authority
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"EXA_GESTAO\" (authorisation.managing_authority): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:

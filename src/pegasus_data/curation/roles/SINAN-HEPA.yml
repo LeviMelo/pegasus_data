@@ -200,6 +200,7 @@ columns:
     role: case.exposure_municipality_2
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Local/Município da exposição - Município 2\" (case.exposure_municipality_2): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Local/Município da exposição - Município 2
@@ -212,6 +213,7 @@ columns:
     role: case.exposure_municipality_3
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Local/Município da exposição - Município 3\" (case.exposure_municipality_3): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Local/Município da exposição - Município 3
@@ -224,6 +226,7 @@ columns:
     role: case.exposure_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Local/Município da exposição - Município 1\" (case.exposure_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Local/Município da exposição - Município 1
@@ -236,6 +239,7 @@ columns:
     role: case.exposure_state_2
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"UF da segunda exposição\" (case.exposure_state_2): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF da segunda exposição
@@ -248,6 +252,7 @@ columns:
     role: case.exposure_state_3
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"UF da terceira exposição\" (case.exposure_state_3): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF da terceira exposição
@@ -260,6 +265,7 @@ columns:
     role: case.exposure_state
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"UF da exposição\" (case.exposure_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF da exposição
@@ -607,6 +613,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
@@ -625,6 +632,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
@@ -657,6 +665,7 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
@@ -669,6 +678,7 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
@@ -682,6 +692,7 @@ columns:
     role: patient.residence_health_region
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
@@ -881,6 +892,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
@@ -895,6 +907,7 @@ columns:
     role: notification.state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação

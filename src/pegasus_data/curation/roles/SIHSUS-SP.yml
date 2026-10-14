@@ -238,6 +238,7 @@ columns:
     role: admission.manager_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Gestor do estabelecimento\" (admission.manager_municipality): processing competence or manager authorisation of the AIH: billing and management"
     codelists:
@@ -262,6 +263,7 @@ columns:
     role: admission.facility_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Município do Estabelecimento Executante\" (admission.facility_municipality): facility or its location: the facility register"
     codelists:
@@ -274,6 +276,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -423,6 +426,7 @@ columns:
     role: admission.state
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Unidade da Federação\" (admission.state): facility or its location: the facility register"
     codelists:

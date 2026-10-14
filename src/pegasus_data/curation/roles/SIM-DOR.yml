@@ -384,6 +384,7 @@ columns:
     role: death.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de ocorrência\" (death.municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     codelists:
@@ -397,6 +398,7 @@ columns:
     role: deceased.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência\" (deceased.residence): attribute of the person"
     codelists:
@@ -410,6 +412,7 @@ columns:
     role: deceased.birth_place
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Naturalidade\" (deceased.birth_place): attribute of the person"
     name: Naturalidade
@@ -634,6 +637,7 @@ columns:
     role: death.reporting_state
     kind: place
     model: excluded
+    place_of: record
     name: UF informante
     codelists:
     - UF_BR

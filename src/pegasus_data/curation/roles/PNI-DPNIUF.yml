@@ -138,6 +138,7 @@ columns:
     role: vaccination.state
     kind: place
     model: mark
+    place_of: record
     codelists:
     - UF_BR
     name: Unidade da Federação

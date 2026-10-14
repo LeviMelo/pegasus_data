@@ -392,6 +392,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de Residência
@@ -410,6 +411,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
@@ -428,6 +430,7 @@ columns:
     role: notification.current_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de atendimento atual\" (notification.current_municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de atendimento atual
@@ -454,6 +457,7 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
@@ -466,6 +470,7 @@ columns:
     role: notification.region
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
@@ -479,6 +484,7 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Regional de Saúde da Residência
@@ -570,6 +576,7 @@ columns:
     role: patient.current_residence_municipality
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência atual\" (patient.current_residence_municipality): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Município de residência atual
@@ -676,6 +683,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de Residência
@@ -688,6 +696,7 @@ columns:
     role: notification.state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
@@ -724,6 +733,7 @@ columns:
     role: notification.current_state
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de atendimento atual\" (notification.current_state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de atendimento atual
@@ -736,6 +746,7 @@ columns:
     role: patient.current_residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência atual\" (patient.current_residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     name: UF de residência atual

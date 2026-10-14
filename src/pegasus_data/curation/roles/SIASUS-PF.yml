@@ -5,6 +5,7 @@ columns:
     role: patient.postcode
     kind: place
     model: link_only
+    place_of: subject
     years:
     - 2001
     - 2007
@@ -111,6 +112,7 @@ columns:
     role: authorisation.managing_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"PAF_GESTAO\" (authorisation.managing_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -149,6 +151,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"PAF_MUNPCN\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:

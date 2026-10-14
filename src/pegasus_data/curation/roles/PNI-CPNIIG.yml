@@ -43,6 +43,7 @@ columns:
     role: vaccination.municipality
     kind: place
     model: where
+    place_of: event
     codelists:
     - BR_MUNICIPALFA
     name: Município
@@ -75,6 +76,7 @@ columns:
     role: vaccination.state
     kind: place
     model: mark
+    place_of: record
     codelists:
     - UF_BR
     name: Unidade da Federação

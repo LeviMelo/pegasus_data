@@ -38,6 +38,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do município\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:

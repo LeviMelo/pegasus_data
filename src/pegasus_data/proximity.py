@@ -38,6 +38,8 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from .semantics.epoch import curated
+
 PROXIMITY_PACK_NAME = "proximity.parquet"
 REGIC_PACK_NAME = "regic_cities.parquet"
 AREAS_PACK_NAME = "municipality_areas.parquet"
@@ -228,7 +230,7 @@ class FlowGeneration:
         return (lo is None or lo <= year) and (hi is None or year <= hi)
 
 
-@lru_cache(maxsize=1)
+@curated
 def _municipality_remaps() -> dict[tuple[str, str], str]:
     """``(system, column) -> the derived column that remaps its codes to municipalities``, from the variables' own
     ``derived`` declarations (a ``remap`` derived from that one column)."""
@@ -250,16 +252,18 @@ def _municipality_remaps() -> dict[tuple[str, str], str]:
     return out
 
 
-@lru_cache(maxsize=1)
+@curated
 def flows() -> dict[str, tuple[FlowGeneration, ...]]:
     """The care flows the roles declare: ``dataset -> its layout generations``, derived, never listed.
 
     A dataset has a flow when it declares event types and its column roles state both a **residence** (the
-    ``stratum`` place whose property is ``residence``: a population account's stratum) and a **place of the event**
-    (a ``where`` place whose property is ``municipality`` or ``facility_municipality``: where the event, its care, its
-    notification happened). Origin is the first, destination the second, paired within the years both columns exist.
-    A ``mark`` place (the registry office, a managing authority, a travel place) is never a destination. A dataset
-    whose roles name two candidate pairs for the same years states no unique flow and has none.
+    ``stratum`` place whose property is ``residence``: the subject's own place, a population account's stratum) and a
+    **place of the event** (a ``where`` place, the event's own by its ``place_of``, whose property is ``municipality`` or
+    ``facility_municipality``: where the event, its care, its notification happened). Origin is the first, destination
+    the second, paired within the years both columns exist. A ``mark`` place (the registry office, a managing authority,
+    a travel place) is never a destination, and a record's place (``place_of: record``) cannot be a ``where`` at all
+    (`column_roles` refuses it). A dataset whose roles name two candidate pairs for the same years states no unique flow
+    and has none.
     """
     from .semantics.column_roles import load_column_roles
     from .semantics.event_types import _canonical_system, _key, load_event_types

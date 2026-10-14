@@ -12,13 +12,13 @@ PegaSUS; handoff 2026-10-04 §2). Each column states three things:
   be carried by a population account (age, sex, race, residence); every other
   categorical fact about persons is a dimension or a mark.
 
-A **place** (``kind: place``) is read by its model, and the two that say where something happened are told apart by
-what the place is of: **where** is the place where the event, its care, its notification or its infection happened
-(the death's municipality, the hospital's, the birth's, the notifying unit's, the municipality where the infection was
-acquired), the one an event is placed at; **mark** is a place the record only names, which the event did not happen at
-(the registry office, the death-verification service, a managing authority, a place of travel or exposure). The
-residence of the person is a stratum; where they were born or work, a dimension. Flows between places
-(`proximity.flows`) read the pair (residence, where) and never a mark.
+A **place** (``kind: place``) states whose place it is, `place_of` (:data:`PLACE_OF`): the **subject**'s own (where the
+person lives, was born or works), the **event**'s (where the event the role's entity names, its care, notification,
+infection or exposure happened) or the **record**'s (where the record was made, kept or managed: the registry office, the
+death-verification service, a managing authority, a laboratory or partner service it names). Its model says what a study
+may do with it: the residence of the person is a **stratum** (always a subject's place); a **where** is the one an
+event is placed at (always an event's place; a record's place is never one); every other place is a **mark** or a
+**dimension**, still typed by `place_of`. Flows between places (`proximity.flows`) read the pair (residence, where).
 
 Every column a study reads as a field (any kind, model not ``link_only`` or ``excluded``: categories, numbers, dates,
 codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
@@ -41,9 +41,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+from .epoch import curated
 
 KINDS = frozenset({"category", "code_tree", "number", "date", "place", "institution", "identifier", "text"})
 #: What each model means. A place's two models that say where something happened are defined in the module docstring.
@@ -52,10 +53,9 @@ MODEL_MEANING = {
     "dimension": "a categorical fact about persons or their events that a study may cut by",
     "event_type": "the code that says what kind of event a record is (a diagnosis, a procedure, a cause)",
     "mark": "a fact the record carries that no model conditions on: a quantity, a date it only names, or, for a place, "
-            "one the record only names (registry office, death-verification service, managing authority, travel or "
-            "exposure place)",
+            "one the record only names (`place_of` says whose it is)",
     "when": "the date the event happened",
-    "where": "a place: where the event, its care, its notification or its infection happened",
+    "where": "the place an event is placed at: where the event, its care, its notification or its infection happened",
     "institution": "the establishment or organisation the record is of",
     "link_only": "read only to link records, never as a field",
     "excluded": "set aside: not a fact about the event",
@@ -83,11 +83,19 @@ UNITS = {
 CURRENCIES = frozenset({"BRL", "USD"})
 #: The models a place column may have.
 PLACE_MODELS = frozenset({"where", "mark", "stratum", "dimension", "link_only", "excluded"})
+#: Whose place a place column is (`place_of`, required of every place). A stratum's is the subject's, a where's the event's.
+PLACE_OF = {
+    "subject": "the person's own place, whichever event is recorded: where they live (now or then), were born or work",
+    "event": "where the event the role's entity names happened, or its care, notification, infection, exposure or "
+             "history: the death's municipality, the hospital's, the notifying unit's, the infection's, a place of travel",
+    "record": "where the record was made, kept or managed, or an institution it names served: the registry office, the "
+              "death-verification service, a managing authority, a laboratory or partner service",
+}
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
-                  "unit_unknown", "unit_from", "competence"})
+                  "unit_unknown", "unit_from", "competence", "place_of"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -160,6 +168,8 @@ class ColumnRole:
     unit_unknown: str | None = None
     unit_from: int | None = None
     competence: tuple[str, ...] = ()
+    #: For a place: whose it is (`PLACE_OF`). None for every other column.
+    place_of: str | None = None
 
     @property
     def entity(self) -> str:
@@ -186,6 +196,7 @@ class ColumnRole:
                 **({"unit_unknown": self.unit_unknown} if self.unit_unknown else {}),
                 **({"unit_from": self.unit_from} if self.unit_from else {}),
                 **({"competence": list(self.competence)} if self.competence else {}),
+                **({"place_of": self.place_of} if self.place_of else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
                    if self.instruments else {})}
 
@@ -196,7 +207,7 @@ def roles_dir() -> Path:
     return curation_root() / "roles"
 
 
-@lru_cache(maxsize=1)
+@curated
 def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
     """Every declared dataset's columns, validated; a violation is an error."""
     from .curation import read_yaml
@@ -244,6 +255,17 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad(f"a place is one of {sorted(PLACE_MODELS)}, not {model!r}")
     if model == "where" and kind != "place":
         raise bad("`where` is a place's model: where the event happened")
+    place_of = spec.get("place_of")
+    if kind == "place":
+        if place_of not in PLACE_OF:
+            raise bad(f"a place states whose it is, `place_of` one of {sorted(PLACE_OF)}, not {place_of!r}")
+        if model == "stratum" and place_of != "subject":
+            raise bad(f"a stratum is the subject's place, not the {place_of}'s")
+        if model == "where" and place_of != "event":
+            raise bad(f"a `where` is the place an event is placed at, not the {place_of}'s: a place that only the "
+                      "record names (a registry office, a managing authority) is a mark")
+    elif place_of is not None:
+        raise bad("`place_of` is declared for places only")
     also = tuple(str(a) for a in spec.get("also") or ())
     for extra in also:
         if not _ROLE.match(extra):
@@ -335,7 +357,8 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       " ".join(str(unit_of).split()) if unit_of is not None else None,
                       " ".join(str(spec["unit_evidence"]).split()) if unit is not None else None,
                       " ".join(str(unit_unknown).split()) if unit_unknown is not None else None,
-                      int(unit_from) if unit_from is not None else None, competence)
+                      int(unit_from) if unit_from is not None else None, competence,
+                      str(place_of) if place_of is not None else None)
 
 
 def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

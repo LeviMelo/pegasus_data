@@ -367,6 +367,7 @@ columns:
     role: exam.providers_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Município do prestador de serviço\" (exam.providers_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -379,6 +380,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Munic. de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -391,6 +393,7 @@ columns:
     role: exam.requesting_units_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Município da unidade de saúde\" (exam.requesting_units_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -492,6 +495,7 @@ columns:
     role: exam.providers_state
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UF do prest.serviço\" (exam.providers_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -504,6 +508,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -516,6 +521,7 @@ columns:
     role: exam.collecting_units_state
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF da un.saúde\" (exam.collecting_units_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:

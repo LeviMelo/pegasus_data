@@ -47,6 +47,7 @@ columns:
     role: population.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Unidade da Federação\" (population.residence): count of persons in the population table"
     codelists:

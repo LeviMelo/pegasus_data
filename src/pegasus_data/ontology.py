@@ -43,6 +43,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .semantics.epoch import curated
+
 #: Brazilian state codes plus BR, used to recognise a filename's UF segment.
 UFS = frozenset(
     {
@@ -469,26 +471,11 @@ class Ontology:
         already curated. They are folded in as dataset nodes so that
         ``info("SINAN.DENG")`` resolves like any other.
 
-        Cached per (directory, files' mtimes): a single fetch loaded this
-        thirteen times and paid 4.6 seconds re-parsing YAML that had not
-        changed since the process started.
+        Held once per curation epoch (`semantics.epoch`): a single fetch loaded this thirteen times and paid 4.6
+        seconds re-parsing YAML that had not changed since the process started, and then 190 ``stat`` calls a load
+        to be sure of it. Shared: not to be edited.
         """
-        from .config import curation_root
-
-        root = curation_dir or curation_root()
-        stamp = tuple(
-            (str(f), f.stat().st_mtime_ns)
-            for f in sorted(root.glob("*.yml")) + sorted((root / "datasets").glob("*.yml"))
-            if f.is_file()
-        )
-        cached = _ONTOLOGY_CACHE.get((str(root), stamp))
-        if cached is not None:
-            return cached
-        ontology = cls._load_uncached(root)
-        if len(_ONTOLOGY_CACHE) >= 8:
-            _ONTOLOGY_CACHE.clear()
-        _ONTOLOGY_CACHE[(str(root), stamp)] = ontology
-        return ontology
+        return _load_ontology(curation_dir)
 
     @classmethod
     def _load_uncached(cls, root: Path) -> Ontology:
@@ -939,8 +926,11 @@ def _clean(value: object) -> str | None:
     return text or None
 
 
-#: Ontology.load results, keyed by (curation dir, every source file's mtime).
-_ONTOLOGY_CACHE: dict[tuple, Any] = {}
+@curated(rooted=True)
+def _load_ontology(root: Path | None) -> Ontology:
+    from .config import curation_root
+
+    return Ontology._load_uncached(Path(root) if root is not None else curation_root())
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
