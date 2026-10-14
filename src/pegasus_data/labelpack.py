@@ -1137,6 +1137,21 @@ def _vintage_runs(codelist: str, system: str | None, span: tuple[int, int] | Non
     return _as_runs(hit.filter(pc.is_in(index, value_set=pa.array(chosen, index.type)))), served
 
 
+def windows_answering(
+    codelist: str, system: str | None, span: tuple[int, int]
+) -> tuple[tuple[int, ...], str | None] | None:
+    """Which of the pack's validity windows answer ``span`` for this system, as indices and ``served`` (see
+    :func:`select_windows`); ``None`` for a codelist the pack does not hold. Two spans answered by the same windows
+    read the same rows."""
+    name, scope = codelist.upper(), (system or "").upper() or None
+    hit = _scoped_rows(name, scope)
+    if hit is None or not hit.num_rows:
+        return None
+    windows, _index = _scoped_windows(name, scope)
+    chosen, served = select_windows(windows, span)
+    return tuple(chosen), served
+
+
 @lru_cache(maxsize=512)
 def _expand_runs(chosen: tuple, code_width: int | None):
     """Expand code ranges into a lookup table, once per distinct row selection.

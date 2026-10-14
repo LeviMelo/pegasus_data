@@ -11,6 +11,7 @@ from typing import Any
 
 from ..catalog.store import CatalogStore
 from ..config import Settings
+from ..persist.lake import Lake, LakePartition, listed_partitions
 from .model import Geography
 
 
@@ -42,6 +43,9 @@ class _Coverage:
     year_geography: tuple[tuple[int, tuple[str, ...]], ...] = ()
     #: Years the catalog calls lake-complete whose listed partition files are not on disk: read from the source instead.
     missing_lake_years: tuple[int, ...] = ()
+    #: The files the ``lake_years`` are read from: the catalog's listed partitions, one reading of each year (the
+    #: national file or the states', never both), every one on disk. What the plan hands to ``load``.
+    lake_partitions: tuple[LakePartition, ...] = ()
 
 
 #: A geography code that is not a state: a national file, or a publication with no state axis.
@@ -64,6 +68,14 @@ def national_or_states(items: Iterable[Any], geo_of: Callable[[Any], object]) ->
     if not (has_national and has_states):
         return items
     return [item for item, g in zip(items, geos, strict=True) if g in _NOT_A_STATE]
+
+
+def one_reading(parts: Iterable[LakePartition]) -> list[LakePartition]:
+    """The partitions one reading of each year opens when no state was asked (:func:`national_or_states`, per year)."""
+    by_year: dict[int, list[LakePartition]] = {}
+    for part in parts:
+        by_year.setdefault(part.year, []).append(part)
+    return [part for items in by_year.values() for part in national_or_states(items, lambda p: p.uf)]
 
 
 def compile_capability_payload() -> dict[str, Any]:
@@ -229,43 +241,6 @@ def _source_identities(
     }
 
 
-@dataclass(frozen=True, slots=True)
-class _LakePart:
-    family_id: str
-    uf: str
-    year: int
-    relative_path: str
-    sources: frozenset[str]
-
-
-def _lake_parts(store: CatalogStore, family_ids: Sequence[str]) -> tuple[_LakePart, ...]:
-    """The lake partitions of these families with the source files each was built from, once per catalog state."""
-    if not family_ids:
-        return ()
-    ids = tuple(family_ids)
-
-    def load() -> tuple[_LakePart, ...]:
-        out: list[_LakePart] = []
-        for start in range(0, len(ids), 500):
-            chunk = ids[start:start + 500]
-            marks = ",".join("?" for _ in chunk)
-            for row in store.query(
-                f"SELECT family_id, uf, year, relative_path, source_paths FROM lake_partitions "
-                f"WHERE family_id IN ({marks})", chunk,
-            ):
-                try:
-                    sources = frozenset(str(value) for value in json.loads(row["source_paths"] or "[]"))
-                except (TypeError, json.JSONDecodeError):
-                    sources = frozenset()
-                out.append(_LakePart(
-                    str(row["family_id"]), str(row["uf"] or "").upper(), int(row["year"] or 0),
-                    str(row["relative_path"]).replace("\\", "/"), sources,
-                ))
-        return tuple(out)
-
-    return store.memo(("lake_parts", ids), load)
-
-
 def _has_publications(store: CatalogStore, family_ids: Sequence[str]) -> bool:
     """Does the catalog hold any publication of these families (an inventory-free fixture holds none)?"""
     if not family_ids:
@@ -284,26 +259,21 @@ def _has_publications(store: CatalogStore, family_ids: Sequence[str]) -> bool:
     return store.memo(("has_publications", ids), load)
 
 
-def _families_of(store: CatalogStore, system: str, series: str | None) -> list[dict[str, Any]]:
-    from ..retrieve import _families
-
-    return [dict(f) for f in store.memo(("families", system, series), lambda: _families(store, system, series))]
-
-
 def _catalog_coverage(
     store: CatalogStore, settings: Settings, system: str, series: str | None, years: tuple[int, ...],
     ufs_asked: tuple[str, ...],
-) -> tuple[_Coverage, tuple[tuple[int, tuple[str, ...]], ...]]:
+) -> _Coverage:
     """The part of the coverage the catalog decides, with the lake files each lake year rests on.
 
     Pure in the catalog state, so remembered until it changes; whether those files are still on disk is not a
     catalog fact and is checked by :func:`_coverage` on every call.
     """
     from ..representations import choose_representations
+    from .readplan import resolve_family
 
     declaration = _compiled_capability(settings, system, series)
     declared_physical_uf = bool((declaration or {}).get("physical_geography") == "uf")
-    families = _families_of(store, system, series)
+    families = resolve_family(store, system, series, None)
     ids = [str(item["family_id"]) for item in families]
     # every year's publications are only needed to say whether the dataset is cut by state when no year is asked
     publications = _publication_rows(store, ids, years)
@@ -339,13 +309,13 @@ def _catalog_coverage(
     if wanted_ufs:
         relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() in wanted_ufs]
 
-    parts = _lake_parts(store, ids)
+    parts = [part for family_parts in listed_partitions(store, ids).values() for part in family_parts]
     has_publications = _has_publications(store, ids)
     lake_years: list[int] = []
     fetch_years: list[int] = []
     resolutions: list[tuple[int, str]] = []
     year_geography: list[tuple[int, tuple[str, ...]]] = []
-    lake_files: list[tuple[int, tuple[str, ...]]] = []
+    lake_partitions: list[LakePartition] = []
     any_partition = bool(parts)
     for year in requested_years:
         candidates = [row for row in relevant if int(row.get("year") or 0) == year]
@@ -364,7 +334,9 @@ def _catalog_coverage(
             "year" if selected else "unknown"
         )
         resolutions.append((year, resolution))
-        year_parts = [p for p in parts if p.year == year and (not ufs_year or p.uf in ufs_year)]
+        year_parts = Lake.narrow(parts, ufs_year or None, [year])
+        if not ufs_year:
+            year_parts = one_reading(year_parts)        # no reading decided from the publications: the lake's own
         if selected:
             expected = {_publication_identity(row) for row in selected}
             covered = {(p.family_id, source) for p in year_parts for source in p.sources}
@@ -375,7 +347,7 @@ def _catalog_coverage(
             complete = bool(year_parts) or (not has_publications and any_partition)
         (lake_years if complete else fetch_years).append(year)
         if complete:
-            lake_files.append((year, tuple(p.relative_path for p in year_parts)))
+            lake_partitions.extend(year_parts)
 
     unique_resolutions = {value for _, value in resolutions if value != "unknown"}
     overall = next(iter(unique_resolutions)) if len(unique_resolutions) == 1 else (
@@ -385,8 +357,9 @@ def _catalog_coverage(
     coverage = _Coverage(
         overall, physical_uf, strategy,
         tuple(lake_years), tuple(fetch_years), tuple(resolutions), national_ufs, tuple(year_geography),
+        lake_partitions=tuple(lake_partitions),
     )
-    return coverage, tuple(lake_files)
+    return coverage
 
 
 def _coverage(
@@ -405,12 +378,12 @@ def _coverage(
     its two renames) is not lake-complete: it falls back to the source, and the plan says so.
     """
     ufs_asked = tuple(geography.ufs) if geography else ()
-    coverage, lake_files = store.memo(
+    coverage = store.memo(
         ("coverage", system, series, tuple(years), ufs_asked),
         lambda: _catalog_coverage(store, settings, system, series, tuple(years), ufs_asked),
     )
     lake_dir = Path(settings.lake_dir)
-    gone = tuple(year for year, files in lake_files if any(not (lake_dir / f).is_file() for f in files))
+    gone = tuple(sorted({p.year for p in coverage.lake_partitions if not (lake_dir / p.relative_path).is_file()}))
     if not gone:
         return coverage
     lake_years = tuple(y for y in coverage.lake_years if y not in gone)
@@ -419,7 +392,8 @@ def _coverage(
     from dataclasses import replace
 
     return replace(coverage, source_strategy=strategy, lake_years=lake_years, fetch_years=fetch_years,
-                   missing_lake_years=gone)
+                   missing_lake_years=gone,
+                   lake_partitions=tuple(p for p in coverage.lake_partitions if p.year not in gone))
 
 
 def download_estimate(
@@ -443,8 +417,9 @@ def download_estimate(
         return 0, 0
     from ..representations import choose_representations
     from ..retrieve import _month_of
+    from .readplan import resolve_family
 
-    ids = [str(f["family_id"]) for f in _families_of(store, system, series)]
+    ids = [str(f["family_id"]) for f in resolve_family(store, system, series, None)]
     if not ids:
         return None, None
     wanted_all = {u.upper() for u in ufs}

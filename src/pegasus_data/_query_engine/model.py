@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
+from ..persist.lake import LakePartition
 from ..providers import ResourceRequirement
 
 
@@ -112,6 +113,9 @@ class RetrievalPlan:
     #: With no state asked: the years that are published as a national file AND as state files, with the one reading of
     #: each (``("BR",)``: the national file, the state files being the same records). Other years read every file.
     year_geography: tuple[tuple[int, tuple[str, ...]], ...] = ()
+    #: The lake files the ``lake_years`` are read from: one reading of each year, all on disk when planned. ``load``
+    #: opens exactly these.
+    lake_partitions: tuple[LakePartition, ...] = ()
 
     def geography_for(self, year: int | None) -> tuple[str, ...]:
         """The states' files (``BR``: the national one) a year is read from; empty: every file of the year."""

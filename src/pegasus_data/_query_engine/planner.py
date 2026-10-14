@@ -175,7 +175,7 @@ def plan(
             system, series, resolution, years, months, physical_uf, strategy,
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
-            tuple(year_months), estimate[0], estimate[1], capabilities.year_geography,
+            tuple(year_months), estimate[0], estimate[1], capabilities.year_geography, capabilities.lake_partitions,
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

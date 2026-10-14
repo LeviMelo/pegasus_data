@@ -69,7 +69,7 @@ def _census_fields(settings: Any, files: Sequence[dict[str, Any]]) -> dict[int, 
     """``year -> the upper-cased fields the header census lists for that year's files`` (a file's own header where the
     per-file census read it, else its family's schema); ``None`` for a year in which any file has no census, which
     proves nothing about a column."""
-    from .api import _schema_presence
+    from ._query_engine.readplan import schema_presence
     from .catalog.store import CatalogStore
 
     store = CatalogStore(settings.catalog_path, read_only=True)
@@ -84,7 +84,7 @@ def _census_fields(settings: Any, files: Sequence[dict[str, Any]]) -> dict[int, 
                     FROM family_files fm JOIN families fam ON fam.family_id = fm.family_id
                     LEFT JOIN file_schemas fs ON fs.path = fm.path WHERE fm.path IN ({marks})""", chunk):
                 signature[row["path"]] = row["sig"]
-        presence = _schema_presence(store, [{"schema_signature": s} for s in {s for s in signature.values() if s}])
+        presence = schema_presence(store, [{"schema_signature": s} for s in {s for s in signature.values() if s}])
     finally:
         store.close()
     fields: dict[int, set[str] | None] = {}
