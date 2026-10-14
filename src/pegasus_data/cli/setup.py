@@ -91,6 +91,39 @@ def resources_build(
     _emit(result, as_json, f"built {name}")
 
 
+registries_app = typer.Typer(
+    name="registries",
+    help="The name registries (establishments, teams) that labels are read from.",
+    no_args_is_help=True,
+)
+
+
+app.add_typer(registries_app, rich_help_panel="SETUP")
+
+
+@registries_app.command("build")
+def registries_build(
+    system: Annotated[
+        str, typer.Argument(help="The registry's owner: CNES (establishment, team and CNPJ names) or SIASUS (INE_EQUIPE)")
+    ] = "CNES",
+    refresh: Annotated[bool, typer.Option("--refresh", help="Read the kit again even if its registry is built")] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Download a system's TabWin kit once and build its name registries (ADR-0177).
+
+    The one place a registry is downloaded: reads (`load`, `query`, labels) never fetch, and say this command when a
+    registry is missing. The kit is 6 MB (SIH) to 127 MB (CNES).
+    """
+    from .. import registry
+
+    counts = registry.build(system.upper(), refresh=refresh, settings=_settings(root))
+    if not counts:
+        console.print(f"[yellow]{system.upper()}: no TabWin kit in the catalog, or none with a registry table[/yellow]")
+        raise typer.Exit(code=2)
+    _emit(counts, as_json, f"{system.upper()} registry tables (rows)")
+
+
 def _placement_rows(root: Path | None = None) -> list[dict[str, object]]:
     from ..locate import PLACEMENT_KEYS
 

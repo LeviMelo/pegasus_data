@@ -33,3 +33,10 @@ restart every series.
 **What would reverse it.** A reorganisation that reuses prefixes for different
 systems wholesale. Adjudication handles single prefixes; a wholesale reuse
 would need the ontology's declaration (ADR-0033) to carry identity.
+
+**Amendment, 2026-10-14.** `13b7e11` (2026-10-08) made the path win inside a data system's own tree, because SIH's 42
+`CM` files were filed under SISCAN; it did so for every tree, so a reorganised tree no longer kept identity (two
+`test_reconcile` tests failed on it). `resolve_system` now lets the path win only in a tree the ontology declares
+(`own_trees`: its systems that do not republish) and lets the name win in a republication tree or one the ontology does
+not know. Real catalog: the same resolution as `13b7e11` for all 39 recorded disagreement patterns (the 42 CM files
+resolve to SIHSUS at the next inventory).

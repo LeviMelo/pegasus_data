@@ -158,15 +158,17 @@ def resolve_system(
     system_by_path: str | None,
     learned: dict[str, PrefixSystem],
     republications: frozenset[str] = frozenset(),
+    own_trees: frozenset[str] = frozenset(),
 ) -> tuple[str | None, str | None]:
     """Decide the system, returning ``(resolved, disagreement_or_None)``.
 
-    The filename wins where its prefix is a trustworthy identifier and the path is a republication tree
-    (``republications``: the ontology's systems of kind ``reference``, Dados_Abertos) or names no system. Inside a data
-    system's own tree the path wins: two systems can share a prefix, and SIH's `CMBR1901.dbc` (SIHSUS/200801_/Dados)
-    was filed under SISCAN because SISMAMA's CM files taught that prefix (42 files, 2026-10-08). Where the prefix is
-    not trustworthy (ambiguous, unparsed, seen only a handful of times) the path stays authoritative too, because a
-    weak signal must not override a working one.
+    The filename wins where its prefix is a trustworthy identifier and the path is not a tree the ontology declares as
+    a system's own: a republication tree (``republications``: Dados_Abertos), or a tree the ontology does not know at
+    all, which is how a reorganised FTP tree looks (identity must survive the move, ADR-0017). Inside a DECLARED tree
+    (``own_trees``: the ontology's systems that do not republish) the path wins: two systems can share a prefix, and
+    SIH's `CMBR1901.dbc` (SIHSUS/200801_/Dados) was filed under SISCAN because SISMAMA's CM files taught that prefix
+    (42 files, 2026-10-08). Where the prefix is not trustworthy (ambiguous, unparsed, seen only a handful of times)
+    the path stays authoritative too, because a weak signal must not override a working one.
     """
     by_name = None
     if series_prefix:
@@ -176,12 +178,13 @@ def resolve_system(
 
     if by_name is None:
         return (system_by_path.upper() if system_by_path else None), None
-    if system_by_path and by_name != system_by_path.upper() and system_by_path.upper() not in republications:
-        # a data system's own tree: the path is authoritative, the shared prefix is the finding
-        return system_by_path.upper(), by_name
-    if system_by_path and by_name != system_by_path.upper():
+    by_path = system_by_path.upper() if system_by_path else None
+    if by_path and by_name != by_path and by_path in own_trees and by_path not in republications:
+        # a declared system's own tree: the path is authoritative, the shared prefix is the finding
+        return by_path, by_name
+    if by_path and by_name != by_path:
         # The name is authoritative, but the disagreement is the interesting part.
-        return by_name, system_by_path.upper()
+        return by_name, by_path
     return by_name, None
 
 

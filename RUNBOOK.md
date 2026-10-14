@@ -35,6 +35,9 @@ $PY scripts/live.py --all --fresh           # everything, on an emptied home
 $PY scripts/live.py --show <run-id>
 ```
 
+- Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0177):
+  `$PD registries build CNES [--refresh]` (SIH's names need CNES's kit, 127 MB, once; `SIASUS` for `INE_EQUIPE`).
+  Without it a `load`/`query` leaves those labels null and says this command in one warning.
 - The live home is `~/pegasus_live/home` (override: `PEGASUS_LIVE_HOME`),
   deliberately outside the repository.
 - Records go to `data/probes/live/<run-id>/`. A run that informs a decision
