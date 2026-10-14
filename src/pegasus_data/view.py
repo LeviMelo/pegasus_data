@@ -557,6 +557,20 @@ def bridge_target(bridge: str) -> str:
     return BRIDGE_TARGETS.get(BRIDGE_NAMES.get(bridge.upper(), bridge.upper()), ("SIGTAP", 0))[0]
 
 
+def _names_of(table: pa.Table, wanted: Sequence[object]) -> dict[str, str]:
+    """``code -> label`` of the table's rows for the codes in ``wanted``, the last row of a code winning.
+
+    A dict of the whole classification was built for every group of a month: 0.69 s of MUNICBR's rows each, 8.2 s of a
+    12-month query that labelled 205 rows. The groups ask for a few dozen codes.
+    """
+    strings = sorted({v for v in wanted if isinstance(v, str)})
+    if not strings:
+        return {}
+    column = pc.cast(table.column("code"), pa.string())
+    hit = table.filter(pc.is_in(column, value_set=pa.array(strings, pa.string())))
+    return dict(zip(hit.column("code").to_pylist(), hit.column("label").to_pylist(), strict=True))
+
+
 def _labelled_codes(lake: Path, classification: str, codes: object, *, as_code: bool = False) -> pa.Array | None:
     """``label (code)`` from a canonical classification, or None where unknown.
 
@@ -566,9 +580,9 @@ def _labelled_codes(lake: Path, classification: str, codes: object, *, as_code: 
         table = read_reference_table(lake, classification)
     except (FileNotFoundError, OSError):
         return None
-    names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
     if as_code:
         return _per_distinct(codes, lambda v: v or None)
+    names = _names_of(table, _distinct(codes))
     return _per_distinct(codes, lambda v: f"{names[v]} ({v})" if v in names else (f"{v} (?)" if v else None))
 
 
@@ -585,7 +599,7 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
         table = read_reference_table(lake, classification)
     except (FileNotFoundError, OSError):
         return None
-    names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
+    names = _names_of(table, [str(v).strip()[:digits] for v in _distinct(codes)])
 
     def one(v: object) -> str | None:
         prefix = str(v).strip()[:digits]
@@ -602,21 +616,20 @@ def _coded(doc: object) -> bool:
     return doc is not None and getattr(doc, "code_system", None) in ("internal", "external")
 
 
-_SERIES: dict[tuple[str, str], str] = {}
-
-
 def _family_series(store: CatalogStore | None, family_id: str) -> str:
-    """The series a family is filed under, read once per catalog and family (it was one query per column and chunk)."""
+    """The series a family is filed under, read once per catalog state and family (it was one query per column and
+    chunk, then a process-wide dict that never saw the catalog change)."""
     if store is None or not family_id:
         return ""
-    key = (str(getattr(store, "path", id(store))), family_id)
-    if key not in _SERIES:
-        try:
-            row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
-            _SERIES[key] = str(row[0]["series"] or "").upper() if row else ""
-        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
-            return ""
-    return _SERIES[key]
+
+    def read() -> str:
+        row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
+        return str(row[0]["series"] or "").upper() if row else ""
+
+    try:
+        return store.memo(("family_series", family_id), read)
+    except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
+        return ""
 
 
 def _select_codelists(
@@ -817,7 +830,8 @@ def _render_table(
     report = RenderReport()
     collected = collected if collected is not None else {"borrowed": set(), "fallback": set()}
     docs = load_variable_docs(store, system)
-    bindings = _bindings(store, system, family_id)
+    # the bindings are the catalog's, the same for every group of a family: read once per catalog state
+    bindings = store.memo(("bindings", system, family_id or ""), lambda: _bindings(store, system, family_id))
     overrides = {k.upper(): v for k, v in (render or {}).items()}
     lake = Path(lake_root)
 
@@ -888,7 +902,6 @@ def _render_table(
 
     for name in table.schema.names:
         kind = kinds[name]
-        column = table.column(name).combine_chunks()
 
         if kind == "label":
             # Labels are produced here, not read from storage. A stored one is a
@@ -902,9 +915,13 @@ def _render_table(
             if not keep:
                 report.companions_dropped.append(name)
                 continue
-            columns.append(column)
+            columns.append(table.column(name).combine_chunks())
             names.append(name)
             continue
+
+        # only a column that is rendered or kept is made contiguous: a dropped label or companion was combined first,
+        # a copy of a column nobody reads
+        column = table.column(name).combine_chunks()
 
         if codes_only or overrides.get(name.upper()) == "code":
             # a column asked for as filed: no codelist chosen for it (a role table reads labels of five of its

@@ -1,18 +1,55 @@
-"""Identity labels, vintage dimensions and registry enrichments."""
+"""Identity labels, vintage dimensions and registry enrichments.
+
+Every step here answers a question about a CODE (at a vintage), so it is answered once per distinct code-and-vintage
+and taken back to the rows (`_distinct`, `_spread`): a year of SIH is 11.5 million rows and a few thousand distinct
+pairs, and a Python loop over the rows was several seconds to tens of seconds a step.
+"""
 
 from __future__ import annotations
 
 import warnings
 from collections.abc import Sequence
-from typing import cast
+from typing import Any, cast
 
+import numpy as np
 import pyarrow as pa
+import pyarrow.compute as pc
 
 from .._vintage import months_in, source_vintages
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
+
+#: Between the text of two columns in a distinct key, and standing for a null in one.
+_SEP, _NULL = "\x1f", "\x00"
+#: The columns a source vintage is read from (`_vintage.source_vintages`).
+_VINTAGE_COLUMNS = ("_competencia", "year", "_source_resolution")
+
+
+def _distinct(table: pa.Table, columns: Sequence[str]) -> tuple[np.ndarray, np.ndarray, pa.Table]:
+    """``(inverse, counts, distinct)``: the number of each row's distinct tuple of ``columns``, how many rows each
+    tuple has, and one row of each (the tuples, in order of first appearance).
+
+    The tuples are told apart by their text, a null by a character no column holds; the distinct rows keep their own
+    types, so what is asked of them is asked of the real values.
+    """
+    present = [c for c in columns if c in table.column_names]
+    if table.num_rows == 0:
+        return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int64), table.select(present)
+    parts = [pc.fill_null(pc.cast(table.column(c), pa.string()), _NULL) for c in present]
+    key = pc.binary_join_element_wise(*parts, _SEP) if len(parts) > 1 else parts[0]
+    encoded = pc.dictionary_encode(key.combine_chunks() if isinstance(key, pa.ChunkedArray) else key)
+    inverse = encoded.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    k = len(encoded.dictionary)
+    first = np.full(k, -1, dtype=np.int64)
+    first[inverse[::-1]] = np.arange(len(inverse), dtype=np.int64)[::-1]
+    return inverse, np.bincount(inverse, minlength=k), table.select(present).take(pa.array(first))
+
+
+def _spread(values: Sequence[Any], inverse: np.ndarray, kind: pa.DataType | None = None) -> pa.Array:
+    """One value per distinct tuple, taken back to every row."""
+    return pa.array(values, kind).take(pa.array(inverse))
 
 
 def _apply_dimensions(
@@ -28,7 +65,7 @@ def _apply_dimensions(
 
     output = table
     dataset_code = f"{query_plan.retrieval.system}.{query_plan.retrieval.series or '*'}"
-    catalog = CatalogStore(settings.catalog_path, read_only=True) if settings.catalog_path.is_file() else None
+    catalog = CatalogStore.shared(settings.catalog_path) if settings.catalog_path.is_file() else None
     try:
         for request in query_plan.spec.dimensions:
             declared = [
@@ -47,16 +84,18 @@ def _apply_dimensions(
                 continue
             if request.field not in output.column_names:
                 raise KeyError(f"{request.field}: required dimension source is absent")
-            codes = output[request.field].to_pylist()
-            vintages = source_vintages(output)
+            # the answer depends on the code and the source vintage only: asked once per distinct pair
+            inverse, counts, distinct = _distinct(output, (request.field, *_VINTAGE_COLUMNS))
+            codes = distinct[request.field].to_pylist()
+            vintages = source_vintages(distinct)
             lookups: dict[tuple[str, int | None, int | None], dict[str, object]] = {}
             values: list[object] = []
             artifacts: set[str] = set()
-            unresolved_relation = 0
+            unresolved_rows = 0
             # The effective relations depend on the vintage only; resolving
             # them per row queried the catalog for every month of every row.
             effective_by_vintage: dict[object, list] = {}
-            for code, vintage in zip(codes, vintages, strict=True):
+            for code, vintage, rows in zip(codes, vintages, counts.tolist(), strict=True):
                 vintage_key = (vintage.start, vintage.end) if vintage is not None else None
                 if vintage_key in effective_by_vintage:
                     relations = effective_by_vintage[vintage_key]
@@ -109,7 +148,7 @@ def _apply_dimensions(
                     )
                 if not relations:
                     values.append(None)
-                    unresolved_relation += 1
+                    unresolved_rows += rows
                     continue
                 relation = relations[0]
                 if vintage is not None and not packed_mapping_covers_interval(
@@ -119,7 +158,7 @@ def _apply_dimensions(
                     end=vintage.end,
                 ):
                     values.append(None)
-                    unresolved_relation += 1
+                    unresolved_rows += rows
                     continue
                 artifacts.add(relation.artifact)
                 key = (
@@ -161,8 +200,9 @@ def _apply_dimensions(
                 values.append(
                     lookups[key].get(str(code).strip()) if code is not None else None
                 )
+            unresolved_relation = unresolved_rows
             name = f"{request.field}_{request.name}"
-            output = output.append_column(name, pa.array(values, pa.string()))
+            output = output.append_column(name, _spread(values, inverse, pa.string()))
             report.dimensions.append(
                 {
                     "request": f"{request.field}.{request.name}",
@@ -215,25 +255,29 @@ def _geography_dimension(table: pa.Table, request: object, system: str, report: 
 
     values: list[str | None] = []
     unresolved = contested = 0
-    for code, vintage in zip(table[field].to_pylist(), source_vintages(table), strict=True):
+    # one answer per distinct code and source vintage, counted by the rows that share it
+    inverse, counts, distinct = _distinct(table, (field, *_VINTAGE_COLUMNS))
+    for code, vintage, rows in zip(
+        distinct[field].to_pylist(), source_vintages(distinct), counts.tolist(), strict=True
+    ):
         text = str(code or "").strip()
         if not text.isdigit() or len(text) not in (6, 7):
             values.append(None)
-            unresolved += text != ""
+            unresolved += rows if text != "" else 0
             continue
         months = months_in(vintage) if vintage is not None else (None,)
         answers = {at(text, month) for month in months}
         if any(flag for _, flag in answers):
             values.append(None)
-            contested += 1
+            contested += rows
         elif len(answers) == 1:
             label = next(iter(answers))[0]
             values.append(label)
-            unresolved += label is None
+            unresolved += rows if label is None else 0
         else:
             values.append(None)
-            unresolved += 1
-    table = table.append_column(f"{field}_{name}", pa.array(values, pa.string()))
+            unresolved += rows
+    table = table.append_column(f"{field}_{name}", _spread(values, inverse, pa.string()))
     report.dimensions.append({
         "request": f"{field}.{name}", "relation": "membership pack (geography.parquet)",
         "artifacts": ["geography.parquet"], "vintage": "every month of the source interval",
@@ -255,8 +299,8 @@ def _enrichment_output_name(request: EnrichmentRequest) -> str:
     return f"{namespace}_{attribute.lower()}" if attribute else f"{namespace}_resolved"
 
 
-def _append_or_replace(table: pa.Table, name: str, values: Sequence[object]) -> pa.Table:
-    array = pa.array(values)
+def _append_or_replace(table: pa.Table, name: str, values: Sequence[object] | pa.Array) -> pa.Table:
+    array = values if isinstance(values, (pa.Array, pa.ChunkedArray)) else pa.array(values)
     if name in table.column_names:
         return table.set_column(table.column_names.index(name), name, array)
     return table.append_column(name, array)
@@ -266,13 +310,14 @@ def _with_registry_competence(table: pa.Table, field: str | None) -> pa.Table:
     """Attach the CNES relation's explicit validity clock to registry rows."""
     if not field or field not in table.column_names:
         return table
+    inverse, _counts, distinct = _distinct(table, (field,))
     values: list[int | None] = []
-    for raw in table[field].to_pylist():
+    for raw in distinct[field].to_pylist():
         text = str(raw or "").strip()
         digits = "".join(character for character in text if character.isdigit())
         value = int(digits[:6]) if len(digits) >= 6 else 0
         values.append(value if 190001 <= value <= 219912 and value % 100 else None)
-    return _append_or_replace(table, "_competencia", values)
+    return _append_or_replace(table, "_competencia", _spread(values, inverse, pa.int64()))
 
 
 def _enrich_cnes_name(
@@ -285,15 +330,17 @@ def _enrich_cnes_name(
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
     from .._resources import ResourceManager
 
-    source_codes = {str(value or "").strip() for value in table[source_field].to_pylist()}
+    # the establishments and competences the rows hold, each once
+    inverse, counts, distinct = _distinct(table, (source_field, "_competencia"))
+    source_codes = {str(value or "").strip() for value in distinct[source_field].to_pylist()}
     try:
         path = ResourceManager(settings).ensure("cnes_names").path
     except FileNotFoundError:
         return _enrich_cnes_name_current(table, request, source_field, source_codes)
     competences = (
-        table["_competencia"].to_pylist()
-        if "_competencia" in table.column_names
-        else [None] * table.num_rows
+        distinct["_competencia"].to_pylist()
+        if "_competencia" in distinct.column_names
+        else [None] * distinct.num_rows
     )
     expression = ds.field("cnes").isin(sorted(source_codes))
     known = [int(value) for value in competences if value]
@@ -333,7 +380,7 @@ def _enrich_cnes_name(
         rows_before=table.num_rows,
         rows_after=table.num_rows,
     )
-    for code, competence in zip(table[source_field].to_pylist(), competences, strict=True):
+    for code, competence, rows in zip(distinct[source_field].to_pylist(), competences, counts.tolist(), strict=True):
         applicable = {
             name
             for name, lo, hi in lookup.get(str(code or "").strip(), ())
@@ -349,18 +396,18 @@ def _enrich_cnes_name(
         if len(applicable) == 1:
             values.append(next(iter(applicable)))
             statuses.append("matched")
-            report.matched += 1
+            report.matched += rows
         elif len(applicable) > 1:
             values.append(None)
             statuses.append("ambiguous_registry")
-            report.ambiguous += 1
+            report.ambiguous += rows
         else:
             values.append(None)
             statuses.append("unresolved")
-            report.unmatched += 1
+            report.unmatched += rows
     name = _enrichment_output_name(request)
-    output = _append_or_replace(table, name, values)
-    output = _append_or_replace(output, f"{name}_resolution_status", statuses)
+    output = _append_or_replace(table, name, _spread(values, inverse, pa.string()))
+    output = _append_or_replace(output, f"{name}_resolution_status", _spread(statuses, inverse, pa.string()))
     return output, report
 
 
@@ -374,8 +421,6 @@ def _enrich_cnes_name_current(
     says ``current_registry``: an establishment renamed since the record is
     named as it is now.
     """
-    import pyarrow.compute as pc
-
     from ..registry import lookup
 
     registry = lookup("CADGERBR", "CNES")
@@ -389,17 +434,18 @@ def _enrich_cnes_name_current(
     )
     values: list[str | None] = []
     statuses: list[str] = []
-    for code in table[source_field].to_pylist():
+    inverse, counts, distinct = _distinct(table, (source_field,))
+    for code, rows in zip(distinct[source_field].to_pylist(), counts.tolist(), strict=True):
         name = names.get(str(code or "").strip())
         values.append(name)
         statuses.append("current_registry" if name else "unresolved")
         if name:
-            report.matched += 1
+            report.matched += rows
         else:
-            report.unmatched += 1
+            report.unmatched += rows
     output_name = _enrichment_output_name(request)
-    output = _append_or_replace(table, output_name, values)
-    output = _append_or_replace(output, f"{output_name}_resolution_status", statuses)
+    output = _append_or_replace(table, output_name, _spread(values, inverse, pa.string()))
+    output = _append_or_replace(output, f"{output_name}_resolution_status", _spread(statuses, inverse, pa.string()))
     return output, report
 
 
@@ -413,14 +459,13 @@ def _enrich_cnes_attribute(
     query_plan: QueryPlan,
     settings: Settings,
 ) -> tuple[pa.Table, EnrichmentReport]:
-    import pyarrow.compute as pc
-
     source_field = (request.from_field or "CNES").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
     registry_field = CNES_ATTRIBUTE_FIELDS[request.target]
+    inverse, counts, distinct = _distinct(table, (source_field, "_competencia"))
     source_codes = {
-        str(value or "").strip() for value in table[source_field].to_pylist()
+        str(value or "").strip() for value in distinct[source_field].to_pylist()
     }
     # CNES.ST through the one door to data (ADR-0073), at the query's own
     # period and geography: the lake when it is built, the publications
@@ -445,6 +490,9 @@ def _enrich_cnes_attribute(
     )
     label_field = f"{registry_field}_label"
     lookup: dict[tuple[str, int | None], set[tuple[object, object]]] = {}
+    # the registry's distinct (establishment, month, value, label), not its rows
+    keys = [c for c in ("CNES", "_competencia", registry_field, label_field) if c in registry.column_names]
+    _inv, _counts, registry = _distinct(registry, keys)
     registry_competence = (
         registry["_competencia"].to_pylist()
         if "_competencia" in registry.column_names
@@ -464,9 +512,9 @@ def _enrich_cnes_attribute(
     ):
         lookup.setdefault((str(code or "").strip(), competence), set()).add((value, label))
     competences = (
-        table["_competencia"].to_pylist()
-        if "_competencia" in table.column_names
-        else [None] * table.num_rows
+        distinct["_competencia"].to_pylist()
+        if "_competencia" in distinct.column_names
+        else [None] * distinct.num_rows
     )
     values: list[object] = []
     labels: list[object] = []
@@ -478,7 +526,7 @@ def _enrich_cnes_attribute(
         rows_before=table.num_rows,
         rows_after=table.num_rows,
     )
-    for code, competence in zip(table[source_field].to_pylist(), competences, strict=True):
+    for code, competence, rows in zip(distinct[source_field].to_pylist(), competences, counts.tolist(), strict=True):
         candidates = lookup.get((str(code or "").strip(), competence), set())
         if len(candidates) == 1:
             value, label = next(iter(candidates))
@@ -488,23 +536,23 @@ def _enrich_cnes_attribute(
                 # The establishment is in CNES.ST that month but the attribute
                 # is empty (ESFERA_A in 2022): not a value, and not "matched".
                 statuses.append("not_recorded")
-                report.unmatched += 1
+                report.unmatched += rows
             else:
                 statuses.append("matched")
-                report.matched += 1
+                report.matched += rows
         elif len(candidates) > 1:
             values.append(None)
             labels.append(None)
             statuses.append("ambiguous_registry")
-            report.ambiguous += 1
+            report.ambiguous += rows
         else:
             values.append(None)
             labels.append(None)
             statuses.append("unresolved")
-            report.unmatched += 1
+            report.unmatched += rows
     name = _enrichment_output_name(request)
-    output = _append_or_replace(table, name, values)
+    output = _append_or_replace(table, name, _spread(values, inverse))
     if any(value is not None for value in labels):
-        output = _append_or_replace(output, f"{name}_label", labels)
-    output = _append_or_replace(output, f"{name}_resolution_status", statuses)
+        output = _append_or_replace(output, f"{name}_label", _spread(labels, inverse))
+    output = _append_or_replace(output, f"{name}_resolution_status", _spread(statuses, inverse, pa.string()))
     return output, report

@@ -29,13 +29,12 @@ from __future__ import annotations
 
 import os
 import shutil
-import time
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-__all__ = ["staged_file", "staged_tree", "sweep_tree_staging"]
+__all__ = ["prune_dead_staging", "staged_file", "staged_tree"]
 
 
 @contextmanager
@@ -70,31 +69,6 @@ def staged_file(target: Path, *, require_nonempty: bool = True) -> Iterator[Path
         # still there and still valid.
         if staged.exists():
             staged.unlink()
-
-
-def sweep_tree_staging(target: Path, older_than_seconds: float = 86_400) -> int:
-    """Remove leftovers a killed rebuild left beside ``target``. Returns how many.
-
-    Unique transaction names stop two rebuilds colliding, at the cost that a
-    process killed mid-write leaves its staging directory with nothing to reuse
-    it — the deterministic name at least got overwritten by the next run. This
-    is the reclamation, and it is time-based because a directory being written
-    right now by another process must not be touched.
-    """
-    target = Path(target)
-    parent = target.parent
-    if not parent.is_dir():
-        return 0
-    cutoff = time.time() - older_than_seconds
-    removed = 0
-    for leftover in parent.glob(f"{target.name}.__*__.*"):
-        try:
-            if leftover.stat().st_mtime < cutoff:
-                shutil.rmtree(leftover, ignore_errors=True)
-                removed += 1
-        except OSError:  # pragma: no cover - raced with its owner
-            continue
-    return removed
 
 
 def _merge_units(staging: Path, depth: int) -> Iterator[Path]:

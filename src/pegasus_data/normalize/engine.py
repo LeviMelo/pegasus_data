@@ -299,7 +299,10 @@ def _label_array(array: pa.Array, labels: dict[str, str]) -> pa.Array:
     """Map raw codes to labels; unmapped values become null, never invented."""
     if array.type != pa.string():
         array = array.cast(pa.string())
-    return pa.array([labels.get(v) if v is not None else None for v in array.to_pylist()], type=pa.string())
+    # once per DISTINCT code, taken back to the rows (a null stays null): a loop over every row of a state-year
+    encoded = pc.dictionary_encode(array)
+    mapped = pa.array([labels.get(v) for v in encoded.dictionary.to_pylist()], type=pa.string())
+    return pc.take(mapped, encoded.indices)
 
 
 def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatch:
@@ -452,35 +455,3 @@ class MissingColumnError(KeyError):
             f"column {field_name!r} is not present in family {family_id}{rest}; "
             f"generations that do carry it: {hint}"
         )
-
-
-def require_columns(catalog: CatalogStore, family_id: str, columns: Sequence[str]) -> None:
-    """Fail loudly when a requested column is absent from this generation."""
-    row = catalog.query(
-        "SELECT system, series, schema_signature FROM families WHERE family_id = ?", (family_id,)
-    )
-    if not row:
-        raise KeyError(f"unknown family: {family_id}")
-    present = {
-        r["field_name"]
-        for r in catalog.query(
-            "SELECT field_name FROM schema_presence WHERE schema_signature = ?",
-            (row[0]["schema_signature"],),
-        )
-    }
-    for column in columns:
-        if column in present:
-            continue
-        elsewhere = [
-            r["family_id"]
-            for r in catalog.query(
-                """
-                SELECT DISTINCT f.family_id
-                  FROM families f
-                  JOIN schema_presence sp ON sp.schema_signature = f.schema_signature
-                 WHERE f.system = ? AND f.series IS ? AND sp.field_name = ?
-                """,
-                (row[0]["system"], row[0]["series"], column),
-            )
-        ]
-        raise MissingColumnError(column, family_id, elsewhere)

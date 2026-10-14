@@ -141,26 +141,6 @@ class TestStagedTree:
             self._tree(staging, ["CID10"])
         assert sorted(p.name for p in root.iterdir()) == ["CID10"]
 
-    def test_a_stale_staging_tree_can_be_reclaimed(self, tmp_path):
-        """Unique names mean a killed rebuild leaves debris nothing reuses."""
-        import os
-        import time
-
-        from pegasus_data.persist.staging import sweep_tree_staging
-
-        root = tmp_path / "reference"
-        self._tree(root, ["CID10"])
-        stale = tmp_path / "reference.__staging__.dead-1234"
-        self._tree(stale, ["LEFTOVER"])
-        os.utime(stale, (time.time() - 200_000, time.time() - 200_000))
-        fresh = tmp_path / "reference.__staging__.live-9999"
-        self._tree(fresh, ["INFLIGHT"])
-
-        assert sweep_tree_staging(root) == 1
-        assert not stale.exists()
-        assert fresh.exists(), "a rebuild in progress must not be swept"
-        assert (root / "CID10").exists(), "the real tree is untouched"
-
     def test_two_rebuilds_do_not_share_a_staging_directory(self, tmp_path):
         """Deterministic names let one rebuild delete another's staged tree."""
         root = tmp_path / "reference"

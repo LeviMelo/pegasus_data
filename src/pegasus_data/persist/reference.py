@@ -70,7 +70,6 @@ __all__ = [
     "note_pack_fallback",
     "read_reference_table",
     "write_reference_tables",
-    "available_tables",
     "systems_with_tables",
 ]
 
@@ -622,41 +621,22 @@ def _read_reference_table(
                 f"no reference table {table_id!r} in the lake or the shipped "
                 "label pack; run `pegasus-data reference` to materialise it"
             ) from None
-    dataset = pads.dataset(base, format="parquet", partitioning="hive")
 
-    # Push what we can into the scan. `system` is a hive partition key, so this
-    # skips whole directories rather than reading every system and window for a
-    # codelist and discarding almost all of it afterwards — which mattered
-    # because the renderer may weigh up to twelve candidate codelists for one
-    # ambiguous column, multiplying the cost each time.
-    scan_filter = None
-    if system:
-        wanted_dir = _SAFE.sub("_", system.upper())
-        if "system" in dataset.schema.names:
-            scan_filter = pc.field("system") == wanted_dir
-    if code_width is not None and "code_width" in dataset.schema.names:
-        width_filter = pc.field("code_width") == code_width
-        scan_filter = width_filter if scan_filter is None else (scan_filter & width_filter)
-
-    table = dataset.to_table(filter=scan_filter) if scan_filter is not None else dataset.to_table()
-    if scan_filter is not None and not table.num_rows:
-        # The narrowing emptied it. Fall back to the whole table so the
-        # borrowed-table path below can still answer, exactly as before.
-        table = dataset.to_table()
-    if system and "system" in table.schema.names:
+    # Which systems the table holds is read off the directory names (`system=<SYSTEM>`): a system that ships no copy
+    # is known without reading a byte. It used to read the whole table (every system and window), filter it in Python
+    # and only then raise, for every render group again: 0.4-2.4 s per attempt, 70-95% of a warm re-render
+    # (SIM's BR_MUNICIPALFA, whose only copy is another system's).
+    stamp = base.stat().st_mtime_ns
+    held = _systems_held(base, stamp)
+    scope: str | None = None
+    if system and held:
         wanted = _SAFE.sub("_", system.upper())
-        scoped = table.filter(
-            pa.array(
-                [str(s) == wanted for s in table.column("system").to_pylist()],
-                type=pa.bool_(),
-            )
-        )
-        # Only narrow when the system actually has this table. Returning an
-        # empty result for a field whose codelist came from a neighbour's kit
-        # would turn a labelling gap into a silent blank column.
-        if scoped.num_rows:
-            table = scoped
+        if wanted in held:
+            scope = wanted
         else:
+            # Only narrow when the system actually has this table. Returning an
+            # empty result for a field whose codelist came from a neighbour's kit
+            # would turn a labelling gap into a silent blank column.
             from .decisions import borrowed_labels_allowed
 
             if not borrowed_labels_allowed():
@@ -665,16 +645,9 @@ def _read_reference_table(
                     "cross-system labels are disabled"
                 )
             note_borrowed(_SAFE.sub("_", table_id), wanted)
-    if code_width is not None and "code_width" in table.schema.names:
-        table = table.filter(
-            pa.array(
-                [w == code_width for w in table.column("code_width").to_pylist()],
-                type=pa.bool_(),
-            )
-        )
+    table = _warehouse_table(base, stamp, scope, code_width)
     if valid_from is not None:
-        mask = [v == valid_from for v in table.column("valid_from").to_pylist()]
-        return table.filter(pa.array(mask, type=pa.bool_()))
+        return table.filter(pc.fill_null(pc.equal(pc.cast(table.column("valid_from"), pa.string()), valid_from), False))
     if competencia is not None or year is not None:
         # A competencia is one month; a year is any window overlapping it.
         if competencia is not None:
@@ -683,26 +656,23 @@ def _read_reference_table(
         else:
             span_lo, span_hi = year * 100 + 1, year * 100 + 12  # type: ignore[operator]
             asked = str(year)
-        dated: list[bool] = []
-        current: list[bool] = []
-        for start, end in zip(
-            table.column("valid_from").to_pylist(), table.column("valid_to").to_pylist(), strict=True
-        ):
-            if start is None or not str(start).isdigit():
-                dated.append(False)
-                current.append(True)  # the open-ended table published today
-                continue
-            lo = int(start)
-            hi = int(end) if end and str(end).isdigit() else 999912
-            dated.append(lo <= span_hi and span_lo <= hi)
-            current.append(False)
+        # as text: an all-null column (an open-ended table's bounds) is typed null, which the string kernels refuse
+        start = pc.cast(table.column("valid_from"), pa.string())
+        end = pc.cast(table.column("valid_to"), pa.string())
+        # a window is dated by AAAAMM bounds, an open end running on; anything else is the open-ended table published
+        # today. Judged in Arrow: a Python loop over the table's rows was 153 ms of MUNICBR's 25,733 on its own.
+        is_dated = pc.fill_null(pc.match_substring_regex(start, r"^\d+$"), False)
+        lo = pc.cast(pc.if_else(is_dated, start, "0"), pa.int64())
+        has_end = pc.fill_null(pc.match_substring_regex(end, r"^\d+$"), False)
+        hi = pc.cast(pc.if_else(has_end, end, "999912"), pa.int64())
+        covers = pc.and_(is_dated, pc.and_(pc.less_equal(lo, span_hi), pc.less_equal(span_lo, hi)))
         # A window that explicitly covers the request wins.
-        matched = table.filter(pa.array(dated, type=pa.bool_()))
+        matched = table.filter(covers)
         if matched.num_rows:
             return matched
         # Otherwise the open-ended table stands in. That is a real answer, but
         # it is not the vintage that was asked for, so it is RECORDED.
-        fallback = table.filter(pa.array(current, type=pa.bool_()))
+        fallback = table.filter(pc.invert(is_dated))
         table_key = _SAFE.sub("_", table_id)
         if fallback.num_rows:
             note_fallback(table_key, asked, "current")
@@ -727,17 +697,59 @@ def _read_reference_table(
     # kit, which is one code with a reworded label, not two meanings. A caller
     # who wants a specific vintage names a year; everyone else means "now".
     if "valid_from" in table.schema.names:
-        windows = table.column("valid_from").to_pylist()
-        open_ended = [v is None or not str(v).strip() for v in windows]
-        if any(open_ended):
+        start = pc.cast(table.column("valid_from"), pa.string())
+        open_ended = pc.fill_null(pc.equal(pc.utf8_trim_whitespace(start), ""), True)
+        if pc.any(open_ended).as_py():
             note_fallback(_SAFE.sub("_", table_id), "unscoped", "current")
-            return table.filter(pa.array(open_ended, type=pa.bool_()))
-        dated_windows = [str(v) for v in windows if v is not None]
-        if dated_windows:
-            newest = max(dated_windows)
-            return table.filter(
-                pa.array([str(v) == newest for v in windows], type=pa.bool_())
-            )
+            return table.filter(open_ended)
+        if pc.any(pc.is_valid(start)).as_py():
+            newest = pc.max(start).as_py()
+            return table.filter(pc.fill_null(pc.equal(start, newest), False))
+    return table
+
+
+#: ``(table directory, its modification time) -> the systems it holds``: read off the directory names once per state of
+#: the table (a rebuild renames directories inside it, which moves the time).
+_HELD: dict[tuple[str, int], frozenset[str]] = {}
+
+#: ``(table directory, its time, system, code width) -> every window of that scope``, newest used last. A monthly
+#: dataset asks a single-window table for each of its months, and every ask read, concatenated and filtered it again
+#: (MUNICBR, 25,733 rows, 48-1,047 ms a month); the windows are chosen below, in memory, from one read.
+_WAREHOUSE: dict[tuple[str, int, str | None, int | None], pa.Table] = {}
+_WAREHOUSE_MAX = 48
+
+
+def _systems_held(base: Path, stamp: int) -> frozenset[str]:
+    key = (str(base), stamp)
+    held = _HELD.get(key)
+    if held is None:
+        held = frozenset(
+            d.name.split("=", 1)[1] for d in base.iterdir() if d.is_dir() and d.name.startswith("system=")
+        )
+        if len(_HELD) > 512:
+            _HELD.clear()
+        _HELD[key] = held
+    return held
+
+
+def _warehouse_table(base: Path, stamp: int, scope: str | None, code_width: int | None) -> pa.Table:
+    """Every window of a reference table (of one system when ``scope``), at one code width when given."""
+    key = (str(base), stamp, scope, code_width)
+    table = _WAREHOUSE.pop(key, None)
+    if table is None:
+        dataset = pads.dataset(base, format="parquet", partitioning="hive")
+        # `system` is a hive partition key, so this skips whole directories rather than reading every system and
+        # window for a codelist and discarding almost all of it afterwards
+        scan_filter = None
+        if scope is not None and "system" in dataset.schema.names:
+            scan_filter = pc.field("system") == scope
+        if code_width is not None and "code_width" in dataset.schema.names:
+            width_filter = pc.field("code_width") == code_width
+            scan_filter = width_filter if scan_filter is None else (scan_filter & width_filter)
+        table = dataset.to_table(filter=scan_filter) if scan_filter is not None else dataset.to_table()
+        while len(_WAREHOUSE) >= _WAREHOUSE_MAX:
+            _WAREHOUSE.pop(next(iter(_WAREHOUSE)))
+    _WAREHOUSE[key] = table
     return table
 
 
@@ -782,30 +794,10 @@ def systems_with_tables(lake_root: str | Path) -> set[str]:
 
 
 def has_reference_tables(lake_root: str | Path) -> bool:
-    """Whether any lookup is materialised: the question `available_tables` answered by walking every codelist, system
-    and window directory (283,000 stat calls, about 9 s a `translate`, 2026-10-08)."""
+    """Whether any lookup is materialised: the question once answered by walking every codelist, system and
+    window directory (283,000 stat calls, about 9 s a `translate`, 2026-10-08)."""
     root = Path(lake_root) / "reference"
     return root.exists() and any(p.is_dir() for p in root.iterdir())
-
-
-def available_tables(lake_root: str | Path) -> list[dict[str, object]]:
-    root = Path(lake_root) / "reference"
-    if not root.exists():
-        return []
-    out: list[dict[str, object]] = []
-    for directory in sorted(p for p in root.iterdir() if p.is_dir()):
-        for system_dir in sorted(d for d in directory.iterdir() if d.is_dir()):
-            windows = sorted(
-                w.name.split("=", 1)[-1] for w in system_dir.iterdir() if w.is_dir()
-            )
-            out.append(
-                {
-                    "table": directory.name,
-                    "system": system_dir.name.split("=", 1)[-1],
-                    "windows": windows,
-                }
-            )
-    return out
 
 
 #: A lookup whose labels are this blank did not decode anything. Not 100%:

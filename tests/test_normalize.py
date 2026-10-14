@@ -9,10 +9,8 @@ import pytest
 
 from pegasus_data.normalize.engine import (
     FieldPlan,
-    MissingColumnError,
     NormalizePlan,
     normalize_batch,
-    require_columns,
 )
 from pegasus_data.normalize.geo import (
     MunicipalityIndex,
@@ -182,19 +180,3 @@ class TestNormalizeBatch:
         out = normalize_batch(batch, plan)
         assert out.column("DT_NOTIFIC_epi_week").to_pylist() == [53]
         assert "SEM_PRI_epi_week" not in out.schema.names
-
-
-class TestMissingColumns:
-    def test_a_missing_column_raises_rather_than_returning_empty(self, catalog):
-        catalog.executemany(
-            "INSERT INTO families (family_id, system, series, schema_signature, field_count) VALUES (?,?,?,?,?)",
-            [("F_new", "SIHSUS", "RD", "sig113", 113), ("F_old", "SIHSUS", "RD", "sig86", 86)],
-        )
-        catalog.executemany(
-            "INSERT INTO schema_presence (schema_signature, field_name, field_order) VALUES (?,?,?)",
-            [("sig113", "DIAGSEC1", 0), ("sig86", "DIAG_SECUN", 0)],
-        )
-        require_columns(catalog, "F_new", ["DIAGSEC1"])
-        with pytest.raises(MissingColumnError) as excinfo:
-            require_columns(catalog, "F_new", ["DIAG_SECUN"])
-        assert "F_old" in str(excinfo.value), "the error names the generation that has it"
