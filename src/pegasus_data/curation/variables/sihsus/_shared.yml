@@ -609,12 +609,23 @@ variables:
       Layout dos arquivos RD*.dbf, SEQ 72'
   GESTRISCO:
     official_name: Indicador se é gestante de risco
-    translated_name: High-risk pregnancy indicator
-    description: Whether the patient was classified as a high-risk pregnancy.
+    translated_name: High-risk pregnancy indicator (sterilisation AIHs only)
+    description: Whether the pregnancy was high-risk, asked only of sterilisation AIHs (laqueadura or vasectomia). RD
+      writes 1 on every other AIH, men included, so outside sterilisation the column holds a default and says
+      nothing about the pregnancy or the patient.
     code_system: internal
+    # The hospitals' input layout (SISAIH01 field 88, ST_GESTRISCO, "Gestação de Alto Risco (Somente para
+    # Laqueadura)", "0-Sim 1-Não") codes the field; TabNet's RD2008.DEF binds it to SIMNAO (1 Sim, 0 Não), the
+    # opposite, which the records contradict. RD 2010, 2016, 2023: 1 on 99.84% of 36.6 million AIHs. 2014-2023, all
+    # states: 1 on all 969,672 AIHs of "parto normal em gestação de alto risco" as on 9.45 million of "parto normal";
+    # 0 on 148,028 of 859,946 AIHs of the three laqueadura procedures (0409060186, 0409060313, 0411010042) and on
+    # 4,747 of 118 million others. Among laqueadura AIHs the indication CID_NOTIF is an O-chapter code in 5.6% of the
+    # 0 and 1.3% of the 1 (ADR-0180)
+    codes: {"0": "Sim, gestação de alto risco (só laqueadura)", "1": "Não (valor padrão de toda AIH)"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
-      Layout dos arquivos RD*.dbf, SEQ 65'
+      Layout dos arquivos RD*.dbf, SEQ 65; codes: Layout da interface texto do SISAIH01 (DATASUS, 20/02/2009,
+      sources/Layout_SISAIH01.pdf p. 6/8), field 88 ST_GESTRISCO'
   HOMONIMO:
     official_name: Indicador de homônimo
     translated_name: Homonym indicator
@@ -930,13 +941,14 @@ variables:
   RACA_COR:
     official_name: Raça/Cor do paciente
     translated_name: Race/colour
-    description: Patient's race or colour as self-declared under the IBGE categories. Codes
-      differ between SIH and SINASC — Parda is 03 here and 4 in SINASC — so never pool them
-      without recoding.
+    description: Patient's race or colour as self-declared under the IBGE categories, in two digits - 01 Branca, 02
+      Preta, 03 Parda, 04 Amarela, 05 Indígena, 99 Sem informação. Codes differ between SIH and SIM or SINASC —
+      Parda is 03 here and 4 in SIM and SINASC, Amarela 04 here and 3 there — so never pool them without recoding.
     code_system: internal
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
-      Layout dos arquivos RD*.dbf, SEQ 84'
+      Layout dos arquivos RD*.dbf, SEQ 84; codes: Layout da interface texto do SISAIH01 (DATASUS, 20/02/2009,
+      sources/Layout_SISAIH01.pdf p. 2/8), field 40 RACA/COR'
   REGCT:
     official_name: Regra contratual
     translated_name: Contract rule

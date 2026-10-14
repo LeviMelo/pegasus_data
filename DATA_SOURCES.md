@@ -308,8 +308,32 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **Sex codes differ by system**: SIHSUS `1`/`3`, SINASC `1`/`2`, SINAN
   `M`/`F`; thirteen systems ship a `SEXO.CNV` (F §3e). SIH's own table maps
   `1→Masculino`, `2→Feminino` and `3→Feminino` (`docs/history/DEFECTS.md`).
-- **Race/colour codes differ**: Parda is `03` in SIHSUS.RACACOR, `3` in
-  SIHSUS.RACA_COR, `4` in SINASC (ARCH §14.3).
+- **Race/colour codes differ**: Parda is `03` in SIH's `RACA_COR` (two digits: 01 Branca, 02 Preta, 03 Parda, 04 Amarela,
+  05 Indígena, 99 Sem informação; the kit's `RACACOR.CNV` and the SISAIH01 layout agree, and every SIH-RD file read, 2009-2025,
+  holds only these), `4` in SIM and SINASC (one digit; 3 is Amarela). This line said "`3` in SIHSUS.RACA_COR" until 2026-10-14:
+  SIH has no one-digit race table. A consumer that asks `pg.levels` for codes `0`-`9` of SIH's `RACA_COR` gets none decoded;
+  it asks for the codes its records hold.
+- **SIH-RD's `GESTRISCO` is asked only of sterilisation AIHs and RD fills `1` on every other** (measured 2026-10-14, raw
+  and lake). SISAIH01 (`sources/Layout_SISAIH01.pdf` p. 6/8, field 88 `ST_GESTRISCO`, "Gestação de Alto Risco (Somente para
+  Laqueadura)") codes `0-Sim 1-Não`; TabNet's `RD2008.DEF` binds the field to `SIMNAO` (`1` Sim), the opposite. Raw
+  `RDAL1607.dbc` (15,734 AIHs): `1` on 15,733, 5,850 of them men; the one `0` is a woman on a laqueadura. RD 2014-2023, all
+  states: `1` on all 969,672 AIHs of "parto normal em gestação de alto risco" as on 9,450,303 of "parto normal"; `0` on 148,028
+  of 859,946 AIHs of the three laqueadura procedures (0409060186, 0409060313, 0411010042) and on 4,747 of 118 million others;
+  among laqueadura AIHs the indication `CID_NOTIF` is an O-chapter code in 5.6% of the `0` and 1.3% of the `1`. So `1` is a
+  default outside sterilisation, and the column carries no information for any other admission (an infarction study read "Sim"
+  on 5,517 men). The curation codes it by the layout and declares `1` not recorded (ADR-0180).
+- **SIH `INSTRU`, `VINCPREV`, `CONTRACEP1/2` and `CNAER` are almost always the "not classified" code** (RD 2010, 2016, 2023,
+  36.6 million AIHs): `INSTRU` 0 (`Ignorado/não se aplica`, 98.8%), `VINCPREV` 0 (`Não classificado`, 99.99%), `CONTRACEP1/2` 00
+  (98.8%, 99.2%), `CNAER` 000 (99.99%). The layout lists INSTRU 1-4, VINCPREV 1-6 and the contraceptives 01-12 only. A level
+  of schooling was held by 0.7% of AIHs in 2009 and 2.6% in 2024. `RACA_COR` `99` is 34-36% of AIHs in 2009-2012, 19% in
+  2022, 2.8% in 2023 and 0.0% from 2024, with `03` rising 43% -> 55% -> 57%: race shares do not compare across 2022 and
+  2023. `NACIONAL` is `010` on 99.7% and does carry information (Venezuelans in Roraima: 55 AIHs in 2012, 7,604 in 2019).
+- **SIM-DO's two schooling columns** (measured 2026-10-14, national files 2009-2025): `ESC` (years bands, 1 Nenhuma ... 5 12 anos
+  e mais, 9 Ignorado) is filled every year; `ESC2010` (level: 0 Sem escolaridade ... 5 Superior completo, 9 Ignorado) is empty in
+  the 2011 files that carry it and filled from 2012 (952,366 of 1,181,166 deaths), on 98.9% of the deaths ESC fills from 2014. Of
+  2014-2025 deaths with both, `ESC` 1 is `ESC2010` 0 on all 2,679,156: one measurement in two scales. `ESC` 0 (no code of the
+  layout; 70,688 deaths in 2014, 83,226 in 2012, none after 2014) is read as not recorded. `ESCFALAGR1` and `ESCMAEAGR1` are
+  filled from 2014 (130 and 2 deaths in 2012, none in 2013).
 - **SIH `RACA_COR` 04 is not always "amarela"** (2026-10-03). In some
   hospitals it is a default given to almost everyone (CNES 2499363, CE:
   90–97% of admissions every month of 2022, whites included). In others it

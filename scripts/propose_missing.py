@@ -44,7 +44,9 @@ from pegasus_data.semantics.curation import harvested_codelist, inline_codelist
 #: gestacional ignorada" is a pregnancy of unknown age, not an unknown pregnancy status; SIA's MNDIF 9 "município de
 #: residência ignorado" is declared by hand)
 NOT_RECORDED = re.compile(r"^\s*(ignorad[oa]s?|ign\.?|ign(orado)?\s*/\s*branco|n[ãa]o informad[oa]|n[ãa]o preenchid[oa]|sem informa[çc][ãa]o|não declarad[oa]"
-                          r"|desconhecid[oa])\s*$", re.IGNORECASE)  # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3
+                          r"|desconhecid[oa]|ignorad[oa]\s*/\s*n[ãa]o\s+se\s+aplica|n[ãa]o\s+classificad[oa])\s*$",
+                          re.IGNORECASE)  # "Desconhecida": ANTR's wound sites, 1 Sim 2 Não 3; the pair "Ignorado/não se aplica"
+                                          # (SIH INSTRU 0, CONTRACEP 00) and "Não classificado" (VINCPREV 0), missed until ADR-0180
 NOT_CLASSIFIED = re.compile(r"^\s*(\d+\s+)?(nasc\s+)?n(ão|ao|\.)?\s*clas.*\b(nulo|ign|aus)", re.IGNORECASE)
 
 

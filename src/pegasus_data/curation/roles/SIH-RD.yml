@@ -107,8 +107,8 @@ columns:
     - 1999
     - 2026
   CNAER:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['000']
+    # 000 'Não classificado' (99.99% of AIHs of 2010, 2016, 2023)
     role: admission.work_accident_code
     kind: category
     model: mark
@@ -216,25 +216,31 @@ columns:
     - 1992
     - 2006
   CONTRACEP1:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['00', '13']
+    # 00 'Ignorado/não se aplica' (CONTRAC.CNV); the layout lists 01-12 (SISAIH01 TP_CONTRACEP). 13 is no method
+    # there; the table labels it so through its 00-99 range (111 and 97 AIHs of 2010, 2016, 2023)
     role: admission.contraceptive_1
     kind: category
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Tipo de contraceptivo utilizado\" (admission.contraceptive_1): contraceptive method recorded for the stay: a fact about the person's health"
+    note: >-
+      00 is 98.8% of AIHs (2010, 2016, 2023): not recorded and not applicable are one code.
     name: Tipo de contraceptivo utilizado
     years:
     - 1999
     - 2026
   CONTRACEP2:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['00', '13']
+    # 00 'Ignorado/não se aplica' (CONTRAC.CNV); the layout lists 01-12 (SISAIH01 TP_CONTRACEP). 13 is no method
+    # there; the table labels it so through its 00-99 range (111 and 97 AIHs of 2010, 2016, 2023)
     role: admission.contraceptive_2
     kind: category
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Segundo tipo de contraceptivo\" (admission.contraceptive_2): second contraceptive method recorded for the stay: a fact about the person's health"
+    note: >-
+      00 is 99.2% of AIHs (2010, 2016, 2023): not recorded and not applicable are one code.
     name: Segundo tipo de contraceptivo
     years:
     - 1999
@@ -512,6 +518,9 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Etnia do paciente\" (patient.ethnicity): attribute of the person (ethnicity)"
+    note: >-
+      0000 is 'NÃO INFORMADO' and also stands for every AIH whose RACA_COR is not indígena, to which the item does
+      not apply: 75.7% of AIHs of 2010, 2016 and 2023 hold it.
     name: Etnia do paciente
     years:
     - 2008
@@ -611,13 +620,21 @@ columns:
     - 2008
     - 2026
   GESTRISCO:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['1']
+    # 1 is RD's fill on every AIH and also the layout's 'Não' (SISAIH01 ST_GESTRISCO, '0-Sim 1-Não', only for
+    # laqueadura): the two cannot be told apart. Measured 2026-10-14, DATA_SOURCES
     role: pregnancy.high_risk
     kind: category
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Indicador se é gestante de risco\" (pregnancy.high_risk): fact about the health event or the person's health"
+    note: >-
+      Asked only of sterilisation AIHs (SISAIH01: "Somente para Laqueadura"), coded 0 Sim, 1 Não; RD writes 1 on
+      every other AIH (99.84% of 36.6 million AIHs of 2010, 2016 and 2023, men included, and all 969,672 AIHs of
+      "parto normal em gestação de alto risco" of 2014-2023). 1 is therefore a default outside sterilisation and
+      cannot be told from a documented Não within it: declared not recorded, and the column carries no information
+      for any other admission. 0 (Sim) is on 148,028 of 859,946 AIHs of the three laqueadura procedures, 2014-2023.
+      TabNet binds the field to SIMNAO (1 Sim), the opposite coding, which was not followed.
     name: Indicador se é gestante de risco
     years:
     - 1999
@@ -688,13 +705,16 @@ columns:
     - 2001
     - 2026
   INSTRU:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['0', '5', '6', '7', '8', '9']
+    # 0 'Ignorado/não se aplica', as INSTRU.CNV labels 5-9; the layout lists 1-4 only (SISAIH01 GRAU_INSTRU)
     role: patient.education
     kind: category
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Grau de instrução do paciente\" (patient.education): attribute of the person (schooling)"
+    note: >-
+      One code, 0, stands for not recorded and for not applicable, so the share not recorded includes the AIHs to
+      which the item does not apply. It is 98.8% of AIHs (2010, 2016, 2023); a level was held by 0.7% in 2009 and 2.6% in 2024.
     name: Grau de instrução do paciente
     years:
     - 1999
@@ -782,6 +802,9 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Código da nacionalidade do paciente\" (patient.nationality): attribute of the person (nationality/birthplace)"
+    note: >-
+      NACION3D defines no code for not recorded; 010 Brasil is 99.7% of AIHs, and the column does carry
+      information: AIHs of Venezuelans (092) in Roraima rise from 55 (2012) to 7,604 (2019) (measured 2026-10-14).
     name: Código da nacionalidade do paciente
     years:
     - 1998
@@ -899,6 +922,8 @@ columns:
     - 2008
     - 2026
   RACA_COR:
+    missing: ['00', '99']
+    # 99 'Sem informação' (SISAIH01 RACA/COR '99-Sem informação'; RACACOR.CNV labels 00 and 06-98 so too, none held)
     role: patient.race
     kind: category
     model: stratum
@@ -906,7 +931,9 @@ columns:
       Not reliable for race-specific rates: code 04 ("amarela") is a default given to almost everyone in some hospitals,
       and SIM's code for "parda" in others (DATA_SOURCES, OQ-66: 16,252 of 908,601 linked persons brown in SIM and
       SINASC are "amarela" here); Rio Grande do Sul's congenital toxoplasmosis admissions read amarela 11.6x its
-      expected, parda 0.36x (2026-10-13)
+      expected, parda 0.36x (2026-10-13). 99 'Sem informação' is the code not recorded: 34-36% of AIHs in 2009-2012, 19% in 2022,
+      2.8% in 2023 and 0.0% from 2024, while 03 rises from 43% (2022) to 55% (2023) and 57% (2024): shares by race
+      are not comparable across 2022 and 2023 (SIH-RD, all states, 2026-10-14)
     fact_domain: person
     fact_domain_evidence: "\"Raça/Cor do paciente\" (patient.race): attribute of the person (race/colour)"
     name: Raça/Cor do paciente
@@ -1561,13 +1588,15 @@ columns:
     - 1999
     - 2026
   VINCPREV:
-    missing: []
-    # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    missing: ['0', '7', '8', '9']
+    # 0 'Não classificado', as VINCPREV.CNV labels 7-9; the layout lists 1-6 only (SISAIH01 TP_VINCPREV)
     role: patient.social_security_link
     kind: category
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Vínculo com a Previdência\" (patient.social_security_link): attribute of the person (work/occupation)"
+    note: >-
+      0 is 99.99% of AIHs (2010, 2016, 2023): the column carries almost no information.
     name: Vínculo com a Previdência
     years:
     - 2002
