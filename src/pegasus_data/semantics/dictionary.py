@@ -677,8 +677,14 @@ def lookup(
     values: Sequence[str] | None = None,
     observed: dict[str, int] | None = None,
     cache: DictionaryCache | None = None,
+    labelled_by: Sequence[str] | None = None,
 ) -> dict[str, str]:
     """Resolve ``value → label`` for one field via its bound codelists.
+
+    ``labelled_by`` names the tables that label the field (the renderer's decision,
+    ``label_bindings.field_decision``; first wins, curated inline tables included); without it the table is picked by
+    the statistics below, which measures how far the dictionary decodes a field (``coverage_for_field``) and is not
+    the table a query renders from.
 
     Where several codelists bind to the same field, they are usually **not in
     conflict**: TabNet offers a variable at several aggregation levels at once.
@@ -713,17 +719,29 @@ def lookup(
                 best[row["value_raw"]] = (row["value_label"], authority)
         out = {k: v[0] for k, v in best.items()}
 
-    granular = most_granular_codelist(
-        catalog, codelists, system=system, observed=observed, cache=cache
-    )
-    if granular:
-        labels = (
-            cache.codelist_values(granular, system)
-            if cache is not None
-            else codelist_values(catalog, granular, system=system)
+    if labelled_by is not None:
+        from .curation import inline_codelist
+
+        for decided in labelled_by:
+            inline = inline_codelist(decided)
+            labels = dict(inline) if inline is not None else (
+                cache.codelist_values(decided, system) if cache is not None
+                else codelist_values(catalog, decided, system=system)
+            )
+            for code, label in labels.items():
+                out.setdefault(code, label)
+    else:
+        granular = most_granular_codelist(
+            catalog, codelists, system=system, observed=observed, cache=cache
         )
-        for code, label in labels.items():
-            out.setdefault(code, label)
+        if granular:
+            labels = (
+                cache.codelist_values(granular, system)
+                if cache is not None
+                else codelist_values(catalog, granular, system=system)
+            )
+            for code, label in labels.items():
+                out.setdefault(code, label)
     if values is None:
         return out
     wanted = set(values)
@@ -979,19 +997,22 @@ def rollups_for(
     field_name: str,
     observed: dict[str, int] | None = None,
     cache: DictionaryCache | None = None,
+    labelled_by: Sequence[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Every codelist bound to a field, with how coarse each one is.
 
     This is the answer to "what else can this column be grouped by" — the
     chapter/block/list hierarchies TabNet publishes alongside the raw codes, and
-    which of them was chosen for labelling.
+    which of them was chosen for labelling: ``labelled_by`` when given (the renderer's decision,
+    ``label_bindings.field_decision``), the statistics' pick otherwise.
     """
     codelists = codelists_for(catalog, system=system, field_name=field_name, cache=cache)
     stats = codelist_stats(catalog, codelists, system=system)
     if not stats:
         return []
-    granular = most_granular_codelist(
-        catalog, codelists, system=system, observed=observed, cache=cache
+    granular = (
+        set(labelled_by) if labelled_by is not None
+        else {most_granular_codelist(catalog, codelists, system=system, observed=observed, cache=cache)}
     )
     total = sum(observed.values()) if observed else 0
     # One query for every candidate, not one per candidate: DIAG_PRINC is bound
@@ -1008,7 +1029,7 @@ def rollups_for(
             "codes": entry["codes"],
             "distinct_labels": entry["distinct_labels"],
             "granularity": round(float(entry["granularity"]), 4),
-            "used_for_labels": entry["codelist"] == granular,
+            "used_for_labels": entry["codelist"] in granular,
         }
         if total:
             row["observed_coverage"] = round(_coverage.get(str(entry["codelist"]), 0.0), 4)

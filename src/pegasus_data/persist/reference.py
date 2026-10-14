@@ -509,6 +509,7 @@ def read_reference_table(
     year: int | None = None,
     competencia: int | None = None,
     code_width: int | None = None,
+    registries: str | Path | None = None,
 ) -> pa.Table:
     """``_read_reference_table``, falling back to the systems this one inherits.
 
@@ -519,7 +520,10 @@ def read_reference_table(
     """
     from ..semantics.curation import INHERITS
 
-    kwargs = {"valid_from": valid_from, "year": year, "competencia": competencia, "code_width": code_width}
+    kwargs = {
+        "valid_from": valid_from, "year": year, "competencia": competencia, "code_width": code_width,
+        "registries": registries,
+    }
     parents = INHERITS.get(str(system).upper(), ()) if system else ()
     try:
         return _read_reference_table(lake_root, table_id, system=system, **kwargs)  # type: ignore[arg-type]
@@ -541,6 +545,7 @@ def _read_reference_table(
     year: int | None = None,
     competencia: int | None = None,
     code_width: int | None = None,
+    registries: str | Path | None = None,
 ) -> pa.Table:
     """Load one reference table, optionally the vintage covering a given year.
 
@@ -562,6 +567,10 @@ def _read_reference_table(
     of thirteen systems that disagree. Where the requested system ships no copy,
     the lookup is refused by default. Foreign-system mappings are available only
     inside an explicit ``borrowed_label_policy(True)`` scope.
+
+    A registry (CADGER*: establishment names) is not in the lake: it is read from ``registries``, the
+    ``Settings.registries_dir`` of the root in use (OQ 81); a caller that names none finds no registry (the read goes
+    on to the lake and the pack, as for a registry that is not built), never the default home's.
     """
     from ..registry import is_registry
     from ..registry import lookup as registry_lookup
@@ -587,9 +596,10 @@ def _read_reference_table(
         return _pq.read_table(str(_files("pegasus_data.resources") / canonical), columns=["code", "label"])
     if is_registry(table_id):
         # A registry (CADGER*: establishment names) comes from the system's own
-        # CURRENT kit, fetched once and cached; the pack's partial copy is
-        # older and incomplete (ADR-0086).
-        registry = registry_lookup(table_id, system)
+        # CURRENT kit, built by `pegasus-data registries build` into the root in
+        # use's registries directory (ADR-0086, ADR-0176); the pack's partial copy
+        # is older and incomplete.
+        registry = registry_lookup(table_id, system, registries) if registries is not None else None
         if registry is not None:
             return registry
 

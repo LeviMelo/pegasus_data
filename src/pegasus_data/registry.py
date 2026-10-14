@@ -53,10 +53,10 @@ def is_registry(codelist: str) -> bool:
     return name == CNPJ_TABLE or any(fnmatch.fnmatch(name, p) for p in _patterns())
 
 
-def _cache_dir(system: str, settings: Settings | None = None) -> Path:
-    from .config import load_settings
-
-    return Path((settings or load_settings()).root) / "registries" / system.upper()
+def _cache_dir(system: str, registries: str | Path) -> Path:
+    """One system's registry cache, under the registries directory in use (``Settings.registries_dir``): the root the
+    caller passed, never the default home's (OQ 81)."""
+    return Path(registries) / system.upper()
 
 
 def _current_kit(kits: list[str], sizes: dict[str, int]) -> str | None:
@@ -75,7 +75,7 @@ def build(system: str, *, refresh: bool = False, settings: Settings | None = Non
     from .semantics.tabkit import find_kits
 
     settings = settings or load_settings()
-    out_dir = _cache_dir(system, settings)
+    out_dir = _cache_dir(system, settings.registries_dir)
     if _current(out_dir) and not refresh:
         return {p.stem: pq.read_metadata(p).num_rows for p in out_dir.glob("*.parquet")}
     pipeline = Pipeline(settings)
@@ -256,12 +256,14 @@ def owner_of(codelist: str, system: str | None) -> str | None:
     return next((sys for prefix, sys in OWNER.items() if name.startswith(prefix)), system)
 
 
-#: The systems whose unbuilt registry has been said once in this process (a render asks for one table per file group).
-_SAID_UNBUILT: set[str] = set()
+#: The (registries directory, system) whose unbuilt registry has been said once in this process (a render asks for one
+#: table per file group).
+_SAID_UNBUILT: set[tuple[str, str]] = set()
 
 
-def lookup(codelist: str, system: str | None) -> pa.Table | None:
-    """The registry table from its OWNER's cache; ``None`` if it is not a registry or the cache does not hold it.
+def lookup(codelist: str, system: str | None, registries: str | Path) -> pa.Table | None:
+    """The registry table from its OWNER's cache under ``registries`` (``Settings.registries_dir`` of the root in
+    use); ``None`` if it is not a registry or the cache does not hold it.
 
     READS ONLY. A registry that was never built here (or was built by an older version) is not built now: that is a
     1-file FTP fetch of 6 to 127 MB inside a read that named no download (a SIH-RD ``load`` of every column spent
@@ -273,14 +275,14 @@ def lookup(codelist: str, system: str | None) -> pa.Table | None:
     system = owner_of(codelist, system)
     if not system:
         return None
-    path = _cache_dir(system) / f"{codelist.upper()}.parquet"
+    path = _cache_dir(system, registries) / f"{codelist.upper()}.parquet"
     if not _current(path.parent):
-        if system not in _SAID_UNBUILT:
-            _SAID_UNBUILT.add(system)
+        if (str(registries), system) not in _SAID_UNBUILT:
+            _SAID_UNBUILT.add((str(registries), system))
             warnings.warn(
-                f"{codelist}: the {system} registry (establishment and team names) is not built here, so its codes "
-                f"are not named; `pegasus-data registries build {system}` downloads {system}'s TabWin kit once and "
-                "builds it (a read never downloads)",
+                f"{codelist}: the {system} registry (establishment and team names) is not built in {registries}, so "
+                f"its codes are not named; `pegasus-data registries build {system}` downloads {system}'s TabWin kit "
+                "once and builds it there (a read never downloads)",
                 stacklevel=2,
             )
         return None

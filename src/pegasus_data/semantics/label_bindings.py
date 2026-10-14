@@ -380,7 +380,8 @@ def compile_bindings(
                     continue
 
                 def load(codelist: str, _year: int = year, _system: str = system) -> Mapping[str, str] | None:
-                    return _single_lookup(settings.lake_dir, codelist, _system, _year, None)
+                    return _single_lookup(settings.lake_dir, codelist, _system, _year, None,
+                                          registries=settings.registries_dir)
 
                 decision = decide(
                     system=system, family_id=family_id, series=series, field_name=name,
@@ -616,3 +617,44 @@ def decide(
     if persist and use_stored and store is not None and family_id:
         record(store, system, family_id, field_name, decision)
     return decision
+
+
+def field_decision(
+    store: CatalogStore,
+    *,
+    system: str,
+    family_id: str,
+    field_name: str,
+    counts: Mapping[str, int],
+    load: Callable[[str], Mapping[str, str] | None] | None = None,
+) -> LabelBinding:
+    """THE answer to "which table labels this field of this family", for a reader that has the catalog and no table of
+    records in hand (``describe``, the ledger): the renderer's own ladder (:func:`decide`), reached the way the
+    renderer reaches it (the field's curation, its bound tables), so that what is reported as the labelling table is
+    the table that decoded the cell (OQ 79). It used to be a second choice by dictionary statistics
+    (``dictionary.most_granular_codelist``), which named another table where the form's own dictionary or a curated
+    table decided (SINAN-TOXG's outcome 2 was meningitis's table in ``describe`` and the form's in a query).
+
+    ``counts`` are the values the field holds (the catalog's ``value_frequencies``); ``load`` reads a reference table
+    (without it a decision that needs measuring finds no table, and one made by curation or stored needs none). Nothing
+    is written: a report must not change what the next build decides."""
+    from ..view import _bindings, _family_series
+    from .curation import load_variable_docs
+
+    doc = load_variable_docs(store, system).get(field_name.upper())
+    if doc is not None:
+        # the exits the renderer takes before it weighs anything
+        sibling = getattr(doc, "label_from", None)
+        if sibling:
+            return LabelBinding((), "none", reason=f"the record names its own code in its {sibling} column")
+        via = getattr(doc, "label_via", None)
+        if via and via.get("table"):
+            return LabelBinding((str(via["table"]),), "curated", reason=f"named through {via['table']}.{via.get('field') or 'label'}")
+        if getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None):
+            return LabelBinding((), "none", reason="not a coded column (curation: code_system none)")
+    bindings = store.memo(("bindings", system, family_id or ""), lambda: _bindings(store, system, family_id))
+    return decide(
+        system=system, family_id=family_id, series=_family_series(store, family_id), field_name=field_name, doc=doc,
+        candidates=list(bindings.get(field_name.upper()) or []), counts=counts, load=load or (lambda codelist: None),
+        store=store, persist=False,
+    )

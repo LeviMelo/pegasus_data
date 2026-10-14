@@ -217,6 +217,7 @@ def codelist_levels(
     year: int | None = None,
     competencia: int | None = None,
     codes: Sequence[str] | None = None,
+    registries: str | Path | None = None,
 ) -> dict[str, str]:
     """``code -> label`` for one field's ``codes``, without a table of records to apply it to.
 
@@ -236,7 +237,7 @@ def codelist_levels(
         return {}
     rendered, _ = render_table(pa.table({field: pa.array(wanted, pa.string())}), store=store, lake_root=lake_root,
                                system=system, family_id=family_id, profile="analysis", companions=[field],
-                               derived=False, year=year, competencia=competencia)
+                               derived=False, year=year, competencia=competencia, registries=registries)
     if f"{field}{LABEL_SUFFIX}" not in rendered.column_names:
         return {}
     labels = rendered.column(f"{field}{LABEL_SUFFIX}").to_pylist()
@@ -507,10 +508,12 @@ def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array | No
     return compose_key(table, key) if key else column
 
 
-def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) -> pa.Array | None:
+def _label_via(
+    lake: Path, system: str, keys: object, via: Mapping[str, str], registries: Path | None = None,
+) -> pa.Array | None:
     """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094)."""
     try:
-        table = read_reference_table(lake, str(via["table"]), system=system)
+        table = read_reference_table(lake, str(via["table"]), system=system, registries=registries)
     except (FileNotFoundError, KeyError):
         return None
     field_name = str(via.get("field") or "label")
@@ -803,8 +806,12 @@ def render_table(
     year: int | None = None,
     competencia: int | None = None,
     strict: bool = False,
+    registries: str | Path | None = None,
 ) -> tuple[pa.Table, RenderReport]:
     """Apply every presentation decision, at read time, from the reference tables.
+
+    ``registries`` is the root in use's ``Settings.registries_dir``: the establishment and team names are read from
+    there (OQ 81); without it a registry-coded column is reported unlabelled, never read from the default home.
 
     ``strict`` turns a label that cannot be produced into a
     :class:`LabelUnavailable` instead of a warning. Either way the field is named
@@ -829,6 +836,7 @@ def render_table(
             competencia=competencia,
             strict=strict,
             collected=collected,
+            registries=registries,
         )
 
 
@@ -847,6 +855,7 @@ def _render_table(
     competencia: int | None = None,
     strict: bool = False,
     collected: dict[str, set] | None = None,
+    registries: str | Path | None = None,
 ) -> tuple[pa.Table, RenderReport]:
     settings_profile = resolve_profile(
         profile, companions=companions, derived=derived
@@ -858,6 +867,7 @@ def _render_table(
     bindings = store.memo(("bindings", system, family_id or ""), lambda: _bindings(store, system, family_id))
     overrides = {k.upper(): v for k, v in (render or {}).items()}
     lake = Path(lake_root)
+    registry_home = None if registries is None else Path(registries)
 
     base_columns = frozenset(
         n for n in table.schema.names if column_kind(n, frozenset(table.schema.names)) == "raw"
@@ -902,7 +912,7 @@ def _render_table(
         key = (tuple(codelists), system, year, width, only)
         if key in lookups:
             return lookups[key] or None
-        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia, only)
+        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia, only, registry_home)
         if not merged:
             names = ", ".join(repr(c) for c in codelists)
             message = f"{field_name}: no reference table for {names} in the lake"
@@ -915,7 +925,7 @@ def _render_table(
             # chapter files end in 1997, and every SIH query of 2022 warned that
             # seventeen of them were "missing" (2026-09-30). Only a table that
             # exists in no window at all is worth saying.
-            absent = [c for c in missing if not _exists_anywhere(Path(lake), c)]
+            absent = [c for c in missing if not _exists_anywhere(Path(lake), c, registry_home)]
             if absent:
                 report.warnings.append(
                     f"{field_name}: labelled from {len(codelists) - len(missing)} of "
@@ -977,7 +987,7 @@ def _render_table(
             None,
         )
         if via and via_column:
-            named_via = _label_via(lake, system, table.column(via_column), via)
+            named_via = _label_via(lake, system, table.column(via_column), via, registry_home)
             if named_via is not None:
                 # The field's own tables first: they name THIS value exactly (a
                 # CNPJ's own legal name, a documented "zeros: no maintainer").
@@ -1040,7 +1050,7 @@ def _render_table(
             candidates=list(bindings.get(name.upper()) or []),
             report=report,
             strict=strict,
-            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w, competencia),
+            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w, competencia, registry_home),
             store=store,
             system=system,
             family_id=family_id or "",
@@ -1137,6 +1147,7 @@ def _render_table(
                     year=year,
                     competencia=competencia,
                     code_width=None,
+                    registries=registry_home,
                 ).items():
                     disagreements.setdefault(code, set()).update(found)
         except FileNotFoundError:

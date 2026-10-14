@@ -24,8 +24,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from ..textenc import fold
 from .client import SidraClient
-from .registry import Registry, normalise_text
+from .registry import Registry
 
 __all__ = ["rank", "survey", "vintage_families"]
 
@@ -62,7 +63,7 @@ def rank(registry: Registry, *, level: str = "N6", topics: list[str] | None = No
     wanted = _topics()
     if topics:
         wanted = {k: v for k, v in wanted.items() if k in topics}
-    patterns = {k: [normalise_text(w) for w in v["words"]] for k, v in wanted.items()}
+    patterns = {k: [fold(w) for w in v["words"]] for k, v in wanted.items()}
     weights = {k: float(v.get("weight", 1)) for k, v in wanted.items()}
     query = ("SELECT id, name, research, subject, frequency, first_period, last_period, search, "
              "id IN (SELECT tab FROM compendium) AS curated FROM tab "
@@ -98,8 +99,8 @@ def vintage_families(registry: Registry, research: str = "Censo Demográfico") -
     and the same variables (by name), with different periods. Each is a candidate series across vintages."""
     families: dict[tuple[str, ...], list[tuple[int, str, str]]] = defaultdict(list)
     for r in registry.db.execute("SELECT id, first_period, last_period FROM tab WHERE research = ? AND metadata_sha256 IS NOT NULL", (research,)).fetchall():
-        names = [normalise_text(x[0]) for x in registry.db.execute("SELECT name FROM classification WHERE tab = ?", (r["id"],))]
-        variables = [re.sub(r"\s+", " ", normalise_text(x[0])) for x in registry.db.execute("SELECT name FROM variable WHERE tab = ? AND id < 1000000", (r["id"],))]
+        names = [fold(x[0]) for x in registry.db.execute("SELECT name FROM classification WHERE tab = ?", (r["id"],))]
+        variables = [fold(x[0]) for x in registry.db.execute("SELECT name FROM variable WHERE tab = ? AND id < 1000000", (r["id"],))]
         families[(*sorted(names), "|", *sorted(variables))].append((r["id"], r["first_period"], r["last_period"]))
     out = []
     for key, tables in families.items():

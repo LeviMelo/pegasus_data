@@ -26,16 +26,14 @@ undecoded, "Branco" a race, "Não se aplica" an answer to a conditional question
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from ..catalog.store import CatalogStore
 from .dictionary import (
     DictionaryCache,
-    codelists_for,
     coverage_for_field,
-    most_granular_codelist,
     observed_values,
 )
 
@@ -156,8 +154,30 @@ def _sentinels_for(system: str | None, series: str | None, field_name: str) -> l
                    for code in r["missing"] or ()})
 
 
-def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None) -> list[LedgerEntry]:
-    """Assemble the ledger from profiles, DEF declarations and the dictionary."""
+def build_ledger(
+    catalog: CatalogStore,
+    *,
+    systems: Sequence[str] | None = None,
+    lake_root: str | Path | None = None,
+    registries: str | Path | None = None,
+) -> list[LedgerEntry]:
+    """Assemble the ledger from profiles, DEF declarations and the dictionary.
+
+    A field is named after the table that labels it, and that table is the renderer's decision
+    (``label_bindings.field_decision``, OQ 79). A decision made by curation or stored needs no reference table; one
+    that has to be measured reads them from ``lake_root`` (and ``registries``), and finds none without."""
+    from .label_bindings import field_decision
+
+    def loader(system: str | None) -> Callable[[str], Mapping[str, str] | None]:
+        from ..lookups import _single_lookup
+
+        if lake_root is None:
+            return lambda codelist: None
+        return lambda codelist: _single_lookup(
+            Path(lake_root), codelist, system, None, None,
+            registries=None if registries is None else Path(registries),
+        )
+
     official = _official_names(catalog)
     measures = _declared_measures(catalog)
     cache = DictionaryCache(catalog)
@@ -209,18 +229,17 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
         provenance: list[str] = [f"profile:{row['schema_signature']}"]
         # Name the field after the codelist that actually labels it, so a column
         # decoded with full ICD-10 descriptions is not called "CID Capítulos".
-        chosen = most_granular_codelist(
-            catalog,
-            codelists_for(catalog, system=system, field_name=field_name, cache=cache),
-            system=system,
-            observed=observed_values(
+        decision = field_decision(
+            catalog, system=system, family_id=row["family_id"], field_name=field_name,
+            counts=observed_values(
                 catalog,
                 family_id=row["family_id"],
                 field_name=field_name,
                 schema_signature=row["schema_signature"],
             ),
-            cache=cache,
+            load=loader(system),
         )
+        chosen = decision.codelists[0] if decision.labels else None
         # The record layout names the column itself and so comes first; a .DEF
         # bound to the labelling codelist comes next; a .DEF that names the field
         # with no codelist at all comes last. Only when all three miss is there

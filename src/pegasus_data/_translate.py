@@ -181,6 +181,7 @@ def translate(
                 derived=derived,
                 year=year,
                 strict=strict,
+                registries=resolved.registries_dir,
             )
         return (rendered, render_report) if report else rendered
     finally:

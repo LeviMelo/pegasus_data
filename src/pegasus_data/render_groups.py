@@ -213,8 +213,10 @@ def render_groups(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict: bool = False,
+    registries: str | Path | None = None,
 ) -> tuple[pa.Table, RenderReport]:
-    """Render each group against its own vintage, then combine.
+    """Render each group against its own vintage, then combine. ``registries``: the root in use's registries
+    directory (``Settings.registries_dir``), where establishment and team names are read from (OQ 81).
 
     The combine is permissive: rendering one generation can produce a column
     another does not have — a label column exists only where that generation's
@@ -239,6 +241,7 @@ def render_groups(
             year=year,
             competencia=competencia,
             strict=strict,
+            registries=registries,
         )
         parts.append(rendered)
         report = merge_reports(report, part_report)

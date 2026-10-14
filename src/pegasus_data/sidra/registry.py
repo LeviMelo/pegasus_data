@@ -15,14 +15,14 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
-import unicodedata
 from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
+from ..textenc import fold
 from .client import SidraClient, SidraError
 
-__all__ = ["Registry", "open_registry", "normalise_text"]
+__all__ = ["Registry", "open_registry"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS research (id TEXT PRIMARY KEY, name TEXT NOT NULL);
@@ -58,13 +58,14 @@ CREATE INDEX IF NOT EXISTS category_name ON category(tab, class_id);
 HEALTH_RESEARCHES = ("CD", "XF", "XE", "CM", "IO", "PM", "SB", "RC", "XN", "AA", "AM", "B5", "PD", "DD", "OF", "CL", "FP", "IU", "C2")
 
 
-def normalise_text(text: str) -> str:
-    """Lower-case without accents: how names are searched."""
-    return "".join(c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c))
+#: The `search` column holds `textenc.fold` text (upper case, no accents, hyphens and runs of spaces as one space), the
+#: project's one name folding. A registry written before that (lower-case, accents only) is re-folded on open; the
+#: marker is SQLite's `user_version`.
+SEARCH_FOLDED = 1
 
-
-_COUNT_UNITS = ("pessoas", "unidades", "domicilios", "familias", "estabelecimentos", "empresas", "habitantes",
-                "criancas", "nascidos", "obitos", "casos", "veiculos", "cabecas", "municipios")
+#: Vocabularies compared with folded text are written folded.
+_COUNT_UNITS = ("PESSOAS", "UNIDADES", "DOMICILIOS", "FAMILIAS", "ESTABELECIMENTOS", "EMPRESAS", "HABITANTES",
+                "CRIANCAS", "NASCIDOS", "OBITOS", "CASOS", "VEICULOS", "CABECAS", "MUNICIPIOS")
 
 
 def infer_kind(unit: str | None, name: str) -> str:
@@ -72,14 +73,14 @@ def infer_kind(unit: str | None, name: str) -> str:
 
     The compendium's own kinds override this for the tables it covers; this is the fallback and is
     only as good as a unit and a name can say, which is why `kind` is used to refuse summing, never to sum."""
-    u, n = normalise_text(unit or ""), normalise_text(name)
-    if "%" in u or "percentual" in u or "percentual" in n or "distribuicao percentual" in n:
+    u, n = fold(unit or ""), fold(name)
+    if "%" in u or "PERCENTUAL" in u or "PERCENTUAL" in n or "DISTRIBUICAO PERCENTUAL" in n:
         return "p"
-    if any(w in n for w in ("media", "mediana", "medio", "mediano")):
+    if any(w in n for w in ("MEDIA", "MEDIANA", "MEDIO", "MEDIANO")):
         return "md"
-    if any(w in n for w in ("taxa", "indice", "razao", "proporcao", "coeficiente")):
+    if any(w in n for w in ("TAXA", "INDICE", "RAZAO", "PROPORCAO", "COEFICIENTE")):
         return "r"
-    if "reais" in u or u == "real" or "r$" in u or "dolar" in u:
+    if "REAIS" in u or u == "REAL" or "R$" in u or "DOLAR" in u:
         return "m"
     if any(w in u for w in _COUNT_UNITS):
         return "c"
@@ -95,6 +96,16 @@ class Registry:
         self.db = sqlite3.connect(path)
         self.db.row_factory = sqlite3.Row
         self.db.executescript(SCHEMA)
+        self._fold_search()
+
+    def _fold_search(self) -> None:
+        """Re-fold a `search` column written by the older lower-case folding (idempotent: ``fold(old(x)) == fold(x)``)."""
+        if self.db.execute("PRAGMA user_version").fetchone()[0] >= SEARCH_FOLDED:
+            return
+        with self.db:
+            rows = self.db.execute("SELECT id, search FROM tab WHERE search IS NOT NULL").fetchall()
+            self.db.executemany("UPDATE tab SET search = ? WHERE id = ?", [(fold(s), i) for i, s in rows])
+            self.db.execute(f"PRAGMA user_version = {SEARCH_FOLDED}")
 
     def close(self) -> None:
         self.db.close()
@@ -159,7 +170,7 @@ class Registry:
                  str(per.get("inicio")) if per.get("inicio") is not None else None,
                  str(per.get("fim")) if per.get("fim") is not None else None, json.dumps(levels), int("N6" in levels),
                  len(meta.get("variaveis") or []), len(classes), cells, sha, fetched_at,
-                 normalise_text(" ".join([meta["nome"], meta.get("pesquisa") or "", meta.get("assunto") or ""]
+                 fold(" ".join([meta["nome"], meta.get("pesquisa") or "", meta.get("assunto") or ""]
                                          + [v["nome"] for v in meta.get("variaveis") or []]
                                          + [c["nome"] for c in classes])), table))
             self.db.executemany("INSERT INTO variable (tab, id, name, unit, summarisation, kind) VALUES (?,?,?,?,?,?)", [
@@ -288,7 +299,7 @@ class Registry:
                compendium_only: bool = False, limit: int = 30) -> list[dict[str, Any]]:
         """Tables whose name, research, subject, variables or classifications contain every term."""
         where, args = ["t.search IS NOT NULL"], []
-        for word in normalise_text(terms).split():
+        for word in fold(terms).split():
             where.append("t.search LIKE ?")
             args.append(f"%{word}%")
         if level:
