@@ -38,6 +38,7 @@ from typing import TYPE_CHECKING, Any
 
 import psutil
 
+from ..locate import scratch_dir
 from ._worker import read_frame, write_frame
 from .admission import admitted
 from .base import logical_source_id
@@ -325,7 +326,7 @@ class DecoderPool:
         if not header.get("ok"):
             raise IsolatedDecodeError(f"{logical_path}: {header.get('error', 'decode failed')}")
 
-        spool = tempfile.TemporaryDirectory(prefix="pegasus_decode_")
+        spool = tempfile.TemporaryDirectory(prefix="pegasus_decode_", dir=scratch_dir())
         outcome = _RemoteOutcome(
             path=logical_path, container=header.get("container") or "", retains=spool
         )

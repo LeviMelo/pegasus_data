@@ -23,6 +23,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+from ..locate import scratch_dir
 from .archives import Archive, ArchiveMember, detect_container
 from .base import DamagedPayload, DecodedTable, DecodeError, UnsupportedContainer
 from .dbc import read_dbc, read_dbc_bytes
@@ -117,7 +118,9 @@ def readers_ordered_by_suffix_hint(path: str) -> tuple[str, ...]:
 
 #: Temp directories the decoders make, and how long one must lie untouched before it is taken as left by a process that
 #: died (no decode holds a spool for days): `prune_stale_temp`
-_TEMP_PREFIXES = ("pegasus_decode_", "pegasus_dbc_", "pegasus_stage_")
+_TEMP_PREFIXES = (
+    "pegasus_decode_", "pegasus_dbc_", "pegasus_stage_", "pegasus_duck_", "pegasus_arc_", "pegasus_blast_",
+)
 STALE_SECONDS = 3 * 24 * 3600
 _pruned = False
 
@@ -135,20 +138,27 @@ def prune_stale_temp() -> dict[str, int]:
     _pruned = True
     removed = kept = 0
     cutoff = time.time() - STALE_SECONDS
-    for d in Path(tempfile.gettempdir()).iterdir():
-        # the name first: a stat of every entry of the temp directory (thousands, most not ours) was a fifth of a
-        # process's first query (2026-10-11)
-        if not d.name.startswith(_TEMP_PREFIXES) or not d.is_dir():
-            continue
+    # the system temp (what earlier versions used) and the configured scratch directory
+    places = {Path(tempfile.gettempdir())} | ({Path(scratch)} if (scratch := scratch_dir()) else set())
+    for place in places:
         try:
-            newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
-            if newest < cutoff:
-                shutil.rmtree(d, ignore_errors=True)
-                removed += 1
-            else:
-                kept += 1
+            entries = list(place.iterdir())
         except OSError:
-            kept += 1
+            continue
+        for d in entries:
+            # the name first: a stat of every entry of the temp directory (thousands, most not ours) was a fifth of a
+            # process's first query (2026-10-11)
+            if not d.name.startswith(_TEMP_PREFIXES) or not d.is_dir():
+                continue
+            try:
+                newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
+                if newest < cutoff:
+                    shutil.rmtree(d, ignore_errors=True)
+                    removed += 1
+                else:
+                    kept += 1
+            except OSError:
+                kept += 1
     return {"removed": removed, "kept": kept}
 
 
@@ -391,7 +401,7 @@ class ReaderRegistry:
         # process. mkdtemp() registers no cleanup and nothing here retained an
         # owner, so every `.duck` decoded leaked a directory holding a full copy
         # of the database until the OS got around to it.
-        staging = tempfile.TemporaryDirectory(prefix="pegasus_duck_")
+        staging = tempfile.TemporaryDirectory(prefix="pegasus_duck_", dir=scratch_dir())
         try:
             staged = Path(staging.name) / "db.duck"
             staged.write_bytes(data)
@@ -508,7 +518,7 @@ class _staged:
         self._dir: tempfile.TemporaryDirectory[str] | None = None
 
     def __enter__(self) -> Path:
-        self._dir = tempfile.TemporaryDirectory(prefix="pegasus_stage_")
+        self._dir = tempfile.TemporaryDirectory(prefix="pegasus_stage_", dir=scratch_dir())
         target = Path(self._dir.name) / f"payload{self.suffix}"
         target.write_bytes(self.data)
         return target

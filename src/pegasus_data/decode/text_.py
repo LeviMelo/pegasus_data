@@ -260,7 +260,7 @@ def read_parquet(
     try:
         pf = pq.ParquetFile(pa.BufferReader(path) if in_memory else str(path))
     except Exception as exc:
-        raise DecodeError(f"parquet open failed for {path}: {exc}") from exc
+        raise DecodeError(f"parquet open failed for {'<bytes>' if in_memory else path}: {exc}") from exc
     schema = pf.schema_arrow
     fields = fields_from_schema(schema, physical_prefix="parquet:")
     # Only the columns asked for are read from the file; `fields` stays the whole schema, as in the DBF reader.

@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from ..locate import scratch_dir
 from .base import DamagedPayload, DecodedTable, DecodeError
 from .dbf import read_dbf_bytes, read_dbf_file
 
@@ -67,7 +68,7 @@ def read_dbc(
     it is attached to the table and removed when the table is dropped.
     """
     source = Path(path)
-    tmp = tempfile.TemporaryDirectory(prefix="pegasus_dbc_")
+    tmp = tempfile.TemporaryDirectory(prefix="pegasus_dbc_", dir=scratch_dir())
     try:
         target = Path(tmp.name) / (source.stem + ".dbf")
         _decompress(source, target)
@@ -97,7 +98,7 @@ def read_dbc_bytes(
     **kwargs: Any,
 ) -> DecodedTable:
     """Decode a ``.dbc`` held in memory by staging it on disk for the decoder."""
-    with tempfile.TemporaryDirectory(prefix="pegasus_dbc_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="pegasus_dbc_", dir=scratch_dir()) as tmp:
         staged = Path(tmp) / "payload.dbc"
         staged.write_bytes(data)
         target = Path(tmp) / "payload.dbf"

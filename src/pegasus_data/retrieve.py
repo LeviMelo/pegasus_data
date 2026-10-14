@@ -76,7 +76,7 @@ from .config import Settings, load_settings
 from .decode.base import DecodeError, logical_source_id
 from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
-from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failure
+from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failure, short_body_note
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .pipeline import Pipeline
@@ -1619,6 +1619,8 @@ def _decode_one(
                 stacklevel=2,
             )
         matched = True
+        if (short := short_body_note(decoded)) is not None:
+            warnings.warn(f"{path}: {short}; the answer is short of that file's own records", stacklevel=2)
         for batch in normalize_table(decoded, chosen, blob_sha256=digest):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.

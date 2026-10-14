@@ -23,6 +23,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
+from ..locate import scratch_dir
 from .base import DecodeError, UnsupportedContainer
 from .lha import LhaArchive, LhaError, find_lha_offset
 
@@ -241,7 +242,7 @@ class Archive:
 
     def _tmpdir(self) -> str:
         if self._tmp is None:
-            self._tmp = tempfile.TemporaryDirectory(prefix="pegasus_arc_")
+            self._tmp = tempfile.TemporaryDirectory(prefix="pegasus_arc_", dir=scratch_dir())
         return self._tmp.name
 
     def _stage(self, suffix: str) -> Path:

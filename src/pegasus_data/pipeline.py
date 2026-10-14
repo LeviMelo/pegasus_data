@@ -175,6 +175,8 @@ class Pipeline:
         settings.ensure_dirs()
         self.catalog = catalog or CatalogStore(settings.catalog_path)
         self.blobs = BlobStore(settings.blobs_dir, self.catalog)
+        # Downloads killed mid-transfer leave `incoming/*.part` behind under unique names, and nothing reclaimed them.
+        self.blobs.sweep_staging()
         self.fetcher = Fetcher(
             self.catalog,
             self.blobs,

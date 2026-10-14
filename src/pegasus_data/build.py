@@ -23,7 +23,14 @@ from .config import Settings
 from .decode.base import DecodeError, logical_source_id
 from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
-from .decode.service import ABSENT, FAILED, decode_source, member_verdict, record_decode_failure
+from .decode.service import (
+    ABSENT,
+    FAILED,
+    decode_source,
+    member_verdict,
+    record_decode_failure,
+    short_body_note,
+)
 from .normalize.engine import (
     NormalizePlan,
     build_plan,
@@ -207,6 +214,127 @@ class Builder:
             stats.errors.append((logical_source_id(path, member), f"decode: {why}"))
             tally.undecoded += 1
 
+        #: How many members of this partition still need each decoded source. A source's decoded tables (the spool of an
+        #: Arrow IPC copy on disk) were kept until the whole partition was written: twelve decoded months at once, times
+        #: the partitions built in parallel.
+        remaining: dict[str, int] = {}
+        for item in group:
+            digest = digests.get(str(item["path"]))
+            if digest:
+                remaining[digest] = remaining.get(digest, 0) + 1
+
+        def _release(digest: str | None) -> None:
+            if not digest:
+                return
+            remaining[digest] -= 1
+            if remaining[digest] > 0:
+                return
+            outcome = decoded_outcomes.pop(digest, None)
+            if outcome is None:
+                return
+            for owner in (outcome, *getattr(outcome, "tables", ())):
+                keeper = getattr(owner, "retains", None)
+                if hasattr(keeper, "cleanup"):
+                    try:
+                        keeper.cleanup()
+                    except OSError:  # pragma: no cover - Windows may still hold a handle; the janitor takes it
+                        pass
+
+        def _member(m: Mapping[str, Any]) -> Iterator[pa.RecordBatch]:
+            """Decode and normalise one member, YIELDING as we go."""
+            path = str(m["path"])
+            digest = digests.get(path)
+            if not digest:
+                stats.skipped.append(path)
+                tally.undecoded += 1
+                return
+            if on_file:
+                on_file(family_id, path)
+            wanted_member = str(m["member"] or "")
+            source_id = logical_source_id(path, wanted_member)
+            if digest in failed_digests:
+                _undecodable(path, wanted_member, reason=failed_digests[digest])
+                return
+            outcome = decoded_outcomes.get(digest)
+            if outcome is None:
+                selected_members = members_by_digest[digest]
+                try:
+                    outcome = decode_source(
+                        self.pipeline.blobs.path_for(digest),
+                        logical_path=path,
+                        settings=self.settings,
+                        members=(
+                            None if "" in selected_members else sorted(selected_members)
+                        ),
+                        row_limit=registry.row_limit,
+                    )
+                except (ItemTimeout, IsolatedDecodeError, DecodeError, OSError) as exc:
+                    # A decoder that timed out or died on this source is this source's gap, not the build's end:
+                    # the exception used to leave `pool.map`, abort every partition and store no outcome row.
+                    failed_digests[digest] = f"{type(exc).__name__}: {exc}"
+                    _undecodable(path, wanted_member, reason=failed_digests[digest])
+                    return
+                decoded_outcomes[digest] = outcome
+            verdict, why = member_verdict(outcome, wanted_member)
+            if verdict == ABSENT:
+                # Listed archive without this member: the state published nothing for that component.
+                stats.skipped.append(f"{source_id} (not in the archive)")
+                return
+            if verdict == FAILED:
+                _undecodable(path, wanted_member, reason=why, outcome=outcome)
+                return
+            matched_here = False
+            for table in outcome.tables:
+                if wanted_member and table.member != wanted_member:
+                    continue
+                if not _matches_schema(table.field_names, plan):
+                    continue
+                matched_here = True
+                if (short := short_body_note(table)) is not None:
+                    # Its rows are written, and the partition is short of what the file's own header declares: said
+                    # (exit 1), not left as a warning string nobody reads.
+                    stats.errors.append((source_id, f"short: {short}"))
+                normalized_date = m.get("normalized_date")
+                competencia = (
+                    int(normalized_date)
+                    if normalized_date is not None
+                    and int(normalized_date) % 100
+                    else None
+                )
+                source_resolution = (
+                    "month" if competencia is not None else
+                    "year" if normalized_date is not None
+                    and int(normalized_date) % 100 == 0 else
+                    "unknown"
+                )
+                for batch in normalize_table(table, plan, blob_sha256=digest):
+                    # Internal semantic provenance: a codelist can change
+                    # in July, which a year-only partition cannot recover.
+                    enriched = batch.append_column(
+                        "_competencia",
+                        pa.array([competencia] * batch.num_rows, type=pa.int32()),
+                    )
+                    yield enriched.append_column(
+                        "_source_resolution",
+                        pa.array([source_resolution] * batch.num_rows, type=pa.string()),
+                    )
+            stats.files += 1
+            tally.decoded += 1
+            if not matched_here:
+                # The family claims this file but its schema does not fit
+                # the plan. This is the zero-row bug's signature, and it has
+                # to be counted rather than skipped past.
+                tally.mismatched += 1
+                stats.files_mismatched += 1
+                # NOT added to `sources`. That list becomes the partition's
+                # recorded provenance, and a file that contributed no rows
+                # did not provenance anything — it made the partition look
+                # derived from evidence it does not contain.
+                return
+            sources.append(source_id)
+            stats.files_contributing += 1
+            tally.contributing += 1
+
         def _normalised() -> Iterator[pa.RecordBatch]:
             """Decode and normalise one member at a time, YIELDING as we go.
 
@@ -218,94 +346,10 @@ class Builder:
             written, so both are complete by the time it reads them.
             """
             for m in group:
-                path = str(m["path"])
-                digest = digests.get(path)
-                if not digest:
-                    stats.skipped.append(path)
-                    tally.undecoded += 1
-                    continue
-                if on_file:
-                    on_file(family_id, path)
-                wanted_member = str(m["member"] or "")
-                source_id = logical_source_id(path, wanted_member)
-                if digest in failed_digests:
-                    _undecodable(path, wanted_member, reason=failed_digests[digest])
-                    continue
-                outcome = decoded_outcomes.get(digest)
-                if outcome is None:
-                    selected_members = members_by_digest[digest]
-                    try:
-                        outcome = decode_source(
-                            self.pipeline.blobs.path_for(digest),
-                            logical_path=path,
-                            settings=self.settings,
-                            members=(
-                                None if "" in selected_members else sorted(selected_members)
-                            ),
-                            row_limit=registry.row_limit,
-                        )
-                    except (ItemTimeout, IsolatedDecodeError, DecodeError, OSError) as exc:
-                        # A decoder that timed out or died on this source is this source's gap, not the build's end:
-                        # the exception used to leave `pool.map`, abort every partition and store no outcome row.
-                        failed_digests[digest] = f"{type(exc).__name__}: {exc}"
-                        _undecodable(path, wanted_member, reason=failed_digests[digest])
-                        continue
-                    decoded_outcomes[digest] = outcome
-                verdict, why = member_verdict(outcome, wanted_member)
-                if verdict == ABSENT:
-                    # Listed archive without this member: the state published nothing for that component.
-                    stats.skipped.append(f"{source_id} (not in the archive)")
-                    continue
-                if verdict == FAILED:
-                    _undecodable(path, wanted_member, reason=why, outcome=outcome)
-                    continue
-                matched_here = False
-                for table in outcome.tables:
-                    if wanted_member and table.member != wanted_member:
-                        continue
-                    if not _matches_schema(table.field_names, plan):
-                        continue
-                    matched_here = True
-                    normalized_date = m.get("normalized_date")
-                    competencia = (
-                        int(normalized_date)
-                        if normalized_date is not None
-                        and int(normalized_date) % 100
-                        else None
-                    )
-                    source_resolution = (
-                        "month" if competencia is not None else
-                        "year" if normalized_date is not None
-                        and int(normalized_date) % 100 == 0 else
-                        "unknown"
-                    )
-                    for batch in normalize_table(table, plan, blob_sha256=digest):
-                        # Internal semantic provenance: a codelist can change
-                        # in July, which a year-only partition cannot recover.
-                        enriched = batch.append_column(
-                            "_competencia",
-                            pa.array([competencia] * batch.num_rows, type=pa.int32()),
-                        )
-                        yield enriched.append_column(
-                            "_source_resolution",
-                            pa.array([source_resolution] * batch.num_rows, type=pa.string()),
-                        )
-                stats.files += 1
-                tally.decoded += 1
-                if not matched_here:
-                    # The family claims this file but its schema does not fit
-                    # the plan. This is the zero-row bug's signature, and it has
-                    # to be counted rather than skipped past.
-                    tally.mismatched += 1
-                    stats.files_mismatched += 1
-                    # NOT added to `sources`. That list becomes the partition's
-                    # recorded provenance, and a file that contributed no rows
-                    # did not provenance anything — it made the partition look
-                    # derived from evidence it does not contain.
-                    continue
-                sources.append(source_id)
-                stats.files_contributing += 1
-                tally.contributing += 1
+                try:
+                    yield from _member(m)
+                finally:
+                    _release(digests.get(str(m["path"])))
 
         # No `if not batches` pre-check: knowing whether there are any would
         # mean consuming the generator, which is the materialisation this
@@ -368,6 +412,26 @@ class Builder:
         prune_dead_staging(self.lake.root)
         run_id = uuid.uuid4().hex[:12]
         outcomes: list[tuple[object, ...]] = []
+
+        def record_outcome(row: tuple[object, ...]) -> None:
+            """One family's outcome, written as it finishes: a failure in a later family used to lose every earlier
+            family's row (written once at the end), and the error row carried 9 values for 10 placeholders."""
+            outcomes.append(row)
+            self.catalog.executemany(
+                """
+                INSERT INTO build_outcomes (run_id, family_id, system, files_selected, files_decoded,
+                                            files_matched, rows_written, partitions, reason,
+                                            recorded_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(run_id, family_id) DO UPDATE SET
+                    files_selected=excluded.files_selected, files_decoded=excluded.files_decoded,
+                    files_matched=excluded.files_matched,
+                    rows_written=excluded.rows_written, partitions=excluded.partitions,
+                    reason=excluded.reason, recorded_at=excluded.recorded_at
+                """,
+                [row],
+            )
+
         municipalities = MunicipalityIndex.from_catalog(self.catalog)
         registry = ReaderRegistry()
         cache = DictionaryCache(self.catalog)
@@ -435,8 +499,8 @@ class Builder:
                 )
             except KeyError as exc:
                 stats.errors.append((family_id, str(exc)))
-                outcomes.append((run_id, family_id, family["system"], 0, 0, 0, 0,
-                                 f"no normalisation plan: {exc}", utcnow()))
+                record_outcome((run_id, family_id, family["system"], 0, 0, 0, 0, 0,
+                                f"no normalisation plan: {exc}", utcnow()))
                 continue
             plan.keep_raw = True if keep_raw is None else keep_raw
             plan.emit_labels = emit_labels
@@ -475,7 +539,7 @@ class Builder:
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             if not selected:
-                outcomes.append((
+                record_outcome((
                     run_id, family_id, family["system"], 0, 0, 0, 0, 0,
                     f"no files matched the requested filters (uf={list(ufs or [])}, "
                     f"years={list(years or [])}) out of {len(members)} in the family",
@@ -582,28 +646,14 @@ class Builder:
                     reason = f"{undecoded} of {len(selected)} selected files could not be fetched or decoded"
                 else:
                     reason = f"{len(selected)} files decoded and matched the plan but yielded no rows"
-            outcomes.append((
+            record_outcome((
                 run_id, family_id, family["system"], len(selected), family_decoded,
                 family_files, family_rows, family_parts, reason, utcnow(),
             ))
 
-        self.catalog.executemany(
-            """
-            INSERT INTO build_outcomes (run_id, family_id, system, files_selected, files_decoded,
-                                        files_matched, rows_written, partitions, reason,
-                                        recorded_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?)
-            ON CONFLICT(run_id, family_id) DO UPDATE SET
-                files_selected=excluded.files_selected, files_decoded=excluded.files_decoded,
-                files_matched=excluded.files_matched,
-                rows_written=excluded.rows_written, partitions=excluded.partitions,
-                reason=excluded.reason, recorded_at=excluded.recorded_at
-            """,
-            outcomes,
-        )
         counts = stats.as_dict()
         counts["run_id"] = run_id
-        counts["families_with_no_rows"] = sum(1 for o in outcomes if o[7] is not None)
+        counts["families_with_no_rows"] = sum(1 for o in outcomes if o[8] is not None)
         return StageResult("build", counts=counts)
 
     # ------------------------------------------------------------- population
