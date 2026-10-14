@@ -204,13 +204,13 @@ def query(
     if requested_columns or rows:
         # a column NO generation of the dataset carries is a typo or a renamed field: refused here, for the lake and
         # the fetch path alike, instead of coming back as an all-null column with a warning
-        from ..api import _require_known_columns, _resolve_family
         from ..semantics.curation import derived_inputs, load_variable_docs
+        from .readplan import require_known_columns, resolve_family
 
         with shared_catalog(resolved) as known_store:
-            dataset_families = _resolve_family(known_store, retrieval.system, retrieval.series, None)
+            dataset_families = resolve_family(known_store, retrieval.system, retrieval.series, None)
             derived_names = frozenset(derived_inputs(load_variable_docs(known_store, retrieval.system)))
-            _require_known_columns(
+            require_known_columns(
                 known_store, retrieval.system, retrieval.series, dataset_families,
                 [*(requested_columns or []), *(rows or {})], exempt=derived_names,
             )
@@ -219,9 +219,7 @@ def query(
     derived: bool | list[str] = labels or list(query_plan.spec.select or [])
     tables: list[pa.Table] = []
     source_reports: list[Any] = []
-    if as_of is None and (
-        retrieval.lake_years or (retrieval.source_strategy == "lake" and not retrieval.years)
-    ):
+    if as_of is None and retrieval.lake_years:
         from ..api import Catalog as PublicCatalog
         from ..api import load
 
@@ -242,24 +240,20 @@ def query(
             from ..normalize.engine import PROVENANCE_COLUMNS
 
             leave_out = frozenset(c for c in PROVENANCE_COLUMNS if c != "_source_path")
-        # the years of one reading (a national file beside its state files is one) load together
-        by_geography: dict[tuple[str, ...], list[int]] = {}
-        for lake_year in retrieval.lake_years:
-            by_geography.setdefault(retrieval.geography_for(lake_year), []).append(lake_year)
-        if not by_geography:
-            by_geography[retrieval.physical_geography] = []
         try:
-            for geography_ufs, geography_years in by_geography.items():
-                local_table, local_report = load(
-                    retrieval.system, retrieval.series,
-                    uf=list(geography_ufs) or None,
-                    years=geography_years or None, columns=lake_columns,
-                    labels=labels, profile="audit" if labels else "codes", render=render,
-                    companions=False, derived=derived, on_missing_column="null_fill",
-                    report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
-                )
-                tables.append(_with_competence(local_table, local_report))
-                source_reports.append(local_report)
+            # the files the plan chose, read once: one reading of each year (the national file beside its state files
+            # is one), whatever mix of national and state years the plan holds
+            local_table, local_report = load(
+                retrieval.system, retrieval.series,
+                uf=list(retrieval.physical_geography) or None,
+                years=list(retrieval.lake_years) or None, columns=lake_columns,
+                labels=labels, profile="audit" if labels else "codes", render=render,
+                companions=False, derived=derived, on_missing_column="null_fill",
+                report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
+                partitions=retrieval.lake_partitions,
+            )
+            tables.append(_with_competence(local_table, local_report))
+            source_reports.append(local_report)
         finally:
             cat.close()
     fetch_years: tuple[int, ...] | tuple[None, ...] = retrieval.fetch_years

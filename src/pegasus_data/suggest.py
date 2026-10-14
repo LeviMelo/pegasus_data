@@ -92,7 +92,7 @@ def suggest(
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from .api import LAKE_COLUMNS
+    from ._query_engine.readplan import LAKE_COLUMNS
     from .catalog.store import CatalogStore
     from .config import load_settings
     from .retrieve import fetch

@@ -632,30 +632,7 @@ def _read_reference_table(
                 "label pack; run `pegasus-data reference` to materialise it"
             ) from None
 
-    # Which systems the table holds is read off the directory names (`system=<SYSTEM>`): a system that ships no copy
-    # is known without reading a byte. It used to read the whole table (every system and window), filter it in Python
-    # and only then raise, for every render group again: 0.4-2.4 s per attempt, 70-95% of a warm re-render
-    # (SIM's BR_MUNICIPALFA, whose only copy is another system's).
-    stamp = base.stat().st_mtime_ns
-    held = _systems_held(base, stamp)
-    scope: str | None = None
-    if system and held:
-        wanted = _SAFE.sub("_", system.upper())
-        if wanted in held:
-            scope = wanted
-        else:
-            # Only narrow when the system actually has this table. Returning an
-            # empty result for a field whose codelist came from a neighbour's kit
-            # would turn a labelling gap into a silent blank column.
-            from .decisions import borrowed_labels_allowed
-
-            if not borrowed_labels_allowed():
-                raise FileNotFoundError(
-                    f"reference table {table_id!r} has no {wanted} mapping; "
-                    "cross-system labels are disabled"
-                )
-            note_borrowed(_SAFE.sub("_", table_id), wanted)
-    table = _warehouse_table(base, stamp, scope, code_width)
+    table, _scope = _scoped_table(base, table_id, system, code_width)
     if valid_from is not None:
         return table.filter(pc.fill_null(pc.equal(pc.cast(table.column("valid_from"), pa.string()), valid_from), False))
     if competencia is not None or year is not None:
@@ -716,6 +693,108 @@ def _read_reference_table(
             newest = pc.max(start).as_py()
             return table.filter(pc.fill_null(pc.equal(start, newest), False))
     return table
+
+
+def _scoped_table(
+    base: Path, table_id: str, system: str | None, code_width: int | None,
+) -> tuple[pa.Table, tuple[str, int, str | None, int | None]]:
+    """Every window of a warehouse table, in the scope of ``system`` (``FileNotFoundError`` where it ships no copy and
+    borrowing is off), at ``code_width`` when given, with the key of that state of the table. Records a borrowed copy."""
+    # Which systems the table holds is read off the directory names (`system=<SYSTEM>`): a system that ships no copy
+    # is known without reading a byte. It used to read the whole table (every system and window), filter it in Python
+    # and only then raise, for every render group again: 0.4-2.4 s per attempt, 70-95% of a warm re-render
+    # (SIM's BR_MUNICIPALFA, whose only copy is another system's).
+    stamp = base.stat().st_mtime_ns
+    held = _systems_held(base, stamp)
+    scope: str | None = None
+    if system and held:
+        wanted = _SAFE.sub("_", system.upper())
+        if wanted in held:
+            scope = wanted
+        else:
+            # Only narrow when the system actually has this table. Returning an
+            # empty result for a field whose codelist came from a neighbour's kit
+            # would turn a labelling gap into a silent blank column.
+            from .decisions import borrowed_labels_allowed
+
+            if not borrowed_labels_allowed():
+                raise FileNotFoundError(
+                    f"reference table {table_id!r} has no {wanted} mapping; "
+                    "cross-system labels are disabled"
+                )
+            note_borrowed(_SAFE.sub("_", table_id), wanted)
+    return _warehouse_table(base, stamp, scope, code_width), (str(base), stamp, scope, code_width)
+
+
+#: ``(scoped table's key, covering windows, served) -> the first request that was answered so``: see
+#: :func:`reference_vintage`.
+_VINTAGES: dict[tuple, tuple[int | None, int | None]] = {}
+
+
+def reference_vintage(
+    lake_root: str | Path, table_id: str, *, system: str | None, year: int | None, competencia: int | None,
+    code_width: int | None = None,
+) -> tuple[int | None, int | None]:
+    """The request ``(year, competencia)`` that stands for this one: every month the table answers with the same
+    validity windows is one request.
+
+    A caller that keys what it derives from a table by the month it was asked for (the code -> label map, its
+    contradictions, the merge of a field's tables) derives it again for every month of one window: a year of a
+    monthly dataset is twelve renders of the same table. Keyed by the first request answered with a given set of
+    windows it is one, and the table is read for that request alone. The decisions a read records (a window that does
+    not cover the month, a copy borrowed from another system) are recorded here, on EVERY call, for the month actually
+    asked, so a cached read reports what an uncached one does. A table the lake does not hold in windows (the
+    shipped pack, a canonical classification) is returned as asked.
+    """
+    if year is None and competencia is None:
+        return year, competencia
+    base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
+    if competencia is not None:
+        span, asked = (int(competencia), int(competencia)), str(int(competencia))
+    else:
+        span, asked = (year * 100 + 1, year * 100 + 12), str(year)       # type: ignore[operator]
+    from ..labelpack import read_packed, select_windows, windows_answering
+
+    try:
+        if base.is_dir():
+            table, scope = _scoped_table(base, table_id, system, code_width)
+            covering, served = select_windows(_windows_of(table, scope), span)
+            if served is not None:
+                note_fallback(_SAFE.sub("_", table_id), asked, served)
+        else:
+            # no copy in the lake: the shipped pack answers, windowed by its own rows (it records its own decisions)
+            read_packed(table_id, system=system, year=year, competencia=competencia)
+            found = windows_answering(table_id, system, span)
+            if found is None:
+                return year, competencia
+            covering, served = found
+            scope = ("pack", table_id.upper(), str(system or "").upper(), None)
+    except (OSError, ValueError):       # absent, no copy for the system, a window bound that is no AAAAMM: the read says
+        return year, competencia
+    key = (scope, tuple(covering), served)
+    if key not in _VINTAGES:
+        if len(_VINTAGES) > 4096:
+            _VINTAGES.clear()
+        _VINTAGES[key] = (year, competencia)
+    return _VINTAGES[key]
+
+
+_WINDOWS: dict[tuple, list[tuple[str, str]]] = {}
+
+
+def _windows_of(table: pa.Table, scope: tuple) -> list[tuple[str, str]]:
+    """The distinct ``(valid_from, valid_to)`` windows of a scoped warehouse table, once per state of the table."""
+    windows = _WINDOWS.get(scope)
+    if windows is None:
+        pairs = table.select(["valid_from", "valid_to"]).cast(
+            pa.schema([("valid_from", pa.string()), ("valid_to", pa.string())]))
+        distinct = pairs.group_by(["valid_from", "valid_to"], use_threads=False).aggregate([])
+        windows = [(str(lo or ""), str(hi or "")) for lo, hi in zip(
+            distinct["valid_from"].to_pylist(), distinct["valid_to"].to_pylist(), strict=True)]
+        if len(_WINDOWS) > 512:
+            _WINDOWS.clear()
+        _WINDOWS[scope] = windows
+    return windows
 
 
 #: ``(table directory, its modification time) -> the systems it holds``: read off the directory names once per state of

@@ -20,7 +20,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .identifiers import LABEL_PREFIX
-from .persist.reference import read_reference_table
+from .persist.reference import read_reference_table, reference_vintage
 
 # ------------------------------------------------------------------ labelling
 
@@ -110,6 +110,19 @@ def _vintage_free(codelist: str) -> bool:
     )
 
 
+def _vintage_of(
+    lake_root: Path, codelist: str, system: str | None, year: int | None, competencia: int | None,
+    code_width: int | None,
+) -> tuple[int | None, int | None]:
+    """The request that stands for ``year``/``competencia`` in everything derived from this table: none for a table
+    that has no vintages, the first month answered by the same validity windows for one that has (every cache below
+    is keyed by it, so a year of months is one entry per window, not one per month), and the decisions of the read
+    (a window that does not cover the month, a borrowed copy) recorded for the month asked, on every call."""
+    if _vintage_free(codelist):
+        return None, None
+    return reference_vintage(lake_root, codelist, system=system, year=year, competencia=competencia, code_width=code_width)
+
+
 def _lookup_map(
     lake_root: Path,
     codelist: str,
@@ -121,15 +134,32 @@ def _lookup_map(
     only: frozenset[str] | None = None,
     registries: Path | None = None,
 ) -> Mapping[str, str]:
-    """``_lookup_map_uncached``, built once per process per table version.
+    """``_lookup_map_uncached``, built once per process per table version and validity window.
 
     A year of monthly files renders as twelve groups, and each rebuilt the same
     maps: 7 of a 17-second one-month query was reading and re-reading reference
     tables (profiled 2026-09-29), the 692,004-row establishment registry among
     them. Callers only read the result.
     """
-    if _vintage_free(codelist):
-        year = competencia = None
+    year, competencia = _vintage_of(lake_root, codelist, system, year, competencia, code_width)
+    return _lookup_map_at(
+        lake_root, codelist, system=system, year=year, competencia=competencia, code_width=code_width, only=only,
+        registries=registries,
+    )
+
+
+def _lookup_map_at(
+    lake_root: Path,
+    codelist: str,
+    *,
+    system: str | None,
+    year: int | None,
+    competencia: int | None,
+    code_width: int | None,
+    only: frozenset[str] | None,
+    registries: Path | None,
+) -> Mapping[str, str]:
+    """:func:`_lookup_map` for a vintage already stood for by :func:`_vintage_of`."""
     version = _reference_version(Path(lake_root), codelist, registries)
     reg = None if registries is None else str(registries)
     if only is not None:
@@ -189,8 +219,7 @@ def _contradictions(
     registries: Path | None = None,
 ) -> Mapping[str, set[str]]:
     """``_contradictions_uncached``, cached like ``_lookup_map``."""
-    if _vintage_free(codelist):
-        year = competencia = None
+    year, competencia = _vintage_of(lake_root, codelist, system, year, competencia, code_width)
     return _cached_contradictions(
         str(lake_root), None if registries is None else str(registries), codelist, system, year, competencia,
         code_width, _reference_version(Path(lake_root), codelist, registries),
@@ -405,28 +434,28 @@ def _merged_lookup(
     692,004-row registry twelve times was 16 million ``setdefault`` calls in a
     year's query (ADR-0097). Tables with no vintages drop the year from the key.
     """
-    if all(_vintage_free(c) for c in codelists):
-        year = competencia = None
     if any(str(c).upper() in HIERARCHICAL_CODELISTS or str(c).upper() in PATH_CODELISTS for c in codelists):
         # These answer codes the column does not literally hold (a category
         # for an unlisted subcategory): never cut to the observed ones.
         only = None
+    # each table answers the vintage in its own windows
+    vintages = tuple(_vintage_of(Path(lake), c, system, year, competencia, None) for c in codelists)
     versions = tuple(_reference_version(Path(lake), c, registries) for c in codelists)
     reg = None if registries is None else str(registries)
-    return _cached_merged_lookup(str(lake), reg, codelists, system, year, competencia, versions, only)
+    return _cached_merged_lookup(str(lake), reg, codelists, system, vintages, versions, only)
 
 
 @lru_cache(maxsize=512)
 def _cached_merged_lookup(
-    lake: str, registries: str | None, codelists: tuple[str, ...], system: str | None, year: int | None,
-    competencia: int | None, versions: tuple[tuple[int, ...], ...],
+    lake: str, registries: str | None, codelists: tuple[str, ...], system: str | None,
+    vintages: tuple[tuple[int | None, int | None], ...], versions: tuple[tuple[int, ...], ...],
     only: frozenset[str] | None = None,
 ) -> tuple[Mapping[str, str], list[str]]:
     missing: list[str] = []
     maps: list[Mapping[str, str]] = []
-    for codelist in codelists:
+    for codelist, (year, competencia) in zip(codelists, vintages, strict=True):
         try:
-            maps.append(_lookup_map(
+            maps.append(_lookup_map_at(
                 Path(lake), codelist, system=system, year=year, competencia=competencia, code_width=None,
                 only=only, registries=None if registries is None else Path(registries),
             ))

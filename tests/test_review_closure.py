@@ -85,10 +85,13 @@ class TestCR04_LoadHasFetchsAxisGuard:
 
     def test_every_public_reader_refuses_the_same_impossible_filter(self):
         from pegasus_data import api
+        from pegasus_data._query_engine import readplan
         from pegasus_data.retrieve import FilterHasNoAxis, axis_refusal
 
-        source = inspect.getsource(api)
+        # the guard lives in the read plan that load() and scan() both start from
+        source = inspect.getsource(readplan.plan_lake_read)
         assert "axis_refusal" in source and "FilterHasNoAxis" in source
+        assert all("plan_lake_read" in inspect.getsource(fn) for fn in (api.load, api.scan))
         assert callable(axis_refusal) and issubclass(FilterHasNoAxis, ValueError)
 
 
@@ -96,23 +99,25 @@ class TestCR05_OneDatasetResolver:
     """Dataset/family resolution was split between two incompatible implementations."""
 
     def test_resolution_goes_through_the_ontology(self):
-        from pegasus_data.api import _resolve_family
+        from pegasus_data._query_engine.readplan import resolve_family
 
-        source = inspect.getsource(_resolve_family)
+        source = inspect.getsource(resolve_family)
         assert "ontology" in source.lower(), (
             "identity is an institutional fact declared in curation/ontology.yml; "
             "the FTP layout is evidence, not the authority"
         )
 
     def test_load_scan_and_describe_all_reach_it(self):
-        """load() reaches it through _resolve_generations since ME-18 split
-        resolution out; what matters is that no reader has its own resolver."""
+        """load() and scan() reach it through plan_lake_read (the read plan), the planner's coverage through
+        resolve_family itself: no reader has its own resolver."""
         from pegasus_data import api
+        from pegasus_data._query_engine import coverage, readplan
 
-        assert "_resolve_family" in inspect.getsource(api._resolve_generations)
+        assert "resolve_family" in inspect.getsource(readplan.plan_lake_read)
         for fn in (api.load, api.scan):
-            assert "_resolve_generations" in inspect.getsource(fn), fn.__name__
-        assert "_resolve_family" in inspect.getsource(api.describe)
+            assert "plan_lake_read" in inspect.getsource(fn), fn.__name__
+        assert "resolve_family" in inspect.getsource(api.describe)
+        assert "resolve_family" in inspect.getsource(coverage._catalog_coverage)
 
 
 class TestCR06_PartitionReplacementIsNotDestructiveFirst:

@@ -61,6 +61,42 @@ class LakePartition:
     uf: str
     year: int
     relative_path: str
+    #: the source files (catalog paths) the partition was built from: what says a publication is in the lake
+    sources: frozenset[str] = frozenset()
+
+
+def listed_partitions(catalog: CatalogStore, family_ids: Sequence[str]) -> dict[str, tuple[LakePartition, ...]]:
+    """The partitions the catalog lists for ``family_ids`` (all states and years), by family.
+
+    The one answer to "which files hold this family": ``lake_partitions`` is written with the file, so reading from
+    it is a list lookup, where discovering the directory again for every read cost 0.3-0.7 s of a query (a walk of
+    every ``schema_signature=/uf=/year=/part-*`` of the family). Remembered until the catalog changes (ADR-0163).
+    """
+    ids = tuple(sorted({str(f) for f in family_ids}))
+    if not ids:
+        return {}
+
+    def load() -> dict[str, tuple[LakePartition, ...]]:
+        found: dict[str, list[LakePartition]] = {}
+        for start in range(0, len(ids), 500):
+            chunk = ids[start:start + 500]
+            marks = ",".join("?" for _ in chunk)
+            for row in catalog.query(
+                f"SELECT family_id, schema_signature, uf, year, relative_path, source_paths FROM lake_partitions "
+                f"WHERE family_id IN ({marks})", chunk,
+            ):
+                try:
+                    sources = frozenset(str(value) for value in json.loads(row["source_paths"] or "[]"))
+                except (TypeError, json.JSONDecodeError):
+                    sources = frozenset()
+                found.setdefault(str(row["family_id"]), []).append(LakePartition(
+                    str(row["family_id"]), str(row["schema_signature"]), str(row["uf"] or ""),
+                    int(row["year"] or 0), str(row["relative_path"]).replace("\\", "/"), sources,
+                ))
+        return {fam: tuple(sorted(parts, key=lambda p: (p.uf, p.year, p.relative_path)))
+                for fam, parts in found.items()}
+
+    return catalog.memo(("lake_partitions", ids), load)
 
 
 class PartialLakeError(RuntimeError):
@@ -310,36 +346,8 @@ class Lake:
     # -------------------------------------------------- the catalog's list of partitions
 
     def listed(self, family_ids: Sequence[str]) -> dict[str, tuple[LakePartition, ...]] | None:
-        """The partitions the catalog lists for ``family_ids`` (all states and years), by family; ``None`` without one.
-
-        The one answer to "which files hold this family": ``lake_partitions`` is written with the file, so reading
-        from it is a list lookup, where discovering the directory again for every read cost 0.3-0.7 s of a query
-        (a walk of every ``schema_signature=/uf=/year=/part-*`` of the family). Remembered until the catalog changes.
-        """
-        catalog = self.catalog
-        if catalog is None:
-            return None
-        ids = tuple(sorted({str(f) for f in family_ids}))
-        if not ids:
-            return {}
-
-        def load() -> dict[str, tuple[LakePartition, ...]]:
-            found: dict[str, list[LakePartition]] = {}
-            for start in range(0, len(ids), 500):
-                chunk = ids[start:start + 500]
-                marks = ",".join("?" for _ in chunk)
-                for row in catalog.query(
-                    f"SELECT family_id, schema_signature, uf, year, relative_path FROM lake_partitions "
-                    f"WHERE family_id IN ({marks})", chunk,
-                ):
-                    found.setdefault(str(row["family_id"]), []).append(LakePartition(
-                        str(row["family_id"]), str(row["schema_signature"]), str(row["uf"]),
-                        int(row["year"] or 0), str(row["relative_path"]).replace("\\", "/"),
-                    ))
-            return {fam: tuple(sorted(parts, key=lambda p: (p.uf, p.year, p.relative_path)))
-                    for fam, parts in found.items()}
-
-        return catalog.memo(("lake_partitions", ids), load)
+        """:func:`listed_partitions` of this lake's catalog; ``None`` for a lake without one."""
+        return None if self.catalog is None else listed_partitions(self.catalog, family_ids)
 
     @staticmethod
     def narrow(

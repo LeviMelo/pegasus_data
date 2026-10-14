@@ -96,10 +96,14 @@ system's directory when the catalog has never seen that system
      the membership pack, for any column `geography.yml` lists in
      `municipality_fields` (ADR-0130). Labels are the renderer's, unfiltered (ADR-0061).
 
-`load()` and `scan()` (`api.py`) read the lake instead and render through the
-same `render_groups`. Both resolve the dataset, refuse an impossible axis and choose their files in one place
-(`_resolve_generations`), from the catalog's list of the lake (`lake_partitions`, ADR-0164), through the process's one
-read-only catalog connection whose reads are remembered until the catalog changes (ADR-0163).
+`plan()` also emits the lake read: `RetrievalPlan.lake_partitions`, the exact files of one reading of each lake year (the
+national file or the states', never both; all on disk when planned), and `query` hands them to `load(partitions=)` in one
+call. `load()` and `scan()` (`api.py`) read the lake and render through the same `render_groups`; both start from
+`plan_lake_read` (`_query_engine/readplan.py`: dataset families, the axis refusal, the schema census, the files, the
+missing-column rule), from the catalog's list of the lake (`lake_partitions`, ADR-0164) through the process's one read-only
+catalog connection whose reads are remembered until the catalog changes (ADR-0163). Without a plan a caller's `uf`/`years`
+narrow that list by the same one-reading rule (`coverage.one_reading`). Reference lookups are keyed by the validity window
+a month falls in (`persist.reference.reference_vintage`, ADR-0185), not by the month.
 
 ### 2.3 The semantic build (maintainer)
 

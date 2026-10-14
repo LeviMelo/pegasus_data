@@ -22,34 +22,28 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.api import _system_spellings
 from pegasus_data.semantics.curation import system_spellings
 
 
 class TestASystemAnswersToEveryNameItHas:
     def test_the_institutional_name_reaches_the_crawled_one(self) -> None:
-        assert "SIHSUS" in _system_spellings("SIH")
-        assert "SIH" in _system_spellings("SIHSUS")
+        assert "SIHSUS" in system_spellings("SIH")
+        assert "SIH" in system_spellings("SIHSUS")
 
     def test_it_works_for_the_other_renamed_system(self) -> None:
-        assert "SIASUS" in _system_spellings("SIA")
-        assert "SIA" in _system_spellings("SIASUS")
+        assert "SIASUS" in system_spellings("SIA")
+        assert "SIA" in system_spellings("SIASUS")
 
     def test_a_system_with_one_name_is_unchanged(self) -> None:
-        assert _system_spellings("CNES") == ["CNES"]
+        assert system_spellings("CNES") == ["CNES"]
 
     def test_an_unknown_name_is_returned_as_asked(self) -> None:
         """A name the declaration does not know must not become empty — the
         caller gets the plain match rather than silently nothing."""
-        assert _system_spellings("NOSUCHSYSTEM") == ["NOSUCHSYSTEM"]
+        assert system_spellings("NOSUCHSYSTEM") == ["NOSUCHSYSTEM"]
 
     def test_case_does_not_matter(self) -> None:
-        assert _system_spellings("sih") == _system_spellings("SIH")
-
-    def test_the_curation_loader_agrees(self) -> None:
-        """Both resolvers must expand the same way, or the family is found and
-        its docs are not — which is the state that produced a null name."""
-        assert set(system_spellings("SIH")) == set(_system_spellings("SIH"))
+        assert system_spellings("sih") == system_spellings("SIH")
 
 
 class TestCuratedDocsReachTheLoader:
