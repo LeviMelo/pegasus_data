@@ -520,18 +520,6 @@ def build_municipality_pack(
             "bytes": out.stat().st_size}
 
 
-def _municipality_pack_path(pack_path: str | Path | None) -> Path | None:
-    if pack_path is not None:
-        return Path(pack_path)
-    from importlib.resources import files
-
-    try:
-        candidate = Path(str(files("pegasus_data.resources") / MUNICIPALITY_PACK_NAME))
-    except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
-        return None
-    return candidate if candidate.exists() else None
-
-
 @lru_cache(maxsize=2)
 def _municipality_index(path: str, mtime_ns: int = 0) -> dict[str, dict[str, str]]:
     """`code6 -> row`, built once.
@@ -553,7 +541,7 @@ def _municipality_index(path: str, mtime_ns: int = 0) -> dict[str, dict[str, str
 
 def municipalities(pack_path: str | Path | None = None) -> dict[str, dict[str, str]]:
     """`code6 -> {code7, name, uf_code, uf_sigla, uf_name, macroregion}`."""
-    resolved = _municipality_pack_path(pack_path)
+    resolved = _pack_path(pack_path, MUNICIPALITY_PACK_NAME)
     if resolved is None:
         return {}
     return _municipality_index(str(resolved), _pack_mtime(str(resolved)))
@@ -623,13 +611,14 @@ def _pack_mtime(path: str) -> int:
         return 0
 
 
-def _pack_path(pack_path: str | Path | None) -> Path | None:
+def _pack_path(pack_path: str | Path | None, name: str = GEOGRAPHY_PACK_NAME) -> Path | None:
+    """The pack at ``pack_path``, else the shipped one called ``name`` (the memberships, or the municipalities)."""
     if pack_path is not None:
         return Path(pack_path)
     from importlib.resources import files
 
     try:
-        candidate = Path(str(files("pegasus_data.resources") / GEOGRAPHY_PACK_NAME))
+        candidate = Path(str(files("pegasus_data.resources") / name))
     except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
         return None
     return candidate if candidate.exists() else None
