@@ -16,7 +16,7 @@
 - **`label_via`.** A variable may declare `label_via: {column, table, field}`.
   Its label is `field` of the `table` row keyed by the same row's `column`
   (`view._label_via`). The registry keeps `maintainer` (`RSOC_MAN`) for this.
-  `select=` loads the via column (`retrieve._keep_columns`).
+  `select=` loads the via column (`semantics.curation.required_columns`, since ADR-0174; `retrieve._keep_columns` before it).
 - **Where it is set.** On SIH `CNPJ_MANT` (via `CNES`), CNES `CNPJ_MAN` (via
   `CNES`), SIA `PA_CNPJMNT` (via `PA_CODUNI`), and APAC `AP_CNPJMNT` and BI
   `CNPJMNT` (via their `CODUNI`).

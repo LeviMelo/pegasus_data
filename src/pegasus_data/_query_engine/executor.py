@@ -99,7 +99,7 @@ def query(
     ``render`` sets a column's rendering (``"code"``: as filed, no codelist
     chosen), as `load` and `fetch` take it. ``rows`` (``{column: code prefixes}``) keeps only the records whose columns
     start with one of their codes: an explicit filter the caller names (period and geography never filter records),
-    pushed into the lake's scan before anything is rendered, and applied to a fetched year as it arrives."""
+    pushed into the lake's scan, and applied to a fetched year as it is decoded: before anything is rendered."""
     from ..api import _rows_filters
     from ..presentation import resolve as resolve_presentation
 
@@ -205,12 +205,11 @@ def query(
         # a column NO generation of the dataset carries is a typo or a renamed field: refused here, for the lake and
         # the fetch path alike, instead of coming back as an all-null column with a warning
         from ..api import _require_known_columns, _resolve_family
-        from ..retrieve import _derived_inputs
-        from ..semantics.curation import load_variable_docs
+        from ..semantics.curation import derived_inputs, load_variable_docs
 
         with shared_catalog(resolved) as known_store:
             dataset_families = _resolve_family(known_store, retrieval.system, retrieval.series, None)
-            derived_names = frozenset(_derived_inputs(load_variable_docs(known_store, retrieval.system)))
+            derived_names = frozenset(derived_inputs(load_variable_docs(known_store, retrieval.system)))
             _require_known_columns(
                 known_store, retrieval.system, retrieval.series, dataset_families,
                 [*(requested_columns or []), *(rows or {})], exempt=derived_names,
@@ -279,8 +278,7 @@ def query(
                 uf=list(retrieval.geography_for(fetch_year)) or None,
                 years=[fetch_year] if fetch_year is not None else None,
                 months=fetch_months,
-                # the filter's columns are read too: it runs on the decoded year, and `select=` drops them after
-                columns=sorted({*requested_columns, *(rows or {})}) if requested_columns is not None else None,
+                columns=requested_columns,
                 labels=labels,
                 profile="audit" if labels else "codes",
                 render=render,
@@ -300,11 +298,8 @@ def query(
                 as_of=as_of,
                 settings=resolved,
                 report=True,
+                rows=rows,                  # tested on the decoded codes, before the year is rendered
             )
-            if rows:
-                from ..api import _rows_expression
-
-                fetched_table = fetched_table.filter(_rows_expression(rows))
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
             if not fetched_report.is_complete:

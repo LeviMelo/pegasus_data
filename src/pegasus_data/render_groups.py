@@ -128,8 +128,12 @@ def _split_annual_rows(
     if len(usable) <= 1:
         only = usable[0] if usable else (min(years) if years else None)
         return [(table, family_id, only, None)]
-    chunks, _ = _partition(table, "year", usable)
-    return [(chunk, family_id, year, None) for year, chunk in chunks]
+    chunks, undated = _partition(table, "year", usable)
+    out: list[Group] = [(chunk, family_id, year, None) for year, chunk in chunks]
+    if undated.num_rows:
+        # rows with no year (intake's undated records) are rendered against no vintage, never dropped from the answer
+        out.append((undated, family_id, None, None))
+    return out
 
 
 def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[list[tuple[int, pa.Table]], pa.Table]:

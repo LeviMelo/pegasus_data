@@ -35,7 +35,7 @@ ADR-0086 to ADR-0089 left these gaps:
   stays visibly undecoded.
 - **A label's inputs survive a narrow select.** A selected column's key parts,
   naming sibling and units are loaded, kept through rendering, and dropped
-  after it (`retrieve._keep_columns`, `fetch`).
+  after it (`semantics.curation.required_columns`, since ADR-0174; `retrieve._keep_columns` before it).
 - **SIA falls back to `S_CID`.** SIA's 33 ICD fields bind `ICD10` then `S_CID`;
   the canonical table decodes real codes, and SIA's own table only its
   fillers.

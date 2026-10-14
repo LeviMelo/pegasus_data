@@ -21,7 +21,7 @@ cost 195 s and stopped the source.
   parts in; `_register` in one transaction deletes the unit's `lake_partitions` and `family_files` rows in every family, drops a family
   left with no partition, removes publications of years the unit no longer has, refreshes the touched families and recomputes
   `lake_datasets.family_ids`. Any failure before the swap leaves the previous records, catalog rows and sidecar as they were; a missing
-  sidecar means "land again". Undated records (year 0) stay in the lake and in no partition or publication, as before.
+  sidecar means "land again". Undated records (year 0) stay in the lake and in no publication; they are a listed partition since ADR-0174 (they had been in neither).
 - **An API unit says whether it is final.** A partition unit (one state) is complete; an offset unit of `PIECE_PAGES` pages is complete
   when it read them all and its last page is full or another page follows. The sidecar records `complete` (a sidecar without it is
   read by its rows); an incomplete unit is read again on every run unless the origin declares `static: true`, and ends an offset read.

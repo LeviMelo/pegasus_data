@@ -660,25 +660,27 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
             touched |= {r[0] for r in before}
             published: set[str] = set()
             for year, files in sorted(by_year.items()):
-                if year == 0:
-                    continue                                          # undated: in the lake, never a publication nor a partition
                 path = f"{prefix}{year}"
-                published.add(path)
-                conn.execute("INSERT OR REPLACE INTO files (path, logical_id, directory, filename, extension, size, modified, "
-                             "listing_method, change_signal, first_seen, last_seen, gone_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,NULL)",
-                             (path, path, unit["path"].rsplit("/", 1)[0], path.rsplit("/", 1)[-1],
-                              unit.get("extension", ""), int(unit.get("size") or 0), unit.get("modified"), "intake", "size", now, now))
-                conn.execute("INSERT OR REPLACE INTO file_facts (path, system, series_prefix, geo_code, date_code, date_format, "
-                             "normalized_date, year, grammar, container_format, role, logical_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                             (path, system, series, "BR", str(year), "YYYY", year * 100, year, "intake",
-                              unit.get("extension", ""), "data", path))
-                conn.execute("INSERT OR REPLACE INTO family_files (family_id, path, member) VALUES (?,?,?)", (family, path, ""))
+                if year:
+                    # a dated year is a publication of the unit; the undated rows (year 0) are records in the lake and
+                    # a listed partition (`load()` of every year returns them), never a publication a period can ask for
+                    published.add(path)
+                    conn.execute("INSERT OR REPLACE INTO files (path, logical_id, directory, filename, extension, size, modified, "
+                                 "listing_method, change_signal, first_seen, last_seen, gone_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,NULL)",
+                                 (path, path, unit["path"].rsplit("/", 1)[0], path.rsplit("/", 1)[-1],
+                                  unit.get("extension", ""), int(unit.get("size") or 0), unit.get("modified"), "intake", "size", now, now))
+                    conn.execute("INSERT OR REPLACE INTO file_facts (path, system, series_prefix, geo_code, date_code, date_format, "
+                                 "normalized_date, year, grammar, container_format, role, logical_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                                 (path, system, series, "BR", str(year), "YYYY", year * 100, year, "intake",
+                                  unit.get("extension", ""), "data", path))
+                    conn.execute("INSERT OR REPLACE INTO family_files (family_id, path, member) VALUES (?,?,?)", (family, path, ""))
                 for part in files:
                     conn.execute(
                         "INSERT OR REPLACE INTO lake_partitions (family_id, schema_signature, uf, year, relative_path, row_count, "
                         "byte_size, source_paths, written_at, build_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?)",
                         (family, signature, "BR", year, str(part.relative_to(lake_root)).replace("\\", "/"),
-                         pq.read_metadata(part).num_rows, part.stat().st_size, json.dumps([path]), now, unit.get("fingerprint")))
+                         pq.read_metadata(part).num_rows, part.stat().st_size, json.dumps([path] if year else []), now,
+                         unit.get("fingerprint")))
             # a year the unit no longer has is no longer a publication
             conn.executemany("DELETE FROM files WHERE path=?", [(p,) for p in {r[1] for r in before} - published])
             touched.add(family)

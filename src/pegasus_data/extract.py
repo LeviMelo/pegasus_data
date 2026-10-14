@@ -31,12 +31,10 @@ import pyarrow.parquet as pq
 __all__ = ["build_extract", "extract_dir", "extract_table"]
 
 
-def _norm(code: str) -> str:
-    return str(code).replace(".", "").strip().upper()
-
-
 def _filters(filters: dict[str, Sequence[str]]) -> dict[str, list[str]]:
-    return {str(c).upper(): sorted({_norm(x) for x in codes}) for c, codes in sorted(filters.items())}
+    from .api import normalise_prefix
+
+    return {str(c).upper(): sorted({normalise_prefix(x) for x in codes}) for c, codes in sorted(filters.items())}
 
 
 def extract_dir(settings: Any, dataset: str, filters: dict[str, Sequence[str]]) -> Path:
@@ -84,15 +82,12 @@ def _release(settings: Any, paths: Sequence[str]) -> int:
 
 def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | None:
     """The rows whose ``column`` starts with one of ``prefixes`` (None: the table has no such column)."""
+    from .api import prefix_match
+
     col = next((c for c in table.column_names if c.upper() == column), None)
     if col is None:
         return None
-    text = pc.utf8_upper(pc.cast(table.column(col), pa.string()))
-    mask = None
-    for p in prefixes:
-        hit = pc.fill_null(pc.starts_with(text, p), False)
-        mask = hit if mask is None else pc.or_(mask, hit)
-    return mask
+    return pc.fill_null(prefix_match(pc.cast(table.column(col), pa.string()), prefixes), False)
 
 
 #: files fetched at once, each over its own FTP connection (the fetcher's tested limit is 8): the server gives about
@@ -239,7 +234,9 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
     from .config import load_settings
 
     settings = settings or load_settings(root=Path(root) if root else None)
-    asked = sorted({_norm(c) for c in codes})
+    from .api import normalise_prefix
+
+    asked = sorted({normalise_prefix(c) for c in codes})
     column = column.upper()
     system, series = parse_dataset(dataset)
     base = Path(settings.lake_dir) / "extracts" / f"{system}-{series or system}"

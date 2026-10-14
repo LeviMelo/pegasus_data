@@ -317,6 +317,20 @@ def _newest_edition(catalog: CatalogStore, candidates: Sequence[dict[str, Any]])
     return candidates[dated[-1][1]]  # type: ignore[return-value]
 
 
+def other_edition(first: Mapping[str, Any], second: Mapping[str, Any]) -> bool:
+    """Are these two rows of one publication two EDITIONS, not one file twice or two formats of it?
+
+    The same kind of file at another path with another size: DATASUS republished it (SIH-RD 2014-2016, corrected in
+    2018), as `choose_representations` reads it. A different kind is an alternative representation of the same
+    records, and the same size at another path is a mirror: neither changes what the records are.
+    """
+    return (
+        str(first.get("path") or "") != str(second.get("path") or "")
+        and _representation_kind(first) == _representation_kind(second)
+        and first.get("size") != second.get("size")
+    )
+
+
 def _representation_kind(row: Mapping[str, Any]) -> str:
     """What a candidate IS, for telling editions from alternatives.
 
