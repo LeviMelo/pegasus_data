@@ -111,3 +111,12 @@ def fold(text: object) -> str:
     medicine names, the labels of a classification."""
     plain = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
     return " ".join(plain.upper().replace("-", " ").replace("'", " ").split())
+
+
+def fold_sql(column: str) -> str:
+    """DuckDB's spelling of :func:`fold` for a column (a scan of the 4.2 million packed labels cannot call Python per row:
+    14 s against 4.5 s). The same folding except NFKD's compatibility characters, which `strip_accents` leaves alone (the
+    ordinal `ª` stays `ª` where `fold` makes it `A`: 21,466 of the pack's labels, measured 2026-10-14) and whitespace beyond
+    ASCII."""
+    return (f"trim(regexp_replace(replace(replace(upper(strip_accents({column})), '-', ' '), '''', ' '), "
+            r"'\s+', ' ', 'g'))")

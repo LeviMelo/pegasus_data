@@ -36,6 +36,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
+from ..textenc import fold
 from .cnv_parser import CnvFile
 from .tabkit import ParsedKit
 
@@ -869,14 +870,6 @@ CLASSIFICATION_MENTIONS: dict[str, tuple[str, ...]] = {
 }
 
 
-def _fold(text: str) -> str:
-    import unicodedata
-
-    return "".join(
-        c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c)
-    )
-
-
 def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
     """Promote a semantic-match binding that a record layout independently names.
 
@@ -898,7 +891,7 @@ def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
     by_field: dict[tuple[str | None, str], tuple[str, str]] = {}
     for row in documented:
         by_field[(row["system"], row["field_name"])] = (
-            _fold(str(row["description"])),
+            fold(str(row["description"])),
             str(row["source_ref"]),
         )
 
@@ -910,7 +903,7 @@ def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
             continue
         description, source_ref = entry
         mentions = CLASSIFICATION_MENTIONS.get(str(row["codelist"]).upper(), ())
-        if not any(m in description for m in mentions):
+        if not any(fold(m) in description for m in mentions):
             continue
         promoted.append(
             (

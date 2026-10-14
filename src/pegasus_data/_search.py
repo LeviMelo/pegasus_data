@@ -17,17 +17,12 @@ matches, then shorter labels.
 from __future__ import annotations
 
 import re
-import unicodedata
 from pathlib import Path
 
 from .config import Settings, load_settings
+from .textenc import fold, fold_sql
 
 KINDS = ("variable", "dataset", "code")
-
-
-def _fold(text: object) -> str:
-    decomposed = unicodedata.normalize("NFKD", str(text or ""))
-    return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold()
 
 
 def search(
@@ -45,7 +40,7 @@ def search(
     ``"variable"``, ``"dataset"`` or ``"code"``; ``system`` to one system
     (``"SIHSUS"``).
     """
-    needle = _fold(query).strip()
+    needle = fold(query).strip()
     if not needle:
         raise ValueError("search needs a non-empty query")
     if kind is not None and kind not in KINDS:
@@ -101,11 +96,11 @@ def search(
 
 def _starts_a_word(needle: str, text: str) -> bool:
     """The match must begin a word: "raca" finds "raça/cor", not "duração"."""
-    return re.search(r"(?<![0-9a-z])" + re.escape(needle), _fold(text)) is not None
+    return re.search(r"(?<![0-9A-Z])" + re.escape(needle), fold(text)) is not None
 
 
 def _rank(needle: str, exact: str, names: str, prose: str) -> tuple[int, int] | None:
-    if _fold(exact) == needle:
+    if fold(exact) == needle:
         return (0, len(exact))
     if _starts_a_word(needle, names):
         return (1, len(names))
@@ -127,7 +122,7 @@ def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, ob
         return []
     con = duckdb.connect()
     try:
-        folded = "lower(strip_accents(label))"
+        folded = fold_sql("label")
         rows = con.execute(
             f"""
             SELECT COALESCE(system, '*') AS system, codelist, code_lo, code_hi, label,
@@ -138,7 +133,7 @@ def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, ob
              ORDER BY rank, length(label), codelist
              LIMIT ?
             """,
-            [needle, f"{needle}%", str(pack), r"(^|[^0-9a-z])" + re.escape(needle), system, system, limit],
+            [needle, f"{needle}%", str(pack), r"(^|[^0-9A-Z])" + re.escape(needle), system, system, limit],
         ).fetchall()
     finally:
         con.close()
