@@ -167,7 +167,11 @@ def load_facts(lake: Path, table: int, *, variables: list[int] | None = None, pe
     listing = ",".join("?" * len(files))
     # The window over a big table is held in memory, so a big table is dealt with in buckets of localities (an
     # observation always falls in one bucket), about 1.5 million stored rows each.
-    stored = sum(pq.read_metadata(f).num_rows for f in files)
+    # sized by the rows the filter keeps, not by everything stored: a one-locality read of a national table was cut into
+    # buckets that each rescanned every part
+    stored = con.execute(f"SELECT count(*) FROM read_parquet([{listing}], union_by_name = true, hive_partitioning = false)"
+                         f"{' WHERE ' + ' AND '.join(where) if where else ''}",
+                         [f.as_posix() for f in files] + args).fetchone()[0]
     buckets = max(1, math.ceil(stored / 1_500_000))
     parts = []
     for k in range(buckets):

@@ -83,31 +83,54 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
             raise ValueError(f"{column}: an estimate without its uncertainty is refused")
     if not manifest.validation:
         raise ValueError("a modelled product names its validation evidence")
+    import os
+    import shutil
+
     target = _root(settings) / manifest.product / manifest.version
     if target.exists():
         raise FileExistsError(f"{manifest.product} {manifest.version} exists; a version is never overwritten")
-    target.mkdir(parents=True)
+    # written in a staging directory and renamed whole: a killed write left `<version>/estimates.parquet` without a
+    # footer and no manifest, `FileExistsError` on the rerun and the half-written version the latest `read_modelled`
+    # picked (2026-10-14 review)
+    staging = target.with_name(f"{manifest.version}.{os.getpid()}.staging")
+    shutil.rmtree(staging, ignore_errors=True)
+    staging.mkdir(parents=True)
     meta = {b"tier": b"modelled", b"product": manifest.product.encode(), b"version": manifest.version.encode()}
     schema = table.schema.with_metadata({**(table.schema.metadata or {}), **meta})
-    with pq.ParquetWriter(target / "estimates.parquet", schema, **_encoding(schema)) as writer:
-        writer.write_table(table.replace_schema_metadata(schema.metadata))
-        for chunk in rest or ():
-            writer.write_table(chunk.replace_schema_metadata(schema.metadata))
-    (target / "manifest.json").write_text(json.dumps(asdict(manifest), indent=2, ensure_ascii=False) + "\n",
-                                          encoding="utf-8")
+    try:
+        with pq.ParquetWriter(staging / "estimates.parquet", schema, **_encoding(schema)) as writer:
+            writer.write_table(table.replace_schema_metadata(schema.metadata))
+            for chunk in rest or ():
+                writer.write_table(chunk.replace_schema_metadata(schema.metadata))
+        (staging / "manifest.json").write_text(json.dumps(asdict(manifest), indent=2, ensure_ascii=False) + "\n",
+                                               encoding="utf-8")
+        staging.rename(target)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
     return target
 
 
 def read_modelled(product: str, version: str | None = None, *, settings: Any) -> tuple[pa.Table, dict[str, Any]]:
     """A modelled product and its manifest; the latest version unless one is named."""
     base = _root(settings) / product
-    versions = sorted(p.name for p in base.iterdir()) if base.exists() else []
+    versions = sorted((p.name for p in base.iterdir() if (p / "manifest.json").is_file()), key=_version_order) \
+        if base.exists() else []
     if not versions:
         raise FileNotFoundError(f"no modelled product {product!r}")
     chosen = version or versions[-1]
     folder = base / chosen
     manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     return pq.read_table(folder / "estimates.parquet"), manifest
+
+
+def _version_order(name: str) -> tuple[int, str]:
+    """Versions by their trailing number, not as text (``-10`` sorted before ``-6``); only a version with a manifest (a
+    complete write) is one."""
+    import re
+
+    found = re.search(r"(\d+)$", name)
+    return (int(found.group(1)) if found else -1, name)
 
 
 def _encoding(schema: pa.Schema) -> dict[str, Any]:

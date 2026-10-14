@@ -91,7 +91,8 @@ def fit(observations: pa.Table, *, max_iter: int = 200, tol: float = 1e-7, smoot
     classes = sorted(set(label.tolist()))
     settings = sorted(set(setting.tolist()))
     pid, p_inv = np.unique(person, return_inverse=True)
-    s_idx = np.array([settings.index(x) for x in setting]) if len(setting) else np.zeros(0, int)
+    s_index = {x: i for i, x in enumerate(settings)}        # a dictionary, not list.index per observation (n x S)
+    s_idx = np.fromiter((s_index[x] for x in setting), int, len(setting))
     c_index = {c: i for i, c in enumerate(classes)}
     j_idx = np.array([c_index[x] for x in label]) if len(label) else np.zeros(0, int)
     n_p, n_s, n_k = len(pid), len(settings), len(classes)
@@ -100,7 +101,8 @@ def fit(observations: pa.Table, *, max_iter: int = 200, tol: float = 1e-7, smoot
     if groups:
         names = sorted({groups.get(x, x) for x in settings})
         n_g = len(names)
-        group_of = np.array([names.index(groups.get(x, x)) for x in settings])
+        g_index = {g: i for i, g in enumerate(names)}
+        group_of = np.array([g_index[groups.get(x, x)] for x in settings])
     # Start: majority vote per person.
     votes = np.zeros((n_p, n_k))
     np.add.at(votes, (p_inv, j_idx), 1.0)
