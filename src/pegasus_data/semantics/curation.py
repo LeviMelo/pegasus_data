@@ -316,46 +316,88 @@ def _parse_codes(path: Path, name: str, raw: object) -> dict[str, str] | None:
     return out
 
 
-def read_yaml(path: Path) -> dict[str, Any]:
+def read_yaml(path: Path, *, shared: bool = False) -> dict[str, Any]:
     """One curation file, parsed once per process per version of the file.
 
     Every curation reader parsed all 157 files itself, with the pure-Python
     loader: 23 of a 43-second first query was YAML (profiled 2026-09-29,
     SIASUS-ACF 2023-01). libyaml's loader reads the same documents ~10x faster,
     and the cache is keyed on the file's mtime so an edited file is re-read.
-    Callers get a fresh copy: the parsed mapping is not theirs to mutate.
+    Callers get a fresh copy: the parsed mapping is not theirs to mutate. A loader that only reads it
+    and keeps none of its mutable parts passes ``shared=True`` and gets the cached mapping itself, without
+    the deep copy (17 ms for ``codes/sinan.yml``): it must not edit it, nor hand out its lists and mappings.
     """
     stat = path.stat()
-    return copy.deepcopy(_parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size))
+    doc = _parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size)
+    return doc if shared else copy.deepcopy(doc)
+
+
+def load_yaml_text(text: str) -> Any:
+    """YAML text, parsed by libyaml's safe loader when it is installed (the pure-Python one is ~10x slower)."""
+    yaml = _require_yaml()
+    return yaml.load(text, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))  # noqa: S506 - a safe loader
+
+
+#: Set once a process has removed the pickles of the layout before one directory per file.
+_YAML_CACHE_SWEPT = False
+
+
+def _yaml_cache_dir() -> Path | None:
+    """The directory of parsed-YAML pickles, or None when it cannot be trusted: a pickle is code, so a directory
+    another user owns (a shared ``/tmp``) is not read."""
+    import tempfile
+
+    folder = Path(tempfile.gettempdir()) / "pegasus_data_yaml"
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        if hasattr(os, "getuid") and folder.stat().st_uid != os.getuid():
+            return None
+    except OSError:
+        return None
+    return folder
 
 
 @lru_cache(maxsize=1024)
 def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
     """The parsed file, from a pickle kept beside the system's temp files when this version of it (path, mtime, size)
     was parsed before by any process: libyaml parses, but builds every object in Python, and each fresh process (a
-    CLI command, a study's lane) paid it again (a fifth of a first query, `event_types` 2.2 s, 2026-10-11)."""
-    import pickle
-    import tempfile
+    CLI command, a study's lane) paid it again (a fifth of a first query, `event_types` 2.2 s, 2026-10-11).
 
+    One directory per file holds its pickle, so writing a new version removes the old ones (the cache held 2,279
+    versions of 365 files, 44 MB, and never shrank); a pickle that cannot be read for any reason is a miss."""
+    import pickle
+
+    global _YAML_CACHE_SWEPT
     yaml = _require_yaml()
-    tag = hashlib.sha1(f"{path}|{mtime_ns}|{size}|{yaml.__version__}".encode()).hexdigest()
-    cached = Path(tempfile.gettempdir()) / "pegasus_data_yaml" / f"{tag}.pickle"
-    try:
-        with open(cached, "rb") as handle:
-            return pickle.load(handle)  # noqa: S301 - written by this function from the project's own files
-    except (OSError, pickle.UnpicklingError, EOFError):
-        pass
+    folder = _yaml_cache_dir()
+    cached = None
+    if folder is not None:
+        tag = hashlib.sha1(f"{mtime_ns}|{size}|{yaml.__version__}".encode()).hexdigest()
+        cached = folder / hashlib.sha1(path.encode()).hexdigest() / f"{tag}.pickle"
+        try:
+            with open(cached, "rb") as handle:
+                return pickle.load(handle)  # noqa: S301 - written by this function from the project's own files
+        except Exception:  # noqa: BLE001 - absent, truncated, or pickled by a version whose classes are gone: re-parse
+            pass
     loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
     with open(path, encoding="utf-8") as handle:
         doc = yaml.load(handle, Loader=loader) or {}  # noqa: S506 - a safe loader
-    try:
-        cached.parent.mkdir(parents=True, exist_ok=True)
-        tmp = cached.with_suffix(f".{os.getpid()}.tmp")
-        with open(tmp, "wb") as handle:
-            pickle.dump(doc, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        tmp.replace(cached)
-    except OSError:                       # a read-only or full temp directory: parsed each time, never wrong
-        pass
+    if cached is not None and folder is not None:
+        try:
+            if not _YAML_CACHE_SWEPT:         # the flat layout before one directory per file
+                _YAML_CACHE_SWEPT = True
+                for old in folder.glob("*.pickle"):
+                    old.unlink(missing_ok=True)
+            cached.parent.mkdir(parents=True, exist_ok=True)
+            tmp = cached.with_suffix(f".{os.getpid()}.tmp")
+            with open(tmp, "wb") as handle:
+                pickle.dump(doc, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            tmp.replace(cached)
+            for version in cached.parent.iterdir():     # another version of this file is out of date
+                if version != cached and version.suffix == ".pickle":
+                    version.unlink(missing_ok=True)
+        except OSError:                   # a read-only or full temp directory, a file in use: parsed each time, never wrong
+            pass
     return doc
 
 
@@ -371,7 +413,7 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
     root = curation_root()
     out: dict[str, dict[str, str]] = {}
     for path in sorted(root.glob("variables/**/*.yml")):
-        data = read_yaml(path)
+        data = read_yaml(path, shared=True)
         system = str(data.get("system") or "")
         for name, body in (data.get("variables") or {}).items():
             if isinstance(body, dict) and body.get("codes"):
@@ -439,6 +481,10 @@ def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
     out: list[DatasetDoc] = []
     for dataset_id, body in datasets.items():
         body = body or {}
+        if not any(body.get(k) for k in ("what_one_row_is", "unit_of_analysis", "known_biases", "gotchas")):
+            # A key that only declares event types (SIM-DO, SINASC-DN, ...) says nothing about what a row means; it
+            # would be stored as a dataset with no system, series or prose, and listed by search as an empty context.
+            continue
         gotchas = body.get("gotchas") or []
         if isinstance(gotchas, str):
             gotchas = [gotchas]
@@ -566,13 +612,25 @@ def ensure_current(catalog: CatalogStore, root: Path) -> dict[str, object] | Non
     """
     if curation_is_current(catalog, root):
         return None
-    loaded = load_curation(catalog, root)
-    note_curation_loaded(catalog, root)
+    with catalog.write():
+        # Every study lane calls this, and a YAML edit makes the catalog stale for all of them at once: the first to
+        # get the write lock loads, the others find it current when they get theirs. One transaction, so no
+        # reader sees a catalog between the deletion of the curated rows and their insertion.
+        if curation_is_current(catalog, root):
+            return None
+        loaded = load_curation(catalog, root)
+        note_curation_loaded(catalog, root)
     return loaded
 
 
 def load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
-    """Seed the catalog from ``curation/``. Replaces what the files own.
+    """Seed the catalog from ``curation/``, in one transaction. Replaces what the files own."""
+    with catalog.write():
+        return _load_curation(catalog, root)
+
+
+def _load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
+    """`load_curation`'s work: replaces what the files own.
 
     Curated rows are *replaced* rather than merged, for the same reason every
     other derived table is: an entry deleted from the YAML has to disappear from
@@ -721,6 +779,7 @@ def _record_settled_rulings(catalog: CatalogStore) -> None:
 
 
 def _replace_variable_docs(catalog: CatalogStore, docs: Sequence[VariableDoc]) -> None:
+    forget_variable_docs(catalog)
     keep = {(d.system, d.field_name) for d in docs}
     stale = [
         (r["system"], r["field_name"])
@@ -920,18 +979,54 @@ def system_spellings(system: str) -> list[str]:
 INHERITS: dict[str, tuple[str, ...]] = {"DADOS_ABERTOS": ("SIASUS",)}
 
 
+def _docs_epoch(catalog: CatalogStore) -> tuple[object, ...] | None:
+    """What the docs depend on, cheaply (0.1 ms): the curation fingerprint the catalog last loaded, the number of docs
+    and ``PRAGMA data_version`` (any other connection's commit). None: this catalog cannot say, so nothing is cached."""
+    conn = getattr(catalog, "conn", None)
+    if conn is None:
+        return None
+    try:
+        row = conn.execute("SELECT fingerprint FROM curation_state WHERE id = 1").fetchone()
+    except Exception:  # noqa: BLE001 - a catalog older than the table
+        row = None
+    try:
+        return (row[0] if row else "", conn.execute("PRAGMA data_version").fetchone()[0],
+                conn.execute("SELECT count(*) FROM variable_docs").fetchone()[0])
+    except Exception:  # noqa: BLE001 - no variable_docs table: nothing to cache
+        return None
+
+
+def forget_variable_docs(catalog: CatalogStore) -> None:
+    """Drop what `load_variable_docs` holds for this catalog: call after writing ``variable_docs`` through it."""
+    catalog.__dict__.pop("_variable_docs_cache", None)
+
+
 def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:
     """Curated docs keyed by field name, for the renderer and the doc generator.
 
     Inherited systems (``INHERITS``) fill in fields the system does not curate.
+
+    Held per catalog connection and keyed on what the docs depend on (`_docs_epoch`): a render asks once per file
+    group (1,776 groups, 21 s of an SIH state-year) and the docs of a system cannot change between them. The dict is
+    a copy; the docs in it are shared and must not be edited.
     """
+    epoch = _docs_epoch(catalog)
+    cache: dict[tuple[object, ...], dict[str, VariableDoc]] = catalog.__dict__.setdefault("_variable_docs_cache", {})
+    key = None if epoch is None else (*epoch, str(system).upper() if system else None)
+    if key is not None and key in cache:
+        return dict(cache[key])
     if system and str(system).upper() in INHERITS:
-        merged: dict[str, VariableDoc] = {}
+        docs: dict[str, VariableDoc] = {}
         for parent in INHERITS[str(system).upper()]:
-            merged.update(_load_variable_docs(catalog, parent))
-        merged.update(_load_variable_docs(catalog, system))
-        return merged
-    return _load_variable_docs(catalog, system)
+            docs.update(_load_variable_docs(catalog, parent))
+        docs.update(_load_variable_docs(catalog, system))
+    else:
+        docs = _load_variable_docs(catalog, system)
+    if key is not None:
+        if len(cache) >= 32:
+            cache.clear()
+        cache[key] = docs
+    return dict(docs)
 
 
 def _load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:

@@ -88,7 +88,9 @@ def measure(store: CatalogStore, systems: list[str] | None = None) -> list[Field
         system = str(fam["system"])
         if wanted and system.upper() not in wanted:
             continue
-        docs = docs_by_system.setdefault(system, load_variable_docs(store, system))
+        if system not in docs_by_system:
+            docs_by_system[system] = load_variable_docs(store, system)
+        docs = docs_by_system[system]
         fields = [f["name"] if isinstance(f, dict) else f for f in json.loads(fam["fields_json"] or "[]")]
         for name in fields:
             field = str(name).upper()

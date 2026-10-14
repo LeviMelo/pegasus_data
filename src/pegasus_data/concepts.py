@@ -33,6 +33,8 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .fields import write_parquet_atomic
+
 
 def _cache(root: str | Path | None) -> Path:
     from .config import load_settings
@@ -120,21 +122,21 @@ def condition_codes(root: str | Path | None = None, refresh: bool = False, downl
     whose model is ``event_type`` on an ICD-10 codelist: SINAN's ``ID_AGRAVO``), that column's codes in the latest year
     the lake holds, with their counts. A dataset with no lake year is listed in the table's metadata ``not_in_lake``;
     with ``download`` its latest published year is read instead (one national file each)."""
+    import hashlib
     import json
 
     from ._explore import explore, lake_coverage
     from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types, load_event_types
 
-    target = _cache(root) / "condition_codes.parquet"
-    if target.is_file() and not refresh:
-        return pq.read_table(target)
-    rows, missing = [], []
+    # what to read first, so the cache is named by it: the lake grows, and a file made when it held fewer years
+    # answered for the larger lake until someone passed refresh
+    plan, missing = [], []
     for name in sorted(load_event_types()):
         try:
             cols = [r["column"] for r in roles(name)
                     if r.get("model") == "event_type" and "ICD10" in (r.get("codelists") or [])]
-        except Exception:  # noqa: BLE001 - a dataset without roles names no condition column
+        except KeyError:        # a dataset without declared roles names no condition column
             continue
         if not cols:
             continue
@@ -144,17 +146,24 @@ def condition_codes(root: str | Path | None = None, refresh: bool = False, downl
         if not years:
             missing.append(name)
             continue
+        plan.append((name, cols, years[-1]))
+    tag = hashlib.sha1(json.dumps([plan, missing, bool(download)]).encode()).hexdigest()[:12]
+    target = _cache(root) / f"condition_codes_{tag}.parquet"
+    if target.is_file() and not refresh:
+        return pq.read_table(target)
+    rows = []
+    for name, cols, year in plan:
         event = event_types(name)[0]["name"]
         for col in cols:
-            t = count_events(name, event, period=years[-1], geography="BR", by=[col], root=root,
+            t = count_events(name, event, period=year, geography="BR", by=[col], root=root,
                              **({} if download else {"max_download": 0}))
-            rows += [{"dataset": name, "column": col, "year": years[-1], "code": _norm(r[col]), "events": int(r["events"])}
+            rows += [{"dataset": name, "column": col, "year": year, "code": _norm(r[col]), "events": int(r["events"])}
                      for r in t.to_pylist() if r.get(col)]
     table = pa.Table.from_pylist(rows, schema=pa.schema([("dataset", pa.string()), ("column", pa.string()),
                                                          ("year", pa.int16()), ("code", pa.string()),
                                                          ("events", pa.int64())]))
     table = table.replace_schema_metadata({"not_in_lake": json.dumps(missing)})
-    pq.write_table(table, target)
+    write_parquet_atomic(table, target)
     return table
 
 
@@ -175,8 +184,8 @@ def procedure_names(root: str | Path | None = None, refresh: bool = False) -> di
         return dict(zip(t.column("procedure").to_pylist(), t.column("name").to_pylist(), strict=True))
     export = list_exports()[-1]
     names = {r["CO_PROCEDIMENTO"]: r["NO_PROCEDIMENTO"] for r in read_table(_archive(export), "tb_procedimento")}
-    pq.write_table(pa.table({"procedure": list(names), "name": list(names.values())}),
-                   cache / f"procedure_names_{export.competencia}.parquet")
+    write_parquet_atomic(pa.table({"procedure": list(names), "name": list(names.values())}),
+                         cache / f"procedure_names_{export.competencia}.parquet")
     return names
 
 
@@ -198,7 +207,7 @@ def procedure_compatibility(root: str | Path | None = None, refresh: bool = Fals
     if not rows:
         raise LookupError(f"SIGTAP {export.filename}: no rl_procedimento_cid rows")
     table = pa.Table.from_pylist(rows)
-    pq.write_table(table, cache / f"procedure_cid_{export.competencia}.parquet")
+    write_parquet_atomic(table, cache / f"procedure_cid_{export.competencia}.parquet")
     return table
 
 
@@ -221,7 +230,7 @@ def procedure_registration(root: str | Path | None = None, refresh: bool = False
         raise LookupError(f"SIGTAP {export.filename}: no rl_procedimento_registro rows")
     names = {r["CO_REGISTRO"]: r["NO_REGISTRO"] for r in read_table(archive, "tb_registro")}
     table = pa.Table.from_pylist(rows).replace_schema_metadata({"instruments": json.dumps(names, ensure_ascii=False)})
-    pq.write_table(table, cache / f"procedure_registration_{export.competencia}.parquet")
+    write_parquet_atomic(table, cache / f"procedure_registration_{export.competencia}.parquet")
     return table
 
 
@@ -291,7 +300,7 @@ def authorisations(year: int, root: str | Path | None = None, refresh: bool = Fa
             for r in t.to_pylist()]
     table = pa.Table.from_pylist(rows, schema=pa.schema([("cid", pa.string()), ("procedure", pa.string()),
                                                          ("apacs", pa.int64()), ("year", pa.int16())]))
-    pq.write_table(table, target)
+    write_parquet_atomic(table, target)
     return table
 
 

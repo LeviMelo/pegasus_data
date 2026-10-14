@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from collections.abc import Mapping, Sequence, Set
 from dataclasses import dataclass
 from pathlib import PurePosixPath
@@ -198,6 +199,12 @@ def _wire_cost(row: Mapping[str, Any], cached: set[str]) -> tuple[int, int, int,
     )
 
 
+def _lacks(exc: sqlite3.OperationalError) -> bool:
+    """Whether the catalog lacks the table or column asked (an older catalog), as opposed to failing to answer: a
+    locked or unreadable one is not an empty one, and must not be read as "every file reachable"."""
+    return "no such table" in str(exc) or "no such column" in str(exc)
+
+
 def _cached_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
     """Which of ``paths`` were fetched into the blob store before."""
     if not paths:
@@ -210,7 +217,9 @@ def _cached_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
         try:
             out |= {str(r["source_path"]) for r in catalog.query(
                 f"SELECT DISTINCT source_path FROM fetches WHERE source_path IN ({marks})", tuple(chunk))}
-        except Exception:  # noqa: BLE001 - a catalog without fetch history ranks by size
+        except sqlite3.OperationalError as exc:      # a catalog without fetch history ranks by size
+            if not _lacks(exc):
+                raise
             return out
     return out
 
@@ -258,7 +267,9 @@ def _export_families(catalog: CatalogStore, family_ids: Sequence[str]) -> set[st
                 "AND (lower(path) LIKE '%.xml' OR lower(path) LIKE '%.xml.zip' OR lower(path) LIKE '%.csv' "
                 "OR lower(path) LIKE '%.csv.zip' OR lower(path) LIKE '%.json' OR lower(path) LIKE '%.json.zip')",
                 tuple(chunk))}
-        except Exception:  # noqa: BLE001 - a catalog without families has no export layouts
+        except sqlite3.OperationalError as exc:      # a catalog without families has no export layouts
+            if not _lacks(exc):
+                raise
             return out
     return out
 
@@ -274,7 +285,9 @@ def _unreachable_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
             out |= {str(r["path"]) for r in catalog.query(
                 f"SELECT path FROM coverage_gaps WHERE kind = 'fetch' AND resolved = 0 AND path IN ({marks})",
                 tuple(chunk))}
-        except Exception:  # noqa: BLE001 - a catalog without gaps treats every file as reachable
+        except sqlite3.OperationalError as exc:      # a catalog without gaps treats every file as reachable
+            if not _lacks(exc):
+                raise
             return out
     return out
 
@@ -292,7 +305,9 @@ def _newest_edition(catalog: CatalogStore, candidates: Sequence[dict[str, Any]])
             str(r["path"]): str(r["modified"] or "")
             for r in catalog.query(f"SELECT path, modified FROM files WHERE path IN ({marks})", tuple(paths))
         }
-    except Exception:  # noqa: BLE001 - a catalog without dates cannot decide
+    except sqlite3.OperationalError as exc:          # a catalog without dates cannot decide
+        if not _lacks(exc):
+            raise
         return None
     dated = sorted(
         ((modified.get(str(row.get("path") or ""), ""), index) for index, row in enumerate(candidates)),

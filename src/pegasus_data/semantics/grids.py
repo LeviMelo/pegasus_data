@@ -60,7 +60,7 @@ def load_grids() -> dict[str, dict[str, ColumnGrid]]:
     for path in sorted(folder.glob("*.yml")) if folder.exists() else ():
         if path.name.endswith(".draft.yml"):
             continue
-        body = read_yaml(path)
+        body = read_yaml(path, shared=True)
         if not body.get("grids"):
             continue
         dataset = str(body.get("dataset") or path.stem).upper()
