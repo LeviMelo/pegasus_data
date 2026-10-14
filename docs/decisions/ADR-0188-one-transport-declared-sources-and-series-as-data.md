@@ -14,7 +14,7 @@ flag the files could contradict, and was mutated by the builder.
 
 **Decision.**
 1. **`transport.py` is the one client** of every byte not on the DATASUS FTP tree: `request`/`get_json`/`get_text`, `read_range`, `download`.
-   HTTP/1.1 over IPv4 with the operating system's trust store (`PEGASUS_IPV6=1` to let the system choose), one browser User-Agent, one request
+   HTTP/1.1 over IPv4 with the operating system's trust store and proxy settings (`PEGASUS_IPV6=1` to let the system choose), one browser User-Agent, one request
    per interval per host (reserved under a lock, shared by threads), one classification (resets, timeouts, 408/425/429 and 5xx retried with
    `Retry-After`; any other 4xx is `SourceAbsent` at once; a certificate that does not verify is not retried), one resume rule (`If-Range`
    validator, 416 only when the length matches). SIDRA, BR-DWGD, TabNet and every file reader call it; SIDRA passes its own `retry_on` (its 500

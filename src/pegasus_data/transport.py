@@ -4,7 +4,7 @@ A reader of an API, a file, a table or a cloud record never opens a connection o
 `request` (any answer held in memory), `read_range` (a byte range of a remote file) or `download` (a file streamed to disk
 and resumed). They share, so a server is treated the same whoever asks:
 
-* **One client.** HTTP/1.1 over IPv4, the operating system's trust store, redirects followed, a browser User-Agent. The trust
+* **One client.** HTTP/1.1 over IPv4, the operating system's trust store and proxy settings, redirects followed, a browser User-Agent. The trust
   store is the system's, as `urllib`'s was: IBGE and INEP serve a certificate chain the bundled `certifi` roots reject
   (`servicodados.ibge.gov.br`: "unable to get local issuer certificate"; INEP: a reset), so `fetch_municipalities` failed
   after 77 s of retries. IPv4 only: from this network `zenodo.org` answers 403 over IPv6 and serves over IPv4, which failed
@@ -28,6 +28,7 @@ import re
 import ssl
 import threading
 import time
+import urllib.request
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -77,11 +78,23 @@ class _Short(Exception):
 
 
 def _client() -> httpx.Client:
+    """The process's one client. A proxy the system names (environment or, on Windows, the registry: `urllib.request.getproxies`)
+    carries the schemes it names, except for the hosts of ``no_proxy``; everything else goes direct."""
     with _client_lock:
         if not _clients:
-            transport = httpx.HTTPTransport(verify=ssl.create_default_context(),
-                                            local_address=None if os.environ.get("PEGASUS_IPV6") else "0.0.0.0")
-            _clients.append(httpx.Client(transport=transport, headers={"User-Agent": BROWSER_AGENT}, follow_redirects=True, timeout=120))
+            context = ssl.create_default_context()
+            direct = httpx.HTTPTransport(verify=context, local_address=None if os.environ.get("PEGASUS_IPV6") else "0.0.0.0")
+            mounts: dict[str, httpx.BaseTransport] = {
+                f"{scheme}://": httpx.HTTPTransport(verify=context, proxy=proxy)
+                for scheme, proxy in urllib.request.getproxies().items() if scheme in ("http", "https")}
+            for entry in (os.environ.get("no_proxy") or os.environ.get("NO_PROXY") or "").split(","):
+                host = entry.strip()
+                if host == "*":
+                    mounts = {}
+                elif host:
+                    mounts[f"all://*{host}" if host.startswith(".") else f"all://{host}"] = direct
+                    mounts[f"all://*.{host.lstrip('.')}"] = direct
+            _clients.append(httpx.Client(transport=direct, mounts=mounts, headers={"User-Agent": BROWSER_AGENT}, follow_redirects=True, timeout=120))
         return _clients[0]
 
 

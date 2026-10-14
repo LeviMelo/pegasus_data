@@ -42,5 +42,4 @@ a year the files do not hold. `Builder.population` rebuilt POPTCU (33 files) and
 the parquet files carry the same names and rows as the repo home's (181,102 and 2,189,622 rows, 0 differing).
 
 **Size.** Python: 720 lines added, 909 removed (net -189, with `transport.py` 267 new and the three readers and builders gone); YAML +240
-(three declarations, the series). Tests run: test_api, test_capabilities, test_serve, test_pipeline, test_review_closure, test_entry_point_parity,
-test_curation, test_ontology, test_community, test_icd_sigtap (216 passed).
+(three declarations, the series). Whole suite on the final commit (`-m "not network"`): 1,731 passed, 28 skipped, 1 deselected, 7 min 52 s.
