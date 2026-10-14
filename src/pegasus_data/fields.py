@@ -76,6 +76,9 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     chosen_cnes = {n: sp for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)}
     if chosen_cnes:
         report.update(_build_cnes(settings, chosen_cnes, years))
+    chosen_inmet = {n: sp for n, sp in declared.items() if sp.get("source") == "inmet" and (not names or n in names)}
+    if chosen_inmet:
+        report.update(_build_climate(settings, chosen_inmet, years))
     chosen_intake: dict[str, list[str]] = {}
     for name, spec in declared.items():
         if spec.get("source") == "intake" and (not names or name in names):
@@ -90,11 +93,9 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     for name, spec in declared.items():
         if names and name not in names:
             continue
-        if spec.get("source") in ("cnes", "intake"):
+        if spec.get("source") in ("cnes", "intake", "inmet"):
             continue
-        if spec.get("source") == "inmet":
-            report[name] = _build_climate(settings, name, years)
-        elif spec.get("source") == "s2id":
+        if spec.get("source") == "s2id":
             report[name] = _build_disasters(settings, name, years)
         elif spec.get("source") == "ans":
             report[name] = _build_ans(settings, name, spec, years)
@@ -316,15 +317,22 @@ def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None 
                      "rate": rate, "per": [per] * len(rate)})
 
 
-def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
-    """Station-month climate placed in the municipality each station stands in (``sources.inmet``)."""
+def _build_climate(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
+    """INMET's stations (``sources.inmet``): the station-month sums, counts and extremes placed in the municipality
+    each station stands in (the field ``climate``), and the fields read from them, one value per municipality and year.
+
+    A field with a ``measure`` is one column of `inmet.municipality_years`: a sum with its denominator declared in
+    ``over`` (the mean is the ratio, formed at use), its ``status`` ``ok`` when the year has `inmet.min_months`
+    months observed and ``partial_year`` otherwise (the value is kept), and companions (``months``, ``stations``,
+    ``automatic_share``). A municipality without a station has no row; none is interpolated.
+    """
     import pyarrow.compute as pc
 
-    from .sources.inmet import monthly, stations
+    from .sources import inmet
 
     cache = Path(settings.root) / "registries" / "inmet"
-    placed = {s["station_id"]: s for s in stations(cache) if s["municipality7"]}
-    table = monthly(cache, years)
+    placed = {s["station_id"]: s for s in inmet.stations(cache) if s["municipality7"]}
+    table = inmet.monthly(cache, years)
     ids = table.column("station_id").to_pylist()
     code7 = [placed[i]["municipality7"] if i in placed else None for i in ids]
     table = table.append_column("municipality7", pa.array(code7, pa.string()))
@@ -336,14 +344,41 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
     table = table.append_column("municipality", pc.utf8_slice_codeunits(table.column("municipality7"), 0, 6))
     unplaced = int(pc.sum(pc.is_null(table.column("municipality7"))).as_py() or 0)
     table = table.filter(pc.is_valid(table.column("municipality7")))
-    written = 0
-    for year in sorted(set(table.column("year").to_pylist())):
-        part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
-        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(part, target / "part.parquet", compression="zstd")
-        written += part.num_rows
-    return {"rows": written, "stations_placed": len(placed), "station_months_unplaced": unplaced}
+    report: dict[str, Any] = {}
+    if "climate" in specs:
+        written = 0
+        for year in sorted(set(table.column("year").to_pylist())):
+            part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
+            target = Path(settings.lake_dir) / "fields" / "climate" / f"year={year}"
+            target.mkdir(parents=True, exist_ok=True)
+            write_parquet_atomic(part, target / "part.parquet", compression="zstd")
+            written += part.num_rows
+        report["climate"] = {"rows": written, "stations_placed": len(placed), "station_months_unplaced": unplaced}
+    derived = {name: spec for name, spec in specs.items() if spec.get("measure")}
+    if derived:
+        threshold = inmet.min_months()
+        annual = inmet.municipality_years(table)
+        for name, spec in derived.items():
+            variable = inmet.MEASURES[spec["measure"]]
+            kept = annual.filter(pc.is_valid(annual.column(spec["measure"])))
+            n = kept.num_rows
+            months = kept.column(f"{variable}_months")
+            status = pc.if_else(pc.greater_equal(months, threshold), "ok", "partial_year")
+            out = pa.table({
+                "municipality": kept.column("municipality"), "municipality7": kept.column("municipality7"),
+                "value": kept.column(spec["measure"]), "status": status,
+                "unit": pa.array([str(spec["unit"])] * n, pa.string()),
+                "source": pa.array(["INMET automatic (hourly) and conventional (daily) stations, Zenodo 14925215"] * n, pa.string()),
+                "months": months, "stations": kept.column(f"{variable}_stations"),
+                "automatic_share": kept.column(f"{variable}_automatic_share"), "year": kept.column("year")})
+            for year in sorted(set(out.column("year").to_pylist())):
+                part = out.filter(pc.equal(out.column("year"), year)).drop_columns(["year"])
+                target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+                target.mkdir(parents=True, exist_ok=True)
+                write_parquet_atomic(part, target / "part.parquet", compression="zstd")
+            report[name] = {"rows": n, "ok": int(pc.sum(pc.equal(status, "ok")).as_py() or 0),
+                            "partial_year": int(pc.sum(pc.equal(status, "partial_year")).as_py() or 0)}
+    return report
 
 
 def _build_disasters(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
