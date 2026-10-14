@@ -156,7 +156,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   one deletion byte in 100% of catalogued schemas (F §3g). The header's record
   count errs **high**: of 132 real payloads, 16 declare more records than the
   file holds and none fewer (`docs/history/DEFECTS.md`, HI-23). That was measured
-  on inflated payloads before the first-party inflater; of 2,283 real `.dbc` files
+  on inflated payloads before the first-party inflater; of 6,551 real `.dbc`/`.dbf` blobs up to 8 MB
   (2026-10-14) none declares more records than its stream inflates to, and the
   inflater refuses one that does as damaged (ADR-0169). A DBC declaring zero records
   has no stream and is an empty table.

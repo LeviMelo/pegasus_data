@@ -7,7 +7,7 @@ home. Source: the review of the same day (`pegasus_project/data/handoffs/review-
 | Fault | Before | After |
 |---|---|---|
 | `.dbc` of a valid header and a random stream | DBF reader returned 331 rows (`CAUSABAS='\x1b'`) | no rows; the DBF reader refuses a body shorter than its header; failure named |
-| 2,283 real `.dbc` blobs (<= 8 MB) | 3 refused by the DBC reader (2 loose DBFs, 1 empty file) | all read: DBFs through the strict DBF reader, the empty file as an empty table; none over-declares |
+| 6,551 real blobs <= 8 MB with a DBF version byte | in a first 2,283: 3 refused by the DBC reader (2 loose DBFs, 1 empty file) | all 6,551 read (6,543 as DBC, 8 as loose DBF), 0 failures, row count = declared in every one |
 | Archive of good, truncated, random-stream members | truncated and random read as "absent" | `member_verdict`: present, failed, failed; a name not in it: absent |
 | Build with 1 of 3 months undecodable | counted decoded and mismatched, no gap, exit 0, never retried | error entry (exit 1), `coverage_gaps` row with the readers' text, partition fingerprint `<undecodable>:...`, retried next build |
 | CSV `001;002;010`, `0301010072` | 1, 2, 10; 301010072 | text as written |

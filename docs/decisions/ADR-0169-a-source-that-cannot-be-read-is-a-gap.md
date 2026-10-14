@@ -26,8 +26,9 @@ text was dropped (the worker sent `detail`, the parent read `error`).
   source no longer leave the pool and abort every partition; the partition that could not be written is an error entry.
 - The pool carries `failed_members` and the readers' error text across the process boundary.
 
-**Evidence.** On 2,283 real DBC payloads (blob store, 2026-10-14) 2,280 inflate and none declares more records than it
-holds; the three refusals were two loose DBFs named `.dbc` (still read) and one zero-record file (now read as empty). A
+**Evidence.** Of 6,551 real blobs up to 8 MB that start with a DBF version byte (blob store, 2026-10-14), 6,543 inflate
+as DBC and 8 are loose DBFs read by the DBF reader; none fails and none declares more records than it holds (a first
+sample of 2,283 had refused three under the old reader: two loose DBFs and one zero-record file, now read as empty). A
 `.dbc` of a valid header and random stream used to return 331 rows; it now returns none and names the failure. An archive
 of one good, one truncated and one random-stream member: verdicts present, failed, failed; a name not in it, absent.
 
