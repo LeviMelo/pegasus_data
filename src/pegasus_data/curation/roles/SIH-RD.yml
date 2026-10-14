@@ -460,6 +460,9 @@ columns:
     role: admission.companion_days
     kind: number
     model: mark
+    unit: count
+    unit_of: "companion diárias"
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 21 \"Quantidade de diárias de acompanhante\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de diárias de acompanhante\" (admission.companion_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias de acompanhante
@@ -472,6 +475,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    unit: days
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 52 \"Dias de Permanência\"; GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"DIAS_PER - Dias de Permanência no hospital\""
     fact_domain: process
     fact_domain_evidence: "\"Dias de Permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de Permanência
@@ -850,6 +855,9 @@ columns:
     role: patient.children_count
     kind: number
     model: mark
+    unit: count
+    unit_of: "children of the patient"
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 60 \"Número de filhos do paciente\"; GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"Número de filhos (Obs. – 0 inclui casos sem informação)\""
     fact_domain: person
     fact_domain_evidence: "\"Número de filhos do paciente\" (patient.children_count): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Person attribute but a count, collected on obstetric admissions only.
@@ -915,6 +923,9 @@ columns:
     role: admission.billed_days
     kind: number
     model: mark
+    unit: count
+    unit_of: "diárias billed"
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 22 \"Quantidade de diárias\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de diárias\" (admission.billed_days): a value, point or billed-day count of the AIH: billing"
     name: Quantidade de diárias
@@ -1178,6 +1189,7 @@ columns:
     role: admission.usd_orthotics
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"Orthotics/prosthetics value, in US dollars\" (admission.usd_orthotics): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1191,6 +1203,7 @@ columns:
     role: admission.usd_newborn
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"Newborn-nursery value, in US dollars\" (admission.usd_newborn): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1204,6 +1217,7 @@ columns:
     role: admission.usd_sadt
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"SADT-services value, in US dollars\" (admission.usd_sadt): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1217,6 +1231,7 @@ columns:
     role: admission.usd_blood
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"Blood/hemoderivatives value, in US dollars\" (admission.usd_blood): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1230,6 +1245,7 @@ columns:
     role: admission.usd_hospital_services
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"Hospital-services value, in US dollars\" (admission.usd_hospital_services): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1243,6 +1259,7 @@ columns:
     role: admission.usd_professional_services
     kind: number
     model: mark
+    unit_unknown: "only US_TOT is documented as dollars (IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf), GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5)); the 1992-1997 sibling US_* columns have no layout line (searched IT_SIHSUS_1603, GEOCOD_AIH, TAB_SIH DEFs)"
     fact_domain: administrative
     fact_domain_evidence: "\"Professional-services value, in US dollars\" (admission.usd_professional_services): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1256,6 +1273,9 @@ columns:
     role: admission.usd_total
     kind: number
     model: mark
+    unit: USD
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 38 US_TOT \"Valor total, em dólar\"; GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"US_TOT - Valor total da AIH (VAL_TOT) em dólares\"; the dollar value is the comparable measure across 1992-1994 (DATA_SOURCES §1.9)"
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor total, em dólar\" (admission.usd_total): a value, point or billed-day count of the AIH: billing"
     note: US dollars, not reais.
@@ -1269,6 +1289,7 @@ columns:
     role: admission.intermediate_days_discharge
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI intermediária - alta\" (admission.intermediate_days_discharge): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - alta
@@ -1281,6 +1302,7 @@ columns:
     role: admission.intermediate_days_previous
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI intermediária - anterior\" (admission.intermediate_days_previous): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - anterior
@@ -1293,6 +1315,7 @@ columns:
     role: admission.intermediate_days_start
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI intermediária - início\" (admission.intermediate_days_start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI intermediária - início
@@ -1305,6 +1328,9 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    unit: count
+    unit_of: "diárias in the intermediate care unit"
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 20 \"Quantidade de diárias em unidade intermediaria\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de diárias em unidade intermediária\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de diárias em unidade intermediária
@@ -1317,6 +1343,7 @@ columns:
     role: admission.icu_days_discharge
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI mês - alta\" (admission.icu_days_discharge): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - alta
@@ -1329,6 +1356,7 @@ columns:
     role: admission.icu_days_previous
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI mês - anterior\" (admission.icu_days_previous): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - anterior
@@ -1341,6 +1369,7 @@ columns:
     role: admission.icu_days_start
     kind: number
     model: mark
+    unit_unknown: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) gives the field as \"Zerado\" (zero-filled) from January 2008; the 1992-2007 display names state no unit (TAB_SIH DEFs)"
     fact_domain: process
     fact_domain_evidence: "\"UTI mês - início\" (admission.icu_days_start): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: UTI mês - início
@@ -1353,6 +1382,8 @@ columns:
     role: admission.icu_days_month
     kind: number
     model: mark
+    unit: days
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) field 15 \"Quantidade de dias de UTI no mês\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de dias de UTI no mês\" (admission.icu_days_month): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de dias de UTI no mês
@@ -1365,6 +1396,9 @@ columns:
     role: admission.icu_days
     kind: number
     model: mark
+    unit: count
+    unit_of: "ICU diárias"
+    unit_evidence: "TAB_SIH DEF display name \"Diárias de UTI\" (1992-1999 layouts; curation/variables/sihsus/rd.yml)"
     fact_domain: process
     fact_domain_evidence: "\"Diárias de UTI\" (admission.icu_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Diárias de UTI
@@ -1377,6 +1411,7 @@ columns:
     role: admission.value_companion
     kind: number
     model: mark
+    unit_unknown: "named \"Valor ...\" in IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) but neither listed in GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) under \"estão em R$\" nor stated to be part of VAL_TOT; its unit is not documented. Measured, SIH-RD AL 2009-2025 (2,959,773 AIHs): VAL_UCI is at most VAL_TOT on all 49,891 AIHs where it is above 0, but it is no summand of VAL_TOT (below)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor acompanhante\" (admission.value_companion): a value, point or billed-day count of the AIH: billing"
     name: Valor acompanhante
@@ -1389,6 +1424,7 @@ columns:
     role: admission.value_blood_observation
     kind: number
     model: mark
+    unit_unknown: "named \"Valor ...\" in IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) but neither listed in GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) under \"estão em R$\" nor stated to be part of VAL_TOT; its unit is not documented. Measured, SIH-RD AL 2009-2025 (2,959,773 AIHs): VAL_UCI is at most VAL_TOT on all 49,891 AIHs where it is above 0, but it is no summand of VAL_TOT (below)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor observação sangue\" (admission.value_blood_observation): a value, point or billed-day count of the AIH: billing"
     name: Valor observação sangue
@@ -1401,6 +1437,10 @@ columns:
     role: admission.value_orthotics
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor órtese/prótese\" (admission.value_orthotics): a value, point or billed-day count of the AIH: billing"
     name: Valor órtese/prótese
@@ -1413,6 +1453,7 @@ columns:
     role: admission.value_paediatric_companion
     kind: number
     model: mark
+    unit_unknown: "named \"Valor ...\" in IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) but neither listed in GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) under \"estão em R$\" nor stated to be part of VAL_TOT; its unit is not documented. Measured, SIH-RD AL 2009-2025 (2,959,773 AIHs): VAL_UCI is at most VAL_TOT on all 49,891 AIHs where it is above 0, but it is no summand of VAL_TOT (below)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor pediátrico 1º acompanhante\" (admission.value_paediatric_companion): a value, point or billed-day count of the AIH: billing"
     name: Valor pediátrico 1º acompanhante
@@ -1425,6 +1466,10 @@ columns:
     role: admission.value_newborn
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor recém-nato\" (admission.value_newborn): a value, point or billed-day count of the AIH: billing"
     name: Valor recém-nato
@@ -1437,6 +1482,10 @@ columns:
     role: admission.value_sadt
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor SADT\" (admission.value_sadt): a value, point or billed-day count of the AIH: billing"
     name: Valor SADT
@@ -1449,6 +1498,10 @@ columns:
     role: admission.value_sadt_unregistered
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor SADT sem registro\" (admission.value_sadt_unregistered): a value, point or billed-day count of the AIH: billing"
     name: Valor SADT sem registro
@@ -1461,6 +1514,10 @@ columns:
     role: admission.value_blood
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor sangue\" (admission.value_blood): a value, point or billed-day count of the AIH: billing"
     name: Valor sangue
@@ -1473,6 +1530,10 @@ columns:
     role: admission.value_hospital_services
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor de serviços hospitalares\" (admission.value_hospital_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços hospitalares
@@ -1485,6 +1546,10 @@ columns:
     role: admission.value_hospital_services_federal
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) fields 90-93: the federal and manager complements \"Está incluído no valor total da AIH\", so in the unit of VAL_TOT, which GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) gives in R$ (\"valores correntes\"); reais from competence 1995 (DATA_SOURCES §1.9)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do complemento federal de serviços hospitalares\" (admission.value_hospital_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços hospitalares
@@ -1497,6 +1562,10 @@ columns:
     role: admission.value_hospital_services_manager
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) fields 90-93: the federal and manager complements \"Está incluído no valor total da AIH\", so in the unit of VAL_TOT, which GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) gives in R$ (\"valores correntes\"); reais from competence 1995 (DATA_SOURCES §1.9)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do complemento do gestor de serviços hospitalares\" (admission.value_hospital_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços hospitalares
@@ -1509,6 +1578,10 @@ columns:
     role: admission.value_professional_services
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor de serviços profissionais\" (admission.value_professional_services): a value, point or billed-day count of the AIH: billing"
     name: Valor de serviços profissionais
@@ -1521,6 +1594,10 @@ columns:
     role: admission.value_professional_services_federal
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) fields 90-93: the federal and manager complements \"Está incluído no valor total da AIH\", so in the unit of VAL_TOT, which GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) gives in R$ (\"valores correntes\"); reais from competence 1995 (DATA_SOURCES §1.9)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do complemento federal de serviços profissionais\" (admission.value_professional_services_federal): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento federal de serviços profissionais
@@ -1533,6 +1610,10 @@ columns:
     role: admission.value_professional_services_manager
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) fields 90-93: the federal and manager complements \"Está incluído no valor total da AIH\", so in the unit of VAL_TOT, which GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) gives in R$ (\"valores correntes\"); reais from competence 1995 (DATA_SOURCES §1.9)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do complemento do gestor de serviços profissionais\" (admission.value_professional_services_manager): a value, point or billed-day count of the AIH: billing"
     name: Valor do complemento do gestor de serviços profissionais
@@ -1545,6 +1626,10 @@ columns:
     role: admission.value_total
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor total da AIH\" (admission.value_total): a value, point or billed-day count of the AIH: billing"
     name: Valor total da AIH
@@ -1557,6 +1642,10 @@ columns:
     role: admission.value_transport
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor transporte\" (admission.value_transport): a value, point or billed-day count of the AIH: billing"
     name: Valor transporte
@@ -1569,6 +1658,7 @@ columns:
     role: admission.value_intermediate_unit
     kind: number
     model: mark
+    unit_unknown: "named \"Valor ...\" in IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) but neither listed in GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5) under \"estão em R$\" nor stated to be part of VAL_TOT; its unit is not documented. Measured, SIH-RD AL 2009-2025 (2,959,773 AIHs): VAL_UCI is at most VAL_TOT on all 49,891 AIHs where it is above 0, but it is no summand of VAL_TOT (below)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor de UCI\" (admission.value_intermediate_unit): a value, point or billed-day count of the AIH: billing"
     name: Valor de UCI
@@ -1581,6 +1671,10 @@ columns:
     role: admission.value_icu
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "GEOCOD_AIH.pdf (CEM-USP dictionary of the AIH-SUS database, p.5): \"(Os campos seguintes estão em R$, valores correntes)\" and the list VAL_SH, VAL_SP, VAL_SADT, VAL_RN, VAL_ORTP, VAL_SANG, VAL_DTSR, VAL_TRAN, VAL_TOT, VAL_UTI; IT_SIHSUS_1603.pdf (SIH layout, RD*.dbf) names each \"Valor ...\"; reais from competence 1995 (DATA_SOURCES §1.9: Acre 1992-2023 against TabNet; 1992 cruzeiros, 1993 cruzeiros reais, 1994 both)"
+    unit_from: 199501
+    competence: [ANO_CMPT, MES_CMPT]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor de UTI\" (admission.value_icu): a value, point or billed-day count of the AIH: billing"
     name: Valor de UTI
@@ -1605,6 +1699,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true

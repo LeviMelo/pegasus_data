@@ -24,6 +24,14 @@ Every column a study reads as a field (any kind, model not ``link_only`` or ``ex
 codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
 administrative) with the evidence it rests on; one no documentation places stays undeclared.
 
+A **measure** (a ``kind: number`` that is a quantity, ``measure`` true) also states what it is measured in
+(:data:`UNITS`): ``unit``, with the document line it rests on (``unit_evidence``) and, for a ``count``, what is counted
+(``unit_of``). A measure whose unit no document gives has none and says why (``unit_unknown``), listed by
+:func:`undeclared_units`, never guessed from the column's name. An amount of money is of the month it was billed in: it
+names the column(s) that state that month (``competence``), and, when the layout's currency changed inside the column's
+years, the first month in the unit (``unit_from``); a nominal amount is deflated with that month's price index, never
+the year's.
+
 The linkage roles of ``curation/roles.yml`` name some of these columns for
 comparison; each must agree with the column's declared role (one mechanism,
 two uses).
@@ -53,12 +61,33 @@ MODEL_MEANING = {
     "excluded": "set aside: not a fact about the event",
 }
 MODELS = frozenset(MODEL_MEANING)
+#: What a measure is measured in (`unit`). A currency is nominal: reais (dollars) of the month the amount belongs to.
+UNITS = {
+    "BRL": "reais of the competence month, at that month's prices (nominal): constant reais need that month's price index",
+    "USD": "US dollars of the competence month",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "grams": "grams",
+    "kg": "kilograms",
+    "cm": "centimetres",
+    "mm": "millimetres",
+    "ml": "millilitres",
+    "g/dL": "grams per decilitre (the layouts' \"g%\")",
+    "mg/dL": "milligrams per decilitre",
+    "score": "points of a score (Apgar 0 to 10, Barros)",
+    "count": "a number of the things `unit_of` names",
+}
+#: The units that are an amount of money: they name the column(s) of the month the amount belongs to (`competence`).
+CURRENCIES = frozenset({"BRL", "USD"})
 #: The models a place column may have.
 PLACE_MODELS = frozenset({"where", "mark", "stratum", "dimension", "link_only", "excluded"})
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
-                  "fact_domain", "fact_domain_evidence", "width", "width_evidence"})
+                  "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
+                  "unit_unknown", "unit_from", "competence"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -121,6 +150,16 @@ class ColumnRole:
     #: shows it. SINAN's ID_UNIDADE: "477" is CNES 0000477, Hospital Oswaldo Cruz in its notifications' Recife.
     width: int | None = None
     width_evidence: str | None = None
+    #: What a measure is measured in (`UNITS`), what a `count` counts, the document line it rests on; or why no document
+    #: gives one (`unit_unknown`). A currency also names the column(s) of the month its amounts belong to (`competence`:
+    #: year and month columns, or one AAAAMM column) and, when the currency changed inside its years, the first AAAAMM
+    #: in the unit (`unit_from`).
+    unit: str | None = None
+    unit_of: str | None = None
+    unit_evidence: str | None = None
+    unit_unknown: str | None = None
+    unit_from: int | None = None
+    competence: tuple[str, ...] = ()
 
     @property
     def entity(self) -> str:
@@ -135,12 +174,18 @@ class ColumnRole:
                 "property": self.property, "kind": self.kind, "model": self.model, "also": list(self.also),
                 "name": self.name, "codelists": list(self.codelists), "first_year": self.years[0],
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
-                "measure": self.measure, "missing": None if self.missing is None else list(self.missing),
+                "measure": self.measure, "unit": self.unit,
+                "missing": None if self.missing is None else list(self.missing),
                 "domain": None if self.domain is None else list(self.domain), "fact_domain": self.fact_domain,
                 **({"fact_domain_evidence": self.fact_domain_evidence} if self.fact_domain else {}),
                 **({"width": self.width, "width_evidence": self.width_evidence} if self.width else {}),
                 **({"missing_unknown": self.missing_unknown} if self.missing_unknown else {}),
                 **({"unfilled": list(self.unfilled)} if self.unfilled else {}),
+                **({"unit_of": self.unit_of} if self.unit_of else {}),
+                **({"unit_evidence": self.unit_evidence} if self.unit_evidence else {}),
+                **({"unit_unknown": self.unit_unknown} if self.unit_unknown else {}),
+                **({"unit_from": self.unit_from} if self.unit_from else {}),
+                **({"competence": list(self.competence)} if self.competence else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
                    if self.instruments else {})}
 
@@ -172,6 +217,7 @@ def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
             rows.append(_column(dataset, str(column), spec or {}, path.name))
         out[dataset] = tuple(rows)
     _agree_with_linkage(out)
+    _competence_declared(out)
     return out
 
 
@@ -242,6 +288,36 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad("a width needs its width_evidence: the layout's numeric field, or codes matched at that width")
     if width is None and "width_evidence" in spec:
         raise bad("width_evidence without width")
+    unit = spec.get("unit")
+    unit_unknown = spec.get("unit_unknown")
+    unit_of = spec.get("unit_of")
+    unit_from = spec.get("unit_from")
+    competence = tuple(str(c) for c in spec.get("competence") or ())
+    if unit is not None or unit_unknown is not None:
+        if not measure:
+            raise bad("a unit is declared for a measure (a number that is a quantity)")
+        if unit is not None and unit_unknown is not None:
+            raise bad("a unit is declared or unknown, not both")
+    if unit is not None:
+        if str(unit) not in UNITS:
+            raise bad(f"unit {unit!r} not in {sorted(UNITS)}")
+        if not str(spec.get("unit_evidence") or "").strip():
+            raise bad("a unit needs its unit_evidence: the layout or dictionary line it rests on")
+    elif "unit_evidence" in spec or "unit_of" in spec or "unit_from" in spec or "competence" in spec:
+        raise bad("unit_evidence, unit_of, unit_from and competence belong to a declared unit")
+    if unit_unknown is not None and not str(unit_unknown).strip():
+        raise bad("unit_unknown states why no document gives the unit")
+    if (unit == "count") != (unit_of is not None):
+        raise bad("`unit_of` says what a `count` counts, and only a `count` has one")
+    if unit_of is not None and not str(unit_of).strip():
+        raise bad("unit_of states what is counted")
+    if (unit in CURRENCIES) != bool(competence):
+        raise bad("an amount of money names the column(s) of the month it belongs to (`competence`), and nothing else does")
+    if len(competence) > 2:
+        raise bad(f"competence is a year and a month column or one AAAAMM column, not {list(competence)}")
+    if unit_from is not None and (unit not in CURRENCIES or not isinstance(unit_from, int) or not 1 <= unit_from % 100 <= 12
+                                  or not 1900 <= unit_from // 100 <= 2100):
+        raise bad(f"unit_from {unit_from!r} is the first AAAAMM an amount is in the unit, for a currency")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
         raise bad(f"unfilled years {list(unfilled)} lie outside its years {list(years)}")
@@ -254,7 +330,22 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       str(fact) if fact is not None else None,
                       " ".join(str(spec["fact_domain_evidence"]).split()) if fact is not None else None,
                       int(width) if width is not None else None,
-                      " ".join(str(spec["width_evidence"]).split()) if width is not None else None)
+                      " ".join(str(spec["width_evidence"]).split()) if width is not None else None,
+                      str(unit) if unit is not None else None,
+                      " ".join(str(unit_of).split()) if unit_of is not None else None,
+                      " ".join(str(spec["unit_evidence"]).split()) if unit is not None else None,
+                      " ".join(str(unit_unknown).split()) if unit_unknown is not None else None,
+                      int(unit_from) if unit_from is not None else None, competence)
+
+
+def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
+    """Every column a currency names as its competence is a date column of the same dataset: a month the caller can read."""
+    for dataset, columns in declared.items():
+        kinds = {c.column.upper(): c.kind for c in columns}
+        for c in columns:
+            for month in c.competence:
+                if kinds.get(month.upper()) != "date":
+                    raise ValueError(f"roles/{dataset}.yml: {c.column} names {month} as its competence, which is not a declared date column")
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
@@ -290,13 +381,27 @@ def undeclared_fact_domains(dataset: str | None = None) -> list[tuple[str, str]]
             if (c.kind == "category" or c.model in FIELD_MODELS) and c.fact_domain is None]
 
 
+def undeclared_units(dataset: str | None = None) -> list[tuple[str, str]]:
+    """The measures that state neither a ``unit`` nor why none is known (``(dataset, column)``), for one dataset or all:
+    every number that is a quantity (``measure``) and that a study reads (``FIELD_MODELS``). The list a reviewer closes,
+    never a default."""
+    declared = load_column_roles()
+    keys = [dataset.upper().replace(".", "-")] if dataset else sorted(declared)
+    return [(d, c.column) for d in keys for c in declared.get(d, ())
+            if c.kind == "number" and c.measure and c.model in FIELD_MODELS and c.unit is None and c.unit_unknown is None]
+
+
 def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:
     """The role of every column of a dataset, as rows (``pegasus-data roles <dataset>``).
 
     A role can sit on a different column in each layout generation (SIM-DOFET's residence is MUNIRES in 1979-1995 and
     CODMUNRES from 1996; both rows are returned, each with its ``first_year``/``last_year``). A caller that reads one
     year must not collapse them by role: pass ``period`` (a year, or a ``(first, last)`` pair / range / list of years)
-    and only the columns whose years intersect it are returned; a column with no declared years always is."""
+    and only the columns whose years intersect it are returned; a column with no declared years always is.
+
+    A measure's row carries ``unit`` (one of :data:`UNITS`, or None), with ``unit_evidence`` and, for a ``count``, ``unit_of``;
+    a measure without one says why in ``unit_unknown``. An amount of money also carries ``competence`` (the column(s) of the
+    month it belongs to) and, if its currency changed inside its years, ``unit_from`` (the first AAAAMM in the unit)."""
     rows = _all_roles(dataset)
     if period is None:
         return rows

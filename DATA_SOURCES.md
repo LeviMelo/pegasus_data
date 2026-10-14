@@ -301,6 +301,16 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - 1992 is in cruzeiros, 1993 in cruzeiros reais, and 1994 mixes both
     currencies (reais from July).
   - `US_TOT` (dollars) is the comparable measure across 1994.
+- **Units are declared per column** (`curation/roles`, `unit` with its document line; `pegasus-data roles <dataset>`; ADR-0184).
+  - SIH's `VAL_*` are nominal reais, "valores correntes" (`GEOCOD_AIH.pdf` p.5, the CEM-USP dictionary; the SIH layout does not name
+    the currency) of the competence `ANO_CMPT`/`MES_CMPT`; `VAL_TOT` = `VAL_SH` + `VAL_SP` + the two federal complements on all 2,959,773
+    Alagoas AIHs 2009-2025. Only `US_TOT` is documented as dollars.
+  - SIA's values are reais of the production competence (`MANUAL_SIA_Maio_2008.pdf` p.46): `AP_CMP` for APAC, `PA_CMP` for PA. `AP_CMP`
+    equals the processing month `AP_MVM` on 92-94% of Alagoas AD 2012 and 2025 and is never later (up to 3 months earlier).
+  - SIM's and SINASC's `SERIESCFAL`/`SERIESCMAE` are a grade number read with the schooling level (SIM-DO 2020: level 1 grades 1-4,
+    level 2 grades 5-8, level 3 grades 1-3, blank for the rest), not codes.
+  - SIASUS-AN's `AN_ALBUMI`, `AN_PESO` and `AN_HB` mix scales (28.2%, 4.5% and 8.2% of positive values are tenths without the decimal
+    point); `AP_NUIDADE` and `IDADEPAC` carry their unit in a companion column per row.
 - **TabNet's SIH "Internações" excludes long-stay continuation AIHs
   (`IDENT` 5); its "Valor total" includes them.** Its Acre file for
   September 2009 (`niac0909.dbf`) returns no table, so TabNet's 2009 Acre

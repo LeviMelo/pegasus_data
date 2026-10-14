@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import cache
 from pathlib import Path, PurePosixPath
 
 from ..catalog.store import CatalogStore
@@ -152,6 +153,24 @@ def _sentinels_for(system: str | None, series: str | None, field_name: str) -> l
         return []
     return sorted({str(code) for r in declared if str(r["column"]).upper() == field_name.upper()
                    for code in r["missing"] or ()})
+
+
+@cache
+def _units_of(system: str | None, series: str | None) -> dict[str, str]:
+    """``column (upper-cased) -> unit`` of one dataset's role declarations (``unit:``): what the layout or dictionary
+    says the column is measured in (``curation/roles``), never what its values look like. A column with none, or whose
+    rows disagree, is absent."""
+    from .column_roles import roles
+
+    try:
+        declared = roles(f"{system}.{series}")
+    except KeyError:
+        return {}
+    found: dict[str, set[str]] = {}
+    for r in declared:
+        if r["unit"]:
+            found.setdefault(str(r["column"]).upper(), set()).add(r["unit"])
+    return {column: next(iter(units)) for column, units in found.items() if len(units) == 1}
 
 
 def build_ledger(
@@ -287,9 +306,11 @@ def build_ledger(
                 f"to the raw column; the labels come from {chosen}"
             )
 
-        unit = None
-        if semantic == "money":
-            unit = "BRL"
+        # a money-shaped column was labelled BRL by its values: SIH's US_TOT is dollars, so the unit is the role
+        # declaration's (`curation/roles`, with the document it rests on), or none
+        unit = _units_of(system, row["series"]).get(field_name.upper())
+        if unit is not None:
+            provenance.append("roles:unit")
         elif semantic == "datasus_age":
             unit = "coded_age"
 

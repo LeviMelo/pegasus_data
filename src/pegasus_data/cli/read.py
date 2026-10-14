@@ -204,7 +204,7 @@ def roles_cmd(
     dataset: Annotated[str, typer.Argument(help="A dataset: SIM-DO, SINASC-DN, SIH-RD, CIHA, SINAN-DENG ...")],
     as_json: JsonOpt = False,
 ) -> None:
-    """What each column of a dataset states: entity.property, value kind, and model role."""
+    """What each column of a dataset states: entity.property, value kind, model role, and the unit of a measure."""
     from ..semantics.column_roles import roles as _roles
 
     rows = _roles(dataset)
@@ -212,11 +212,13 @@ def roles_cmd(
         _emit(rows, True)
         return
     table = Table(title=f"roles of {dataset}")
-    for header in ("column", "role", "kind", "model", "domain", "name"):
+    for header in ("column", "role", "kind", "model", "unit", "domain", "name"):
         table.add_column(header)
     for row in rows:
         mark = "" if row["reviewed"] else " (draft)"
-        table.add_row(row["column"], row["role"] + mark, row["kind"], row["model"], str(row["fact_domain"] or ""),
+        unit = (row["unit"] + (f" of {row['unit_of']}" if row.get("unit_of") else "")) if row["unit"] else (
+            "unknown" if row.get("unit_unknown") else "")
+        table.add_row(row["column"], row["role"] + mark, row["kind"], row["model"], unit, str(row["fact_domain"] or ""),
                       str(row["name"] or ""))
     console.print(table)
 

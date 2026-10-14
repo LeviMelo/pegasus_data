@@ -785,6 +785,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    unit: years
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): \"Idade (anos)\" IDADEMAE \"Idade da mãe\"; the 1979-1995 layout (SIM_Mortalidade_Geral_Estrutura.pdf) gives the same field as \"Idade da mãe. (Números)\", with no change of unit"
     fact_domain: person
     fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     also:
@@ -1070,6 +1072,8 @@ columns:
     role: death.days_to_investigation_conclusion
     kind: number
     model: mark
+    unit: days
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): NUDIASOBCO \"Diferença entre a data óbito e a data conclusão da investigação, em dias\"; SIM_Mortalidade_Geral_Estrutura.pdf the same"
     fact_domain: process
     fact_domain_evidence: "\"Dias entre óbito e conclusão da investigação\" (death.days_to_investigation_conclusion): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Dias entre óbito e conclusão da investigação
@@ -1083,6 +1087,7 @@ columns:
     role: death.days_to_investigation
     kind: number
     model: mark
+    unit_unknown: "SIM_Mortalidade_Geral_Estrutura.pdf lists NUDIASOBIN with no description; dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025) does not list it"
     fact_domain: process
     fact_domain_evidence: "\"Número de dias óbito-investigação\" (death.days_to_investigation): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Número de dias óbito-investigação
@@ -1257,6 +1262,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    unit: grams
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): PESO \"Peso ao nascer em gramas\"; SIM_Mortalidade_Geral_Estrutura.pdf: \"Peso ao nascer em gramas\""
     fact_domain: clinical
     fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     also:
@@ -1270,6 +1277,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    unit: grams
+    unit_evidence: "SIM_Mortalidade_Geral_Estrutura.pdf: PESONASC \"Peso ao nascer, em gramas\""
     fact_domain: clinical
     fact_domain_evidence: "\"PESONASC\" (birth.weight): newborn condition or gestation at birth: the health event"
     years:
@@ -1282,6 +1291,9 @@ columns:
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous fetal losses and abortions"
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): QTDFILMORT \"Número de filhos mortos\" (perdas fetais/aborto), the death of this DO excluded"
     fact_domain: clinical
     fact_domain_evidence: "\"Número de perdas fetais/abortos\" (pregnancy.previous_fetal_losses): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de perdas fetais/abortos
@@ -1295,6 +1307,9 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous live births"
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): QTDFILVIVO \"Número de filhos vivos\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de filhos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de filhos vivos
@@ -1326,6 +1341,8 @@ columns:
     role: birth.gestation_weeks
     kind: number
     model: mark
+    unit: weeks
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): SEMAGESTAC \"Semanas de gestação com dois algarismos\""
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de semanas de gestação\" (birth.gestation_weeks): newborn condition or gestation at birth: the health event"
     also:
@@ -1346,9 +1363,14 @@ columns:
     - 1998
   SERIESCFAL:
     missing: []
+    # the grade number: 'Números de 1 a 8' (SIM dicionario 07/2025, SINASC dicionario 'Valores de 1 a 8'), filled only when the schooling
+    # level (ESC2010 / ESCMAE2010) is 1, 2 or 3. Measured, SIM-DO BR 2020: level 1 holds grades 1-4, level 2 grades 5-8, level 3 grades 1-3,
+    # blank for the other levels. An ordinal number whose meaning is read with the level: no code to decode, no quantity to average
+    domain: [1, 8]
     role: deceased.education_grade
-    kind: category
+    kind: number
     model: dimension
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Série escolar do falecido\" (deceased.education_grade): attribute of the person (schooling)"
     name: Série escolar do falecido
@@ -1358,9 +1380,14 @@ columns:
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   SERIESCMAE:
     missing: []
+    # the grade number: 'Números de 1 a 8' (SIM dicionario 07/2025, SINASC dicionario 'Valores de 1 a 8'), filled only when the schooling
+    # level (ESC2010 / ESCMAE2010) is 1, 2 or 3. Measured, SIM-DO BR 2020: level 1 holds grades 1-4, level 2 grades 5-8, level 3 grades 1-3,
+    # blank for the other levels. An ordinal number whose meaning is read with the level: no code to decode, no quantity to average
+    domain: [1, 8]
     role: mother.education_grade
-    kind: category
+    kind: number
     model: dimension
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Série escolar da mãe\" (mother.education_grade): attribute of the person (schooling)"
     name: Série escolar da mãe
@@ -1569,6 +1596,8 @@ columns:
     role: deceased.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"IDADE_anos\" (deceased.age_years): attribute of the person"
     derived: true
