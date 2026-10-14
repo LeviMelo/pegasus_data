@@ -138,8 +138,8 @@ artifacts, capabilities, population, geography memberships and (behind
 
 ## 3. Persistent objects
 
-**The data home** (`config.py`, `locate.py`: five layers decide it; `pegasus-data
-where` says which won):
+**The data home** (`config.py`, `locate.py`: five layers decide it, and an explicit root carries its blobs, lake, work and
+catalog with it, ADR-0175; `pegasus-data where` says which won):
 
 ```text
 <home>/_catalog/catalog.sqlite   the catalog (catalog/schema.sql, catalog/store.py)
@@ -357,7 +357,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `measures.py`: the measure algebra (accumulator states).
 - `capabilities.py`: what a client may do with a built aggregate.
 - `workbook.py`: a built aggregate as an Excel workbook, each sheet its own aggregation (`pegasus-data workbook`).
-- `suggest.py`: recipe suggestions.
+- `suggest.py`: recipe suggestions; what is structural (identifier, date, the event's own place) comes from the dataset's declared column roles, never from names.
 - `geography.py`: health-region memberships and the geography graph. `mesh_file`: IBGE's mesh, downloaded once (the one definition of its URL; `mesh` reads it for maps, the points pack and INMET's station placement take the same file).
 - `extract.py`: filtered extracts, `<lake>/extracts/<dataset>/<digest>/`: the records of a dataset that its filters (column → code prefixes) match, its files read, kept and released one by one; a manifest of every file's rows read and kept and the files that failed. Apart from the lake, so no query reads a filtered table as the dataset; `extract_table` serves a code set only where the extract holds its years whole. A filter column that is in no file's header (the catalog's census) is refused before the first fetch.
 - `concepts.py`: the concept index: which sources hold a condition's codes (every record's own condition code by its role, SINAN's `ID_AGRAVO`; SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope). `dispensed`: the SIGTAP medicine procedures (group 06) of SIA's APAC AM authorised under the codes, one APAC once (the event type's rule), cached per year; `stock_by_state`: BNAFAR's stock of a drug by state and month. `treatments`: the medicines an official document gives for the codes (`curation/treatments.yml`, each substance with the declared fields that count it, their exact filter and denominator); records never name a treatment here. `captures`: the populations several systems list, for capture–recapture (`curation/captures.yml`: one definition across systems, each list's filter on its role table, its grouping into one person and its deaths; a link's side filter is written for pairing and is never a population).

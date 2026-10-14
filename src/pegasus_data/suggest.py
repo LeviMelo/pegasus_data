@@ -26,12 +26,29 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-#: Fields that are never dimensions: identifiers, geography and time belong to
-#: other axes, and free-text or continuous fields band rather than enumerate.
-_STRUCTURAL_HINTS = (
-    "MUNIC", "CODMUN", "_source", "_blob", "ANO", "MES", "DT", "DATA",
-    "CEP", "CNES", "CNPJ", "CPF", "NUM", "N_AIH", "SEQ",
-)
+#: The kinds and models a dataset's declared column roles (``curation/roles``) give to the columns that are never
+#: dimensions: an identifier or a date identifies or times the record, the event's own place and date are the axes the
+#: aggregate is keyed by, a link key is read only to link and an excluded column is not a fact about the event.
+_STRUCTURAL_KINDS = frozenset({"identifier", "date"})
+_STRUCTURAL_MODELS = frozenset({"when", "where", "link_only", "excluded"})
+
+
+def _structure(dataset: str, year: int) -> dict[str, str] | None:
+    """``column (upper-cased) -> why it is structural``, from the dataset's declared column roles for ``year``; ``None``
+    when it declares none (then nothing is assumed structural: a column is measured, and an identifier falls to the
+    levels limit). A column is structural only when every role it has in that year says so."""
+    from .semantics.column_roles import roles
+
+    try:
+        rows = roles(dataset, period=year)
+    except KeyError:
+        return None
+    by_column: dict[str, list[str | None]] = {}
+    for row in rows:
+        why = (f"{row['kind']} ({row['role']})" if row["kind"] in _STRUCTURAL_KINDS
+               else f"model {row['model']} ({row['role']})" if row["model"] in _STRUCTURAL_MODELS else None)
+        by_column.setdefault(str(row["column"]).upper(), []).append(why)
+    return {column: str(whys[0]) for column, whys in by_column.items() if all(whys)}
 
 
 @dataclass(slots=True)
@@ -55,6 +72,8 @@ class Suggestion:
     base_cells: int
     candidates: list[Candidate] = field(default_factory=list)
     skipped: list[tuple[str, str]] = field(default_factory=list)
+    #: What the measurement could not rest on (a dataset with no declared column roles)
+    notes: list[str] = field(default_factory=list)
 
 
 def suggest(
@@ -73,6 +92,7 @@ def suggest(
     import pyarrow as pa
     import pyarrow.compute as pc
 
+    from .api import LAKE_COLUMNS
     from .catalog.store import CatalogStore
     from .config import load_settings
     from .retrieve import fetch
@@ -125,11 +145,18 @@ def suggest(
         catalog.close()
 
     out = Suggestion(dataset=dataset, rows=rows, base_cells=0)
+    structure = _structure(dataset, years)
+    if structure is None:
+        out.notes.append(f"{dataset} declares no column roles: no column was set aside as an identifier, date or place by "
+                         "role, only by its measured levels")
     columns: dict[str, Any] = {}
     for name in table.schema.names:
         upper = name.upper()
-        if any(hint in upper for hint in _STRUCTURAL_HINTS):
-            out.skipped.append((name, "structural (identity, geography or time)"))
+        if name in LAKE_COLUMNS:
+            out.skipped.append((name, "the lake's own column (partition or provenance)"))
+            continue
+        if structure and upper in structure:
+            out.skipped.append((name, f"structural: {structure[upper]}"))
             continue
         if upper in geo_fields or upper in time_fields:
             out.skipped.append((name, "an axis, not a dimension"))

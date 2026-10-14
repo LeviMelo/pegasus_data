@@ -51,6 +51,11 @@ class Info:
     #: Declared join keys this node participates in, with each other member's
     #: column and grain. ``rows_per_key == "many"`` is the fan-out warning.
     joins: list[dict[str, Any]] = field(default_factory=list)
+    #: A variable several systems document, asked with no system or dataset: one entry per system with that system's
+    #: own definition ({system, official_name, translated_name, what_it_is, source, reasoning, datasets}). Systems
+    #: file the same name for different things (SEXO is 1/3 in one, 1/2 in another), so no one of them is "the"
+    #: definition and none is dropped.
+    definitions: list[dict[str, Any]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -64,6 +69,7 @@ class Info:
             "documentation": self.documentation,
             "notes": self.notes,
             "joins": self.joins,
+            "definitions": self.definitions,
         }
 
     # Rendering is split by section rather than written as one pass. The
@@ -107,6 +113,20 @@ class Info:
             out.extend("    " + line for line in lines[:8])
             if len(lines) > 8:
                 out.append("    ...")
+        return out
+
+    def _definition_lines(self) -> list[str]:
+        out: list[str] = []
+        for d in self.definitions:
+            name = d.get("translated_name") or d.get("official_name") or ""
+            out.append("")
+            out.append(f"  [{d['system']}]" + (f" {name}" if name else ""))
+            out.extend("      " + line for line in _wrap(d.get("what_it_is") or "(no description recorded)", 70))
+            source = str(d.get("source") or "")
+            out.append(f"      source: {self._SOURCE_STANDING.get(source, source) if source else 'not recorded'}")
+            datasets = d.get("datasets") or []
+            if datasets:
+                out.append(f"      in: {', '.join(datasets[:12])}" + (f" and {len(datasets) - 12} more" if len(datasets) > 12 else ""))
         return out
 
     def _coverage_lines(self) -> list[str]:
@@ -250,6 +270,7 @@ class Info:
 
     def __repr__(self) -> str:  # pragma: no cover - presentation
         out = self._identity_lines()
+        out += self._definition_lines()
         out += self._coverage_lines()
         out += self._documentation_lines()
         out += self._join_lines()
@@ -789,21 +810,22 @@ def _variable(store: _Store, onto: Ontology, target: str, field_name: str) -> In
                 }
             )
 
-    clause, params = "", [name]
+    clause, strata_clause, params = "", "", [name]
     if systems:
-        clause = f" AND system IN ({','.join('?' for _ in systems)})"
+        marks = ",".join("?" for _ in systems)
+        clause, strata_clause = f" AND system IN ({marks})", f" AND s.system IN ({marks})"
         params += systems
 
     docs = store.query(
         f"SELECT system, field_name, official_name, translated_name, description, "
-        f"source, reasoning FROM variable_docs WHERE field_name = ?{clause}",
+        f"source, reasoning FROM variable_docs WHERE field_name = ?{clause} ORDER BY system, source",
         tuple(params),
     )
     if not docs:
         docs = store.query(
             f"SELECT system, field_name, NULL AS official_name, NULL AS translated_name, "
             f"description, source, NULL AS reasoning FROM field_documentation "
-            f"WHERE field_name = ?{clause}",
+            f"WHERE field_name = ?{clause} ORDER BY system, source",
             tuple(params),
         )
 
@@ -814,20 +836,43 @@ def _variable(store: _Store, onto: Ontology, target: str, field_name: str) -> In
             notes=[f"No documentation recorded for {name}" + (f" in {target}" if target else "")],
         )
 
-    first = docs[0]
+    # the datasets that carry the field, by the system that files them, within the scope asked
     where = store.query(
-        "SELECT DISTINCT s.system, s.series FROM schema_presence sp "
-        "JOIN strata s ON s.schema_signature = sp.schema_signature "
-        "WHERE sp.field_name = ? LIMIT 200",
-        (name,),
+        f"SELECT DISTINCT s.system, s.series FROM schema_presence sp "
+        f"JOIN strata s ON s.schema_signature = sp.schema_signature "
+        f"WHERE sp.field_name = ?{strata_clause} ORDER BY s.system, s.series",
+        tuple(params),
     )
-    datasets = sorted(
-        {
-            b.dataset
-            for b in [onto.bind(str(r["system"]), str(r["series"])) for r in where]
-            if b.dataset
-        }
-    )
+    datasets_of: dict[str, set[str]] = {}
+    for r in where:
+        bound = onto.bind(str(r["system"]), str(r["series"])).dataset
+        if bound:
+            datasets_of.setdefault(str(r["system"]), set()).add(bound)
+
+    documented_by = list(dict.fromkeys(str(d["system"]) for d in docs))
+    if len(documented_by) > 1:
+        # no system asked and several document the field: each system's own definition, none preferred
+        definitions = []
+        for system in documented_by:
+            d = next(d for d in docs if str(d["system"]) == system)
+            definitions.append({
+                "system": system, "official_name": d["official_name"], "translated_name": d["translated_name"],
+                "what_it_is": d["description"], "source": d["source"], "reasoning": d["reasoning"],
+                "datasets": sorted(datasets_of.get(system, ())),
+            })
+        example = next((d["datasets"][0] for d in definitions if d["datasets"]), documented_by[0])
+        return Info(
+            kind="variable",
+            code=name,
+            evidence={"scope": getattr(scope, "code", None)},
+            definitions=definitions,
+            notes=[f"{name} is documented by {len(documented_by)} systems ({', '.join(documented_by)}), each with its own "
+                   f"definition and codes: they are not one variable. Name a system or dataset (info('{example}', "
+                   f"field_name='{name}')) for one."],
+        )
+
+    first = docs[0]
+    datasets = sorted(set().union(*datasets_of.values())) if datasets_of else []
     return Info(
         kind="variable",
         code=name,
