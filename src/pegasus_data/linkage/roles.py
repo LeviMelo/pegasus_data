@@ -20,6 +20,7 @@ the file it came from.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -176,7 +177,14 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
         ignored = _ignored(labels)
         if ignored is not None:
             valid = pc.and_(valid, pc.invert(ignored))
-        return pc.if_else(valid, raw, pa.scalar(None, pa.string()))
+        place = pc.if_else(valid, raw, pa.scalar(None, pa.string()))
+        if role.type == "municipality":
+            # The Federal District has one municipality, Brasília (530010). SIH-RD writes its residents'
+            # administrative-region codes (530020 ... 530180) up to 2017-12 (2017: 140,876 of 151,901 DF rows,
+            # DATA_SOURCES), so a residence key could never pair a DF resident with SIM or SINASC (530010). Any 53xxxx
+            # is Brasília, as the recipe `MUNIC_RES_municipio` and pegasus_core's `_residence_sql` have it.
+            place = pc.if_else(pc.starts_with(place, "53"), pa.scalar("530010"), place)
+        return place
     if role.type == "integer":
         digits = pc.utf8_is_digit(raw)
         return pc.if_else(digits, pc.cast(pc.if_else(digits, raw, "0"), pa.int64()), pa.scalar(None, pa.int64()))
@@ -199,52 +207,52 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
     return raw  # code
 
 
-def _cache_path(dataset: str, period: object, geography: object, settings: Any) -> Path | None:
-    """Where a dataset-scope's role table is kept, or None when no lake backs it.
+#: Bumped when `_normalise`, `_compute_roles_year` or the reading and labelling of the rows they use changes what a
+#: role table holds. A cached table's key is this, the dataset's own role block, the label files and that
+#: dataset-year's lake partition files: not the text of seven source files and every partition of every year, which
+#: made any commit to them, or one new month of another year, discard all 48 cached national tables (2026-10-14).
+ROLE_TABLE_VERSION = 1
+_LABEL_FILES = ("labels.parquet", "labels_crosswalk.parquet", "code_lists.parquet", "municipalities.parquet")
 
-    The key fingerprints everything the table depends on: the scope, the role
-    declarations (roles.yml), the code that reads, renders and normalises the
-    rows, and every lake
-    partition file of the dataset (path, size, mtime). A rebuilt partition, an
-    edited role or a changed normaliser is a different key, so a stale table is
-    never served (docs/plans/linkage-theory.md §7, step T1).
-    """
-    import hashlib
 
+def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[Path]]:
+    """The lake's published partition files of a dataset's year: (the system's directory, the files). A write in
+    progress stages under a hidden directory the pattern does not match."""
     from ..retrieve import parse_dataset
 
+    system, series = parse_dataset(dataset)
+    lake = Path(settings.lake_dir) / system
+    files = sorted(lake.glob(f"{system}_{series or system}_*/**/year={year}/*.parquet")) if lake.exists() else []
+    return lake, files
+
+
+def table_key(dataset: str, year: int, settings: Any) -> str | None:
+    """Fingerprint of one dataset-year's role table, or None when no lake partition backs it. Also what a stored link
+    run records for the years it read (`store.fingerprint`): a run is current while its inputs' keys are."""
+    import hashlib
+
     try:
-        system, series = parse_dataset(dataset)
+        lake, files = partition_files(dataset, year, settings)
     except Exception:  # noqa: BLE001 - an unknown dataset is reported by the query itself
         return None
-    lake = Path(settings.lake_dir) / system
-    # A system without series (CIHA) names its families CIHA_CIHA_<sig>: the
-    # glob read CIHA_None_* and CIHA's role table was never cached, so every
-    # CIHA link labelled 20 million rows again (2026-10-03).
-    files = sorted(lake.glob(f"{system}_{series or system}_*/**/*.parquet")) if lake.exists() else []
     if not files:
         return None
-    h = hashlib.sha256()
-    h.update(f"{dataset}|{period!r}|{geography!r}".encode())
-    h.update(roles_file().read_bytes())
-    # The code that reads and renders the rows, not only this normaliser: a fix
-    # in the lake read (derived inputs, 2026-10-03) must invalidate the tables.
-    package = Path(__file__).resolve().parent.parent
-    for source in (Path(__file__), package / "api.py", package / "retrieve.py", package / "_request.py",
-                   package / "view.py", package / "lookups.py",
-                   package / "_query_engine" / "executor.py", package / "_query_engine" / "filters.py"):
-        h.update(source.read_bytes())
+    h = hashlib.sha256(f"{ROLE_TABLE_VERSION}|{dataset.upper()}|{year}|".encode())
+    h.update(repr(dataset_roles(dataset)).encode())
+    resources = Path(__file__).resolve().parent.parent / "resources"
+    for name in _LABEL_FILES:
+        st = (resources / name).stat() if (resources / name).exists() else None
+        h.update(f"{name}|{st.st_size if st else 0}|{st.st_mtime_ns if st else 0}".encode())
     for f in files:
         st = f.stat()
         h.update(f"{f.relative_to(lake)}|{st.st_size}|{st.st_mtime_ns}".encode())
-    return Path(settings.lake_dir) / "roles" / dataset / f"{_scope_slug(period, geography)}__{h.hexdigest()[:20]}.parquet"
+    return h.hexdigest()[:20]
 
 
-def _scope_slug(period: object, geography: object) -> str:
-    def part(v: object) -> str:
-        return "-".join(str(x) for x in v) if isinstance(v, (list, tuple)) else str(v)
-
-    return f"{part(period)}_{part(geography)}".replace("/", "-").replace(" ", "")
+def _cache_path(dataset: str, year: int, settings: Any) -> Path | None:
+    """Where a dataset's national role table of one year is kept, or None when no lake backs it."""
+    key = table_key(dataset, year, settings)
+    return None if key is None else Path(settings.lake_dir) / "roles" / dataset / f"{year}_BR__{key}.parquet"
 
 
 def _subset(table: pa.Table, names: list[str]) -> pa.Table:
@@ -256,27 +264,68 @@ def _subset(table: pa.Table, names: list[str]) -> pa.Table:
     return table.select(keep).replace_schema_metadata(meta)
 
 
+def _where_roles(spec: DatasetRoles, where: str | None) -> list[str]:
+    return [r for r in spec.roles if where and f'"{r}"' in where]
+
+
+def _filtered(table: pa.Table, where: str | None) -> pa.Table:
+    """``table`` kept where the SQL condition over its role columns holds (the schema's metadata kept)."""
+    if not where:
+        return table
+    from .identity import connect
+
+    con = connect()
+    con.register("t", table)
+    out = con.execute(f"SELECT * FROM t WHERE {where}").to_arrow_table()
+    return out.replace_schema_metadata(table.schema.metadata)
+
+
+def _read_cached(path: Path, columns: list[str], ufs: tuple[str, ...], where: str | None) -> pa.Table | None:
+    """The projected, filtered rows of a cached national year. DuckDB pushes the projection, the state predicate
+    (the table is clustered by ``_uf``: one state is a row group in twelve) and the side's filter into the read; the
+    whole table read in full took 3.5 GiB and 2 s for a state of 0.1 s and 30 MiB (2026-10-14). None when the table
+    came from one national file whose rows do not say which state published them."""
+    import pyarrow.parquet as pq
+
+    from .identity import connect
+
+    con = connect()
+    source = f"read_parquet('{path.as_posix()}')"
+    schema = pq.read_schema(path)
+    conds = [f"({where})"] if where else []
+    if ufs != ("BR",):
+        if con.execute(f"SELECT count(*) FROM {source} WHERE _uf = 'BR'").fetchone()[0]:  # type: ignore[index]
+            return None
+        conds.append("_uf IN (" + ", ".join("'" + u + "'" for u in ufs) + ")")
+    have = set(schema.names)
+    select = ", ".join(f'"{c}"' for c in columns if c in have)
+    sql = f"SELECT {select} FROM {source}" + (f" WHERE {' AND '.join(conds)}" if conds else "")
+    return con.execute(sql).to_arrow_table().replace_schema_metadata(schema.metadata)
+
+
 def role_table(
     dataset: str,
     *,
     period: object,
     geography: object,
     roles: list[str] | None = None,
+    where: str | None = None,
     **query_kwargs: Any,
 ) -> pa.Table:
     """One query's records as normalised role columns, with record identity.
 
     Roles whose column this scope does not carry come back null and are named
     in the table's metadata (``absent_roles``), so a caller that needs one can
-    refuse rather than link on nothing.
+    refuse rather than link on nothing. ``where`` (SQL over the role names, as a link side's filter) keeps the
+    matching records, applied where each year is read.
 
     Only NATIONAL tables of whole years are kept under ``<lake>/roles/``
     (``_national_year``): labelling a national file took 10-20 s and was
     repeated by every link that read it. A multi-year period is the union of
     its years, and a state the rows of the national table that came from that
-    state's own publication (``_uf``). Caching every scope separately had
-    stored SIH-RD six times over, 2.2 GB (2026-10-04). A scope the cache
-    cannot answer exactly (a month, a nation published as one file) is
+    state's own publication (``_uf``). A year is read projected to the roles asked and filtered to the state, never
+    whole. A state whose national year is not cached is computed for the roles asked, not by building the nation
+    (53 s) to keep 1/27 of it. A scope the cache cannot answer exactly (a month, a nation published as one file) is
     computed and not kept.
     """
     from ..config import load_settings
@@ -284,21 +333,25 @@ def role_table(
     spec = dataset_roles(dataset)
     names = list(roles or spec.roles)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    needed = list(dict.fromkeys([*names, *_where_roles(spec, where)]))
+    provenance = ["_blob_sha256", "_row", "_source_path", "_record_key"]
     years, ufs = _whole_years(period), _ufs(geography)
     if years and ufs:
-        parts = [_national_year(spec, year, settings, query_kwargs) for year in years]
-        if all(part is not None for part in parts):
-            table = pa.concat_tables([p for p in parts if p is not None], promote_options="default")
-            if ufs != ("BR",):
-                origin = table.column("_uf")
-                if pc.any(pc.equal(origin, "BR")).as_py():
-                    table = None  # one national file: its rows do not say which state published them
-                else:
-                    table = table.filter(pc.is_in(origin, value_set=pa.array(ufs)))
-            if table is not None:
-                return _subset(table, names)
-    full, _strategy = _compute_roles(spec, list(spec.roles), period=period, geography=geography, **query_kwargs)
-    return _subset(full, names)
+        parts: list[pa.Table] = []
+        for year in years:
+            part = _national_year(spec, year, ufs, geography, [*provenance, *needed], where, settings, query_kwargs)
+            if part is None:
+                parts = []
+                break
+            parts.append(part)
+        if parts:
+            gaps = sorted(set.intersection(*(set(absent_roles(p)) for p in parts)))    # absent in every year; `role_gaps` by year
+            table = pa.concat_tables(parts, promote_options="default")
+            meta = {**(table.schema.metadata or {}), b"absent_roles": ",".join(gaps).encode(),
+                    b"role_gaps": merged_gaps(parts)}
+            return _subset(table.replace_schema_metadata(meta), names)
+    full, _strategy = _compute_roles(spec, needed, period=period, geography=geography, **query_kwargs)
+    return _subset(_filtered(full, where), names)
 
 
 def _whole_years(period: object) -> tuple[int, ...]:
@@ -320,12 +373,14 @@ def _ufs(geography: object) -> tuple[str, ...]:
     return ("BR",) if "BR" in out else out
 
 
-def _national_year(spec: DatasetRoles, year: int, settings: Any, query_kwargs: dict[str, Any]) -> pa.Table | None:
-    """The national role table of one year, from the cache or built and kept.
+def _national_year(spec: DatasetRoles, year: int, ufs: tuple[str, ...], geography: object, columns: list[str],
+                   where: str | None, settings: Any, query_kwargs: dict[str, Any]) -> pa.Table | None:
+    """One year's role table for ``ufs``, projected to ``columns`` and filtered, from the national cache, or built.
 
-    None when the lake does not back the whole nation for that year: a "BR"
-    table assembled from the few states a lake holds would have been cached
-    as the nation (2026-10-04).
+    The nation is built (and kept) only for a national call, and only when the lake backs the whole nation for that
+    year: a "BR" table assembled from the few states a lake holds would have been cached as the nation (2026-10-04).
+    A state call whose national table is not cached computes that state for the roles asked and keeps nothing.
+    None when the year cannot be answered from the cache (the caller computes the scope).
     """
     import os
 
@@ -333,12 +388,16 @@ def _national_year(spec: DatasetRoles, year: int, settings: Any, query_kwargs: d
 
     from .._query_engine.planner import plan
 
-    path = _cache_path(spec.dataset, str(year), "BR", settings)
+    path = _cache_path(spec.dataset, year, settings)
     if path is None:
         return None
     if path.exists():
         os.utime(path)  # recency for the size cap
-        return pq.read_table(path)
+        return _read_cached(path, columns, ufs, where)
+    if ufs != ("BR",):
+        roles = [c for c in columns if c in spec.roles]
+        table, _strategy = _compute_roles(spec, roles, period=str(year), geography=geography, **query_kwargs)
+        return _filtered(table, where)
     kwargs = {k: v for k, v in query_kwargs.items() if k in ("settings", "root")}
     try:
         backed = plan(spec.dataset, period=str(year), geography="BR", **kwargs).retrieval.source_strategy == "lake"
@@ -350,20 +409,20 @@ def _national_year(spec: DatasetRoles, year: int, settings: Any, query_kwargs: d
     if strategy != "lake":
         return None
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    pq.write_table(full, tmp, compression="zstd")
+    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")   # one name per process: two studies building one year
+    pq.write_table(full, tmp, compression="zstd")            # interleaved on a shared name (2026-10-14 review)
     tmp.replace(path)
-    # The same scope under an older key can never be served again (its code
-    # or its lake files changed): 4.3 GB of them had piled up.
-    # So can a table of any other scope than one national year: the layout
-    # before 2026-10-04 kept states and multi-year periods beside the nation.
+    # The same year under an older key can never be served again (its lake files or roles changed): 4.3 GB of them
+    # had piled up. A table of any other scope than one national year can neither (the layout before 2026-10-04
+    # kept states and multi-year periods beside the nation).
     prefix = path.name.split("__", 1)[0] + "__"
     for stale in path.parent.glob("*.parquet"):
         national_year = re.fullmatch(r"\d{4}_BR", stale.name.split("__", 1)[0])
         if stale != path and (stale.name.startswith(prefix) or not national_year):
             stale.unlink(missing_ok=True)
     _cap_cache(Path(settings.lake_dir) / "roles", float(getattr(settings, "role_cache_gb", 20.0)), keep=path)
-    return full
+    kept = full.select([c for c in columns if c in full.column_names]).replace_schema_metadata(full.schema.metadata)
+    return _filtered(kept, where)
 
 
 def _cap_cache(root: Path, limit_gb: float, *, keep: Path) -> None:
@@ -413,6 +472,7 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     absent = set.intersection(*(set(absent_roles(t)) for t, _ in parts))
     meta = dict(parts[0][0].schema.metadata or {})
     meta[b"absent_roles"] = ",".join(sorted(absent)).encode()
+    meta[b"role_gaps"] = merged_gaps([t for t, _ in parts])
     strategy = "lake" if all(s == "lake" for _, s in parts) else "other"
     return table.replace_schema_metadata(meta), strategy
 
@@ -445,6 +505,7 @@ def _compute_roles_one(spec: DatasetRoles, names: list[str], *, period: object, 
         table = pa.concat_tables([t for t, _ in parts], promote_options="default")
         meta = dict(parts[0][0].schema.metadata or {})
         meta[b"absent_roles"] = ",".join(sorted(absent)).encode()
+        meta[b"role_gaps"] = merged_gaps([t for t, _ in parts])
         return table.replace_schema_metadata(meta), ("lake" if all(s == "lake" for _, s in parts) else "other")
     return _compute_roles_year(spec, names, period=period, geography=geography, **query_kwargs)
 
@@ -480,8 +541,13 @@ def _compute_roles_year(spec: DatasetRoles, names: list[str], *, period: object,
             continue
         columns[role.name] = _normalise(role, table)
     out = pa.table(columns)
+    # what this year lacked, by role: a column the year's files do not carry (the role is null), or an `also` column of a
+    # `codes` role (SIH's DIAGSEC1-9 before 2014: the role is built from the columns present, so the cohorts it selects
+    # differ by year). A table of several years lists only the roles absent in all of them in `absent_roles`.
+    gaps = {str(period): {"absent": absent, "degraded": {
+        r.name: miss for r in wanted if r.name not in absent and (miss := [c for c in r.also if c not in table.column_names])}}}
     meta = {b"dataset": spec.dataset.encode(), b"record": spec.record.encode(),
-            b"absent_roles": ",".join(absent).encode()}
+            b"absent_roles": ",".join(absent).encode(), b"role_gaps": json.dumps(gaps).encode()}
     complete = getattr(report, "source_strategy", "") == "lake"
     return out.replace_schema_metadata(meta), ("lake" if complete else "other")
 
@@ -491,4 +557,39 @@ def absent_roles(table: pa.Table) -> list[str]:
     return [r for r in raw.split(",") if r]
 
 
-__all__ = ["DatasetRoles", "Role", "absent_roles", "dataset_roles", "load_roles", "role_table"]
+def role_gaps(table: pa.Table) -> dict[str, dict[str, Any]]:
+    """Per year, the roles the table's files lacked and the `codes` roles built from fewer columns than declared."""
+    raw = (table.schema.metadata or {}).get(b"role_gaps", b"")
+    return json.loads(raw) if raw else {}
+
+
+def merged_gaps(tables: list[pa.Table]) -> bytes:
+    """The ``role_gaps`` of several tables of one dataset as one metadata value (years' entries joined, a year's roles
+    united)."""
+    out: dict[str, dict[str, Any]] = {}
+    for t in tables:
+        for year, gap in role_gaps(t).items():
+            have = out.setdefault(year, {"absent": [], "degraded": {}})
+            have["absent"] = sorted(set(have["absent"]) | set(gap.get("absent", [])))
+            for role, cols in gap.get("degraded", {}).items():
+                have["degraded"][role] = sorted(set(have["degraded"].get(role, [])) | set(cols))
+    return json.dumps(out).encode()
+
+
+def unusable_roles(table: pa.Table, names: list[str]) -> dict[str, str]:
+    """Of the roles ``names``, those a link cannot use on this table: ``absent`` (no file of the scope carries the
+    column) or ``all null`` (the column is there but no value normalised: a municipality or facility whose codes are
+    not exactly 6 or 7 digits, a date in another format). Such a role used as a key gives an empty pass and an
+    agreement of None, with no reason (2026-10-14 review)."""
+    absent = set(absent_roles(table))
+    out: dict[str, str] = {}
+    for name in names:
+        if name in absent:
+            out[name] = "absent"
+        elif name in table.column_names and table.num_rows and table.column(name).null_count == table.num_rows:
+            out[name] = "all null"
+    return out
+
+
+__all__ = ["DatasetRoles", "Role", "absent_roles", "dataset_roles", "load_roles", "role_gaps", "role_table",
+           "table_key", "unusable_roles"]

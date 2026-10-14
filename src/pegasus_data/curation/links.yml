@@ -350,7 +350,6 @@ links:
         - [[case.death_date, death.date], [case.residence, deceased.residence]]
         - [[case.death_date, death.date], [case.sex, deceased.sex]]
       target_fdr: 0.01
-      control_shift_days: 14   # every block uses the death day; 400 days leaves 2022
 
   # Toxoplasmosis (BACKLOG 6.2; docs/evaluation/2026-10-10-links-toxoplasmosis.md). SINAN has carried no birth date
   # since the LGPD rewrite: a child's birth date is rebuilt from the age in days and the date of first symptoms

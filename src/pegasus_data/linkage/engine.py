@@ -20,14 +20,18 @@ validations. For each pass:
 4. **Dropped passes.** A pass whose control finds 20% or more of its pairs, or
    as many pairs as itself, is dropped with its pairs.
 
-Then held-out validations (variables that were not keys) and the verdict
-fixed before any result: *viable* when every kept pass is at most 5% chance
-and the strongest validation agrees in at least 90% of pairs; *use with
-caution* at 20% and 75%; *not viable* otherwise.
+Then held-out validations and the verdict fixed before any result: *viable* when every kept pass is at most 5%
+chance and the strongest held-out validation agrees in at least 90% of pairs; *use with caution* at 20% and 75%;
+*not viable* otherwise. A validation is held out only if no role it reads is a pass key, a compared field, a block or
+a side's filter: those agree by construction (the neonatal link's "born in the admitting hospital" was a key and
+agreed 99.6-100%, and carried "viable" over a held-out 81-87%). A validation compares at least `MIN_COMPARED` pairs, or
+it is not evidence. A control that cannot reach its partner's values (a date moved out of the partner's period) is no
+control, and the run is not viable: an empty placebo reads as "no false pairs".
 """
 
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -39,7 +43,7 @@ import pyarrow as pa
 
 from ..semantics.curation import read_yaml
 from .identity import DUP_SQL, RECORD_ID_SQL, connect
-from .roles import dataset_roles, role_table
+from .roles import dataset_roles, role_table, unusable_roles
 
 
 def links_file() -> Path:
@@ -49,6 +53,10 @@ def links_file() -> Path:
 CHANCE_DROP = 20.0
 VIABLE = (5.0, 90.0)
 CAUTION = (20.0, 75.0)
+#: pairs a validation must compare to count (a proportion of fewer says nothing)
+MIN_COMPARED = 30
+#: the least share of the real keys' reach that the control's shifted key must keep (`_control_reach`)
+CONTROL_REACH = 0.5
 
 
 @dataclass(frozen=True, slots=True)
@@ -201,6 +209,8 @@ class PassReport:
     control_pairs: int
     chance_percent: float | None
     kept: bool
+    #: why the pass did not run: a key role the scope lacks ("absent") or no value of which normalised ("all null")
+    skipped: str = ""
 
 
 class LinkNotViable(RuntimeError):
@@ -218,7 +228,8 @@ class LinkNotViable(RuntimeError):
         chance = summary.get("chance_percent", summary.get("estimated_fdr_percent"))
         super().__init__(
             f"{summary['spec']} is not viable here (chance {chance}%, "
-            f"validations {summary['validations']}, {summary['pairs']} pairs). "
+            f"validations {summary['validations']}, {summary['pairs']} pairs; "
+            f"{'; '.join(summary.get('verdict_reasons') or []) or 'no reason recorded'}). "
             "Pass allow_not_viable=True to inspect the pairs."
         )
 
@@ -234,6 +245,12 @@ class LinkResult:
     chance_percent: float | None = None
     verdict: str = "not viable"
     chance_upper95_percent: float | None = None
+    #: what failed the verdict, in words (empty when viable)
+    reasons: list[str] = field(default_factory=list)
+    #: per year, the roles the scope lacked and the `codes` roles built from fewer columns than declared
+    role_gaps: dict[str, Any] = field(default_factory=dict)
+    #: the control's reach per shifted key: the share of left records whose shifted value finds a partner value, against the same for the real value
+    control_reach: dict[str, Any] = field(default_factory=dict)
 
     @property
     def linked_share(self) -> float:
@@ -245,12 +262,16 @@ class LinkResult:
             "pairs": self.pairs.num_rows, "linked_share": round(self.linked_share, 4),
             "passes": [vars(p) for p in self.passes], "chance_percent": self.chance_percent,
             "chance_upper95_percent": self.chance_upper95_percent,
-            "validations": self.validations, "verdict": self.verdict,
+            "validations": self.validations, "verdict": self.verdict, "verdict_reasons": self.reasons,
+            "role_gaps": self.role_gaps, "control_reach": self.control_reach,
         }
 
 
-def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side) -> int:
-    """Register one side as a view with an `_id` per record (or per group)."""
+def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True) -> int:
+    """Register one side as a relation with an `_id` per record (or per group). A table by default: the identity's
+    window function, the group window and the day explosion are evaluated once, not by each of the six queries a pass
+    and a validation issue (a key query over the view took 1.4-1.8 s per 3 M rows, over the table 0.4 s). The
+    probabilistic engine asks for a view and materialises it as it keys it by integers (`probabilistic._materialise`)."""
     con.register(f"{name}_raw", table)
     where = f"WHERE {side.where}" if side.where else ""
     if "_record_key" in table.column_names:
@@ -276,20 +297,21 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
         base = (f"SELECT *, CAST(unnest(generate_series(CAST({_q(start)} AS TIMESTAMP), CAST({_q(end)} AS TIMESTAMP), "
                 f"INTERVAL 1 DAY)) AS DATE) AS {_q(new)} FROM ({base}) WHERE {_q(start)} IS NOT NULL "
                 f"AND {_q(end)} IS NOT NULL AND {_q(end)} >= {_q(start)} AND {_q(end)} - {_q(start)} <= 120")
-    con.execute(f"CREATE OR REPLACE TEMP VIEW {name} AS {base}")
+    con.execute(f"CREATE OR REPLACE TEMP {'TABLE' if materialise else 'VIEW'} {name} AS {base}")
     return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
 
-def _join(con: duckdb.DuckDBPyConnection, keys: tuple[tuple[str, str], ...], shift: tuple[str, int] | None) -> str:
+def _shifted(role: str, days: int, integers: frozenset[str]) -> str:
+    """SQL moving a key by the control's shift: a date by days; a year (SINAN's birth year, an integer) by that many
+    units."""
+    return f"({_q(role)} + {days})" if role in integers else f"CAST({_q(role)} + INTERVAL {days} DAY AS DATE)"
+
+
+def _join(keys: tuple[tuple[str, str], ...], shift: tuple[str, int] | None, integers: frozenset[str]) -> str:
     """SQL for the 1:1 join of the still-unlinked records on `keys`."""
     lk: list[str] = []
     for left, _right in keys:
-        expr = _q(left)
-        if shift and left == shift[0]:
-            # a date moves by days; a year (SINAN's birth year, an integer) by that many years
-            kind = con.execute(f"SELECT typeof({_q(left)}) FROM L LIMIT 1").fetchone()
-            expr = (f"({_q(left)} + {shift[1]})" if kind and kind[0] in ("BIGINT", "INTEGER")
-                    else f"CAST({_q(left)} + INTERVAL {shift[1]} DAY AS DATE)")
+        expr = _shifted(left, shift[1], integers) if shift and left == shift[0] else _q(left)
         lk.append(f"{expr} AS k_{len(lk)}")
     rk = [f"{_q(right)} AS k_{i}" for i, (_l, right) in enumerate(keys)]
     kn = ", ".join(f"k_{i}" for i in range(len(keys)))
@@ -302,17 +324,70 @@ def _join(con: duckdb.DuckDBPyConnection, keys: tuple[tuple[str, str], ...], shi
         SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn})"""
 
 
+def _control_reach(con: duckdb.DuckDBPyConnection, spec: LinkSpec, integers: frozenset[str],
+                   keys: set[tuple[str, str]]) -> dict[str, dict[str, float | int]]:
+    """Whether the control can find a partner at all. A control that moves the key out of the partner side's values
+    (a date shifted past the end of the partner's period) finds no false pair whatever the key's chance of a
+    coincidence is, and its zero reads as "no false pairs". For each pairing of the control role, the share of left
+    records whose own value is among the partner's values (what a real pair needs) and whose shifted value is
+    (what a control pair needs); the second should be close to the first."""
+    out: dict[str, dict[str, float | int]] = {}
+    for left, right in sorted(keys):
+        if left != spec.control_role:
+            continue
+        n, real, shifted = con.execute(f"""
+            WITH rv AS (SELECT DISTINCT {_q(right)} AS v FROM R WHERE {_q(right)} IS NOT NULL),
+                 a AS (SELECT DISTINCT _id, {_q(left)} AS v, {_shifted(left, spec.control_shift_days, integers)} AS s
+                       FROM L WHERE {_q(left)} IS NOT NULL)
+            SELECT count(*), count(r1.v), count(r2.v) FROM a LEFT JOIN rv r1 ON r1.v = a.v
+                                                            LEFT JOIN rv r2 ON r2.v = a.s""").fetchone() or (0, 0, 0)
+        out[f"{left} ~ {right}"] = {"records": int(n), "real_reach": round(real / n, 4) if n else 0.0,
+                                    "control_reach": round(shifted / n, 4) if n else 0.0}
+    return out
+
+
+def _unreachable(reach: dict[str, dict[str, float | int]]) -> list[str]:
+    return [f"the control cannot reach {key}: its shifted key finds a partner value for {v['control_reach']:.1%} of "
+            f"the left records against {v['real_reach']:.1%} for the real key"
+            for key, v in reach.items() if v["real_reach"] and v["control_reach"] < CONTROL_REACH * v["real_reach"]]
+
+
+def roles_used(spec: LinkSpec) -> tuple[set[str], set[str]]:
+    """The roles each side contributes as pass keys or through its filter: a validation reading one of them agrees by
+    construction."""
+    left = {k[0] for p in spec.passes for k in p.keys} | set(re.findall(r'"([^"]+)"', spec.left.where))
+    right = {k[1] for p in spec.passes for k in p.keys} | set(re.findall(r'"([^"]+)"', spec.right.where))
+    return left, right
+
+
+def skipped_reason(keys: tuple[tuple[str, str], ...], left_bad: dict[str, str], right_bad: dict[str, str]) -> str:
+    """Why a pass over ``keys`` cannot run on these tables: a key role the scope lacks or no value of which parsed."""
+    why = [f"{role} {left_bad[role]}" for role, _r in keys if role in left_bad]
+    why += [f"{role} {right_bad[role]}" for _l, role in keys if role in right_bad]
+    return "; ".join(why)
+
+
 def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     """Link two role tables under `spec`."""
+    left_bad = unusable_roles(left, sorted({k[0] for p in spec.passes for k in p.keys}))
+    right_bad = unusable_roles(right, sorted({k[1] for p in spec.passes for k in p.keys}))
+    why_skipped = {p.name: skipped_reason(p.keys, left_bad, right_bad) for p in spec.passes}
+    if all(why_skipped.values()):
+        raise ValueError(f"{spec.name}: no pass can run on these tables ({why_skipped}); the scope lacks or cannot "
+                         "read a role every pass keys on")
     con = connect()
     n_left = _prepare(con, "L", left, spec.left)
     n_right = _prepare(con, "R", right, spec.right)
+    integers = frozenset(c for c in left.column_names if pa.types.is_integer(left.schema.field(c).type))
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
     for p in spec.passes:
-        real = con.execute(f"SELECT * FROM ({_join(con, p.keys, None)})").to_arrow_table()
+        if why_skipped[p.name]:
+            reports.append(PassReport(p.name, 0, 0, None, False, skipped=why_skipped[p.name]))
+            continue
+        real = con.execute(f"SELECT * FROM ({_join(p.keys, None, integers)})").to_arrow_table()
         control = con.execute(  # type: ignore[index]
-            f"SELECT count(*) FROM ({_join(con, p.keys, (spec.control_role, spec.control_shift_days))})"
+            f"SELECT count(*) FROM ({_join(p.keys, (spec.control_role, spec.control_shift_days), integers)})"
         ).fetchone()[0]
         n = real.num_rows
         chance = 100.0 * control / n if n else None
@@ -329,13 +404,36 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     validations = validate(con, spec)
     worst_pass = max((r.chance_percent or 0.0) for r in reports if r.kept) if any(r.kept for r in reports) else None
     upper = upper95(kept_control, kept_pairs)
-    verdict = judge(kept_pairs, worst_pass, validations, upper)
-    return LinkResult(spec.name, n_left, n_right, pairs, reports, validations, chance, verdict, upper)
+    reach = _control_reach(con, spec, integers, {k for p in spec.passes if not why_skipped[p.name] for k in p.keys})
+    verdict, reasons = judge(kept_pairs, worst_pass, validations, upper, placebo_failures=_unreachable(reach))
+    reasons += [f"pass {name!r} skipped: {why}" for name, why in why_skipped.items() if why]
+    from .roles import role_gaps
+
+    gaps = {"left": role_gaps(left), "right": role_gaps(right)}
+    return LinkResult(spec.name, n_left, n_right, pairs, reports, validations, chance, verdict, upper, reasons, gaps,
+                      reach)
 
 
-def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> dict[str, dict[str, float | int | None]]:
-    """Held-out agreement over the pairs in the temp table `linked` (l, r)."""
-    validations: dict[str, dict[str, float | int | None]] = {}
+_QUOTED = re.compile(r'\b([lr])\."([^"]+)"')
+
+
+def validation_roles(v: Validation) -> tuple[set[str], set[str]]:
+    """The left and right roles a validation reads."""
+    if v.sql:
+        found = _QUOTED.findall(v.sql)
+        return {name for side, name in found if side == "l"}, {name for side, name in found if side == "r"}
+    return {v.left} if v.left else set(), {v.right} if v.right else set()
+
+
+def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec,
+             used: tuple[set[str], set[str]] | None = None) -> dict[str, dict[str, Any]]:
+    """Agreement of each validation over the pairs in the temp table `linked` (l, r). ``used`` (left roles, right
+    roles) are the roles the method being judged keys, compares or filters on (`roles_used` for the deterministic
+    passes); a validation reading one is ``circular`` and never decides the verdict."""
+    used_left, used_right = used if used is not None else roles_used(spec)
+    con.execute("CREATE OR REPLACE TEMP TABLE _vl AS SELECT DISTINCT ON (_id) * FROM L")
+    con.execute("CREATE OR REPLACE TEMP TABLE _vr AS SELECT DISTINCT ON (_id) * FROM R")
+    validations: dict[str, dict[str, Any]] = {}
     for v in spec.validations:
         if v.sql:
             cond = v.sql
@@ -348,11 +446,12 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> dict[str, dict[s
             usable = f"l.{_q(v.left or '')} IS NOT NULL AND r.{_q(v.right or '')} IS NOT NULL"
         row = con.execute(f"""
             SELECT count(*), avg(CASE WHEN {cond} THEN 1.0 ELSE 0 END)
-            FROM linked k JOIN (SELECT DISTINCT ON (_id) * FROM L) l ON l._id = k.l
-                          JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = k.r
+            FROM linked k JOIN _vl l ON l._id = k.l JOIN _vr r ON r._id = k.r
             WHERE {usable}""").fetchone()
+        reads_left, reads_right = validation_roles(v)
         validations[v.name] = {"pairs_compared": int(row[0]),  # type: ignore[index]
-                               "agreement_percent": round(100.0 * row[1], 2) if row[1] is not None else None}  # type: ignore[index]
+                               "agreement_percent": round(100.0 * row[1], 2) if row[1] is not None else None,  # type: ignore[index]
+                               "circular": bool(reads_left & used_left or reads_right & used_right)}
     return validations
 
 
@@ -369,59 +468,62 @@ def upper95(control: int, pairs: int) -> float | None:
 def judge(
     pairs: int,
     worst_chance: float | None,
-    validations: dict[str, dict[str, float | int | None]],
+    validations: dict[str, dict[str, Any]],
     upper: float | None = None,
-) -> str:
-    """The verdict fixed before any result (ADR-0107), judged on the 95% upper
-    bound of the chance rate when one is given (ADR-0113): 13 maternal deaths
-    with no control pair read "0% chance" and were called viable, with a bound
-    of 28%."""
-    agreement = [float(v["agreement_percent"]) for v in validations.values() if v["agreement_percent"] is not None]
-    best = max(agreement) if agreement else None
-    if not pairs or best is None or worst_chance is None:
-        return "not viable"
+    *,
+    placebo_failures: list[str] | tuple[str, ...] = (),
+) -> tuple[str, list[str]]:
+    """The verdict fixed before any result (ADR-0107), judged on the 95% upper bound of the chance rate when one is
+    given (ADR-0113: 13 maternal deaths with no control pair read "0% chance" and were called viable, with a bound of
+    28%), and its reasons. The validation that counts is the strongest HELD-OUT one that compared at least
+    `MIN_COMPARED` pairs: a validation on a key or a compared field agrees by construction. A placebo that did not reach
+    its blocks (``placebo_failures``) measured no chance at all: not viable."""
+    reasons = list(placebo_failures)
+    held = [float(v["agreement_percent"]) for v in validations.values()
+            if not v.get("circular") and v["agreement_percent"] is not None
+            and (v.get("pairs_compared") or 0) >= MIN_COMPARED]
+    best = max(held) if held else None
+    if not pairs:
+        reasons.append("no pairs")
+    if worst_chance is None:
+        reasons.append("no chance estimate: no kept pass or no placebo threshold")
+    if best is None:
+        reasons.append(f"no held-out validation compares at least {MIN_COMPARED} pairs")
+    if reasons:
+        return "not viable", reasons
+    assert best is not None and worst_chance is not None
     if upper is not None:
         worst_chance = max(worst_chance, upper)
     if worst_chance <= VIABLE[0] and best >= VIABLE[1]:
-        return "viable"
+        return "viable", []
+    found = [f"chance up to {worst_chance}% (viable: at most {VIABLE[0]}%)" if worst_chance > VIABLE[0] else "",
+             f"strongest held-out validation {best}% (viable: at least {VIABLE[1]}%)" if best < VIABLE[1] else ""]
     if worst_chance <= CAUTION[0] and best >= CAUTION[1]:
-        return "use with caution"
-    return "not viable"
+        return "use with caution", [r for r in found if r]
+    return "not viable", [r for r in found if r] + [f"outside the caution band (chance {CAUTION[0]}%, validation {CAUTION[1]}%)"]
 
 
 def _side_table(side: Side, roles: list[str], *, period: object, geography: object, **query_kwargs: Any) -> pa.Table:
-    """A side's role table. A national side with a filter is read one cached year at a time with the filter applied
-    where the year is read, so a side that keeps a few thousand of 12 million admissions never holds the year
-    (a congenital toxoplasmosis link held 15 GB, 2026-10-10). The side's own filter still runs in `_prepare`; a
-    record's identity does not depend on it (exact duplicates are numbered within their source file and pass the
-    filter together)."""
-    import os
+    """A side's role table with its filter applied where each year is read (`roles.role_table(where=)`): a side that
+    keeps a few thousand of 12 million admissions never holds the year (a congenital toxoplasmosis link held 15 GB,
+    2026-10-10). Kept under this name for pegasus_core's capture."""
+    return role_table(side.dataset, period=period, geography=geography, roles=roles, where=side.where or None,
+                      **query_kwargs)
 
-    from ..config import load_settings
-    from .roles import _cache_path, _whole_years
 
-    years = _whole_years(period)
-    if not side.where or not years or str(geography).upper() != "BR":
-        return role_table(side.dataset, period=period, geography=geography, roles=roles, **query_kwargs)
-    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
-    import pyarrow.parquet as pq
-
-    con = connect()
-    con.execute("SET memory_limit = '3GB'")
-    parts: list[pa.Table] = []
-    for year in years:
-        path = _cache_path(side.dataset, str(year), "BR", settings)
-        if path is not None and not path.exists():
-            role_table(side.dataset, period=year, geography="BR", roles=roles[:1], **query_kwargs)  # builds the cache
-        if path is None or not path.exists():
-            return role_table(side.dataset, period=period, geography=geography, roles=roles, **query_kwargs)
-        os.utime(path)
-        have = set(pq.read_schema(path).names)
-        keep = [c for c in ("_blob_sha256", "_row", "_source_path", "_record_key") if c in have] + roles
-        columns = ", ".join(_q(c) for c in keep)
-        parts.append(con.execute(f"SELECT {columns} FROM read_parquet('{path.as_posix()}') WHERE {side.where}"
-                                 ).to_arrow_table())
-    return pa.concat_tables(parts, promote_options="default")
+def right_geography_for(spec: LinkSpec, geography: object, right_geography: object) -> object:
+    """The geography the right side is read at. A state's records are paired with the nation's partners when the two
+    datasets are not published by the same place: SIH and CIHA are filed by the hospital's state, SIM and SINASC by
+    residence, so a Sergipe resident who died in an Alagoas hospital has her certificate in Sergipe's file and her
+    admission in Alagoas's; reading the right side for the left's state alone lost every cross-state partner without
+    a flag (2026-10-14 review). The same geography only when both datasets declare the same ``setting``."""
+    if right_geography is not None or str(geography).upper() == "BR":
+        return right_geography
+    left_setting = dataset_roles(spec.left.dataset).setting
+    right_setting = dataset_roles(spec.right.dataset).setting
+    if left_setting and right_setting and left_setting.split(".", 1)[1] == right_setting.split(".", 1)[1]:
+        return None
+    return "BR"
 
 
 def link(
@@ -472,6 +574,7 @@ def link(
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     if right_period is None and spec.right.pad_years != (0, 0):
         right_period = padded_period(period, spec.right)
+    right_geography = right_geography_for(spec, geography, right_geography)
     key = stored_key(name, method, period, geography, right_period=right_period, right_geography=right_geography)
     if not refresh:
         stored = store.load(settings, key)
@@ -493,10 +596,14 @@ def link(
                             geography=right_geography or geography, **query_kwargs)
         result = run(spec, left, right)
     if persist:
-        # its wall time beside it: what a study prices a run it would compute by (pegasus_core `study._link_cost`)
-        store.save(settings, key, result.pairs, {**result.summary(), "seconds": round(time.time() - t0, 1)})
-        if method == "probabilistic" and str(geography).upper() == "BR" and right_geography is None:
-            store.save_params(settings, name, result.summary(), f"BR {key.period}")
+        # its wall time beside it: what a study prices a run it would compute by (pegasus_core `study._link_cost`),
+        # and the scope it read: a state's records against the nation's partners, or against the state's own
+        scope = {"geography": str(geography), "right_geography": str(right_geography) if right_geography is not None else None}
+        store.save(settings, key, result.pairs, {**result.summary(), "scope": scope, "seconds": round(time.time() - t0, 1)})
+        if (method == "probabilistic" and str(geography).upper() == "BR" and right_geography is None
+                and result.verdict != "not viable"):
+            # the reference slices of this period decide with: never from a run that failed its own verdict
+            store.save_params(settings, key, result.summary())
     if result.verdict == "not viable" and not allow_not_viable:
         raise LinkNotViable(result)
     return result
