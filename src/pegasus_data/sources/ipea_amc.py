@@ -14,8 +14,9 @@ unassigned rather than given a parent.
 from __future__ import annotations
 
 import sqlite3
-import urllib.request
 from pathlib import Path
+
+from . import download
 
 URL = "https://www.ipea.gov.br/geobr/data_gpkg/amc/{start}/AMC_{start}_2010_simplified.gpkg"
 
@@ -27,14 +28,13 @@ def fetch(start: int, cache_dir: str | Path, *, timeout: float = 300.0) -> Path:
     target = Path(cache_dir) / f"AMC_{start}_2010_simplified.gpkg"
     if target.is_file():
         return target
-    target.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(URL.format(start=start), timeout=timeout) as response:
-        data = response.read()
-    if not data.startswith(b"SQLite format 3"):
+    got = download(URL.format(start=start), target.with_name(target.name + ".dl"), timeout=timeout)
+    with got.open("rb") as handle:
+        head = handle.read(15)
+    if head != b"SQLite format 3":
+        got.unlink()
         raise FileNotFoundError(f"IPEA returned no GeoPackage for AMC {start}-2010")
-    tmp = target.with_suffix(".tmp")
-    tmp.write_bytes(data)
-    tmp.replace(target)
+    got.replace(target)
     return target
 
 

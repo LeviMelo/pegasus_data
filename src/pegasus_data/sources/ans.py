@@ -19,7 +19,7 @@ from typing import Any
 
 import pyarrow as pa
 
-from . import fetch_url
+from . import download
 
 BASE = "https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/"
 UFS = ("AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE",
@@ -30,14 +30,7 @@ _KEYS = ("CD_MUNICIPIO", "TP_SEXO", "DE_FAIXA_ETARIA", "COBERTURA_ASSIST_PLAN")
 def fetch(uf: str, year: int, month: int, cache_dir: str | Path, *, timeout: float = 1800.0) -> Path:
     """One state-month file, downloaded once into the cache."""
     name = f"pda-024-icb-{uf}-{year}_{month:02d}.zip"
-    target = Path(cache_dir) / name
-    if not target.is_file():
-        target.parent.mkdir(parents=True, exist_ok=True)
-        data = fetch_url(f"{BASE}{year}{month:02d}/{name}", timeout=timeout)
-        partial = target.with_suffix(".part")
-        partial.write_bytes(data)
-        partial.replace(target)
-    return target
+    return download(f"{BASE}{year}{month:02d}/{name}", Path(cache_dir) / name, timeout=timeout)
 
 
 def beneficiaries(year: int, month: int, cache_dir: str | Path) -> pa.Table:

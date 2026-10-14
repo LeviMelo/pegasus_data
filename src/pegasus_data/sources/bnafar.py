@@ -21,6 +21,7 @@ is NOT the stock in that month: a past month holds only the lots not reported si
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -35,9 +36,7 @@ CATMAT_CLASS = 6505     # Drugs and medicines (CATMAT group 65, class 6505).
 
 
 def _cache(root: str | Path | None) -> Path:
-    from ..config import load_settings
-
-    path = Path(root or load_settings().root) / "registries" / SOURCE
+    path = intake._cache(SOURCE, root)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -101,7 +100,7 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
             for suffix, unit in units.items():
                 code = f"BR{int(item['codigoItem']):07d}{suffix}"
                 if code not in probe:
-                    rows = intake.get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}).get("parametros") or []
+                    rows = intake.rows_of(intake.get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}), "parametros", f"BNAFAR {code}")
                     probe[code] = rows[0]["descricao_produto"].strip() if rows else None
                     cache.write_text(json.dumps(probe, ensure_ascii=False), encoding="utf8")
                 if probe[code] or not only_with_stock:
@@ -136,16 +135,21 @@ def program(sigla: str, root: str | Path | None = None, refresh: bool = False) -
 
 def monthly(catmats: list[str], year: int, months: range | list[int] = range(1, 13),
             root: str | Path | None = None) -> pa.Table:
-    """(catmat, description, anomes, uf, rows, establishments, lots, quantity): the stock by state and month, the
-    month's last position of each lot in each establishment, summed (see the module note). A (code, month) holds
-    nothing when the API returns no row for it; that month is absent from the table."""
+    """(catmat, description, anomes, uf, rows, establishments, lots, quantity, lots_without_quantity, incomplete): the stock
+    by state and month, the month's last position of each lot in each establishment, summed (see the module note). A (code,
+    month) holds nothing when the API returns no row for it; that month is absent from the table. A lot that reported no
+    quantity adds nothing to ``quantity`` (null when no lot of the state reported one) and is counted in
+    ``lots_without_quantity``; ``incomplete`` is true when the slice could not be read without paging by offset, which
+    loses and repeats rows on this table (`intake._complete`)."""
     out = []
     for code in catmats:
         for m in months:
             t = stock(code, year * 100 + m, root=root)
             if not t.num_rows:
                 continue
+            incomplete = bool((t.schema.metadata or {}).get(b"intake_unstable"))
             rows = t.to_pylist()
+            per_state = Counter(r["uf"] for r in rows)
             last: dict[tuple, dict] = {}
             for r in rows:
                 key = (r["codigo_cnes"], r["numero_lote"], r["data_validade"])
@@ -154,15 +158,19 @@ def monthly(catmats: list[str], year: int, months: range | list[int] = range(1, 
             by_uf: dict[str, dict] = {}
             for r in last.values():
                 d = by_uf.setdefault(r["uf"], {"catmat": code, "description": (r["descricao_produto"] or "").strip(),
-                                               "anomes": year * 100 + m, "uf": r["uf"], "rows": 0,
-                                               "cnes": set(), "lots": 0, "quantity": 0.0})
+                                               "anomes": year * 100 + m, "uf": r["uf"], "rows": per_state[r["uf"]],
+                                               "cnes": set(), "lots": 0, "quantity": None, "lots_without_quantity": 0,
+                                               "incomplete": incomplete})
                 d["cnes"].add(r["codigo_cnes"])
                 d["lots"] += 1
-                d["quantity"] += r["quantidade_estoque"] or 0.0
-            for uf, d in by_uf.items():
-                d["rows"] = sum(1 for r in rows if r["uf"] == uf)
+                if r["quantidade_estoque"] is None:
+                    d["lots_without_quantity"] += 1
+                else:
+                    d["quantity"] = (d["quantity"] or 0.0) + r["quantidade_estoque"]
+            for d in by_uf.values():
                 d["establishments"] = len(d.pop("cnes"))
                 out.append(d)
     schema = pa.schema([("catmat", pa.string()), ("description", pa.string()), ("anomes", pa.int32()), ("uf", pa.string()),
-                        ("rows", pa.int64()), ("establishments", pa.int64()), ("lots", pa.int64()), ("quantity", pa.float64())])
+                        ("rows", pa.int64()), ("establishments", pa.int64()), ("lots", pa.int64()), ("quantity", pa.float64()),
+                        ("lots_without_quantity", pa.int64()), ("incomplete", pa.bool_())])
     return pa.Table.from_pylist(out, schema=schema)

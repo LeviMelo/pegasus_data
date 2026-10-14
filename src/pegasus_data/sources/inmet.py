@@ -36,7 +36,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from . import fetch_url
+from . import download
 
 RECORD = "https://zenodo.org/api/records/14925215/files/{name}/content"
 INMET_STATIONS = "https://apitempo.inmet.gov.br/estacoes/{kind}"
@@ -62,15 +62,21 @@ def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
     target = Path(cache_dir) / name
     if target.is_file():
         return target
-    target.parent.mkdir(parents=True, exist_ok=True)
-    data = fetch_url(_SOURCES.get(name) or RECORD.format(name=name), timeout=timeout, agent=USER_AGENT)
-    if data[:2] == bytes((0x1F, 0x8B)):   # IBGE sends gzip without saying so
+    # streamed to disk (the mirror's database is 1.4 GB), under a name no reader takes for the finished file
+    got = download(_SOURCES.get(name) or RECORD.format(name=name), target.with_name(target.name + ".dl"), timeout=timeout, agent=USER_AGENT)
+    with got.open("rb") as handle:
+        gzipped = handle.read(2) == bytes((0x1F, 0x8B))
+    if gzipped:                            # IBGE sends gzip without saying so: decompressed file to file
         import gzip
+        import shutil
 
-        data = gzip.decompress(data)
-    tmp = target.with_suffix(target.suffix + ".tmp")
-    tmp.write_bytes(data)
-    tmp.replace(target)
+        tmp = target.with_name(target.name + ".tmp")
+        with gzip.open(got, "rb") as src, tmp.open("wb") as out:
+            shutil.copyfileobj(src, out, 1 << 24)
+        got.unlink()
+        tmp.replace(target)
+    else:
+        got.replace(target)
     return target
 
 

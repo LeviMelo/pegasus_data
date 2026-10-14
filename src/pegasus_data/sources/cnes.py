@@ -18,6 +18,8 @@ Four rules keep the layer honest:
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +27,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-from . import fetch_url
+from . import download
 
 BASE = "https://datasus-ftp-mirror.nyc3.digitaloceanspaces.com/CNES/200508_/Dados/"
 UFS = ("AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE",
@@ -65,13 +67,7 @@ def _remap(year: int) -> dict[str, str]:
 def fetch(dataset: str, uf: str, year: int, cache_dir: str | Path) -> Path:
     """One state's December file, downloaded once into the cache (the mirror is byte-identical to the FTP)."""
     name = f"{dataset}{uf}{year % 100:02d}12.dbc"
-    target = Path(cache_dir) / "dbc" / name
-    if not target.is_file():
-        target.parent.mkdir(parents=True, exist_ok=True)
-        partial = target.with_suffix(".part")
-        partial.write_bytes(fetch_url(f"{BASE}{dataset}/{name}", timeout=1800.0))
-        partial.replace(target)
-    return target
+    return download(f"{BASE}{dataset}/{name}", Path(cache_dir) / "dbc" / name, timeout=1800.0)
 
 
 def _municipality(table: pa.Table, year: int) -> pa.Table:
@@ -115,10 +111,15 @@ def _aggregate(dataset: str, table: pa.Table, year: int) -> pa.Table:
         table = table.group_by(["municipality", "TIPO_EQP", "active", "IDEQUIPE"]).aggregate([])   # one row per team
         out = table.group_by(["municipality", "TIPO_EQP", "active"]).aggregate([("IDEQUIPE", "count")])
         return out.select(["municipality", "TIPO_EQP", "active", "IDEQUIPE_count"]).rename_columns(["municipality", "tipo_eqp", "active", "n"])
-    # PF: one row per professional x establishment x occupation x contract
-    spec = groups()
-    table = table.append_column("group", _cbo_group(pc.fill_null(table.column("CBO"), ""), spec))
-    table = table.filter(pc.not_equal(table.column("group"), ""))
+    raise KeyError(f"CNES-{dataset}: no aggregate")
+
+
+def _pf_base(table: pa.Table, year: int) -> tuple[pa.Table, pa.Table]:
+    """A PF file (one row per professional x establishment x occupation x contract) reduced to what any grouping of
+    occupations needs: (municipality, cbo, hours, hours_sus, jobs) and the distinct (municipality, cbo, cns). The groups
+    (curation) are applied afterwards by `_pf_groups`, so a change of a group never needs the 3.8 GB of files again."""
+    table = _municipality(table, year)
+    table = table.append_column("cbo", pc.fill_null(table.column("CBO"), ""))
     kept = None
     for column in HOURS:
         part = pc.cast(pc.fill_null(table.column(column), "0"), pa.int64())
@@ -127,20 +128,53 @@ def _aggregate(dataset: str, table: pa.Table, year: int) -> pa.Table:
     table = table.append_column("hours", kept).append_column("hours_sus", pc.if_else(sus, kept, 0))
     cns = pc.fill_null(table.column("CNS_PROF"), "")
     table = table.append_column("cns", pc.if_else(pc.equal(cns, ""), pa.scalar(None, pa.string()), cns))
-    jobs = table.group_by(["municipality", "group"]).aggregate(
-        [("hours", "sum"), ("hours_sus", "sum"), ("hours", "count")])
-    people = table.filter(pc.is_valid(table.column("cns"))).group_by(["municipality", "group", "cns"]).aggregate([])
-    people = people.group_by(["municipality", "group"]).aggregate([("cns", "count")])
-    joined = jobs.join(people, ["municipality", "group"], join_type="left outer")
-    return joined.select(["municipality", "group", "hours_sum", "hours_sus_sum", "hours_count", "cns_count"]).rename_columns(
+    jobs = table.group_by(["municipality", "cbo"]).aggregate([("hours", "sum"), ("hours_sus", "sum"), ("hours", "count")])
+    jobs = jobs.select(["municipality", "cbo", "hours_sum", "hours_sus_sum", "hours_count"]).rename_columns(
+        ["municipality", "cbo", "hours", "hours_sus", "jobs"])
+    people = table.filter(pc.is_valid(table.column("cns"))).group_by(["municipality", "cbo", "cns"]).aggregate([])
+    return jobs, people
+
+
+def _pf_groups(jobs: pa.Table, people: pa.Table) -> pa.Table:
+    """The professional groups of the curation applied to `_pf_base`'s tables: (municipality, group, hours, hours_sus,
+    jobs, professionals); an occupation outside every group is left out, and a person is counted once in a group."""
+    spec = groups()
+    jobs = jobs.append_column("group", _cbo_group(jobs.column("cbo"), spec))
+    jobs = jobs.filter(pc.not_equal(jobs.column("group"), ""))
+    people = people.append_column("group", _cbo_group(people.column("cbo"), spec))
+    people = people.filter(pc.not_equal(people.column("group"), ""))
+    sums = jobs.group_by(["municipality", "group"]).aggregate([("hours", "sum"), ("hours_sus", "sum"), ("jobs", "sum")])
+    distinct = people.group_by(["municipality", "group", "cns"]).aggregate([]).group_by(["municipality", "group"]).aggregate([("cns", "count")])
+    joined = sums.join(distinct, ["municipality", "group"], join_type="left outer")
+    return joined.select(["municipality", "group", "hours_sum", "hours_sus_sum", "jobs_sum", "cns_count"]).rename_columns(
         ["municipality", "group", "hours", "hours_sus", "jobs", "professionals"])
 
 
+def _digest(dataset: str, year: int) -> str:
+    """What a cached aggregate depends on besides its file: the columns read, the Federal District's remap of the year and,
+    for PF, the professional groups of the curation (the other datasets are summed without any group)."""
+    depends = {"columns": _COLUMNS[dataset], "remap": _remap(year)}
+    if dataset == "PF":
+        depends["professional_groups"] = groups().get("professional_groups")
+    return hashlib.sha1(json.dumps(depends, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+
 def state_table(dataset: str, uf: str, year: int, cache_dir: str | Path, *, keep_dbc: bool = False) -> pa.Table:
-    """One state's December file as its aggregate; read from the cache, or fetched, decoded and cached."""
-    cached = Path(cache_dir) / "agg" / f"{dataset}{uf}{year}.parquet"
+    """One state's December file as its aggregate; read from the cache, or fetched, decoded and cached.
+
+    The aggregate carries the digest of what it was built with (`_digest`) in its metadata; one built under other curation
+    is not served. A PF aggregate is re-grouped from the (municipality, occupation) tables kept beside it; the other
+    datasets' small files are fetched again. An aggregate written before the digest existed is served as it is."""
+    agg = Path(cache_dir) / "agg"
+    cached = agg / f"{dataset}{uf}{year}.parquet"
+    digest = _digest(dataset, year)
     if cached.is_file():
-        return pq.read_table(cached)
+        held = (pq.read_metadata(cached).metadata or {}).get(b"curation_digest")
+        if held is None or held.decode() == digest:
+            return pq.read_table(cached).replace_schema_metadata(None)
+        jobs_file, people_file = agg / f"{dataset}{uf}{year}.jobs.parquet", agg / f"{dataset}{uf}{year}.people.parquet"
+        if dataset == "PF" and jobs_file.is_file() and people_file.is_file():
+            return _write(cached, _pf_groups(pq.read_table(jobs_file), pq.read_table(people_file)), digest)
     from ..decode.dbc import read_dbc
 
     path = fetch(dataset, uf, year, cache_dir)
@@ -150,12 +184,24 @@ def state_table(dataset: str, uf: str, year: int, cache_dir: str | Path, *, keep
     missing = [c for c in _COLUMNS[dataset] if c not in table.schema.names]
     if missing:
         raise KeyError(f"CNES-{dataset} {uf} {year}: columns {missing} are not in the file")
-    out = _aggregate(dataset, table, year)
-    cached.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(out, cached, compression="zstd")
+    if dataset == "PF":
+        jobs, people = _pf_base(table, year)
+        agg.mkdir(parents=True, exist_ok=True)
+        pq.write_table(jobs, agg / f"{dataset}{uf}{year}.jobs.parquet", compression="zstd")
+        pq.write_table(people, agg / f"{dataset}{uf}{year}.people.parquet", compression="zstd")
+        out = _pf_groups(jobs, people)
+    else:
+        out = _aggregate(dataset, table, year)
+    _write(cached, out, digest)
     if not keep_dbc and dataset == "PF":
         path.unlink(missing_ok=True)              # 3.8 GB of professional files: the aggregate is what is kept
     return out
+
+
+def _write(path: Path, table: pa.Table, digest: str) -> pa.Table:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table.replace_schema_metadata({"curation_digest": digest}), path, compression="zstd")
+    return table
 
 
 def year_tables(year: int, cache_dir: str | Path, log=print) -> dict[str, pa.Table]:

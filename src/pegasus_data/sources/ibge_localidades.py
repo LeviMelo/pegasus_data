@@ -165,18 +165,15 @@ def _parse(record: dict[str, Any]) -> Municipality | None:
     )
 
 
-def fetch_municipalities(*, timeout: float = 60.0) -> tuple[Municipality, ...]:
+def fetch_municipalities() -> tuple[Municipality, ...]:
     """Every Brazilian municipality with its full hierarchy, in one request.
 
     IBGE returns the nested chain per municipality, so there is nothing to
     paginate and nothing to join client-side.
     """
-    import httpx
+    from ..intake import get_json
 
-    with httpx.Client(timeout=timeout, headers={"User-Agent": "pegasus-data"}) as client:
-        response = client.get(f"{BASE_URL}/municipios")
-        response.raise_for_status()
-        payload = response.json()
+    payload = get_json(f"{BASE_URL}/municipios")
     if not isinstance(payload, list):  # pragma: no cover - defensive
         raise RuntimeError(f"{BASE_URL}/municipios did not return a list")
     parsed = tuple(m for m in (_parse(r) for r in payload) if m is not None)

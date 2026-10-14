@@ -88,10 +88,14 @@ def extract(
     larger than the lake can hold."""
     from ..extract import build_extract
 
-    parsed = {}
+    parsed: dict[str, list[str]] = {}
     for f in filters:
         column, _, codes = f.partition("=")
-        parsed[column] = [c for c in codes.split(",") if c]
+        wanted = [c.strip() for c in codes.split(",") if c.strip()]
+        if not column.strip() or not wanted:
+            # a filter without a column or without a code matches nothing: every file would be fetched and kept as zero rows
+            raise typer.BadParameter(f"{f!r} is not COLUMN=CODE[,CODE...]", param_hint="--filter")
+        parsed.setdefault(column.strip(), []).extend(wanted)
     result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print,
                            workers=workers)
     _emit({k: v for k, v in result.items() if k != "files"} | {"files_read": len(result["files"]),

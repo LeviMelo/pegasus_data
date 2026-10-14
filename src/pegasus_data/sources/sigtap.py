@@ -30,6 +30,7 @@ from __future__ import annotations
 import ftplib
 import io
 import re
+import time
 import zipfile
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
@@ -150,18 +151,30 @@ def list_exports(*, timeout: int = 90) -> list[SigtapExport]:
     return sorted(out, key=lambda e: e.competencia)
 
 
-def fetch_export(export: SigtapExport, *, timeout: int = 120) -> bytes:
-    client = ftplib.FTP(HOST, timeout=timeout)
-    client.login()
-    try:
-        buffer = io.BytesIO()
-        client.retrbinary(f"RETR {DOWNLOAD_DIR}/{export.filename}", buffer.write)
-        return buffer.getvalue()
-    finally:
+def fetch_export(export: SigtapExport, *, timeout: int = 120, attempts: int = 4) -> bytes:
+    """One export's bytes. A reset or timeout is retried with backoff (an export is tens of megabytes on a server that drops
+    connections); a refusal by the server (550: no such file) is not."""
+    last: Exception | None = None
+    for attempt in range(attempts):
         try:
-            client.quit()
-        except Exception:  # noqa: BLE001 - closing is best-effort
-            pass
+            client = ftplib.FTP(HOST, timeout=timeout)
+            client.login()
+            try:
+                buffer = io.BytesIO()
+                client.retrbinary(f"RETR {DOWNLOAD_DIR}/{export.filename}", buffer.write)
+                return buffer.getvalue()
+            finally:
+                try:
+                    client.quit()
+                except Exception:  # noqa: BLE001 - closing is best-effort
+                    pass
+        except ftplib.error_perm:
+            raise
+        except (OSError, EOFError, ftplib.Error) as exc:
+            last = exc
+            if attempt < attempts - 1:
+                time.sleep(min(60.0, 5.0 * 2 ** attempt))
+    raise SigtapUnavailable(f"{export.filename}: {attempts} attempts failed; last: {type(last).__name__}: {last}") from last
 
 
 def read_table(archive: zipfile.ZipFile, table: str) -> Iterator[dict[str, str]]:
@@ -209,6 +222,12 @@ def entries_from_export(
     return entries
 
 
+def _month_before(competencia: str) -> str:
+    """``202406`` -> ``202405``; ``202401`` -> ``202312``."""
+    year, month = int(competencia[:4]), int(competencia[4:6])
+    return f"{year - 1}12" if month == 1 else f"{year}{month - 1:02d}"
+
+
 def ingest(
     catalog: CatalogStore,
     *,
@@ -239,14 +258,14 @@ def ingest(
     else:
         chosen = exports[-max(1, latest) :]
 
-    # A vintage is valid until the next one supersedes it, which is exactly how
-    # the TabNet kit windows already work.
+    # A vintage is valid until the month before the next one: windows are inclusive (`labelpack.covers`), so ending at the
+    # next competência would put that month under two vintages.
     by_competencia = {e.competencia: e for e in exports}
     ordered = sorted(by_competencia)
     counts: dict[str, Any] = {"exports": [], "entries": 0, "bytes": 0}
     for export in chosen:
         index = ordered.index(export.competencia)
-        valid_to = ordered[index + 1] if index + 1 < len(ordered) else None
+        valid_to = _month_before(ordered[index + 1]) if index + 1 < len(ordered) else None
         data = fetch_export(export, timeout=timeout)
         entries = entries_from_export(data, export, valid_to=valid_to)
         written = persist_entries(catalog, entries)
