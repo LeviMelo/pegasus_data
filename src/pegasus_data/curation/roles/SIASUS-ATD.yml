@@ -369,6 +369,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    # Informe_Tecnico_SIASUS_2019_07.pdf: AP_NUIDADE "Número da Idade" is in the unit AP_COIDADE "Código da Idade do paciente" gives per row (AD, Alagoas 2012: 4 on 99.7 % of 108,946, but 2, 3 and 5 occur), so it has no single unit
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Value in the unit given by AP_COIDADE; IDADE_anos is the age stratum
@@ -574,6 +576,9 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 3.4.1 AP_VL_AP \"Valor Total da APAC Aprovado\" (the block repeats in every APAC layout) and \"O valor aprovado contido nos arquivos de APAC refere-se ao valor total da APAC\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence AP_CMP \"Data de Atendimento ao paciente / Competência (AAAAMM)\""
+    competence: [AP_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
@@ -599,6 +604,7 @@ columns:
     role: authorisation.albumi
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_ALBUMI as \"Albumina\" with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Albumina\" (authorisation.albumi): measurement or laboratory result of the patient: clinical"
     name: Albumina
@@ -644,6 +650,7 @@ columns:
     role: authorisation.fosfor
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_FOSFOR with no description"
     fact_domain: clinical
     fact_domain_evidence: "\"Fósforo\" (authorisation.fosfor): measurement or laboratory result of the patient: clinical"
     name: Fósforo
@@ -655,6 +662,7 @@ columns:
     role: authorisation.hb
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_HB as \"HB (hemoglobina)\" with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Hemoglobina\" (authorisation.hb): measurement or laboratory result of the patient: clinical"
     name: Hemoglobina
@@ -714,6 +722,7 @@ columns:
     role: authorisation.ktvsem
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_KTVSEM as \"Kt/v Semanal\" with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Kt/V semanal\" (authorisation.ktvsem): measurement or laboratory result of the patient: clinical"
     name: Kt/V semanal
@@ -737,6 +746,7 @@ columns:
     role: authorisation.pth
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_PTH as \"PTH (hormônio da paratireoide)\" with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Paratormônio (PTH)\" (authorisation.pth): measurement or laboratory result of the patient: clinical"
     name: Paratormônio (PTH)
@@ -796,6 +806,7 @@ columns:
     role: authorisation.tru
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_TRU as \"TRU (taxa de redução de ureia)\" with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Taxa de redução de ureia\" (authorisation.tru): measurement or laboratory result of the patient: clinical"
     name: Taxa de redução de ureia
@@ -807,6 +818,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true

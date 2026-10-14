@@ -299,6 +299,8 @@ columns:
     role: mother.age
     kind: number
     model: mark
+    unit: years
+    unit_evidence: "dicionario-de-dados-SIM-tabela-DO.pdf (file updated 07/2025): \"Idade (anos)\" IDADEMAE \"Idade da mãe\"; the 1979-1995 layout (SIM_Mortalidade_Geral_Estrutura.pdf) gives the same field as \"Idade da mãe. (Números)\", with no change of unit"
     fact_domain: person
     fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     also:
@@ -517,6 +519,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    unit: grams
+    unit_evidence: "SIM_Mortalidade_Geral_Estrutura.pdf: PESONASC \"Peso ao nascer, em gramas\""
     fact_domain: clinical
     fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer
@@ -648,6 +652,8 @@ columns:
     role: deceased.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos (derivada de IDADE)\" (deceased.age_years): attribute of the person"
     derived: true

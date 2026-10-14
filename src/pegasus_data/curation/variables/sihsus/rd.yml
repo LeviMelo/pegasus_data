@@ -202,8 +202,7 @@ variables:
       independently classifies this column as money-shaped. Reviewed 2026-09-28: no
       documentation found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only
       US_TOT among the US_ columns; TAB_SIH DEFs 1992-2007).'
-    notes: 'The catalog''s automatic unit detector labels this column BRL — that is
-      wrong. Brazil ran three currencies across 1992–1997 (cruzeiro, cruzeiro real,
+    notes: 'Brazil ran three currencies across 1992–1997 (cruzeiro, cruzeiro real,
       then the real from July 1994), and DATASUS carried a dollar-pegged shadow value
       through that instability so figures would compare across the changeovers; US_SH
       is that dollar value, not reais. The Real-denominated VAL_SH is not yet curated
@@ -222,8 +221,7 @@ variables:
       de serviços profissionais" [GEOCOD-AIH p.5]. Reviewed 2026-09-28: no documentation
       found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only US_TOT among
       the US_ columns; TAB_SIH DEFs 1992-2007).'
-    notes: Same currency caveat as US_SH — this is US dollars, not reais, despite the
-      detector's BRL label.
+    notes: Same currency caveat as US_SH — this is US dollars, not reais.
   UTI_TOTAL:
     official_name: Diárias de UTI
     translated_name: ICU days

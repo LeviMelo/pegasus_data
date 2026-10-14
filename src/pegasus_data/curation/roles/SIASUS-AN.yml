@@ -18,8 +18,11 @@ columns:
     role: authorisation.albumi
     kind: number
     model: mark
+    unit: "g/dL"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_ALBUMI \"Albumina em g%\""
     fact_domain: clinical
     fact_domain_evidence: "\"Albumina\" (authorisation.albumi): measurement or laboratory result of the patient: clinical"
+    note: "Measured, SIASUS-AN 2009-2014 (every UF): 28.2 % of the positive values exceed 10 g/dL, where albumin stays under about 6: many records hold tenths without the decimal point ('39' for 3.9); the unit is the layout's, the scale is not uniform."
     name: Albumina
     years:
     - 2008
@@ -31,6 +34,8 @@ columns:
     role: authorisation.altura
     kind: number
     model: mark
+    unit: cm
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_ALTURA \"Altura do paciente em cm\""
     fact_domain: clinical
     fact_domain_evidence: "\"Altura\" (authorisation.altura): measurement or laboratory result of the patient: clinical"
     name: Altura
@@ -54,6 +59,8 @@ columns:
     role: authorisation.diures
     kind: number
     model: mark
+    unit: ml
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_DIURES \"Diurese em ml\""
     fact_domain: clinical
     fact_domain_evidence: "\"Diurese\" (authorisation.diures): measurement or laboratory result of the patient: clinical"
     name: Diurese
@@ -75,6 +82,8 @@ columns:
     role: authorisation.glicos
     kind: number
     model: mark
+    unit: "mg/dL"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_GLICOS \"Glicose em Mg/dl\""
     fact_domain: clinical
     fact_domain_evidence: "\"Glicose\" (authorisation.glicos): measurement or laboratory result of the patient: clinical"
     name: Glicose
@@ -83,13 +92,16 @@ columns:
     - 2014
   AN_HB:
     missing: []
-    domain: [1, 2]
-    # proposed (SP 2014-09): the range DATASUS's tabulation bands label as values; outside it 12 of 12 values in SP 2014-09 (00: 3, 14: 2, 09: 2, 10: 1)
+    # no domain declared: the proposed [1, 2] was the range of DATASUS's tabulation bands, but the records hold hemoglobin in g%:
+    # 99.1 % of 5,652,863 values (SIASUS-AN, every UF, 2009-2014) lie outside [1, 2], median 10; the layout gives no bound ("HB em g%")
     role: authorisation.hb
     kind: number
     model: mark
+    unit: "g/dL"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_HB \"HB em g%\""
     fact_domain: clinical
     fact_domain_evidence: "\"Hemoglobina\" (authorisation.hb): measurement or laboratory result of the patient: clinical"
+    note: "Measured, SIASUS-AN 2009-2014 (every UF): 8.2 % of the positive values exceed 25 g/dL: many records hold tenths without the decimal point ('97' for 9.7); the unit is the layout's, the scale is not uniform."
     name: Hemoglobina
     years:
     - 2008
@@ -135,6 +147,9 @@ columns:
     role: authorisation.intfis
     kind: number
     model: mark
+    unit: count
+    unit_of: "fistula interventions"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_INTFIS \"Quantidade de intervenção de Fístula\""
     fact_domain: clinical
     fact_domain_evidence: "\"Quantidade de fístulas\" (authorisation.intfis): measurement or laboratory result of the patient: clinical"
     name: Quantidade de fístulas
@@ -148,8 +163,11 @@ columns:
     role: authorisation.peso
     kind: number
     model: mark
+    unit: kg
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AN_PESO \"Peso do paciente em kg\""
     fact_domain: clinical
     fact_domain_evidence: "\"Peso\" (authorisation.peso): measurement or laboratory result of the patient: clinical"
+    note: "Measured, SIASUS-AN 2009-2014 (every UF): 4.5 % of the positive values exceed 300 kg: many records hold tenths without the decimal point ('620' for 62.0); the unit is the layout's, the scale is not uniform."
     name: Peso
     years:
     - 2008
@@ -159,6 +177,7 @@ columns:
     role: authorisation.tru
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf AN_TRU \"TRU (taxa de redução de ureia)\": a rate with no unit stated"
     fact_domain: clinical
     fact_domain_evidence: "\"Taxa de redução de ureia\" (authorisation.tru): measurement or laboratory result of the patient: clinical"
     name: Taxa de redução de ureia
@@ -544,6 +563,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    # Informe_Tecnico_SIASUS_2019_07.pdf: AP_NUIDADE "Número da Idade" is in the unit AP_COIDADE "Código da Idade do paciente" gives per row (AD, Alagoas 2012: 4 on 99.7 % of 108,946, but 2, 3 and 5 occur), so it has no single unit
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Value in the unit given by AP_COIDADE; IDADE_anos is the age stratum
@@ -751,6 +772,9 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 3.4.1 AP_VL_AP \"Valor Total da APAC Aprovado\" (the block repeats in every APAC layout) and \"O valor aprovado contido nos arquivos de APAC refere-se ao valor total da APAC\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence AP_CMP \"Data de Atendimento ao paciente / Competência (AAAAMM)\""
+    competence: [AP_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
@@ -762,6 +786,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true

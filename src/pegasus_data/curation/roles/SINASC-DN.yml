@@ -9,6 +9,8 @@ columns:
     role: birth.apgar1
     kind: number
     model: mark
+    unit: score
+    unit_evidence: "Estrutura_SINASC_2019.txt: APGAR1 \"Valor do Índice de Apgar, medido no 1º minuto de vida\" (00 to 10)"
     fact_domain: clinical
     fact_domain_evidence: "\"Índice de Apgar - 1º minuto\" (birth.apgar1): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 1º minuto
@@ -23,6 +25,8 @@ columns:
     role: birth.apgar5
     kind: number
     model: mark
+    unit: score
+    unit_evidence: "Estrutura_SINASC_2019.txt: APGAR5 \"Valor do Índice de Apgar, medido no 5º minuto de vida\" (00 to 10)"
     fact_domain: clinical
     fact_domain_evidence: "\"Índice de Apgar - 5º minuto\" (birth.apgar5): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 5º minuto
@@ -210,6 +214,9 @@ columns:
     role: pregnancy.prenatal_visits
     kind: number
     model: mark
+    unit: count
+    unit_of: "prenatal visits"
+    unit_evidence: "Estrutura_SINASC_2019.txt: CONSPRENAT \"Número de consultas pré-natal\""
     fact_domain: process
     fact_domain_evidence: "\"Número de consultas de pré-natal\" (pregnancy.prenatal_visits): prenatal care, test dates and delivery type: how care happened"
     name: Número de consultas de pré-natal
@@ -441,6 +448,9 @@ columns:
     role: pregnancy.previous_abortions
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous abortions"
+    unit_evidence: "NASC.DEF 1995 display name \"Abortos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Abortos\" (pregnancy.previous_abortions): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Abortos
@@ -454,6 +464,9 @@ columns:
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous stillbirths"
+    unit_evidence: "NASC.DEF 1995 display name \"Filhos Nasc.Mortos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Filhos nascidos mortos\" (pregnancy.previous_stillbirths): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos mortos
@@ -467,6 +480,9 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous live births"
+    unit_evidence: "NASC.DEF 1995 display name \"Filhos nascidos vivos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Filhos nascidos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos vivos
@@ -515,6 +531,8 @@ columns:
     role: mother.age
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "Estrutura_SINASC_2019.txt: \"Idade (anos)\" IDADEMAE \"Idade da mãe\"; Estrutura_SINASC_anterior.pdf: \"Idade da mãe em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da mãe
@@ -528,6 +546,7 @@ columns:
     role: father.age
     kind: number
     model: mark
+    unit_unknown: "Estrutura_SINASC_2019.txt: IDADEPAI \"Idade do pai\", with no unit (the mother's line says \"Idade (anos)\")"
     fact_domain: person
     fact_domain_evidence: "\"Idade do pai\" (father.age): attribute of the person"
     name: Idade do pai
@@ -664,6 +683,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    unit: grams
+    unit_evidence: "Estrutura_SINASC_2019.txt: PESO \"Peso em gramas verificado até a 5ª hora após o nascimento\""
     fact_domain: clinical
     fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer
@@ -693,6 +714,9 @@ columns:
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous fetal losses and abortions"
+    unit_evidence: "Estrutura_SINASC_2019.txt: QTDFILMORT \"Número de perdas fetais e abortos\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de perdas fetais e abortos\" (pregnancy.previous_fetal_losses): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de perdas fetais e abortos
@@ -709,6 +733,9 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous live births"
+    unit_evidence: "Estrutura_SINASC_2019.txt: QTDFILVIVO \"Número de filhos vivos\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de filhos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de filhos vivos
@@ -722,6 +749,9 @@ columns:
     role: pregnancy.previous_pregnancies
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous pregnancies"
+    unit_evidence: "Estrutura_SINASC_2019.txt: QTDGESTANT \"Número de gestações anteriores\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de gestações anteriores\" (pregnancy.previous_pregnancies): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de gestações anteriores
@@ -735,6 +765,9 @@ columns:
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous cesarean births"
+    unit_evidence: "Estrutura_SINASC_2019.txt: QTDPARTCES \"Número de partos cesáreos\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de partos cesáreos anteriores\" (pregnancy.previous_cesareans): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de partos cesáreos anteriores
@@ -748,6 +781,9 @@ columns:
     role: pregnancy.previous_vaginal_births
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous vaginal births"
+    unit_evidence: "Estrutura_SINASC_2019.txt: QTDPARTNOR \"Número de partos vaginais\""
     fact_domain: clinical
     fact_domain_evidence: "\"Número de partos vaginais anteriores\" (pregnancy.previous_vaginal_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Número de partos vaginais anteriores
@@ -810,6 +846,8 @@ columns:
     role: birth.gestation_weeks
     kind: number
     model: mark
+    unit: weeks
+    unit_evidence: "Estrutura_SINASC_2019.txt: SEMAGESTAC \"Número de semanas de gestação\""
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de semanas de gestação\" (birth.gestation_weeks): newborn condition or gestation at birth: the health event"
     name: Nº de semanas de gestação
@@ -818,10 +856,14 @@ columns:
     - 2026
   SERIESCMAE:
     missing: []
-    # the layouts: 'Números de 1 a 8'; 2020 holds 1-8 only
+    # the grade number: 'Números de 1 a 8' (SIM dicionario 07/2025, SINASC dicionario 'Valores de 1 a 8'), filled only when the schooling
+    # level (ESC2010 / ESCMAE2010) is 1, 2 or 3. Measured, SIM-DO BR 2020: level 1 holds grades 1-4, level 2 grades 5-8, level 3 grades 1-3,
+    # blank for the other levels. An ordinal number whose meaning is read with the level: no code to decode, no quantity to average
+    domain: [1, 8]
     role: mother.education_grade
-    kind: category
+    kind: number
     model: dimension
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Série escolar da mãe\" (mother.education_grade): attribute of the person (schooling)"
     name: Série escolar da mãe

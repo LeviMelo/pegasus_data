@@ -9,6 +9,8 @@ columns:
     role: birth.apgar1
     kind: number
     model: mark
+    unit: score
+    unit_evidence: "Estrutura_SINASC_2019.txt: APGAR1 \"Valor do Índice de Apgar, medido no 1º minuto de vida\" (00 to 10)"
     fact_domain: clinical
     fact_domain_evidence: "\"Índice de Apgar - 1º minuto\" (birth.apgar1): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 1º minuto
@@ -24,6 +26,8 @@ columns:
     role: birth.apgar5
     kind: number
     model: mark
+    unit: score
+    unit_evidence: "Estrutura_SINASC_2019.txt: APGAR5 \"Valor do Índice de Apgar, medido no 5º minuto de vida\" (00 to 10)"
     fact_domain: clinical
     fact_domain_evidence: "\"Índice de Apgar - 5º minuto\" (birth.apgar5): newborn condition or gestation at birth: the health event"
     name: Índice de Apgar - 5º minuto
@@ -161,6 +165,9 @@ columns:
     role: pregnancy.previous_abortions
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous abortions"
+    unit_evidence: "NASC.DEF 1995 display name \"Abortos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Abortos\" (pregnancy.previous_abortions): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Abortos
@@ -175,6 +182,9 @@ columns:
     role: pregnancy.previous_stillbirths
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous stillbirths"
+    unit_evidence: "NASC.DEF 1995 display name \"Filhos Nasc.Mortos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Filhos nascidos mortos\" (pregnancy.previous_stillbirths): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos mortos
@@ -189,6 +199,9 @@ columns:
     role: pregnancy.previous_live_births
     kind: number
     model: mark
+    unit: count
+    unit_of: "previous live births"
+    unit_evidence: "NASC.DEF 1995 display name \"Filhos nascidos vivos\" (curation/variables/sinasc/_shared.yml)"
     fact_domain: clinical
     fact_domain_evidence: "\"Filhos nascidos vivos\" (pregnancy.previous_live_births): obstetric history, gestation or test result of the pregnancy: clinical"
     name: Filhos nascidos vivos
@@ -217,6 +230,8 @@ columns:
     role: mother.age
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "Estrutura_SINASC_anterior.pdf: IDADEMAE \"Idade da mãe em anos\" (the 1994-1995 layout names it IDADE_MAE)"
     fact_domain: person
     fact_domain_evidence: "\"Idade da mãe\" (mother.age): attribute of the mother (age, birth, residence, occupation)"
     name: Idade da mãe
@@ -292,6 +307,8 @@ columns:
     role: birth.weight
     kind: number
     model: mark
+    unit: grams
+    unit_evidence: "Estrutura_SINASC_2019.txt: PESO \"Peso em gramas verificado até a 5ª hora após o nascimento\""
     fact_domain: clinical
     fact_domain_evidence: "\"Peso ao nascer\" (birth.weight): newborn condition or gestation at birth: the health event"
     name: Peso ao nascer

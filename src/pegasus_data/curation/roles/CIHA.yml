@@ -117,6 +117,8 @@ columns:
     role: admission.length_of_stay
     kind: number
     model: mark
+    unit: days
+    unit_evidence: "Layout_Arquivos_CIHA.pdf field 22 \"Dias de permanência\""
     fact_domain: process
     fact_domain_evidence: "\"Dias de permanência\" (admission.length_of_stay): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Dias de permanência
@@ -327,6 +329,9 @@ columns:
     role: admission.procedure_count
     kind: number
     model: mark
+    unit: count
+    unit_of: "procedures"
+    unit_evidence: "Layout_Arquivos_CIHA.pdf field 11 \"Quantidade de procedimento\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de procedimento\" (admission.procedure_count): count of admissions or procedures: how care was delivered"
     name: Quantidade de procedimento
@@ -349,6 +354,8 @@ columns:
     role: admission.intermediate_days
     kind: number
     model: mark
+    unit: days
+    unit_evidence: "Layout_Arquivos_CIHA.pdf field 9 \"Total de dias de UTI intermediária durante a internação\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de diárias em unidade intermediária\" (admission.intermediate_days): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de diárias em unidade intermediária
@@ -359,6 +366,7 @@ columns:
     role: admission.icu_days_month
     kind: number
     model: mark
+    unit_unknown: "Layout_Arquivos_CIHA.pdf gives the field as \"(zerado)\": zero-filled, no quantity"
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de dias de UTI no mês\" (admission.icu_days_month): admission and discharge dates, length of stay, ICU or intermediate-care days: how the stay happened"
     name: Quantidade de dias de UTI no mês
@@ -369,6 +377,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos (derivada de IDADE e COD_IDADE)\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true

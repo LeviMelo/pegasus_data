@@ -239,6 +239,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos (derivada de IDADEPAC e TPIDADEPAC)\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
@@ -249,6 +251,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    # Informe_Tecnico_SIASUS_2019_07.pdf: IDADEPAC "Idade do paciente" is in the unit TPIDADEPAC "Tipo da Idade do paciente em anos, meses ou dias" gives per row, so it has no single unit
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Idade do Paciente\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade do Paciente
@@ -394,6 +398,9 @@ columns:
     role: care.approved_quantity
     kind: number
     model: mark
+    unit: count
+    unit_of: "procedures approved"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf PA_QTDAPR \"Quantidade Aprovada do procedimento\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade Aprovada\" (care.approved_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Aprovada
@@ -405,6 +412,9 @@ columns:
     role: care.submitted_presented_quantity
     kind: number
     model: mark
+    unit: count
+    unit_of: "procedures presented"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf PA_QTDPRO \"Quantidade Produzida (APRESENTADA)\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade Produzida (APRESENTADA)\" (care.submitted_presented_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Produzida (APRESENTADA)
@@ -430,6 +440,7 @@ columns:
     role: care.time_in_attendance
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf PERMANEN \"Permanência em Atendimento\", no unit stated; values 1 to 31 (AL 2020, 57,938 of 184,064 rows): a lead, not a unit"
     fact_domain: process
     fact_domain_evidence: "\"Permanência em Atendimento\" (care.time_in_attendance): procedure, attendance, dates or counts of care delivered"
     name: Permanência em Atendimento
@@ -441,6 +452,9 @@ columns:
     role: care.number_of_attendances
     kind: number
     model: mark
+    unit: count
+    unit_of: "attendances"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf QTDATE \"Quantidade de Atendimentos\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de Atendimentos\" (care.number_of_attendances): procedure, attendance, dates or counts of care delivered"
     name: Quantidade de Atendimentos
@@ -452,6 +466,9 @@ columns:
     role: care.number_of_patients
     kind: number
     model: mark
+    unit: count
+    unit_of: "patients"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf QTDPCN \"Quantidade de pacientes\""
     fact_domain: process
     fact_domain_evidence: "\"Quantidade de pacientes\" (care.number_of_patients): procedure, attendance, dates or counts of care delivered"
     name: Quantidade de pacientes

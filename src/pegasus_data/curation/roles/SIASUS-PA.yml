@@ -6,6 +6,7 @@ columns:
     role: procedure.procedures_maximum_eligible_age
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf IDADEMAX \"Idade máxima do paciente para realização do procedimento\", no unit stated"
     fact_domain: administrative
     fact_domain_evidence: "\"Idade maxima do paciente para o procedimento\" (procedure.procedures_maximum_eligible_age): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Idade maxima do paciente para o procedimento
@@ -17,6 +18,7 @@ columns:
     role: procedure.procedures_minimum_eligible_age
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf IDADEMIN \"Idade mínima do paciente para realização do procedimento\", no unit stated"
     fact_domain: administrative
     fact_domain_evidence: "\"Idade minima do paciente para o procedimento\" (procedure.procedures_minimum_eligible_age): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Idade minima do paciente para o procedimento
@@ -28,6 +30,9 @@ columns:
     role: procedure.sigtap_unit_price
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 NU_PA_TOT \"Valor Unitário do Procedimento da Tabela SIGTAP\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence PA_CMP \"Data da Realização do Procedimento / Competência (AAAAMM)\""
+    competence: [PA_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Unitario do Procedimento da Tabela SIGTAP\" (procedure.sigtap_unit_price): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Unitario do Procedimento da Tabela SIGTAP
@@ -39,6 +44,9 @@ columns:
     role: procedure.vpa_unit_price
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 NU_VPA_TOT \"Valor Unitário do Procedimento da Tabela VPA\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence PA_CMP \"Data da Realização do Procedimento / Competência (AAAAMM)\""
+    competence: [PA_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Unitario do Procedimento da Tabela VPA\" (procedure.vpa_unit_price): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Unitario do Procedimento da Tabela VPA
@@ -289,6 +297,9 @@ columns:
     role: procedure.unit_price_gap_x_approved_quantity_brl
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 PA_DIF_VAL \"Diferença do Valor Unitário ... multiplicado pela Quantidade Aprovada\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence PA_CMP \"Data da Realização do Procedimento / Competência (AAAAMM)\""
+    competence: [PA_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Diferenca do Valor Unitario\" (procedure.unit_price_gap_x_approved_quantity_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Diferenca do Valor Unitario
@@ -417,6 +428,8 @@ columns:
     role: patient.age
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf PA_IDADE \"Idade do paciente em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade do paciente em anos\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     missing:
@@ -678,6 +691,9 @@ columns:
     role: procedure.approved_quantity
     kind: number
     model: mark
+    unit: count
+    unit_of: "procedures approved"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf PA_QTDAPR \"Quantidade Aprovada do procedimento\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade Aprovada\" (procedure.approved_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Aprovada
@@ -689,6 +705,9 @@ columns:
     role: procedure.submitted_presented_quantity
     kind: number
     model: mark
+    unit: count
+    unit_of: "procedures presented"
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf PA_QTDPRO \"Quantidade Produzida (APRESENTADA)\""
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade Produzida (APRESENTADA)\" (procedure.submitted_presented_quantity): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Quantidade Produzida (APRESENTADA)
@@ -899,6 +918,9 @@ columns:
     role: procedure.approved_value_brl
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 PA_VALAPR \"Valor Aprovado do procedimento\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence PA_CMP \"Data da Realização do Procedimento / Competência (AAAAMM)\""
+    competence: [PA_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Aprovado do procedimento\" (procedure.approved_value_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Aprovado do procedimento
@@ -910,6 +932,9 @@ columns:
     role: procedure.submitted_value_brl
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 PA_VALPRO \"Valor Produzido (APRESENTADO)\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence PA_CMP \"Data da Realização do Procedimento / Competência (AAAAMM)\""
+    competence: [PA_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Produzido (APRESENTADO)\" (procedure.submitted_value_brl): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor Produzido (APRESENTADO)
@@ -921,6 +946,7 @@ columns:
     role: procedure.federal_supplement_value
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 lists it as a \"Valor do ...\" of the procedure line; the harvested documents give the currency only of the procedure value (MANUAL_SIA_Maio_2008.pdf p.46)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do Complemento Federal\" (procedure.federal_supplement_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Complemento Federal
@@ -932,6 +958,7 @@ columns:
     role: procedure.local_supplement_value
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 lists it as a \"Valor do ...\" of the procedure line; the harvested documents give the currency only of the procedure value (MANUAL_SIA_Maio_2008.pdf p.46)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do Complemento Local\" (procedure.local_supplement_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Complemento Local
@@ -942,6 +969,7 @@ columns:
     role: procedure.value_credit
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf (July 2019) does not list PA_VL_CRD, which the files hold from 2025"
     fact_domain: administrative
     fact_domain_evidence: "\"PA_VL_CRD\" (procedure.value_credit): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     years:
@@ -953,6 +981,7 @@ columns:
     role: procedure.increment_value
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf section 2.3 lists it as a \"Valor do ...\" of the procedure line; the harvested documents give the currency only of the procedure value (MANUAL_SIA_Maio_2008.pdf p.46)"
     fact_domain: administrative
     fact_domain_evidence: "\"Valor do Incremento\" (procedure.increment_value): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
     name: Valor do Incremento

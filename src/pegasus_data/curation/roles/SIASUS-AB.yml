@@ -35,6 +35,7 @@ columns:
     role: authorisation.body_mass_index
     kind: number
     model: mark
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf AB_IMC \"IMC do paciente\", with no unit"
     fact_domain: clinical
     fact_domain_evidence: "\"Índice de massa corporal\" (authorisation.body_mass_index): measurement or laboratory result of the patient: clinical"
     name: Índice de massa corporal
@@ -45,6 +46,8 @@ columns:
     role: authorisation.months_of_follow_up
     kind: number
     model: mark
+    unit: months
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AB_MESACOM \"Número em MESES de Acompanhamento\""
     fact_domain: process
     fact_domain_evidence: "\"Número em meses de acompanhamento\" (authorisation.months_of_follow_up): authorisation, treatment start and sessions, surgery and follow-up: care delivered"
     name: Número em meses de acompanhamento
@@ -71,6 +74,8 @@ columns:
     role: authorisation.barros_score
     kind: number
     model: mark
+    unit: score
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf AB_PONTBAR \"Pontuação de Barros\""
     fact_domain: clinical
     fact_domain_evidence: "\"Pontuação de Barros\" (authorisation.barros_score): measurement or laboratory result of the patient: clinical"
     name: Pontuação de Barros
@@ -498,6 +503,8 @@ columns:
     role: patient.age
     kind: number
     model: mark
+    # Informe_Tecnico_SIASUS_2019_07.pdf: AP_NUIDADE "Número da Idade" is in the unit AP_COIDADE "Código da Idade do paciente" gives per row (AD, Alagoas 2012: 4 on 99.7 % of 108,946, but 2, 3 and 5 occur), so it has no single unit
+    measure: false
     fact_domain: person
     fact_domain_evidence: "\"Numero da Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Numero da Idade
@@ -715,6 +722,9 @@ columns:
     role: authorisation.approved_value
     kind: number
     model: mark
+    unit: BRL
+    unit_evidence: "Informe_Tecnico_SIASUS_2019_07.pdf section 3.4.1 AP_VL_AP \"Valor Total da APAC Aprovado\" (the block repeats in every APAC layout) and \"O valor aprovado contido nos arquivos de APAC refere-se ao valor total da APAC\"; MANUAL_SIA_Maio_2008.pdf p.46 (attribute \"Valor\": \"Moeda Nacional (Real)\"); competence AP_CMP \"Data de Atendimento ao paciente / Competência (AAAAMM)\""
+    competence: [AP_CMP]
     fact_domain: administrative
     fact_domain_evidence: "\"Valor Total da APAC Aprovado\" (authorisation.approved_value): billing value or quantity, competence, validity or exit of the authorisation: billing"
     name: Valor Total da APAC Aprovado
@@ -727,6 +737,8 @@ columns:
     role: patient.age_years
     kind: number
     model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: whole years from the age and its unit column (ADR-0070, `_age.py`); the declaration's own name is \"Idade em anos\""
     fact_domain: person
     fact_domain_evidence: "\"Idade em anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
     derived: true
