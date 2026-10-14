@@ -65,6 +65,63 @@ def _files(settings: Any, dataset: str, years: Sequence[int], ufs: Sequence[str]
         store.close()
 
 
+def _census_fields(settings: Any, files: Sequence[dict[str, Any]]) -> dict[int, frozenset[str] | None]:
+    """``year -> the upper-cased fields the header census lists for that year's files`` (a file's own header where the
+    per-file census read it, else its family's schema); ``None`` for a year in which any file has no census, which
+    proves nothing about a column."""
+    from .api import _schema_presence
+    from .catalog.store import CatalogStore
+
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        signature: dict[str, str | None] = {}
+        paths = [f["path"] for f in files]
+        for start in range(0, len(paths), 500):
+            chunk = paths[start:start + 500]
+            marks = ",".join("?" for _ in chunk)
+            for row in store.query(
+                f"""SELECT fm.path AS path, COALESCE(fs.schema_signature, fam.schema_signature) AS sig
+                    FROM family_files fm JOIN families fam ON fam.family_id = fm.family_id
+                    LEFT JOIN file_schemas fs ON fs.path = fm.path WHERE fm.path IN ({marks})""", chunk):
+                signature[row["path"]] = row["sig"]
+        presence = _schema_presence(store, [{"schema_signature": s} for s in {s for s in signature.values() if s}])
+    finally:
+        store.close()
+    fields: dict[int, set[str] | None] = {}
+    for f in files:
+        year, sig = int(f["year"]), signature.get(f["path"])
+        listed = presence.get(str(sig)) if sig else None
+        if year in fields and fields[year] is None:
+            continue
+        fields[year] = ({n.upper() for n in listed} | (fields.get(year) or set())) if listed else None
+    return {y: (frozenset(v) if v is not None else None) for y, v in fields.items()}
+
+
+def _check_filter_columns(settings: Any, dataset: str, files: Sequence[dict[str, Any]], filt: dict[str, list[str]],
+                          log: Callable[[str], None]) -> None:
+    """Fail before the first fetch when a filter column is in no file's header: `_match` reads a layout without the
+    column as holding none of its records, so a misspelt column fetched and decoded every file (hours of a 190 GB
+    dataset) and recorded the extract complete with zero rows. A column some years' layouts lack is reported, not
+    refused: those years' files hold none of its records. Silent where the census does not cover the files."""
+    import difflib
+
+    if not files:
+        return
+    census = _census_fields(settings, files)
+    known = {y: f for y, f in census.items() if f is not None}
+    for column in filt:
+        carriers = [y for y, f in known.items() if column in f]
+        if carriers or len(known) < len(census):
+            if (lacking := sorted(set(known) - set(carriers))):
+                log(f"extract {dataset}: {column} is not in the layout of {lacking}: those years' files hold none of its records")
+            continue
+        every = sorted(set().union(*known.values())) if known else []
+        near = difflib.get_close_matches(column, every, n=5, cutoff=0.6)
+        raise ValueError(
+            f"extract {dataset}: filter column {column!r} is in no file's header of {sorted(known)} (the header census "
+            f"lists {len(every)} fields); closest: {', '.join(near) or 'none'}. Nothing was fetched.")
+
+
 def _release(settings: Any, paths: Sequence[str]) -> int:
     """Delete the blobs fetched for ``paths``, files this extract has read and kept the matching records of, unless a
     snapshot keeps them or they were also fetched for another path nothing holds (`BlobStore.prune_verified`, the
@@ -169,6 +226,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     # no longer counts against its year, or `extract_table` would refuse that year for ever
     manifest["failed"] = {p: why for p, why in (manifest.get("failed") or {}).items() if p not in manifest["files"]}
     files = _files(settings, dataset, years, ufs)
+    _check_filter_columns(settings, dataset, files, filt, log)
     todo = [f for f in files if f["path"] not in manifest["files"]]
     log(f"extract {dataset} {filt}: {len(files)} files in {sorted(set(map(int, years)))}, {len(todo)} to read")
     t0 = time.time()

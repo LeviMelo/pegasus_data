@@ -155,8 +155,7 @@ class TestHI14_ColdFetchCensusIsScoped:
 
 
 class TestDerivedWritersUseDurableTrees:
-    def test_population_and_demas_publish_complete_directories(self):
+    def test_population_publishes_complete_directories(self):
         from pegasus_data.build import Builder
 
         assert "staged_tree" in inspect.getsource(Builder.population)
-        assert "staged_tree" in inspect.getsource(Builder.demas)

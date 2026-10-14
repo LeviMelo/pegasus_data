@@ -111,7 +111,7 @@ def aggregate_suggest(
 
     with console.status("measuring…"):
         result = suggest(
-            dataset, uf=uf or None, years=year, max_levels=max_levels,
+            dataset, uf=uf or None, years=year, max_levels=max_levels, settings=_settings(root),
         )
     console.print(
         f"[bold]{result.dataset}[/bold] · {result.rows:,} rows measured · "
@@ -132,10 +132,15 @@ def aggregate_suggest(
             (c.translated_name or c.description or "")[:46],
         )
     console.print(table)
-    console.print(
-        f"[dim]{len(result.skipped)} fields skipped "
-        "(axes, identifiers, constants, or too many levels — band those)[/dim]"
-    )
+    for note in result.notes:
+        console.print(f"[yellow]note[/yellow] {note}")
+    if result.skipped:
+        left_out = _Table(title=f"{len(result.skipped)} fields left out", show_edge=False)
+        left_out.add_column("field")
+        left_out.add_column("why")
+        for name, why in result.skipped:
+            left_out.add_row(name, why)
+        console.print(left_out)
 
 
 @app.command(rich_help_panel="UNDERSTAND")

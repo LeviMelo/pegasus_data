@@ -48,15 +48,17 @@ roll-up unnoticed.
 from __future__ import annotations
 
 import re
-import unicodedata
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from .textenc import fold
+
 __all__ = [
     "build_municipality_points",
+    "mesh_file",
     "point_sources",
     "distance_km",
     "great_circle_km",
@@ -180,12 +182,6 @@ class MembershipSet:
     def __repr__(self) -> str:  # pragma: no cover - display
         extra = f", {len(self.conflicts)} contested" if self.conflicts else ""
         return f"<MembershipSet {self.municipality}: {len(self.memberships)} classifications{extra}>"
-
-
-def _fold(text: str) -> str:
-    """Accent- and case-insensitive, so `Xanxerê` and `Xanxere` are one name."""
-    decomposed = unicodedata.normalize("NFKD", text)
-    return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold().strip()
 
 
 def _curation_root(root: Path | None = None) -> Path:
@@ -438,7 +434,7 @@ def build_geography_pack(
         # how every other label in this project resolves.
         specific = {s: v for s, v in by_system.items() if s}
         effective = specific or by_system
-        if len({_fold(label) for _, label in effective.values()}) > 1:
+        if len({fold(label) for _, label in effective.values()}) > 1:
             contested_set[name].add(municipality)
         for system, (member_code, member_label) in sorted(effective.items()):
             rows.append((municipality, name, system, member_code, member_label,
@@ -700,7 +696,7 @@ def memberships(
         if system and system.upper() in {s.upper() for s in by_system if s}:
             chosen_system = next(s for s in by_system if s.upper() == system.upper())
         else:
-            if len({_fold(v[1]) for v in by_system.values()}) > 1 and classification not in contested:
+            if len({fold(v[1]) for v in by_system.values()}) > 1 and classification not in contested:
                 is_contested = True
                 contested.append(classification)
             # A system-neutral row is a real answer and is preferred. Falling
@@ -821,53 +817,61 @@ POINT_SOURCES = {
                         "Localidades_do_Brasil/2022/Localidades_Brasil_gpkg.zip"),
     "tracts.gpkg": ("https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/"
                     "malha_com_atributos/setores/gpkg/BR/BR_setores_CD2022.gpkg"),
-    "mesh_max.json": ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
-                      "&qualidade=maxima&intrarregiao=municipio"),
 }
-
 
 #: IBGE's mesh levels (``intrarregiao``) by the name a caller uses
 MESH_LEVELS = {"municipality": "municipio", "state": "UF", "region": "regiao"}
+#: IBGE's mesh API: the one definition of its URL (``quality``: minima, intermediaria or maxima)
+MESH_URL = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
+            "&qualidade={quality}&intrarregiao={level}")
+
+
+def mesh_file(level: str = "municipality", quality: str = "minima", root: str | Path | None = None) -> Path:
+    """IBGE's mesh as a GeoJSON file in the data home's ``registries/ibge_mesh``, downloaded once (streamed and resumed;
+    the API answers gzip without saying so, DATA_SOURCES §6.3, and is decompressed file to file). Every reader of the
+    mesh takes this file: `mesh`, the points pack, INMET's station placement."""
+    import gzip
+    import shutil
+
+    from .config import load_settings
+    from .sources import download
+
+    if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
+        raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
+    target = Path(root or load_settings().root) / "registries" / "ibge_mesh" / f"{level}_{quality}.json"
+    if target.is_file():
+        return target
+    got = download(MESH_URL.format(quality=quality, level=MESH_LEVELS[level]), target.with_name(target.name + ".dl"),
+                   timeout=600)
+    with got.open("rb") as handle:
+        gzipped = handle.read(2) == bytes((0x1F, 0x8B))
+    if gzipped:
+        tmp = target.with_name(target.name + ".tmp")
+        with gzip.open(got, "rb") as src, tmp.open("wb") as out:
+            shutil.copyfileobj(src, out, 1 << 24)
+        got.unlink()
+        tmp.replace(target)
+    else:
+        got.replace(target)
+    return target
 
 
 def mesh(level: str = "municipality", quality: str = "minima", root: str | Path | None = None):
     """IBGE's polygons of Brazil's municipalities, states or regions (`/api/v3/malhas`, today's division) as a
-    GeoDataFrame (``code``: IBGE's code, 7 digits for a municipality; ``geometry`` in SIRGAS 2000, EPSG:4674),
-    downloaded once into the data home's ``registries/ibge_mesh``. ``quality`` is IBGE's: ``minima`` (maps, a few MB)
-    to ``maxima`` (the points pack's). The API answers gzip without saying so (DATA_SOURCES §6.3)."""
-    import gzip
-    import urllib.request
-
+    GeoDataFrame (``code``: IBGE's code, 7 digits for a municipality; ``geometry`` in SIRGAS 2000, EPSG:4674), from
+    `mesh_file`. ``quality`` is IBGE's: ``minima`` (maps, a few MB) to ``maxima`` (the points pack's)."""
     import geopandas as gpd
 
-    from .config import load_settings
-
-    if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
-        raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
-    cache = Path(root or load_settings().root) / "registries" / "ibge_mesh"
-    target = cache / f"{level}_{quality}.json"
-    if not target.is_file():
-        cache.mkdir(parents=True, exist_ok=True)
-        url = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
-               f"&qualidade={quality}&intrarregiao={MESH_LEVELS[level]}")
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (pegasus_data)"})
-        with urllib.request.urlopen(request, timeout=600) as response:
-            data = response.read()
-        if data[:2] == bytes((0x1F, 0x8B)):
-            data = gzip.decompress(data)
-        tmp = target.with_suffix(".tmp")
-        tmp.write_bytes(data)
-        tmp.replace(target)
-    frame = gpd.read_file(target).set_crs("EPSG:4674", allow_override=True)
+    frame = gpd.read_file(mesh_file(level, quality, root)).set_crs("EPSG:4674", allow_override=True)
     return frame.rename(columns={"codarea": "code"})[["code", "geometry"]]
 
 
 def point_sources(cache_dir: str | Path) -> dict[str, Path]:
-    """The three IBGE files the points pack is built from, downloaded once into ``cache_dir``."""
-    import gzip
-    import io
-    import urllib.request
+    """The two IBGE files the points pack is built from beside the mesh (`mesh_file`), downloaded once into ``cache_dir``."""
+    import shutil
     import zipfile
+
+    from .sources import download
 
     cache = Path(cache_dir)
     cache.mkdir(parents=True, exist_ok=True)
@@ -875,16 +879,17 @@ def point_sources(cache_dir: str | Path) -> dict[str, Path]:
     for name, url in POINT_SOURCES.items():
         target = cache / name
         if not target.is_file():
-            with urllib.request.urlopen(url, timeout=7200) as response:
-                data = response.read()
+            got = download(url, target.with_name(target.name + ".dl"), timeout=7200)
             if url.endswith(".zip"):
-                archive = zipfile.ZipFile(io.BytesIO(data))
-                data = archive.read(next(n for n in archive.namelist() if n.endswith(".gpkg")))
-            elif data[:2] == bytes((0x1F, 0x8B)):
-                data = gzip.decompress(data)
-            tmp = target.with_suffix(target.suffix + ".tmp")
-            tmp.write_bytes(data)
-            tmp.replace(target)
+                tmp = target.with_suffix(target.suffix + ".tmp")
+                with zipfile.ZipFile(got) as archive:
+                    member = next(n for n in archive.namelist() if n.endswith(".gpkg"))
+                    with archive.open(member) as src, tmp.open("wb") as dst:
+                        shutil.copyfileobj(src, dst, 1 << 24)
+                got.unlink()
+                tmp.replace(target)
+            else:
+                got.replace(target)
         out[name] = target
     return out
 

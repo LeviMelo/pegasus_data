@@ -53,6 +53,7 @@ import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 from .sources import SourceAbsent, retryable
+from .textenc import fold
 
 __all__ = ["api_rows", "build_source", "check_source", "declared_sources", "get_json", "get_text", "land_snapshot", "read_slice", "rows_of", "url"]
 
@@ -385,14 +386,6 @@ def _settings(root: str | Path | None = None) -> Any:
     return load_settings(root=Path(root)) if root else load_settings()
 
 
-def _fold(text: str) -> str:
-    import unicodedata
-
-    # accents, case and punctuation between words (SNGPC's BIRITIBA-MIRIM is IBGE's Biritiba Mirim) are not the name
-    plain = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
-    return " ".join(plain.upper().replace("-", " ").replace("'", " ").split())
-
-
 def _ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
@@ -420,18 +413,18 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
         by_state.setdefault(row["uf_code"], []).append(code)
     sole = {uf: codes[0] for uf, codes in by_state.items() if len(codes) == 1}
     con.register("sole", pa.table({"uf": pa.array(list(sole), pa.string()), "code": pa.array(list(sole.values()), pa.string()),
-                                   "sigla": pa.array([_fold(universe[c]["uf_sigla"]) for c in sole.values()], pa.string())}))
+                                   "sigla": pa.array([fold(universe[c]["uf_sigla"]) for c in sole.values()], pa.string())}))
     place = spec.get("place") or {}
     if place.get("type") == "municipality_name":
         keys: dict[tuple[str, str], str | None] = {}
         for code, row in universe.items():
             for state in (row["uf_sigla"], row["uf_name"]):
-                key = (_fold(state), _fold(row["name"]))
+                key = (fold(state), fold(row["name"]))
                 keys[key] = None if key in keys and keys[key] != code else code
         found = {k: v for k, v in keys.items() if v}
         con.register("names", pa.table({"key": pa.array([f"{u}|{n}" for (u, n) in found], pa.string()),
                                         "code": pa.array(list(found.values()), pa.string())}))
-        con.create_function("fold", _fold, ["VARCHAR"], "VARCHAR", null_handling="special")
+        con.create_function("fold", fold, ["VARCHAR"], "VARCHAR", null_handling="special")
     return con
 
 
@@ -473,11 +466,11 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
     alias = {}
     for name, d in declared.items():
         for spelling in [name, *(d.get("aliases") or [])]:
-            alias[re.sub(r"[^A-Z0-9]", "", _fold(spelling))] = name
+            alias[re.sub(r"[^A-Z0-9]", "", fold(spelling))] = name
     actual: dict[str, str] = {}
     for c in columns:
         clean = c.strip().lstrip("\ufeff")
-        canonical = alias.get(re.sub(r"[^A-Z0-9]", "", _fold(clean)), clean.upper())
+        canonical = alias.get(re.sub(r"[^A-Z0-9]", "", fold(clean)), clean.upper())
         if canonical in actual:
             raise KeyError(f"{unit['key']}: two headers read as {canonical}: {actual[canonical]!r} and {c!r}")
         actual[canonical] = c
