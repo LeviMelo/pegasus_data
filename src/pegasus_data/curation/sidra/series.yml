@@ -201,3 +201,13 @@ series:
       - {id: d_2010, table: 3578, variable: 2035, periods: [2010], measure: denominator, role: census_sample, priority: 1}
       - {id: n_2022, table: 10296, variable: 13604, periods: [2022], dims: {income_band: 386}, measure: numerator, role: census, priority: 1}
       - {id: d_2022, table: 10296, variable: 13604, periods: [2022], measure: denominator, role: census, priority: 1}
+
+  # A price index is a national monthly series, not a place-time field: it deflates the nominal reais of SIH and SIA
+  # (`pegasus_data.price_index`). One source, so no claim competes.
+  price_index_ipca:
+    what: >
+      IPCA, IBGE's consumer price index (Índice Nacional de Preços ao Consumidor Amplo): the monthly index number,
+      December 1993 = 100 (table 1737, variable 2266), national level.
+    comparability: {level: strict, note: "one index number on one base (December 1993 = 100) for the whole series; the number is the price level of the month, so the ratio of two months is the inflation between them"}
+    sources:
+      - {id: ipca, table: 1737, variable: 2266, periods: all, level: N1, role: index, priority: 1}

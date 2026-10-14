@@ -270,6 +270,55 @@ def structure_cmd(
           as_json, f"structure {name}")
 
 
+@app.command(name="garbage-codes", rich_help_panel="UNDERSTAND")
+def garbage_codes_cmd(
+    edition: Annotated[str, typer.Argument(help="GBD2019 (default: the later list, levels where its appendix gives them) or GBD2017 (every code with its level)")] = "GBD2019",
+    out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """The ICD-10 garbage codes of a published list with their GBD level (1 to 4) and package."""
+    import json
+
+    from ..semantics.code_structures import GARBAGE_METADATA, garbage_codes
+
+    table = garbage_codes(edition)
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    meta = json.loads(table.schema.metadata[GARBAGE_METADATA])
+    _emit({"rows": table.num_rows, "codes": meta["codes"], "study": meta["study"], "source": meta["source"], "licence": meta["licence"],
+           "first": table.slice(0, 5).to_pylist()}, as_json, f"garbage codes {meta['edition']}")
+
+
+@app.command(name="price-index", rich_help_panel="SOURCES")
+def price_index_cmd(
+    grain: Annotated[str, typer.Option("--grain", help="month (the monthly index number) or year (the mean of the year's twelve)")] = "month",
+    reference: Annotated[str | None, typer.Option("--reference", help="A month (2025-12) or, with --grain year, a year: adds `factor`, nominal reais x factor = reais of that month")] = None,
+    years: Annotated[str | None, typer.Option("--years", help="Rows to keep, e.g. 2014-2025")] = None,
+    refresh: Annotated[bool, typer.Option("--refresh", help="Re-read IBGE's list of months first, for those published since")] = False,
+    out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """IBGE's IPCA (December 1993 = 100), to deflate the nominal reais of SIH and SIA; fetches table 1737 once."""
+    from ..sidra.prices import price_index
+
+    table = price_index(_settings(root).root, grain=grain, reference=reference, refresh=refresh,
+                        years=_parse_years(years) if years else None)
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    _emit(table.slice(max(0, table.num_rows - 12)).to_pylist(), as_json, f"price index ({table.num_rows} {grain}s; the last 12)")
+
+
 @app.command(name="graph", rich_help_panel="UNDERSTAND")
 def graph_cmd(
     kind: Annotated[str, typer.Argument(help="contiguity, population_distance, regic_network, regic_health_basic, "

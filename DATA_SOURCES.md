@@ -820,6 +820,13 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   municipal totals only, without 2007 or the census years. Neither carries municipal age and sex: POPSVS does.
 - **The same Total differs between tables of one census**: 2010 households are 57,324,185 in table 3154 and 57,324,167 in
   tables 1436 and 3218 (18 apart).
+- **IPCA, table 1737 (measured 2026-10-14; ADR-0183).** National level only (`N1`), no classification, six variables; variable 2266 is the
+  index number, December 1993 = 100: 562 months, 1979-12 to 2026-09, one request (about 5 s with the table's metadata), no month missing. Its 393 months of 1994-01 to
+  2026-09 equal, value for value, IBGE's own historical-series workbook (`ftp.ibge.gov.br/Precos_Indices_de_Precos_ao_Consumidor/IPCA/Serie_Historica/ipca_SerieHist.zip`,
+  `ipca_202609SerieHist.xls`, two decimals); January 2014 3,836.37, December 2020 5,560.59, December 2025 7,403.29 and September 2026 7,695.82
+  are what SIDRA's query service (`apisidra.ibge.gov.br`) returns for January 2014, December 2020 and December 2025, and SIDRA's table page shows September 2026 ("7.695,82", of "Mês [1/562]"). Values before the real are on the base's scale (1.1e-8 in
+  1980): a ratio of two months is the inflation between them. The values are `.` decimals with 13 digits; SIH and SIA amounts are nominal, so
+  an amount of competence month m is in reais of month r when multiplied by index(r) / index(m) (`price_index(reference=...)`).
 
 ## 7. CNES
 
@@ -867,6 +874,34 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   point, humidity, radiation, wind, insolation, evaporation). A station-year with 11 complete months of temperature: 397 municipalities
   at most (2010), 341 in 2023.
 - **Needs an account, so out:** ERA5 through the Copernicus CDS; Google Earth Engine's BR-DWGD and ERA5-Land assets.
+
+## 11. Garbage codes: the GBD levels as a declared classification (measured 2026-10-14; ADR-0182)
+
+- **What they are.** The codes of underlying cause that say little about what the person died of (ill-defined R00-R99, heart failure,
+  septicaemia, unspecified stroke, ...). The Global Burden of Disease classes them 1 to 4 by how far the true cause could lie: 1 in any of
+  the three broad groups (communicable, non-communicable, injuries), 2 within a group across its level-2 causes, 3 across level-3, 4
+  across level-4 (França et al. 2020). `garbage_codes(edition)` serves them from `curation/garbage_codes.yml`: code (DATASUS spelling),
+  `level`, `package` (GBD 2019: the group of codes redistributed together), the printed token that holds it, the source.
+- **Two editions, both transcribed from open-access supplements (Springer Nature's Figshare records `10.6084/m9.figshare.13023345.v1` and `.14721984.v1` read "CC BY + CC0"), none typed from memory.** `GBD2017`: França E et al., *Popul Health Metr*
+  2020;18(Suppl 1):20, Supplementary file 1 (the GBD 2017 Causes of Death Collaborators' appendix 1, *Lancet* 2018): 5,835 codes, each with
+  its level (3,449 / 1,869 / 393 / 124). `GBD2019`: Johnson SC et al., *BMC Med Inform Decis Mak* 2021;21:175, Supplemental Appendix Figure 3
+  (membership: 5,891 codes) and Figure 4 (class and package: 147 packages; 71 rows are a second package of a code): 3,341 / 399 / 436 / 153 rows by class 1 to 4;
+  1,633 members have no class or package (S00-T98, the mycoses, I50.0 and I50.1 heart failure, N17, ...), and 23,310 of Brazil 2016's 518,806
+  member deaths are in them (I50.0 13,661, N17.9 4,684). IHME's own mapping (GHDx) is under a non-commercial agreement and is not shipped (ADR-0140).
+- **Ranges are read by sort position.** A printed range lists every code between its endpoints in ICD-10's order with the point
+  (A00 < A00.0 < A01), closing at its last endpoint ("R58.0-R78" stops at R78 itself; "A01" alone is the three-character code). The sources
+  print endpoints no code has ("ID5.9", "TO7.", "E998", "ZB0", "unsp.") and two-character blocks ("C1", "D0"); the rule reads them where
+  they fall and no per-token fix is needed. The rule was found by reproducing the supplement paper's Table 1 on SIM-DO Brazil 2016
+  (docs/evaluation/2026-10-14-garbage-codes-and-prices.md); no code of the 2017 list falls at two levels under it (the loader raises if one did).
+- **A list is a claim about its own date.** A code ICD-10 created later is not in the edition however a range spells it (GBD 2017's
+  "U07-U81" lies over U07.1, COVID-19, created 2020-01). **For deaths of 2020 onwards use GBD2019.** SIM-DO codes COVID-19 as **B34.2**
+  (Alagoas by residence: 3,589, 4,239, 735 and 80 deaths in 2020-2023; U07.1 and U07.2 do not occur), a level-2 garbage code in GBD 2017 and
+  none in GBD 2019: on GBD 2017 Alagoas's level 2 is 5.2 % of its deaths in 2019 and 19.9 % in 2020, 22.5 % in 2021 (17 % of 2021's deaths are B34.2).
+- **The supplement's own note** moves four printed level-1 codes (J47, K70.4-K70.9 to level 3; E12-E15 to 4; K73 to 2): applied, with the
+  printed level kept in `amended_from`.
+- **Against the Ministry's list** (`SIM-POUCO-UTEIS`, 3,090 codes, types as the TabWin kit writes them): 2,498 are GBD 2017 garbage codes
+  (81 %); Tp 5, the R codes, 381 of 389; Tp 3, 19 of 19; Tp 1 1,586 of 1,897. The kit's list also holds the in-situ neoplasms
+  D00-D09 (Tp 4), which neither GBD list does: the two are different lists, and neither stands for the other.
 
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 

@@ -124,7 +124,7 @@ datasets:
       - One patient readmitted three times is three rows. There is no stable patient key.
       - DIAG_SECUN is present and dead from the 113-column generation onward, filled with '0000'.
       - MUNIC_RES and MUNIC_MOV answer different questions (residence vs occurrence).
-      - VAL_TOT is nominal reais at billing time, never deflated.
+      - VAL_TOT is nominal reais at billing time, never deflated; `price_index()` (IBGE's IPCA) deflates by competence month (Alagoas AIH type 1, 2014 to 2023: R$ 153.7 to 222.8 million nominal, R$ 287.8 to 247.5 million in December 2025 reais).
       - An AIH may be re-presented after rejection; the same episode can appear across competências.
       - >-
         Which AIHs are admissions: the file holds IDENT 1 (principal AIH) and IDENT 5 (long-stay AIH, the continuation

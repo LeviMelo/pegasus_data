@@ -1733,7 +1733,7 @@ variables:
     code_system: none
     source: layout_doc
     notes: 'Nominal reais at the time of billing, never deflated. Summing across years adds
-      together currency of different value.
+      together currency of different value; `price_index()` (IBGE''s IPCA) deflates by competence month.
 
       '
   VAL_TRANSP:
