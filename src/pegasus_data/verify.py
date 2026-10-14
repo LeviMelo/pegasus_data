@@ -554,27 +554,29 @@ def check_population(catalog: CatalogStore, settings: Settings) -> Check:
 
 
 def check_demas(catalog: CatalogStore, settings: Settings) -> Check:
-    """§12.9 — swagger persisted; the crosswalk and one health endpoint land."""
-    c = Check("DEMAS spec persisted and endpoints ingested", 9)
+    """§12.9 — the DEMAS OpenAPI document persisted; the crosswalk (a declared intake source) landed in the lake."""
+    from .intake import declared_sources
+
+    c = Check("DEMAS spec persisted and the crosswalk landed", 9)
     endpoints = catalog.count("api_endpoints")
     if endpoints == 0:
         return _skip(c, "the DEMAS spec has not been fetched; run `pegasus-data demas`")
-    ingests = [dict(r) for r in catalog.query("SELECT path, rows FROM api_ingests")]
-    crosswalk = [i for i in ingests if "macrorregiao" in i["path"]]
+    landed = {
+        name: catalog.count("lake_datasets", "system = ? AND series = ?", (str(spec["system"]).upper(), str(spec["series"]).upper())) > 0
+        for name, spec in declared_sources().items() if spec.get("system") and spec.get("series")
+        and (spec.get("origin") or {}).get("kind") == "api"
+    }
+    crosswalk = landed.get("health_regions", False)
     c.evidence = {
         "endpoints_in_spec": endpoints,
         "spec_version": catalog.scalar("SELECT spec_version FROM api_endpoints LIMIT 1"),
-        "ingested": ingests[:20],
-        "crosswalk_landed": bool(crosswalk),
+        "declared_api_sources_landed": landed,
+        "crosswalk_landed": crosswalk,
     }
-    if not ingests:
-        c.status = "fail"
-        c.detail = "spec persisted but no endpoint landed in the lake"
-        return c
     c.status = "pass" if crosswalk else "fail"
     c.detail = (
-        f"{endpoints} endpoints in the spec; {len(ingests)} landed; "
-        f"crosswalk {'present' if crosswalk else 'MISSING'}"
+        f"{endpoints} endpoints in the spec; {sum(landed.values())} of {len(landed)} declared API sources landed; "
+        f"crosswalk {'present' if crosswalk else 'MISSING (land it with `pegasus-data fields`)'}"
     )
     return c
 

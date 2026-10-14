@@ -5,6 +5,14 @@
 #   origin              the one route used: kind api (DEMAS: base, endpoint, paging {rows: the answer's list key, size, style})
 #                       or files (Portal de Dados Abertos: files [{url, year?}] or pattern + years/months; format csv|parquet,
 #                       csv {sep, encoding}); `keep: true` keeps the raw file (default: reduced, then deleted)
+#   origin.static       (api) `true` when the table cannot grow (a closed series, a code list): a piece that ended short of its
+#                       size is then final. Left out, such a piece is *incomplete* and read again on every run, because the
+#                       endpoint may have grown (the safe default: the cost is a request). Toggling it changes every unit's
+#                       fingerprint (`origin` is in it), so the next run reads the source once more.
+#   cache_empty         (api, read by filter) `true` when an empty answer is final. Left out, an empty slice is returned and
+#                       not kept, because an empty answer may be transient (a gateway under load, a period not yet reported).
+#                       No source sets either flag today: SIES grows monthly, and BNAFAR's current month answers empty until
+#                       its first report, so one source-wide flag would freeze that month as empty.
 #   compare             the other route, only to count its rows against the used one (the independent figure)
 #   columns             the columns used, as the source's own dictionary names them: `role` (the dictionary's words), `type`
 #                       (roles.yml's vocabulary: municipality, code, label, date, number...), `codes` (its code list, raw value

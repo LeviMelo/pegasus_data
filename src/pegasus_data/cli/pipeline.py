@@ -50,12 +50,12 @@ def geography(
             target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
             ipea_cache=settings.root / "registries" / "ipea_amc",
         )
-        from ..geography import POINTS_PACK_NAME, build_municipality_points, point_sources
+        from ..geography import POINTS_PACK_NAME, build_municipality_points, mesh_file, point_sources
 
         sources = point_sources(settings.root / "registries" / "ibge_points")
         result["points"] = build_municipality_points(
             target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"],
-            tracts=sources["tracts.gpkg"], mesh=sources["mesh_max.json"])
+            tracts=sources["tracts.gpkg"], mesh=mesh_file("municipality", "maxima", settings.root))
     _emit(result, as_json, "geography")
 
 
@@ -96,8 +96,12 @@ def extract(
             # a filter without a column or without a code matches nothing: every file would be fetched and kept as zero rows
             raise typer.BadParameter(f"{f!r} is not COLUMN=CODE[,CODE...]", param_hint="--filter")
         parsed.setdefault(column.strip(), []).extend(wanted)
-    result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print,
-                           workers=workers)
+    try:
+        result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print,
+                               workers=workers)
+    except ValueError as exc:      # a filter column in no file's header, refused before any fetch
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
     _emit({k: v for k, v in result.items() if k != "files"} | {"files_read": len(result["files"]),
           "kept": sum(v["kept"] for v in result["files"].values())}, as_json, "extract")
 
@@ -658,16 +662,15 @@ def population(
 @app.command(rich_help_panel="PIPELINE")
 def demas(
     root: RootOpt = None,
-    endpoint: Annotated[list[str] | None, typer.Option("--endpoint")] = None,
-    pages: Annotated[int, typer.Option("--pages", help="Pages to pull per endpoint")] = 5,
     as_json: JsonOpt = False,
 ) -> None:
-    """Persist the DEMAS OpenAPI document and ingest the priority endpoints."""
+    """Persist the DEMAS OpenAPI document and set the endpoints curation/intake.yml declares against it. The API's tables
+    are read by their intake declarations, not here."""
     pipeline = _pipeline(root)
     try:
         builder = Builder(pipeline)
-        with console.status("querying the DEMAS API…"):
-            result = builder.demas(endpoints=endpoint, max_pages=pages)
+        with console.status("reading the DEMAS OpenAPI document…"):
+            result = builder.demas()
         _emit(result.counts, as_json, "demas")
         for note in result.notes[:10]:
             console.print(f"[yellow]note[/yellow] {note}")

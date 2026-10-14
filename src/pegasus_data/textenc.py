@@ -20,8 +20,9 @@ glyphs that appear when a codepage is misapplied count against.
 from __future__ import annotations
 
 import codecs
+import unicodedata
 
-__all__ = ["best_effort_decode", "decode_score", "CANDIDATE_ENCODINGS"]
+__all__ = ["best_effort_decode", "decode_score", "fold", "CANDIDATE_ENCODINGS"]
 
 CANDIDATE_ENCODINGS: tuple[str, ...] = ("cp850", "cp1252", "latin-1", "utf-8")
 
@@ -102,3 +103,11 @@ def best_effort_decode(
     if best_text is None:
         best_text = data.decode(best_enc, errors="replace")
     return best_text, best_enc
+
+
+def fold(text: object) -> str:
+    """A name as it is compared: accents, case, the hyphen and apostrophe between words (SNGPC's BIRITIBA-MIRIM is IBGE's
+    Biritiba Mirim) and runs of spaces are not part of it. The one folding of the project's name matching: IBGE places,
+    medicine names, the labels of a classification."""
+    plain = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return " ".join(plain.upper().replace("-", " ").replace("'", " ").split())
