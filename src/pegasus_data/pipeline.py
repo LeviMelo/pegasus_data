@@ -699,7 +699,7 @@ class Pipeline:
             )
             counts["failed"] += 1
             return
-        from .decode.service import decode_source
+        from .decode.service import decode_source, record_decode_failure
 
         claimed_member = str(row.get("sampled_member") or "")
         outcome = decode_source(
@@ -719,11 +719,10 @@ class Pipeline:
                 blocking=path,
             )
         if not outcome.tables:
+            why = record_decode_failure(self.catalog, path, outcome=outcome, member=claimed_member)
             record_stratum_schema(
-                self.catalog, stratum_id, schema_sig="", field_count=0, status="failed",
-                error="; ".join(f"{a.reader}: {a.error}" for a in outcome.attempts if not a.ok)[:1000],
+                self.catalog, stratum_id, schema_sig="", field_count=0, status="failed", error=why[:1000],
             )
-            self.catalog.record_gap(path, kind="decode", methods=tuple(a.reader for a in outcome.attempts), error="undecodable")
             counts["failed"] += 1
             return
 

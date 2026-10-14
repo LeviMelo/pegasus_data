@@ -94,10 +94,11 @@ def _run_job(job: dict[str, Any], out: BinaryIO) -> None:
         "ok": True,
         "container": outcome.container,
         "attempts": [
-            {"reader": a.reader, "ok": a.ok, "detail": getattr(a, "detail", "")}
+            {"reader": a.reader, "ok": a.ok, "detail": a.error or ""}
             for a in outcome.attempts
         ],
         "open_questions": [list(q) for q in outcome.open_questions],
+        "failed_members": [list(f) for f in outcome.failed_members],
         "members": [
             {"name": m.name, "size": m.size, "container": m.container, "role": m.role}
             for m in outcome.members

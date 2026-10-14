@@ -20,7 +20,10 @@ import pyarrow as pa
 
 from .catalog.store import CatalogStore, utcnow
 from .config import Settings
+from .decode.base import DecodeError, logical_source_id
+from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
+from .decode.service import ABSENT, FAILED, decode_source, member_verdict, record_decode_failure
 from .normalize.engine import (
     NormalizePlan,
     build_plan,
@@ -31,6 +34,7 @@ from .normalize.geo import MunicipalityIndex
 from .persist.lake import Lake
 from .persist.staging import staged_tree
 from .pipeline import Pipeline, StageResult
+from .progress import ItemTimeout
 from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
 
@@ -192,6 +196,16 @@ class Builder:
                     str(item["member"] or "")
                 )
         decoded_outcomes: dict[str, Any] = {}
+        #: digest -> why the decoder could not take it, so its other members are not decoded (and failed) again.
+        failed_digests: dict[str, str] = {}
+
+        def _undecodable(path: str, member: str, *, reason: str, outcome: Any = None) -> None:
+            """The one record of a source that was acquired and could not be read: the gap, the error, the count. The
+            file is not counted as decoded, and the partition is marked after it is written so the next build tries
+            it again."""
+            why = record_decode_failure(self.catalog, path, outcome=outcome, member=member, reason=reason)
+            stats.errors.append((logical_source_id(path, member), f"decode: {why}"))
+            tally.undecoded += 1
 
         def _normalised() -> Iterator[pa.RecordBatch]:
             """Decode and normalise one member at a time, YIELDING as we go.
@@ -213,21 +227,38 @@ class Builder:
                 if on_file:
                     on_file(family_id, path)
                 wanted_member = str(m["member"] or "")
-                from .decode.service import decode_source
-
+                source_id = logical_source_id(path, wanted_member)
+                if digest in failed_digests:
+                    _undecodable(path, wanted_member, reason=failed_digests[digest])
+                    continue
                 outcome = decoded_outcomes.get(digest)
                 if outcome is None:
                     selected_members = members_by_digest[digest]
-                    outcome = decode_source(
-                        self.pipeline.blobs.path_for(digest),
-                        logical_path=path,
-                        settings=self.settings,
-                        members=(
-                            None if "" in selected_members else sorted(selected_members)
-                        ),
-                        row_limit=registry.row_limit,
-                    )
+                    try:
+                        outcome = decode_source(
+                            self.pipeline.blobs.path_for(digest),
+                            logical_path=path,
+                            settings=self.settings,
+                            members=(
+                                None if "" in selected_members else sorted(selected_members)
+                            ),
+                            row_limit=registry.row_limit,
+                        )
+                    except (ItemTimeout, IsolatedDecodeError, DecodeError, OSError) as exc:
+                        # A decoder that timed out or died on this source is this source's gap, not the build's end:
+                        # the exception used to leave `pool.map`, abort every partition and store no outcome row.
+                        failed_digests[digest] = f"{type(exc).__name__}: {exc}"
+                        _undecodable(path, wanted_member, reason=failed_digests[digest])
+                        continue
                     decoded_outcomes[digest] = outcome
+                verdict, why = member_verdict(outcome, wanted_member)
+                if verdict == ABSENT:
+                    # Listed archive without this member: the state published nothing for that component.
+                    stats.skipped.append(f"{source_id} (not in the archive)")
+                    continue
+                if verdict == FAILED:
+                    _undecodable(path, wanted_member, reason=why, outcome=outcome)
+                    continue
                 matched_here = False
                 for table in outcome.tables:
                     if wanted_member and table.member != wanted_member:
@@ -272,9 +303,7 @@ class Builder:
                     # did not provenance anything — it made the partition look
                     # derived from evidence it does not contain.
                     continue
-                from .decode.base import logical_source_id
-
-                sources.append(logical_source_id(path, wanted_member))
+                sources.append(source_id)
                 stats.files_contributing += 1
                 tally.contributing += 1
 
@@ -301,6 +330,14 @@ class Builder:
             stats.bytes_written += written.byte_size
             tally.rows += written.row_count
             tally.partitions += 1
+            if tally.undecoded:
+                # The partition is short of the files that could not be read. Its fingerprint hashes their digests,
+                # so left alone the next build would find it current and never try them again.
+                self.catalog.execute(
+                    "UPDATE lake_partitions SET build_fingerprint = ? "
+                    "WHERE family_id = ? AND schema_signature = ? AND uf = ? AND year = ?",
+                    (f"<undecodable>:{fingerprint}", family_id, str(family["schema_signature"]), uf, year),
+                )
         return tally
 
     def build(
@@ -505,10 +542,16 @@ class Builder:
                           digests=digests) -> tuple[_PartitionTally, BuildStats]:
                 uf, year, group, fingerprint = job
                 local = BuildStats()
-                tally = self._materialise_partition(
-                    family=family, family_id=family_id, plan=plan, uf=uf, year=year, group=group,
-                    digests=digests, registry=registry, fingerprint=fingerprint, stats=local, on_file=on_file,
-                )
+                try:
+                    tally = self._materialise_partition(
+                        family=family, family_id=family_id, plan=plan, uf=uf, year=year, group=group,
+                        digests=digests, registry=registry, fingerprint=fingerprint, stats=local, on_file=on_file,
+                    )
+                except Exception as exc:  # noqa: BLE001 - one partition that could not be written is not the run
+                    # An exception left `pool.map` whole: the other partitions were waited for, `build()` raised and no
+                    # `build_outcomes` row of any family of the run was stored.
+                    local.errors.append((f"{family_id} uf={uf} year={year}", f"{type(exc).__name__}: {exc}"))
+                    tally = _PartitionTally(undecoded=len(group))
                 return tally, local
 
             # Partitions are independent (their own files, their own Parquet
@@ -603,8 +646,6 @@ class Builder:
                         digest = digests.get(path)
                         if not digest:
                             raise RuntimeError(f"source was not acquired: {path}")
-                        from .decode.service import decode_source
-
                         outcome = decode_source(
                             self.pipeline.blobs.path_for(digest),
                             logical_path=path,

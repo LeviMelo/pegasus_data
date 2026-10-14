@@ -19,6 +19,8 @@ glyphs that appear when a codepage is misapplied count against.
 
 from __future__ import annotations
 
+import codecs
+
 __all__ = ["best_effort_decode", "decode_score", "CANDIDATE_ENCODINGS"]
 
 CANDIDATE_ENCODINGS: tuple[str, ...] = ("cp850", "cp1252", "latin-1", "utf-8")
@@ -76,9 +78,16 @@ def best_effort_decode(
     best_text: str | None = None
     best_enc = candidates[0]
     best_score = float("-inf")
+    cut = len(data) > len(head)
     for enc in candidates:
         try:
-            probe = head.decode(enc)
+            # A head cut inside a multi-byte character is not invalid UTF-8: the incomplete tail is set aside
+            # (4 of 40 one-byte shifts of a 7 MB UTF-8 file were decoded as cp1252 mojibake without it).
+            probe = (
+                codecs.getincrementaldecoder("utf-8")().decode(head, final=False)
+                if cut and enc.lower().replace("_", "-") in ("utf-8", "utf8")
+                else head.decode(enc)
+            )
         except UnicodeDecodeError:
             continue
         score = decode_score(probe)

@@ -73,7 +73,10 @@ from ._request import (  # noqa: F401 - raised by fetch; importable from here
 )
 from .catalog.store import CatalogStore
 from .config import Settings, load_settings
+from .decode.base import DecodeError, logical_source_id
+from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
+from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failure
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .pipeline import Pipeline
@@ -1316,13 +1319,17 @@ def _read_families(
                     decode_members=members_by_digest.get(digest),
                     alternatives=alternatives,
             )
-            decoded_batches, matched_here, read_bytes, used_family = (
+            decoded_batches, matched_here, read_bytes, used_family, failure = (
                 work()
                 if settings.decode_isolation
                 else run_with_timeout(work, seconds=settings.item_timeout, label=path)
             )
         except ItemTimeout:
             return {"position": position, "path": path, "timed_out": True}
+        except (IsolatedDecodeError, DecodeError, OSError) as exc:
+            # One source the decoder could not take (its process ended, its file vanished) is that source's gap, not
+            # the end of the request.
+            return {"position": position, "path": path, "item": item, "failure": f"{type(exc).__name__}: {exc}"}
         return {
             "position": position,
             "path": path,
@@ -1331,6 +1338,7 @@ def _read_families(
             "read_bytes": read_bytes,
             "item": item,
             "family": used_family,
+            "failure": failure,
         }
 
     # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
@@ -1371,16 +1379,24 @@ def _read_families(
             report.undecoded.append(path)
             report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
             continue
+        item = outcome["item"]
+        if outcome.get("failure"):
+            # The source (or its member) exists and could not be read: named and recorded, never "not published".
+            source_id = logical_source_id(path, str(item.get("member") or ""))
+            reason = record_decode_failure(
+                catalog, path, member=str(item.get("member") or ""), reason=str(outcome["failure"])
+            )
+            report.undecoded.append(source_id)
+            report.warnings.append(f"{source_id}: could not be decoded ({reason})")
+            report.bytes_read += int(outcome.get("read_bytes") or 0)
+            continue
         report.bytes_read += int(outcome["read_bytes"] or 0)
         batches.extend(outcome["batches"])
-        item = outcome["item"]
         if outcome.get("family") == ABSENT_MEMBER:
             report.members_absent.append(f"{path}!{item.get('member')}")
             continue
         if outcome["matched"]:
             if outcome.get("family"):
-                from .decode.base import logical_source_id
-
                 source_id = logical_source_id(path, str(item.get("member") or ""))
                 facts = report.source_facts.get(source_id)
                 if facts:
@@ -1450,8 +1466,10 @@ def _decode_one(
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
     alternatives: Sequence[tuple[str, NormalizePlan]] = (),
-) -> tuple[list[pa.RecordBatch], bool, int, str | None]:
+) -> tuple[list[pa.RecordBatch], bool, int, str | None, str | None]:
     """Read one file and normalise it. Split out so it can be given a deadline.
+
+    Returns (batches, matched, bytes read, the alternative family it fitted, why it could not be decoded).
 
     ``decoded_cache`` keys the DECODE by blob digest, so an archive holding
     several selected members is opened, decompressed and parsed ONCE rather
@@ -1509,14 +1527,16 @@ def _decode_one(
     batches: list[pa.RecordBatch] = []
     matched = False
     used_family: str | None = None
-    present = not member or any(
-        str(d.member).upper() == member.upper() for d in outcome.tables  # type: ignore[attr-defined]
-    )
-    if not present:
-        # The archive has no such member: the catalog listed it by the
-        # archive's pattern, and this state published nothing for that
-        # component this month (SIA 2001-2007 APAC, 2026-09-29). Not a gap.
-        return [], False, (size if owner else 0), ABSENT_MEMBER
+    verdict, why = member_verdict(outcome, member)
+    if verdict == ABSENT:
+        # The archive was listed and has no such member: the catalog named it by the archive's pattern, and this state
+        # published nothing for that component this month (SIA 2001-2007 APAC, 2026-09-29). Not a gap.
+        return [], False, (size if owner else 0), ABSENT_MEMBER, None
+    if verdict == FAILED:
+        # It exists (or the source would not open at all) and nothing could read it: a gap, in `is_complete` and in
+        # the catalog. It used to pass as an absent member, and a fetch of twelve months with one corrupt returned
+        # eleven and reported itself complete.
+        return [], False, (size if owner else 0), None, why
     for decoded in outcome.tables:  # type: ignore[attr-defined]
         if member and str(decoded.member).upper() != member.upper():
             continue
@@ -1544,7 +1564,7 @@ def _decode_one(
         for batch in normalize_table(decoded, chosen, blob_sha256=digest):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
-    return batches, matched, (size if owner else 0), used_family
+    return batches, matched, (size if owner else 0), used_family, None
 
 
 def _open_decoded_source(

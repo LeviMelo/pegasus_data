@@ -46,6 +46,8 @@ class FetchResult:
     skipped: bool = False
     error: str | None = None
     elapsed_ms: float = 0.0
+    #: Something true about a SUCCESSFUL fetch that the caller should know (the listing was stale).
+    note: str | None = None
 
 
 @dataclass(slots=True)
@@ -82,6 +84,8 @@ def _record(stats: FetchStats, result: FetchResult) -> None:
     counts as fetched. Reporting a warm request as megabytes "downloaded" is
     what HI-17 was.
     """
+    if result.note:
+        stats.diagnostics.append((result.path, result.note))
     if result.error:
         stats.failed += 1
         stats.errors.append((result.path, result.error))
@@ -430,7 +434,12 @@ class Fetcher:
                     try:
                         if path is None:
                             return
-                        result = self._fetch_one(client, path, force=force)
+                        try:
+                            result = self._fetch_one(client, path, force=force)
+                        except Exception as exc:  # noqa: BLE001 - this path failed; the worker and the batch go on
+                            # A staged-size mismatch, a locked catalog or a full disk used to end the thread with the
+                            # path in neither `errors` nor `diagnostics`, and the pool one worker short.
+                            result = self._failed(path, exc)
                         with lock:
                             _record(stats, result)
                         _emit(result)
@@ -446,9 +455,11 @@ class Fetcher:
             finally:
                 client.close()
 
+        # One session per path at most: each connects, logs in and sends FEAT and SYST before it looks at the queue,
+        # so a single missing file used to cost eight logins, seven of them idle.
         threads = [
             threading.Thread(target=worker, daemon=True, name=f"fetch-{i}")
-            for i in range(self.concurrency)
+            for i in range(min(self.concurrency, len(pending)))
         ]
         for t in threads:
             t.start()
@@ -505,6 +516,16 @@ class Fetcher:
             )
         return stats
 
+    def _failed(self, path: str, exc: BaseException) -> FetchResult:
+        """A path whose fetch raised something `_fetch_one` did not expect: named, recorded as a gap, never lost."""
+        error = f"{type(exc).__name__}: {exc}"
+        try:
+            self.blobs.staging_path(path).unlink(missing_ok=True)
+            self.catalog.record_gap(path, kind="fetch", methods=("RETR", "store"), error=error)
+        except Exception:  # noqa: BLE001 - the catalog is what failed; the error still reaches `stats.errors`
+            pass
+        return FetchResult(path=path, sha256=None, byte_size=0, error=error)
+
     def _fetch_one(self, client: FtpClient, path: str, *, force: bool) -> FetchResult:
         # ONE observation of the server, used for BOTH decisions. Under
         # refresh="remote" the freshness check asked the server for the live
@@ -553,6 +574,17 @@ class Fetcher:
                     return FetchResult(path=path, sha256=None, byte_size=0, error=error)
                 self.mirror_first = True
         byte_size, digest, serving = served
+        note = None
+        if serving == "ftp:RETR" and remote_size is not None and byte_size != remote_size:
+            # `retrieve_to_file` accepts a whole transfer only when the server itself measures the file at the length
+            # it sent: the listing is stale (republished since the last crawl). The copy is recorded at the length the
+            # server gave; until a re-crawl the stale listing will judge it changed.
+            note = (
+                f"listing says {remote_size} bytes, the server delivered and confirms {byte_size}: "
+                "republished since the last crawl; re-run `crawl`"
+            )
+            remote_size = byte_size
+            remote_modified = client.modified_time(path) or remote_modified
         elapsed = (time.perf_counter() - started) * 1000
         digest = self.blobs.adopt(
             staged,
@@ -565,7 +597,7 @@ class Fetcher:
             remote_modified=remote_modified,
         )
         self.catalog.resolve_gap(path)
-        return FetchResult(path=path, sha256=digest, byte_size=byte_size, elapsed_ms=elapsed)
+        return FetchResult(path=path, sha256=digest, byte_size=byte_size, elapsed_ms=elapsed, note=note)
 
     def _from_mirror(self, path: str, staged, expected_size: int | None) -> tuple[int, str, str] | None:
         """The mirror's copy of ``path`` when, and only when, it has the size

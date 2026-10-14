@@ -17,7 +17,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from .base import DecodedTable, DecodeError
+from .base import DamagedPayload, DecodedTable, DecodeError
 from .dbf import read_dbf_bytes, read_dbf_file
 
 
@@ -33,10 +33,12 @@ def _decompress(src: Path, dst: Path) -> None:
     exists (~83 MB/s), the identical algorithm in Python when none does --
     byte-for-byte equal by test, not by hope.
     """
-    from ._native import DbcError, dbc_file_to_dbf
+    from ._native import DbcError, DbcStreamError, dbc_file_to_dbf
 
     try:
         dbc_file_to_dbf(src, dst)
+    except DbcStreamError as exc:
+        raise DamagedPayload(f"dbc stream is damaged in {src.name}: {exc}") from exc
     except DbcError as exc:
         raise DecodeError(f"dbc decompression failed for {src.name}: {exc}") from exc
     except OSError as exc:

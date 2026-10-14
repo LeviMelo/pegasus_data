@@ -132,6 +132,7 @@ class _RemoteOutcome:
     attempts: list[Any] = field(default_factory=list)
     members: list[Any] = field(default_factory=list)
     open_questions: list[tuple[str, str]] = field(default_factory=list)
+    failed_members: list[tuple[str, str]] = field(default_factory=list)
     retains: object | None = None
 
 
@@ -337,6 +338,7 @@ class DecoderPool:
             for m in header.get("members", [])
         ]
         outcome.open_questions = [tuple(q) for q in header.get("open_questions", [])]
+        outcome.failed_members = [tuple(f) for f in header.get("failed_members", [])]
 
         try:
             for index, meta in enumerate(header.get("tables", [])):

@@ -15,7 +15,7 @@ ledger-driven at normalisation time (§13).
 from __future__ import annotations
 
 import struct
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 import numpy as np
@@ -164,6 +164,7 @@ def read_dbf_bytes(
     batch_rows: int = 65_536,
     row_limit: int | None = None,
     columns: frozenset[str] | None = None,
+    strict_size: bool = False,
 ) -> DecodedTable:
     """Decode a whole DBF held in memory.
 
@@ -174,7 +175,6 @@ def read_dbf_bytes(
     """
     view = memoryview(data)
     header = DbfHeader(view)
-    encoding = encoding or _sniff_encoding(data, header)
     offsets = header.field_offsets
     names = _dedupe([f.name for f in header.fields])
     for f, name in zip(header.fields, names, strict=True):
@@ -205,8 +205,13 @@ def read_dbf_bytes(
         warnings.append(f"header_declares_{declared}_records_file_holds_{available}")
         warnings.append(f"header_declares_{direction}_than_the_file_holds")
 
+    if strict_size and declared > available:
+        raise _short_body(declared, available)
+
     if row_limit is not None:
         n_records = min(n_records, row_limit)
+
+    encoding = encoding or _sniff_encoding(data, header, n_records, warnings)
 
     wanted_indices: list[int] | None = None
     if columns:
@@ -237,30 +242,65 @@ def read_dbf_bytes(
     )
 
 
-def _encoding_from_sample(sample: bytes) -> str:
-    """The half of :func:`_sniff_encoding` that only needs the sample."""
-    if not sample or sample.isascii():
-        return "cp850"
+#: Records scanned per block when looking for the first non-ASCII byte (a block of this many records, ~8 MiB at
+#: 128-byte records, costs one vectorised comparison).
+_SCAN_ROWS = 1 << 16
+#: Records carrying non-ASCII bytes that settle the codepage.
+_SAMPLE_RECORDS = 512
+
+
+def _accented_sample(blocks: Iterable[np.ndarray], record_len: int) -> bytes:
+    """The records of the file that hold a byte above 127, up to `_SAMPLE_RECORDS` of them.
+
+    The codepage matters only where a byte above 127 occurs, so the whole file is scanned (one comparison per block)
+    and the evidence is taken wherever it first appears, not from the first 512 records: a file sorted so that its
+    accents start at record 1,501 decoded `JOSÉ AÇÃO` as `JOS╔ AÃ├O` (the sample was ASCII, so cp850 was assumed for
+    the whole file)."""
+    gathered: list[bytes] = []
+    have = 0
+    for flat in blocks:
+        if flat.size == 0:
+            continue
+        high = flat > 127
+        if not high.any():
+            continue
+        rows = np.unique(np.flatnonzero(high) // record_len)[: _SAMPLE_RECORDS - have]
+        gathered.append(flat.reshape(-1, record_len)[rows].tobytes())
+        have += len(rows)
+        if have >= _SAMPLE_RECORDS:
+            break
+    return b"".join(gathered)
+
+
+def _file_encoding(blocks: Iterable[np.ndarray], record_len: int, warnings: list[str]) -> str:
+    """One codepage for the whole file, scored on the records that show it; recorded when it mattered."""
+    sample = _accented_sample(blocks, record_len)
+    if not sample:
+        return "cp850"  # every byte is ASCII: all candidates agree
     _, encoding = best_effort_decode(sample, candidates=DEFAULT_ENCODINGS)
+    warnings.append(f"encoding:{encoding}")
     return encoding
 
 
-def _sniff_encoding(data: bytes, header: DbfHeader) -> str:
-    """Pick the codepage whose decoding of a sample reads as Portuguese.
+def _sniff_encoding(
+    data: bytes, header: DbfHeader, n_records: int | None = None, warnings: list[str] | None = None
+) -> str:
+    """The codepage of a DBF held in memory, from the records that show one (the whole body is scanned)."""
+    record_len = header.record_len
+    rows = (len(data) - header.header_len) // record_len
+    rows = rows if n_records is None else min(rows, n_records)
+    body = np.frombuffer(data, dtype=np.uint8, count=max(rows, 0) * record_len, offset=header.header_len)
+    step = _SCAN_ROWS * record_len
+    return _file_encoding(
+        (body[at : at + step] for at in range(0, body.size, step)), record_len, [] if warnings is None else warnings
+    )
 
-    "First codepage that does not raise" is useless here: cp850 and latin-1 both
-    map all 256 byte values, so the first candidate always wins regardless of
-    whether it is right (see ``pegasus_data.textenc``). The DBF language-driver
-    byte at offset 29 is unreliable across DATASUS's 35 years, so it only breaks
-    ties between equally-scoring candidates.
-    """
-    sample = data[header.header_len : header.header_len + 512 * (header.record_len or 1)]
-    return _encoding_from_sample(bytes(sample))
 
-
-def read_dbf(path: str | Path, **kwargs: object) -> DecodedTable:
-    p = Path(path)
-    return read_dbf_bytes(p.read_bytes(), path=str(p), **kwargs)  # type: ignore[arg-type]
+def _short_body(declared: int, available: int) -> DecodeError:
+    return DecodeError(
+        f"the header declares {declared} records and the body holds {available}: a payload read after a failed "
+        "inflation is the compressed stream, not records"
+    )
 
 
 def read_dbf_file(
@@ -273,6 +313,7 @@ def read_dbf_file(
     batch_rows: int = 65_536,
     row_limit: int | None = None,
     columns: frozenset[str] | None = None,
+    strict_size: bool = False,
 ) -> DecodedTable:
     """Decode a DBF that is already a file, without ever holding it in RAM.
 
@@ -295,9 +336,6 @@ def read_dbf_file(
         header = DbfHeader(memoryview(head))
         record_len = header.record_len
         body_start = header.header_len
-        if encoding is None:
-            fh.seek(body_start)
-            encoding = _encoding_from_sample(fh.read(512 * (record_len or 1)))
 
     offsets = header.field_offsets
     names = _dedupe([f.name for f in header.fields])
@@ -315,8 +353,25 @@ def read_dbf_file(
         direction = "more" if declared > available else "fewer"
         warnings.append(f"header_declares_{declared}_records_file_holds_{available}")
         warnings.append(f"header_declares_{direction}_than_the_file_holds")
+    if strict_size and declared > available:
+        raise _short_body(declared, available)
     if row_limit is not None:
         n_records = min(n_records, row_limit)
+
+    if encoding is None:
+        def _blocks() -> Iterator[np.ndarray]:
+            with src.open("rb") as scan:
+                scan.seek(body_start)
+                left = n_records
+                while left > 0:
+                    raw = scan.read(min(left, _SCAN_ROWS) * record_len)
+                    rows = len(raw) // record_len
+                    if rows == 0:
+                        return
+                    left -= rows
+                    yield np.frombuffer(raw, dtype=np.uint8, count=rows * record_len)
+
+        encoding = _file_encoding(_blocks(), record_len, warnings)
 
     # WHICH fields to materialise. `fields` stays the full header either way:
     # it is what the family's schema is matched against, and narrowing it would

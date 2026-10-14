@@ -368,7 +368,7 @@ class FtpClient:
         """``SIZE``/``MDTM`` for one path — the per-file rescue when a listing is unavailable."""
         return self.size(path), self.modified_time(path)
 
-    def retrieve_prefix(self, path: str, max_bytes: int, *, offset: int = 0) -> bytes:
+    def retrieve_prefix(self, path: str, max_bytes: int, *, offset: int = 0, expected_min: int = 0) -> bytes:
         """Download only the first ``max_bytes`` of a file.
 
         A DBF — and a ``.dbc``, whose DBF header is stored uncompressed ahead of
@@ -383,6 +383,10 @@ class FtpClient:
         one reply out of step, so the *next* command reads this transfer's
         completion message and every command after it is answered by the one
         before — a failure that shows up far from its cause.
+
+        ``expected_min`` is how many bytes the file certainly holds (the lesser of ``max_bytes`` and its listed size):
+        a transfer that ends short of it was cut, not finished, and is retried on a fresh connection instead of
+        returned as an empty header (four DBCs were recorded as "only 0 bytes" and never read again).
         """
         def _once() -> bytes:
             # `offset` (FTP REST) reads a slice from the middle or the end: a
@@ -399,6 +403,8 @@ class FtpClient:
             finally:
                 conn.close()
             self._drain_after_partial()
+            if buf.tell() < expected_min:
+                raise OSError(f"RETR(prefix) {path}: got {buf.tell()} bytes, the file holds at least {expected_min}")
             return buf.getvalue()[:max_bytes]
 
         data = self._retrying(_once, what=f"RETR(prefix) {path}")
@@ -506,6 +512,11 @@ class FtpClient:
             self.ftp.voidresp()
 
             if expected_size is not None and total != expected_size:
+                if resume_at == 0 and self.size(path) == total:
+                    # A whole transfer from byte zero that the server now measures at the length it delivered: the
+                    # file was republished after the listing, and the listing is what is stale. It was downloaded four
+                    # times, then rejected, because the yardstick was the old crawl's.
+                    return total, digest.hexdigest()
                 # Short read, or a server that took REST and sent from zero
                 # anyway. Either way these bytes are not the file.
                 dest.unlink(missing_ok=True)
