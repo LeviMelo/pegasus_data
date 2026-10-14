@@ -13,6 +13,9 @@
 # stored: a per-capita figure is computed at use, over POPSVS, never stored
 # (`over: population`); a share names its denominator field (`over: households`).
 # (CLAUDE.md: stored aggregates are sums and counts, never finished means).
+# `law` says how a value aggregates (`sum`); `family` names the distribution of a field read over its `over` when it is
+# no count: `gaussian` for a mean level (a temperature summed over the months observed and read over them, ADR-0177),
+# which a consumer must not model as events.
 #
 # IBGE's markers are kept as a status beside the value: "-" is a true zero;
 # ".." not applicable, "..." not available and "X" suppressed for disclosure
@@ -336,6 +339,7 @@ fields:
     years: 1961-2025
 
   air_temperature:
+    family: gaussian
     over: temperature_months
     source: inmet
     measure: air_temperature
@@ -353,6 +357,7 @@ fields:
     years: 1961-2025
 
   air_temperature_monthly_max:
+    family: gaussian
     over: temperature_months
     source: inmet
     measure: air_temperature_monthly_max
@@ -369,6 +374,7 @@ fields:
     years: 1961-2025
 
   air_temperature_monthly_min:
+    family: gaussian
     over: temperature_months
     source: inmet
     measure: air_temperature_monthly_min
@@ -390,6 +396,7 @@ fields:
     years: 1961-2025
 
   precipitation_mm:
+    family: gaussian
     over: precipitation_months
     source: inmet
     measure: precipitation_mm

@@ -7,7 +7,7 @@ standard (every code translatable, ADR-0085). Shipping it in the wheel is also
 the wrong answer: the registry changes every month, and a frozen copy goes stale.
 
 So a registry is built **from the owning system's own TabWin kit, by a command**
-(``pegasus-data registries build CNES``, ADR-0177; ADR-0086 had it built on first use):
+(``pegasus-data registries build CNES``, ADR-0176; ADR-0086 had it built on first use):
 
 1. find the kit, choosing the current ``Auxiliar/TAB_<SYSTEM>.zip`` over the
    dated historical ones;

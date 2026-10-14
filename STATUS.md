@@ -221,7 +221,7 @@ OQ-64), 1990s SIH V-codes.
     the municipality each station stands in (1961–2025, 912 stations); read as
     `air_temperature` (and `_monthly_max`/`_min`) over `temperature_months`,
     `precipitation_mm` over `precipitation_months`: one value per municipality
-    and year (ADR-0178; build with `pegasus-data fields --name ...`, RUNBOOK).
+    and year (ADR-0177; build with `pegasus-data fields --name ...`, RUNBOOK).
   - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
     type and human damages.
 - **SIDRA** (`pegasus_data.sidra`, `pegasus-data sidra`, ADR-0142):

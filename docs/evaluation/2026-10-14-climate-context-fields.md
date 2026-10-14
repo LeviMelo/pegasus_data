@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-14. **Regime:** branch `fix2-climate`; station-month base read from `pegasus_core_data/lake/fields/climate`
 (read-only, 275,810 station-months); derived tables built under a scratch root (`registries/inmet` junctioned to the real one),
-14 s. Decision: ADR-0178.
+14 s. Decision: ADR-0177.
 
 **What was counted.**
 - Naive means are wrong. Maceió (270430), a coverage-weighted year: 25.3 °C mean of 1991-2020 (24 years), annual cycle 23.6 °C

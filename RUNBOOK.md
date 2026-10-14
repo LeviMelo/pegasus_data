@@ -35,7 +35,7 @@ $PY scripts/live.py --all --fresh           # everything, on an emptied home
 $PY scripts/live.py --show <run-id>
 ```
 
-- Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0177):
+- Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0176):
   `$PD registries build CNES [--refresh]` (SIH's names need CNES's kit, 127 MB, once; `SIASUS` for `INE_EQUIPE`).
   Without it a `load`/`query` leaves those labels null and says this command in one warning.
 - The live home is `~/pegasus_live/home` (override: `PEGASUS_LIVE_HOME`),
@@ -166,7 +166,7 @@ $PD sidra series population_age_sex --fetch --validate   # stitched series (cura
 $PD sidra series literacy_15plus --report              # its comparability, gaps and the places with a figure per census; fields: `$PD fields --name persons_15_plus`
 $PD sidra check                              # compendium and axis maps against IBGE's names
 $PD sidra rebuild 9606                       # re-derive a table's parts from the cached responses, no request
-$PD fields --name climate --name temperature_months --name air_temperature --name air_temperature_monthly_max --name air_temperature_monthly_min --name precipitation_months --name precipitation_mm   # INMET climate (ADR-0178): the station-month base and the six fields read from it; offline from `registries/inmet`, ~15 s
+$PD fields --name climate --name temperature_months --name air_temperature --name air_temperature_monthly_max --name air_temperature_monthly_min --name precipitation_months --name precipitation_mm   # INMET climate (ADR-0177): the station-month base and the six fields read from it; offline from `registries/inmet`, ~15 s
 ```
 
 - Every response is kept under `<root>/registries/sidra/http/` (gzip, with URL, size, SHA-256, time); the

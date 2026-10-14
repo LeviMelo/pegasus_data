@@ -1,4 +1,4 @@
-## ADR-0177: A read never downloads: a registry is built by `pegasus-data registries build`, and a read without it says so
+## ADR-0176: A read never downloads: a registry is built by `pegasus-data registries build`, and a read without it says so
 
 **Date:** 2026-10-14. **Status:** active. **Amends:** ADR-0086 (registries "fetched on first use"), ADR-0100.
 

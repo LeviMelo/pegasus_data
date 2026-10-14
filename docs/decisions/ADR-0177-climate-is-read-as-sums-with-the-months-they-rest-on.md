@@ -1,4 +1,4 @@
-# ADR-0178: the climate fields are sums with the months they rest on, one value per municipality and year
+# ADR-0177: the climate fields are sums with the months they rest on, one value per municipality and year
 
 **Date:** 2026-10-14. **Status:** accepted.
 

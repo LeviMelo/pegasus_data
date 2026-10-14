@@ -110,7 +110,7 @@ def registries_build(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Download a system's TabWin kit once and build its name registries (ADR-0177).
+    """Download a system's TabWin kit once and build its name registries (ADR-0176).
 
     The one place a registry is downloaded: reads (`load`, `query`, labels) never fetch, and say this command when a
     registry is missing. The kit is 6 MB (SIH) to 127 MB (CNES).
