@@ -470,6 +470,57 @@ datasets:
           - {column: PA_CIDPRI, role: alternative, structure: ICD10}
         note: >-
           Every outpatient procedure of SIA, once. BI republishes PA's I rows and PS its B rows (measured row for row, AC 2023-01), so a procedure is counted from one of the three, never two. A consolidated row has an age but no residence or sex (MUNPCN 999999, SEXO 0): a count by residence leaves C unallocated, visibly.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, Disseminação de dados em saúde: Sistema de Informações Ambulatoriais do SUS -
+            SIASUS, Informe Técnico (file Informe_Tecnico_SIASUS_2019_07), section 2.1 and layout, pp. 2-4
+            (sources/siasus/Informe_Tecnico_SIASUS_2019_07.pdf);
+            statements taken from other documents carry their own citation
+          definition: >-
+            The information in the PA files, obtained after the processing of the SIASUS, refers to the outpatient care
+            performed in each competence (year and month) from January 2008, when the Table of Procedures, Medicines,
+            Orthoses, Prostheses and Special Materials of the SUS was implemented (Portaria GM/MS nº 321 of 08/02/2007,
+            whose start, set for July 2007, was postponed to January 2008 by Portaria GM/MS nº 1,541 of 27/06/2007)
+            (p. 2 and its note 4). The files hold the procedures obtained through five registration instruments - APAC,
+            BPA-C, BPA-I, RAAS-AD and RAAS-PSI - and the content of each record varies with the instrument that originated
+            it, identified by PA_DOCORIG: P main procedure and S secondary procedure of an APAC, C the BPA-C, A the RAAS-AD,
+            B the RAAS psicossocial, I the BPA-I (pp. 2-3). A BPA-C generates one record for each pair [procedure code,
+            CBO]; a BPA-I one for each attendance (one or more attendances may be of the same patient); an APAC one for each
+            procedure code performed in it, main or secondary (p. 3). PA_QTDPRO is the quantity produced (presented) and
+            PA_QTDAPR the approved quantity (p. 4); the TabNet notes define the approved quantity as the procedures
+            approved for payment by the health secretariats and the presented quantity as the procedures presented for
+            payment ("Produção Ambulatorial do SUS por local de residência - a partir de 2008" Notas Técnicas, pp. 2-3,
+            http://tabnet.datasus.gov.br/cgi/sia/Prod_amb_loc_res_2008.pdf).
+          valid_from: 2008
+          limitations:
+            - >-
+              The municipality of residence is available only for the records made through the BPA-I or the APAC (TabNet
+              "Produção Ambulatorial do SUS por local de residência - a partir de 2008" Notas Técnicas, p. 1). The sex and
+              the age of the patient may be "not informed or not required" (p. 2), and PA_FLIDADE flags whether the age is
+              not required, compatible with the SIGTAP range, outside it, nonexistent or blank (Informe Técnico, p. 4).
+            - >-
+              The BPA-C registers, for each establishment (CNES) and month, the procedure consolidated by CBO, age and
+              quantity, the age being mandatory only for procedures with the SIGTAP attribute 012 "requires age in the BPA
+              (consolidated)"; the BPA-I registers each user with the CNS, name, sex, date of birth, municipality of
+              residence, nationality and race/colour. A procedure goes to the BPA-C or to the BPA-I according to the
+              Registration Instrument assigned to it in the SIGTAP (Ministério da Saúde/SAS/DRAC/CGSI, BPA: manual de
+              operação do sistema, version 1, September 2012, pp. 5 and 18-23, sources/bpa_manual.txt).
+            - >-
+              The authorisation number (PA_AUTORIZ) of a BPA-I is not mandatory and is not checked, and may be repeated
+              for several attendances of one patient, so its filling is of limited quality if used for any control
+              (Informe Técnico, p. 3).
+            - >-
+              RIPSA's sheet on medical consultations per inhabitant (ficha F.1, p. 276, in Indicadores básicos para a
+              saúde no Brasil: conceitos e aplicações, 2nd ed., 2008,
+              http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloF.pdf), built from the SIA/SUS, counts the
+              consultations presented to the manager, approved or not, and states that this number does not necessarily
+              express the total performed in the SUS, because it is influenced by the remuneration modality (by
+              procedure performed or by the total resident population); that it leaves out the consultations made
+              without a SUS link; and that it includes those given to non-residents.
+          form: >-
+            Instruments of registration: BPA-C (Boletim de Produção Ambulatorial Consolidado), BPA-I (Individualizado), APAC
+            (Autorização de Procedimentos Ambulatoriais de Alta Complexidade), RAAS-AD and RAAS-PSI (Registro das Ações
+            Ambulatoriais de Saúde).
     asserted_by: pegasus_data
     what_one_row_is: a quantity of one procedure from one production document (PA_DOCORIG) at one establishment in one competência
     unit_of_analysis: procedure-establishment-month
@@ -1162,6 +1213,60 @@ datasets:
           evidence: >-
             The foetal death rate: foetal deaths per 1,000 total births (live births and foetal deaths), the
             denominator ICD-10 (volume 2, the statistics of perinatal mortality) defines for it.
+        source_notes:
+          source: >-
+            Ministério da Saúde/SVS, Declaração de Óbito: manual de instruções para preenchimento, Brasília, 2022, pp. 15,
+            17, 57 and 61-62 (http://bvsms.saude.gov.br/bvs/publicacoes/declaracao_obito_manual_preenchimento.pdf);
+            statements taken from other documents carry their own citation
+          definition: >-
+            A foetal death is the death of a product of conception before the complete expulsion or extraction from the
+            mother's body, whatever the duration of the pregnancy; it is indicated by the fact that the foetus, after
+            separation, neither breathes nor shows any other sign of life, such as heartbeat, pulsation of the umbilical
+            cord or effective movement of the voluntary muscles (DO manual, Apêndice B, p. 57; the SIM dictionary, updated
+            07/2025, sources/dicionario-de-dados-SIM-tabela-DO.pdf, gives the same wording for TIPOBITO 1, p. 1). In a
+            foetal death the municipality of residence is the mother's, the dates of death and of birth must be equal and
+            the age field is not filled (SIM dictionary, pp. 1-3). A newborn who shows a sign of life, even for a few
+            moments, is a live birth, not a foetal death, and receives a Declaração de Nascido Vivo and a Declaração de
+            Óbito (DO manual, FAQ 3, pp. 61-62).
+          final_after_years: 1
+          known_errors:
+            - >-
+              The gestation time is frequently omitted on the Declaração de Óbito, which hampers the precise application of
+              the definition of the perinatal period (RIPSA, Indicadores básicos para a saúde no Brasil: conceitos e
+              aplicações, 2nd ed., 2008, ficha C.2, p. 116, http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloC.pdf).
+            - >-
+              Early neonatal mortality may be underestimated by the exclusion of deaths declared as stillbirths but that in
+              fact occurred soon after birth (RIPSA ficha C.1.1, p. 110).
+          limitations:
+            - >-
+              A DO is issued for a foetal death when the gestation lasted at least 20 weeks, or the foetus weighed at least
+              500 g, or measured at least 25 cm; below all three limits it is not issued unless the family requests it, in
+              which case the physician may issue it for burial and its data must be registered in the SIM (DO manual, pp. 15
+              and 17). The manual adds that the internationally accepted concept of foetal death covers all deaths without
+              sign of life whatever the duration, and that in Brazil, for epidemiological purposes, the DO is advised from
+              those limits (pp. 61-62).
+            - >-
+              RIPSA's sheet C.2 (pp. 116-117) states that the perinatal rate requires correction of the under-enumeration of
+              foetal and early neonatal deaths, especially in the North and Northeast; that the under-enumeration of foetal
+              deaths tends to be greater and is difficult to estimate; and that, given it and the poor information on the
+              duration of gestation, foetal deaths of ignored or blank gestational age should be added to the numerator and
+              the denominator. It also notes that ICD-10 anticipated the start of the perinatal period to 22 completed weeks
+              of gestation, that the earlier concept took 28 weeks, and that the use of the earlier concept causes
+              imprecision (p. 116).
+            - >-
+              In 2011 the content of the DO changed, with more detail in the information collected, and both forms were
+              used at the same time during that year (TabNet "Óbitos fetais - a partir de 1996" Notas Técnicas,
+              consolidation up to 22/03/2017, p. 1, http://tabnet.datasus.gov.br/cgi/sim/Obitos_Fetais_1996_2012.pdf).
+              The categories of duration of gestation overlap because of changes in the forms over time (p. 4).
+            - >-
+              Data release timetable: the states transfer the data to the national module within 60 days after the end of
+              the month of occurrence (art. 34); the SVS consolidates the statistical year by 30 June of the following year
+              (art. 36, par. 2); the data are released as preliminary between 30 June and 30 August of the year after the
+              year of occurrence and as official until 30 December of that year (art. 37) (Portaria SVS nº 116, of
+              11/02/2009, in Ministério da Saúde/SVS, Legislação relativa aos SIM e SINASC, 2009, pp. 97-98,
+              sources/sim_tab/Docs_Tabs_CID10/DOCS/Legislacao_PDF.pdf). The TabNet notes add that occasional corrections
+              are still made after the national base is consolidated (p. 1).
+          form: Declaração de Óbito (DO), with TIPOBITO 1 (fetal).
     system: SIM
     series: DOFET
     asserted_by: pegasus_data

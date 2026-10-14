@@ -22,6 +22,75 @@ datasets:
         note: >-
           Transfers between hospitals are separate AIHs; consolidating them needs
           linkage and is not done here.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, TabNet "Morbidade Hospitalar do SUS por local de residência - a partir de 2008",
+            Notas Técnicas, pp. 1-3 and 5 (http://tabnet.datasus.gov.br/cgi/sih/Morb_geral_loc_res_2008.pdf); statements
+            taken from other documents carry their own citation
+          definition: >-
+            The SIH/SUS receives the admissions that the hospital units taking part in the SUS (public, or private under
+            contract) report through the AIH (Autorização de Internação Hospitalar) to the municipal managers (when in full
+            management) or the state managers; DATASUS consolidates them into a base that holds the data of a large part of
+            the hospital admissions made in Brazil (TabNet notes, p. 1). "Internações" are the AIHs approved in the period
+            without the extension AIHs of long stays, which the notes call an approximate value because transfers and
+            readmissions are counted in it; "AIH aprovadas" counts the extension AIHs too and never the rejected ones
+            (p. 3). The cause of admission is the principal diagnosis, defined as the one that motivated the admission;
+            the residence is the patient's, as informed by the hospital unit; the age is computed from the dates of birth
+            and of admission (pp. 2 and 5).
+          known_errors:
+            - >-
+              The information system may not detect inconsistencies in the classification of the morbidity cause informed
+              (RIPSA, Indicadores básicos para a saúde no Brasil, 2nd ed., 2008, ficha D.13, p. 208,
+              http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloD.pdf).
+            - >-
+              During the first months of the ICD-10 implementation the code U99 (ICD 10th revision not available) was
+              admitted, so admissions of that period include some with an unidentified diagnosis (TabNet notes, p. 34).
+          limitations:
+            - >-
+              Only admissions paid by the SUS are in the base: RIPSA's sheet on admissions per inhabitant (ficha F.3,
+              p. 280, http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloF.pdf) lists as limitations that it
+              includes only the admissions paid, not all those actually carried out by the SUS, because of limits in the
+              physical and financial programming; that admissions in public hospitals financed by direct transfer of
+              resources rather than by production of services may be under-notified; and that it leaves out the
+              admissions in hospital units without a SUS link (supplementary health care, care of civil and military public
+              servants, the unit's own resources and services paid out of pocket).
+            - >-
+              An AIH is not a person: RIPSA's sheet D.13 (p. 208) states that its indicator is influenced by the
+              cumulative counting of the admissions of the same patient for the same cause during the period, and that
+              the distribution of admissions by cause reflects the hospital demand, itself conditioned by the supply of
+              SUS services, so it does not necessarily express the nosological picture of the resident population. In
+              the TabNet notes (p. 2) a long stay is presented as several AIHs for one admission, in consecutive months,
+              and (p. 3) transfers and readmissions are counted as admissions.
+            - >-
+              The AIH identification (IDENT_AIH) is 01 principal AIH, 03 continuation AIH or 05 long-stay AIH (text
+              interface layout of the SISAIH01, print dated 20/02/2009, p. 1, field 9, sources/Layout_SISAIH01.pdf);
+              RIPSA's sheet F.3 (p. 280) says that the AIHs of identification 5 (long stay) must be excluded when counting
+              admissions.
+            - >-
+              The processing year and month (ANO_CMPT, MES_CMPT: Informe Técnico SIH 2016-03, p. 1, fields 2-3,
+              sources/IT_SIHSUS_1603.pdf) are the month before the AIH was presented for billing and generally the month
+              of discharge, except for an AIH re-presented after rejection in an earlier processing, an AIH presented
+              late, and the AIHs of long stays (TabNet notes, p. 2).
+            - >-
+              In an obstetric admission two people are admitted under one AIH, the parturient and the newborn; a new AIH
+              is issued for the newborn only in certain cases (neonatal ICU, need to stay beyond 72 hours, etc.)
+              (TabNet notes, p. 5).
+            - >-
+              The ICD admits dual classification of the diagnoses in some cases: for external causes a ministerial
+              ordinance indicates that the principal diagnosis be coded in ICD-10 chapter XIX (injuries) and the secondary
+              one in chapter XX (external causes), and some diseases may be classified by aetiology (dagger) or by
+              manifestation (asterisk); the TabNet information covers only the principal diagnosis (TabNet notes, p. 5).
+            - >-
+              The field DIAG_SECUN is filled with zeros from the 2015-01 processing (Informe Técnico SIH, processamento
+              2016-03, DATASUS, p. 2, field 42, sources/IT_SIHSUS_1603.pdf).
+            - >-
+              The total value is the approved value of the production, not necessarily the amount transferred to the
+              establishment, which may receive budget resources or suffer retentions and incentive payments not shown
+              there (TabNet notes, p. 3); RIPSA's sheet E.11 (p. 256,
+              http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloE.pdf) adds that the values are those of the
+              Procedure Table, without bonuses, replacement factors, or state and municipal incentives and
+              complements, and in current reais of each year.
+          form: Autorização de Internação Hospitalar (AIH).
     system: SIHSUS
     series: RD
     asserted_by: pegasus_data
@@ -69,6 +138,89 @@ datasets:
             TIPOBITO 2 is a non-foetal death; DO files carry only these (AC 2022: 4,159 of
             4,159), foetal deaths are published as SIM.DOFET.
         marks: [LINHAA, LINHAB, LINHAC, LINHAD, LINHAII]
+        source_notes:
+          source: >-
+            Ministério da Saúde/SVS, Declaração de Óbito: manual de instruções para preenchimento, Brasília, 2022, pp. 15,
+            49 and 56-57 (http://bvsms.saude.gov.br/bvs/publicacoes/declaracao_obito_manual_preenchimento.pdf);
+            statements taken from other documents carry their own citation
+          definition: >-
+            A death (óbito) is the permanent disappearance of every sign of life, at any moment after live birth, without
+            possibility of resuscitation. The Declaração de Óbito (DO) is the official form for collecting mortality data
+            in Brazil; it is issued for any death, natural or violent, and for every live-born child who dies after birth,
+            whatever the duration of the pregnancy, the weight and the time the child lived (DO manual, pp. 15 and 57).
+            The underlying cause is the disease or injury that started the chain of pathological events leading directly
+            to death, or the circumstances of the accident or violence that produced the fatal injury (p. 56). In the
+            SIM dictionary (updated 07/2025, sources/dicionario-de-dados-SIM-tabela-DO.pdf, pp. 5-6) CAUSABAS is the
+            underlying cause of the DO and CAUSABAS_O the underlying cause informed before reselection. According to the
+            TabNet notes the health secretariats collect the DOs from the civil registries and enter their information in
+            the SIM; the underlying cause is coded from what the certifying physician declared, by rules of the World
+            Health Organization; the national base is considered complete only when every UF has sent its data, and is then
+            consolidated with the deaths redistributed to the deceased's place of residence, the traditional way to present
+            mortality data (TabNet "Mortalidade geral" Notas Técnicas, pp. 1-2,
+            http://tabnet.datasus.gov.br/cgi/sim/Mortalidade_Geral_1996_2012.pdf).
+          final_after_years: 1
+          known_errors:
+            - >-
+              Imprecise declaration of the intent of an external death (homicide, suicide or accident) raises the
+              proportion of external causes of undetermined intent; it happens whenever only the nature of the injury
+              (ICD-10 chapter XIX) is recorded, which makes coding by external cause (chapter XX) difficult (RIPSA,
+              Indicadores básicos para a saúde no Brasil: conceitos e aplicações, 2nd ed., 2008, ficha C.9, p. 132,
+              http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloC.pdf).
+            - >-
+              The Ministry occasionally corrects the information together with the municipal and state secretariats,
+              mainly the cross between cause of death and sex and age (TabNet "Mortalidade geral" Notas Técnicas, p. 2).
+          limitations:
+            - >-
+              Coverage is below the estimated number of deaths in part of the country. RIPSA's sheet F.11 (2008, pp.
+              292-293, http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloF.pdf) gives, for 2004, the ratio of deaths
+              informed to the SIM over deaths estimated by IBGE as 90.1% for Brazil, 76.3% in the North, 72.4% in the
+              Northeast, 100.5% in the Southeast, 102.3% in the South and 93.4% in the Centre-West, and states that an
+              important under-enumeration remains in the North and Northeast. For deaths under one year the ratio was
+              68.9% in Brazil and no region reached 90%, which the sheet calls an important limitation for the direct
+              calculation of infant mortality; the ratio can also vary with imprecision in the place of residence
+              recorded on the DO (p. 292).
+            - >-
+              RIPSA's sheets state that mortality indicators from the SIM require correction of the under-enumeration of
+              deaths, especially in the North and Northeast (ficha C.4, p. 122), because under-enumeration is frequent in
+              less developed areas (ficha A.10, p. 84); for the crude mortality rate RIPSA adopts the deaths informed to
+              the SIM only when they are at least 80% of the number estimated by demographic methods, and the estimated
+              number otherwise (ficha A.10, observation to the method of calculation, p. 84).
+            - >-
+              The proportion of deaths from ill-defined causes (ICD-10 chapter XVIII, R00-R99) reflects the quality of the
+              information that allows the underlying cause to be identified on the DO, and tends to be underestimated in
+              areas of low coverage of the SIM (RIPSA ficha C.5, p. 124). In 2004 it was 12.4% in Brazil, 20.8% in the North
+              and 23.7% in the Northeast, against 5.8% to 8.5% in the other regions; RIPSA notes that in the North and
+              Northeast most are deaths without medical assistance, elsewhere they predominate with medical assistance,
+              which it reads as a problem in the quality of the filling of the DO (p. 125). Proportional mortality by cause
+              groups has restricted use when the proportion of deaths without medical assistance or of ill-defined causes
+              is high (ficha C.4, p. 122).
+            - >-
+              The causes are coded in ICD-9 up to 1995 and in ICD-10 from 1996; because of the differences between the
+              revisions it was not possible to generate a list compatible between them, and no direct conversion table
+              exists (TabNet "Mortalidade geral" Notas Técnicas, pp. 1-2). In January 2025 ICD-10 version 2019 was
+              introduced in the SIM: 186 codes were added, 235 changed their descriptions and 105 were marked as excluded
+              but kept so that earlier years can be tabulated (p. 1).
+            - >-
+              In 2011 the content of the DO changed, with more detail in the information collected, and both forms were
+              used at the same time during that year; the Ministry refers to its document "Sistema de Informações sobre
+              Mortalidade - SIM. Consolidação da base de dados de 2011" for the changes and their effects (TabNet
+              "Mortalidade geral" Notas Técnicas, p. 1). The categories of schooling have different or overlapping criteria
+              because of changes in the forms over time (p. 4).
+            - >-
+              A death identified late by the health system, when an official DO can no longer be issued, is collected on a
+              DO epidemiológica, which is not valid for the death certificate; its purpose is to allow deaths to be counted
+              for the vital statistics and to give a more reliable picture of the coverage of death notification (DO
+              manual 2022, p. 49).
+            - >-
+              Data release timetable: the states transfer the data to the national module within 60 days after the end of
+              the month of occurrence (art. 34); the SVS consolidates the statistical year by 30 June of the following year
+              (art. 36, par. 2); the data are released as preliminary between 30 June and 30 August of the year after the
+              year of occurrence and as official until 30 December of that year (art. 37) (Portaria SVS nº 116, of
+              11/02/2009, in Ministério da Saúde/SVS, Legislação relativa aos SIM e SINASC, 2009, pp. 97-98,
+              sources/sim_tab/Docs_Tabs_CID10/DOCS/Legislacao_PDF.pdf). The TabNet notes add that occasional
+              corrections are still made after the national base is consolidated ("Mortalidade geral" Notas Técnicas,
+              p. 2).
+          form: Declaração de Óbito (DO).
     system: SIM
     series: DO
     asserted_by: pegasus_data
@@ -110,6 +262,78 @@ datasets:
         kind: birth
         grain: one live birth
         marks: [IDANOMAL, CODANOMAL]
+        source_notes:
+          source: >-
+            Ministério da Saúde/SVS, Declaração de Nascido Vivo: manual de instruções para preenchimento, 4th ed., Brasília,
+            2022, pp. 9-10, 27, 39 and 48 (http://bvsms.saude.gov.br/bvs/publicacoes/declaracao_nascido_vivo_manual_4ed.pdf);
+            statements taken from other documents carry their own citation
+          definition: >-
+            A live birth is the complete expulsion or extraction from the body of the parturient of a product of
+            conception that, whatever the duration of the pregnancy, after separation breathes or shows any other sign of
+            life (heartbeat, pulsation of the umbilical cord, effective movement of the voluntary muscles), whether or not
+            the cord has been cut and the placenta detached; each product of a birth that meets these conditions is
+            considered a live child (DN manual, Apêndice B, p. 48). The Declaração de Nascido Vivo (DNV) is the base
+            document of the Sistema de Informações sobre Nascidos Vivos (Sinasc); its issue is mandatory for every birth
+            with life in Brazil (pp. 9-10) and its municipality field is the municipality of residence of the parturient
+            (variable 26, p. 27). According to the TabNet notes the health secretariats collect the DNs at the health
+            establishments and, for home births, at the civil registries, and the births are counted by the mother's
+            place of residence or by the place of occurrence (TabNet "Nascidos Vivos" Notas Técnicas, pp. 1-2,
+            http://tabnet.datasus.gov.br/cgi/sinasc/Nascidos_Vivos_1994_2012.pdf).
+          final_after_years: 1
+          known_errors:
+            - >-
+              The ratio of live births informed to the Sinasc over those estimated by IBGE can vary because of
+              imprecision in the recording of the mother's place of residence on the DN (RIPSA, Indicadores básicos para a
+              saúde no Brasil: conceitos e aplicações, 2nd ed., 2008, ficha F.10, p. 290,
+              http://tabnet.datasus.gov.br/tabdata/livroidb/2ed/capituloF.pdf).
+            - >-
+              Live births that die soon after birth may be declared as stillbirths, which under-enumerates the live births
+              (RIPSA ficha F.7, p. 286).
+          limitations:
+            - >-
+              The implantation of the Sinasc was gradual: although it has been implemented in every UF since 1994, in some
+              of them the collection does not cover all the municipalities; the data are available from 1994, although
+              some UFs began collecting before that year (TabNet "Nascidos Vivos" Notas Técnicas, pp. 1-2).
+            - >-
+              Coverage: RIPSA's sheet F.10 (pp. 290-291) gives the ratio of live births informed to the Sinasc over those
+              estimated by IBGE as 75.1% for Brazil in 1994 (65.5% in the North, 54.9% in the Northeast) and 89.4% in 2004
+              (90.9% in the North, 82.4% in the Northeast, 91.9% in the Southeast, 96.2% in the South, 94.0% in the
+              Centre-West); values below 100 indicate under-registration in the Sinasc and values above 100 an
+              underestimated demographic estimate, and the sheet attributes the fall seen mainly in the South and Southeast
+              after 2000 probably to the greater sensitivity of the Sinasc to the sharp fall in fertility rates, not
+              captured by the estimates. The sheets on the crude birth rate (ficha A.7, p. 78) and on the proportions of
+              live births by maternal age (D.15, p. 216) and of low birth weight (D.16, p. 218) state that the base has
+              problems of population coverage in certain geographic areas, that the use of data from continuous
+              registration is conditioned on corrections for the under-enumeration of live births, frequent in less
+              developed areas, and that in less developed areas low values of low birth weight may represent
+              under-registration or low-quality information.
+            - >-
+              The weight at birth depends on the standardisation of procedures (time of measurement, nature and condition of
+              the equipment), and its measurement is particularly impaired in non-hospital births (RIPSA ficha D.16, p. 218).
+              Births in hospital are more likely to be registered in the Sinasc than others, which may overestimate the share
+              of hospital births, and a twin birth results in a cumulative count of live births (ficha F.7, p. 286).
+            - >-
+              In 2011 the content of the DN changed, with more detail in the information collected, and both forms were used
+              at the same time during that year; the Ministry refers to its document "Consolidação do Sistema de
+              Informações sobre Nascidos Vivos - 2011" for the changes and their effects (TabNet "Nascidos Vivos" Notas
+              Técnicas, p. 1). The categories of schooling, gestation duration and number of prenatal consultations have
+              overlapping or differing criteria because of changes in the forms over time (pp. 3-4).
+            - >-
+              A DNV Epidemiológica is used, occasionally, to collect the data of a birth known late by the health system
+              when an official DNV can no longer be issued; it is not valid for the birth certificate, and its purpose is
+              to record, for surveillance, live births that had no official DNV and so to increase the coverage of birth
+              notification (DN manual 2022, p. 39). The issue of a DN for a late registration may not occur for events
+              before the implantation of the Sinasc in each UF (Portaria SVS nº 116, of 11/02/2009, art. 11, par. 1, in
+              Ministério da Saúde/SVS, Legislação relativa aos SIM e SINASC, 2009, p. 90,
+              sources/sim_tab/Docs_Tabs_CID10/DOCS/Legislacao_PDF.pdf).
+            - >-
+              Data release timetable: the states transfer the data to the national module within 60 days after the end of
+              the month of occurrence (art. 34); the SVS consolidates the statistical year by 30 June of the following year
+              (art. 36, par. 2); the data are released as preliminary between 30 June and 30 August of the year after the
+              year of occurrence and as official until 30 December of that year (art. 37) (Portaria SVS nº 116, of
+              11/02/2009, in the same Legislação relativa aos SIM e SINASC, pp. 97-98). The TabNet notes add that
+              occasional corrections are still made after the national base is consolidated (p. 1).
+          form: Declaração de Nascido Vivo (DNV).
     system: SINASC
     series: DN
     asserted_by: pegasus_data

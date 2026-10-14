@@ -837,6 +837,20 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - exogenous poisoning's 5/2026 (downloaded 2026-10-11 from `/dissemin/publicos/SINAN/DOCS/`, the only other note
     there). It selects methanol, lead and mercury poisonings by text descriptors and exclusions over the free-text
     agent fields. TabNet applies that selection.
+- **The Ministry's own notes on SIM, SINASC, SIH and SIA (2026-10-14).** Declared as `source_notes` (ADR-0160) on SIM-DO,
+  SIM-DOFET, SINASC-DN, SIHSUS-RD and SIA-PA, every statement carrying its document and page:
+  - Portaria SVS 116/2009 arts. 34-37 (`sources/sim_tab/Docs_Tabs_CID10/DOCS/Legislacao_PDF.pdf`, pp. 97-98): SIM and
+    SINASC data are preliminary from 30 June to 30 August and official by 30 December of the year after the year of
+    occurrence, so `final_after_years: 1`; the TabNet notes add that corrections still occur.
+  - The DO and DN manuals (MS/SVS 2022, bvsms) define death, foetal death and live birth; the TabNet *notas técnicas* and
+    RIPSA's *Indicadores básicos*, 2nd ed., 2008 (`tabnet.datasus.gov.br/tabdata/livroidb/2ed/capitulo[A-F].pdf`, one
+    "Limitações" list per indicator) give the limits: coverage of the SIM (90.1% of estimated deaths in 2004, 72.4% in
+    the Northeast) and Sinasc (75.1% of estimated births in 1994, 89.4% in 2004), ill-defined causes, SIH counting only
+    admissions paid by the SUS (an AIH, not a person). RIPSA's figures are dated 2004; no newer ones were found.
+  - The DATASUS *Informe Técnico SIASUS* says PA holds BPA-C, BPA-I, APAC and RAAS records from January 2008, and that
+    PA_MUNPCN is the establishment's municipality when the patient is not identified (BPA); the consolidated rows of AC
+    2023-01 hold 999999 there (the SIA.PA event note in declared.yml), so the two claims differ and the note cites only TabNet's: the
+    residence is available for BPA-I and APAC only.
 - **Dictionaries are sources, not the truth.**
   - Meningitis's v5 dictionary prints `ANT_TRAUMA` as 1 Sim / 3 Não, while the records use 2 for Não and never 3.
   - Schistosomiasis's prints `EVOLUCAO` "1 – Cura 2, Não Cura" without a separator.
