@@ -164,6 +164,26 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
     ),
 }
 
+#: The schema-metadata key under which `load_population` returns the series' description (JSON).
+SERIES_METADATA = b"pegasus.series"
+
+
+@lru_cache(maxsize=1)
+def _documented() -> dict[str, dict[str, object]]:
+    from ..config import curation_root
+    from ..semantics.curation import read_yaml
+
+    path = curation_root() / "populations.yml"
+    return {str(k).upper(): dict(v) for k, v in (read_yaml(path).get("populations") or {}).items()} if path.exists() else {}
+
+
+def series_documentation(name: str) -> dict[str, object]:
+    """What the sources that produce ``name`` say it is: producer, vintage, reference date, years, method, limitations and
+    the documents that state them (``curation/populations.yml``). Empty when no document has been read: the series is
+    then undocumented, not described by its name."""
+    return _documented().get(name.upper(), {})
+
+
 _folded = {name.casefold() for name in KNOWN_SERIES}
 if len(_folded) != len(KNOWN_SERIES):  # pragma: no cover - guards a future edit
     raise ValueError("KNOWN_SERIES names must differ by more than case: they are directory names")

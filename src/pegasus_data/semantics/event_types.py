@@ -172,6 +172,34 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
     return {k: tuple(v) for k, v in out.items()}
 
 
+@lru_cache(maxsize=1)
+def _declarations() -> dict[str, tuple[str, str, dict[str, Any]]]:
+    """``SYSTEM-SERIES`` -> (the datasets file, its key there, the dataset's declaration as written)."""
+    from ..config import curation_root
+    from .curation import read_yaml
+
+    out: dict[str, tuple[str, str, dict[str, Any]]] = {}
+    for path in sorted((curation_root() / "datasets").glob("*.yml")):
+        for key, body in (read_yaml(path, shared=True).get("datasets") or {}).items():
+            body = body or {}
+            out[f"{_canonical_system(str(body.get('system') or ''))}-{str(body.get('series') or '').upper()}"] = (
+                path.name, str(key), body)
+    # the sources the intake mechanism reads (ADR-0162) are documented in curation/intake.yml, as the catalog's loader reads them
+    from ..intake import curation_docs
+
+    for data in curation_docs()[1]:
+        for key, body in data["datasets"].items():
+            out.setdefault(f"{_canonical_system(str(body['system']))}-{str(body['series']).upper()}", ("intake.yml", str(key), body))
+    return out
+
+
+def dataset_declaration(dataset: str) -> tuple[str, str, dict[str, Any]] | None:
+    """What the curation declares of ``dataset`` as written (the file, its key there, the mapping), None when it
+    declares nothing. Read from the shipped YAML, not from the catalog's copy of it: the copy is keyed otherwise
+    (``SIHSUS_RD``, not the ontology's ``SIH.RD``) and is only as current as the last write to the catalog."""
+    return _declarations().get(_key(dataset))
+
+
 def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> EventType:
     name = str(spec.get("name") or "")
     kind = str(spec.get("kind") or "")

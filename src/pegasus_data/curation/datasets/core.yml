@@ -94,7 +94,10 @@ datasets:
     system: SIHSUS
     series: RD
     asserted_by: pegasus_data
-    what_one_row_is: one billing episode (AIH), NOT one patient
+    what_one_row_is: >-
+      one AIH (Autorização de Internação Hospitalar), the authorisation under which SUS pays one hospital
+      admission: NOT one patient, and not always one admission (transfers between hospitals are separate AIHs, and a
+      long stay is billed as several AIHs in consecutive months)
     unit_of_analysis: admission
     source_publication:
       dataset: SIH.RD
@@ -123,6 +126,18 @@ datasets:
       - MUNIC_RES and MUNIC_MOV answer different questions (residence vs occurrence).
       - VAL_TOT is nominal reais at billing time, never deflated.
       - An AIH may be re-presented after rejection; the same episode can appear across competências.
+      - >-
+        Which AIHs are admissions: the file holds IDENT 1 (principal AIH) and IDENT 5 (long-stay AIH, the continuation
+        billed in a later month); an admission is an IDENT 1 row, as TabNet's "Internações" counts it and as RIPSA's
+        sheet F.3 asks (the type-5 AIHs are excluded). Alagoas 2014: 157,005 rows of type 1 and 8,429 of type 5.
+      - >-
+        Dates: the competence (ANO_CMPT and MES_CMPT, the month the AIH was processed, which names the file RDUFAAMM)
+        is the period an AIH is published under; DT_INTER and DT_SAIDA (AAAAMMDD) are the admission and discharge
+        dates, which are not the competence's. Alagoas 2014-2023 (1,692,728 AIHs; pegasus_core_data lake, 2026-10-14):
+        the discharge is in the competence month for 64.8% and in an earlier month for 35.2%, never later; the
+        admission is in the competence month for 53.2% and in an earlier one for 46.8%; ANO_CMPT is the year of the
+        file for every row. A year of files is therefore not a year of admissions or of discharges (cases discharged
+        in December and processed in January are in the next year's files).
 
   SIM_DO:
     event_types:
@@ -224,7 +239,9 @@ datasets:
     system: SIM
     series: DO
     asserted_by: pegasus_data
-    what_one_row_is: one death certificate
+    what_one_row_is: >-
+      one death certificate (Declaração de Óbito), that is one death, counted in the year it occurred: the year of a
+      file is the year of death
     unit_of_analysis: death
     source_publication:
       dataset: SIM.DO
@@ -255,6 +272,13 @@ datasets:
       - LINHAA-D hold several CID-10 codes per cell, '*'-delimited, and the order is the causal chain.
       - IDADE packs its unit into the value; SIH uses a separate COD_IDADE column.
       - Preliminary files (PRELIM) are revised for years afterwards; a year is not final when first published.
+      - >-
+        The year of a file is the year of death: DTOBITO is in the file's year for every row of DOBR2014 to DOBR2023
+        (14,179,520 of 14,179,520; pegasus_core_data lake, 2026-10-14). Deaths certified late reach a year by its
+        revisions, not by a later file.
+      - >-
+        A year is published as one national file (DOBR) and as one file per state (DOAL, DOSP ...): the
+        same records twice. The lake reads the national file alone; a state's deaths are the rows of its CODMUNRES.
 
   SINASC_DN:
     event_types:

@@ -381,8 +381,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.
 - `_vintage.py`: vintage resolution helpers.
-- `_explore.py`: `explore()`, what is on DATASUS.
-- `_info.py`: `info()`, what a node of the ontology is.
+- `_explore.py`: `explore()`, what is on DATASUS; `lake_coverage()`, what the lake holds by year; `publications()`, the files it holds a dataset's records from (path, server size and date, digest decoded, fetch, rows, preliminary or final; read from the lake rows' own `_source_path` and `_blob_sha256`) and the files listed but not held (ADR-0181).
+- `_info.py`: `info()`, what a node of the ontology is; `dataset_facts()`, what the shipped curation documents of a dataset (row, dates, events, notes) with their sources (ADR-0181).
 - `_availability.py`: `availability()`/`field_coverage`, when a column existed; `field_fill`, how much of each year it fills (presence is not fill).
 - `_dictionary.py`: `DataDictionary`, the dictionary of a fetched table.
 - `_translate.py`: `translate()`, labels for a user's own files.
