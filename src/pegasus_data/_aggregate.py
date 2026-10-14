@@ -172,6 +172,31 @@ class AggregateSpec:
         }
 
 
+def _uf_basis_note(dataset: str, geography_field: str, ufs: Sequence[str]) -> str:
+    """What a state build means when the dataset's files are published by another geography than its cells' key.
+
+    ``uf`` selects PUBLICATIONS, never records (ADR-0043), so a state build keeps whatever its files hold. SIH-RD's
+    files are by hospital state (``setting`` in ``curation/roles.yml``) and its cells are keyed by residence: the
+    municipalities of the state lose the residents treated in other states, so even the cells that exist are short,
+    which "no cell means not observed" does not say. Empty when the files are by the cells' own geography (SIM-DO,
+    SINASC-DN: by residence), or when no setting is declared.
+    """
+    from .linkage.roles import dataset_roles
+
+    try:
+        roles = dataset_roles(dataset)
+    except KeyError:
+        return ""
+    setting = roles.roles.get(roles.setting) if roles.setting else None
+    if setting is None or setting.column.upper() == geography_field.upper():
+        return ""
+    return (
+        f"{dataset} files are published by {setting.column} ({roles.setting}) and the cells are keyed by "
+        f"{geography_field}: the cells of {list(ufs)} omit the records of their municipalities that were published in "
+        "other states' files, so a cell that exists is short too; only a build of every state is complete"
+    )
+
+
 def _physical_geography(dataset: str, year: int, settings: Settings) -> tuple[str, ...] | None:
     """The publications a national read of this dataset-year selects: ("BR",)
     for one national file, () for a dataset with no state axis, the states
@@ -339,6 +364,9 @@ class AggregateReport:
     #: A December admission is billed in January, so a series by admission date
     #: built from one publication year is missing its own edges.
     partial_periods: tuple[str, ...] = ()
+    #: A state build whose files are published by another geography than the cells' key (SIH: files by hospital state,
+    #: cells by residence municipality): even a cell that exists is short. Said in the report and the manifest.
+    uf_basis_note: str = ""
     #: The (year, state) chunks that had no publication, so no cells: a hole in the series that is a gap, not a zero.
     missing_chunks: list[str] = field(default_factory=list)
     #: Rows read that no cell holds: no municipality, or a period that is not a month of a plausible year.
@@ -352,6 +380,7 @@ class AggregateReport:
             "years": list(self.years), "support": self.support,
             "unmapped": self.unmapped, "contested": list(self.contested),
             "uf": list(self.uf),
+            "uf_basis_note": self.uf_basis_note,
             "partial_periods": list(self.partial_periods),
             "missing_chunks": list(self.missing_chunks),
             "unkeyed_rows": self.unkeyed_rows,
@@ -523,6 +552,10 @@ def build_aggregate(
             "build_aggregate needs explicit years; an unbounded build would "
             "download the whole publication history"
         )
+    if report.uf:
+        report.uf_basis_note = _uf_basis_note(spec.dataset, geography_field, report.uf)
+        if report.uf_basis_note:
+            report.warnings.append(report.uf_basis_note)
 
     # One grouped Arrow table per chunk; merged once at the end (_merge_cells).
     cells: list[Any] = []
@@ -715,6 +748,7 @@ def build_aggregate(
         "rows_read": report.rows_read,
         "years": list(report.years),
         "uf": list(report.uf),
+        "uf_basis_note": report.uf_basis_note,
         "support": report.support,
         "partial_periods": list(report.partial_periods),
         "missing_chunks": list(report.missing_chunks),
@@ -1256,6 +1290,7 @@ def aggregate(
         fingerprint=str(manifest.get("fingerprint") or ""),
         years=tuple(int(y) for y in (manifest.get("years") or ())),
         uf=tuple(str(u) for u in (manifest.get("uf") or ())),
+        uf_basis_note=str(manifest.get("uf_basis_note") or ""),
         partial_periods=tuple(str(x) for x in (manifest.get("partial_periods") or ())),
     )
     if report.uf:
@@ -1264,6 +1299,8 @@ def aggregate(
             "with no cell was NOT OBSERVED, not observed as zero, and any total "
             "here is that subset's total rather than a national one"
         )
+        if report.uf_basis_note:
+            report.warnings.append(report.uf_basis_note)
     if report.partial_periods:
         report.warnings.append(
             f"{len(report.partial_periods)} period(s) in this artifact are known "
@@ -1315,6 +1352,7 @@ def aggregate(
         raise AggregationRefused(
             f"{[m.name for m in reduced]} reduce over time ({reduced[0].time_reducer}); a reduced "
             "value is finished, not a state. Ask for months (by=[..., 'month']) to keep states.")
+    several_per_row: frozenset[str] | None = None
     for measure in chosen:
         if rolls_up_time and measure not in reduced:
             check_rollup(measure, "time")
@@ -1323,7 +1361,9 @@ def aggregate(
         for dimension in spec.dimensions:
             if dimension not in dimension_levels:
                 check_rollup(measure, "dimensions")
-                check_dimension(measure, _is_multi_valued(spec.dataset, dimension))
+                if several_per_row is None:
+                    several_per_row = _multi_valued_dimensions(spec.dataset, spec.dimensions, resolved)
+                check_dimension(measure, dimension in several_per_row)
 
     # --- pushforward maps ---------------------------------------------------
     # The RULE for each level is decided in Python over the DISTINCT codes --
@@ -1677,47 +1717,26 @@ def _is_classification(level: str) -> bool:
     return level in classifications()
 
 
-@lru_cache(maxsize=256)
-def _is_multi_valued(dataset: str, field_name: str) -> bool:
-    """`CODANOMAL` holds up to five ICD codes; a row lands in several cells.
+def _multi_valued_dimensions(dataset: str, dimensions: Sequence[str], settings: Settings) -> frozenset[str]:
+    """The ``dimensions`` that hold several values per row: `CODANOMAL` has up to five ICD codes, so a row lands in
+    several cells and marginalising it counts the row more than once.
 
-    Scoped to the dataset's SYSTEM. The first version matched by field name
-    alone with LIMIT 1, and field names are shared identities that disagree
-    across systems -- another system's multi-valued CRITERIO made SINAN's
-    single-character CRITERIO refuse every roll-up over it. The same lesson
-    SEXO taught the reference tables, replayed on a boolean.
+    Read from the curation of the dataset's SYSTEM in the catalog of ``settings`` (the one the artifact was served
+    from, not the default home's): field names are shared identities that disagree across systems, and another
+    system's multi-valued CRITERIO had made SINAN's single-character CRITERIO refuse every roll-up. A field the system
+    does not curate is not known to be multi-valued. An unreadable catalog RAISES: answering "no" for it let a
+    roll-up double-count, and was remembered for the process.
     """
+    from ._request import parse_dataset
     from .catalog.store import CatalogStore
-    from .config import load_settings
+    from .semantics.curation import load_variable_docs
 
+    system, _series = parse_dataset(dataset)
+    catalog = CatalogStore(settings.catalog_path, read_only=True)
     try:
-        settings = load_settings()
-        if not settings.catalog_path.is_file():
-            return False
-        system = ""
-        try:
-            from .semantics.curation import semantics_for
-
-            semantics = semantics_for(dataset)
-            system = str(getattr(semantics, "system", "") or "").upper()
-        except Exception:  # noqa: BLE001 - no semantics, fall back to any row
-            pass
-        catalog = CatalogStore(settings.catalog_path, read_only=True)
-        try:
-            if system:
-                rows = list(catalog.query(
-                    "SELECT multi_valued FROM variable_docs "
-                    "WHERE system = ? AND field_name = ? LIMIT 1",
-                    (system, field_name.upper())))
-                if rows:
-                    return bool(rows[0]["multi_valued"])
-            rows = list(catalog.query(
-                "SELECT multi_valued FROM variable_docs WHERE field_name = ? LIMIT 1",
-                (field_name.upper(),)))
-        finally:
-            catalog.close()
-        return bool(rows and rows[0]["multi_valued"])
-    except Exception:  # noqa: BLE001 - an unreadable catalog must not block a read
-        return False
+        docs = load_variable_docs(catalog, system)
+    finally:
+        catalog.close()
+    return frozenset(name for name in dimensions if (doc := docs.get(name.upper())) is not None and doc.multi_valued)
 
 

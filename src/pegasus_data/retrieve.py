@@ -80,7 +80,6 @@ from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failur
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .pipeline import Pipeline
-from .presentation import LABEL_SUFFIX
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderMode, RenderReport
@@ -283,6 +282,7 @@ def fetch(
     report: bool = False,
     _only_paths: Sequence[str] | None = None,
     as_of: str | date | datetime | None = None,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -311,6 +311,11 @@ def fetch(
     column, with what it means, which reference table decoded it and the
     evidence rung behind that.
 
+    ``rows`` (``{column: code prefixes}``, as in :func:`~pegasus_data.api.load`) keeps only the records whose columns
+    start with one of their codes, tested on the decoded codes BEFORE anything is rendered (a labelled year is not
+    filtered by its label text, and a year is not labelled to be thrown away). The filter's columns are read and
+    dropped again unless asked for.
+
     ``as_of`` reads the kept snapshot version each file had on that date
     (``pegasus-data snapshot``, ADR-0141) and touches no network; a file with
     no version by then is an acquisition failure, so a short table is refused
@@ -333,6 +338,14 @@ def fetch(
     want_ufs = _clean_ufs(uf)
     want_months = _clean_months(months)
     _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
+    asked_columns = list(columns) if columns else None
+    if rows:
+        from .api import _rows_filters
+
+        rows = _rows_filters(rows)                  # refused when it selects no record, never read as "every record"
+        if columns:
+            asked = {str(c).upper() for c in columns}
+            columns = [*columns, *(c for c in rows if str(c).upper() not in asked)]
 
     pipeline = Pipeline(resolved_settings)
     fetch_report = FetchReport(
@@ -439,9 +452,10 @@ def fetch(
             raise PartialFetchError(fetch_report, fetch_report.excluded)
 
         if columns:
-            from .semantics.curation import load_variable_docs
+            from .semantics.curation import derived_inputs, load_variable_docs, required_columns
 
-            derived_names = set(_derived_inputs(load_variable_docs(pipeline.catalog, system)))
+            docs = load_variable_docs(pipeline.catalog, system)
+            derived_names = set(derived_inputs(docs))
             missing = [
                 c for c in columns if c not in table.column_names and str(c).upper() not in derived_names
             ]
@@ -471,12 +485,16 @@ def fetch(
             # What a requested column's LABEL is made from (a composite key's
             # parts, a naming sibling, a unit) survives until rendering and is
             # dropped after it (ADR-0090).
-            render_needs = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - requested
+            render_needs = required_columns(docs, columns) - requested
             keep = [
                 c for c in table.column_names if c in requested or c in internal or c in render_needs
             ]
             table = table.select(keep)
 
+        if rows:
+            from .api import _rows_expression
+
+            table = table.filter(_rows_expression(rows))
         if labels:
             _ensure_reference_tables(pipeline, fetch_report)
         # Per (family, vintage), through the SAME operation load() uses.
@@ -531,12 +549,10 @@ def fetch(
         fetch_report.render = render_report
         fetch_report.rows = rendered.num_rows
         if columns:
-            helpers = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - set(columns)
-            if helpers:
-                rendered = rendered.select([
-                    c for c in rendered.column_names
-                    if c not in helpers and not (c.endswith(LABEL_SUFFIX) and c[: -len(LABEL_SUFFIX)] in helpers)
-                ])
+            from .view import drop_helper_columns
+
+            rendered = drop_helper_columns(
+                rendered, required_columns(docs, columns) - {str(c).upper() for c in asked_columns or ()})
 
         # ORDER MATTERS. Provenance is dropped first so it never appears in the
         # dictionary or gets renamed; the dictionary is built next, against the
@@ -817,77 +833,6 @@ def _strata_for(
             continue
         ids.append(str(row["stratum_id"]))
     return ids or None
-
-
-def _derived_inputs(docs: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
-    """``DERIVED NAME (upper) -> input columns`` for every curated recipe. A name may have a recipe per layout (SIA's
-    IDADE_anos: AP_NUIDADE and AP_COIDADE in the APACs, IDADEPAC and TPIDADEPAC elsewhere): its inputs are every
-    recipe's, so a narrow projection reads whichever the layout carries (keeping only the last recipe's lost the
-    APAC age, 2026-10-10)."""
-    out: dict[str, tuple[str, ...]] = {}
-    for doc in docs.values():
-        for recipe in getattr(doc, "derived", None) or []:
-            name = str(recipe.get("name") or "").upper()
-            if name:
-                inputs = tuple(str(c).upper() for c in (recipe.get("from") or []))
-                out[name] = tuple(dict.fromkeys((*out.get(name, ()), *inputs)))
-    return out
-
-
-def _keep_columns(
-    catalog: CatalogStore, report: FetchReport, columns: Sequence[str] | None
-) -> frozenset[str] | None:
-    """The requested columns plus what is needed to render or derive them.
-
-    Returns ``None`` for "keep everything", which is the default. A projection
-    that dropped a column some derivation or unit conversion depends on would
-    turn an explicit request into a silently missing output — the same failure
-    HI-22 names on the lake side.
-    """
-    if not columns:
-        return None
-    keep = {str(c).upper() for c in columns}
-    try:
-        from .semantics.curation import load_variable_docs
-
-        docs = load_variable_docs(catalog, report.system or "")
-    except Exception:  # noqa: BLE001 - no docs is not a reason to lose columns
-        return frozenset(keep)
-    # A requested DERIVED column (IDADE_anos, PROC_REA_grupo) is made from its
-    # recipe's inputs, which is what has to be read (ADR-0092).
-    derived_inputs = _derived_inputs(docs)
-    for name in list(keep):
-        for source in derived_inputs.get(name, ()):
-            keep.add(source)
-    for name in list(keep):
-        doc = docs.get(name)
-        if doc is None:
-            continue
-        # Whatever this column's meaning depends on has to survive the prune.
-        for dependency in (doc.depends_on or []):
-            keep.add(str(dependency).upper())
-        for recipe in (doc.derived or []):
-            for source in (recipe.get("from") or []):
-                keep.add(str(source).upper())
-        if doc.modifies:
-            keep.add(str(doc.modifies).upper())
-        # The columns its LABEL is made from: a composite key's parts (ADR-0088)
-        # and a sibling that names it (ADR-0090). Without them a narrow select=
-        # showed CNES ID_SEGM as undecoded while the full query named it.
-        for part in (getattr(doc, "key", None) or []):
-            if not str(part).startswith("@"):  # @UF is the file's state, not a column
-                keep.add(str(part).partition(":")[0].strip().upper())
-        if getattr(doc, "label_from", None):
-            keep.add(str(doc.label_from).upper())
-        via = getattr(doc, "label_via", None)
-        if via and via.get("column"):
-            columns_via = via["column"] if isinstance(via["column"], list) else [via["column"]]
-            keep.update(str(c).upper() for c in columns_via)
-    # And anything that MODIFIES a requested column (a unit beside a duration).
-    for name, doc in docs.items():
-        if doc.modifies and str(doc.modifies).upper() in keep:
-            keep.add(str(name).upper())
-    return frozenset(keep)
 
 
 def _refused_with_alternative(
@@ -1321,7 +1266,11 @@ def _read_families(
     settings = pipeline.settings
     #: What the caller asked for, plus what rendering needs to produce it. None
     #: means "everything", which is the default and the common case.
-    keep_columns = _keep_columns(catalog, report, columns)
+    keep_columns = None
+    if columns:
+        from .semantics.curation import load_variable_docs, required_columns
+
+        keep_columns = required_columns(load_variable_docs(catalog, report.system or ""), columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
     decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]] = {}

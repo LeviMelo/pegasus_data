@@ -198,26 +198,35 @@ def _publication_identity(row: dict[str, Any]) -> tuple[str, str, str]:
 
 
 def _source_identities(
-    publications: Sequence[dict[str, Any]], covered: set[tuple[str, str]]
+    selected: Sequence[dict[str, Any]], publications: Sequence[dict[str, Any]], covered: set[tuple[str, str]]
 ) -> set[tuple[str, str, str]]:
-    """Resolve lake provenance to family/logical/member source units.
+    """The ``selected`` publications (family/logical/member) the lake was built from.
 
-    Legacy path-only provenance can prove a loose source but deliberately cannot
-    prove which members of a multi-member archive contributed.
+    A publication counts when a file of it that is NOT another edition of the selected one is a source of a partition:
+    the selected file itself, another format of the same records, a mirror. A partition built from an older edition
+    (SIH-RD 2014-2016, republished corrected) shares the logical identity with the edition now selected and had been
+    taken for it, so the corrected records were not served until a rebuild.
+
+    Legacy path-only provenance can prove a loose source but deliberately cannot prove which members of a
+    multi-member archive contributed.
     """
     from ..decode.base import logical_source_id
+    from ..representations import other_edition
 
-    identities: set[tuple[str, str, str]] = set()
-    for row in publications:
+    def built(row: dict[str, Any]) -> bool:
         family = str(row.get("family_id") or "")
         path = str(row.get("path") or "")
         member = str(row.get("member") or "")
-        source_id = logical_source_id(path, member)
-        if (family, source_id) in covered or (
-            not member and (family, path) in covered
-        ):
-            identities.add(_publication_identity(row))
-    return identities
+        return (family, logical_source_id(path, member)) in covered or (not member and (family, path) in covered)
+
+    by_identity: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+    for row in publications:
+        by_identity.setdefault(_publication_identity(row), []).append(row)
+    return {
+        _publication_identity(row)
+        for row in selected
+        if any(built(other) and not other_edition(other, row) for other in by_identity.get(_publication_identity(row), ()))
+    }
 
 
 @dataclass(frozen=True, slots=True)
@@ -359,7 +368,7 @@ def _catalog_coverage(
         if selected:
             expected = {_publication_identity(row) for row in selected}
             covered = {(p.family_id, source) for p in year_parts for source in p.sources}
-            complete = expected <= _source_identities(candidates, covered)
+            complete = expected <= _source_identities(selected, candidates, covered)
         else:
             # An inventory-free fixture/catalog cannot prove an expected
             # publication is missing. A real inventory takes the strict path above.

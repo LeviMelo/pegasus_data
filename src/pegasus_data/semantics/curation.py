@@ -1029,6 +1029,62 @@ def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict
     return dict(docs)
 
 
+def derived_inputs(docs: Mapping[str, VariableDoc]) -> dict[str, tuple[str, ...]]:
+    """``DERIVED NAME (upper) -> input columns`` for every curated recipe. A name may have a recipe per layout (SIA's
+    IDADE_anos: AP_NUIDADE and AP_COIDADE in the APACs, IDADEPAC and TPIDADEPAC elsewhere): its inputs are every
+    recipe's, so a narrow projection reads whichever the layout carries (keeping only the last recipe's lost the
+    APAC age, 2026-10-10)."""
+    out: dict[str, tuple[str, ...]] = {}
+    for doc in docs.values():
+        for recipe in getattr(doc, "derived", None) or []:
+            name = str(recipe.get("name") or "").upper()
+            if name:
+                inputs = tuple(str(c).upper() for c in (recipe.get("from") or []))
+                out[name] = tuple(dict.fromkeys((*out.get(name, ()), *inputs)))
+    return out
+
+
+def required_columns(docs: Mapping[str, VariableDoc], columns: Sequence[str]) -> frozenset[str]:
+    """The columns (upper case) a read has to bring so that ``columns`` can be rendered, derived and labelled.
+
+    THE one rule of a projection, for the lake and the fetch path alike: what ``select=`` names, the inputs of a
+    derived column asked for (IDADE_anos is made from IDADE and COD_IDADE, ADR-0092), whatever a column's meaning
+    depends on (``depends_on``, ``modifies``), the columns its LABEL is made from (a composite key's parts, ADR-0088;
+    a sibling that names it, ADR-0090; the establishment a ``label_via`` reads, ADR-0094) and what modifies it (a
+    unit beside a duration). A projection that dropped one of them turned an explicit request into a label that is
+    silently null: the lake did (CNES CLASS_SR was keyed by SERV_ESP + CLASS_SR and came back undecoded), the fetch
+    path did not, so one column was labelled for fetched years and not for lake years. The caller drops what it did
+    not ask for after rendering (``view.drop_helper_columns``).
+    """
+    keep = {str(c).upper() for c in columns}
+    inputs_of = derived_inputs(docs)
+    for name in list(keep):
+        keep.update(inputs_of.get(name, ()))
+    for name in list(keep):
+        doc = docs.get(name)
+        if doc is None:
+            continue
+        keep.update(str(dependency).upper() for dependency in (doc.depends_on or []))
+        for recipe in (doc.derived or []):
+            keep.update(str(source).upper() for source in (recipe.get("from") or []))
+        if doc.modifies:
+            keep.add(str(doc.modifies).upper())
+        for part in (doc.key or []):
+            if not str(part).startswith("@"):  # @UF is the file's state, not a column
+                keep.add(str(part).partition(":")[0].strip().upper())
+        if doc.label_from:
+            keep.add(str(doc.label_from).upper())
+        via = doc.label_via
+        if via and via.get("column"):
+            via_columns = via["column"] if isinstance(via["column"], list) else [via["column"]]
+            keep.update(str(c).upper() for c in via_columns)
+    # And anything that MODIFIES a requested column (a unit beside a duration).
+    for name, doc in docs.items():
+        if doc.modifies and str(doc.modifies).upper() in keep:
+            keep.add(str(name).upper())
+    return frozenset(keep)
+
+
 def _load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:
     """The docs curated for exactly this system."""
     clause, params = "", []
