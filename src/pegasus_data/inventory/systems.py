@@ -203,20 +203,6 @@ def record_disagreements(
     )
 
 
-def disagreement_summary(catalog: CatalogStore) -> list[dict[str, object]]:
-    return [
-        dict(r)
-        for r in catalog.query(
-            """
-            SELECT system_by_name, system_by_path, COUNT(*) AS files,
-                   MIN(path) AS example
-              FROM system_disagreements
-             GROUP BY system_by_name, system_by_path
-             ORDER BY files DESC
-            """
-        )
-    ]
-
 
 def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Prefixes the name-first rule will not use, ranked by how much they carry.

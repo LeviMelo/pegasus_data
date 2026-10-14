@@ -639,7 +639,11 @@ class Fetcher:
             client.close()
 
     def ensure(
-        self, paths: Iterable[str], *, allow_stale: bool = False
+        self,
+        paths: Iterable[str],
+        *,
+        allow_stale: bool = False,
+        on_ready: Callable[[str, str], None] | None = None,
     ) -> dict[str, str]:
         """Fetch what is missing; return ``{path: digest}`` for what this run resolved.
 
@@ -656,6 +660,9 @@ class Fetcher:
         for a caller who would rather have old data than none — and the paths it
         falls back on are recorded in :attr:`last_stale` so the decision can be
         reported rather than hidden.
+
+        ``on_ready(path, digest)`` is called as each path lands (a cache hit at once, a download when it ends), from
+        the fetch workers' threads, so a consumer can start on a file while the others are still on the wire.
         """
         wanted = list(dict.fromkeys(paths))
         resolved: dict[str, str] = {}
@@ -664,6 +671,8 @@ class Fetcher:
         def _record(result: FetchResult) -> None:
             if result.sha256:
                 resolved[result.path] = result.sha256
+                if on_ready is not None:
+                    on_ready(result.path, result.sha256)
             else:
                 failed.append(result.path)
 

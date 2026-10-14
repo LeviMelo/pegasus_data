@@ -75,12 +75,6 @@ class TestBlobStore:
         assert catalog.count("blobs") == 2
         assert store.known_for("/x/a") == sha256_bytes(b"v2")
 
-    def test_materialize_gives_a_usable_suffix(self, settings: Settings, catalog: CatalogStore):
-        store = BlobStore(settings.blobs_dir, catalog)
-        digest = store.put_bytes(b"payload", source_path="/x/a.dbf")
-        path = store.materialize(digest, ".dbf", work_dir=settings.work_dir)
-        assert path.suffix == ".dbf" and path.read_bytes() == b"payload"
-
 
 class TestVerify:
     def test_every_check_reports_a_status_on_an_empty_catalog(

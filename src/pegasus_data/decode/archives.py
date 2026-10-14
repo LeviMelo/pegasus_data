@@ -20,7 +20,6 @@ import subprocess
 import tarfile
 import tempfile
 import zipfile
-from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
@@ -335,13 +334,6 @@ class Archive:
             except OSError as exc:
                 raise DecodeError(f"gzip decompression failed for {self.path}: {exc}") from exc
         raise KeyError(name)
-
-    def iter_members(self) -> Iterator[tuple[ArchiveMember, bytes]]:
-        for member in self.members():
-            try:
-                yield member, self.read(member.name)
-            except (KeyError, DecodeError, LhaError):
-                continue
 
     # --------------------------------------------------------------- lifecycle
 

@@ -364,6 +364,7 @@ def fetch(
                 + ("" if discover else "; discovery is off, so nothing was looked up")
             )
 
+        decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
         table, fetch_report = _read_families(
             pipeline,
             families,
@@ -378,6 +379,7 @@ def fetch(
             max_bytes=max_bytes,
             only_paths=_only_paths,
             as_of=as_of,
+            memo=decoded_before,
         )
         refused: set[str] = set()
         while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
@@ -413,6 +415,7 @@ def fetch(
                 only_paths=_only_paths,
                 exclude_paths=frozenset(refused),
                 as_of=as_of,
+                memo=decoded_before,
             )
         if refused:
             fetch_report.warnings.append(
@@ -920,8 +923,12 @@ def _select_files(
     cache: DictionaryCache,
     max_bytes: int | None = None,
     exclude_paths: frozenset[str] = frozenset(),
+    plans: dict[str, NormalizePlan] | None = None,
 ) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
     """Decide WHICH files answer this request, and refuse the ones that cannot.
+
+    ``plans``, when given, is filled with the plan built for each family that has files, so the caller does not build
+    them a second time.
 
     Everything before a byte is fetched: matching files to the requested axes,
     building each generation's normalisation plan, applying the structural
@@ -1015,6 +1022,8 @@ def _select_files(
             continue
         plan.keep_raw = True
         plan.emit_labels = False  # labels are joined at render time, not here
+        if plans is not None:
+            plans[family_id] = plan
         report.families.append(family_id)
         for item in matched:
             selected.append((family_id, plan, item))
@@ -1132,8 +1141,11 @@ def _acquire(
     report: FetchReport,
     on_progress: Callable[[str, int, int], None] | None,
     as_of: str | date | datetime | None = None,
+    on_ready: Callable[[str, str], None] | None = None,
 ) -> dict[str, str]:
     """Make sure every selected file is in the blob store. Returns path -> digest.
+
+    ``on_ready(path, digest)`` fires as each file lands, so decoding can start before the last download ends.
 
     Acquisition scheduling, kept apart from decoding: the fetcher decides cache
     hits, concurrency and retries, and the only thing the decode side needs back
@@ -1147,12 +1159,28 @@ def _acquire(
 
         digests, absent = digests_as_of(pipeline.catalog, paths, as_of)
         report.cache_hits = len(digests)
+        if on_ready is not None:
+            for path, digest in digests.items():
+                on_ready(path, digest)
         for path in absent:
             report.acquisition_failures.append((path, f"no snapshot version on or before {as_of}"))
         return digests
     if on_progress:
         on_progress("downloading", 0, len(paths))
-    digests = pipeline.fetcher.ensure(paths)
+    announced: set[str] = set()
+
+    def _announce(path: str, digest: str) -> None:
+        announced.add(path)
+        if on_ready is not None:
+            on_ready(path, digest)
+
+    digests = (
+        pipeline.fetcher.ensure(paths, on_ready=_announce) if on_ready is not None else pipeline.fetcher.ensure(paths)
+    )
+    if on_ready is not None:  # a fetcher that resolved a path without announcing it (late, or no streaming)
+        for path, digest in digests.items():
+            if path not in announced:
+                on_ready(path, digest)
     # Truthful acquisition accounting. `bytes_downloaded` counted every byte
     # handed to the decoder, so a fully warm request reported megabytes
     # "downloaded" with the network untouched.
@@ -1192,8 +1220,14 @@ def _read_families(
     only_paths: Sequence[str] | None = None,
     exclude_paths: frozenset[str] = frozenset(),
     as_of: str | date | datetime | None = None,
+    memo: dict[tuple[str, str, str], dict[str, Any]] | None = None,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
+
+    A source is decoded while the others are still downloading, and ``memo`` keeps what a source decoded to across the
+    repeated reads of one ``fetch()`` (a refused representation is read again from another): only sources that have
+    not decoded yet are read again, not the whole request.
+
 
     This is :class:`~pegasus_data.build.Builder` without the lake: same plan,
     same readers, same normalisation, but the batches are concatenated and
@@ -1206,6 +1240,7 @@ def _read_families(
     cache = DictionaryCache(catalog)
     municipalities = MunicipalityIndex.from_catalog(catalog)
 
+    plans: dict[str, NormalizePlan] = {}
     selected = _select_files(
         catalog,
         families,
@@ -1220,6 +1255,7 @@ def _read_families(
         cache=cache,
         max_bytes=max_bytes,
         exclude_paths=exclude_paths,
+        plans=plans,
     )
     if only_paths:
         # Internal: the binding compile reads exactly its sampled file, not every
@@ -1233,13 +1269,16 @@ def _read_families(
     # states of SIASUS-CO 2005-01, 2026-09-29).
     alternatives: list[tuple[str, NormalizePlan]] = []
     for family in families:
-        try:
-            alt = build_plan(catalog, family_id=str(family["family_id"]), municipalities=municipalities, cache=cache)
-        except KeyError:
-            continue
-        alt.keep_raw = True
-        alt.emit_labels = False
-        alternatives.append((str(family["family_id"]), alt))
+        family_id = str(family["family_id"])
+        alt = plans.get(family_id)  # the plan the selection already built, not a second one
+        if alt is None:
+            try:
+                alt = build_plan(catalog, family_id=family_id, municipalities=municipalities, cache=cache)
+            except KeyError:
+                continue
+            alt.keep_raw = True
+            alt.emit_labels = False
+        alternatives.append((family_id, alt))
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     unique_paths = {str(item["path"]) for _f, _p, item in selected}
     if unique_paths:
@@ -1257,19 +1296,16 @@ def _read_families(
     if not selected:
         return pa.table({}), report
 
-    digests = _acquire(pipeline, selected, report=report, on_progress=on_progress, as_of=as_of)
-    selected_members: dict[str, set[str]] = {}
-    for _family_id, _plan, item in selected:
-        digest = digests.get(str(item["path"]))
-        if digest:
-            selected_members.setdefault(digest, set()).add(str(item["member"] or ""))
+    positions_by_path: dict[str, list[int]] = {}
+    for position, (_family_id, _plan, item) in enumerate(selected):
+        positions_by_path.setdefault(str(item["path"]), []).append(position)
     # One physical artifact is decoded once with the union of members selected
     # from it.  An empty member denotes the loose payload itself and disables
-    # member filtering for that digest.
-    members_by_digest: dict[str, frozenset[str] | None] = {
-        digest: (None if "" in members else frozenset(members))
-        for digest, members in selected_members.items()
-    }
+    # member filtering for that artifact.
+    members_by_path: dict[str, frozenset[str] | None] = {}
+    for path, positions in positions_by_path.items():
+        members = {str(selected[i][2]["member"] or "") for i in positions}
+        members_by_path[path] = None if "" in members else frozenset(members)
 
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
@@ -1288,10 +1324,10 @@ def _read_families(
     keep_columns = _keep_columns(catalog, report, columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
-    decoded_cache: dict[str, Future[tuple[Any, int]]] = {}
+    decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]] = {}
     cache_lock = threading.Lock()
 
-    def _decode_at(position: int, triple) -> dict[str, object]:
+    def _decode_at(position: int, triple, digest: str) -> dict[str, object]:
         """Decode one selected file. Returns what the caller needs to fold in.
 
         Pure with respect to `report`: the caller applies the outcome in the
@@ -1300,10 +1336,10 @@ def _read_families(
         """
         _family_id, plan, item = triple
         path = str(item["path"])
-        digest = digests.get(path)
-        if not digest:
-            return {"position": position, "path": path, "missing": True}
         member = str(item["member"] or "")
+        remembered = memo.get((path, member, digest)) if memo is not None else None
+        if remembered is not None:
+            return {**remembered, "position": position}
         try:
             work = functools.partial(
                     _decode_one,
@@ -1316,7 +1352,7 @@ def _read_families(
                     decoded_cache=decoded_cache,
                     cache_lock=cache_lock,
                     keep_columns=keep_columns,
-                    decode_members=members_by_digest.get(digest),
+                    decode_members=members_by_path.get(path),
                     alternatives=alternatives,
             )
             decoded_batches, matched_here, read_bytes, used_family, failure = (
@@ -1330,7 +1366,7 @@ def _read_families(
             # One source the decoder could not take (its process ended, its file vanished) is that source's gap, not
             # the end of the request.
             return {"position": position, "path": path, "item": item, "failure": f"{type(exc).__name__}: {exc}"}
-        return {
+        done = {
             "position": position,
             "path": path,
             "batches": decoded_batches,
@@ -1340,6 +1376,9 @@ def _read_families(
             "family": used_family,
             "failure": failure,
         }
+        if memo is not None and matched_here and not failure:
+            memo[(path, member, digest)] = done
+        return done
 
     # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
     # files, never within one" from the beginning, and this loop nevertheless
@@ -1350,23 +1389,39 @@ def _read_families(
     # Bounded deliberately low. Each decode transiently holds a whole
     # decompressed DBF, so matching CPU count trades wall time for peak RSS on
     # exactly the wide requests where memory is already the binding constraint.
+    #
+    # Decoding starts on each file as it lands (`_acquire(on_ready=...)`), so the wall clock is the larger of download
+    # and decode instead of their sum.
     workers = max(1, min(4, len(selected), (os.cpu_count() or 2)))
     outcomes: list[dict[str, Any]] = []
-    if workers == 1:
-        for position, triple in enumerate(selected):
+    futures: dict[Future[dict[str, Any]], int] = {}
+    gate = threading.Lock()
+    acquiring = [True]
+    pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="decode")
+
+    def _on_ready(path: str, digest: str) -> None:
+        with gate:
+            if not acquiring[0]:  # a transfer that landed after the batch was closed is not decoded
+                return
+            for position in positions_by_path.get(path, ()):
+                futures[pool.submit(_decode_at, position, selected[position], digest)] = position
+
+    try:
+        digests = _acquire(
+            pipeline, selected, report=report, on_progress=on_progress, as_of=as_of, on_ready=_on_ready
+        )
+        with gate:
+            acquiring[0] = False
+            submitted = dict(futures)
+        for path, positions in positions_by_path.items():
+            if path not in digests:
+                outcomes.extend({"position": p, "path": path, "missing": True} for p in positions)
+        for finished, future in enumerate(as_completed(submitted), start=1):
+            outcomes.append(future.result())
             if on_progress:
-                on_progress(str(triple[2]["path"]), position + 1, len(selected))
-            outcomes.append(_decode_at(position, triple))
-    else:
-        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="decode") as pool:
-            futures = {
-                pool.submit(_decode_at, position, triple): position
-                for position, triple in enumerate(selected)
-            }
-            for finished, future in enumerate(as_completed(futures), start=1):
-                outcomes.append(future.result())
-                if on_progress:
-                    on_progress("decoding", finished, len(selected))
+                on_progress("decoding", finished, len(selected))
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
 
     # Folded in ORIGINAL order, whatever order they finished in.
     for outcome in sorted(outcomes, key=lambda o: o["position"]):
@@ -1461,7 +1516,7 @@ def _decode_one(
     path: str,
     digest: str,
     member: str,
-    decoded_cache: dict[str, Future[tuple[Any, int]]] | None = None,
+    decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]] | None = None,
     cache_lock: AbstractContextManager[Any] | None = None,
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
@@ -1471,28 +1526,31 @@ def _decode_one(
 
     Returns (batches, matched, bytes read, the alternative family it fitted, why it could not be decoded).
 
-    ``decoded_cache`` keys the DECODE by blob digest, so an archive holding
+    ``decoded_cache`` keys the DECODE by blob digest (and members), so an archive holding
     several selected members is opened, decompressed and parsed ONCE rather
     than once per member. The acquisition layer already deduplicates by path;
     the decode loop iterates (family, path, member) records, so an APAC archive
     with seven DBF members was being fully decoded seven times.
     """
     owner = True
+    # Keyed by the artifact AND the members asked of it: identical bytes under two names, each wanting other members,
+    # must not share an outcome filtered to one of them.
+    cache_key = (digest, decode_members)
     pending: Future[tuple[Any, int]] | None = None
     if decoded_cache is not None:
         if cache_lock is not None:
             with cache_lock:
-                pending = decoded_cache.get(digest)
+                pending = decoded_cache.get(cache_key)
                 if pending is None:
                     pending = Future()
-                    decoded_cache[digest] = pending
+                    decoded_cache[cache_key] = pending
                 else:
                     owner = False
         else:
-            pending = decoded_cache.get(digest)
+            pending = decoded_cache.get(cache_key)
             if pending is None:
                 pending = Future()
-                decoded_cache[digest] = pending
+                decoded_cache[cache_key] = pending
             else:
                 owner = False
     if owner:
@@ -1511,10 +1569,10 @@ def _decode_one(
                 if decoded_cache is not None:
                     if cache_lock is not None:
                         with cache_lock:
-                            if decoded_cache.get(digest) is pending:
-                                decoded_cache.pop(digest, None)
-                    elif decoded_cache.get(digest) is pending:
-                        decoded_cache.pop(digest, None)
+                            if decoded_cache.get(cache_key) is pending:
+                                decoded_cache.pop(cache_key, None)
+                    elif decoded_cache.get(cache_key) is pending:
+                        decoded_cache.pop(cache_key, None)
             raise
         else:
             if pending is not None:

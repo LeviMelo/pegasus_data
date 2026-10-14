@@ -209,10 +209,6 @@ class FieldAccumulator:
                 room = self._reservoir_cap - len(self._num_reservoir)
                 self._num_reservoir.extend(valid.slice(0, room).to_pylist())
 
-    def add_table(self, table: pa.Table) -> None:
-        if self.name in table.schema.names:
-            self.add_array(table.column(self.name))
-
     # ----------------------------------------------------------------- output
 
     def stats(self) -> FieldStats:

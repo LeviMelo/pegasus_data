@@ -39,11 +39,13 @@ class DriftReport:
 
 
 def analyse_drift(catalog: CatalogStore) -> list[DriftReport]:
+    # 'header' strata count as evidence, exactly as in `build_families`: the cheap header census sets that status, and
+    # reading only 'ok' left the drift report and the `field_availability` guard rail empty after it.
     rows = catalog.query(
         """
         SELECT system, series, stratum_id, year, schema_signature
           FROM strata
-         WHERE sample_status='ok' AND schema_signature IS NOT NULL
+         WHERE sample_status IN ('ok', 'header') AND schema_signature IS NOT NULL
         """
     )
     fields_by_sig: dict[str, list[str]] = {}

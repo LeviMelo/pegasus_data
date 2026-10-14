@@ -266,11 +266,9 @@ class ReaderRegistry:
         """Decode a file. For DBC and DBF this never reads it into memory.
 
         It used to be `open_bytes(p.read_bytes())` — a path-shaped door onto the
-        in-memory road, which made `BlobStore.materialize()` pointless even
-        though it exists precisely to give path-only readers a free hardlink to
-        a cached blob.
+        in-memory road.
 
-        Only the two formats whose readers genuinely work from a path take the
+        Only the formats whose readers genuinely work from a path take the
         short cut, and only when the suffix says so. Everything else still goes
         through the bytes ladder, which is where the probing logic lives; so
         does a DBC/DBF that fails, because a file named `.dbf` that is really a

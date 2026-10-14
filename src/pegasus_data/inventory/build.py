@@ -251,20 +251,3 @@ def build_inventory(
     }
 
 
-def inventory_summary(catalog: CatalogStore) -> list[dict[str, object]]:
-    rows = catalog.query(
-        """
-        SELECT system,
-               COUNT(*)                                              AS files,
-               SUM(CASE WHEN role='data' THEN 1 ELSE 0 END)          AS data_files,
-               SUM(CASE WHEN role='dictionary' THEN 1 ELSE 0 END)    AS dictionary_files,
-               SUM(CASE WHEN role='documentation' THEN 1 ELSE 0 END) AS doc_files,
-               SUM(CASE WHEN grammar='unparsed' THEN 1 ELSE 0 END)   AS unparsed,
-               COUNT(DISTINCT series_prefix)                         AS series,
-               MIN(year) AS year_min, MAX(year) AS year_max
-          FROM file_facts
-         GROUP BY system
-         ORDER BY files DESC
-        """
-    )
-    return [dict(r) for r in rows]

@@ -446,12 +446,12 @@ def check_lake(catalog: CatalogStore, settings: Settings) -> Check:
         except (json.JSONDecodeError, TypeError):
             continue
     raw_bytes = 0
-    if built_sources:
-        placeholders = ",".join("?" * len(built_sources))
-        raw_bytes = int(
+    ordered = sorted(built_sources)
+    for start in range(0, len(ordered), 500):  # one IN (...) over a large lake passed SQLite's 32,766-variable limit
+        chunk = ordered[start : start + 500]
+        raw_bytes += int(
             catalog.scalar(
-                f"SELECT SUM(size) FROM files WHERE path IN ({placeholders})",
-                list(built_sources),
+                f"SELECT SUM(size) FROM files WHERE path IN ({','.join('?' * len(chunk))})", chunk
             )
             or 0
         )
@@ -1194,36 +1194,40 @@ def check_bound_codelists_decode(catalog: CatalogStore, settings: Settings) -> C
     return c
 
 
-CHECKS: tuple[Callable[[CatalogStore, Settings], Check], ...] = (
-    check_blob_dedup,
-    check_crawl_coverage,
-    check_apac_recovered,
-    check_sih_generations,
-    check_format_collapse,
-    check_dictionary_coverage,
-    check_field_decoding,
-    check_detectors,
-    check_retired_column_flagged,
-    check_lake,
-    check_population,
-    check_demas,
-    check_describe,
-    check_build_accounted,
-    check_stored_labels_agree,
-    check_codes_are_codes,
-    check_ontology_exhaustive,
-    check_every_dataset_says_what_a_row_is,
-    check_join_keys_exist,
-    check_bound_codelists_decode,
+#: (step, check): the step is declared here so a run restricted to some steps does not execute the others to find it out.
+CHECKS: tuple[tuple[int, Callable[[CatalogStore, Settings], Check]], ...] = (
+    (1, check_blob_dedup),
+    (2, check_crawl_coverage),
+    (3, check_apac_recovered),
+    (4, check_sih_generations),
+    (4, check_format_collapse),
+    (5, check_dictionary_coverage),
+    (5, check_field_decoding),
+    (6, check_detectors),
+    (6, check_retired_column_flagged),
+    (7, check_lake),
+    (8, check_population),
+    (9, check_demas),
+    (10, check_describe),
+    (14, check_build_accounted),
+    (15, check_stored_labels_agree),
+    (16, check_codes_are_codes),
+    (17, check_ontology_exhaustive),
+    (18, check_every_dataset_says_what_a_row_is),
+    (19, check_join_keys_exist),
+    (20, check_bound_codelists_decode),
 )
 
 
 def run_all(catalog: CatalogStore, settings: Settings, *, only: Sequence[int] | None = None) -> list[Check]:
+    wanted = set(only or ())
     out: list[Check] = []
-    for fn in CHECKS:
-        check = fn(catalog, settings)
-        if only and check.step not in set(only):
+    for step, fn in CHECKS:
+        if wanted and step not in wanted:
             continue
+        check = fn(catalog, settings)
+        if check.step != step:
+            raise AssertionError(f"{fn.__name__} declares step {check.step} but is listed under step {step}")
         out.append(check)
     return out
 

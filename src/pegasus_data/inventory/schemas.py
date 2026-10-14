@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Callable, Sequence
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -359,6 +360,15 @@ def run_census(
     return census
 
 
+def _close_all(clients: Sequence[Any]) -> None:
+    """Close the connections the worker threads opened (thread-local clients were never closed)."""
+    for client in clients:
+        try:
+            client.close()
+        except Exception:  # noqa: BLE001 - going away regardless
+            pass
+
+
 def census_summary(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Schema generations per (system, series), from the census plus the samples."""
     return [
@@ -599,6 +609,7 @@ def run_file_census(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     local = threading.local()
+    opened: list[Any] = []  # every connection a worker made: closed when the census ends
     sizes = {
         str(r["path"]): int(r["size"] or 0)
         for r in catalog.query("SELECT path, size FROM files WHERE lower(extension) IN ('.dbc', '.dbf')")
@@ -608,6 +619,7 @@ def run_file_census(
         client = getattr(local, "client", None)
         if client is None:
             client = local.client = connect()
+            opened.append(client)
         try:
             listed = sizes.get(path) or 2048
             data = client.retrieve_prefix(path, 2048, expected_min=min(2048, listed))  # type: ignore[attr-defined]
@@ -640,7 +652,8 @@ def run_file_census(
         )
         pending.clear()
 
-    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="census") as pool:
+    with ExitStack() as cleanup, ThreadPoolExecutor(max_workers=workers, thread_name_prefix="census") as pool:
+        cleanup.callback(_close_all, opened)
         futures = [pool.submit(_read, p) for p in paths]
         for done, future in enumerate(as_completed(futures), start=1):
             path, header, error, size = future.result()
@@ -731,6 +744,7 @@ def run_archive_member_census(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     local = threading.local()
+    opened: list[Any] = []  # every connection a worker made: closed when the listing ends
     sizes = {
         str(r["path"]): int(r["size"] or 0)
         for r in catalog.query(
@@ -746,6 +760,7 @@ def run_archive_member_census(
             client = getattr(local, "client", None)
             if client is None:
                 client = local.client = connect()
+                opened.append(client)
         except Exception as exc:  # noqa: BLE001 - the server stalled: record it, back off, go on
             time.sleep(5)
             return path, None, f"connect: {type(exc).__name__}: {exc}"[:300]
@@ -764,7 +779,8 @@ def run_archive_member_census(
             return path, None, f"{type(exc).__name__}: {exc}"[:300]
 
     counts: dict[str, Any] = {"examined": 0, "listed": 0, "failed": 0, "members": 0}
-    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
+    with ExitStack() as cleanup, ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
+        cleanup.callback(_close_all, opened)
         futures = [pool.submit(_list, p) for p in paths]
         for done, future in enumerate(as_completed(futures), start=1):
             path, members, error = future.result()
