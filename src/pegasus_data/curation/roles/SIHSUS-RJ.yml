@@ -102,7 +102,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CNAER:
-    missing: []
+    missing: ['000']
+    # as SIH-RD (its comment and note give the evidence)
     role: admission.work_accident_code
     kind: category
     model: mark
@@ -177,7 +178,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CONTRACEP1:
-    missing: []
+    missing: ['00', '13']
+    # as SIH-RD (its comment and note give the evidence)
     role: admission.contraceptive_1
     kind: category
     model: mark
@@ -189,7 +191,8 @@ columns:
     - 2026
     note: role from SIH-RD
   CONTRACEP2:
-    missing: []
+    missing: ['00', '13']
+    # as SIH-RD (its comment and note give the evidence)
     role: admission.contraceptive_2
     kind: category
     model: mark
@@ -446,7 +449,8 @@ columns:
     - 2026
     note: role from SIH-RD
   GESTRISCO:
-    missing: []
+    missing: ['1']
+    # as SIH-RD (its comment and note give the evidence)
     role: pregnancy.high_risk
     kind: category
     model: mark
@@ -525,7 +529,8 @@ columns:
     - 2026
     note: role from SIH-RD
   INSTRU:
-    missing: []
+    missing: ['0', '5', '6', '7', '8', '9']
+    # as SIH-RD (its comment and note give the evidence)
     role: patient.education
     kind: category
     model: dimension
@@ -728,6 +733,8 @@ columns:
     - 2026
     note: role from SIH-RD
   RACA_COR:
+    missing: ['00', '99']
+    # as SIH-RD (its comment and note give the evidence)
     role: patient.race
     kind: category
     model: stratum
@@ -1131,7 +1138,8 @@ columns:
     - 2026
     note: role from SIH-RD
   VINCPREV:
-    missing: []
+    missing: ['0', '7', '8', '9']
+    # as SIH-RD (its comment and note give the evidence)
     role: patient.social_security_link
     kind: category
     model: dimension

@@ -424,6 +424,14 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Escolaridade em anos\" (deceased.education_years_band): attribute of the person (schooling)"
+    note: >-
+      Years of schooling in bands (1 Nenhuma, 2 de 1 a 3 anos, 3 de 4 a 7, 4 de 8 a 11, 5 12 anos e mais), filled in every
+      year read (2009-2025). From 2012 ESC2010 states the level of the same persons: where both are filled, 1 Nenhuma is
+      ESC2010 0 Sem escolaridade on all 2,679,156 deaths of 2014-2025: one measurement in two scales, never pooled. ESC
+      is the only schooling column before 2012 (2009-2011 measured, 1996-2008 declared and unread), and is filled on
+      every death that ESC2010 is (one exception, 2012) and on 0.7% more in 2014-2025, the deaths on the older form.
+      0 is no code of the layout (14 deaths in 2009, 9,080 in 2010, 68,925 in 2011, 83,226 in 2012, 70,688 in 2014, each
+      with ESC2010 blank): read as not recorded, as TabNet labels it.
     name: Escolaridade em anos
     years:
     - 1996
@@ -436,9 +444,15 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Escolaridade 2010 - nível\" (deceased.education_level_2010): attribute of the person (schooling)"
+    note: >-
+      Level of the last grade completed (0 Sem escolaridade ... 5 Superior completo), the 2010 form's own question. The
+      2011 files carry the column empty; it is filled from 2012 (952,366 of 1,181,166 deaths), and from 2014 on 98.9% of
+      the deaths that ESC fills. For 2012 onward either column serves one study (ESC2010 for levels, ESC for the
+      years bands); never both: ESC 1 Nenhuma and ESC2010 0 Sem escolaridade are the same persons. Measured on SIM-DO
+      2009-2025, national files, 2026-10-14.
     name: Escolaridade 2010 - nível
     years:
-    - 2011
+    - 2012
     - 2026
   ESCFALAGR1:
     missing: ['09']
@@ -448,12 +462,13 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Escolaridade do falecido agregada\" (deceased.education_aggregated): attribute of the person (schooling)"
+    note: ESC2010 grouped; filled from 2014 (130 deaths in 2012, none in 2013).
     name: Escolaridade do falecido agregada
     codelists:
     - ESCAGR1
     - ESCAGR2
     years:
-    - 2012
+    - 2014
     - 2026
   ESCMAE:
     missing: ['0', '6', '7', '8', '9']
@@ -488,9 +503,10 @@ columns:
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Escolaridade da mãe agregada\" (mother.education_aggregated): attribute of the person (schooling)"
+    note: ESCMAE2010 grouped; filled from 2014 (2 deaths in 2012, none in 2013).
     name: Escolaridade da mãe agregada
     years:
-    - 2012
+    - 2014
     - 2026
   ESTABDESCR:
     role: death.facility_description
@@ -967,6 +983,9 @@ columns:
     - 1996
     - 2026
   RACACOR:
+    missing: []
+    # the layout lists 1-5 and no code for ignored (sources/sim2025.txt, campo 11): a blank is missing, and 9 (5 of
+    # 3.9 million deaths of 2010, 2016, 2023) is no category, left undecoded
     role: deceased.race
     kind: category
     model: stratum
@@ -1016,6 +1035,9 @@ columns:
     - 2012
     - 2026
   SEXO:
+    missing: ['0', '9', 'I']
+    # the record layout (sources/sim2025.txt, campo 10): 'M,1 - masculino; F,2 - feminino; I,0,9 - ignorado';
+    # SIM-DO 2010, 2016, 2023 hold 0 and 9 (1,099 and 432 of 3.9 million deaths), no letter
     role: deceased.sex
     kind: category
     model: stratum
