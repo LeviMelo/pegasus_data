@@ -268,15 +268,3 @@ def persist_reconciliation(catalog: CatalogStore, run_id: str, report: Reconcili
         )
 
 
-def recent_reconciliations(catalog: CatalogStore, limit: int = 10) -> list[dict[str, object]]:
-    return [
-        dict(r)
-        for r in catalog.query(
-            """
-            SELECT run_id, started_at, files, files_new, files_unchanged, files_changed,
-                   files_moved, files_gone, files_unresolved, gaps
-              FROM crawl_runs ORDER BY started_at DESC LIMIT ?
-            """,
-            (limit,),
-        )
-    ]

@@ -271,9 +271,13 @@ class FakeFetcher:
         self.missing = missing or set()
         self.asked: list[str] = []
 
-    def ensure(self, paths):
+    def ensure(self, paths, on_ready=None):
         self.asked.extend(paths)
-        return {p: f"sha-{p}" for p in paths if p not in self.missing}
+        found = {p: f"sha-{p}" for p in paths if p not in self.missing}
+        for path, digest in found.items():
+            if on_ready is not None:
+                on_ready(path, digest)
+        return found
 
 
 class FakeBlobs:

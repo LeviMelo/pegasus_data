@@ -17,11 +17,10 @@ from __future__ import annotations
 
 import hashlib
 import os
-import shutil
 import tempfile
 import time
 import uuid
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
 from pathlib import Path
 
 from ..catalog.store import CatalogStore
@@ -203,68 +202,10 @@ class BlobStore:
             )
         return digest
 
-    def put_file(self, src: Path, *, source_path: str, serving_method: str | None = None) -> str:
-        digest = sha256_file(src)
-        target = self.path_for(digest)
-        if not target.is_file():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            # Staged and renamed, like put_bytes. A direct copy that is
-            # interrupted leaves a PARTIAL file at a path whose name asserts the
-            # complete SHA-256 of the source — the one thing a content-addressed
-            # store must never contain, because every later reader trusts the
-            # name instead of re-hashing.
-            fd, tmp = tempfile.mkstemp(dir=str(target.parent), suffix=".part")
-            os.close(fd)
-            try:
-                shutil.copy2(src, tmp)
-                os.replace(tmp, target)
-            except (PermissionError, FileExistsError):
-                Path(tmp).unlink(missing_ok=True)
-                if not target.is_file():
-                    raise
-            except BaseException:
-                Path(tmp).unlink(missing_ok=True)
-                raise
-        if self.catalog is not None:
-            self.catalog.record_fetch(
-                source_path=source_path,
-                sha256=digest,
-                byte_size=target.stat().st_size,
-                serving_method=serving_method,
-            )
-        return digest
-
     # ------------------------------------------------------------------- read
 
     def read(self, digest: str) -> bytes:
         return self.path_for(digest).read_bytes()
-
-    def open(self, digest: str) -> Iterator[bytes]:
-        with self.path_for(digest).open("rb") as fh:
-            while True:
-                block = fh.read(1 << 20)
-                if not block:
-                    return
-                yield block
-
-    def materialize(self, digest: str, suffix: str = "", *, work_dir: Path | None = None) -> Path:
-        """Give a reader a real file path with a meaningful suffix.
-
-        Several third-party readers (``datasus_dbc``, ``dbfread``, ``duckdb``)
-        insist on a filesystem path and some sniff the extension. A hardlink
-        keeps this free where the filesystem allows it, and falls back to a copy.
-        """
-        source = self.path_for(digest)
-        base = work_dir or (self.root.parent / "work")
-        base.mkdir(parents=True, exist_ok=True)
-        target = base / f"{digest[:16]}{suffix}"
-        if target.exists():
-            return target
-        try:
-            os.link(source, target)
-        except OSError:
-            shutil.copy2(source, target)
-        return target
 
     # -------------------------------------------------------------- accounting
 

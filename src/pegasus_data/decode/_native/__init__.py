@@ -121,6 +121,21 @@ class DbcError(ValueError):
     """The input is not a readable .dbc, and the message says why."""
 
 
+class DbcStreamError(DbcError):
+    """The header is a DBF's and the stream does not inflate to what it promises: a damaged .dbc, not another format.
+
+    A stream whose first two bytes are not a DCL preamble (`-1`, `-2`) stays a plain `DbcError`: that is what a loose
+    DBF named `.dbc` looks like, and another reader may take it. Anything later (a back-reference before the start, a
+    stream ending mid-symbol, an output short of the header's record count) is a container that WAS compressed."""
+
+
+def _stream_damage(exc: DbcError) -> DbcError:
+    """`exc` as the damaged-stream error it is, unless it says the bytes are not a DCL stream at all."""
+    if isinstance(exc, DbcStreamError) or str(exc) in (_ERRORS[-1], _ERRORS[-2]):
+        return exc
+    return DbcStreamError(str(exc))
+
+
 _ERRORS = {
     -1: "literal-mode byte is not 0 or 1 — not a DCL stream",
     -2: "dictionary size byte outside 4..6 — not a DCL stream",
@@ -364,9 +379,16 @@ def dbc_to_dbf_bytes(data: bytes) -> bytes:
     body_cap = n_records * max(record_len, 1) + 1  # records + optional 0x1A EOF
     stream = data[header_len + 4 :]  # skip the 4-byte CRC after the header
     _check_header(data[:header_len], n_records, header_len, record_len, len(stream))
-    body = explode(stream, body_cap)
+    if n_records == 0:
+        # DATASUS publishes empty files (CNES.EE's EEMG2107.dbc is 1,035 bytes): a header and no records, so no stream
+        # to inflate, and a stream missing there is not damage.
+        return data[: header_len - 1] + b"\x0d"
+    try:
+        body = explode(stream, body_cap)
+    except DbcError as exc:
+        raise _stream_damage(exc) from exc
     if len(body) < n_records * max(record_len, 1):
-        raise DbcError(
+        raise DbcStreamError(
             f"stream inflated to {len(body)} bytes; the header promises "
             f"{n_records} records of {record_len} — truncated input"
         )
@@ -408,6 +430,10 @@ def dbc_file_to_dbf(src: str | Path, dst: str | Path) -> None:
         fh.seek(header_len + 4)  # skip the 4-byte CRC after the header
         stream = fh.read()
     _check_header(bytes(header), n_records, header_len, record_len, len(stream))
+    if n_records == 0:  # an empty file: a header and no records, nothing to inflate (see dbc_to_dbf_bytes)
+        header[header_len - 1] = 0x0D
+        Path(dst).write_bytes(bytes(header))
+        return
     expected = n_records * max(record_len, 1)
     body_cap = expected + 1  # records + optional 0x1A EOF
     header[header_len - 1] = 0x0D  # see dbc_to_dbf_bytes
@@ -422,9 +448,9 @@ def dbc_file_to_dbf(src: str | Path, dst: str | Path) -> None:
             finally:
                 del buffer  # release the exported buffer before the map can close
             if rc != 0:
-                raise DbcError(_ERRORS.get(rc, f"explode failed with code {rc}"))
+                raise _stream_damage(DbcError(_ERRORS.get(rc, f"explode failed with code {rc}")))
             if outlen.value < expected:
-                raise DbcError(
+                raise DbcStreamError(
                     f"stream inflated to {outlen.value} bytes; the header promises "
                     f"{n_records} records of {record_len} — truncated input"
                 )

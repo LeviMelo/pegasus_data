@@ -111,6 +111,13 @@ class DecodeError(Exception):
     """A reader could not make a table out of this payload."""
 
 
+class DamagedPayload(DecodeError):
+    """The payload is this reader's format and is damaged: no other reader may be tried on it.
+
+    A `.dbc` whose header is a DBF's but whose compressed stream is corrupt or short was read again by the DBF reader,
+    which took the compressed bytes for records and returned garbage rows under a correct header."""
+
+
 class UnsupportedContainer(DecodeError):
     """The container is recognised but this build cannot open it (missing optional dep)."""
 

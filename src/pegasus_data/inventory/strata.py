@@ -190,7 +190,8 @@ def sample_plan(catalog: CatalogStore, *, systems: Sequence[str] | None = None, 
         clauses.append(f"system IN ({','.join('?' * len(systems))})")
         params.extend(systems)
     rows = catalog.query(
-        f"SELECT stratum_id, system, series, year, file_count, sampled_path, sampled_member "
+        f"SELECT stratum_id, system, series, year, file_count, sampled_path, sampled_member, "
+        f"schema_signature, field_count "
         f"FROM strata WHERE {' AND '.join(clauses)} ORDER BY system, series, year",
         params,
     )

@@ -13,7 +13,7 @@ import csv
 import io
 import json
 import xml.etree.ElementTree as ET
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 
 import pyarrow as pa
@@ -79,16 +79,37 @@ def _unwrap_bytes_literals(table: pa.Table) -> tuple[pa.Table, list[str]]:
     return out, fixed
 
 
-def read_csv_bytes(data: bytes, *, path: str, member: str = "", row_limit: int | None = None) -> DecodedTable:
+def _matching(names: Sequence[str], columns: Collection[str] | None) -> list[str] | None:
+    """The names among `names` that `columns` asks for, case-insensitively and trimmed; `None` when nothing matches
+    (read everything rather than nothing, as the DBF reader does)."""
+    if not columns:
+        return None
+    wanted = {c.upper() for c in columns}
+    hits = [n for n in names if n.strip().upper() in wanted]
+    return hits or None
+
+
+def read_csv_bytes(
+    data: bytes, *, path: str, member: str = "", row_limit: int | None = None,
+    columns: Collection[str] | None = None,
+) -> DecodedTable:
     text, encoding = _decode_text(data)
     if not text.strip():
         raise DecodeError(f"empty text payload: {path}")
     delimiter = _sniff_delimiter(text[:16384])
     read_options = pacsv.ReadOptions(encoding="utf8", block_size=1 << 22)
     parse_options = pacsv.ParseOptions(delimiter=delimiter, newlines_in_values=True)
-    # Everything stays a string: the profiler needs the raw token, and CSV
-    # declares no types worth trusting.
-    convert_options = pacsv.ConvertOptions(strings_can_be_null=True, null_values=[""])
+    # Everything stays a string. Arrow infers a type per column unless it is told none, and `strings_can_be_null`
+    # does not stop that: `001;002;010` read as 1, 2, 10 and the 10-digit procedure code `0301010072` as an integer
+    # (the cast to string came after the numbers were parsed), which breaks every width-exact join on a code.
+    header_names = next((row for row in csv.reader(io.StringIO(text), delimiter=delimiter) if row), [])
+    include = _matching(header_names, columns)
+    convert_options = pacsv.ConvertOptions(
+        strings_can_be_null=True,
+        null_values=[""],
+        column_types={name: pa.string() for name in header_names},
+        include_columns=include,
+    )
     try:
         table = pacsv.read_csv(
             io.BytesIO(text.encode("utf-8")),
@@ -101,11 +122,19 @@ def read_csv_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
     table = table.cast(pa.schema([pa.field(n, pa.string()) for n in table.schema.names]))
     if row_limit is not None and table.num_rows > row_limit:
         table = table.slice(0, row_limit)
+    # `fields` is the whole header whatever was projected: it is what the family's schema is matched against.
     fields = [
         FieldMeta(name=n.strip().upper() or f"COL_{i + 1}", physical_type="csv", order=i)
-        for i, n in enumerate(table.schema.names)
+        for i, n in enumerate(header_names)
     ]
-    table = table.rename_columns([f.name for f in fields])
+    kept = [f.name for f, n in zip(fields, header_names, strict=True) if include is None or n in include]
+    if len(kept) != table.num_columns:  # Arrow read a header this reader did not: trust Arrow's own names
+        fields = [
+            FieldMeta(name=n.strip().upper() or f"COL_{i + 1}", physical_type="csv", order=i)
+            for i, n in enumerate(table.schema.names)
+        ]
+        kept = [f.name for f in fields]
+    table = table.rename_columns(kept)
     table, unwrapped = _unwrap_bytes_literals(table)
     return DecodedTable(
         path=path,
@@ -151,12 +180,8 @@ def read_json_bytes(data: bytes, *, path: str, member: str = "", row_limit: int 
         raise DecodeError(f"no object rows found in json payload: {path}")
     if row_limit is not None:
         rows = rows[:row_limit]
-    names: list[str] = []
-    for row in rows[:1000]:
-        for key in row:
-            upper = str(key).upper()
-            if upper not in names:
-                names.append(upper)
+    # Every row's keys, not the first thousand's: a key that first appears later was dropped without a word.
+    names = list(dict.fromkeys(str(key).upper() for row in rows for key in row))
     columns = {
         name: pa.array([_stringify(r.get(name) if name in r else r.get(name.lower())) for r in rows], type=pa.string())
         for name in names
@@ -210,11 +235,7 @@ def read_xml_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
         raise DecodeError(f"no repeating element found in xml payload: {path}")
     if row_limit is not None:
         rows = rows[:row_limit]
-    names: list[str] = []
-    for row in rows[:1000]:
-        for key in row:
-            if key not in names:
-                names.append(key)
+    names = list(dict.fromkeys(key for row in rows for key in row))
     table, unwrapped = _unwrap_bytes_literals(
         pa.table({n: pa.array([r.get(n) for r in rows], type=pa.string()) for n in names}))
     return DecodedTable(
@@ -228,7 +249,10 @@ def read_xml_bytes(data: bytes, *, path: str, member: str = "", row_limit: int |
     )
 
 
-def read_parquet(path: str | Path | bytes, *, member: str = "", row_limit: int | None = None) -> DecodedTable:
+def read_parquet(
+    path: str | Path | bytes, *, member: str = "", row_limit: int | None = None,
+    columns: Collection[str] | None = None,
+) -> DecodedTable:
     """A Parquet file, or its bytes: read from memory, a member needs no staged copy (a staged file the open reader still
     held could not be removed on Windows, so the attempt failed and the ladder handed the bytes to the DBF reader:
     Dados_Abertos' ZIKABR25.parquet.zip, 2026-10-09)."""
@@ -236,13 +260,15 @@ def read_parquet(path: str | Path | bytes, *, member: str = "", row_limit: int |
     try:
         pf = pq.ParquetFile(pa.BufferReader(path) if in_memory else str(path))
     except Exception as exc:
-        raise DecodeError(f"parquet open failed for {path}: {exc}") from exc
+        raise DecodeError(f"parquet open failed for {'<bytes>' if in_memory else path}: {exc}") from exc
     schema = pf.schema_arrow
     fields = fields_from_schema(schema, physical_prefix="parquet:")
+    # Only the columns asked for are read from the file; `fields` stays the whole schema, as in the DBF reader.
+    projected = _matching(schema.names, columns)
 
     def _iter() -> Iterator[pa.RecordBatch]:
         produced = 0
-        for batch in pf.iter_batches(batch_size=65_536):
+        for batch in pf.iter_batches(batch_size=65_536, columns=projected):
             if row_limit is not None and produced + batch.num_rows > row_limit:
                 batch = batch.slice(0, row_limit - produced)
             produced += batch.num_rows

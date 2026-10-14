@@ -154,12 +154,15 @@ def build(system: str, *, refresh: bool = False) -> dict[str, int]:
             if r["cnpj"] and r["legal"]:
                 legal.setdefault(str(r["cnpj"]), str(r["legal"]))
         tables[CNPJ_TABLE] = pa.table({"code": list(legal), "label": list(legal.values())})
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob("*.parquet"):
-        stale.unlink()
-    for group, table in tables.items():
-        pq.write_table(table, out_dir / f"{group}.parquet", compression="zstd")
-    (out_dir / _VERSION_FILE).write_text(str(REGISTRY_VERSION), encoding="utf-8")
+    # Staged and swapped whole: the old Parquet files were deleted and the new ones written one by one while the
+    # `_version` marker still said "current", so a concurrent lookup read a half-written listing.
+    from .persist.staging import staged_tree
+
+    out_dir.parent.mkdir(parents=True, exist_ok=True)
+    with staged_tree(out_dir) as staging:
+        for group, table in tables.items():
+            pq.write_table(table, staging / f"{group}.parquet", compression="zstd")
+        (staging / _VERSION_FILE).write_text(str(REGISTRY_VERSION), encoding="utf-8")
     return {g: t.num_rows for g, t in tables.items()}
 
 
@@ -265,7 +268,11 @@ def lookup(codelist: str, system: str | None) -> pa.Table | None:
         except Exception as exc:  # noqa: BLE001 - no registry is a gap, not a crash
             warnings.warn(f"{codelist}: registry unavailable ({type(exc).__name__}: {exc})", stacklevel=2)
             return None
-    return _read(str(path), path.stat().st_mtime_ns) if path.exists() else None
+    try:
+        mtime_ns = path.stat().st_mtime_ns  # one call: `exists()` then `stat()` raced a refresh
+    except OSError:
+        return None
+    return _read(str(path), mtime_ns)
 
 
 @functools.lru_cache(maxsize=16)

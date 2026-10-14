@@ -167,6 +167,14 @@ class StageResult:
         return {"stage": self.stage, "ok": self.ok, "counts": self.counts, "notes": self.notes}
 
 
+#: Suffixes of files that ARE one table; anything else (a zip, a gzip, an LHA .exe) is read to learn its members.
+_TABLE_SUFFIXES = frozenset({".dbc", ".dbf", ".csv", ".json", ".xml", ".parquet"})
+
+
+def _is_table_file(path: str) -> bool:
+    return PurePosixPath(path).suffix.lower() in _TABLE_SUFFIXES
+
+
 class Pipeline:
     """Holds the shared objects every stage needs."""
 
@@ -175,6 +183,8 @@ class Pipeline:
         settings.ensure_dirs()
         self.catalog = catalog or CatalogStore(settings.catalog_path)
         self.blobs = BlobStore(settings.blobs_dir, self.catalog)
+        # Downloads killed mid-transfer leave `incoming/*.part` behind under unique names, and nothing reclaimed them.
+        self.blobs.sweep_staging()
         self.fetcher = Fetcher(
             self.catalog,
             self.blobs,
@@ -606,6 +616,10 @@ class Pipeline:
             str(r["family_id"]) for r in self.catalog.query("SELECT DISTINCT family_id FROM variable_profiles")
         }
 
+        # The header census has already read each stratum's columns (`schema_signature`). Only one stratum per family
+        # still lacking value statistics needs its file; the others need none: they were downloaded and fully inflated
+        # (a DBC is inflated whole whatever `row_limit` says) only to read the header they already had.
+        plan, by_census = self._split_by_census(plan, profiled_families)
         paths = [str(row["sampled_path"]) for row in plan]
         digests = self.fetcher.ensure(paths)
 
@@ -660,9 +674,69 @@ class Pipeline:
                     progress.current_started = None
         finally:
             heartbeat.__exit__()
+        for row, family_id in by_census:
+            if family_id not in profiled_families:
+                continue  # its family's file did not profile: the stratum stays outstanding and is tried again
+            record_stratum_schema(
+                self.catalog, str(row["stratum_id"]), schema_sig=str(row["schema_signature"]),
+                field_count=int(row["field_count"] or 0), status="ok",
+            )
+            counts["schema_only"] += 1
+            counts["profiled"] += 1
+            if on_item:
+                on_item(str(row["stratum_id"]), str(row["sampled_path"]))
         counts["progress"] = progress.as_dict()
         self._close_decode_questions()
         return StageResult("profile", counts=counts, notes=notes)
+
+    def _split_by_census(
+        self, plan: list[dict[str, Any]], profiled_families: set[str]
+    ) -> tuple[list[dict[str, Any]], list[tuple[dict[str, Any], str]]]:
+        """Strata whose file must be read, and strata the header census already answers.
+
+        A stratum answers from the census when its file is a table container (not an archive: an archive's tables are
+        named by member, which gives them another family id), it names no member, its signature has distinct field names
+        and its family is either profiled or represented in this run by another stratum (the smallest file). Everything
+        else is read as before."""
+        wanted = {
+            str(r["schema_signature"])
+            for r in plan
+            if r.get("schema_signature") and not r.get("sampled_member") and _is_table_file(str(r["sampled_path"]))
+        }
+        distinct: set[str] = set()
+        if wanted:
+            marks = ",".join("?" for _ in wanted)
+            for s in self.catalog.query(
+                f"SELECT schema_signature, fields_json FROM schemas WHERE schema_signature IN ({marks})", tuple(wanted)
+            ):
+                names = json.loads(s["fields_json"] or "[]")
+                if names and len(set(names)) == len(names):
+                    distinct.add(str(s["schema_signature"]))
+        sizes = {
+            str(r["path"]): int(r["size"] or 0)
+            for r in self.catalog.query(
+                "SELECT path, size FROM files WHERE path IN (SELECT sampled_path FROM strata WHERE sampled_path IS NOT NULL)"
+            )
+        }
+        fetch: list[dict[str, Any]] = []
+        by_family: dict[str, list[dict[str, Any]]] = {}
+        for row in plan:
+            signature = str(row.get("schema_signature") or "")
+            if not signature or row.get("sampled_member") or signature not in distinct or not _is_table_file(
+                str(row["sampled_path"])
+            ):
+                fetch.append(row)
+                continue
+            by_family.setdefault(family_id_for(str(row["system"]), row["series"], signature), []).append(row)
+        census: list[tuple[dict[str, Any], str]] = []
+        for family_id, rows in by_family.items():
+            if family_id not in profiled_families:
+                rows = sorted(rows, key=lambda r: sizes.get(str(r["sampled_path"]), 0))
+                fetch.append(rows[0])
+                rows = rows[1:]
+            census.extend((row, family_id) for row in rows)
+        fetch.sort(key=lambda r: (str(r["system"]), str(r["series"]), r["year"] if r["year"] is not None else 0))
+        return fetch, census
 
     def _profile_one(
         self, row, digests, registry, refs, profiled_families, counts, notes, *,
@@ -699,7 +773,7 @@ class Pipeline:
             )
             counts["failed"] += 1
             return
-        from .decode.service import decode_source
+        from .decode.service import decode_source, record_decode_failure
 
         claimed_member = str(row.get("sampled_member") or "")
         outcome = decode_source(
@@ -719,11 +793,10 @@ class Pipeline:
                 blocking=path,
             )
         if not outcome.tables:
+            why = record_decode_failure(self.catalog, path, outcome=outcome, member=claimed_member)
             record_stratum_schema(
-                self.catalog, stratum_id, schema_sig="", field_count=0, status="failed",
-                error="; ".join(f"{a.reader}: {a.error}" for a in outcome.attempts if not a.ok)[:1000],
+                self.catalog, stratum_id, schema_sig="", field_count=0, status="failed", error=why[:1000],
             )
-            self.catalog.record_gap(path, kind="decode", methods=tuple(a.reader for a in outcome.attempts), error="undecodable")
             counts["failed"] += 1
             return
 
@@ -936,11 +1009,13 @@ class Pipeline:
         abandoned: list[FtpClient] = []
         progress = StageProgress(stage="schemas", total=len(targets))
 
-        def _fetch(path: str, size: int) -> bytes:
+        def _guarded(operation: Callable[[FtpClient], bytes], path: str) -> bytes:
+            """One read under the deadline; on expiry the client is dropped and replaced, whichever door it came by
+            (a ranged read left the abandoned thread on the shared connection)."""
             client = client_cell[0]
             try:
                 return run_with_timeout(
-                    lambda: client.retrieve_prefix(path, size),
+                    lambda: operation(client),
                     seconds=min(120.0, self.settings.item_timeout),
                     label=path,
                 )
@@ -953,13 +1028,11 @@ class Pipeline:
                 client_cell[0] = _connect()
                 raise
 
+        def _fetch(path: str, size: int) -> bytes:
+            return _guarded(lambda client: client.retrieve_prefix(path, size), path)
+
         def _fetch_range(path: str, offset: int, size: int) -> bytes:
-            client = client_cell[0]
-            return run_with_timeout(
-                lambda: client.retrieve_prefix(path, size, offset=offset),
-                seconds=min(120.0, self.settings.item_timeout),
-                label=path,
-            )
+            return _guarded(lambda client: client.retrieve_prefix(path, size, offset=offset), path)
 
         def _seen(path: str) -> None:
             progress.current = path

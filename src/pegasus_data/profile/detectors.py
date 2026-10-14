@@ -359,6 +359,14 @@ def detect_money(stats: FieldStats, refs: ReferenceSets, name: str) -> SemanticV
     declared_decimals = (stats.decimals or 0) >= 1
     if not name_hit and not declared_decimals:
         return None
+    # A name that merely contains VAL or FINANC is not an amount: a zero-padded column ('01','04','06') or one of at most
+    # two digits with no declared decimals is a code, and typed as money it lost its leading zero and joined no
+    # width-exact codelist (`FINANC`, any `*AVAL*` code). `detect_numeric_measure` applies the same zero-padding gate.
+    if stats.leading_zero_rate > 0.05:
+        return None
+    widest = max((w for w, c in stats.lengths.items() if c > 0), default=0)
+    if not declared_decimals and widest <= 2:
+        return None
     if stats.numeric_min is not None and stats.numeric_min < 0 and not name_hit:
         return None
     continuous = stats.distinct_count > 50

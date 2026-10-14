@@ -19,12 +19,13 @@ together rather than one arbitrarily-chosen "best" file.
 from __future__ import annotations
 
 import tempfile
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+from ..locate import scratch_dir
 from .archives import Archive, ArchiveMember, detect_container
-from .base import DecodedTable, DecodeError, UnsupportedContainer
+from .base import DamagedPayload, DecodedTable, DecodeError, UnsupportedContainer
 from .dbc import read_dbc, read_dbc_bytes
 from .dbf import read_dbf_bytes, read_dbf_file
 from .duckdb_ import DuckStorageVersionError, read_duckdb
@@ -81,6 +82,9 @@ class DecodeOutcome:
     attempts: list[DecodeAttempt] = field(default_factory=list)
     container: str | None = None
     open_questions: list[tuple[str, str]] = field(default_factory=list)
+    #: (member, reason) for every archive member that was selected, is in the archive and yielded no table: the
+    #: member exists and could not be read. Distinct from a member the archive does not hold, which `members` shows.
+    failed_members: list[tuple[str, str]] = field(default_factory=list)
 
     @property
     def decoded(self) -> bool:
@@ -114,7 +118,9 @@ def readers_ordered_by_suffix_hint(path: str) -> tuple[str, ...]:
 
 #: Temp directories the decoders make, and how long one must lie untouched before it is taken as left by a process that
 #: died (no decode holds a spool for days): `prune_stale_temp`
-_TEMP_PREFIXES = ("pegasus_decode_", "pegasus_dbc_", "pegasus_stage_")
+_TEMP_PREFIXES = (
+    "pegasus_decode_", "pegasus_dbc_", "pegasus_stage_", "pegasus_duck_", "pegasus_arc_", "pegasus_blast_",
+)
 STALE_SECONDS = 3 * 24 * 3600
 _pruned = False
 
@@ -132,20 +138,27 @@ def prune_stale_temp() -> dict[str, int]:
     _pruned = True
     removed = kept = 0
     cutoff = time.time() - STALE_SECONDS
-    for d in Path(tempfile.gettempdir()).iterdir():
-        # the name first: a stat of every entry of the temp directory (thousands, most not ours) was a fifth of a
-        # process's first query (2026-10-11)
-        if not d.name.startswith(_TEMP_PREFIXES) or not d.is_dir():
-            continue
+    # the system temp (what earlier versions used) and the configured scratch directory
+    places = {Path(tempfile.gettempdir())} | ({Path(scratch)} if (scratch := scratch_dir()) else set())
+    for place in places:
         try:
-            newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
-            if newest < cutoff:
-                shutil.rmtree(d, ignore_errors=True)
-                removed += 1
-            else:
-                kept += 1
+            entries = list(place.iterdir())
         except OSError:
-            kept += 1
+            continue
+        for d in entries:
+            # the name first: a stat of every entry of the temp directory (thousands, most not ours) was a fifth of a
+            # process's first query (2026-10-11)
+            if not d.name.startswith(_TEMP_PREFIXES) or not d.is_dir():
+                continue
+            try:
+                newest = max([d.stat().st_mtime] + [f.stat().st_mtime for f in d.rglob("*")])
+                if newest < cutoff:
+                    shutil.rmtree(d, ignore_errors=True)
+                    removed += 1
+                else:
+                    kept += 1
+            except OSError:
+                kept += 1
     return {"removed": removed, "kept": kept}
 
 
@@ -166,6 +179,9 @@ class ReaderRegistry:
         self._columns: frozenset[str] | None = None
         self._members: frozenset[str] | None = None
         self._member_prefixes: dict[int, str] = {}
+        #: Set by the ladder before each reader: the DBF reader is running behind a `.dbc` reader that refused the
+        #: payload, so it must refuse a body shorter than its header declares.
+        self._dbf_strict = False
 
     # ------------------------------------------------------------------ entry
 
@@ -177,8 +193,12 @@ class ReaderRegistry:
         depth: int = 0,
         columns: frozenset[str] | None = None,
         members: frozenset[str] | None = None,
+        skip: frozenset[str] = frozenset(),
+        prior: Sequence[DecodeAttempt] = (),
     ) -> DecodeOutcome:
+        """`skip` and `prior`: readers already tried on this source by `open_path`, and what they said."""
         outcome = DecodeOutcome(path=path, container=detect_container(data))
+        outcome.attempts.extend(prior)
         if depth == 0:
             self._failed_members = []
             self._columns = columns
@@ -189,10 +209,16 @@ class ReaderRegistry:
             return outcome
         for name in readers_ordered_by_suffix_hint(path):
             handler = self._handlers().get(name)
-            if handler is None:
+            if handler is None or name in skip:
                 continue
+            # The DBF reader behind a failed `.dbc` reader takes the compressed stream for records unless the body is
+            # exactly what the header declares (a loose DBF named .dbc is; a damaged stream is not).
+            self._dbf_strict = any(a.reader == "dbc" and not a.ok for a in outcome.attempts)
             try:
                 produced = handler(data, path, depth)
+            except DamagedPayload as exc:
+                outcome.attempts.append(DecodeAttempt(name, False, f"damaged: {exc}"))
+                break
             except UnsupportedContainer as exc:
                 outcome.attempts.append(DecodeAttempt(name, False, f"unsupported: {exc}"))
                 outcome.open_questions.append((f"decode.optional_dependency.{name}", str(exc)))
@@ -218,21 +244,25 @@ class ReaderRegistry:
             outcome.tables.extend(tables)
             outcome.members.extend(found_members)
             if tables or found_members:
-                self._drain_member_failures(outcome)
+                self._drain_member_failures(outcome, depth)
                 return outcome
-        self._drain_member_failures(outcome)
+        self._drain_member_failures(outcome, depth)
         return outcome
 
-    def _drain_member_failures(self, outcome: DecodeOutcome) -> None:
-        """Name every archive member that could not be read.
+    def _drain_member_failures(self, outcome: DecodeOutcome, depth: int = 0) -> None:
+        """Name every archive member that could not be read, once, on the outcome of the whole source.
 
         These used to disappear on a bare `continue`: no attempt, no warning,
         nothing in the outcome — while the package guarantees that anything it
         could not read is named. A silently skipped member is indistinguishable
-        from an archive that never contained it.
+        from an archive that never contained it. A nested archive left the outer
+        members' failures in its own, discarded, outcome: only the top-level call drains.
         """
+        if depth:
+            return
         for name, reason in self._failed_members:
-            outcome.attempts.append(DecodeAttempt(f"archive-member:{name}", False, reason))
+            outcome.attempts.append(DecodeAttempt(f"archive-member:{outcome.path}!{name}", False, reason))
+            outcome.failed_members.append((name, reason))
         self._failed_members = []
 
     def open_path(
@@ -246,11 +276,9 @@ class ReaderRegistry:
         """Decode a file. For DBC and DBF this never reads it into memory.
 
         It used to be `open_bytes(p.read_bytes())` — a path-shaped door onto the
-        in-memory road, which made `BlobStore.materialize()` pointless even
-        though it exists precisely to give path-only readers a free hardlink to
-        a cached blob.
+        in-memory road.
 
-        Only the two formats whose readers genuinely work from a path take the
+        Only the formats whose readers genuinely work from a path take the
         short cut, and only when the suffix says so. Everything else still goes
         through the bytes ladder, which is where the probing logic lives; so
         does a DBC/DBF that fails, because a file named `.dbf` that is really a
@@ -284,12 +312,17 @@ class ReaderRegistry:
                     outcome.tables.extend(tables)
                     return outcome
                 elif ladder[0] == "parquet":
-                    table = read_parquet(p, row_limit=self.row_limit)
+                    table = read_parquet(p, row_limit=self.row_limit, columns=columns)
                     table.path = logical
                 else:
                     table = read_dbf_file(
                         p, logical_path=logical, row_limit=self.row_limit, columns=columns
                     )
+            except DamagedPayload as exc:
+                # The container is this reader's and is damaged: the other readers would read its bytes as something
+                # else (the DBF reader, a compressed stream as records).
+                outcome.attempts.append(DecodeAttempt(ladder[0], False, f"damaged: {exc}"))
+                return outcome
             except Exception as exc:  # noqa: BLE001 - the bytes ladder gets its turn
                 outcome.attempts.append(
                     DecodeAttempt(ladder[0], False, f"{type(exc).__name__}: {exc}")
@@ -298,9 +331,11 @@ class ReaderRegistry:
                 outcome.attempts.append(DecodeAttempt(ladder[0], True))
                 outcome.tables.append(table)
                 return outcome
-        return self.open_bytes(
-            p.read_bytes(), path=logical, columns=columns, members=members
-        )
+            return self.open_bytes(
+                p.read_bytes(), path=logical, columns=columns, members=members,
+                skip=frozenset({ladder[0]}), prior=tuple(outcome.attempts),
+            )
+        return self.open_bytes(p.read_bytes(), path=logical, columns=columns, members=members)
 
     # --------------------------------------------------------------- handlers
 
@@ -327,12 +362,16 @@ class ReaderRegistry:
 
     def _read_dbf(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         return (
-            [read_dbf_bytes(data, path=path, row_limit=self.row_limit, columns=self._columns)],
+            [
+                read_dbf_bytes(
+                    data, path=path, row_limit=self.row_limit, columns=self._columns, strict_size=self._dbf_strict
+                )
+            ],
             [],
         )
 
     def _read_csv(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        return ([read_csv_bytes(data, path=path, row_limit=self.row_limit)], [])
+        return ([read_csv_bytes(data, path=path, row_limit=self.row_limit, columns=self._columns)], [])
 
     def _read_json(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         return ([read_json_bytes(data, path=path, row_limit=self.row_limit)], [])
@@ -341,7 +380,7 @@ class ReaderRegistry:
         return ([read_xml_bytes(data, path=path, row_limit=self.row_limit)], [])
 
     def _read_parquet(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        table = read_parquet(data, row_limit=self.row_limit)     # from memory: nothing staged to outlive
+        table = read_parquet(data, row_limit=self.row_limit, columns=self._columns)     # from memory: nothing staged to outlive
         materialised = table.to_table()
         from .base import batches_from_table
 
@@ -362,7 +401,7 @@ class ReaderRegistry:
         # process. mkdtemp() registers no cleanup and nothing here retained an
         # owner, so every `.duck` decoded leaked a directory holding a full copy
         # of the database until the OS got around to it.
-        staging = tempfile.TemporaryDirectory(prefix="pegasus_duck_")
+        staging = tempfile.TemporaryDirectory(prefix="pegasus_duck_", dir=scratch_dir())
         try:
             staged = Path(staging.name) / "db.duck"
             staged.write_bytes(data)
@@ -429,17 +468,22 @@ class ReaderRegistry:
                     # `continue`: no DecodeAttempt, no warning, nothing in the
                     # outcome. That contradicts the package guarantee that every
                     # file or member which could not be read is NAMED.
-                    self._failed_members.append(
-                        (f"{path}!{member.name}", f"{type(exc).__name__}: {exc}")
-                    )
+                    self._failed_members.append((full_member, f"{type(exc).__name__}: {exc}"))
                     continue
                 if not payload:
-                    self._failed_members.append(
-                        (f"{path}!{member.name}", "member is empty")
-                    )
+                    self._failed_members.append((full_member, "member is empty"))
                     continue
                 self._member_prefixes[depth + 1] = f"{full_member}!"
                 inner = self.open_bytes(payload, path=member.name, depth=depth + 1)
+                if not inner.tables and not inner.members:
+                    # Present, readable as bytes, and no reader made a table of it: say why, not "absent".
+                    self._failed_members.append(
+                        (
+                            full_member,
+                            "; ".join(f"{a.reader}: {a.error}" for a in inner.attempts if not a.ok)
+                            or "no reader produced a table",
+                        )
+                    )
                 for table in inner.tables:
                     table.path = path
                     table.member = (
@@ -474,7 +518,7 @@ class _staged:
         self._dir: tempfile.TemporaryDirectory[str] | None = None
 
     def __enter__(self) -> Path:
-        self._dir = tempfile.TemporaryDirectory(prefix="pegasus_stage_")
+        self._dir = tempfile.TemporaryDirectory(prefix="pegasus_stage_", dir=scratch_dir())
         target = Path(self._dir.name) / f"payload{self.suffix}"
         target.write_bytes(self.data)
         return target
@@ -483,7 +527,3 @@ class _staged:
         if self._dir is not None:
             self._dir.cleanup()
             self._dir = None
-
-
-def iter_tables(outcome: DecodeOutcome) -> Iterator[DecodedTable]:
-    yield from outcome.tables

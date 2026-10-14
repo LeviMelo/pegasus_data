@@ -50,6 +50,8 @@ __all__ = [
     "find_project_config",
     "read_config_file",
     "resolve_placement",
+    "scratch_dir",
+    "use_scratch",
     "user_config_path",
     "write_config_file",
 ]
@@ -87,6 +89,31 @@ class Resolved:
 
     def describe(self) -> str:
         return f"{self.source}{f' ({self.origin})' if self.origin else ''}"
+
+
+# ------------------------------------------------------------------ scratch
+
+
+def use_scratch(work_dir: str | Path) -> None:
+    """Make ``work_dir`` the decoders' scratch space for this process and the worker processes it starts (they inherit
+    the environment). An explicit ``PEGASUS_WORK_DIR`` already in the environment wins."""
+    os.environ.setdefault(PLACEMENT_KEYS["work"][0], str(work_dir))
+
+
+def scratch_dir() -> str | None:
+    """Where a decoder's temporary files go: the ``work`` placement, created on demand, else the system temp (``None``).
+
+    Every inflated DBF, spool and staged archive was made on the system drive whatever ``work`` said; 1.7 GB of
+    `pegasus_decode_*`, 2.0 GB of `pegasus_dbc_*` and 174 database copies were found there (2026-10-14)."""
+    value = os.environ.get(PLACEMENT_KEYS["work"][0])
+    if not value:
+        return None
+    path = Path(value).expanduser()
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return None
+    return str(path)
 
 
 # --------------------------------------------------------------- config files

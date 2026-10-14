@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-__all__ = ["LhaError", "LhaMember", "LhaArchive", "is_lha", "find_lha_offset"]
+__all__ = ["LhaError", "LhaMember", "LhaArchive", "find_lha_offset"]
 
 _METHOD_RE = re.compile(rb"-(?:lh[0-7d]|lz[s45])-")
 
@@ -401,9 +401,6 @@ def find_lha_offset(data: bytes, *, search_limit: int = 1 << 20, total_size: int
     return None
 
 
-def is_lha(data: bytes) -> bool:
-    return find_lha_offset(data) is not None
-
 
 def _parse_header(data: bytes, pos: int) -> tuple[LhaMember | None, int]:
     """Parse one header at `pos`; return (member, next_header_pos)."""
@@ -503,10 +500,6 @@ class LhaArchive:
         self.sfx = self.base > 0
         self._members: list[LhaMember] | None = None
 
-    @classmethod
-    def from_path(cls, path: str | Path) -> LhaArchive:
-        return cls(Path(path).read_bytes())
-
     # ---------------------------------------------------------------- members
 
     @property
@@ -546,25 +539,45 @@ class LhaArchive:
         raw = self.data[member.offset : member.offset + member.compressed_size]
         method = member.method.encode("ascii")
         if method in STORED_METHODS:
-            return raw[: member.original_size]
+            return self._checked(member, raw[: member.original_size])
         dicbit = _DICBIT.get(method)
         if dicbit is None:
             # -lh1-, -lh2-, -lh3-, -lzs- use different coders. Rather than emit a
             # wrong payload we hand off to 7z, and if that is absent we say so.
             return _extract_via_7z(self.data, member.name)
-        return _decode_lh(raw, member.original_size, dicbit)
+        return self._checked(member, _decode_lh(raw, member.original_size, dicbit))
 
-    def extractall(self, dest: str | Path) -> list[Path]:
-        out = Path(dest)
-        out.mkdir(parents=True, exist_ok=True)
-        written: list[Path] = []
-        for member in self.members:
-            if member.is_directory:
-                continue
-            target = out / Path(member.name).name
-            target.write_bytes(self.read_member(member))
-            written.append(target)
-        return written
+    @staticmethod
+    def _checked(member: LhaMember, payload: bytes) -> bytes:
+        """The member's own CRC-16 against what was decoded. A truncated archive decodes with zero-padded bits into a
+        plausible DBF whose rows are wrong; the header's CRC was parsed and never looked at."""
+        if member.crc is not None and lha_crc16(payload) != member.crc:
+            raise LhaError(
+                f"{member.name}: CRC-16 {lha_crc16(payload):#06x} does not match the header's {member.crc:#06x}: "
+                "the archive is truncated or damaged"
+            )
+        return payload
+
+
+def _crc_table() -> list[int]:
+    table = []
+    for i in range(256):
+        c = i
+        for _ in range(8):
+            c = (c >> 1) ^ 0xA001 if c & 1 else c >> 1
+        table.append(c)
+    return table
+
+
+_CRC16_TABLE = _crc_table()
+
+
+def lha_crc16(data: bytes, crc: int = 0) -> int:
+    """LHA's CRC-16 (polynomial 0xA001, reflected, initial 0: CRC-16/ARC; the check value of b"123456789" is 0xBB3D)."""
+    table = _CRC16_TABLE
+    for byte in data:
+        crc = (crc >> 8) ^ table[(crc ^ byte) & 0xFF]
+    return crc
 
 
 def _extract_via_7z(container: bytes, member_name: str) -> bytes:

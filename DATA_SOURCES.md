@@ -155,7 +155,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   dates and codes are text (F §3g). Field widths sum to the record length plus
   one deletion byte in 100% of catalogued schemas (F §3g). The header's record
   count errs **high**: of 132 real payloads, 16 declare more records than the
-  file holds and none fewer (`docs/history/DEFECTS.md`, HI-23).
+  file holds and none fewer (`docs/history/DEFECTS.md`, HI-23). That was measured
+  on inflated payloads before the first-party inflater; of 6,551 real `.dbc`/`.dbf` blobs up to 8 MB
+  (2026-10-14) none declares more records than its stream inflates to, and the
+  inflater refuses one that does as damaged (ADR-0169). A DBC declaring zero records
+  has no stream and is an empty table.
 - **`.exe`** under `SIASUS/APAC/`: `LHA's SFX 2.13S (c) Yoshi, 1991`, an LHA
   `-lh5-` archive with header level 0 at offset 1636, holding seven DBF
   members with seven schemas (`ACAC`, `COAC`, `OPAC`, `PFAC`, `PCAC`, `UDAC`,

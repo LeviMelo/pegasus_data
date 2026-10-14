@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Callable, Sequence
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -153,6 +154,11 @@ def persist_header(
     sample of the same shape land on the same family, so the census fills in the
     generations sampling never reached without creating a parallel universe of
     schema identifiers.
+
+    The header facts (type, width, decimals) are one row per signature and field, so two containers of one column list
+    share them: a header that declares nothing (a DuckDB, CSV or Parquet export: type C, width 0) never replaces one that
+    does (the DBF's). The last writer used to win, and 20,784 SIASUS DBC files lost their declared types to
+    `Dados_Abertos/APAC_SIA/*.duck.zip` censused after them.
     """
     signature = schema_signature(header.field_names)
     catalog.executemany(
@@ -181,6 +187,7 @@ def persist_header(
             type_code=excluded.type_code, width=excluded.width, decimals=excluded.decimals,
             declared_records=excluded.declared_records, record_length=excluded.record_length,
             widths_consistent=excluded.widths_consistent, read_at=excluded.read_at
+        WHERE excluded.width > 0 OR COALESCE(schema_header_facts.width, 0) = 0
         """,
         [
             (
@@ -351,6 +358,15 @@ def run_census(
         census.signatures.add(signature)
         census.read += 1
     return census
+
+
+def _close_all(clients: Sequence[Any]) -> None:
+    """Close the connections the worker threads opened (thread-local clients were never closed)."""
+    for client in clients:
+        try:
+            client.close()
+        except Exception:  # noqa: BLE001 - going away regardless
+            pass
 
 
 def census_summary(catalog: CatalogStore) -> list[dict[str, Any]]:
@@ -559,7 +575,9 @@ def file_census_targets(
         "f.gone_at IS NULL",
         "fa.role = 'data'",
         "lower(f.extension) IN ('.dbc', '.dbf')",
-        "(fs.path IS NULL OR f.modified > fs.read_at)",
+        # a file never read, republished since, or whose read failed for a reason that says nothing about the file
+        # (a cut transfer, a dropped connection): a header that is not a DBF's stays recorded as it was
+        "(fs.path IS NULL OR f.modified > fs.read_at OR fs.error LIKE 'retry:%')",
     ]
     params: list[object] = []
     if systems:
@@ -591,16 +609,23 @@ def run_file_census(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     local = threading.local()
+    opened: list[Any] = []  # every connection a worker made: closed when the census ends
+    sizes = {
+        str(r["path"]): int(r["size"] or 0)
+        for r in catalog.query("SELECT path, size FROM files WHERE lower(extension) IN ('.dbc', '.dbf')")
+    }
 
     def _read(path: str) -> tuple[str, TableHeader | None, str | None, int]:
         client = getattr(local, "client", None)
         if client is None:
             client = local.client = connect()
+            opened.append(client)
         try:
-            data = client.retrieve_prefix(path, 2048)  # type: ignore[attr-defined]
+            listed = sizes.get(path) or 2048
+            data = client.retrieve_prefix(path, 2048, expected_min=min(2048, listed))  # type: ignore[attr-defined]
             need = prefix_bytes_needed(data)
             if need > len(data):
-                data = client.retrieve_prefix(path, need)  # type: ignore[attr-defined]
+                data = client.retrieve_prefix(path, need, expected_min=min(need, listed))  # type: ignore[attr-defined]
             return path, read_table_header(data), None, len(data)
         except HeaderUnreadable as exc:
             return path, None, str(exc)[:300], 0
@@ -610,7 +635,7 @@ def run_file_census(
             except Exception:  # noqa: BLE001
                 pass
             local.client = None
-            return path, None, f"{type(exc).__name__}: {exc}"[:300], 0
+            return path, None, f"retry: {type(exc).__name__}: {exc}"[:300], 0
 
     counts: dict[str, Any] = {"examined": 0, "read": 0, "failed": 0, "bytes": 0}
     pending: list[tuple[object, ...]] = []
@@ -627,7 +652,8 @@ def run_file_census(
         )
         pending.clear()
 
-    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="census") as pool:
+    with ExitStack() as cleanup, ThreadPoolExecutor(max_workers=workers, thread_name_prefix="census") as pool:
+        cleanup.callback(_close_all, opened)
         futures = [pool.submit(_read, p) for p in paths]
         for done, future in enumerate(as_completed(futures), start=1):
             path, header, error, size = future.result()
@@ -718,6 +744,7 @@ def run_archive_member_census(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     local = threading.local()
+    opened: list[Any] = []  # every connection a worker made: closed when the listing ends
     sizes = {
         str(r["path"]): int(r["size"] or 0)
         for r in catalog.query(
@@ -733,6 +760,7 @@ def run_archive_member_census(
             client = getattr(local, "client", None)
             if client is None:
                 client = local.client = connect()
+                opened.append(client)
         except Exception as exc:  # noqa: BLE001 - the server stalled: record it, back off, go on
             time.sleep(5)
             return path, None, f"connect: {type(exc).__name__}: {exc}"[:300]
@@ -751,7 +779,8 @@ def run_archive_member_census(
             return path, None, f"{type(exc).__name__}: {exc}"[:300]
 
     counts: dict[str, Any] = {"examined": 0, "listed": 0, "failed": 0, "members": 0}
-    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
+    with ExitStack() as cleanup, ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
+        cleanup.callback(_close_all, opened)
         futures = [pool.submit(_list, p) for p in paths]
         for done, future in enumerate(as_completed(futures), start=1):
             path, members, error = future.result()

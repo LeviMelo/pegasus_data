@@ -47,6 +47,12 @@ class MassDisappearance(RuntimeError):
     """A crawl reported so much of the catalog gone that it is probably wrong."""
 
 
+class CrawlFailed(RuntimeError):
+    """Every crawl worker ended with directories still to list: nothing could reach the server, or all workers died.
+
+    Raised instead of waiting for a queue nobody will drain (an offline first `fetch()` hung here)."""
+
+
 @dataclass(slots=True)
 class CrawlStats:
     run_id: str
@@ -111,6 +117,8 @@ class Crawler:
         self._done = threading.Event()
         self._before: dict[str, FileState] = {}
         self._gone: list[str] = []
+        #: Why workers that never listed anything stopped (connect errors), for `CrawlFailed`.
+        self._worker_errors: list[str] = []
 
     # ------------------------------------------------------------------ queue
 
@@ -148,9 +156,16 @@ class Crawler:
             roots = [base_path]
 
         if resume:
+            # Directories listed since the last COMPLETED run began: that run's listing is what `resume` continues. An
+            # earlier run's listing of a directory is no evidence about the interrupted one (every directory ever
+            # listed was skipped, so resuming a re-crawl listed nothing).
+            last = self.catalog.query("SELECT MAX(finished_at) AS at FROM crawl_runs WHERE host = ?", (self.host,))
+            since = (last[0]["at"] if last else None) or ""
             listed = {
                 r["path"]
-                for r in self.catalog.query("SELECT path FROM directories WHERE last_listed_at IS NOT NULL")
+                for r in self.catalog.query(
+                    "SELECT path FROM directories WHERE last_listed_at IS NOT NULL AND last_listed_at > ?", (since,)
+                )
             }
             self._seen |= listed
             for gap in self.catalog.open_gaps("listing"):
@@ -170,14 +185,24 @@ class Crawler:
         for t in threads:
             t.start()
 
-        # Wait for drain, with a watchdog so a wedged worker cannot hang forever.
-        while not self._done.wait(timeout=5.0):
-            if self.on_progress:
+        # Wait for drain, with a watchdog so a wedged worker cannot hang forever, and a check that somebody is still
+        # there to drain: with every worker gone the queue never empties.
+        last_report = time.monotonic()
+        while not self._done.wait(timeout=0.5):
+            if not any(t.is_alive() for t in threads):
+                break
+            if self.on_progress and time.monotonic() - last_report >= 5.0:
+                last_report = time.monotonic()
                 self.on_progress(stats)
         for _ in threads:
             self._queue.put((0.0, 0, None))
         for t in threads:
             t.join(timeout=30)
+        if not self._done.is_set():
+            raise CrawlFailed(
+                f"no crawl worker is left on {self.host} with {self._inflight} listing(s) undone: "
+                f"{'; '.join(dict.fromkeys(self._worker_errors)) or 'workers died'}"
+            )
 
         # A file that vanished from one directory and appeared in another during
         # this crawl was moved, not deleted and re-created. ``since`` bounds the
@@ -270,6 +295,8 @@ class Crawler:
         try:
             client.connect()
         except Exception as exc:
+            with self._lock:
+                self._worker_errors.append(f"{type(exc).__name__}: {exc}")
             self.catalog.log_event("crawl", "worker could not connect", level="error", detail=str(exc))
             return
         try:
@@ -288,15 +315,28 @@ class Crawler:
             client.close()
 
     def _handle(self, client: FtpClient, work: _Work, stats: CrawlStats) -> None:
+        """One directory. `_complete()` runs whatever happens: an exception after the listing (a catalog still locked
+        after its timeout) used to end the worker thread with the directory still counted in flight, so the crawl waited
+        for ever. It is now a retry or a recorded listing gap."""
+        try:
+            self._list_and_store(client, work, stats)
+        except Exception as exc:  # noqa: BLE001 - the directory is retried or recorded, the worker lives on
+            try:
+                self._retry_or_gap(work, stats, methods=("store",), error=f"{type(exc).__name__}: {exc}")
+            except Exception as again:  # noqa: BLE001 - the catalog itself is unreachable: say so, keep going
+                with self._lock:
+                    self._worker_errors.append(f"{work.path}: {type(exc).__name__}: {exc}; {again}")
+        finally:
+            self._complete()
+
+    def _list_and_store(self, client: FtpClient, work: _Work, stats: CrawlStats) -> None:
         try:
             entries, method = client.list_directory(work.path)
         except ListingUnavailable as exc:
             self._retry_or_gap(work, stats, methods=tuple(exc.attempts), error=str(exc))
-            self._complete()
             return
         except Exception as exc:
             self._retry_or_gap(work, stats, methods=("unknown",), error=f"{type(exc).__name__}: {exc}")
-            self._complete()
             return
 
         files: list[dict[str, object]] = []
@@ -404,7 +444,6 @@ class Crawler:
                     continue
                 self._seen.add(child)
             self._submit(_Work(child))
-        self._complete()
 
     def _retry_or_gap(
         self, work: _Work, stats: CrawlStats, *, methods: tuple[str, ...], error: str

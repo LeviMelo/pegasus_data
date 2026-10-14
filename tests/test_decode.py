@@ -10,7 +10,7 @@ import pytest
 from pegasus_data.decode.archives import Archive, classify_member, detect_container
 from pegasus_data.decode.base import DecodeError
 from pegasus_data.decode.dbf import read_dbf_bytes
-from pegasus_data.decode.lha import LhaArchive, LhaError, find_lha_offset
+from pegasus_data.decode.lha import LhaArchive, LhaError, find_lha_offset, lha_crc16
 from pegasus_data.decode.registry import ReaderRegistry, readers_ordered_by_suffix_hint
 from tests.conftest import make_dbf
 
@@ -71,7 +71,7 @@ class TestLha:
         header += (0).to_bytes(4, "little")
         header += bytes([0x20, 0x00, len(name)])
         header += name
-        header += (0).to_bytes(2, "little")
+        header += lha_crc16(payload).to_bytes(2, "little")  # the member's real CRC-16, which is now checked
         header[0] = len(header) - 2
         return b"MZ" + b"\x00" * 200 + b"LHA's SFX 2.13S" + bytes(header) + payload + b"\x00"
 

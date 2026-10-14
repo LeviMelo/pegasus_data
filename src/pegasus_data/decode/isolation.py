@@ -38,6 +38,7 @@ from typing import TYPE_CHECKING, Any
 
 import psutil
 
+from ..locate import scratch_dir
 from ._worker import read_frame, write_frame
 from .admission import admitted
 from .base import logical_source_id
@@ -132,6 +133,7 @@ class _RemoteOutcome:
     attempts: list[Any] = field(default_factory=list)
     members: list[Any] = field(default_factory=list)
     open_questions: list[tuple[str, str]] = field(default_factory=list)
+    failed_members: list[tuple[str, str]] = field(default_factory=list)
     retains: object | None = None
 
 
@@ -324,7 +326,7 @@ class DecoderPool:
         if not header.get("ok"):
             raise IsolatedDecodeError(f"{logical_path}: {header.get('error', 'decode failed')}")
 
-        spool = tempfile.TemporaryDirectory(prefix="pegasus_decode_")
+        spool = tempfile.TemporaryDirectory(prefix="pegasus_decode_", dir=scratch_dir())
         outcome = _RemoteOutcome(
             path=logical_path, container=header.get("container") or "", retains=spool
         )
@@ -337,6 +339,7 @@ class DecoderPool:
             for m in header.get("members", [])
         ]
         outcome.open_questions = [tuple(q) for q in header.get("open_questions", [])]
+        outcome.failed_members = [tuple(f) for f in header.get("failed_members", [])]
 
         try:
             for index, meta in enumerate(header.get("tables", [])):
