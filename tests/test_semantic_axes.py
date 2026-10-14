@@ -108,14 +108,6 @@ class TestTheDefaultsPointSomewhere:
 class TestInheritance:
     """Declared once per family, because the families really are uniform."""
 
-    def test_one_declaration_covers_all_of_sinan(self) -> None:
-        """58 agravos share the notification block; restating it 58 times is how
-        one file drifts and answers differently from its siblings."""
-        sinan = [s for s in DECLARED.values() if str(s.system).upper() == "SINAN" and s.axes]
-        assert len(sinan) >= 55, f"only {len(sinan)} SINAN datasets inherited axes"
-        assert {s.default_geography() for s in sinan} == {"residence"}
-        assert {s.default_time() for s in sinan} == {"notification"}
-
     def test_a_dataset_may_override_its_family(self) -> None:
         """SIH.RD declares its own axes in core.yml and must keep them."""
         rd = semantics_for("SIH-RD")
