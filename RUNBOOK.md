@@ -166,6 +166,7 @@ $PD sidra series population_age_sex --fetch --validate   # stitched series (cura
 $PD sidra series literacy_15plus --report              # its comparability, gaps and the places with a figure per census; fields: `$PD fields --name persons_15_plus`
 $PD sidra check                              # compendium and axis maps against IBGE's names
 $PD sidra rebuild 9606                       # re-derive a table's parts from the cached responses, no request
+$PD fields --name climate --name temperature_months --name air_temperature --name air_temperature_monthly_max --name air_temperature_monthly_min --name precipitation_months --name precipitation_mm   # INMET climate (ADR-0178): the station-month base and the six fields read from it; offline from `registries/inmet`, ~15 s
 ```
 
 - Every response is kept under `<root>/registries/sidra/http/` (gzip, with URL, size, SHA-256, time); the

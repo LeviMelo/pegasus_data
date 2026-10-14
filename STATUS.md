@@ -218,7 +218,10 @@ OQ-64), 1990s SIH V-codes.
   - Census sanitation, literacy and population by race, for 2010 and 2022
     (all fifteen IBGE fields are read through `pegasus_data.sidra`, ADR-0142).
   - `climate`: INMET station-month precipitation and temperature, placed in
-    the municipality each station stands in (1961–2025, 912 stations).
+    the municipality each station stands in (1961–2025, 912 stations); read as
+    `air_temperature` (and `_monthly_max`/`_min`) over `temperature_months`,
+    `precipitation_mm` over `precipitation_months`: one value per municipality
+    and year (ADR-0178; build with `pegasus-data fields --name ...`, RUNBOOK).
   - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
     type and human damages.
 - **SIDRA** (`pegasus_data.sidra`, `pegasus-data sidra`, ADR-0142):

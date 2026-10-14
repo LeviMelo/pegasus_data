@@ -46,6 +46,16 @@ cnes:
     nurses: ['2235']                   # Enfermeiros e afins
     community_health_agents: ['515105']
 
+# INMET climate (sources/inmet.py). A year's value is `ok` when the variable has `min_months` months observed (the sum
+# over months of the best station's coverage), `partial_year` otherwise (kept, not read as a year's mean). Chosen on
+# the 9,968 municipality-years observed in all 12 months (2026-10-14): leaving a block of months out moves the annual
+# mean temperature by a median 0.11 °C and at most 0.39 °C (95%) for one month, 0.81 °C for two; the year-to-year
+# standard deviation of a municipality's annual mean is a median 0.52 °C. Monthly precipitation: one month out moves
+# the mean by 16% (95%), two by 28%, against a year-to-year spread of about 20%. One month missing is the largest gap
+# whose error stays inside the variation the field is read for.
+inmet:
+  min_months: 11
+
 fields:
 
   gdp:
@@ -296,20 +306,104 @@ fields:
     what: Persons with a per-capita income of more than two minimum wages of the census year. Over `persons_income_universe`.
     years: 2000, 2010, 2022
 
-  # Weather, measured where a station stands (sources/inmet.py): one row per
-  # station and month, in the municipality whose IBGE boundary contains the
-  # station. No interpolation; a municipality without a station has no row.
+  # Weather, measured where a station stands (sources/inmet.py), in the municipality whose IBGE boundary contains the
+  # station. No interpolation; a municipality without a station has no row. `climate` is the base: one row per station
+  # and month, sums, counts and extremes (the monthly and seasonal questions are asked of it). The fields below are
+  # read from it, one value per municipality and year, a sum with its denominator in `over` so that, like every
+  # context field, the mean is formed at use and lifts to a coarser place as a ratio of sums. A year with fewer than
+  # `inmet: min_months` months observed has status `partial_year`: its months are not the year's. Companions:
+  # `months` (observed), `stations`, `automatic_share` (coverage from automatic stations; see `gaps`).
   climate:
     source: inmet
     unit: "mm (precipitation), °C (temperature): sums, counts and extremes"
     what: >
-      Monthly precipitation (sum, readings) and air temperature (sum, readings,
-      maximum, minimum) of INMET's automatic (hourly, 2000 on) and
-      conventional (daily) stations, from the CC-BY-4.0 Zenodo mirror of
-      INMET's releases (record 14925215, checked identical to INMET's own
-      archive), positioned from INMET's station API first. A mean is
-      sum / readings, at use.
-    years: 1961-2024
+      Base of the climate fields: monthly precipitation (sum, readings) and air temperature (sum, readings,
+      maximum, minimum) of INMET's automatic (hourly, 2000 on) and conventional (daily) stations, one row per
+      station and month, from the CC-BY-4.0 Zenodo mirror of INMET's releases (record 14925215, checked identical to
+      INMET's own archive), positioned from INMET's station API first. A mean is sum / readings, at use. Read a
+      municipality's year through the fields below, not from this table.
+    years: 1961-2025
+
+  temperature_months:
+    source: inmet
+    measure: temperature_months
+    law: sum
+    unit: months observed (0 to 12)
+    what: >
+      Months of the year with an air-temperature reading, the denominator of the temperature fields: each month
+      counts the coverage of its best station (days observed over days of the month; an hourly station's readings
+      / 24), so a month half observed is 0.5.
+    years: 1961-2025
+
+  air_temperature:
+    over: temperature_months
+    source: inmet
+    measure: air_temperature
+    law: sum
+    unit: °C × months observed; over temperature_months, the mean air temperature (°C)
+    what: >
+      Air temperature (dry bulb) of the municipality's stations: each month the mean of its stations' means
+      weighted by their coverage, summed over the months held with that coverage. Over `temperature_months` it is
+      the year's mean temperature.
+    gaps: >
+      An hourly station's month is the mean of its hourly readings, a conventional station's the mean of INMET's
+      daily means; where both stand in a municipality they differ by -0.2 °C (automatic minus conventional, median
+      of 19,340 municipality-months observed at least 90%), less than the median 0.4-0.6 °C between two stations of
+      the same network in one municipality (2,821 hourly and 2,002 daily pairs). Readings are INMET's as released, not screened: A401's June 2007 mean is 43.9 °C.
+    years: 1961-2025
+
+  air_temperature_monthly_max:
+    over: temperature_months
+    source: inmet
+    measure: air_temperature_monthly_max
+    law: sum
+    unit: °C × months observed; over temperature_months, the mean of the monthly maximum (°C)
+    what: >
+      The hottest reading of each month, averaged over the stations by coverage and summed over the months held.
+      Over `temperature_months`, the mean monthly maximum of the year.
+    gaps: >
+      The two networks do not measure the same maximum: a conventional station reports its thermometer's daily
+      maximum, an automatic station only the hottest of its hourly readings, about 0.7 °C lower (median of 19,340
+      municipality-months with both), and 0.1 °C higher for the minimum. `automatic_share` says how much of a value
+      comes from automatic stations; a municipality that changed network changes level.
+    years: 1961-2025
+
+  air_temperature_monthly_min:
+    over: temperature_months
+    source: inmet
+    measure: air_temperature_monthly_min
+    law: sum
+    unit: °C × months observed; over temperature_months, the mean of the monthly minimum (°C)
+    what: >
+      The coldest reading of each month, averaged over the stations by coverage and summed over the months held.
+      Over `temperature_months`, the mean monthly minimum of the year.
+    gaps: >
+      As `air_temperature_monthly_max`; the networks' minima differ by a median 0.1 °C with a wide spread (10-90%: -1.1 to +1.5 °C).
+    years: 1961-2025
+
+  precipitation_months:
+    source: inmet
+    measure: precipitation_months
+    law: sum
+    unit: months observed (0 to 12)
+    what: Months of the year with a precipitation reading (as `temperature_months`), the denominator of `precipitation_mm`.
+    years: 1961-2025
+
+  precipitation_mm:
+    over: precipitation_months
+    source: inmet
+    measure: precipitation_mm
+    law: sum
+    unit: mm × months observed; over precipitation_months, the mean monthly precipitation (mm per month; × 12 for a year)
+    what: >
+      Precipitation of the municipality's stations: each month the stations' total per unit of coverage (a month
+      half observed counts its rain twice over, a station-wide average), summed over the months held with the best
+      station's coverage. Over `precipitation_months` it is the mean month's total; times 12, a year's.
+    gaps: >
+      Not an annual total: a total over the months held would read a year with gaps as a dry one. A year with fewer
+      than `inmet: min_months` months is `partial_year`. Stations of one municipality differ (monthly totals
+      correlate 0.83 between the networks where both stand). A day with no reading is not a day without rain.
+    years: 1961-2025
 
   # Disasters recorded in S2iD (sources/s2id.py): one row per municipal event.
   disasters:
