@@ -803,6 +803,27 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   stay 4.702323 (F §3o and §3q, second). National SIH-RD artifact: 12,520,914
   admissions, mean length of stay 5.210395 (F §3t).
 
+## 10. Climate: BR-DWGD, its municipal series, INMET (measured 2026-10-14)
+
+- **BR-DWGD** (Xavier, Scanlon, King & Alves 2022, Int J Climatol 42:8390): daily 0.1° grid, 1961 on; pr, Tmax, Tmin, RH, Rs, u2,
+  ETo. Its page (Google Sites, read 2026-10-14) lists v3.2.3 (2024-12, to 2024-03-20) and **v3.2.4 (2026-04, 1961-01-01 to
+  2025-12-31)**. Distribution: Google Drive (the daily archives answered "Quota exceeded"; the 355 MB monthly archive downloads
+  at about 45 MB a minute), Dropbox, Earth Engine. v3.2.4 moves the past against v3.2.3 (EVALUATION 2026-10-14 "Climate from BR-DWGD").
+- **Its municipal series** are published by Saldanha et al. (`brclimr`, MIT): mean, max, min, stdev, count (and sum) of the cells a
+  municipality covers, daily, IBGE's 2010 mesh (5,565 municipalities and the lagoons 4300001/4300002), Parquet long form
+  `code_muni, date, name, value` sorted by name then date. (1) `brclimr` 0.2.0 (2024-04-04) reads DigitalOcean copies (Zenodo
+  7824920, v1.0.0, 2023-04-13), fast (5 MB/s), every variable ending **2020-07-31**. (2) Zenodo **13906834** (2024-10-09, concept
+  7824919): v3.2.3, to **2024-03-20**; `<Var>_3.2.3.parquet`, 2.0-2.2 GB, rows named `<Var>_3.2.3_mean`; Zenodo serves 60-120 KB/s
+  a connection and 133 requests a minute (429 beyond; Range works, 8 streams add up). Fernando de Noronha and Bombinhas have no value
+  on any day; the six municipalities created after 2010 are absent.
+- **ERA5-Land municipal means** by the same authors: yearly Zenodo records 2023 (10947952), 2024 (15748125), 2025 (18257037, 2026-01-15),
+  1950-2022 (10036212): 2 m temperature mean/min/max (K), dew point, surface pressure, 10 m wind u/v, total precipitation (m), 40 MB a
+  variable-year, the same 5,567 codes.
+- **INMET's mirror** (Zenodo 14925215) ends 2025-01-01; its station tables hold more than the lake's `climate` keeps (pressure, dew
+  point, humidity, radiation, wind, insolation, evaporation). A station-year with 11 complete months of temperature: 397 municipalities
+  at most (2010), 341 in 2023.
+- **Needs an account, so out:** ERA5 through the Copernicus CDS; Google Earth Engine's BR-DWGD and ERA5-Land assets.
+
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 
 - **Every SINAN file on the server is dated 2021-11 or later**, including data

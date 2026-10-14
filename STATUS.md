@@ -217,11 +217,12 @@ OQ-64), 1990s SIH V-codes.
   - IBGE GDP and value added (ADR-0127);
   - Census sanitation, literacy and population by race, for 2010 and 2022
     (all fifteen IBGE fields are read through `pegasus_data.sidra`, ADR-0142).
-  - `climate`: INMET station-month precipitation and temperature, placed in
-    the municipality each station stands in (1961–2025, 912 stations); read as
-    `air_temperature` (and `_monthly_max`/`_min`) over `temperature_months`,
-    `precipitation_mm` over `precipitation_months`: one value per municipality
-    and year (ADR-0177; build with `pegasus-data fields --name ...`, RUNBOOK).
+  - Climate (ADR-0178): BR-DWGD v3.2.3's municipal zonal means (Saldanha et al., Zenodo), 1961-01-01 to 2024-03-20,
+    5,563 of the 5,571 municipalities (not Noronha or Bombinhas: no grid cell; six created after 2010: no series); 2024 is `partial_year`.
+    `climate_monthly` is the municipality-month base; `air_temperature` (and `_monthly_max`/`_min`) over `temperature_months`,
+    `precipitation_mm` over `precipitation_months`: one value per municipality and year (ADR-0177;
+    build with `pegasus-data fields --name ...`, RUNBOOK). `climate` keeps INMET's station-months (1961-2025, 912 stations)
+    as observations to validate against, not as the source.
   - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
     type and human damages.
 - **SIDRA** (`pegasus_data.sidra`, `pegasus-data sidra`, ADR-0142):

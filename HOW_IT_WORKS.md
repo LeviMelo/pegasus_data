@@ -121,7 +121,7 @@ There are two halves.
 - **Enrichment** (`query(enrich=...)`) reads CNES.ST at each record's month
   (ADR-0125).
 - **Fields** (`fields.py`, `load_field`) are municipal context outside the
-  records: IBGE statistics, INMET climate by station-month, S2iD disasters.
+  records: IBGE statistics, BR-DWGD climate by municipality-month (INMET stations validate it), S2iD disasters.
 - **Places** (`geography.municipality_point`, `distance_km`) use the Census
   2022 population centre.
 - **Rates** (`rates.age_standardised_rates`) divide queried records by

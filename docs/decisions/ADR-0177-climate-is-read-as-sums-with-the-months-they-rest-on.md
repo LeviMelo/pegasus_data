@@ -1,6 +1,6 @@
 # ADR-0177: the climate fields are sums with the months they rest on, one value per municipality and year
 
-**Date:** 2026-10-14. **Status:** accepted.
+**Date:** 2026-10-14. **Status:** accepted. *Note, 2026-10-14: its source (INMET's stations, the 11-month threshold `inmet: min_months`) is superseded by ADR-0178, which reads the same six fields from BR-DWGD's municipal series and keeps this ADR's form (sums with `over` denominators, coverage by days held, precipitation as a mean month, `partial_year` below a full year); the figures below describe the station-based fields.*
 
 **Context.** `climate` stored INMET's station-month sums, counts and extremes. A context consumer reads a field as one value per
 municipality and year, optionally over a declared denominator (`over`), through `load_field`; the station-month table has no

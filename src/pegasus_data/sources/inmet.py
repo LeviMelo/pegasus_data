@@ -1,4 +1,4 @@
-"""INMET weather stations as a municipality-month field, measured where a station stands.
+"""INMET weather stations: station-months, measured where a station stands.
 
 **Readings.** A CC-BY-4.0 mirror of INMET's releases on Zenodo (record
 14925215): automatic stations hourly from 2000, conventional stations daily.
@@ -23,23 +23,15 @@ WIGOS identifier (`0-76-0-<IBGE code>...`); it is kept beside the placement as
 - Most of the rest are stations on a border (under 1 km).
 - A few are plain registry errors (Lençóis A425 registered 307 km away).
 
-Nothing is interpolated: a municipality without a station has no row.
+A municipality without a station has no row.
 
 **Stored** per station and month as sums, counts and extremes, never finished
 means (CLAUDE.md §6). A mean is computed at use.
 
-**Read** by a context consumer as one value per municipality and year
-(`municipality_years`), numerator and denominator as two fields (``over``):
-- *Coverage* of a station-month is its days observed over the days of the month
-  (an hourly station's readings / 24, a daily station's readings), at most 1.
-- A *municipality-month* is the mean of its stations' months weighted by their
-  coverage (no station counts more for being hourly); its own coverage is its
-  best station's.
-- A *municipality-year* is the sum over months of coverage and of coverage times
-  the month's value: ``months`` observed (0 to 12) is the denominator of every
-  temperature field, so the mean at use is a coverage-weighted mean of the months
-  held, and a year with gaps is flagged ``partial_year``, never a quiet mean of
-  the wrong months (a missing winter reads as a warm year).
+**Role.** These stations are *observations*, no longer the source of the municipal climate fields: a station gives the
+climate of its own site, and 8 of Alagoas's 102 municipalities have a usable station-year (ADR-0178; the fields are read
+from gridded products, `climate_grid.py`). `climate` stays as the station-month base, and `station_months` gives the
+complete station-months the gridded fields are validated against (docs/evaluation/2026-10-14-climate-gridded-fields.md).
 """
 
 from __future__ import annotations
@@ -65,11 +57,7 @@ _SOURCES = {"isd-history.csv": ISD_HISTORY,
             "inmet_stations_T.json": INMET_STATIONS.format(kind="T"),
             "inmet_stations_M.json": INMET_STATIONS.format(kind="M")}
 
-#: Readings a station of each network makes in a day: the unit that turns a count of readings into days observed.
-READINGS_PER_DAY = {"automatic_hourly": 24, "conventional_daily": 1}
-
-__all__ = ["COAST_TOLERANCE_M", "NETWORKS", "READINGS_PER_DAY", "MEASURES", "RECORD", "fetch", "min_months",
-           "monthly", "municipality_years", "stations"]
+__all__ = ["COAST_TOLERANCE_M", "NETWORKS", "RECORD", "fetch", "monthly", "station_months", "stations"]
 
 
 def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
@@ -158,86 +146,45 @@ def _wsi_municipality(wsi: object) -> str | None:
     return match.group(1) if match else None
 
 
-#: The measures of `municipality_years` (its columns) and the variable each belongs to. A variable has one
-#: denominator, ``<variable>_months``, and one status: ``ok`` when it has `min_months` observed.
-MEASURES = {
-    "temperature_months": "temperature", "air_temperature": "temperature",
-    "air_temperature_monthly_max": "temperature", "air_temperature_monthly_min": "temperature",
-    "precipitation_months": "precipitation", "precipitation_mm": "precipitation",
-}
+def station_months(cache_dir: str | Path, years: list[int] | None = None, complete: float = 0.9) -> Any:
+    """Station-months of both networks with the daily statistics a gridded product is validated against (a pyarrow table):
+    ``temperature_mean`` (an automatic station's 24-hour mean of its hourly readings, a conventional station's INMET
+    mean), ``temperature_midrange`` (the month's mean of (daily maximum + daily minimum) / 2), ``temperature_max`` and
+    ``temperature_min`` (the month's means of the daily extremes), ``precipitation_mm`` (the month total).
 
-
-def min_months() -> float:
-    """The months of a year a variable must have observed for its year to be ``ok`` (``inmet: min_months`` in
-    ``curation/fields.yml``, with the measurement that chose it)."""
-    from ..config import curation_root
-    from ..ontology import _read_yaml
-
-    return float(((_read_yaml(curation_root() / "fields.yml") or {})["inmet"])["min_months"])
-
-
-def municipality_years(table: Any) -> Any:
-    """One row per municipality and year from placed station-months (a pyarrow table of `monthly` with
-    ``municipality`` and ``municipality7``): the sums a mean is made of, per variable, and what they rest on.
-
-    Columns, for the variable ``temperature`` (readings of air temperature) and ``precipitation``:
-    - ``<variable>_months``: months observed, the sum over months of the best station's coverage (0 to 12);
-    - ``air_temperature`` (°C × months), ``air_temperature_monthly_max`` and ``..._min`` (the stations' mean of the
-      month's extreme, × months), ``precipitation_mm`` (the stations' mean month total, mm × months): over the
-      variable's months they are the coverage-weighted means of the months held;
-    - ``<variable>_stations`` and ``<variable>_automatic_share`` (share of the coverage that came from automatic
-      stations: the two networks differ in what a maximum and a minimum are).
-    A variable a municipality-year has no reading of is null: missing is not zero.
+    A day counts when it has 20 hourly readings of the variable (an automatic station) or its daily value (a
+    conventional one); a month is **complete** when at least ``complete`` of its days count, and a variable of a
+    month that is not complete is null, never a statistic of the days held. A precipitation total is the mean
+    counted day times the days of the month. An hourly gauge that reported nothing is a null month, not a dry one.
     """
     import duckdb
-    import pyarrow as pa
 
-    networks = table.column("network").to_pylist()
-    unknown = sorted({n for n in networks if n not in READINGS_PER_DAY})
-    if unknown:
-        raise KeyError(f"networks {unknown} have no declared readings per day: {sorted(READINGS_PER_DAY)}")
-    table = table.append_column("per_day", pa.array([READINGS_PER_DAY[n] for n in networks], pa.int32()))
     con = duckdb.connect()
-    con.register("sm", table)
-    return con.execute("""
-        WITH base AS (
-            SELECT *, date_diff('day', make_date(CAST(year AS INTEGER), CAST(month AS INTEGER), 1),
-                                make_date(CAST(year AS INTEGER), CAST(month AS INTEGER), 1) + INTERVAL 1 MONTH) AS days,
-                   (network = 'automatic_hourly') AS auto
-            FROM sm),
-        t AS (          -- one municipality-month of temperature: stations averaged by coverage
-            SELECT municipality, year, month, max(cov) AS cov, sum(cov * mean) / sum(cov) AS mean,
-                   sum(cov * tmax) FILTER (WHERE tmax IS NOT NULL) / sum(cov) FILTER (WHERE tmax IS NOT NULL) AS tmax,
-                   sum(cov * tmin) FILTER (WHERE tmin IS NOT NULL) / sum(cov) FILTER (WHERE tmin IS NOT NULL) AS tmin,
-                   sum(cov * CAST(auto AS INTEGER)) AS auto_cov, sum(cov) AS all_cov, list(DISTINCT station_id) AS stations
-            FROM (SELECT municipality, year, month, station_id, auto,
-                         least(1.0, temperature_readings / per_day / days) AS cov,
-                         temperature_c_sum / temperature_readings AS mean,
-                         temperature_c_max AS tmax, temperature_c_min AS tmin
-                  FROM base WHERE temperature_readings > 0)
-            GROUP BY municipality, year, month),
-        ty AS (
-            SELECT municipality, year, sum(cov) AS temperature_months, sum(cov * mean) AS air_temperature,
-                   sum(cov * tmax) AS air_temperature_monthly_max, sum(cov * tmin) AS air_temperature_monthly_min,
-                   len(list_distinct(flatten(list(stations)))) AS temperature_stations,
-                   sum(auto_cov) / sum(all_cov) AS temperature_automatic_share
-            FROM t GROUP BY municipality, year),
-        p AS (          -- one municipality-month of precipitation: the stations' total, per unit of coverage
-            SELECT municipality, year, month, max(cov) AS cov, sum(total) / sum(cov) AS mm,
-                   sum(cov * CAST(auto AS INTEGER)) AS auto_cov, sum(cov) AS all_cov, list(DISTINCT station_id) AS stations
-            FROM (SELECT municipality, year, month, station_id, auto,
-                         least(1.0, precipitation_readings / per_day / days) AS cov, precipitation_mm_sum AS total
-                  FROM base WHERE precipitation_readings > 0)
-            GROUP BY municipality, year, month),
-        py AS (
-            SELECT municipality, year, sum(cov) AS precipitation_months, sum(cov * mm) AS precipitation_mm,
-                   len(list_distinct(flatten(list(stations)))) AS precipitation_stations,
-                   sum(auto_cov) / sum(all_cov) AS precipitation_automatic_share
-            FROM p GROUP BY municipality, year),
-        places AS (SELECT municipality, any_value(municipality7) AS municipality7 FROM base GROUP BY municipality)
-        SELECT municipality, places.municipality7, CAST(year AS INTEGER) AS year,
-               temperature_months, air_temperature, air_temperature_monthly_max, air_temperature_monthly_min,
-               temperature_stations, temperature_automatic_share,
-               precipitation_months, precipitation_mm, precipitation_stations, precipitation_automatic_share
-        FROM ty FULL JOIN py USING (municipality, year) JOIN places USING (municipality)
-        ORDER BY municipality, year""").to_arrow_table()
+    where = f"WHERE year(datetime) IN ({','.join(str(y) for y in years)})" if years else ""
+    parts = []
+    for _catalog, db, _kind, network in NETWORKS:
+        path = fetch(db, cache_dir).as_posix()
+        if network == "automatic_hourly":
+            daily = f"""SELECT CAST(station_id AS VARCHAR) AS station_id, CAST(datetime AS DATE) AS day,
+                               if(count(temp_db) >= 20, avg(temp_db), NULL) AS tmean, if(count(temp_db) >= 20, max(temp_db), NULL) AS tmax,
+                               if(count(temp_db) >= 20, min(temp_db), NULL) AS tmin, if(count(p) >= 20, sum(p), NULL) AS p
+                          FROM read_parquet('{path}') {where} GROUP BY ALL"""
+        else:
+            daily = f"""SELECT CAST(station_id AS VARCHAR) AS station_id, CAST(datetime AS DATE) AS day,
+                               temp_mean AS tmean, temp_max AS tmax, temp_min AS tmin, p
+                          FROM read_parquet('{path}') {where}"""
+        parts.append(f"""
+            SELECT station_id, '{network}' AS network, year(day) AS year, month(day) AS month,
+                   date_diff('day', make_date(year(day), month(day), 1), make_date(year(day), month(day), 1) + INTERVAL 1 MONTH) AS days,
+                   count(tmean) AS days_tmean, count(tmax) FILTER (WHERE tmin IS NOT NULL) AS days_extremes, count(p) AS days_p,
+                   avg(tmean) AS tmean, avg((tmax + tmin) / 2) AS tmid, avg(tmax) FILTER (WHERE tmin IS NOT NULL) AS tmax,
+                   avg(tmin) FILTER (WHERE tmax IS NOT NULL) AS tmin, avg(p) AS p_day
+              FROM ({daily}) GROUP BY ALL""")
+    return con.execute(f"""
+        SELECT station_id, network, year, month,
+               if(days_tmean >= {complete} * days, tmean, NULL) AS temperature_mean,
+               if(days_extremes >= {complete} * days, tmid, NULL) AS temperature_midrange,
+               if(days_extremes >= {complete} * days, tmax, NULL) AS temperature_max,
+               if(days_extremes >= {complete} * days, tmin, NULL) AS temperature_min,
+               if(days_p >= {complete} * days, p_day * days, NULL) AS precipitation_mm
+          FROM ({' UNION ALL '.join(parts)})""").to_arrow_table()
