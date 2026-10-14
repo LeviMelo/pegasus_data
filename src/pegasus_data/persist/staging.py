@@ -29,12 +29,40 @@ from __future__ import annotations
 
 import os
 import shutil
+import time
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
 __all__ = ["prune_dead_staging", "staged_file", "staged_tree"]
+
+#: Pauses (seconds) between attempts to rename or remove a tree. On Windows a reader holding any file of the tree open
+#: (a ParquetFile, a DuckDB scan) makes the rename fail with ``PermissionError`` until it lets go; a query is short, so a
+#: few seconds of patience turns a build-aborting error into a delay. The sum is the longest a swap waits.
+_SWAP_PAUSES = (0.05, 0.1, 0.2, 0.4, 0.8, 1.6, 3.2)
+
+
+def _retry_on_permission(action: Callable[[], object]) -> None:
+    """Run ``action`` (a rename or a removal), retrying with backoff while the OS reports the tree in use."""
+    for pause in _SWAP_PAUSES:
+        try:
+            action()
+            return
+        except PermissionError:
+            time.sleep(pause)
+    action()
+
+
+def _remove_tree(path: Path) -> None:
+    """Remove a directory tree, waiting out readers that still hold a file open; never raises (a tree that cannot be
+    removed is left for ``prune_dead_staging``, and it sits where no reader's glob reaches)."""
+    for pause in _SWAP_PAUSES:
+        shutil.rmtree(path, ignore_errors=True)
+        if not path.exists():
+            return
+        time.sleep(pause)
+    shutil.rmtree(path, ignore_errors=True)
 
 
 @contextmanager
@@ -99,7 +127,11 @@ def _merge_units(staging: Path, depth: int) -> Iterator[Path]:
 
 @contextmanager
 def staged_tree(
-    target: Path, *, merge: bool = False, merge_depth: int | None = None
+    target: Path,
+    *,
+    merge: bool = False,
+    merge_depth: int | None = None,
+    staging_root: Path | None = None,
 ) -> Iterator[Path]:
     """Yield a directory to fill; on clean exit it replaces ``target``.
 
@@ -121,6 +153,12 @@ def staged_tree(
     every OTHER system's copy of that codelist. The unit of replacement has to
     be the unit of scope. ``merge=True`` means depth 1; pass ``merge_depth``
     when the scope is deeper.
+
+    ``staging_root`` puts the staged tree (and, in a whole-tree swap, the old one moved aside) in that directory instead
+    of beside ``target``. A tree that others read through a recursive glob must pass a directory outside what the glob
+    reaches: DuckDB's ``**/*.parquet`` walks hidden directories, so a ``.year=2020.__staging__...`` beside the
+    partitions made every query on the family fail ("Hive partition mismatch") while it was written, and after a killed
+    build, until the next build pruned it. It must be on the same volume as ``target`` (the swap is a rename).
     """
     if merge_depth is None:
         merge_depth = 1 if merge else 0
@@ -133,13 +171,18 @@ def staged_tree(
     # hidden names (a leading dot): a reader discovering the tree beside a build in progress must not see them. Named
     # `year=2021.__staging__...` inside the lake's partitions, they made every concurrent read of the family infer
     # `year` as text and fail ("string vs int64"), 2026-10-09
-    staging = target.with_name(f".{target.name}.__staging__.{token}")
-    previous = target.with_name(f".{target.name}.__previous__.{token}")
+    if staging_root is None:
+        staging = target.with_name(f".{target.name}.__staging__.{token}")
+        previous = target.with_name(f".{target.name}.__previous__.{token}")
+    else:
+        staging = Path(staging_root) / f"{target.name}.__staging__.{token}"
+        previous = Path(staging_root) / f"{target.name}.__previous__.{token}"
     staging.mkdir(parents=True, exist_ok=True)
+    target.parent.mkdir(parents=True, exist_ok=True)
     try:
         yield staging
     except BaseException:
-        shutil.rmtree(staging, ignore_errors=True)
+        _remove_tree(staging)
         raise
 
     if merge_depth and target.exists():
@@ -167,30 +210,33 @@ def staged_tree(
                     shutil.rmtree(destination, ignore_errors=True)
                 if backup is not None and backup.exists():
                     backup.rename(destination)
-            shutil.rmtree(staging, ignore_errors=True)
+            _remove_tree(staging)
             raise
         for _destination, backup in moved:
             if backup is not None and backup.exists():
                 shutil.rmtree(backup, ignore_errors=True)
-        shutil.rmtree(staging, ignore_errors=True)
+        _remove_tree(staging)
         return
 
     # Whole-tree swap. The old tree is moved aside rather than removed, so if
-    # installing the replacement fails the previous one goes back — there was
-    # no restore here at all, and a failure between the two renames left the
-    # target simply gone.
+    # installing the replacement fails the previous one goes back. Both renames
+    # are inside the guard: the first used to sit outside it, so a reader holding
+    # the old partition open (Windows refuses the rename) raised with the fully
+    # written staging tree left behind for good. A refused rename is retried
+    # while the reader finishes; if it never does, the old tree is untouched,
+    # nothing is left on disk, and the caller sees the error.
     had_target = target.exists()
-    if had_target:
-        target.rename(previous)
     try:
-        staging.rename(target)
+        if had_target:
+            _retry_on_permission(lambda: target.rename(previous))
+        _retry_on_permission(lambda: staging.rename(target))
     except BaseException:
         if had_target and previous.exists() and not target.exists():
-            previous.rename(target)
-        shutil.rmtree(staging, ignore_errors=True)
+            _retry_on_permission(lambda: previous.rename(target))
+        _remove_tree(staging)
         raise
     if previous.exists():
-        shutil.rmtree(previous, ignore_errors=True)
+        _remove_tree(previous)
 
 
 def prune_dead_staging(root: str | Path) -> int:

@@ -123,7 +123,7 @@ class DuckLake:
 
     def _register_from_disk(self) -> list[str]:
         registered: list[str] = []
-        for system_dir in sorted(p for p in self.lake_root.iterdir() if p.is_dir()):
+        for system_dir in sorted(p for p in self.lake_root.iterdir() if p.is_dir() and not p.name.startswith(".")):
             for family_dir in sorted(p for p in system_dir.iterdir() if p.is_dir()):
                 name = self.register_family(system_dir.name, family_dir.name)
                 if name:

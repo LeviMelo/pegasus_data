@@ -244,8 +244,14 @@ class TestP0_6_ReplacementDoesNotDestroyBeforeItWrites:
                 schema_signature="s", uf="AC", year=2023,
             )
         monkeypatch.setattr(pq, "ParquetWriter", good)
-        leftovers = list(tmp_path.rglob("*.staging"))
+        # the lake's staging root (`<lake>/.staging/`, outside every family) stays as an empty directory; what a
+        # failed write leaves in it, or beside the partitions, is the debris
+        leftovers = [
+            p for p in tmp_path.rglob("*")
+            if p != tmp_path / ".staging" and (p.name.endswith(".staging") or "__staging__" in p.name or "__previous__" in p.name)
+        ]
         assert leftovers == [], f"staging files survived: {leftovers}"
+        assert list((tmp_path / ".staging").iterdir()) == []
 
     def test_a_successful_replacement_still_replaces(self, tmp_path) -> None:
         lake = Lake(tmp_path, catalog=None)
