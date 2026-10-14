@@ -19,9 +19,18 @@ does everything else, so a source adds no code:
   records, left out of the field, counted); a row without a date is year 0 (*undated*); an absent (place, period) is absent,
   not zero.
 * **API** (`api_rows`, `read_slice`): paged by the declared style, at most one request per `INTERVAL` per host, a browser
-  User-Agent, backoff on 429, 5xx and timeouts; an empty page is the end. A filtered read is cached under
-  ``<root>/registries/<source>``; a source with ``snapshot: true`` (a current-stock endpoint) also lands every fresh read in
-  the lake with its read date, so a history accrues from the first read.
+  User-Agent, backoff on 429, 5xx, 408/425 and timeouts (any other 4xx is `SourceAbsent`, at once); a page whose list is
+  present and empty is the end, an answer without the declared list raises. A filtered read is cached under
+  ``<root>/registries/<source>`` (never an empty one, unless the declaration says ``cache_empty``); a source with
+  ``snapshot: true`` (a current-stock endpoint) also lands every fresh read in the lake with its read date, so a history
+  accrues from the first read.
+
+**The landing contract** (ADR-0172): a unit (a file, an API piece, a snapshot) is *replaced*, never added to. It is converted
+into a staging folder, counted against the file's own lines, and only then swapped into the lake in place of every part it
+had in every schema family of its (system, series); the catalog rows follow in one transaction. A failure at any step leaves
+the previous records and their catalog rows as they were; a unit's sidecar (`units/<key>.json`) is removed before the swap and
+written after the registration, so a missing sidecar means "land again". An API piece that ended short of its size is
+*incomplete* (the endpoint may grow) and is read again, unless the source is declared ``static: true``.
 """
 
 from __future__ import annotations
@@ -29,9 +38,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import time
 import zipfile
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -42,7 +52,9 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "get_json", "land_snapshot", "read_slice", "url"]
+from .sources import SourceAbsent, retryable
+
+__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "get_json", "get_text", "land_snapshot", "read_slice", "rows_of", "url"]
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 #: Seconds between two requests to one host.
@@ -165,7 +177,17 @@ def _safe(text: str) -> str:
 # --- the API ---------------------------------------------------------------------------------------------------------
 
 def get_json(url: str, params: dict[str, Any] | None = None, retries: int = 4) -> Any:
-    """GET json, at most one request per INTERVAL per host, a browser User-Agent, backoff on 429/5xx and timeouts."""
+    """GET json, at most one request per INTERVAL per host, a browser User-Agent. Resets, timeouts, 408/425/429 and 5xx are
+    retried with backoff; any other 4xx raises `SourceAbsent` at once (the thing asked for is not there)."""
+    return _request(url, params, retries).json()
+
+
+def get_text(url: str, params: dict[str, Any] | None = None, retries: int = 4) -> str:
+    """GET a text body (a source file read whole), politely and with `get_json`'s retry classes."""
+    return _request(url, params, retries).text
+
+
+def _request(url: str, params: dict[str, Any] | None, retries: int) -> httpx.Response:
     if not _client:
         _client.append(httpx.Client(headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, timeout=120, follow_redirects=True))
     host = urlsplit(url).netloc
@@ -176,15 +198,26 @@ def get_json(url: str, params: dict[str, Any] | None = None, retries: int = 4) -
         _last[host] = time.time()
         try:
             r = _client[0].get(url, params=params)
-            if r.status_code == 429 or r.status_code >= 500:
+            if retryable(r.status_code):
                 raise httpx.HTTPStatusError(f"{r.status_code}", request=r.request, response=r)
-            r.raise_for_status()
-            return r.json()
+            if r.status_code >= 400:
+                raise SourceAbsent(str(r.url), r.status_code)
+            return r
         except (httpx.TransportError, httpx.HTTPStatusError):
             if attempt == retries:
                 raise
             time.sleep(5 * 2 ** attempt)
     raise AssertionError("unreachable")
+
+
+def rows_of(answer: Any, key: str, where: str = "") -> list[dict]:
+    """The list an answer carries under ``key``. A list that is present and empty is an empty page (the end of a read); an
+    answer without the key (an error object, a renamed key, a maintenance page) is not an empty page and raises, naming the
+    keys it has: a read must never end silently on an answer it did not understand."""
+    if not isinstance(answer, dict) or key not in answer:
+        seen = sorted(answer)[:20] if isinstance(answer, dict) else type(answer).__name__
+        raise ValueError(f"{where or 'the answer'} has no {key!r} (the declared list of rows); it has: {seen}")
+    return answer[key] or []
 
 
 def _origin(spec: dict[str, Any], which: str = "origin") -> dict[str, Any]:
@@ -203,23 +236,29 @@ def _paging(origin: dict[str, Any]) -> dict[str, Any]:
 def _pages(origin: dict[str, Any], path: str, params: dict[str, Any], start: int = 0) -> Iterator[list[dict]]:
     """The pages of one request. ``offset`` style (DEMAS): ``limit`` and a row ``offset`` until an empty page, because a short
     page is not the end where the limit is applied before de-duplication; ``page`` style (Compras.gov.br): page numbers up to
-    the ``totalPaginas`` the answer states."""
+    the ``totalPaginas`` the answer states. An answer without the declared list (or, in ``page`` style, without the page
+    count) raises (`rows_of`): only a list that is present and empty ends an offset read."""
     paging = _paging(origin)
     url = origin["base"].rstrip("/") + path
     if paging["style"] == "offset":
         offset = start
         while True:
-            page = get_json(url, {**params, paging["limit_param"]: paging["size"], paging["offset_param"]: offset}).get(paging["rows"]) or []
+            answer = get_json(url, {**params, paging["limit_param"]: paging["size"], paging["offset_param"]: offset})
+            page = rows_of(answer, paging["rows"], url)
             if not page:
                 return
             yield page
             offset += paging["size"]
     else:
+        if not paging.get("pages_key"):
+            raise KeyError(f"{url}: a `page` style origin must declare `pages_key`, the answer's count of pages")
         number = start // paging["size"] + 1
         while True:
             answer = get_json(url, {**params, paging["page_param"]: number, paging["size_param"]: paging["size"]})
-            yield answer.get(paging["rows"]) or []
-            if number >= int(answer.get(paging["pages_key"]) or 0):
+            yield rows_of(answer, paging["rows"], url)
+            if paging["pages_key"] not in answer:
+                raise ValueError(f"{url}: the answer has no {paging['pages_key']!r} (the declared page count); it has: {sorted(answer)[:20]}")
+            if number >= int(answer[paging["pages_key"]] or 0):
                 return
             number += 1
 
@@ -266,7 +305,7 @@ def _complete(origin: dict[str, Any], path: str, params: dict[str, Any], partiti
     """
     paging = _paging(origin)
     url = origin["base"].rstrip("/") + path
-    first = get_json(url, {**params, paging["limit_param"]: paging["size"], paging["offset_param"]: 0}).get(paging["rows"]) or []
+    first = rows_of(get_json(url, {**params, paging["limit_param"]: paging["size"], paging["offset_param"]: 0}), paging["rows"], url)
     if len(first) < paging["size"] and paging.get("short_page_is_end"):
         return first
     partition = [level for level in partition if level["param"] not in params]       # a filter already given is not split again
@@ -284,16 +323,27 @@ def _schema(spec: dict[str, Any]) -> pa.Schema:
     return pa.schema([(c, pa.float64() if (d or {}).get("type") == "number" else pa.string()) for c, d in spec["columns"].items()])
 
 
-def _as_table(rows: list[dict], schema: pa.Schema) -> pa.Table:
-    clean = [{c: (None if r.get(c) is None else (r[c] if schema.field(c).type == pa.float64() else str(r[c]))) for c in schema.names} for r in rows]
+def _get(row: dict[str, Any], column: str) -> Any:
+    """A row's value of a column; the API names its keys in lower case, so the lower-case key answers where the declared name
+    (upper) is absent."""
+    return row[column] if column in row else row.get(column.lower())
+
+
+def _as_table(rows: list[dict], schema: pa.Schema, required: list[str] | tuple[str, ...] = ()) -> pa.Table:
+    """Rows as a table of the declared schema. A declared column that is not optional and that no row carries raises: an API
+    that renames or re-cases a column must not turn into a table of nulls (the bulk path's `_records_sql` raises too)."""
+    absent = [c for c in required if rows and not any(c in r or c.lower() in r for r in rows)]
+    if absent:
+        raise KeyError(f"declared columns in no row of the answer: {absent}; the rows carry: {sorted({k for r in rows[:50] for k in r})[:30]}")
+    clean = [{c: (None if _get(r, c) is None else (_get(r, c) if schema.field(c).type == pa.float64() else str(_get(r, c)))) for c in schema.names}
+             for r in rows]
     return pa.Table.from_pylist(clean, schema=schema)
 
 
 def _as_strings(rows: list[dict], columns: list[str] | None = None) -> pa.Table:
     """Rows as an all-string table over ``columns`` (default: every key seen, in order of appearance)."""
     names = columns or list(dict.fromkeys(k for r in rows for k in r))
-    got = lambda r, c: r.get(c, r.get(c.lower()))   # noqa: E731  (the API names its keys in lower case)
-    return pa.table({c: pa.array([None if got(r, c) is None else str(got(r, c)) for r in rows], pa.string()) for c in names})
+    return pa.table({c: pa.array([None if _get(r, c) is None else str(_get(r, c)) for r in rows], pa.string()) for c in names})
 
 
 def read_slice(source: str, filters: dict[str, Any], *, root: str | Path | None = None, name: str | None = None, refresh: bool = False) -> pa.Table:
@@ -301,7 +351,9 @@ def read_slice(source: str, filters: dict[str, Any], *, root: str | Path | None 
     kept in ``registries/<source>/<name>`` (``name`` defaults to ``slices/<hash of the filters>.parquet``). A source with a
     filter is never paged whole; a past period does not change, the current one does (``refresh``). A source that declares
     a ``partition`` is read by it (see `_complete`); the table's schema metadata ``intake_unstable`` lists the filters that
-    could not be and were paged. With ``snapshot: true`` every fresh read is also landed in the lake, dated by its read day."""
+    could not be and were paged. An empty answer is returned and not kept, unless the declaration says ``cache_empty: true``
+    (an empty answer may be a transient one; a kept one is final). With ``snapshot: true`` every fresh read is also landed
+    in the lake, dated by its read day."""
     spec = declared_sources()[source]
     label = name or f"slices/{_digest(filters)}.parquet"
     target = _cache(source, root, *label.split("/"))
@@ -313,11 +365,13 @@ def read_slice(source: str, filters: dict[str, Any], *, root: str | Path | None 
         rows = _complete(origin, origin["endpoint"], filters, origin["partition"], unstable)
     else:
         rows = api_rows(source, params=filters, spec=spec)
-    table = _as_table(rows, _schema(spec))
+    required = [c for c, d in spec["columns"].items() if not (d or {}).get("optional")]
+    table = _as_table(rows, _schema(spec), required)
     if unstable:
         table = table.replace_schema_metadata({"intake_unstable": json.dumps(unstable)})
-    target.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, target)
+    if table.num_rows or spec.get("cache_empty"):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table, target)
     if spec.get("snapshot") and table.num_rows:
         land_snapshot(source, table, label, datetime.now(UTC).date().isoformat(), root)
     return table
@@ -481,9 +535,17 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
     return "SELECT " + ", ".join(out) + f" FROM raw{joins}"
 
 
-def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], con: Any, relation: str, read_on: str) -> dict[str, Any]:
-    """Convert one relation of the source's rows to lake records (partitioned by record year), register them in the catalog,
-    and return the unit's statistics. ``relation`` is a DuckDB table function or view of the rows."""
+class _LostRecords(ValueError):
+    """The records a landing wrote are fewer (or more) than the source's own lines: nothing was swapped in."""
+
+
+def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], con: Any, relation: str, read_on: str, *,
+          sidecar: Path | None = None, expect_rows: int | None = None) -> dict[str, Any]:
+    """Convert one relation of the source's rows to lake records (partitioned by record year) and *replace the unit* with them
+    (ADR-0172): converted into a staging folder, counted (against ``expect_rows``, the independent figure, when given), and only
+    then swapped in for the unit's parts in every family of the dataset and registered in the catalog. A failure before the
+    swap leaves the lake and the catalog as they were. ``relation`` is a DuckDB table function or view of the rows; ``sidecar``
+    is the unit's cache note, removed just before the swap. Returns the unit's statistics."""
     from .persist.lake import Lake
 
     con.execute(f"CREATE OR REPLACE VIEW raw0 AS SELECT * FROM {relation}")
@@ -499,46 +561,109 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     lake = Lake(settings.lake_dir)
     target = lake.family_dir(system, family, signature) / "uf=BR"
     key = _safe(unit["key"])
-    for stale in target.glob(f"year=*/part-{key}-*.parquet"):
-        stale.unlink()
-    target.mkdir(parents=True, exist_ok=True)
-    con.execute(f"COPY ({sql}) TO '{target.as_posix()}' (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (year), "
-                f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE 262144)")
-    parts = sorted(target.glob(f"year=*/part-{key}-*.parquet"))
-    pattern = (target / "year=*" / f"part-{key}-*.parquet").as_posix()
-    place = spec.get("place") or {}
-    placed = place.get("type") in ("municipality", "municipality_name")
-    raw_place = _ident((place.get("column") or "").upper())
-    stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
-    if parts:
-        select = "count(*), count_if(year = 0)"
-        if placed:
-            select += f", count_if({raw_place} IS NULL), count_if({raw_place} IS NOT NULL AND _MUNICIPALITY IS NULL)"
-        row = con.execute(f"SELECT {select} FROM read_parquet('{pattern}', hive_partitioning=true)").fetchone()
-        stats.update(rows=row[0], undated=row[1], unplaced=row[2] if placed else 0, unallocated=row[3] if placed else 0)
-    _register(settings, source, spec, unit, family, signature, [n for n, _ in described], parts, lake, key)
+    # staged beside the working files, never inside a family: readers glob every parquet under a family folder
+    staging = Path(settings.work_dir) / "intake" / f"{family}-{key}"
+    shutil.rmtree(staging, ignore_errors=True)
+    staging.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (year), "
+                    f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE 262144)")
+        staged = sorted(staging.glob(f"year=*/part-{key}-*.parquet"))
+        place = spec.get("place") or {}
+        placed = place.get("type") in ("municipality", "municipality_name")
+        raw_place = _ident((place.get("column") or "").upper())
+        stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
+        if staged:
+            select = "count(*), count_if(year = 0)"
+            if placed:
+                select += f", count_if({raw_place} IS NULL), count_if({raw_place} IS NOT NULL AND _MUNICIPALITY IS NULL)"
+            pattern = (staging / "year=*" / f"part-{key}-*.parquet").as_posix()
+            row = con.execute(f"SELECT {select} FROM read_parquet('{pattern}', hive_partitioning=true)").fetchone()
+            stats.update(rows=row[0], undated=row[1], unplaced=row[2] if placed else 0, unallocated=row[3] if placed else 0)
+        if expect_rows is not None and stats["rows"] != expect_rows:
+            raise _LostRecords(f"{source} {unit['key']}: {stats['rows']} records landed from {expect_rows} lines")
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    parts = _commit(settings, source, spec, unit, key, staging=staging, target=target, family=family, signature=signature,
+                    names=[n for n, _ in described], sidecar=sidecar)
     return {**stats, "years": sorted({int(p.parent.name.split("=")[1]) for p in parts}), "family": family}
 
 
-def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], family: str, signature: str, names: list[str],
-              parts: list[Path], lake: Any, key: str) -> None:
+def _prune(folder: Path, stop: Path) -> None:
+    """Remove ``folder`` and its parents below ``stop`` while they are empty."""
+    while folder != stop and stop in folder.parents:
+        try:
+            folder.rmdir()
+        except OSError:
+            return
+        folder = folder.parent
+
+
+def _commit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], key: str, *, staging: Path, target: Path,
+            family: str, signature: str, names: Sequence[str], sidecar: Path | None) -> list[Path]:
+    """The swap of a landing (ADR-0172): the unit's cache note goes first (a unit with no note is landed again), then its parts
+    in *every* schema family of (system, series) (a unit re-landed under another signature must not stay in the old family and
+    count twice), then the staged parts move into ``target``, then the catalog follows. Returns the parts now in the lake."""
+    system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
+    lake_root = Path(settings.lake_dir)
+    if sidecar is not None:
+        sidecar.unlink(missing_ok=True)
+    mine = re.compile(rf"^part-{re.escape(key)}-\d+\.parquet$")
+    kind = re.compile(rf"^{re.escape(system)}_{re.escape(series)}_[0-9a-f]{{10}}$")      # the dataset's families, not a series that starts alike
+    if (lake_root / system).is_dir():
+        for folder in sorted(p for p in (lake_root / system).iterdir() if p.is_dir() and kind.match(p.name)):
+            for old in folder.glob("schema_signature=*/uf=BR/year=*/part-*.parquet"):
+                if mine.match(old.name):
+                    old.unlink()
+                    _prune(old.parent, lake_root / system)
+    parts: list[Path] = []
+    for staged in sorted(staging.glob("year=*/*.parquet")):
+        destination = target / staged.parent.name / staged.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(staged), str(destination))
+        parts.append(destination)
+    shutil.rmtree(staging, ignore_errors=True)
+    _register(settings, source, spec, unit, key, family, signature, list(names), parts, lake_root)
+    return parts
+
+
+def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], key: str, family: str, signature: str,
+              names: list[str], parts: list[Path], lake_root: Path) -> None:
     """Catalog rows that make the lake records a dataset ``query`` plans over: the family, one publication (file facts) per
-    unit and record year, and the lake partitions that cover it. Idempotent for a unit."""
+    unit and record year, and the lake partitions that cover it. Replaces the unit: its partitions and publications in every
+    family of (system, series) go first, a family left with no partition is dropped, and the dataset's family list is recomputed."""
     from .catalog.store import CatalogStore, utcnow
 
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
     now = utcnow()
+    mine = re.compile(rf"^part-{re.escape(key)}-\d+\.parquet$")
+    prefix = f"{unit['path']}#year="
     by_year: dict[int, list[Path]] = {}
     for part in parts:
         by_year.setdefault(int(part.parent.name.split("=")[1]), []).append(part)
     store = CatalogStore(settings.catalog_path)
     try:
         with store.write() as conn:
-            conn.execute("DELETE FROM lake_partitions WHERE family_id=? AND relative_path LIKE ?", (family, f"%/part-{key}-%"))
+            touched: set[str] = set()
+            for (fam,) in conn.execute("SELECT family_id FROM families WHERE system=? AND series=?", (system, series)).fetchall():
+                # LIKE only narrows (its `_` matches any character); the exact name decides
+                held = conn.execute("SELECT relative_path FROM lake_partitions WHERE family_id=? AND relative_path LIKE ?",
+                                    (fam, f"%/part-{key}-%")).fetchall()
+                gone = [r[0] for r in held if mine.match(r[0].rsplit("/", 1)[-1])]
+                if gone:
+                    touched.add(fam)
+                    conn.executemany("DELETE FROM lake_partitions WHERE family_id=? AND relative_path=?", [(fam, p) for p in gone])
+            upper = prefix + "\x7f"                    # every `<unit>#year=<digits>`
+            before = conn.execute("SELECT family_id, path FROM family_files WHERE path >= ? AND path < ?", (prefix, upper)).fetchall()
+            conn.execute("DELETE FROM family_files WHERE path >= ? AND path < ?", (prefix, upper))
+            touched |= {r[0] for r in before}
+            published: set[str] = set()
             for year, files in sorted(by_year.items()):
                 if year == 0:
-                    continue                                          # undated: in the lake, never a publication
-                path = f"{unit['path']}#year={year}"
+                    continue                                          # undated: in the lake, never a publication nor a partition
+                path = f"{prefix}{year}"
+                published.add(path)
                 conn.execute("INSERT OR REPLACE INTO files (path, logical_id, directory, filename, extension, size, modified, "
                              "listing_method, change_signal, first_seen, last_seen, gone_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,NULL)",
                              (path, path, unit["path"].rsplit("/", 1)[0], path.rsplit("/", 1)[-1],
@@ -552,17 +677,34 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
                     conn.execute(
                         "INSERT OR REPLACE INTO lake_partitions (family_id, schema_signature, uf, year, relative_path, row_count, "
                         "byte_size, source_paths, written_at, build_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                        (family, signature, "BR", year, str(part.relative_to(lake.root)).replace("\\", "/"),
+                        (family, signature, "BR", year, str(part.relative_to(lake_root)).replace("\\", "/"),
                          pq.read_metadata(part).num_rows, part.stat().st_size, json.dumps([path]), now, unit.get("fingerprint")))
-            years = [int(r[0]) for r in conn.execute("SELECT DISTINCT year FROM lake_partitions WHERE family_id=? AND year>0", (family,))]
-            files_n = conn.execute("SELECT count(*) FROM family_files WHERE family_id=?", (family,)).fetchone()[0]
-            conn.execute("INSERT OR REPLACE INTO families (family_id, system, series, schema_signature, field_count, time_min, time_max, "
-                         "geo_coverage, file_count, stratum_count, schema_source, label, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                         (family, system, series, signature, len(names), min(years) if years else None, max(years) if years else None,
-                          '["BR"]', files_n, 0, "intake", None, f"intake: {source}"))
-            ids = [r[0] for r in conn.execute("SELECT family_id FROM families WHERE system=? AND series=?", (system, series))]
-            conn.execute("INSERT OR REPLACE INTO lake_datasets (dataset, system, series, family_ids, description) VALUES (?,?,?,?,?)",
-                         (f"{system}_{series}".lower(), system, series, json.dumps(ids), str(spec.get("what", ""))))
+            # a year the unit no longer has is no longer a publication
+            conn.executemany("DELETE FROM files WHERE path=?", [(p,) for p in {r[1] for r in before} - published])
+            touched.add(family)
+            for fam in sorted(touched):
+                if not conn.execute("SELECT 1 FROM lake_partitions WHERE family_id=? LIMIT 1", (fam,)).fetchone():
+                    conn.execute("DELETE FROM families WHERE family_id=?", (fam,))
+                    conn.execute("DELETE FROM family_files WHERE family_id=?", (fam,))
+                    continue
+                years = [int(r[0]) for r in conn.execute("SELECT DISTINCT year FROM lake_partitions WHERE family_id=? AND year>0", (fam,))]
+                files_n = conn.execute("SELECT count(*) FROM family_files WHERE family_id=?", (fam,)).fetchone()[0]
+                if fam == family:
+                    conn.execute("INSERT OR REPLACE INTO families (family_id, system, series, schema_signature, field_count, time_min, "
+                                 "time_max, geo_coverage, file_count, stratum_count, schema_source, label, notes) "
+                                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                                 (fam, system, series, signature, len(names), min(years) if years else None, max(years) if years else None,
+                                  '["BR"]', files_n, 0, "intake", None, f"intake: {source}"))
+                else:
+                    conn.execute("UPDATE families SET time_min=?, time_max=?, file_count=? WHERE family_id=?",
+                                 (min(years) if years else None, max(years) if years else None, files_n, fam))
+            ids = [r[0] for r in conn.execute("SELECT family_id FROM families WHERE system=? AND series=? ORDER BY family_id", (system, series))]
+            dataset = f"{system}_{series}".lower()
+            if ids:
+                conn.execute("INSERT OR REPLACE INTO lake_datasets (dataset, system, series, family_ids, description) VALUES (?,?,?,?,?)",
+                             (dataset, system, series, json.dumps(ids), str(spec.get("what", ""))))
+            else:
+                conn.execute("DELETE FROM lake_datasets WHERE dataset=?", (dataset,))
     finally:
         store.close()
 
@@ -669,31 +811,36 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     origin = _origin(spec)
     raw = download(unit["url"], _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"]))
     extracted = None
+    counted = origin.get("format", "csv") == "csv"
     con = _duck(settings, spec)
+
+    def land(relation: str, extracted: Path | None) -> dict[str, Any]:
+        # The independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of SISAGUA
+        # 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap. It is checked
+        # before the swap (`_land`), so a unit that lost records is never registered.
+        lines = _lines(extracted or raw) if counted else None
+        stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side,
+                      expect_rows=None if lines is None else lines - 1)
+        if lines is not None:
+            stats.update(file_lines=lines, rows_equal_lines=True)
+        return stats
+
     try:
         relation, extracted = _file_relation(raw, origin)
         unit["size"] = raw.stat().st_size
         try:
-            stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+            stats = land(relation, extracted)
         except Exception as exc:
             # a month published in another encoding than the source declares (SNGPC's latin-1 files hold UTF-8 months
             # among 2014-2018's, 2026-10-11): read as mixed, each line's valid UTF-8 kept and stray bytes as cp1252
             csv = origin.get("csv") or {}
-            if origin.get("format", "csv") != "csv" or csv.get("encoding") == "mixed" or "encoded" not in str(exc):
+            if isinstance(exc, _LostRecords) or not counted or csv.get("encoding") == "mixed" or "encoded" not in str(exc):
                 raise
             if extracted is not None and extracted.is_file():
                 extracted.unlink()
             relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}})
-            stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat())
+            stats = land(relation, extracted)
             stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
-        if origin.get("format", "csv") == "csv":
-            # the independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of
-            # SISAGUA 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap
-            lines = _lines(extracted or raw)
-            stats["file_lines"] = lines
-            stats["rows_equal_lines"] = stats.get("rows") == lines - 1
-            if not stats["rows_equal_lines"]:
-                raise ValueError(f"{source} {unit['key']}: {stats.get('rows')} records landed from {lines - 1} lines")
     finally:
         con.close()
         for path in (extracted, None if origin.get("keep") else raw):
@@ -714,60 +861,95 @@ def _lines(path: Path) -> int:
 
 
 def _api_units(origin: dict[str, Any]) -> Iterator[tuple[str, str, Any]]:
-    """The units a bulk API read is cut into, lazily: (key, path, rows-reader). With a declared ``partition`` a unit is one
-    value of its first parameter (a state), read to the end by `_complete`, because offset paging of a table that applies
+    """The units a bulk API read is cut into, lazily: (key, path, reader), the reader returning (rows, unstable, complete).
+    With a declared ``partition`` a unit is one value of its first parameter (a state), read to the end by `_complete`
+    (always complete; ``unstable`` names the filters that could only be paged), because offset paging of a table that applies
     its limit before de-duplication loses rows (the health-region list returned 4,870 of 5,571 municipalities unfiltered, all
-    of them by state); otherwise a unit is `PIECE_PAGES` pages of offsets."""
+    of them by state); otherwise a unit is `PIECE_PAGES` pages of offsets, complete when it holds all of them and nothing
+    can be added to it later (its last page is full, or a page follows), incomplete when the answer ended inside it or at
+    its short last page (the endpoint may grow)."""
     base, endpoint = origin["base"].rstrip("/"), origin["endpoint"]
     size = _paging(origin)["size"]
     if origin.get("partition"):
         level, rest = origin["partition"][0], origin["partition"][1:]
         for value in _partition_values(level, {}):
-            yield (f"api-{level['param']}={value}", f"{base}{endpoint}?{level['param']}={value}",
-                   lambda value=value: _complete(origin, endpoint, {level["param"]: value}, rest, []))
+            def read_partition(value: str = value) -> tuple[list[dict], list[str], bool]:
+                unstable: list[str] = []
+                return _complete(origin, endpoint, {level["param"]: value}, rest, unstable), unstable, True
+            yield f"api-{level['param']}={value}", f"{base}{endpoint}?{level['param']}={value}", read_partition
         return
     start = 0
     while True:
-        def read(start: int = start) -> list[dict]:
+        def read(start: int = start) -> tuple[list[dict], list[str], bool]:
             rows: list[dict] = []
-            for count, page in enumerate(_pages(origin, endpoint, origin.get("params") or {}, start), 1):
+            pages = _pages(origin, endpoint, origin.get("params") or {}, start)
+            for count, page in enumerate(pages, 1):
                 rows += page
                 if count == PIECE_PAGES:
-                    break
-            return rows
+                    # all of the unit's pages were read; it is final if its last page is full (a growing table appends
+                    # beyond it) or another page follows (a short page inside the table: the limit applies before de-duplication)
+                    return rows, [], len(page) >= size or next(pages, None) is not None
+            return rows, [], False
         yield f"api-{start:010d}", f"{base}{endpoint}?offset={start}&pages={PIECE_PAGES}", read
         start += size * PIECE_PAGES
 
 
+def _is_complete(known: dict[str, Any], capacity: int | None) -> bool:
+    """Whether a unit's sidecar says the unit held everything its range holds. A sidecar written before the flag existed is
+    read by its rows: an offset unit short of a full piece may be the end of a table that has grown since."""
+    if "complete" in known:
+        return bool(known["complete"])
+    return capacity is None or known["stats"].get("rows", 0) >= capacity
+
+
 def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -> dict[str, Any]:
-    """A bulk read of an API endpoint, landed unit by unit: an interrupted read resumes at its last unit."""
+    """A bulk read of an API endpoint, landed unit by unit: an interrupted read resumes at its last unit. A unit that ended
+    short of its range is *incomplete* and read again on every run (the endpoint may have grown since), unless the origin
+    declares ``static: true``; the units whose filters could only be paged are listed under ``unstable``."""
     origin = _origin(spec)
-    total = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0, "units": 0}
+    total: dict[str, Any] = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0, "units": 0, "incomplete": [], "unstable": [],
+                             "empty_answers": []}
+    capacity = None if origin.get("partition") else _paging(origin)["size"] * PIECE_PAGES
+    static = bool(origin.get("static"))
     # A table without a period of its own (a reference, a current state) stands for the year it was read.
     year = datetime.now(UTC).year if (spec.get("period") or {}).get("type", "file") == "file" else None
     for key, path, read in _api_units(origin):
         unit = {"key": key, "year": year, "extension": "json", "size": 0, "path": path}
         unit["fingerprint"] = _fingerprint(spec, unit)
         side = _sidecar(source, settings.root, key)
-        known = json.loads(side.read_text(encoding="utf8")) if side.is_file() and not refresh else None
-        if known and known["fingerprint"] == unit["fingerprint"]:
-            stats = known["stats"]
+        previous = json.loads(side.read_text(encoding="utf8")) if side.is_file() else None
+        known = None if refresh else previous
+        if known and known["fingerprint"] == unit["fingerprint"] and (static or _is_complete(known, capacity)):
+            stats, complete = known["stats"], _is_complete(known, capacity)
         else:
-            rows = read()
-            stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
-            if rows:
-                con = _duck(settings, spec)
-                try:
-                    con.register("api_piece", _as_strings(rows))
-                    stats = _land(settings, source, spec, unit, con, "api_piece", datetime.now(UTC).date().isoformat())
-                finally:
-                    con.close()
-            side.parent.mkdir(parents=True, exist_ok=True)
-            side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
+            rows, unstable, complete = read()
+            if not rows and previous and previous["stats"].get("rows", 0) > 0:
+                # an empty answer where the unit held rows is an anomaly (a gateway that answers empty under load), not a
+                # table that emptied: the unit keeps what it holds, its note stays as it was, and the report says so
+                stats, complete = previous["stats"], _is_complete(previous, capacity)
+                total["empty_answers"].append(key)
+            else:
+                if rows:
+                    con = _duck(settings, spec)
+                    try:
+                        con.register("api_piece", _as_strings(rows))
+                        stats = _land(settings, source, spec, unit, con, "api_piece", datetime.now(UTC).date().isoformat(), sidecar=side)
+                    finally:
+                        con.close()
+                else:
+                    stats = {"rows": 0, "undated": 0, "unplaced": 0, "unallocated": 0}
+                if unstable:
+                    stats["unstable"] = unstable
+                side.parent.mkdir(parents=True, exist_ok=True)
+                side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats, "complete": complete}), encoding="utf8")
         for k in ("rows", "undated", "unplaced", "unallocated"):
             total[k] += stats.get(k, 0)
         total["units"] += 1
-        if not origin.get("partition") and stats.get("rows", 0) == 0:     # an empty unit is the end of an offset read
+        total["unstable"] += stats.get("unstable", [])
+        if not complete:
+            total["incomplete"].append(key)
+        # an empty unit, or one the answer ended inside, is the end of an offset read
+        if not origin.get("partition") and (stats.get("rows", 0) == 0 or not complete):
             return total
     return total
 
@@ -879,8 +1061,17 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
     if _origin(spec)["kind"] == "api":
         report["units"]["api"] = _land_api(settings, source, spec, refresh)
     else:
+        absent: dict[str, SourceAbsent] = {}
         for unit in _units(spec, years):
-            report["units"][unit["key"]] = _land_unit(settings, source, spec, unit, refresh)
+            try:
+                report["units"][unit["key"]] = _land_unit(settings, source, spec, unit, refresh)
+            except SourceAbsent as exc:            # a month not yet published: a recorded gap, not the end of the build
+                absent[unit["key"]] = exc
+                report["units"][unit["key"]] = {"absent": exc.status, "url": exc.url}
+        if absent and len(absent) == len(report["units"]):
+            first = next(iter(absent.values()))
+            raise SourceAbsent(first.url, first.status, f"{source}: all {len(absent)} units are absent")
+        report["absent"] = sorted(absent)
     for k in ("rows", "undated", "unplaced", "unallocated"):
         report[k] = sum(u.get(k, 0) for u in report["units"].values())
     report.update(_derive(settings, spec, fields, years))

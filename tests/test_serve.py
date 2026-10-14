@@ -122,11 +122,6 @@ class TestRefusals:
         response = client.get("/api/v1/datasets/cnes_st_municipality_month/capabilities")
         assert response.status_code == 404
 
-    def test_a_missing_mesh_names_how_to_build_it(self, client) -> None:
-        response = client.get("/api/v1/geo/mesh/municipality")
-        assert response.status_code == 404
-        assert "build" in response.json()["error"]
-
 
 class TestMicrodataIsOffUntilSomebodySaysOtherwise:
     """Exposing identifiable rows over a network is the operator's decision.

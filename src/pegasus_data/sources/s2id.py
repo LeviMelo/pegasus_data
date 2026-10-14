@@ -23,7 +23,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from . import fetch_url
+from . import download
 
 DATASET = "https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234/resource/{rid}/download"
 RESOURCES = {"events.csv": "1c8aac93-f874-4f07-9405-86a0398dadd6",
@@ -43,18 +43,20 @@ def fetch(name: str, cache_dir: str | Path, *, timeout: float = 1200.0) -> Path:
     target = Path(cache_dir) / name
     if target.is_file():
         return target
-    target.parent.mkdir(parents=True, exist_ok=True)
-    data = fetch_url(DATASET.format(rid=RESOURCES[name]), timeout=timeout, agent=USER_AGENT)
-    if data.lstrip().startswith(b"<html"):
-        raise RuntimeError(f"MIDR returned a page, not {name}: {data[:120]!r}")
-    tmp = target.with_suffix(target.suffix + ".tmp")
-    tmp.write_bytes(data)
-    tmp.replace(target)
+    got = download(DATASET.format(rid=RESOURCES[name]), target.with_name(target.name + ".dl"), timeout=timeout, agent=USER_AGENT)
+    with got.open("rb") as handle:
+        head = handle.read(120)
+    if head.lstrip().startswith(b"<html"):
+        got.unlink()
+        raise RuntimeError(f"MIDR returned a page, not {name}: {head!r}")
+    got.replace(target)
     return target
 
 
 def events(cache_dir: str | Path) -> Any:
-    """Every recorded event as a pyarrow table (municipality7, date, year, COBRADE, status, damages)."""
+    """Every recorded event as a pyarrow table (municipality7, date, year, COBRADE, status, damages). An event whose date is
+    blank or unparsable has no year (the caller counts it as undated); ``damage_unparsed`` counts the damage columns that
+    hold a value no number reads as, which are null in the table."""
     import pandas as pd
     import pyarrow as pa
 
@@ -65,6 +67,11 @@ def events(cache_dir: str | Path) -> Any:
         "municipality": raw["Cod_IBGE_Mun"].str[:6], "event_date": date.dt.date, "year": date.dt.year,
         "cobrade": raw["Cod_Cobrade"], "typology": raw["descricao_tipologia"], "group": raw["grupo_de_desastre"],
         "status": raw["Status"]})
+    unparsed = pd.Series(0, index=raw.index, dtype="int64")
     for column, name in HUMAN.items():
-        frame[name] = pd.to_numeric(raw[column], errors="coerce").astype("Int64")
+        number = pd.to_numeric(raw[column], errors="coerce")
+        # a value that is there and is no number is not a missing one: counted per event (`damage_unparsed`), never dropped silently
+        unparsed += (raw[column].notna() & raw[column].str.strip().ne("") & number.isna()).astype("int64")
+        frame[name] = number.astype("Int64")
+    frame["damage_unparsed"] = unparsed
     return pa.Table.from_pandas(frame, preserve_index=False)

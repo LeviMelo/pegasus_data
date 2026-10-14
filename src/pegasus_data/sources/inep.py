@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pyarrow as pa
 
-from . import fetch_url
+from . import download
 
 BASE = "https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_{year}.zip"
 MARGINS = {
@@ -31,14 +31,7 @@ MARGINS = {
 
 
 def fetch(year: int, cache_dir: str | Path, *, timeout: float = 3600.0) -> Path:
-    target = Path(cache_dir) / f"microdados_censo_escolar_{year}.zip"
-    if not target.is_file():
-        target.parent.mkdir(parents=True, exist_ok=True)
-        data = fetch_url(BASE.format(year=year), timeout=timeout)
-        partial = target.with_suffix(".part")
-        partial.write_bytes(data)
-        partial.replace(target)
-    return target
+    return download(BASE.format(year=year), Path(cache_dir) / f"microdados_censo_escolar_{year}.zip", timeout=timeout)
 
 
 def enrolments(year: int, cache_dir: str | Path) -> pa.Table:

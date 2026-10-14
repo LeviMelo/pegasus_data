@@ -102,27 +102,24 @@ def parse_r_recodes(text: str) -> Iterator[tuple[str, str, str]]:
             yield field_name, code, label
 
 
-def fetch_microdatasus(*, commit: str | None = None, timeout: int = 60) -> CommunitySource:
+def fetch_microdatasus(*, commit: str | None = None) -> CommunitySource:
     """Download the ``process_*.R`` files at a pinned commit.
 
     Resolves ``master`` to a concrete SHA when no commit is given, so the result
     is reproducible even though the request was not pinned.
     """
-    import httpx
+    from ..intake import get_json, get_text
 
-    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        sha = commit or client.get(f"{_API}/commits/master").json()["sha"]
-        tree = client.get(f"{_API}/git/trees/{sha}?recursive=1").json()
-        wanted = [
-            entry["path"]
-            for entry in tree.get("tree", [])
-            if entry["path"].startswith("R/process_") and entry["path"].endswith(".R")
-        ]
-        files: dict[str, str] = {}
-        for path in sorted(wanted):
-            response = client.get(f"{_RAW}/{sha}/{path}")
-            response.raise_for_status()
-            files[path.rsplit("/", 1)[-1]] = response.text
+    sha = commit or get_json(f"{_API}/commits/master")["sha"]
+    tree = get_json(f"{_API}/git/trees/{sha}?recursive=1")
+    wanted = [
+        entry["path"]
+        for entry in tree.get("tree", [])
+        if entry["path"].startswith("R/process_") and entry["path"].endswith(".R")
+    ]
+    files: dict[str, str] = {}
+    for path in sorted(wanted):
+        files[path.rsplit("/", 1)[-1]] = get_text(f"{_RAW}/{sha}/{path}")
     return CommunitySource(repo=MICRODATASUS_REPO, commit=sha, files=files)
 
 

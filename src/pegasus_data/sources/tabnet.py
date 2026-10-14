@@ -22,6 +22,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from . import download
+
 BASE = "http://tabnet.datasus.gov.br/cgi"
 
 __all__ = ["BASE", "fetch_territorial", "tabulate"]
@@ -36,15 +38,16 @@ def fetch_territorial(name: str, cache_dir: str | Path, *, refresh: bool = False
     target = Path(cache_dir) / f"{name.lower()}.cnv"
     if target.is_file() and not refresh:
         return target
-    target.parent.mkdir(parents=True, exist_ok=True)
     url = f"{BASE}/territorio/{name.lower()}.cnv"
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        data = response.read()
-    if not data or data.lstrip()[:1] == b"<":
+    got = target.with_name(target.name + ".dl")
+    got.unlink(missing_ok=True)
+    download(url, got, timeout=timeout)
+    with got.open("rb") as handle:
+        head = handle.read(64)
+    if not head or head.lstrip()[:1] == b"<":
+        got.unlink()
         raise FileNotFoundError(f"TabNet has no territorial table at {url}")
-    tmp = target.with_suffix(".tmp")
-    tmp.write_bytes(data)
-    tmp.replace(target)
+    got.replace(target)
     return target
 
 

@@ -9,8 +9,10 @@ POPSVS       ``IBGE/POPSVS/``  26 files  2000–2025   município × ano × sexo
 POPTCU       ``IBGE/POPTCU/``  33 files  1992–2025   município × ano only  ✘ no age, no sex
 POP          ``IBGE/POP/``     33 files  1980–2012   legacy
 projpop      ``IBGE/projpop/`` 71 files  2000–2070   projections by UF (``PROJUF00…70``)
-censo        ``IBGE/censo/``               91/00/10  covariates, not denominators
 ===========  =========================  ==========  =====================================
+
+``CENSO`` is the SIDRA census (built by ``pegasus-data population --series CENSO``), a denominator;
+``census_covariates`` (``IBGE/censo/``, 1991/2000/2010) holds census indicators and is never one.
 
 The interface point matters more than the ingestion: a consumer must be able to
 swap series and **see the difference**, because the choice of denominator moves
@@ -30,8 +32,11 @@ which series are capable of supporting a given stratification, and it does.
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -64,6 +69,10 @@ class PopulationSeries:
     age_standardizable: bool = False
     file_count: int = 0
     notes: str = ""
+    #: ``denominator`` (counts of people a rate may divide by) or ``covariates``
+    #: (census indicators: literacy, schooling, income). A covariate table has
+    #: no ``population`` column and is never offered as a denominator.
+    kind: str = "denominator"
 
     def supports(self, by: Sequence[str]) -> tuple[bool, list[str]]:
         missing = [b for b in by if b not in self.stratifications]
@@ -102,7 +111,8 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
         directory="IBGE/POP",
         year_min=1980,
         year_max=2012,
-        stratifications=["municipality", "year", "sex", "age"],
+        # the files carry the band (`age_group`), not a single year of age, and the urban/rural `situacao`
+        stratifications=["municipality", "year", "sex", "age_group"],
         age_standardizable=True,
         notes=(
             "legacy series by municipality, sex and age band (FXETARIA; 22 to 34 codes depending on the year, an "
@@ -137,17 +147,91 @@ KNOWN_SERIES: dict[str, PopulationSeries] = {
             "year 2000–2070; not municipal, so it complements rather than replaces POPSVS"
         ),
     ),
-    "censo": PopulationSeries(
-        name="censo",
+    # Named apart from CENSO: the two directories differed only by case, so on a
+    # case-insensitive volume the covariates and the SIDRA census were one folder
+    # (the later write erased the earlier) and the covariates were offered as an
+    # age-standardisable denominator.
+    "census_covariates": PopulationSeries(
+        name="census_covariates",
         authority="IBGE decennial census",
         directory="IBGE/censo",
         year_min=1991,
         year_max=2010,
         stratifications=["municipality", "year", "sex", "race", "urban_rural"],
         age_standardizable=False,
+        kind="covariates",
         notes="covariates (ALF, ESCA, ESCB, IDOSO, RENDA), not denominators",
     ),
 }
+
+_folded = {name.casefold() for name in KNOWN_SERIES}
+if len(_folded) != len(KNOWN_SERIES):  # pragma: no cover - guards a future edit
+    raise ValueError("KNOWN_SERIES names must differ by more than case: they are directory names")
+del _folded
+
+#: The column that carries each stratification axis in a materialised series.
+#: An axis is available when ONE of its columns is in the files.
+_AXIS_COLUMNS: dict[str, tuple[str, ...]] = {
+    "municipality": ("municipality",),
+    "uf": ("uf", "ufcod"),
+    "year": ("year",),
+    "sex": ("sex",),
+    "age": ("age",),
+}
+
+
+@dataclass(frozen=True, slots=True)
+class Materialised:
+    """What a series' files in the lake actually hold (not what its name promises)."""
+
+    columns: frozenset[str]
+    years: tuple[int, ...]
+
+    def has(self, axis: str) -> bool:
+        return any(c in self.columns for c in _AXIS_COLUMNS.get(axis, (axis,)))
+
+    def stratifications(self, declared: Sequence[str]) -> list[str]:
+        """The declared axes whose columns exist in the files, declared order kept."""
+        return [axis for axis in declared if self.has(axis)]
+
+
+def tree_mtime_ns(directory: Path) -> int:
+    """Newest mtime of a directory and its entries: any file added, replaced or rewritten changes it."""
+    try:
+        newest = os.stat(directory).st_mtime_ns
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                newest = max(newest, entry.stat().st_mtime_ns)
+    except OSError:
+        return 0
+    return newest
+
+
+@lru_cache(maxsize=32)
+def _materialised(directory: str, mtime_ns: int) -> Materialised | None:
+    import pyarrow.dataset as pads
+    import pyarrow.parquet as pq
+
+    root = Path(directory)
+    files = sorted(root.rglob("*.parquet"))
+    if not files:
+        return None
+    columns: set[str] = set()
+    for path in files:
+        columns.update(pq.read_schema(path).names)
+    years: set[int] = set()
+    if "year" in columns:
+        table = pads.dataset(files, format="parquet").to_table(columns=["year"])
+        years = {int(y) for y in pc.unique(table.column("year")).drop_null().to_pylist()}
+    return Materialised(frozenset(columns), tuple(sorted(years)))
+
+
+def materialised(directory: Path) -> Materialised | None:
+    """The columns and years the series' parquet files carry, or None when it holds no file.
+
+    Read from the files, cached on their mtimes: a re-ingested series is a new answer.
+    """
+    return _materialised(str(directory), tree_mtime_ns(directory))
 
 
 def canonicalize(table: pa.Table) -> pa.Table:
@@ -179,14 +263,6 @@ def coerce_numeric(table: pa.Table, columns: Sequence[str]) -> pa.Table:
                 table.schema.get_field_index(column), column, pc.cast(cleaned, pa.int64())
             )
     return table
-
-
-def infer_series(path: str) -> str | None:
-    upper = path.upper()
-    for name in KNOWN_SERIES:
-        if f"/{name.upper()}/" in upper:
-            return name
-    return None
 
 
 def register_series(catalog: CatalogStore, series: PopulationSeries) -> None:
