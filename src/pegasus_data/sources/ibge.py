@@ -1,14 +1,16 @@
-"""L8 — population denominators, behind one interface (§7.4).
+"""L8 - population denominators, behind one interface (§7.4), declared as data (ADR-0188).
 
-Measured series on the tree, with what each can and cannot support:
+What the tree publishes is declared in ``curation/populations.yml`` (``series:``: kind, authority, source, the axes the producer
+publishes); what a series holds is read from its files (`materialised`: the years, the columns, the municipality code widths). The
+measured series on the tree, with what each can and cannot support:
 
 ===========  =========================  ==========  =====================================
 series       path                       coverage    stratification
 ===========  =========================  ==========  =====================================
-POPSVS       ``IBGE/POPSVS/``  26 files  2000–2025   município × ano × sexo × idade  ✔ age-std
-POPTCU       ``IBGE/POPTCU/``  33 files  1992–2025   município × ano only  ✘ no age, no sex
-POP          ``IBGE/POP/``     33 files  1980–2012   legacy
-projpop      ``IBGE/projpop/`` 71 files  2000–2070   projections by UF (``PROJUF00…70``)
+POPSVS       ``IBGE/POPSVS/``  26 files  2000-2025   município × ano × sexo × idade  ✔ age-std
+POPTCU       ``IBGE/POPTCU/``  33 files  1992-2025   município × ano only  ✘ no age, no sex
+POP          ``IBGE/POP/``     33 files  1980-2012   legacy, by age band
+projpop      ``IBGE/projpop/`` 71 files  2000-2070   projections by UF (``PROJUF00…70``)
 ===========  =========================  ==========  =====================================
 
 ``CENSO`` is the SIDRA census (built by ``pegasus-data population --series CENSO``), a denominator;
@@ -17,7 +19,7 @@ projpop      ``IBGE/projpop/`` 71 files  2000–2070   projections by UF (``PROJ
 The interface point matters more than the ingestion: a consumer must be able to
 swap series and **see the difference**, because the choice of denominator moves
 published rates. A series that cannot support age standardisation is flagged as
-such rather than quietly used for it — using POPTCU where POPSVS is needed
+such rather than quietly used for it - using POPTCU where POPSVS is needed
 produces a crude rate wearing an age-standardised label.
 
 PegaSUS's demographic tensor plugs in as an additional series with this same
@@ -31,17 +33,14 @@ which series are capable of supporting a given stratification, and it does.
 
 from __future__ import annotations
 
-import json
 import os
-from collections.abc import Sequence
-from dataclasses import dataclass, field
+from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.compute as pc
-
-from ..catalog.store import CatalogStore
 
 #: Column aliases across vintages, mapped to the canonical name.
 CANONICAL_COLUMNS: dict[str, str] = {
@@ -56,113 +55,60 @@ CANONICAL_COLUMNS: dict[str, str] = {
 }
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class PopulationSeries:
-    """What a denominator series is and what it can legitimately support."""
+    """What a denominator series is, as ``curation/populations.yml`` declares it; what it holds is `materialised`."""
 
     name: str
     authority: str
+    #: ``denominator`` (counts of people a rate may divide by) or ``covariates`` (census indicators: literacy, schooling,
+    #: income). A covariate table has no ``population`` column and is never offered as a denominator.
+    kind: str
+    #: The DATASUS FTP directory it is read from, or "" for a series built from another source (``builder``).
     directory: str
-    year_min: int | None = None
-    year_max: int | None = None
-    stratifications: list[str] = field(default_factory=list)
-    age_standardizable: bool = False
-    file_count: int = 0
+    builder: str
+    #: The stratifications the producer publishes (the files may carry fewer).
+    stratifications: tuple[str, ...]
     notes: str = ""
-    #: ``denominator`` (counts of people a rate may divide by) or ``covariates``
-    #: (census indicators: literacy, schooling, income). A covariate table has
-    #: no ``population`` column and is never offered as a denominator.
-    kind: str = "denominator"
 
     def supports(self, by: Sequence[str]) -> tuple[bool, list[str]]:
         missing = [b for b in by if b not in self.stratifications]
         return (not missing), missing
 
 
-#: What the tree publishes, as measured. ``stratifications`` is what the files
-#: actually carry, not what a name suggests.
-KNOWN_SERIES: dict[str, PopulationSeries] = {
-    "POPSVS": PopulationSeries(
-        name="POPSVS",
-        authority="Ministério da Saúde / SVS estimates from IBGE projections",
-        directory="IBGE/POPSVS",
-        year_min=2000,
-        year_max=2025,
-        stratifications=["municipality", "year", "sex", "age"],
-        age_standardizable=True,
-        notes="the only FTP series carrying single-year age and sex by município",
-    ),
-    "POPTCU": PopulationSeries(
-        name="POPTCU",
-        authority="IBGE estimates as published for TCU fund distribution",
-        directory="IBGE/POPTCU",
-        year_min=1992,
-        year_max=2025,
-        stratifications=["municipality", "year"],
-        age_standardizable=False,
-        notes=(
-            "totals only — no age, no sex. Usable for crude rates; NOT usable for "
-            "age standardisation, and any age-standardised rate built on it is wrong"
-        ),
-    ),
-    "POP": PopulationSeries(
-        name="POP",
-        authority="IBGE legacy estimates",
-        directory="IBGE/POP",
-        year_min=1980,
-        year_max=2012,
-        # the files carry the band (`age_group`), not a single year of age, and the urban/rural `situacao`
-        stratifications=["municipality", "year", "sex", "age_group"],
-        age_standardizable=True,
-        notes=(
-            "legacy series by municipality, sex and age band (FXETARIA; 22 to 34 codes depending on the year, an "
-            "ignored-age row I000), measured 2026-10-06 on POPBR80, 95, 05, 12 (totals 119.0, 155.8, 184.2, 194.0 M); "
-            "until then recorded here as totals only. The age-sex denominators of SIM's ICD-9 era; superseded "
-            "by POPSVS from 2000"
-        ),
-    ),
-    "CENSO": PopulationSeries(
-        name="CENSO",
-        authority="IBGE Census (SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022)",
-        directory="",
-        year_min=2000,
-        year_max=2022,
-        stratifications=["municipality", "year", "sex", "age"],
-        age_standardizable=True,
-        notes=(
-            "the enumerated population by municipality, sex and single year of age (0..100+); "
-            "built from SIDRA by `pegasus-data population --series CENSO`, not from the FTP"
-        ),
-    ),
-    "projpop": PopulationSeries(
-        name="projpop",
-        authority="IBGE population projections",
-        directory="IBGE/projpop",
-        year_min=2000,
-        year_max=2070,
-        stratifications=["uf", "year", "sex", "age"],
-        age_standardizable=True,
-        notes=(
-            "projections at UF level, files PROJUF00…PROJUF70 keyed by projection "
-            "year 2000–2070; not municipal, so it complements rather than replaces POPSVS"
-        ),
-    ),
-    # Named apart from CENSO: the two directories differed only by case, so on a
-    # case-insensitive volume the covariates and the SIDRA census were one folder
-    # (the later write erased the earlier) and the covariates were offered as an
-    # age-standardisable denominator.
-    "census_covariates": PopulationSeries(
-        name="census_covariates",
-        authority="IBGE decennial census",
-        directory="IBGE/censo",
-        year_min=1991,
-        year_max=2010,
-        stratifications=["municipality", "year", "sex", "race", "urban_rural"],
-        age_standardizable=False,
-        kind="covariates",
-        notes="covariates (ALF, ESCA, ESCB, IDOSO, RENDA), not denominators",
-    ),
-}
+@lru_cache(maxsize=1)
+def _declared() -> dict[str, PopulationSeries]:
+    from ..config import curation_root
+    from ..semantics.curation import read_yaml
+
+    document = read_yaml(curation_root() / "populations.yml")
+    out: dict[str, PopulationSeries] = {}
+    for name, d in (document.get("series") or {}).items():
+        source = d.get("source")
+        out[str(name)] = PopulationSeries(
+            name=str(name), authority=str(d["authority"]), kind=str(d["kind"]),
+            directory=str(source["ftp"]) if isinstance(source, dict) else "", builder=str(d.get("builder") or ""),
+            stratifications=tuple(str(a) for a in d["axes"]), notes=" ".join(str(d.get("notes") or "").split()))
+    # the names are directory names: two that differ only by case are one folder on a case-insensitive volume
+    if len({n.casefold() for n in out}) != len(out):
+        raise ValueError("population series names must differ by more than case: they are directory names")
+    return out
+
+
+class _KnownSeries(Mapping[str, PopulationSeries]):
+    """``{name: PopulationSeries}`` of ``curation/populations.yml``, read when first asked."""
+
+    def __getitem__(self, name: str) -> PopulationSeries:
+        return _declared()[name]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(_declared())
+
+    def __len__(self) -> int:
+        return len(_declared())
+
+
+KNOWN_SERIES: Mapping[str, PopulationSeries] = _KnownSeries()
 
 #: The schema-metadata key under which `load_population` returns the series' description (JSON).
 SERIES_METADATA = b"pegasus.series"
@@ -184,11 +130,6 @@ def series_documentation(name: str) -> dict[str, object]:
     return _documented().get(name.upper(), {})
 
 
-_folded = {name.casefold() for name in KNOWN_SERIES}
-if len(_folded) != len(KNOWN_SERIES):  # pragma: no cover - guards a future edit
-    raise ValueError("KNOWN_SERIES names must differ by more than case: they are directory names")
-del _folded
-
 #: The column that carries each stratification axis in a materialised series.
 #: An axis is available when ONE of its columns is in the files.
 _AXIS_COLUMNS: dict[str, tuple[str, ...]] = {
@@ -206,6 +147,10 @@ class Materialised:
 
     columns: frozenset[str]
     years: tuple[int, ...]
+    files: int = 0
+    #: The digit counts of the municipality codes as filed (POPTCU: 6 for 1992-2016 and 7 from 2017; POPSVS: 7). A reader that
+    #: joins on the code maps every width to one (`geography.to_code7`): widths are matched exactly, never padded.
+    code_widths: tuple[int, ...] = ()
 
     def has(self, axis: str) -> bool:
         return any(c in self.columns for c in _AXIS_COLUMNS.get(axis, (axis,)))
@@ -213,6 +158,19 @@ class Materialised:
     def stratifications(self, declared: Sequence[str]) -> list[str]:
         """The declared axes whose columns exist in the files, declared order kept."""
         return [axis for axis in declared if self.has(axis)]
+
+    def has_all(self, axes: Sequence[str]) -> bool:
+        return all(self.has(axis) for axis in axes)
+
+    @property
+    def denominator(self) -> bool:
+        """The files count people: a table with no ``population`` column is never a denominator, whatever it is called."""
+        return "population" in self.columns
+
+    @property
+    def age_standardizable(self) -> bool:
+        """A rate on it can be age-standardised: the files carry the sex and the age of every count."""
+        return self.denominator and self.has("sex") and self.has("age")
 
 
 def tree_mtime_ns(directory: Path) -> int:
@@ -225,6 +183,30 @@ def tree_mtime_ns(directory: Path) -> int:
     except OSError:
         return 0
     return newest
+
+
+def _code_widths(files: list[Path]) -> tuple[int, ...]:
+    """The digit counts of the ``municipality`` codes: from the row groups' minimum and maximum when the codes are integers
+    (no data read), else from the values."""
+    import pyarrow.dataset as pads
+    import pyarrow.parquet as pq
+
+    widths: set[int] = set()
+    for path in files:
+        meta = pq.ParquetFile(path).metadata
+        names = meta.schema.names
+        if "municipality" not in names:
+            return ()
+        column = names.index("municipality")
+        if pa.types.is_integer(pq.read_schema(path).field("municipality").type):
+            for group in range(meta.num_row_groups):
+                stats = meta.row_group(group).column(column).statistics
+                if stats is not None and stats.has_min_max:
+                    widths.update((len(str(stats.min)), len(str(stats.max))))
+        else:
+            codes = pads.dataset(path, format="parquet").to_table(columns=["municipality"]).column("municipality")
+            widths.update(pc.unique(pc.utf8_length(pc.cast(codes, pa.string()))).drop_null().to_pylist())
+    return tuple(sorted(widths))
 
 
 @lru_cache(maxsize=32)
@@ -243,14 +225,17 @@ def _materialised(directory: str, mtime_ns: int) -> Materialised | None:
     if "year" in columns:
         table = pads.dataset(files, format="parquet").to_table(columns=["year"])
         years = {int(y) for y in pc.unique(table.column("year")).drop_null().to_pylist()}
-    return Materialised(frozenset(columns), tuple(sorted(years)))
+    return Materialised(frozenset(columns), tuple(sorted(years)), len(files), _code_widths(files))
 
 
 def materialised(directory: Path) -> Materialised | None:
     """The columns and years the series' parquet files carry, or None when it holds no file.
 
-    Read from the files, cached on their mtimes: a re-ingested series is a new answer.
+    Read from the files, cached on their mtimes: a re-ingested series is a new answer. A directory that is only another
+    directory under a different case (``CENSO`` on a case-insensitive volume that holds ``censo``) is not the series.
     """
+    if directory.exists() and directory.resolve().name != directory.name:
+        return None
     return _materialised(str(directory), tree_mtime_ns(directory))
 
 
@@ -283,39 +268,6 @@ def coerce_numeric(table: pa.Table, columns: Sequence[str]) -> pa.Table:
                 table.schema.get_field_index(column), column, pc.cast(cleaned, pa.int64())
             )
     return table
-
-
-def register_series(catalog: CatalogStore, series: PopulationSeries) -> None:
-    catalog.executemany(
-        """
-        INSERT INTO population_series (series, authority, year_min, year_max, stratifications,
-                                       age_standardizable, file_count, notes)
-        VALUES (?,?,?,?,?,?,?,?)
-        ON CONFLICT(series) DO UPDATE SET
-            authority=excluded.authority, year_min=excluded.year_min, year_max=excluded.year_max,
-            stratifications=excluded.stratifications,
-            age_standardizable=excluded.age_standardizable,
-            file_count=excluded.file_count, notes=excluded.notes
-        """,
-        [
-            (
-                series.name, series.authority, series.year_min, series.year_max,
-                json.dumps(series.stratifications), int(series.age_standardizable),
-                series.file_count, series.notes,
-            )
-        ],
-    )
-
-
-def series_catalogue(catalog: CatalogStore) -> list[dict[str, object]]:
-    rows = catalog.query("SELECT * FROM population_series ORDER BY series")
-    out = []
-    for r in rows:
-        row = dict(r)
-        row["stratifications"] = json.loads(row.get("stratifications") or "[]")
-        row["age_standardizable"] = bool(row.get("age_standardizable"))
-        out.append(row)
-    return out
 
 
 class UnsupportedStratification(ValueError):

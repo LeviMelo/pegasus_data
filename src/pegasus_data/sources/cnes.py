@@ -27,7 +27,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-from . import download
+from ..transport import download
 
 BASE = "https://datasus-ftp-mirror.nyc3.digitaloceanspaces.com/CNES/200508_/Dados/"
 UFS = ("AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE",

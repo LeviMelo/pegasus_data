@@ -28,18 +28,15 @@ a municipality with no value on any day has no row.
 
 from __future__ import annotations
 
-import http.client
 import io
 import json
 import os
 import time
-import urllib.error
-import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from . import BROWSER_AGENT, SourceAbsent, retryable
+from ..transport import get_json, read_range
 
 #: Zenodo's concept record of the BR-DWGD zonal statistics: its latest version is the current release.
 CONCEPT = 7824919
@@ -59,33 +56,6 @@ MEASURES = {
 }
 
 __all__ = ["CONCEPT", "MEASURES", "VARIABLES", "latest_release", "monthly", "municipality_months", "municipality_years"]
-
-
-def _read(url: str, start: int | None = None, end: int | None = None, *, suffix: int | None = None,
-          attempts: int = 10) -> tuple[bytes, int]:
-    """Bytes ``start``..``end`` (inclusive) of ``url``, or the last ``suffix`` bytes, and the size of the whole file.
-    A throttle (429) waits what the server says, a reset or a 5xx waits and tries again; any other 4xx is an absence."""
-    rng = f"bytes=-{suffix}" if suffix else f"bytes={start}-{end}"
-    last: Exception | None = None
-    for attempt in range(attempts):
-        try:
-            request = urllib.request.Request(url, headers={"User-Agent": BROWSER_AGENT, "Range": rng})
-            with urllib.request.urlopen(request, timeout=180) as response:
-                body = response.read()
-                total = int(response.headers.get("Content-Range", "bytes 0-0/0").rsplit("/", 1)[-1])
-            if suffix is None and len(body) != end - start + 1:  # type: ignore[operator]
-                raise http.client.IncompleteRead(body)
-            return body, total
-        except urllib.error.HTTPError as exc:
-            if not retryable(exc.code):
-                raise SourceAbsent(url, exc.code) from exc
-            last = exc
-            wait = float(exc.headers.get("Retry-After") or 0) if exc.headers else 0.0
-            time.sleep(max(wait, 3.0 * (attempt + 1)) + 1.0)
-        except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
-            last = exc
-            time.sleep(3.0 * (attempt + 1))
-    raise ConnectionError(f"{url} {rng}: {last}") from last
 
 
 def _try(function: Any, argument: Any) -> Any:
@@ -132,17 +102,12 @@ def latest_release(cache_dir: str | Path | None = None) -> dict[str, Any]:
     import re
 
     cache = Path(cache_dir) / "release.json" if cache_dir else None
-    request = urllib.request.Request(RELEASE_URL.format(record=CONCEPT), headers={"User-Agent": BROWSER_AGENT})
     record: dict[str, Any] | None = None
     last: Exception | None = None
-    for attempt in range(4):
-        try:
-            with urllib.request.urlopen(request, timeout=120) as response:
-                record = json.load(response)
-            break
-        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
-            last = exc
-            time.sleep(5.0 * (attempt + 1))
+    try:
+        record = get_json(RELEASE_URL.format(record=CONCEPT), retries=3, timeout=120.0)
+    except (ConnectionError, ValueError) as exc:
+        last = exc
     if record is None:
         if cache is not None and cache.is_file():
             return {**json.loads(cache.read_text(encoding="utf-8")), "offline": True}
@@ -175,14 +140,14 @@ def monthly(cache_dir: str | Path, release: dict[str, Any], variable: str, log: 
         return target
     url = release["files"][variable]
     wanted = f"{variable}_{version}_mean"
-    tail, size = _read(url, suffix=8)
+    tail, size = read_range(url, suffix=8)
     if tail[4:] != b"PAR1":
         raise ValueError(f"{url} is not a Parquet file")
     length = int.from_bytes(tail[:4], "little")
     footer_start = size - 8 - length
     spans = [(a, min(a + (1 << 20), size) - 1) for a in range(footer_start, size, 1 << 20)]
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        footer = b"".join(body for body, _ in pool.map(lambda s: _read(url, s[0], s[1]), spans))
+        footer = b"".join(body for body, _ in pool.map(lambda s: read_range(url, s[0], s[1]), spans))
     metadata = pq.read_metadata(_Pieces(size, {footer_start: footer}))
     names = metadata.schema.names
     columns = [names.index(c) for c in ("code_muni", "date", "name", "value")]
@@ -202,7 +167,7 @@ def monthly(cache_dir: str | Path, release: dict[str, Any], variable: str, log: 
                     for c in chunks)
         end = max((c.dictionary_page_offset if c.has_dictionary_page and c.dictionary_page_offset else c.data_page_offset)
                   + c.total_compressed_size for c in chunks)
-        body, _ = _read(url, begin, end - 1)
+        body, _ = read_range(url, begin, end - 1)
         part = pq.ParquetFile(_Pieces(size, {begin: body, footer_start: footer}), metadata=metadata).read_row_group(
             i, columns=["code_muni", "date", "name", "value"])
         part = part.filter(pc.equal(part.column("name"), wanted))

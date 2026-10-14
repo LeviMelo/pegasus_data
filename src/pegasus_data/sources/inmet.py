@@ -41,13 +41,11 @@ import re
 from pathlib import Path
 from typing import Any
 
-from . import download
+from ..transport import download
 
 RECORD = "https://zenodo.org/api/records/14925215/files/{name}/content"
 INMET_STATIONS = "https://apitempo.inmet.gov.br/estacoes/{kind}"
 ISD_HISTORY = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"
-#: INMET's firewall resets requests from non-browser clients.
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0"
 #: How far outside the mesh a coastal station may stand and still be placed.
 COAST_TOLERANCE_M = 2000
 #: (mirror catalog, mirror database, INMET API kind, network) for the two station networks.
@@ -63,7 +61,7 @@ __all__ = ["COAST_TOLERANCE_M", "NETWORKS", "RECORD", "fetch", "monthly", "stati
 def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
     """One source file (mirror, INMET API or NOAA history), cached."""
     # streamed to disk (the mirror's database is 1.4 GB)
-    return download(_SOURCES.get(name) or RECORD.format(name=name), Path(cache_dir) / name, timeout=timeout, agent=USER_AGENT)
+    return download(_SOURCES.get(name) or RECORD.format(name=name), Path(cache_dir) / name, timeout=timeout)
 
 
 def stations(cache_dir: str | Path, mesh: str | Path) -> list[dict[str, Any]]:

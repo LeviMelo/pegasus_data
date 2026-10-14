@@ -670,12 +670,15 @@ class Builder:
             if spec is None:
                 notes.append(f"unknown series: {name}")
                 continue
-            if name == "CENSO":
+            if spec.builder == "sidra_census":
                 # the census comes from SIDRA, not from the FTP tree
                 from .sidra import Sidra
                 from .sidra.population import build_census
 
                 counts[name] = build_census(Sidra(settings=self.settings), self.settings.population_dir)
+                continue
+            if not spec.directory:
+                notes.append(f"{name}: declared with no FTP directory and no builder")
                 continue
             rows = self.catalog.query(
                 "SELECT path FROM files WHERE path LIKE ? AND gone_at IS NULL ORDER BY path",
@@ -689,7 +692,6 @@ class Builder:
             target = self.settings.population_dir / name
             written_rows = 0
             written_files = 0
-            observed_years: set[int] = set()
             try:
                 with staged_tree(target) as staged_target:
                     for path in paths:
@@ -729,12 +731,6 @@ class Builder:
                                         "year",
                                         pa.array([year] * arrow.num_rows, type=pa.int64()),
                                     )
-                            if "year" in arrow.schema.names:
-                                observed_years.update(
-                                    int(v)
-                                    for v in arrow.column("year").to_pylist()
-                                    if v is not None
-                                )
                             arrow = arrow.append_column(
                                 "_source_path",
                                 pa.array([path] * arrow.num_rows, type=pa.string()),
@@ -761,16 +757,12 @@ class Builder:
             except Exception as exc:  # keep the previous complete series intact
                 notes.append(f"{name}: rebuild not published ({exc})")
                 continue
-            spec.file_count = len(paths)
-            if observed_years:
-                spec.year_min = min(observed_years)
-                spec.year_max = max(observed_years)
-            ibge.register_series(self.catalog, spec)
+            held = ibge.materialised(target)       # what was written, read back: the years and the axes are the files'
             counts[name] = {
                 "files": written_files,
                 "rows": written_rows,
-                "years": [spec.year_min, spec.year_max],
-                "age_standardizable": spec.age_standardizable,
+                "years": [held.years[0], held.years[-1]] if held and held.years else None,
+                "age_standardizable": bool(held and held.age_standardizable),
             }
 
         self._close_population_questions(counts)

@@ -1,11 +1,79 @@
-# What each denominator series IS, as the sources that produce it say (2026-10-14). `load_population` returns this with the
-# table (schema metadata `pegasus.series`) and `Catalog.population_series()` lists it, so a methods paragraph can quote it
-# with its citation. Read by `sources.ibge.series_documentation`; a series with no entry here is undocumented, and says so.
+# The population series (ADR-0188), as data.
 #
-# Each statement names the document that states it; a figure is measured and says on what.
+# `series:` declares what each directory under `lake/population/` is and where it comes from; `populations:` below says what each
+# IS, as the sources that produce it say. The files decide the rest: the years a series holds, the columns it carries (and so the
+# axes it can stratify by and whether a rate on it can be age-standardised) and the municipality code widths are read from the
+# parquet (`sources.ibge.materialised`), never declared here.
+#
+#   kind        denominator (counts of people a rate may divide by: the files carry `population`) | covariates (census indicators)
+#   authority   who publishes it
+#   source      ftp: the DATASUS FTP directory read by `pegasus-data population` | built: the builder that makes it (sidra_census)
+#   axes        the stratifications the producer publishes, in preference order; a request for another is refused by name before
+#               the files are opened, and one of them the files lack is refused after
+#   notes       what it can and cannot support
+#
+# `load_population` returns the description with the table (schema metadata `pegasus.series`) and `Catalog.population_series()`
+# lists it, so a methods paragraph can quote it with its citation. A series with no `populations:` entry is undocumented, and
+# says so. Each statement below names the document that states it; a figure is measured and says on what.
+
+series:
+
+  POPSVS:
+    kind: denominator
+    authority: Ministério da Saúde / SVS estimates from IBGE projections
+    source: {ftp: IBGE/POPSVS}
+    axes: [municipality, year, sex, age]
+    notes: the only FTP series carrying single-year age and sex by município
+
+  POPTCU:
+    kind: denominator
+    authority: IBGE estimates as published for TCU fund distribution
+    source: {ftp: IBGE/POPTCU}
+    axes: [municipality, year]
+    notes: >-
+      totals only - no age, no sex. Usable for crude rates; NOT usable for age standardisation, and any age-standardised rate
+      built on it is wrong
+
+  POP:
+    kind: denominator
+    authority: IBGE legacy estimates
+    source: {ftp: IBGE/POP}
+    # the files carry the band (`age_group`), not a single year of age, and the urban/rural `situacao`
+    axes: [municipality, year, sex, age_group]
+    notes: >-
+      legacy series by municipality, sex and age band (FXETARIA; 22 to 34 codes depending on the year, an ignored-age row I000),
+      measured 2026-10-06 on POPBR80, 95, 05, 12 (totals 119.0, 155.8, 184.2, 194.0 M); until then recorded here as totals only.
+      The age-sex denominators of SIM's ICD-9 era; superseded by POPSVS from 2000
+
+  CENSO:
+    kind: denominator
+    authority: IBGE Census (SIDRA tables 1552 for 2000, 1378 for 2010, 9514 for 2022)
+    source: built
+    builder: sidra_census
+    axes: [municipality, year, sex, age]
+    notes: >-
+      the enumerated population by municipality, sex and single year of age (0..100+); built from SIDRA by
+      `pegasus-data population --series CENSO`, not from the FTP
+
+  projpop:
+    kind: denominator
+    authority: IBGE population projections
+    source: {ftp: IBGE/projpop}
+    axes: [uf, year, sex, age]
+    notes: >-
+      projections at UF level, files PROJUF00...PROJUF70 keyed by projection year 2000-2070; not municipal, so it complements
+      rather than replaces POPSVS
+
+  # Named apart from CENSO: the two directories differed only by case, so on a case-insensitive volume the covariates and the SIDRA
+  # census were one folder (the later write erased the earlier) and the covariates were offered as an age-standardisable denominator.
+  census_covariates:
+    kind: covariates
+    authority: IBGE decennial census
+    source: {ftp: IBGE/censo}
+    axes: [municipality, year, sex, race, urban_rural]
+    notes: covariates (ALF, ESCA, ESCB, IDOSO, RENDA), not denominators
 
 populations:
-
   POPSVS:
     title: "População residente - Estudo de Estimativas Populacionais por Município, Idade e Sexo, 2000-2025 (TabNet popsvs2024br)"
     producer: >-

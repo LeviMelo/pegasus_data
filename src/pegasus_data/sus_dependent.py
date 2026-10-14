@@ -41,28 +41,37 @@ ANS_BAND = {"Menos de 1 ano": "0-4", "1 a 4 anos": "0-4", "5 a 9 anos": "5-9", "
 Z80 = 1.2815515655446004
 
 
+def _unplaced(root: str | Path, year: int) -> int:
+    """Medical-hospital links of the year's December files that no IBGE municipality holds (the state file XX, whose
+    municipality is -1, and a state's "ignored" code 270000), read from the ANS records the landing keeps in the lake: the
+    field leaves them out and counts them, they are not a place."""
+    import duckdb
+
+    pattern = (Path(root) / "lake" / "ANS" / "ANS_ICB_*" / "schema_signature=*" / "uf=BR" / f"year={year}" / "*.parquet").as_posix()
+    row = duckdb.sql(f"SELECT sum(QT_BENEFICIARIO_ATIVO) FROM read_parquet('{pattern}', union_by_name=true) "
+                     "WHERE COBERTURA_ASSIST_PLAN LIKE 'M%' AND _MUNICIPALITY IS NULL").fetchone()
+    return int(row[0] or 0)
+
+
 def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict[int, dict[str, int]]]:
     """Medical-hospital links per (year, 6-digit municipality, sex, band), and what could not be placed."""
     cells: dict[tuple, int] = {}
     report: dict[int, dict[str, int]] = {}
     for y in years:
         t = pq.read_table(Path(root) / "lake" / "fields" / "ans_beneficiaries" / f"year={y}" / "part.parquet",
-                          columns=["municipality", "sex", "age_band", "coverage", "value", "file_uf"]).to_pylist()
-        rep = {"medical_total": 0, "municipality_unknown": 0, "age_incorrect": 0}
+                          columns=["municipality", "sex", "age_band", "coverage", "value"]).to_pylist()
+        unknown = _unplaced(root, y)
+        rep = {"medical_total": unknown, "municipality_unknown": unknown, "age_incorrect": 0}
         for r in t:
             if not r["coverage"].startswith("M"):          # the label is stored with a replacement character
                 continue
-            rep["medical_total"] += r["value"]
-            mun = r["municipality"]
-            if r["file_uf"] == "XX" or len(mun) != 6 or not mun.isdigit():
-                rep["municipality_unknown"] += r["value"]
-                continue
+            rep["medical_total"] += int(r["value"])
             band = ANS_BAND.get(r["age_band"])
             if band is None:
-                rep["age_incorrect"] += r["value"]
+                rep["age_incorrect"] += int(r["value"])
                 continue
-            key = (y, int(mun), 1 if r["sex"] == "M" else 2, band)
-            cells[key] = cells.get(key, 0) + r["value"]
+            key = (y, int(r["municipality"]), 1 if r["sex"] == "M" else 2, band)
+            cells[key] = cells.get(key, 0) + int(r["value"])
         report[y] = rep
     return cells, report
 

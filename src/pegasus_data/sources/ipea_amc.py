@@ -16,7 +16,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from . import download
+from ..transport import download
 
 URL = "https://www.ipea.gov.br/geobr/data_gpkg/amc/{start}/AMC_{start}_2010_simplified.gpkg"
 

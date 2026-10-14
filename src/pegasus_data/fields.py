@@ -97,19 +97,12 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
             continue
         if spec.get("source") in ("cnes", "intake", "inmet", "brdwgd"):
             continue
-        if spec.get("source") == "s2id":
-            report[name] = _build_disasters(settings, name, years)
-        elif spec.get("source") == "ans":
-            report[name] = _build_ans(settings, name, spec, years)
-        elif spec.get("source") == "inep":
-            report[name] = _build_inep(settings, name, spec, years)
-        else:
-            if sidra is None:
-                from .sidra import Sidra
+        if sidra is None:
+            from .sidra import Sidra
 
-                sidra = Sidra(settings=settings)
-            build = _build_series_field if spec.get("series") else _build_sidra
-            report[name] = build(settings, sidra, name, spec, years)
+            sidra = Sidra(settings=settings)
+        build = _build_series_field if spec.get("series") else _build_sidra
+        report[name] = build(settings, sidra, name, spec, years)
     return report
 
 
@@ -194,52 +187,6 @@ def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], yea
         write_parquet_atomic(table, target / "part.parquet", compression="zstd")
         written += n
     return {"years": len(wanted), "rows": written, "statuses": statuses}
-
-
-def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
-    """ANS beneficiaries of each year's December file (``sources.ans``)."""
-    import pyarrow.compute as pc
-
-    from .sources.ans import beneficiaries
-
-    cache = Path(settings.root) / "registries" / "ans"
-    written: dict[str, Any] = {}
-    for year in [y for y in _years(spec["years"]) if not years or y in years]:
-        table = beneficiaries(year, 12, cache)
-        n = table.num_rows
-        table = table.rename_columns(["municipality", "sex", "age_band", "coverage", "value", "file_uf"])
-        table = table.append_column("year", pa.array([year] * n, pa.int32()))
-        table = table.append_column("month", pa.array([12] * n, pa.int32()))
-        table = table.append_column("unit", pa.array([str(spec["unit"])] * n, pa.string()))
-        table = table.append_column("source", pa.array([f"ANS PDA-024 {year}-12"] * n, pa.string()))
-        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(table.drop_columns(["year"]), target / "part.parquet", compression="zstd")
-        medical = table.filter(pc.equal(table.column("coverage"), "Médico-hospitalar"))
-        written[str(year)] = {"rows": n, "medical_hospital": pc.sum(medical.column("value")).as_py()}
-    return written
-
-
-def _build_inep(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
-    """INEP school-census enrolment margins per municipality (``sources.inep``)."""
-    import pyarrow.compute as pc
-
-    from .sources.inep import enrolments
-
-    cache = Path(settings.root) / "registries" / "inep"
-    written: dict[str, Any] = {}
-    for year in [y for y in _years(spec["years"]) if not years or y in years]:
-        table = enrolments(year, cache)
-        n = table.num_rows
-        table = table.append_column("municipality", pc.utf8_slice_codeunits(table.column("municipality7"), 0, 6))
-        table = table.append_column("unit", pa.array([str(spec["unit"])] * n, pa.string()))
-        table = table.append_column("source", pa.array([f"INEP microdados_ed_basica_{year}"] * n, pa.string()))
-        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
-        total = table.filter(pc.equal(table.column("margin"), "total"))
-        written[str(year)] = {"rows": n, "enrolments": pc.sum(total.column("value")).as_py()}
-    return written
 
 
 def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
@@ -420,27 +367,6 @@ def _write_by_year(table: pa.Table, name: str, settings: Any, prune: bool = Fals
             if stale.name not in keep:
                 shutil.rmtree(stale)
     return table.num_rows
-
-
-def _build_disasters(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
-    """S2iD's recorded disasters, one row per municipal event (``sources.s2id``)."""
-    import pyarrow.compute as pc
-
-    from .sources.s2id import events
-
-    table = events(Path(settings.root) / "registries" / "s2id")
-    undated = int(pc.sum(pc.is_null(table.column("year"))).as_py() or 0)
-    table = table.filter(pc.is_valid(table.column("year")))
-    written = 0
-    for year in sorted(set(table.column("year").to_pylist())):
-        if years and year not in years:
-            continue
-        part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
-        target = Path(settings.lake_dir) / "fields" / name / f"year={int(year)}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(part, target / "part.parquet", compression="zstd")
-        written += part.num_rows
-    return {"rows": written, "undated": undated}
 
 
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:

@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 
-from ._common import JsonOpt, RootOpt, _emit, _settings, app, console
+from ._common import JsonOpt, RootOpt, _emit, _settings, _writer, app, console
 
 sidra_app = typer.Typer(help="IBGE SIDRA: search the catalog, inspect a table, fetch a planned selection.", no_args_is_help=True)
 app.add_typer(sidra_app, name="sidra", rich_help_panel="SOURCES")
@@ -16,7 +16,7 @@ app.add_typer(sidra_app, name="sidra", rich_help_panel="SOURCES")
 def _session(root: Path | None):
     from ..sidra import Sidra
 
-    return Sidra(_settings(root).root)
+    return Sidra(_writer(root).root)
 
 
 def _parse_classifications(items: list[str] | None) -> dict[int, object]:
