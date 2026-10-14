@@ -58,8 +58,12 @@ def _table():
 
 
 @pytest.fixture
-def built(tmp_path, monkeypatch):
-    """Build the shipped spec against a synthetic source."""
+def built(tmp_path, monkeypatch, fresh_install):
+    """Build the shipped spec against a synthetic source.
+
+    ``fresh_install``: a build asks its catalog's curation which dimensions hold several values per row (it records
+    them in the manifest); a real build has the catalog its fetches created, the fake fetch here does not.
+    """
     from pegasus_data.config import load_settings
 
     settings = load_settings(root=tmp_path)
@@ -334,6 +338,10 @@ class TestARecordDateAxisHasIncompleteEdges:
             time_binding=binding, time_grain="month", dimensions=(),
             measures=(measure_from_declaration("n", {"kind": "count", "unit": "admission"}),),
         )
+
+    @pytest.fixture(autouse=True)
+    def _catalog(self, fresh_install):
+        """The catalog a real build's fetches have created (its curation is read for the manifest)."""
 
     def _build(self, monkeypatch, tmp_path, binding, rows):
         from pegasus_data import _aggregate

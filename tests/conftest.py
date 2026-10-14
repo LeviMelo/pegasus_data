@@ -404,6 +404,8 @@ def write_aggregate(root) -> Settings:
             "FAIXA_ETARIA": "present",
         }},
         "key_columns": list(AGGREGATE_KEYS),
+        # what a build records (none of these dimensions holds several values per row)
+        "multi_valued_dimensions": [],
     }), encoding="utf-8")
     return resolved
 

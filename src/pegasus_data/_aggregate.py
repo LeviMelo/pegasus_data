@@ -556,6 +556,9 @@ def build_aggregate(
         report.uf_basis_note = _uf_basis_note(spec.dataset, geography_field, report.uf)
         if report.uf_basis_note:
             report.warnings.append(report.uf_basis_note)
+    # Asked of the curation now, while the catalog the build reads is at hand, and written into the manifest: serving
+    # reads what the build knew, so an artifact served without its catalog still refuses a double-counting roll-up.
+    multi_valued = sorted(_curated_multi_valued(spec.dataset, spec.dimensions, resolved))
 
     # One grouped Arrow table per chunk; merged once at the end (_merge_cells).
     cells: list[Any] = []
@@ -749,6 +752,7 @@ def build_aggregate(
         "years": list(report.years),
         "uf": list(report.uf),
         "uf_basis_note": report.uf_basis_note,
+        "multi_valued_dimensions": multi_valued,
         "support": report.support,
         "partial_periods": list(report.partial_periods),
         "missing_chunks": list(report.missing_chunks),
@@ -1362,7 +1366,7 @@ def aggregate(
             if dimension not in dimension_levels:
                 check_rollup(measure, "dimensions")
                 if several_per_row is None:
-                    several_per_row = _multi_valued_dimensions(spec.dataset, spec.dimensions, resolved)
+                    several_per_row = _served_multi_valued(spec, manifest, resolved)
                 check_dimension(measure, dimension in several_per_row)
 
     # --- pushforward maps ---------------------------------------------------
@@ -1717,15 +1721,15 @@ def _is_classification(level: str) -> bool:
     return level in classifications()
 
 
-def _multi_valued_dimensions(dataset: str, dimensions: Sequence[str], settings: Settings) -> frozenset[str]:
+def _curated_multi_valued(dataset: str, dimensions: Sequence[str], settings: Settings) -> frozenset[str]:
     """The ``dimensions`` that hold several values per row: `CODANOMAL` has up to five ICD codes, so a row lands in
     several cells and marginalising it counts the row more than once.
 
-    Read from the curation of the dataset's SYSTEM in the catalog of ``settings`` (the one the artifact was served
-    from, not the default home's): field names are shared identities that disagree across systems, and another
-    system's multi-valued CRITERIO had made SINAN's single-character CRITERIO refuse every roll-up. A field the system
-    does not curate is not known to be multi-valued. An unreadable catalog RAISES: answering "no" for it let a
-    roll-up double-count, and was remembered for the process.
+    Read from the curation of the dataset's SYSTEM in the catalog of ``settings`` (the one the artifact is built from,
+    not the default home's): field names are shared identities that disagree across systems, and another system's
+    multi-valued CRITERIO had made SINAN's single-character CRITERIO refuse every roll-up. A field the system does not
+    curate is not known to be multi-valued. An unreadable catalog RAISES: answering "no" for it let a roll-up
+    double-count, and was remembered for the process.
     """
     from ._request import parse_dataset
     from .catalog.store import CatalogStore
@@ -1740,3 +1744,15 @@ def _multi_valued_dimensions(dataset: str, dimensions: Sequence[str], settings: 
     return frozenset(name for name in dimensions if (doc := docs.get(name.upper())) is not None and doc.multi_valued)
 
 
+def _served_multi_valued(spec: AggregateSpec, manifest: dict[str, Any], settings: Settings) -> frozenset[str]:
+    """The dimensions of a built artifact that hold several values per row.
+
+    The build records them in the manifest (``multi_valued_dimensions``), so an artifact is served with what its build
+    knew, and a copy served without the catalog it was built from still refuses a roll-up that would double-count.
+    An artifact built before the manifest carried it is read from the catalog of ``settings``; with neither, this
+    raises (:func:`_curated_multi_valued`): "none" would let a roll-up double-count.
+    """
+    recorded = manifest.get("multi_valued_dimensions")
+    if recorded is not None:
+        return frozenset(str(name) for name in recorded)
+    return _curated_multi_valued(spec.dataset, spec.dimensions, settings)
