@@ -167,6 +167,14 @@ class StageResult:
         return {"stage": self.stage, "ok": self.ok, "counts": self.counts, "notes": self.notes}
 
 
+#: Suffixes of files that ARE one table; anything else (a zip, a gzip, an LHA .exe) is read to learn its members.
+_TABLE_SUFFIXES = frozenset({".dbc", ".dbf", ".csv", ".json", ".xml", ".parquet"})
+
+
+def _is_table_file(path: str) -> bool:
+    return PurePosixPath(path).suffix.lower() in _TABLE_SUFFIXES
+
+
 class Pipeline:
     """Holds the shared objects every stage needs."""
 
@@ -686,10 +694,15 @@ class Pipeline:
     ) -> tuple[list[dict[str, Any]], list[tuple[dict[str, Any], str]]]:
         """Strata whose file must be read, and strata the header census already answers.
 
-        A stratum answers from the census when it names no archive member, carries a signature of distinct field names
+        A stratum answers from the census when its file is a table container (not an archive: an archive's tables are
+        named by member, which gives them another family id), it names no member, its signature has distinct field names
         and its family is either profiled or represented in this run by another stratum (the smallest file). Everything
         else is read as before."""
-        wanted = {str(r["schema_signature"]) for r in plan if r.get("schema_signature") and not r.get("sampled_member")}
+        wanted = {
+            str(r["schema_signature"])
+            for r in plan
+            if r.get("schema_signature") and not r.get("sampled_member") and _is_table_file(str(r["sampled_path"]))
+        }
         distinct: set[str] = set()
         if wanted:
             marks = ",".join("?" for _ in wanted)
@@ -709,7 +722,9 @@ class Pipeline:
         by_family: dict[str, list[dict[str, Any]]] = {}
         for row in plan:
             signature = str(row.get("schema_signature") or "")
-            if not signature or row.get("sampled_member") or signature not in distinct:
+            if not signature or row.get("sampled_member") or signature not in distinct or not _is_table_file(
+                str(row["sampled_path"])
+            ):
                 fetch.append(row)
                 continue
             by_family.setdefault(family_id_for(str(row["system"]), row["series"], signature), []).append(row)

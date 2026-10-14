@@ -15,7 +15,7 @@ home. Source: the review of the same day (`pegasus_project/data/handoffs/review-
 | 7 MB UTF-8 text, 40 one-byte offsets | 5 read as cp1252 | 0 |
 | Crawl with nothing listening | still running after 25 s | `CrawlFailed` in 2.7 s |
 | Listing 100 bytes stale for one file | 4 transfers then a gap | 1 transfer, accepted when the server confirms the length |
-| `profile` (read-only count on the local catalog) | 2,542 strata fetched, 57.5 GB of sampled files | 340 families, 1.7 GB |
+| `profile` (read-only count on the local catalog) | 2,421 table-file strata fetched (2,620 in all), 57.3 GB of sampled files | 331 families, 1.7 GB; the 121 zip strata are read as before |
 | Prefix read returning 0 bytes | stored as a permanent failure | retried on a fresh connection |
 | `build` families_with_no_rows (one family, rows written) | 1 | 0 |
 

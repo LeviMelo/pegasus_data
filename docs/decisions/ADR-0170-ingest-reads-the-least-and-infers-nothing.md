@@ -4,7 +4,7 @@
 
 **Context.** Four faults had one root: a layer produced a fact and the next layer re-derived or overwrote it.
 `profile` fetched and fully inflated each stratum's file to read the header the census already held (57.5 GB of
-sampled files in the local catalog, 1.7 GB needed). The CSV reader let Arrow infer types (`0301010072` an integer), the DBF
+sampled files of the 2,421 table-file strata in the local catalog; 331 files, 1.7 GB, needed). The CSV reader let Arrow infer types (`0301010072` an integer), the DBF
 reader chose a codepage from the first 512 records (cp850 for a file whose accents start at record 1,501), and the last
 container censused overwrote a signature's declared types with another container's `C`/0 (20,784 SIASUS DBCs).
 Decoders made their temporary files on the system drive whatever `work` said.
@@ -12,7 +12,7 @@ Decoders made their temporary files on the system drive whatever `work` said.
 **Decision.**
 - The header census answers what a header can. `profile` reads one file per family still lacking value statistics
   (the smallest); the other strata of the family are recorded `ok` from the census once their family is profiled. A
-  stratum naming an archive member, or whose signature repeats a field name, is read as before.
+  stratum whose file is an archive, that names a member, or whose signature repeats a field name, is read as before.
 - Text is read as text. CSV columns are strings, whatever they look like; Parquet and CSV honour the column projection.
 - A DBF has one codepage, scored on the records that carry a byte above 127, found by scanning the whole body (one
   comparison per block); recorded in the table's warnings as `encoding:<x>` when it mattered.
