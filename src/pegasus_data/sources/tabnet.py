@@ -19,10 +19,9 @@ from __future__ import annotations
 import html
 import re
 import urllib.parse
-import urllib.request
 from pathlib import Path
 
-from . import download
+from ..transport import download, request
 
 BASE = "http://tabnet.datasus.gov.br/cgi"
 
@@ -63,9 +62,9 @@ def tabulate(definition: str, *, row: str, files: list[str], column: str = "--NÃ
     fields += [("Arquivos", f) for f in files]
     fields += [("formato", "prn"), ("mostre", "Mostra")]
     body = urllib.parse.urlencode(fields, encoding="latin-1").encode()
-    request = urllib.request.Request(f"{BASE}/tabcgi.exe?{definition}", data=body, method="POST")
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        page = response.read().decode("latin-1")
+    answer = request(f"{BASE}/tabcgi.exe?{definition}", method="POST", content=body, timeout=timeout,
+                     headers={"Content-Type": "application/x-www-form-urlencoded"})
+    page = answer.content.decode("latin-1")
     pre = re.search(r"<PRE>(.*?)</PRE>", page, re.S | re.I)
     if pre is None:
         raise RuntimeError(f"TabNet returned no table for {definition}")

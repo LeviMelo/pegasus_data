@@ -197,7 +197,9 @@ load_population(series="POPSVS", years=2022)  # the denominator the Ministry div
                                      # says what it is: producer, vintage, reference date, years, method, with the documents
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 query("FA-HUM", period=2017)         # a source off the FTP (curation/intake.yml, intake.py): yellow-fever cases, records in the lake;
-                                     # its context fields (load_field("yellow_fever_human_cases")) are derived from them
+                                     # its context fields (load_field("yellow_fever_human_cases")) are derived from them;
+                                     # S2iD disasters ("S2ID-EVENTOS"), the school census ("INEP-EDBASICA") and ANS beneficiaries
+                                     # ("ANS-ICB") are such sources too, landed with `pegasus-data fields`
 race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable
 age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardised rate per 100,000
 ```

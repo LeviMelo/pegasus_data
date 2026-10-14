@@ -522,34 +522,29 @@ def check_lake(catalog: CatalogStore, settings: Settings) -> Check:
 
 
 def check_population(catalog: CatalogStore, settings: Settings) -> Check:
-    """§12.8 — POPSVS loads with age × sex; POPTCU is flagged unusable for standardisation."""
+    """§12.8 - POPSVS loads with age × sex; POPTCU is flagged unusable for standardisation (read from the files, ADR-0188)."""
+    from .sources.ibge import KNOWN_SERIES, materialised
+
     c = Check("population series carry their own limits", 8)
-    rows = catalog.query("SELECT * FROM population_series")
-    if not rows:
+    held = {name: m for name in KNOWN_SERIES if (m := materialised(settings.population_dir / name)) is not None}
+    if not held:
         return _skip(c, "no population series ingested; run `pegasus-data population`")
-    series = {r["series"]: dict(r) for r in rows}
-    popsvs = series.get("POPSVS")
-    poptcu = series.get("POPTCU")
     c.evidence = {
-        k: {
-            "stratifications": json.loads(v.get("stratifications") or "[]"),
-            "age_standardizable": bool(v.get("age_standardizable")),
-            "years": [v.get("year_min"), v.get("year_max")],
-            "files": v.get("file_count"),
-        }
-        for k, v in series.items()
+        name: {"stratifications": m.stratifications(KNOWN_SERIES[name].stratifications), "age_standardizable": m.age_standardizable,
+               "years": [m.years[0], m.years[-1]] if m.years else None, "files": m.files, "municipality_code_widths": list(m.code_widths)}
+        for name, m in held.items()
     }
     problems = []
-    if popsvs and not bool(popsvs.get("age_standardizable")):
-        problems.append("POPSVS is not marked age-standardizable")
-    if poptcu and bool(poptcu.get("age_standardizable")):
-        problems.append("POPTCU is wrongly marked age-standardizable")
+    if "POPSVS" in held and not held["POPSVS"].age_standardizable:
+        problems.append("POPSVS does not carry sex and age")
+    if "POPTCU" in held and held["POPTCU"].age_standardizable:
+        problems.append("POPTCU is wrongly age-standardizable")
     if problems:
         c.status = "fail"
         c.detail = "; ".join(problems)
         return c
     c.status = "pass"
-    c.detail = f"{len(series)} series registered with their supported stratifications"
+    c.detail = f"{len(held)} series in the lake with their supported stratifications"
     return c
 
 

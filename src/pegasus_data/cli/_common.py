@@ -22,6 +22,7 @@ app = typer.Typer(
 
 
 console = Console()
+err = Console(stderr=True)
 
 
 RootOpt = Annotated[
@@ -44,8 +45,20 @@ def _settings(root: Path | None, **overrides: object) -> Settings:
     return load_settings(root=root, **overrides)
 
 
+def _writer(root: Path | None, **overrides: object) -> Settings:
+    """The settings of a command that WRITES: it says where, on stderr (so ``--json`` stays clean), and warns when the
+    root named on the command line displaced a place that an environment variable or a config file had set (ADR-0175, ADR-0188)."""
+    settings = _settings(root, **overrides)
+    where = settings.places()
+    err.print(f"[dim]writes under {where['root']} (lake {where['lake']}, catalog {where['catalog']}, blobs {where['blobs']}, work {where['work']})[/dim]", soft_wrap=True)
+    for key, how in settings.origins.items():
+        if "not used" in how:
+            err.print(f"[yellow]{key} follows the root given here; {how.split('not used: ', 1)[1].rstrip(')')}[/yellow]", soft_wrap=True)
+    return settings
+
+
 def _pipeline(root: Path | None, **overrides: object) -> Pipeline:
-    return Pipeline(_settings(root, **overrides))
+    return Pipeline(_writer(root, **overrides))
 
 
 def _emit(payload: object, as_json: bool, title: str = "") -> None:

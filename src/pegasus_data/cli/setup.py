@@ -15,6 +15,7 @@ from ._common import (
     _parse_years,
     _pipeline,
     _settings,
+    _writer,
     app,
     console,
 )
@@ -59,7 +60,7 @@ def resources_ensure(
     from .._resources import ResourceManager
 
     try:
-        record = ResourceManager(_settings(root)).ensure(name, period=period, policy=policy)
+        record = ResourceManager(_writer(root)).ensure(name, period=period, policy=policy)
     except FileNotFoundError as exc:
         console.print(f"[yellow]{exc}[/yellow]")
         raise typer.Exit(code=2) from exc
@@ -87,7 +88,7 @@ def resources_build(
     """
     from .._resources import ResourceManager
 
-    result = ResourceManager(_settings(root)).build(name, years=_parse_years(years))
+    result = ResourceManager(_writer(root)).build(name, years=_parse_years(years))
     _emit(result, as_json, f"built {name}")
 
 
@@ -117,7 +118,7 @@ def registries_build(
     """
     from .. import registry
 
-    counts = registry.build(system.upper(), refresh=refresh, settings=_settings(root))
+    counts = registry.build(system.upper(), refresh=refresh, settings=_writer(root))
     if not counts:
         console.print(f"[yellow]{system.upper()}: no TabWin kit in the catalog, or none with a registry table[/yellow]")
         raise typer.Exit(code=2)

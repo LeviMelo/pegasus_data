@@ -191,7 +191,9 @@ def _denominators(settings: Any, years: tuple[int, ...]) -> tuple[dict[str, Any]
 
     A PROJECTION of what is materialised, read from the files themselves: the
     years are the years in the parquet, the stratifications are the declared axes
-    whose columns exist there. Declaring a series by its name alone offered
+    whose columns exist there, a rate on it is age-standardisable when the files
+    carry the sex and the age of every count, and the municipality code widths
+    are the ones filed. Declaring a series by its name alone offered
     ``CENSO`` against a covariates table that could not give a rate, and
     advertised years the files did not hold. The order is the preference order --
     POPSVS carries age and sex, POPTCU is totals-only, and the rest are historical.
@@ -200,22 +202,18 @@ def _denominators(settings: Any, years: tuple[int, ...]) -> tuple[dict[str, Any]
 
     out: list[dict[str, Any]] = []
     for name, series in KNOWN_SERIES.items():
-        if series.kind != "denominator":
-            continue
         held = materialised(settings.population_dir / name)
-        if held is None or "population" not in held.columns:
+        if series.kind != "denominator" or held is None or not held.denominator:
             continue
         covered = [y for y in years if y in held.years]
         if not covered:
             continue
-        stratifications = held.stratifications(series.stratifications)
         out.append({
             "series": name,
             "authority": series.authority,
-            "stratifications": stratifications,
-            "age_standardizable": (
-                series.age_standardizable and "age" in stratifications and "sex" in stratifications
-            ),
+            "stratifications": held.stratifications(series.stratifications),
+            "age_standardizable": held.age_standardizable,
+            "municipality_code_widths": list(held.code_widths),
             "years": covered,
             "note": series.notes,
         })

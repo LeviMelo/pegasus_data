@@ -3,8 +3,11 @@
 #
 #   what / citation     one sentence, and the string every row of the field carries as `source`
 #   origin              the one route used: kind api (DEMAS: base, endpoint, paging {rows: the answer's list key, size, style})
-#                       or files (Portal de Dados Abertos: files [{url, year?}] or pattern + years/months; format csv|parquet,
-#                       csv {sep, encoding}); `keep: true` keeps the raw file (default: reduced, then deleted)
+#                       or files (Portal de Dados Abertos: files [{url, key?, extension?, year?}] or pattern + years/months, and
+#                       `across: {name: [values]}` for further axes of the pattern, one file per combination (ANS: one per state);
+#                       format csv|parquet, csv {sep, encoding (latin1|utf8|mixed|a codec), member: the CSV of a zip that holds more
+#                       than one, `{year}` allowed, multiline: true when a quoted field holds line breaks, so the records are counted
+#                       by a second parser and not by lines}); `keep: true` keeps the raw file (default: reduced, then deleted)
 #   origin.static       (api) `true` when the table cannot grow (a closed series, a code list): a piece that ended short of its
 #                       size is then final. Left out, such a piece is *incomplete* and read again on every run, because the
 #                       endpoint may have grown (the safe default: the cost is a request). Toggling it changes every unit's
@@ -22,11 +25,16 @@
 #   period              {type: date (+ format, take) | month (YYYYMM) | year | parts (year, month columns) | file (the file's own
 #                       year), grain: year|month, valid: the years kept}
 #   fields              each a measure over the rows: `count` or `{sum: column}` (never a mean), `where` {column: [raw values]},
-#                       `by` [columns kept as extra keys], `unit`, `what`
+#                       `by` [columns kept as extra keys; `{COLUMN: name}` names the key], `unit`, `what`; or `unpivot` {as: [k1, k2],
+#                       columns: {COLUMN: [v1, v2]}} for a source that files its strata as columns (one row per column, labels
+#                       QUOTED: YAML reads 0_3 as the number 3); or `rows` {name: lake column} for a register read as events (one row
+#                       per record, nothing summed). `declares` is what the field says about itself to its readers (fields.yml's own
+#                       keys: `where`, the rows that make it one value per place; `icd10`, `harm`; `verified`)
 #   verified            the check made: {rows, against, measured}
 #
 # What the reduction leaves out is counted, never silent: unplaced (no municipality given), unallocated (given, but not an
-# IBGE municipality of the universe), undated, out of range.
+# IBGE municipality of the universe), undated, out of range; and a value that its declared type (date, number, integer, year) does
+# not read is null in the typed column, kept in `__RAW`, and counted per column in `unparsed`.
 
 dictionaries:
   sisagua:
@@ -1286,3 +1294,233 @@ sources:
         - DS_TIPO_UNIDADE_FARMACOTECNICA
         unit: pharmacotechnical units
         what: Compounded units of each active principle sold, by municipality and month.
+
+  s2id:
+    system: S2ID
+    series: EVENTOS
+    system_name:
+      official_name: Sistema Integrado de Informações sobre Desastres (S2iD)
+      translated_name: Integrated Disaster Information System (S2iD)
+      authority: Ministério da Integração e do Desenvolvimento Regional / SEDEC
+      what_it_is: The federal register of disasters that municipalities and states report to obtain recognition and federal aid (the data behind the Atlas Digital de Desastres).
+    official_name: Danos informados
+    translated_name: Reported damages
+    what: >
+      Disasters recorded in S2iD since 1991 (MIDR/SEDEC, CC-BY): one row per municipal event, with its IBGE municipality, its
+      date, the COBRADE code with its typology and group, the status (registered or federally recognised), and the human,
+      material, environmental and economic damages as reported.
+    one_row: one disaster event reported by one municipality
+    unit_of_analysis: municipal event
+    gotchas:
+      - S2iD types an event by its trigger, not its consequence - the great landslide disasters are registered as intense rain (Petrópolis 2022, São Sebastião 2023) or flash floods (the Serrana region 2011), not as mass movement.
+      - The damage columns are counts as reported by the municipality; a value that is no number is kept in its __RAW column and counted in `unparsed`.
+      - MIDR's firewall rejects a path ending in lowercase .csv; the portal's bare /download route passes.
+    citation: MIDR/SEDEC, S2iD, Danos Informados 1991-2025 (dadosabertos.mdr.gov.br, dataset s2id_sedec, CC-BY)
+    dictionary: https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234 (resources Dicionário de dados and COBRADE)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: mixed, multiline: true}
+      files: [{key: events, extension: csv, url: "https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234/resource/1c8aac93-f874-4f07-9405-86a0398dadd6/download"}]
+    columns:
+      Protocolo_S2iD: {role: the event's protocol (state, type, municipality, COBRADE code and date), type: code}
+      Cod_IBGE_Mun: {role: IBGE code of the municipality (7 digits), type: municipality}
+      Data_Evento: {role: date of the event (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      Cod_Cobrade: {role: COBRADE code of the disaster, type: code}
+      descricao_tipologia: {role: typology of the disaster, type: label}
+      grupo_de_desastre: {role: group of the disaster (climatological, hydrological, meteorological, ...), type: label}
+      Status: {role: registered (Registro) or federally recognised (Reconhecido), type: code}
+      DH_MORTOS: {role: people killed, type: integer}
+      DH_FERIDOS: {role: people injured, type: integer}
+      DH_ENFERMOS: {role: people sick, type: integer}
+      DH_DESABRIGADOS: {role: people left homeless, type: integer}
+      DH_DESALOJADOS: {role: people displaced, type: integer}
+      DH_DESAPARECIDOS: {role: people missing, type: integer}
+      DH_AFETADOS_SECA_ESTIAGEM: {role: people affected by drought, type: integer}
+      DH_OUTROS AFETADOS: {role: other people affected, type: integer}
+    place: {column: Cod_IBGE_Mun, type: municipality}
+    period: {type: date, column: Data_Evento, grain: year}
+    fields:
+      disasters:
+        rows:
+          protocol: PROTOCOLO_S2ID
+          municipality7: COD_IBGE_MUN
+          municipality: _MUNICIPALITY
+          event_date: DATA_EVENTO
+          cobrade: COD_COBRADE
+          typology: DESCRICAO_TIPOLOGIA
+          group: GRUPO_DE_DESASTRE
+          status: STATUS
+          deaths: DH_MORTOS
+          injured: DH_FERIDOS
+          sick: DH_ENFERMOS
+          homeless: DH_DESABRIGADOS
+          displaced: DH_DESALOJADOS
+          missing: DH_DESAPARECIDOS
+          affected_by_drought: DH_AFETADOS_SECA_ESTIAGEM
+          other_affected: DH_OUTROS AFETADOS
+        unit: events; people (human-damage counts as reported)
+        what: >
+          Events recorded in S2iD since 1991 (MIDR/SEDEC, the data behind Atlas Digital de Desastres): IBGE municipality, event
+          date, COBRADE code, typology and group (climatological, hydrological, meteorological, other), status (registered or
+          federally recognised), and deaths, injured, sick, homeless, displaced, missing and affected as reported.
+        years: 1991-2025
+        declares:
+          # The ICD-10 external causes that record a person harmed by events of these typologies, by the ICD-10 titles:
+          # X30 exposure to excessive natural heat, X31 to excessive natural cold, X36 victim of avalanche, landslide and
+          # other earth movements, X37 of cataclysmic storm, X38 of flood; X00-X09 exposure to smoke, fire and flames (every
+          # fire: a forest fire is one of its causes, not the only one). A death or admission coded here is the person-level
+          # trace of a registered event; PegaSUS reads the correspondence to ask whether an excess of those codes was also a
+          # registered disaster (corroboration). S2iD types an event by its trigger: the great landslide disasters are
+          # registered as rain, not as mass movement (Petrópolis 2022, Recife and Jaboatão 2022, São Sebastião 2023:
+          # Chuvas Intensas; Petrópolis, Nova Friburgo, Teresópolis 2011: Enxurradas; Rio 2010: Movimento de Massa;
+          # checked 2026-10-07), so X36 takes the triggers too.
+          icd10:
+            X00-X09: [Incêndio Florestal]
+            X30: [Onda de Calor e Baixa Umidade]
+            X31: [Onda de Frio]
+            X36: [Movimento de Massa, Rompimento/Colapso de barragens, Erosão, Chuvas Intensas, Enxurradas]
+            X37: [Vendavais e Ciclones, Tornado, Granizo, Chuvas Intensas]
+            X38: [Inundações, Enxurradas, Alagamentos, Chuvas Intensas]
+          # the columns that count people harmed by an event (the rest count people affected): 2% of events report a death,
+          # and the great disasters report tens to hundreds (Recife 2022 43, Petrópolis 2022 242, Nova Friburgo 2011 420)
+          harm: [deaths, injured, sick, missing]
+
+  ans:
+    system: ANS
+    series: ICB
+    system_name:
+      official_name: Agência Nacional de Saúde Suplementar (ANS), dados abertos
+      translated_name: National Agency for Supplementary Health (ANS), open data
+      authority: ANS
+      what_it_is: The regulator's open data on private health plans and their beneficiaries.
+    official_name: Informações consolidadas de beneficiários
+    translated_name: Consolidated information on beneficiaries
+    what: >
+      ANS's consolidated beneficiaries (PDA-024): per month and state, every plan's active, joined and cancelled beneficiaries
+      by the beneficiary's municipality, sex and age band, with the plan's coverage (medical-hospital or dental only).
+    one_row: the beneficiary links of one operator's plan in one municipality, sex and age band, in one month
+    unit_of_analysis: plan x municipality x sex x age band
+    gotchas:
+      - A beneficiary here is a plan LINK (vínculo), not a person - someone with two plans counts twice.
+      - The state file XX holds the beneficiaries with no state; its municipality code is -1 and it is unallocated, not a place.
+      - Within a state, a code ending in 0000 (270000) is the state's "ignored municipality", unallocated too.
+      - Only the December file of each year is read (the year-end position the SUS-dependent population is built on).
+    citation: ANS PDA-024, informacoes_consolidadas_de_beneficiarios, December of the year (dadosabertos.ans.gov.br)
+    dictionary: https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: utf8}
+      pattern: https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/{period}/pda-024-icb-{uf}-{year}_{month}.zip
+      months: 202112,202212,202312,202412,202512
+      across:
+        uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO, XX]
+    columns:
+      ID_CMPT_MOVEL: {role: the month of the position (yyyy-mm), type: code}
+      SG_UF: {role: state of the beneficiary (XX when none), type: code}
+      CD_MUNICIPIO: {role: IBGE code of the beneficiary's municipality (6 digits; -1 when none), type: municipality}
+      TP_SEXO: {role: sex of the beneficiary (F, M), type: code}
+      DE_FAIXA_ETARIA: {role: age band of the beneficiary, type: label}
+      COBERTURA_ASSIST_PLAN: {role: coverage of the plan (Médico-hospitalar or Odontológico), type: code}
+      QT_BENEFICIARIO_ATIVO: {role: active beneficiary links, type: integer}
+      QT_BENEFICIARIO_ADERIDO: {role: links joined in the month, type: integer}
+      QT_BENEFICIARIO_CANCELADO: {role: links cancelled in the month, type: integer}
+    place: {column: CD_MUNICIPIO, type: municipality}
+    period: {type: file}
+    fields:
+      ans_beneficiaries:
+        measure: {sum: QT_BENEFICIARIO_ATIVO}
+        by: [{TP_SEXO: sex}, {DE_FAIXA_ETARIA: age_band}, {COBERTURA_ASSIST_PLAN: coverage}, {SG_UF: file_uf}]
+        over: population
+        unit: active beneficiary links (vínculos), not persons
+        what: >
+          ANS's consolidated beneficiaries (informacoes_consolidadas_de_beneficiarios), the December file of each year: active
+          beneficiaries by municipality of residence, sex, age band and plan coverage (Médico-hospitalar or Odontológico).
+          Someone with two plans counts twice.
+        years: 2021-2025
+        declares:
+          # its rows are strata: read as one value per place, the medical-hospital plans (a dental plan is another link)
+          where: {coverage: Médico-hospitalar}
+          verified: {year: 2022, month: 12, medical_hospital: 50530569, equals: "ANS TabNet tabnet_02 Assistência Médica, 28 of 28 UF files", measured: 2026-10-04}
+
+  inep:
+    system: INEP
+    series: EDBASICA
+    system_name:
+      official_name: Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira (INEP), dados abertos
+      translated_name: National Institute for Educational Studies and Research (INEP), open data
+      authority: INEP / MEC
+      what_it_is: The education ministry's statistics agency; its open microdata include the annual school census.
+    official_name: Censo Escolar da Educação Básica, microdados
+    translated_name: Basic-education school census, microdata
+    what: >
+      INEP's school census (microdados_ed_basica_<year>), one row per school since the 2021 release: its municipality, its
+      dependency and location, and its enrolments in basic education, in total and by sex, by colour/race (with "not
+      declared") and by age band (0-3, 4-5, 6-10, 11-14, 15-17, 18+). The crossing of the three is not published.
+    one_row: one school in one census year
+    unit_of_analysis: school
+    gotchas:
+      - The municipality is where the school is, not where the student lives, and an enrolment is not a person.
+      - The zip holds a second table (suplemento_cursos_tecnicos); only the schools' table is read.
+      - Each margin (sex, race, age band) sums to the total (QT_MAT_BAS).
+    citation: INEP, Censo Escolar da Educação Básica, microdados_ed_basica (download.inep.gov.br/dados_abertos)
+    dictionary: https://download.inep.gov.br/dados_abertos/ (the dictionary inside each year's zip)
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1, member: "microdados_ed_basica_{year}.csv"}
+      pattern: https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_{year}.zip
+      years: 2021-2024
+    columns:
+      NU_ANO_CENSO: {role: census year, type: year}
+      CO_MUNICIPIO: {role: IBGE code of the school's municipality (7 digits), type: municipality}
+      CO_ENTIDADE: {role: the school's INEP code, type: code}
+      QT_MAT_BAS: {role: enrolments in basic education (total), type: integer}
+      QT_MAT_BAS_FEM: {role: enrolments, female, type: integer}
+      QT_MAT_BAS_MASC: {role: enrolments, male, type: integer}
+      QT_MAT_BAS_BRANCA: {role: enrolments, white, type: integer}
+      QT_MAT_BAS_PRETA: {role: enrolments, black, type: integer}
+      QT_MAT_BAS_PARDA: {role: enrolments, brown, type: integer}
+      QT_MAT_BAS_AMARELA: {role: enrolments, yellow, type: integer}
+      QT_MAT_BAS_INDIGENA: {role: enrolments, indigenous, type: integer}
+      QT_MAT_BAS_ND: {role: enrolments, colour/race not declared, type: integer}
+      QT_MAT_BAS_0_3: {role: enrolments aged 0 to 3, type: integer}
+      QT_MAT_BAS_4_5: {role: enrolments aged 4 to 5, type: integer}
+      QT_MAT_BAS_6_10: {role: enrolments aged 6 to 10, type: integer}
+      QT_MAT_BAS_11_14: {role: enrolments aged 11 to 14, type: integer}
+      QT_MAT_BAS_15_17: {role: enrolments aged 15 to 17, type: integer}
+      QT_MAT_BAS_18_MAIS: {role: enrolments aged 18 or more, type: integer}
+    place: {column: CO_MUNICIPIO, type: municipality}
+    period: {type: year, column: NU_ANO_CENSO, grain: year}
+    fields:
+      inep_enrolments:
+        unpivot:
+          as: [margin, category]
+          columns:
+            QT_MAT_BAS: [total, all]
+            QT_MAT_BAS_FEM: [sex, fem]
+            QT_MAT_BAS_MASC: [sex, masc]
+            QT_MAT_BAS_BRANCA: [race, branca]
+            QT_MAT_BAS_PRETA: [race, preta]
+            QT_MAT_BAS_PARDA: [race, parda]
+            QT_MAT_BAS_AMARELA: [race, amarela]
+            QT_MAT_BAS_INDIGENA: [race, indigena]
+            QT_MAT_BAS_ND: [race, not declared]
+            QT_MAT_BAS_0_3: [age_band, "0_3"]
+            QT_MAT_BAS_4_5: [age_band, "4_5"]
+            QT_MAT_BAS_6_10: [age_band, "6_10"]
+            QT_MAT_BAS_11_14: [age_band, "11_14"]
+            QT_MAT_BAS_15_17: [age_band, "15_17"]
+            QT_MAT_BAS_18_MAIS: [age_band, 18_mais]
+        over: population
+        unit: enrolments (matrículas) in basic education, at the school's municipality
+        what: >
+          INEP's school census (microdados_ed_basica_<year>), one row per school since the 2021 release, summed to the
+          municipality: the total, and separately the margins by sex, colour/race (with "not declared") and age band (0-3,
+          4-5, 6-10, 11-14, 15-17, 18+). The crossing of the three is not published.
+        years: 2021-2024
+        declares:
+          # its rows are margins, each summing to the total: read as one value per place, the total
+          where: {margin: total}
+          verified: {year: 2023, total: 47304632, municipalities: 5570, each_margin_sums_to_total: true, measured: 2026-10-04}

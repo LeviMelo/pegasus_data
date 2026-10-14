@@ -913,6 +913,20 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (81 %); Tp 5, the R codes, 381 of 389; Tp 3, 19 of 19; Tp 1 1,586 of 1,897. The kit's list also holds the in-situ neoplasms
   D00-D09 (Tp 4), which neither GBD list does: the two are different lists, and neither stands for the other.
 
+## 12. Reaching the non-FTP servers (measured 2026-10-14; ADR-0188)
+
+- **Certificates.** `servicodados.ibge.gov.br` sends an incomplete chain: the `certifi` roots refuse it ("unable to get local issuer
+  certificate"), the operating system's store accepts it. `download.inep.gov.br` resets a client that verifies against `certifi`. Every other
+  server read here (MIDR, ANS, TabNet, INMET, Zenodo, IPEA, DEMAS, ckan.saude, NOAA, GitHub) answers either way. The transport uses the system store.
+- **Zenodo.** From this network `zenodo.org` answers 403 to every request over IPv6, its front page included, and serves over IPv4
+  (`/api/records/7824919/versions/latest` 301 to record 13906834, 200). The transport uses IPv4.
+- **S2iD** (`dadosabertos.mdr.gov.br`, bare `/download` route): 86,323,744 bytes, cp1252, `;`, 76,190 events 1991-2025 (all dated, all in an IBGE
+  municipality); quoted fields hold line breaks, so the lines are not the records.
+- **INEP** school census: the zip holds two CSV tables (schools; the technical-courses supplement). 2023: 217,625 schools, 408 columns; the total
+  margin sums to 47,304,632 enrolments in 5,570 municipalities.
+- **ANS PDA-024**, December 2022: 28 state files (27 states and `XX`), 14,070,694 rows. `XX` has `SG_UF` "XX" and municipality `-1`; each state
+  has an "ignored" municipality code ending in `0000`. 41,879 of 50,530,569 medical-hospital links (0.08 %) are in neither.
+
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 
 - **Every SINAN file on the server is dated 2021-11 or later**, including data

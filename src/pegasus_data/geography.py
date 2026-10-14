@@ -823,7 +823,7 @@ def mesh_file(level: str = "municipality", quality: str = "minima", root: str | 
     import shutil
 
     from .config import load_settings
-    from .sources import download
+    from .transport import download
 
     if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
         raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
@@ -860,7 +860,7 @@ def point_sources(cache_dir: str | Path) -> dict[str, Path]:
     import shutil
     import zipfile
 
-    from .sources import download
+    from .transport import download
 
     cache = Path(cache_dir)
     cache.mkdir(parents=True, exist_ok=True)

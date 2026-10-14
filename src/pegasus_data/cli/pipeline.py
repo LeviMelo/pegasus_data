@@ -18,7 +18,7 @@ from ._common import (
     _fmt,
     _parse_years,
     _pipeline,
-    _settings,
+    _writer,
     app,
     console,
 )
@@ -43,7 +43,7 @@ def geography(
     from ..geography import GEOGRAPHY_PACK_NAME, build_geography_pack
     from ..sources.ibge_localidades import fetch_municipalities
 
-    settings = _settings(root)
+    settings = _writer(root)
     target = Path(out) if out else Path(str(files("pegasus_data.resources") / GEOGRAPHY_PACK_NAME))
     with console.status("compiling geography…"):
         result = build_geography_pack(
@@ -70,7 +70,7 @@ def fields(
     from ..fields import build_fields
 
     with console.status("reading IBGE…"):
-        result = build_fields(_settings(root), names=name, years=_parse_years(years))
+        result = build_fields(_writer(root), names=name, years=_parse_years(years))
     _emit(result, as_json, "fields")
 
 
@@ -97,7 +97,7 @@ def extract(
             raise typer.BadParameter(f"{f!r} is not COLUMN=CODE[,CODE...]", param_hint="--filter")
         parsed.setdefault(column.strip(), []).extend(wanted)
     try:
-        result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_settings(root), log=console.print,
+        result = build_extract(dataset, _parse_years(years), parsed, ufs=uf, settings=_writer(root), log=console.print,
                                workers=workers)
     except ValueError as exc:      # a filter column in no file's header, refused before any fetch
         console.print(f"[red]{exc}[/red]")
@@ -123,7 +123,7 @@ def curate(
     """
     from ..semantics.curation import CurationError, coverage_by_rung, load_curation
 
-    settings = _settings(root)
+    settings = _writer(root)
     store = CatalogStore(settings.catalog_path)
     try:
         if accept:
@@ -173,7 +173,7 @@ def community(
     """
     from ..sources.community import ingest as ingest_community
 
-    settings = _settings(root)
+    settings = _writer(root)
     store = CatalogStore(settings.catalog_path)
     try:
         with console.status("fetching community codings…"):
@@ -199,7 +199,7 @@ def sigtap(
     """
     from ..sources.sigtap import SigtapUnavailable, ingest
 
-    settings = _settings(root)
+    settings = _writer(root)
     store = CatalogStore(settings.catalog_path)
     try:
         with console.status("fetching SIGTAP…"):
@@ -227,7 +227,7 @@ def prefix_adjudicate(
     """
     from ..inventory.systems import adjudicate_prefix
 
-    settings = _settings(root)
+    settings = _writer(root)
     store = CatalogStore(settings.catalog_path)
     try:
         _emit(adjudicate_prefix(store, prefix, system), as_json, "prefix adjudicated")
@@ -253,7 +253,7 @@ def prune(
     """
     from ..acquire.cache import BlobStore
 
-    settings = _settings(root)
+    settings = _writer(root)
     catalog = CatalogStore(settings.catalog_path)
     try:
         result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, dry_run=dry_run)
@@ -272,7 +272,7 @@ def reencode_modelled(
     """Rewrite modelled versions with the current encoding (floats in BYTE_STREAM_SPLIT), value for value."""
     from ..modelled import reencode
 
-    settings = _settings(root)
+    settings = _writer(root)
     base = Path(settings.lake_dir) / "modelled" / product
     names = versions or sorted(p.name for p in base.iterdir() if (p / "estimates.parquet").is_file())
     for name in names:
@@ -293,7 +293,7 @@ def catalog_rebuild(
     table, which is why this is a command you run rather than something migration
     does for you.
     """
-    settings = _settings(root)
+    settings = _writer(root)
     catalog = CatalogStore(settings.catalog_path, strict_schema=False)
     try:
         declared = set(_declared_columns(_schema_sql()).get(table, {}))
@@ -502,7 +502,7 @@ def bindings(
     """
     from ..semantics.label_bindings import compile_bindings
 
-    settings = _settings(root)
+    settings = _writer(root)
     counts = compile_bindings(
         settings, systems=system, per_family=per_family,
         on_progress=None if as_json else (lambda line: console.print(f"[dim]{line}[/dim]")),
@@ -542,7 +542,7 @@ def aggregate_build_cmd(
     """
     from .._aggregate import build_aggregate
 
-    settings = _settings(root)
+    settings = _writer(root)
     wanted = _parse_years(years)
     if not wanted:
         console.print("[red]--years is required; an unbounded build would "
@@ -804,7 +804,7 @@ def snapshot(
     """
     from .. import snapshot as snap
 
-    settings = _settings(root)
+    settings = _writer(root)
     if versions is not None:
         _emit(snap.versions(versions, settings=settings), as_json, "versions")
         return

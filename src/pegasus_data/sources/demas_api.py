@@ -1,7 +1,7 @@
 """The DEMAS open-data API's own description (§11): its OpenAPI document, persisted.
 
 Base ``https://apidadosabertos.saude.gov.br``, OpenAPI document at ``/static/swagger.json``. The document is machine-readable
-field metadata, fetched with ``intake.get_json`` (the one polite, retrying client) and persisted at ingestion time to
+field metadata, fetched with ``transport.get_json`` (the one polite, retrying client) and persisted at ingestion time to
 ``api_endpoints``. The API's *tables* are not read here: every one the project uses is a declared source of
 ``curation/intake.yml``, read by ``intake`` (paging, retry, landing, the check against its other origin). What stays here
 is the document: ``declared_endpoints`` sets the endpoints the declarations read against it, so a renamed or removed path is
@@ -43,7 +43,7 @@ class Endpoint:
 
 def swagger() -> dict[str, Any]:
     """The live OpenAPI document, through the intake client."""
-    from ..intake import get_json
+    from ..transport import get_json
 
     return get_json(DEMAS_BASE_URL + DEMAS_SWAGGER_PATH)
 

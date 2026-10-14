@@ -57,7 +57,7 @@ from .sources.ibge import (
     KNOWN_SERIES,
     SERIES_METADATA,
     UnsupportedStratification,
-    series_catalogue,
+    materialised,
     series_documentation,
 )
 from .view import (
@@ -341,20 +341,21 @@ class Catalog:
         return coverage_report(self.store)
 
     def population_series(self) -> list[dict[str, Any]]:
-        catalogued = series_catalogue(self.store) or [
-            {
-                "series": s.name,
-                "authority": s.authority,
-                "year_min": s.year_min,
-                "year_max": s.year_max,
-                "stratifications": s.stratifications,
-                "age_standardizable": s.age_standardizable,
-                "notes": s.notes,
-            }
-            for s in KNOWN_SERIES.values()
-        ]
-        # what the sources that produce a series say it is (producer, vintage, method, citations): empty when undocumented
-        return [{**row, "documentation": series_documentation(str(row["series"]))} for row in catalogued]
+        """Every declared population series with what its files hold (ADR-0188): the years, the stratifications the files
+        carry among those the producer publishes, whether a rate on it can be age-standardised, the municipality code
+        widths as filed, and what the sources that produce it say it is (producer, vintage, method, citations; empty when
+        undocumented). A series with no file in the lake is listed with ``materialised`` false and no years."""
+        out = []
+        for name, spec in KNOWN_SERIES.items():
+            held = materialised(self.settings.population_dir / name) if (self.settings.population_dir / name).exists() else None
+            out.append({
+                "series": name, "kind": spec.kind, "authority": spec.authority, "materialised": held is not None,
+                "year_min": min(held.years) if held and held.years else None, "year_max": max(held.years) if held and held.years else None,
+                "stratifications": held.stratifications(spec.stratifications) if held else list(spec.stratifications),
+                "age_standardizable": bool(held and held.age_standardizable), "file_count": held.files if held else 0,
+                "municipality_code_widths": list(held.code_widths) if held else [], "notes": spec.notes,
+                "documentation": series_documentation(name)})
+        return out
 
     # --------------------------------------------------------------- describe
 
@@ -1045,19 +1046,19 @@ def load_population(
     series: str = "POPSVS",
     uf: str | Sequence[str] | None = None,
     years: int | Sequence[int] | range | None = None,
-    by: Sequence[str] = ("municipality", "year"),
+    by: Sequence[str] = (),
     catalog: Catalog | None = None,
-    # Both of these were REFERENCED in the body and never declared, so every
-    # call without an explicit catalog raised NameError: name 'root' is not
-    # defined. Same family as export() forwarding root= nowhere.
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> pa.Table:
-    """Load a denominator series, refusing a stratification it cannot support.
+    """Load a denominator series, refusing a stratification it cannot support and a year it does not hold.
 
-    ``POPTCU`` carries no age and no sex, so asking it for an age breakdown
-    raises rather than silently returning a coarser table that would then be
-    labelled age-standardised.
+    ``by`` names the axes the caller needs; ``POPTCU`` carries no age and no sex, so asking it for an age breakdown
+    raises rather than silently returning a coarser table that would then be labelled age-standardised. An axis is
+    refused by name when the producer does not publish it, and again when the series' files do not carry it. A year
+    the files do not hold is refused with the years they do hold: an empty table must not look like a population of
+    zero. The municipality codes are as filed (`sources.ibge.materialised`: ``code_widths``; ``geography.to_code7``
+    maps every width to one).
 
     The table carries what the series is (``table.schema.metadata[b"pegasus.series"]``, JSON): its authority and, from
     ``curation/populations.yml``, the producer, vintage, reference date, years, method, limitations and the documents
@@ -1067,53 +1068,51 @@ def load_population(
         years = [years]
     if isinstance(uf, str):
         uf = [uf]
-    own = catalog is None
-    cat = catalog or Catalog(root=root, settings=settings)
-    try:
-        spec = KNOWN_SERIES.get(series)
-        if spec is None:
-            raise KeyError(f"unknown population series {series!r}; known: {sorted(KNOWN_SERIES)}")
-        supported, missing = spec.supports(list(by))
-        if not supported:
-            raise UnsupportedStratification(series, missing, spec.stratifications)
-        directory = cat.settings.population_dir / series
-        if not directory.exists():
-            raise FileNotFoundError(
-                f"population series {series!r} is not in the lake; run `pegasus-data population`"
-            )
-        import pyarrow.dataset as pads
+    spec = KNOWN_SERIES.get(series)
+    if spec is None:
+        raise KeyError(f"unknown population series {series!r}; known: {sorted(KNOWN_SERIES)}")
+    supported, missing = spec.supports(list(by))
+    if not supported:
+        raise UnsupportedStratification(series, missing, spec.stratifications)
+    resolved = catalog.settings if catalog is not None else (settings or load_settings(root=Path(root) if root else None))
+    directory = resolved.population_dir / series
+    held = materialised(directory) if directory.exists() else None
+    if held is None:
+        raise FileNotFoundError(f"population series {series!r} is not in the lake; run `pegasus-data population`")
+    if not held.has_all(by):
+        raise UnsupportedStratification(series, [b for b in by if not held.has(b)], held.stratifications(spec.stratifications))
+    if years is not None and (absent := [y for y in years if y not in held.years]):
+        raise ValueError(f"population series {series!r} holds no population for {absent}; it holds {list(held.years)}")
+    import pyarrow.dataset as pads
 
-        dataset = pads.dataset(directory, format="parquet", partitioning="hive")
-        expression = None
-        if uf is not None:
-            ufs = [uf] if isinstance(uf, str) else list(uf)
-            if "uf" in dataset.schema.names:
-                expression = pads.field("uf").isin(ufs)
-            elif "municipality" in dataset.schema.names:
-                # POPSVS carries no uf column: the state is the municipality
-                # code's first two digits. The filter used to be skipped here,
-                # so uf="SE" returned the whole country (2026-10-03).
-                from .geography import _uf_codes
+    dataset = pads.dataset(directory, format="parquet", partitioning="hive")
+    expression = None
+    if uf is not None:
+        ufs = [uf] if isinstance(uf, str) else list(uf)
+        if "uf" in dataset.schema.names:
+            expression = pads.field("uf").isin(ufs)
+        elif "municipality" in dataset.schema.names:
+            # the state is the municipality code's first two digits, whatever its width (6 as IBGE filed it before 2017, 7 now)
+            from .geography import _uf_codes
 
-                codes = _uf_codes(ufs)
-                field_ = pads.field("municipality")
-                for code in codes:
-                    clause = (field_ >= code * 100000) & (field_ < (code + 1) * 100000)
+            field_ = pads.field("municipality")
+            for code in _uf_codes(ufs):
+                for width in held.code_widths or (7,):
+                    span = 10 ** (width - 2)
+                    clause = (field_ >= code * span) & (field_ < (code + 1) * span)
                     expression = clause if expression is None else (expression | clause)
-            else:
-                raise ValueError(f"population series {series!r} has neither uf nor municipality to filter by")
-        if years is not None and "year" in dataset.schema.names:
-            year_filter = pads.field("year").isin(list(years))
-            expression = year_filter if expression is None else (expression & year_filter)
-        table = dataset.to_table(filter=expression)
-        # the series' own description travels with its numbers: a methods paragraph quotes it
-        described = {"series": series, "authority": spec.authority, "directory": spec.directory, "notes": spec.notes,
-                     "documentation": series_documentation(series) or "undocumented: no document has been read"}
-        return table.replace_schema_metadata({**(table.schema.metadata or {}),
-                                              SERIES_METADATA: json.dumps(described, ensure_ascii=False).encode("utf-8")})
-    finally:
-        if own:
-            cat.close()
+        else:
+            raise ValueError(f"population series {series!r} has neither uf nor municipality to filter by")
+    if years is not None and "year" in dataset.schema.names:
+        year_filter = pads.field("year").isin(list(years))
+        expression = year_filter if expression is None else (expression & year_filter)
+    table = dataset.to_table(filter=expression)
+    # the series' own description travels with its numbers: a methods paragraph quotes it
+    described = {"series": series, "authority": spec.authority, "directory": spec.directory, "notes": spec.notes,
+                 "kind": spec.kind, "years": list(held.years), "municipality_code_widths": list(held.code_widths),
+                 "documentation": series_documentation(series) or "undocumented: no document has been read"}
+    return table.replace_schema_metadata({**(table.schema.metadata or {}),
+                                          SERIES_METADATA: json.dumps(described, ensure_ascii=False).encode("utf-8")})
 
 
 def load_reference(

@@ -18,8 +18,8 @@ does everything else, so a source adds no code:
   ``contexts: auto`` finds them. A place that is not an IBGE municipality of the universe is *unallocated* (kept in the
   records, left out of the field, counted); a row without a date is year 0 (*undated*); an absent (place, period) is absent,
   not zero.
-* **API** (`api_rows`, `read_slice`): paged by the declared style, at most one request per `INTERVAL` per host, a browser
-  User-Agent, backoff on 429, 5xx, 408/425 and timeouts (any other 4xx is `SourceAbsent`, at once); a page whose list is
+* **API** (`api_rows`, `read_slice`): paged by the declared style, every byte through `transport` (one request per interval
+  per host, a browser User-Agent, backoff on transient failures, `SourceAbsent` at once on any other 4xx); a page whose list is
   present and empty is the end, an answer without the declared list raises. A filtered read is cached under
   ``<root>/registries/<source>`` (never an empty one, unless the declaration says ``cache_empty``); a source with
   ``snapshot: true`` (a current-stock endpoint) also lands every fresh read in the lake with its read date, so a history
@@ -36,10 +36,10 @@ written after the registration, so a missing sidecar means "land again". An API 
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import re
 import shutil
-import time
 import zipfile
 from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
@@ -47,26 +47,21 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-import httpx
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-from .sources import SourceAbsent, retryable
 from .textenc import fold
+from .transport import SourceAbsent, download, get_json
 
-__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "get_json", "get_text", "land_snapshot", "read_slice", "rows_of", "url"]
+__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "land_snapshot", "read_slice", "rows_of", "url"]
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
-#: Seconds between two requests to one host.
-INTERVAL = 1.1
 #: Pages of an API read landed together as one unit.
 PIECE_PAGES = 50
+#: Columns above which a landing writes smaller row groups (see `_land`).
+WIDE = 100
 #: Declared types that get a typed column beside the raw one.
 TYPED = ("date", "number", "integer", "year", "result")
-
-_last: dict[str, float] = {}
-_client: list[httpx.Client] = []
 
 
 def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -111,10 +106,13 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
         for field, fs in (spec.get("fields") or {}).items():
             # a field's years are its own, else its source's span (the period's valid years): a context is read on them
             years = fs.get("years") or spec.get("years") or (spec.get("period") or {}).get("valid") or ""
-            out[field] = {"source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
+            # what the field says about itself to its readers (fields.yml's keys: `where`, the rows that make it one value
+            # per place; `icd10`, `harm`...) is `declares`; the rest is derived from the declaration
+            out[field] = {**(fs.get("declares") or {}),
+                          "source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
                           "years": str(years), **({"over": fs["over"]} if fs.get("over") else {}),
-                          # its strata as `load_field` names them (`_derive`: lower case)
-                          **({"by": [str(c).lower() for c in fs["by"]]} if fs.get("by") else {})}
+                          # its strata as `load_field` names them (`_derive`)
+                          **({"by": [alias for _, alias in _strata(fs)]} if fs.get("by") or fs.get("unpivot") else {})}
     return out
 
 
@@ -176,40 +174,6 @@ def _safe(text: str) -> str:
 
 
 # --- the API ---------------------------------------------------------------------------------------------------------
-
-def get_json(url: str, params: dict[str, Any] | None = None, retries: int = 4) -> Any:
-    """GET json, at most one request per INTERVAL per host, a browser User-Agent. Resets, timeouts, 408/425/429 and 5xx are
-    retried with backoff; any other 4xx raises `SourceAbsent` at once (the thing asked for is not there)."""
-    return _request(url, params, retries).json()
-
-
-def get_text(url: str, params: dict[str, Any] | None = None, retries: int = 4) -> str:
-    """GET a text body (a source file read whole), politely and with `get_json`'s retry classes."""
-    return _request(url, params, retries).text
-
-
-def _request(url: str, params: dict[str, Any] | None, retries: int) -> httpx.Response:
-    if not _client:
-        _client.append(httpx.Client(headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, timeout=120, follow_redirects=True))
-    host = urlsplit(url).netloc
-    for attempt in range(retries + 1):
-        wait = INTERVAL - (time.time() - _last.get(host, 0.0))
-        if wait > 0:
-            time.sleep(wait)
-        _last[host] = time.time()
-        try:
-            r = _client[0].get(url, params=params)
-            if retryable(r.status_code):
-                raise httpx.HTTPStatusError(f"{r.status_code}", request=r.request, response=r)
-            if r.status_code >= 400:
-                raise SourceAbsent(str(r.url), r.status_code)
-            return r
-        except (httpx.TransportError, httpx.HTTPStatusError):
-            if attempt == retries:
-                raise
-            time.sleep(5 * 2 ** attempt)
-    raise AssertionError("unreachable")
-
 
 def rows_of(answer: Any, key: str, where: str = "") -> list[dict]:
     """The list an answer carries under ``key``. A list that is present and empty is an empty page (the end of a read); an
@@ -390,6 +354,10 @@ def _ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
+def _sql_text(value: Any) -> str:
+    return "'" + str(value).replace("'", "''") + "'"
+
+
 def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     """A DuckDB connection bounded in memory, with the IBGE universe (and, for a source that gives a municipality's name and
     its state, the names that resolve to one code) registered."""
@@ -558,9 +526,15 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     staging = Path(settings.work_dir) / "intake" / f"{family}-{key}"
     shutil.rmtree(staging, ignore_errors=True)
     staging.parent.mkdir(parents=True, exist_ok=True)
+    # A row group is built in memory by each thread: INEP's school table (408 columns) ran the 2 GB limit out at 20,000 rows a
+    # group on four threads. A table wider than a hundred columns writes groups of about three million cells, on two threads.
+    wide = len(described) > WIDE
+    group = max(2048, 3_000_000 // len(described)) if wide else 262144
+    if wide:
+        con.execute("SET threads=2")
     try:
         con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (year), "
-                    f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE 262144)")
+                    f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE {group})")
         staged = sorted(staging.glob(f"year=*/part-{key}-*.parquet"))
         place = spec.get("place") or {}
         placed = place.get("type") in ("municipality", "municipality_name")
@@ -573,6 +547,18 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
             pattern = (staging / "year=*" / f"part-{key}-*.parquet").as_posix()
             row = con.execute(f"SELECT {select} FROM read_parquet('{pattern}', hive_partitioning=true)").fetchone()
             stats.update(rows=row[0], undated=row[1], unplaced=row[2] if placed else 0, unallocated=row[3] if placed else 0)
+        landed = {n for n, _ in described}
+        typed = [c.upper() for c, d in (spec.get("columns") or {}).items()
+                 if (d or {}).get("type") in ("date", "number", "integer", "year") and f"{c.upper()}__RAW" in landed]
+        if staged and typed:
+            # a value that is there and that its declared type does not read (a date as 31/02, a count as "n/d") is null in the
+            # typed column and kept in `__RAW`: counted per column, never silent
+            pattern = (staging / "year=*" / f"part-{key}-*.parquet").as_posix()
+            counts = con.execute("SELECT " + ", ".join(f"count_if({_ident(c + '__RAW')} IS NOT NULL AND {_ident(c)} IS NULL)" for c in typed)
+                                 + f" FROM read_parquet('{pattern}', hive_partitioning=true)").fetchone()
+            unparsed = {c: n for c, n in zip(typed, counts, strict=True) if n}
+            if unparsed:
+                stats["unparsed"] = unparsed
         if expect_rows is not None and stats["rows"] != expect_rows:
             raise _LostRecords(f"{source} {unit['key']}: {stats['rows']} records landed from {expect_rows} lines")
     except BaseException:
@@ -717,16 +703,22 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
     origin = _origin(spec)
     out: list[dict[str, Any]] = []
     for entry in origin.get("files") or []:
-        out.append({"key": entry.get("key") or Path(urlsplit(entry["url"]).path).name, "url": entry["url"], "year": entry.get("year")})
+        out.append({"key": entry.get("key") or Path(urlsplit(entry["url"]).path).name, "url": entry["url"], "year": entry.get("year"),
+                    "extension": entry.get("extension")})
     if origin.get("pattern"):
+        # `across` names further axes of the pattern (ANS files each month by state: {uf: [AC, AL, ...]}): one unit per combination
+        across = origin.get("across") or {}
         for period in _span(origin["years"] if origin.get("years") else origin["months"]):
             if not origin.get("years") and not 1 <= period % 100 <= 12:
                 continue                     # a span of YYYYMM months ("201401-202110") holds no month 13 to 00
-            out.append({"key": str(period), "url": origin["pattern"].format(year=period, period=period),
-                        "year": period if origin.get("years") else int(str(period)[:4])})
+            year = period if origin.get("years") else int(str(period)[:4])
+            for combination in itertools.product(*across.values()):
+                axes = dict(zip(across, map(str, combination), strict=True))
+                out.append({"key": "-".join([str(period), *axes.values()]),
+                            "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}", **axes), "year": year})
     for unit in out:
         unit["path"] = unit["url"]
-        unit["extension"] = Path(urlsplit(unit["url"]).path).suffix.lstrip(".").lower()
+        unit["extension"] = unit.get("extension") or Path(urlsplit(unit["url"]).path).suffix.lstrip(".").lower()
     return [u for u in out if not years or u["year"] is None or u["year"] in years]
 
 
@@ -761,7 +753,7 @@ def _transcode_mixed(src: Any, dst: Any) -> None:
             break
 
 
-def _file_relation(path: Path, origin: dict[str, Any]) -> tuple[str, Path | None]:
+def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> tuple[str, Path | None]:
     """A DuckDB relation over a downloaded file; a zip's CSV member is extracted beside it (returned, to delete)."""
     if origin.get("format", "csv") == "parquet":
         return f"read_parquet('{path.as_posix()}')", None
@@ -773,6 +765,9 @@ def _file_relation(path: Path, origin: dict[str, Any]) -> tuple[str, Path | None
         if path.suffix.lower() == ".zip":
             archive = zipfile.ZipFile(path)
             members = [m for m in archive.namelist() if m.lower().endswith((".csv", ".txt"))]
+            if csv.get("member"):         # the zip holds more than one table (INEP's: the schools and a supplement): the one named
+                wanted = str(csv["member"]).format(year=unit.get("year")).lower()
+                members = [m for m in members if m.lower().endswith(wanted)]
             if len(members) != 1:
                 raise ValueError(f"{path.name}: expected one CSV member, found {members}")
             name = Path(members[0]).name
@@ -790,12 +785,10 @@ def _file_relation(path: Path, origin: dict[str, Any]) -> tuple[str, Path | None
     encoding = "utf-8" if mixed else {"latin1": "latin-1", "latin-1": "latin-1", "utf8": "utf-8", "utf-8": "utf-8"}.get(
         csv.get("encoding", "utf8"), csv.get("encoding"))
     return (f"read_csv('{source.as_posix()}', all_varchar=true, header=true, delim='{csv.get('sep', ',')}', quote='\"', "
-            f"encoding='{encoding}', null_padding=true)"), extracted
+            f"encoding='{encoding}', null_padding=true{', parallel=false' if csv.get('multiline') else ''})"), extracted
 
 
 def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], refresh: bool) -> dict[str, Any]:
-    from .sources import download
-
     root = settings.root
     unit["fingerprint"] = _fingerprint(spec, unit)
     side = _sidecar(source, root, unit["key"])
@@ -807,21 +800,33 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     raw = download(unit["url"], _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"]))
     extracted = None
     counted = origin.get("format", "csv") == "csv"
+    if counted and raw.suffix.lower() != ".zip":
+        with raw.open("rb") as handle:
+            head = handle.read(120)
+        if head.lstrip()[:1] == b"<":         # a firewall's page answered with status 200 (MIDR's): not the file, and not kept
+            raw.unlink()
+            raise ValueError(f"{unit['url']} answered a page, not the file: {head!r}")
     con = _duck(settings, spec)
 
     def land(relation: str, extracted: Path | None) -> dict[str, Any]:
         # The independent count: the file's own lines less the header. DuckDB's strict_mode=false dropped 4,007 of SISAGUA
         # 2019's 2,844,261 rows without an error (2026-10-10); a record the reader loses is a recorded gap. It is checked
         # before the swap (`_land`), so a unit that lost records is never registered.
-        lines = _lines(extracted or raw) if counted else None
-        stats = _land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side,
-                      expect_rows=None if lines is None else lines - 1)
-        if lines is not None:
-            stats.update(file_lines=lines, rows_equal_lines=True)
-        return stats
+        path = extracted or raw
+        csv = origin.get("csv") or {}
+        expected: int | None = None
+        found: dict[str, Any] = {}
+        if counted and csv.get("multiline"):
+            # a field holds line breaks (free text in quotes): the lines are not the records, a second parser counts them
+            expected = _records(path, csv, transcoded=path.name.endswith(".utf8.csv"))
+            found = {"file_records": expected, "rows_equal_lines": True}
+        elif counted:
+            lines = _lines(path)
+            expected, found = lines - 1, {"file_lines": lines, "rows_equal_lines": True}
+        return {**_land(settings, source, spec, unit, con, relation, datetime.now(UTC).date().isoformat(), sidecar=side, expect_rows=expected), **found}
 
     try:
-        relation, extracted = _file_relation(raw, origin)
+        relation, extracted = _file_relation(raw, origin, unit)
         unit["size"] = raw.stat().st_size
         try:
             stats = land(relation, extracted)
@@ -833,7 +838,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
                 raise
             if extracted is not None and extracted.is_file():
                 extracted.unlink()
-            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}})
+            relation, extracted = _file_relation(raw, {**origin, "csv": {**csv, "encoding": "mixed"}}, unit)
             stats = land(relation, extracted)
             stats["encoding"] = f"mixed (the declared {csv.get('encoding')} failed: {str(exc).splitlines()[0][:120]})"
     finally:
@@ -844,6 +849,31 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     side.parent.mkdir(parents=True, exist_ok=True)
     side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
     return stats
+
+
+def _records(path: Path, csv: dict[str, Any], transcoded: bool = False) -> int:
+    """The records of a CSV file whose fields may hold line breaks, counted by a second parser (pyarrow's, which reads the
+    quoted breaks as part of the value): every row after the header, a row with the wrong number of fields included."""
+    import csv as csvmodule
+
+    import pyarrow.csv as pcsv
+
+    sep = csv.get("sep", ",")
+    encoding = "utf8" if transcoded or csv.get("encoding") == "mixed" else csv.get("encoding", "utf8")
+    with path.open("rb") as handle:
+        header = next(csvmodule.reader([handle.readline().decode("utf-8" if encoding == "utf8" else encoding, "replace")], delimiter=sep))
+    skipped = 0
+
+    def count_invalid(row: Any) -> str:
+        nonlocal skipped
+        skipped += 1
+        return "skip"
+
+    reader = pcsv.open_csv(
+        path, read_options=pcsv.ReadOptions(encoding=encoding, skip_rows=1, column_names=[f"c{i}" for i in range(len(header))], block_size=1 << 26),
+        parse_options=pcsv.ParseOptions(delimiter=sep, newlines_in_values=True, invalid_row_handler=count_invalid),
+        convert_options=pcsv.ConvertOptions(include_columns=["c0"], column_types={"c0": pa.string()}))
+    return sum(batch.num_rows for batch in reader) + skipped
 
 
 def _lines(path: Path) -> int:
@@ -967,6 +997,18 @@ def land_snapshot(source: str, table: pa.Table, label: str, read_on: str, root: 
 
 # --- the fields --------------------------------------------------------------------------------------------------------
 
+def _strata(fs: dict[str, Any]) -> list[tuple[str | None, str]]:
+    """The extra keys of a field as (column, name in the field): ``by: [COL]`` names the key as the column in lower case,
+    ``by: [{COL: name}]`` as ``name``; an ``unpivot`` field has the two keys it declares (``as``), taken from no column."""
+    if fs.get("unpivot"):
+        return [(None, str(k)) for k in fs["unpivot"]["as"]]
+    out: list[tuple[str | None, str]] = []
+    for entry in fs.get("by") or []:
+        column, alias = next(iter(entry.items())) if isinstance(entry, dict) else (entry, str(entry).lower())
+        out.append((str(column), str(alias)))
+    return out
+
+
 def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[int] | None) -> dict[str, Any]:
     """The declared fields, derived from the lake records of the source: counts and sums by place and period."""
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
@@ -981,6 +1023,11 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
     def raw_name(column: str) -> str:
         return _ident(column.upper() + ("__RAW" if declared.get(column.upper(), {}).get("type") in TYPED else ""))
 
+    def numeric(column: str, field: str) -> str:
+        if declared.get(column.upper(), {}).get("type") not in ("number", "result", "integer"):
+            raise ValueError(f"field {field}: sum of {column} needs a column declared `type: number`, `integer` or `result`")
+        return _ident(column.upper())
+
     con = _duck(settings, spec)
     report: dict[str, Any] = {}
     try:
@@ -988,7 +1035,7 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
         for name in names:
             fs = spec["fields"][name]
             keys = ([f"{place_sql} AS {place_name}"] if place else []) + ["year"] + (["_MONTH AS month"] if period.get("grain") == "month" else [])
-            keys += [f"{raw_name(c)} AS {_ident(c.lower())}" for c in fs.get("by") or []]
+            keys += [f"{raw_name(c)} AS {_ident(alias)}" for c, alias in _strata(fs) if c]
             where = ["year > 0"] + ([f"{place_sql} IS NOT NULL"] if place else [])
             if valid:
                 where.append(f"year BETWEEN {valid[0]} AND {valid[-1]}")
@@ -1005,25 +1052,46 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
                     where.append("(" + " AND ".join(f"({x})" for x in parts if x) + ")")
                 else:
                     where.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
-            measure = fs["measure"]
-            if measure == "count":
-                value = "count(*)"
+            filtered = f"FROM rec WHERE {' AND '.join(where)}"
+            if fs.get("rows"):
+                # one row per record, the declared columns of the lake records under the declared names (an event register read
+                # as events: the field is a view of the records, nothing is summed)
+                table = con.execute(f"SELECT {', '.join(f'{_ident(col)} AS {_ident(alias)}' for alias, col in fs['rows'].items())}, year {filtered}").fetch_arrow_table()
+                report[name] = _write_rows(settings, name, table, years)
+                continue
+            if fs.get("unpivot"):
+                # a source that files its strata as columns (enrolments by sex, by race, by age band): one row per column, the
+                # two keys named by `as` ([margin, category]) and the column's own as declared in `columns`
+                group = ", ".join(str(i + 1) for i in range(len(keys)))
+                for column, labels in fs["unpivot"]["columns"].items():
+                    if not all(isinstance(v, str) for v in labels):      # YAML reads 0_3 as the number 3
+                        raise ValueError(f"field {name}: the labels of {column} must be text (quote them): {labels}")
+                parts = [f"SELECT {', '.join(keys)}, {', '.join(f'{_sql_text(v)} AS {_ident(k)}' for k, v in zip(fs['unpivot']['as'], labels, strict=True))}, "
+                         f"sum({numeric(column, name)}) AS value {filtered} GROUP BY {group}"
+                         for column, labels in fs["unpivot"]["columns"].items()]
+                table = con.execute(" UNION ALL ".join(parts)).fetch_arrow_table()
             else:
-                if declared.get(measure["sum"].upper(), {}).get("type") not in ("number", "result"):
-                    raise ValueError(f"field {name}: sum of {measure['sum']} needs a column declared `type: number` or `result`")
-                value = f"sum({_ident(measure['sum'].upper())})"
-            group = ", ".join(str(i + 1) for i in range(len(keys)))
-            table = con.execute(f"SELECT {', '.join(keys)}, {value} AS value FROM rec WHERE {' AND '.join(where)} GROUP BY {group}").fetch_arrow_table()
+                measure = fs["measure"]
+                value = "count(*)" if measure == "count" else f"sum({numeric(measure['sum'], name)})"
+                group = ", ".join(str(i + 1) for i in range(len(keys)))
+                table = con.execute(f"SELECT {', '.join(keys)}, {value} AS value {filtered} GROUP BY {group}").fetch_arrow_table()
             table = table.set_column(table.schema.get_field_index("value"), "value", pc.cast(table.column("value"), pa.float64()))
-            report[name] = _write_field(spec, Path(settings.lake_dir) / "fields", name, fs, table, place_name, years)
+            report[name] = _write_field(spec, settings, name, fs, table, place_name, years)
     finally:
         con.close()
     return report
 
 
-def _write_field(spec: dict[str, Any], lake: Path, name: str, fs: dict[str, Any], table: pa.Table, place_name: str | None, years: list[int] | None) -> dict[str, Any]:
-    import shutil
+def _write_rows(settings: Any, name: str, table: pa.Table, years: list[int] | None) -> dict[str, Any]:
+    """A field of records (``rows``): the table split by its ``year`` (`fields._write_by_year`); a build of every year
+    replaces the field."""
+    from .fields import _write_by_year
 
+    return {"rows": _write_by_year(table, name, settings, prune=not years)}
+
+
+def _write_field(spec: dict[str, Any], settings: Any, name: str, fs: dict[str, Any], table: pa.Table, place_name: str | None, years: list[int] | None) -> dict[str, Any]:
+    from .fields import _write_by_year
     from .geography import municipalities
 
     n = table.num_rows
@@ -1033,18 +1101,10 @@ def _write_field(spec: dict[str, Any], lake: Path, name: str, fs: dict[str, Any]
     table = table.append_column("status", pa.array(["ok"] * n, pa.string()))
     table = table.append_column("unit", pa.array([str(fs.get("unit", ""))] * n, pa.string()))
     table = table.append_column("source", pa.array([str(spec.get("citation", ""))] * n, pa.string()))
-    target = lake / name
-    if not years and target.exists():
-        for old in target.glob("year=*"):
-            shutil.rmtree(old)
-    by_year: dict[int, float] = {}
-    for year in sorted(set(table.column("year").to_pylist())):
-        part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
-        directory = target / f"year={int(year)}"
-        directory.mkdir(parents=True, exist_ok=True)
-        pq.write_table(part, directory / "part.parquet", compression="zstd")
-        by_year[int(year)] = pc.sum(part.column("value")).as_py()
-    return {"rows": n, "total": sum(by_year.values()), "by_year": by_year}
+    sums = table.group_by("year").aggregate([("value", "sum")])
+    by_year = {int(y): v for y, v in zip(sums.column("year").to_pylist(), sums.column("value_sum").to_pylist(), strict=True)}
+    _write_by_year(table, name, settings, prune=not years)
+    return {"rows": n, "total": sum(by_year.values()), "by_year": dict(sorted(by_year.items()))}
 
 
 def build_source(settings: Any, source: str, names: list[str] | None = None, years: list[int] | None = None, refresh: bool = False) -> dict[str, Any]:
@@ -1069,6 +1129,12 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         report["absent"] = sorted(absent)
     for k in ("rows", "undated", "unplaced", "unallocated"):
         report[k] = sum(u.get(k, 0) for u in report["units"].values())
+    unparsed: dict[str, int] = {}
+    for unit_stats in report["units"].values():
+        for column, n in (unit_stats.get("unparsed") or {}).items():
+            unparsed[column] = unparsed.get(column, 0) + n
+    if unparsed:
+        report["unparsed"] = unparsed
     report.update(_derive(settings, spec, fields, years))
     return report
 
@@ -1127,8 +1193,6 @@ def _profile(source: str, spec: dict[str, Any], which: str, columns: list[str], 
     """The rows of an origin as (the given columns..., n): how many rows hold each combination of values, and the row total.
     A file is streamed (and deleted), an API read paged to its end; values are trimmed and a trailing ``.0`` dropped, so
     ``29`` and ``29.0`` are one value."""
-    from .sources import download
-
     origin = _origin(spec, which)
     mapping = origin.get("map") or {}
     own = [mapping.get(c, c) for c in columns]

@@ -108,7 +108,7 @@ def fetch_microdatasus(*, commit: str | None = None) -> CommunitySource:
     Resolves ``master`` to a concrete SHA when no commit is given, so the result
     is reproducible even though the request was not pinned.
     """
-    from ..intake import get_json, get_text
+    from ..transport import get_json, get_text
 
     sha = commit or get_json(f"{_API}/commits/master")["sha"]
     tree = get_json(f"{_API}/git/trees/{sha}?recursive=1")

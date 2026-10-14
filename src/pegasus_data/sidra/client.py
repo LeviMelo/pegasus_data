@@ -12,28 +12,28 @@ What the server does, as measured (DATA_SOURCES, "SIDRA's limits"), is handled h
 - gzip arrives without ``Content-Encoding`` and is read by its magic bytes;
 - HTTP 500 means a request the server will not serve (too many values, or ID lists too long): it is
   raised as `SidraRefused` for the planner to split, not retried unchanged;
-- a reset, a timeout or a body cut short (`IncompleteRead`, seen on table 1436 at 2.3 of 5.9 MB) is transient and is retried with backoff.
+- a reset, a timeout or a body cut short (seen on table 1436 at 2.3 of 5.9 MB) is transient and is retried with backoff
+  by `pegasus_data.transport`, the one client of every non-FTP byte.
 """
 
 from __future__ import annotations
 
 import gzip
 import hashlib
-import http.client
 import json
 import os
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from ..sources import BROWSER_AGENT
+from ..transport import SourceAbsent, request
 
 BASE = "https://servicodados.ibge.gov.br/api/v3/agregados"
 LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades"
+#: The statuses worth asking again. HTTP 500 is not one: it means a request the server will not serve.
+TRANSIENT = frozenset({429, 502, 503, 504})
 
 __all__ = ["BASE", "SidraClient", "SidraError", "SidraRefused", "SidraRejected", "Response"]
 
@@ -82,7 +82,6 @@ class SidraClient:
         self.cache_dir = Path(cache_dir)
         self.delay = delay
         self.attempts = attempts
-        self._last = 0.0
         self.network_requests = 0
         self.cache_hits = 0
 
@@ -120,42 +119,22 @@ class SidraClient:
 
     # -- network ---------------------------------------------------------------------------------
 
-    def _pace(self) -> None:
-        wait = self._last + self.delay - time.monotonic()
-        if wait > 0:
-            time.sleep(wait)
-
     def _fetch(self, url: str, timeout: float) -> tuple[bytes, float]:
-        last: Exception | None = None
-        for attempt in range(self.attempts):
-            self._pace()
-            started = time.monotonic()
-            try:
-                request = urllib.request.Request(url, headers={"User-Agent": BROWSER_AGENT, "Accept-Encoding": "gzip"})
-                with urllib.request.urlopen(request, timeout=timeout) as response:
-                    body = response.read()
-                self._last = time.monotonic()
-                self.network_requests += 1
-            except urllib.error.HTTPError as exc:
-                self._last = time.monotonic()
-                self.network_requests += 1
-                text = exc.read()[:200].decode("utf-8", "replace")
-                if exc.code in (429, 502, 503, 504) and attempt < self.attempts - 1:
-                    last = exc
-                    time.sleep(min(60.0, 5.0 * 2 ** attempt))
-                    continue
-                raise SidraRefused(exc.code, url, text) from exc
-            except (OSError, urllib.error.URLError, http.client.HTTPException) as exc:    # resets, timeouts, truncated bodies
-                self._last = time.monotonic()
-                last = exc
-                time.sleep(min(60.0, 5.0 * 2 ** attempt))
-                continue
-            if body[:2] == b"\x1f\x8b":                        # gzip without Content-Encoding
-                body = gzip.decompress(body)
-            if body.lstrip()[:1] == b"<":
-                raise SidraRejected(f"IBGE answered an HTML page with status 200 (the firewall): {url[:160]}…")
-            return body, time.monotonic() - started
-        raise SidraError(f"{url[:200]}: {self.attempts} attempts failed; last: {last!r}") from last
+        started = time.monotonic()
+        try:
+            response = request(url, timeout=timeout, retries=self.attempts - 1, interval=self.delay, retry_on=TRANSIENT.__contains__)
+        except SourceAbsent as exc:         # HTTP 500 and the other statuses SIDRA answers for a request it will not serve
+            self.network_requests += 1
+            raise SidraRefused(exc.status, url, exc.body) from exc
+        except ConnectionError as exc:      # resets, timeouts, truncated bodies and throttles that outlasted the attempts
+            raise SidraError(f"{url[:200]}: {self.attempts} attempts failed; last: {exc}") from exc
+        self.network_requests += 1
+        body = response.content
+        if body[:2] == bytes((0x1F, 0x8B)):                  # gzip without Content-Encoding
+            body = gzip.decompress(body)
+        if body.lstrip()[:1] == b"<":
+            raise SidraRejected(f"IBGE answered an HTML page with status 200 (the firewall): {url[:160]}…")
+        return body, time.monotonic() - started
 
     def get(self, kind: str, url: str, *, refresh: bool = False) -> Response:
         """``url``'s JSON; from the cache unless ``refresh``. ``kind`` names the cache folder

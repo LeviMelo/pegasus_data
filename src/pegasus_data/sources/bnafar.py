@@ -29,6 +29,7 @@ import pyarrow as pa
 
 from .. import intake
 from ..textenc import fold
+from ..transport import get_json
 
 SOURCE = "bnafar"
 #: The columns kept are declared in ``curation/intake.yml`` (the rest of a row is the establishment's address, telephone and
@@ -95,7 +96,7 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
             for suffix, unit in units.items():
                 code = f"BR{int(item['codigoItem']):07d}{suffix}"
                 if code not in probe:
-                    rows = intake.rows_of(intake.get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}), "parametros", f"BNAFAR {code}")
+                    rows = intake.rows_of(get_json(intake.url(SOURCE), {"codigo_catmat": code, "limit": 1}), "parametros", f"BNAFAR {code}")
                     probe[code] = rows[0]["descricao_produto"].strip() if rows else None
                     cache.write_text(json.dumps(probe, ensure_ascii=False), encoding="utf8")
                 if probe[code] or not only_with_stock:

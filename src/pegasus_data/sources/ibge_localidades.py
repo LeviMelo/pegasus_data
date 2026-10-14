@@ -171,7 +171,7 @@ def fetch_municipalities() -> tuple[Municipality, ...]:
     IBGE returns the nested chain per municipality, so there is nothing to
     paginate and nothing to join client-side.
     """
-    from ..intake import get_json
+    from ..transport import get_json
 
     payload = get_json(f"{BASE_URL}/municipios")
     if not isinstance(payload, list):  # pragma: no cover - defensive
