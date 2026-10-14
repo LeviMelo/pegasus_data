@@ -36,6 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
+from .epoch import curated, curation_fingerprint
 
 #: Rungs of evidence, best first (§4.5). Mirrors ``SOURCE_AUTHORITY`` but names
 #: the *documentation* sources rather than the value-label ones.
@@ -401,7 +402,7 @@ def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
     return doc
 
 
-@lru_cache(maxsize=1)
+@curated
 def _inline_codelists() -> dict[str, dict[str, str]]:
     """Every inline code table in the package's own curation, by codelist id.
 
@@ -423,7 +424,7 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
     return out
 
 
-@lru_cache(maxsize=1)
+@curated
 def _harvested_fields() -> dict[str, dict[str, Any]]:
     """Every field the official dictionaries document, per form: its layout (``type``: date, number or text;
     ``width``; the form's ``label``; a code ``table`` it names) and its ``codes``.
@@ -446,7 +447,7 @@ def _harvested_fields() -> dict[str, dict[str, Any]]:
     return out
 
 
-@lru_cache(maxsize=1)
+@curated
 def _harvested_codelists() -> dict[str, dict[str, str]]:
     """The harvested fields' code tables (`_harvested_fields`); ids ``CURATED.<SYSTEM>.<SERIES>.<FIELD>``."""
     out: dict[str, dict[str, str]] = {}
@@ -543,40 +544,6 @@ def iter_curation_files(root: Path) -> Iterator[Path]:
 
 
 # -------------------------------------------------------------------- loading
-
-
-def curation_fingerprint(root: Path) -> str:
-    """A digest of the curation files, so a changed meaning can be noticed.
-
-    Content, not mtime: the YAML ships inside a wheel and its timestamps say
-    when it was unpacked, which is unrelated to whether anything was edited.
-    Cached per path because it is asked on every fetch and the answer cannot
-    change inside one process — the files are package data.
-    """
-    return _fingerprint(str(root))
-
-
-#: The curation a codelist is built from: harvested tables, variables' inline codes, curated codelists. A role, a link
-#: or a dataset declaration labels nothing, so editing one leaves the reference tables current.
-CODELIST_CURATION = ("codes", "variables", "codelists.yml")
-
-
-def codelist_fingerprint(root: Path) -> str:
-    """A digest of the curation the reference tables are written from (`CODELIST_CURATION`): a role edit changed the
-    whole-curation digest and rewrote every SINAN lookup (about 70 s a time, 2026-10-08)."""
-    return _fingerprint(str(root), CODELIST_CURATION)
-
-
-@lru_cache(maxsize=16)
-def _fingerprint(root: str, parts: tuple[str, ...] | None = None) -> str:
-    digest = hashlib.blake2b(digest_size=16)
-    paths = Path(root).rglob("*.yml") if parts is None else (
-        q for part in parts for q in ((Path(root) / part).rglob("*.yml") if (Path(root) / part).is_dir()
-                                      else [Path(root) / part] if (Path(root) / part).exists() else []))
-    for path in sorted(paths):
-        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
-        digest.update(path.read_bytes())
-    return digest.hexdigest()
 
 
 def curation_is_current(catalog: CatalogStore, root: Path) -> bool:
@@ -1223,7 +1190,7 @@ class DatasetSemantics:
         return self.axes.get("default_time")
 
 
-@lru_cache(maxsize=8)
+@curated(rooted=True)
 def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
     """Read grain and axes for every curated dataset, honouring inheritance.
 

@@ -5,6 +5,7 @@ columns:
     role: patient.postcode
     kind: place
     model: link_only
+    place_of: subject
     name: Código de Endereçamento Postal do logradouro do paciente
     years:
     - 2001
@@ -132,6 +133,7 @@ columns:
     role: authorisation.managing_uf_municipality_ibge_code
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Gestor - BR\" (authorisation.managing_uf_municipality_ibge_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -172,6 +174,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:

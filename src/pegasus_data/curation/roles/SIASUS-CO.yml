@@ -73,6 +73,7 @@ columns:
     role: authorisation.managing_authority_code
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"COB_GESTAO\" (authorisation.managing_authority_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:

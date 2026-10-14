@@ -27,6 +27,7 @@ columns:
     role: authorisation.linked_entity_municipality_slot_1
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_APMN1\" (authorisation.linked_entity_municipality_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -38,6 +39,7 @@ columns:
     role: authorisation.linked_entity_municipality_slot_2
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_APMN2\" (authorisation.linked_entity_municipality_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -108,6 +110,7 @@ columns:
     role: authorisation.managing_authority
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_GESTAO\" (authorisation.managing_authority): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -141,6 +144,7 @@ columns:
     role: authorisation.backup_general_hospital_municipality_slot_1
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_HGMN1\" (authorisation.backup_general_hospital_municipality_slot_1): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -152,6 +156,7 @@ columns:
     role: authorisation.backup_general_hospital_municipality_slot_2
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_HGMN2\" (authorisation.backup_general_hospital_municipality_slot_2): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -190,6 +195,7 @@ columns:
     role: authorisation.renal_transplant_referral_hospital_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_HTPMN\" (authorisation.renal_transplant_referral_hospital_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -274,6 +280,7 @@ columns:
     role: authorisation.analysis_laboratory_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_LAAMN\" (authorisation.analysis_laboratory_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -304,6 +311,7 @@ columns:
     role: authorisation.histocompatibility_laboratory_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_LHCMN\" (authorisation.histocompatibility_laboratory_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -334,6 +342,7 @@ columns:
     role: authorisation.medical_supplies_vendor_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_MEDMN\" (authorisation.medical_supplies_vendor_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -364,6 +373,7 @@ columns:
     role: authorisation.maintenance_contractor_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_MTAMN\" (authorisation.maintenance_contractor_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -419,6 +429,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_PCMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
@@ -430,6 +441,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_PCMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
@@ -542,6 +554,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_RDMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
@@ -553,6 +566,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_RDMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
@@ -602,6 +616,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_1
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_USMN1\" (authorisation.reference_entity_municipality_slot_1): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:
@@ -613,6 +628,7 @@ columns:
     role: authorisation.reference_entity_municipality_slot_2
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDI_USMN2\" (authorisation.reference_entity_municipality_slot_2): billing value or quantity, competence, validity or exit of the authorisation: billing"
     codelists:

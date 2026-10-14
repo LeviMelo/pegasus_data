@@ -224,6 +224,7 @@ columns:
     role: notification.ibge_code_municipality_of_the_new_specialised_unit
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE - Município da nova unidade\" (notification.ibge_code_municipality_of_the_new_specialised_unit): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -237,6 +238,7 @@ columns:
     role: notification.ibge_code_municipality_of_probable_infection
     kind: place
     model: mark
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"COD IBGE - Município Provável de Infecção\" (notification.ibge_code_municipality_of_probable_infection): symptom onset, death, exposure, infection place or newborn measurement: the health event"
     codelists:
@@ -250,6 +252,7 @@ columns:
     role: notification.ibge_code_new_municipality_of_residence
     kind: place
     model: mark
+    place_of: subject
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE – Município de transferência\" (notification.ibge_code_new_municipality_of_residence): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -263,6 +266,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"COD IBGE - Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -276,6 +280,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE - Município da Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -289,6 +294,7 @@ columns:
     role: notification.ibge_code_municipality_of_the_specialised_service
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE - Município Hospital/Serviço Especializado\" (notification.ibge_code_municipality_of_the_specialised_service): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -302,6 +308,7 @@ columns:
     role: notification.ibge_code_municipality_of_birth
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"COD IBGE - Município de Nascimento do paciente\" (notification.ibge_code_municipality_of_birth): municipality of birth of the person"
     codelists:
@@ -315,6 +322,7 @@ columns:
     role: notification.ibge_code_municipality_of_the_new_follow_up_unit
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE – Município de nova UBS\" (notification.ibge_code_municipality_of_the_new_follow_up_unit): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -328,6 +336,7 @@ columns:
     role: notification.ibge_code_municipality_of_the_follow_up_primary_care_unit
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"COD IBGE - Município da UBS de acompanhamento do caso\" (notification.ibge_code_municipality_of_the_follow_up_primary_care_unit): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -361,6 +370,7 @@ columns:
     role: case.infection_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Município Provável de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável de Infecção

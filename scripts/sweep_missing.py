@@ -15,6 +15,7 @@ import sys
 from collections import Counter
 
 from pegasus_data.semantics import column_roles, event_types
+from pegasus_data.semantics.epoch import forget_curation
 
 SAMPLED = {"SIASUS-PA", "SIASUS-BI", "SIASUS-PS", "SIASUS-SAD"}
 LAST = 2023                 # the years the lake holds; the FTP was unreachable when this ran (2026-10-09)
@@ -53,7 +54,7 @@ def main(only: list[str]) -> None:
             done = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             lines = [ln for ln in (done.stdout + done.stderr).splitlines() if "[fetch]" not in ln and "Warn" not in ln]
             print("\n".join(lines[-40:]), flush=True)
-            column_roles.load_column_roles.cache_clear()
+            forget_curation()         # the proposer wrote the role files
             rows = undeclared(key)
             if not rows:
                 break

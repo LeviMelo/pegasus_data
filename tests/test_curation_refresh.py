@@ -91,12 +91,9 @@ class TestItReloadsOnlyWhenItShould:
             target.write_text(
                 target.read_text(encoding="utf-8") + "\n# corrected\n", encoding="utf-8"
             )
-            curation_fingerprint.cache_clear() if hasattr(
-                curation_fingerprint, "cache_clear"
-            ) else None
-            from pegasus_data.semantics import curation as _c
+            from pegasus_data.semantics.epoch import forget_curation
 
-            _c._fingerprint.cache_clear()
+            forget_curation()
             assert curation_is_current(store, curation_copy) is False
         finally:
             store.close()

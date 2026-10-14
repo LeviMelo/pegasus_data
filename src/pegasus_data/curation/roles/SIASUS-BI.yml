@@ -186,6 +186,7 @@ columns:
     role: procedure.managing_authority
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Gestão\" (procedure.managing_authority): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
@@ -250,6 +251,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF+Municipio de residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -415,6 +417,7 @@ columns:
     role: procedure.establishments_municipality_ibge_code
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF+Municipio do estabelecimento\" (procedure.establishments_municipality_ibge_code): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:

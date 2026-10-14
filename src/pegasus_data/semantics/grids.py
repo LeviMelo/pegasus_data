@@ -22,11 +22,12 @@ Every cell is a declared column, every axis value one of its axis's codes, every
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
+
+from .epoch import curated
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,7 +49,7 @@ class ColumnGrid:
                 "cells": {col: dict(zip(names, codes, strict=True)) for col, codes in self.cells}}
 
 
-@lru_cache(maxsize=1)
+@curated
 def load_grids() -> dict[str, dict[str, ColumnGrid]]:
     """Every role file's grids, validated against its columns."""
     from .column_roles import load_column_roles, roles_dir

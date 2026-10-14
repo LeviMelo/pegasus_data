@@ -55,6 +55,7 @@ columns:
     role: facility.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Municipality where the establishment is located\" (facility.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:

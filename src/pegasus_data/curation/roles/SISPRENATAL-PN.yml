@@ -39,6 +39,7 @@ columns:
     role: pregnancy.health_unit_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município da UBS\" (pregnancy.health_unit_municipality): prenatal care, test dates and delivery type: how care happened"
     codelists:
@@ -100,6 +101,7 @@ columns:
     role: pregnancy.state_uf_of_the_pregnant_woman
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF da Gestante\" (pregnancy.state_uf_of_the_pregnant_woman): UF of the pregnant woman: attribute of the person"
     codelists:

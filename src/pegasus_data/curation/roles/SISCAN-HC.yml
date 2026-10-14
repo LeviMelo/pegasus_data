@@ -189,6 +189,7 @@ columns:
     role: exam.laboratory_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Município do prestador de serviço\" (exam.laboratory_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -201,6 +202,7 @@ columns:
     role: exam.laboratory_state
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UF do prestador de serviço\" (exam.laboratory_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -543,6 +545,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -579,6 +582,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -660,6 +664,7 @@ columns:
     role: exam.health_unit_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Município da unidade de coleta\" (exam.health_unit_municipality): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -672,6 +677,7 @@ columns:
     role: exam.health_unit_state
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF da unidade de coleta\" (exam.health_unit_state): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -1249,6 +1255,7 @@ columns:
     role: exam.laboratory_region
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Região do laboratório\" (exam.laboratory_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:
@@ -1261,6 +1268,7 @@ columns:
     role: exam.region_of_residence
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Região de residência\" (exam.region_of_residence): residence or birth date of the person"
     codelists:
@@ -1273,6 +1281,7 @@ columns:
     role: exam.health_unit_region
     kind: place
     model: mark
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Região da unidade de coleta\" (exam.health_unit_region): unit, laboratory or provider that collected or read the exam, or its order number: the facility register"
     codelists:

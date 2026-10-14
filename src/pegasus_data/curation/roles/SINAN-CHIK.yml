@@ -226,6 +226,7 @@ columns:
     role: case.infection_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável da Fonte de Infecção
@@ -272,6 +273,7 @@ columns:
     role: case.infection_country
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País Provável da Fonte de Infecção
@@ -284,6 +286,7 @@ columns:
     role: case.infection_state
     kind: place
     model: where
+    place_of: event
     fact_domain: clinical
     fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF Provável da Fonte de Infecção
@@ -975,6 +978,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de Residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     also:
@@ -995,6 +999,7 @@ columns:
     role: notification.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
@@ -1027,6 +1032,7 @@ columns:
     role: patient.residence_country
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"País de Residência\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
     name: País de Residência
@@ -1039,6 +1045,7 @@ columns:
     role: notification.health_region
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Regional de Saúde da Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Regional de Saúde da Notificação
@@ -1052,6 +1059,7 @@ columns:
     role: patient.residence_region
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Regional de Saúde da Residência\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     note: Health region of residence, derived from ID_MN_RESI.
@@ -1184,6 +1192,7 @@ columns:
     role: case.hospital_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município (da hospitalização)\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.
@@ -1436,6 +1445,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de Residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     note: State level of ID_MN_RESI, the residence stratum.
@@ -1449,6 +1459,7 @@ columns:
     role: notification.state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de Notificação\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: UF de Notificação
@@ -1510,6 +1521,7 @@ columns:
     role: case.hospital_state
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF de hospitalização\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.

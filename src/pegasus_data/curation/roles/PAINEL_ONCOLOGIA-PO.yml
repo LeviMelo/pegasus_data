@@ -162,6 +162,7 @@ columns:
     role: case.diagnosis_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município do diagnóstico\" (case.diagnosis_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
@@ -174,6 +175,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -186,6 +188,7 @@ columns:
     role: case.treatment_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município do tratamento\" (case.treatment_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
@@ -238,6 +241,7 @@ columns:
     role: case.state_of_diagnosis
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF do diagnóstico\" (case.state_of_diagnosis): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
@@ -250,6 +254,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -262,6 +267,7 @@ columns:
     role: case.state_of_treatment
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UF do tratamento\" (case.state_of_treatment): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:

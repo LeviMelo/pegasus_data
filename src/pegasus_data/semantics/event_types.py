@@ -44,14 +44,16 @@ count of hospitalisations is one rule wherever it is asked.
 
 from __future__ import annotations
 
+import dataclasses
 import warnings
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
+
+from .epoch import curated
 
 
 @dataclass(frozen=True, slots=True)
@@ -141,7 +143,7 @@ KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notific
                    "authorisation", "procedure"})
 
 
-@lru_cache(maxsize=1)
+@curated
 def load_event_types() -> dict[str, tuple[EventType, ...]]:
     """``SYSTEM-SERIES`` -> its declared event types, validated."""
     from ..config import curation_root
@@ -172,7 +174,7 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
     return {k: tuple(v) for k, v in out.items()}
 
 
-@lru_cache(maxsize=1)
+@curated
 def _declarations() -> dict[str, tuple[str, str, dict[str, Any]]]:
     """``SYSTEM-SERIES`` -> (the datasets file, its key there, the dataset's declaration as written)."""
     from ..config import curation_root
@@ -553,6 +555,7 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
 
 
 def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, records: pa.Table | None = None,
+                consolidate: bool = True, prepare: Callable[[pa.Table], pa.Table] | None = None,
                 **query_kwargs: Any) -> pa.Table:
     """The events of one type read from ``dataset`` (``period``, ``geography``, ... as `query`), or from ``records``
     already read (an extract's, `pegasus_data.extract`): the one place that assembles an event type's reading.
@@ -561,16 +564,22 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     duplicate flag, which a form or a year may lack: then it reads without it and the flag marks none; any other missing
     column raises), or every column when the duplicates rule compares whole rows. The result is `events_of`'s, and
     for an event that is not a grid, carries ``__w``: the number of events each row stands for (`event_weights`).
-    ``records`` are taken as they come: a duplicate flag they lack raises, as a forgotten projection would."""
+    ``records`` are taken as they come: a duplicate flag they lack raises, as a forgotten projection would.
+
+    ``consolidate=False`` reads the event's records, not its events: the duplicates and the status apply, the consolidation
+    does not (a continuation AIH is a record of its own; the key is not read). ``prepare`` is applied to the table as read,
+    before the rule: a caller that needs a column the rule's own comparison must see (a record identity, which is made from
+    the record's fields) adds it there."""
     flag = event.duplicates_flag[0] if event.duplicates_flag else None
+    rule = event if consolidate else dataclasses.replace(event, consolidation_key=())
     if records is not None:
         table = records
     else:
         from .._query_engine.executor import query
 
-        needed = {c for c in (*columns, event.status_column, *event.consolidation_key, event.weight, event.grid_total,
-                              event.grid_margin, *(c.column for c in event.grid)) if c}
-        select = None if event.duplicates_except is not None else (sorted(needed) or None)
+        needed = {c for c in (*columns, rule.status_column, *rule.consolidation_key, rule.weight, rule.grid_total,
+                              rule.grid_margin, *(c.column for c in rule.grid)) if c}
+        select = None if rule.duplicates_except is not None else (sorted(needed) or None)
         if select is None or flag is None:
             table = query(dataset, select=select, present="codes", **query_kwargs)
         else:
@@ -580,7 +589,9 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
                 if f"'{flag}' is not present" not in str(exc):
                     raise
                 table = query(dataset, select=select, present="codes", **query_kwargs)
-    events = events_of(table, event, flag_absent_ok=records is None)
+    if prepare is not None:
+        table = prepare(table)
+    events = events_of(table, rule, flag_absent_ok=records is None)
     if event.grid:
         return events
     return events.append_column("__w", event_weights(events, event))

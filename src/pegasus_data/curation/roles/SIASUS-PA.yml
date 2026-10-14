@@ -415,6 +415,7 @@ columns:
     role: procedure.management_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Codigo da UF+Municipio de Gestao\" (procedure.management_municipality): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:
@@ -558,6 +559,7 @@ columns:
     role: procedure.attendance_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de Atendimento (inferido)\" (procedure.attendance_municipality): procedure, attendance, dates or counts of care delivered"
     codelists:
@@ -570,6 +572,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UF+Municipio de residencia do paciente\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -904,6 +907,7 @@ columns:
     role: procedure.facility_municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"UF+Municipio do estabelecimento\" (procedure.facility_municipality): facility, its location, owner, credit assignee or management: the facility register and billing"
     codelists:

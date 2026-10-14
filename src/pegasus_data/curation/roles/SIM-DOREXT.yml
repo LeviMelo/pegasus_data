@@ -226,6 +226,7 @@ columns:
     role: deceased.birth_municipality
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do município de naturalidade\" (deceased.birth_municipality): attribute of the person"
     name: Código do município de naturalidade
@@ -239,6 +240,7 @@ columns:
     role: death.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de ocorrência\" (death.municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Município de ocorrência
@@ -253,6 +255,7 @@ columns:
     role: deceased.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência\" (deceased.residence): attribute of the person"
     name: Município de residência
@@ -267,6 +270,7 @@ columns:
     role: deceased.residence_country
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Código do país de residência\" (deceased.residence_country): attribute of the person"
     codelists:
@@ -279,6 +283,7 @@ columns:
     role: death.svo_iml_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: process
     fact_domain_evidence: "\"Município do SVO ou IML\" (death.svo_iml_municipality): place of death, certificate, investigation, registration or receipt of the death record: how the death was recorded and investigated"
     name: Município do SVO ou IML
@@ -803,6 +808,7 @@ columns:
     role: deceased.birth_place
     kind: place
     model: dimension
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Naturalidade\" (deceased.birth_place): attribute of the person"
     name: Naturalidade

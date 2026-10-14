@@ -34,7 +34,6 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +41,7 @@ import duckdb
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
+from ..semantics.epoch import curated
 from .identity import DUP_SQL, RECORD_ID_SQL, connect
 from .roles import dataset_roles, role_table, unusable_roles
 
@@ -147,14 +147,14 @@ def padded_period(period: object, side: Side) -> object:
     return (str(p.start // 100 - before), str(p.end // 100 + after))
 
 
-@lru_cache(maxsize=1)
+@curated
 def raw_links() -> dict[str, Any]:
     """`links.yml` as one process read it: the specs a run uses and the digest its store key carries come from this one
     snapshot (a file edited while a run was going stored old specs under the new digest, 2026-10-09)."""
     return read_yaml(links_file())
 
 
-@lru_cache(maxsize=1)
+@curated
 def load_links() -> dict[str, LinkSpec]:
     data = raw_links()
     out: dict[str, LinkSpec] = {}

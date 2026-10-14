@@ -16,6 +16,7 @@ columns:
     role: authorisation.partner_service_apc_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_APCMN\" (authorisation.partner_service_apc_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -70,6 +71,7 @@ columns:
     role: authorisation.managing_uf_municipality_ibge_code
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"Gestor - BR\" (authorisation.managing_uf_municipality_ibge_code): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -93,6 +95,7 @@ columns:
     role: authorisation.partner_service_lc_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_LCMN\" (authorisation.partner_service_lc_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -123,6 +126,7 @@ columns:
     role: authorisation.partner_service_me_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_MEMN\" (authorisation.partner_service_me_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -153,6 +157,7 @@ columns:
     role: authorisation.partner_service_mn_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_MNMN\" (authorisation.partner_service_mn_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -241,6 +246,7 @@ columns:
     role: authorisation.partner_service_pc_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_PCMN\" (authorisation.partner_service_pc_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -271,6 +277,7 @@ columns:
     role: authorisation.partner_service_pr_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_PRMN\" (authorisation.partner_service_pr_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -323,6 +330,7 @@ columns:
     role: authorisation.partner_service_qt_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_QTMN\" (authorisation.partner_service_qt_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -334,6 +342,7 @@ columns:
     role: authorisation.partner_service_qt1_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_QTMN1\" (authorisation.partner_service_qt1_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -345,6 +354,7 @@ columns:
     role: authorisation.partner_service_qt2_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_QTMN2\" (authorisation.partner_service_qt2_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -391,6 +401,7 @@ columns:
     role: authorisation.partner_service_rad_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_RADMN\" (authorisation.partner_service_rad_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -493,6 +504,7 @@ columns:
     role: authorisation.partner_service_rm_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_RMMN\" (authorisation.partner_service_rm_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -694,6 +706,7 @@ columns:
     role: authorisation.partner_service_tac_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_TACMN\" (authorisation.partner_service_tac_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:
@@ -724,6 +737,7 @@ columns:
     role: authorisation.partner_service_us_municipality
     kind: place
     model: mark
+    place_of: record
     fact_domain: administrative
     fact_domain_evidence: "\"UDO_USMN\" (authorisation.partner_service_us_municipality): facility, partner service, equipment or management of the authorising unit: the facility register"
     codelists:

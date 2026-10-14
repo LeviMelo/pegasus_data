@@ -56,6 +56,7 @@ columns:
     role: notification.notifying_municipality
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"CODMUNNOT\" (notification.notifying_municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -67,6 +68,7 @@ columns:
     role: patient.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"CODMUNRES\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -447,6 +449,7 @@ columns:
     role: patient.residence_alias
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"ID_MN_RESI\" (patient.residence_alias): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -531,6 +534,7 @@ columns:
     role: notification.notifying_region
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"REGIAONOT\" (notification.notifying_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -542,6 +546,7 @@ columns:
     role: patient.residence_region
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"REGIAORES\" (patient.residence_region): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:
@@ -786,6 +791,7 @@ columns:
     role: notification.notifying_state_uf
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"UFNOT\" (notification.notifying_state_uf): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     codelists:
@@ -797,6 +803,7 @@ columns:
     role: patient.residence_state
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"UFRES\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
     codelists:

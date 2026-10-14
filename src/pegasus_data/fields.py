@@ -26,6 +26,8 @@ from typing import Any
 
 import pyarrow as pa
 
+from .semantics.epoch import curated
+
 __all__ = ["build_fields", "declared_fields", "field_rate", "load_field"]
 
 
@@ -44,7 +46,9 @@ def write_parquet_atomic(table: pa.Table, target: Path, **options: Any) -> None:
         tmp.unlink(missing_ok=True)
 
 
+@curated(rooted=True)
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
+    """The declared fields (``fields.yml`` and the intake sources'), once per curation epoch. Shared: not to be edited."""
     from .config import curation_root
     from .intake import intake_fields
     from .ontology import _read_yaml

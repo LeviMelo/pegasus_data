@@ -28,7 +28,6 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from functools import cache
 from pathlib import Path, PurePosixPath
 
 from ..catalog.store import CatalogStore
@@ -37,6 +36,7 @@ from .dictionary import (
     coverage_for_field,
     observed_values,
 )
+from .epoch import curated
 
 #: Semantic types that are never additive, whatever their name suggests.
 NON_SUMMABLE_TYPES = {
@@ -155,7 +155,7 @@ def _sentinels_for(system: str | None, series: str | None, field_name: str) -> l
                    for code in r["missing"] or ()})
 
 
-@cache
+@curated
 def _units_of(system: str | None, series: str | None) -> dict[str, str]:
     """``column (upper-cased) -> unit`` of one dataset's role declarations (``unit:``): what the layout or dictionary
     says the column is measured in (``curation/roles``), never what its values look like. A column with none, or whose

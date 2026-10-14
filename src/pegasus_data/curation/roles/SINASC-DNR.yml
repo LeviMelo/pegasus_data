@@ -39,6 +39,7 @@ columns:
     role: mother.residence_area
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Área de residência\" (mother.residence_area): attribute of the mother (age, birth, residence, occupation)"
     name: Área de residência
@@ -50,6 +51,7 @@ columns:
     role: mother.residence_neighborhood
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Bairro de residência da mãe\" (mother.residence_neighborhood): attribute of the mother (age, birth, residence, occupation)"
     name: Bairro de residência da mãe
@@ -98,6 +100,7 @@ columns:
     role: mother.residence_health_region
     kind: place
     model: mark
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"CRS de residência da mãe\" (mother.residence_health_region): attribute of the mother (age, birth, residence, occupation)"
     name: CRS de residência da mãe
@@ -109,6 +112,7 @@ columns:
     role: birth.health_region
     kind: place
     model: mark
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"CRS de ocorrência\" (birth.health_region): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     name: CRS de ocorrência
@@ -268,6 +272,7 @@ columns:
     role: mother.residence
     kind: place
     model: stratum
+    place_of: subject
     fact_domain: person
     fact_domain_evidence: "\"Município de residência da mãe\" (mother.residence): attribute of the mother (age, birth, residence, occupation)"
     codelists:
@@ -281,6 +286,7 @@ columns:
     role: birth.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: process
     fact_domain_evidence: "\"Município de ocorrência\" (birth.municipality): place of birth, or registration, receipt and declaration of the birth record: how the birth was recorded"
     codelists:
@@ -392,6 +398,7 @@ columns:
     role: birth.reporting_state
     kind: place
     model: excluded
+    place_of: record
     name: UF informante
     codelists:
     - UF_BR

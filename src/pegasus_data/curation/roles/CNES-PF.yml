@@ -89,6 +89,7 @@ columns:
     role: establishment.municipality
     kind: place
     model: where
+    place_of: event
     fact_domain: administrative
     fact_domain_evidence: "\"Código do Município (UF + Município)\" (establishment.municipality): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:
@@ -404,6 +405,7 @@ columns:
     role: professional.residence
     kind: place
     model: mark
+    place_of: subject
     fact_domain: administrative
     fact_domain_evidence: "\"UF e município de residência do profissional\" (professional.residence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
     codelists:

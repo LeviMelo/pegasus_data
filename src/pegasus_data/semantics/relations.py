@@ -7,12 +7,12 @@ import json
 import sqlite3
 from dataclasses import asdict, dataclass
 from enum import StrEnum
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from ..catalog.store import CatalogStore, _semantic_relation_id, utcnow
 from ..config import curation_root
+from .epoch import curated
 
 
 class RelationType(StrEnum):
@@ -40,26 +40,21 @@ class SemanticRelation:
     authority: str = "curated"
 
 
+@curated(rooted=True)
 def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
-    # Parsed once per distinct CONTENT, not once per call. `relations_for` runs
-    # for every column of every rendered file, and re-parsing joins.yml each
-    # time was 84 seconds of a single state-year fetch. The key is the text
-    # itself rather than the file's mtime: Windows advances mtime on a ~16 ms
-    # timer tick, so two writes in quick succession can share one, and a
-    # rewritten file would be served from the parse of its predecessor.
-    # Reading a few kilobytes per call is nothing; the YAML parse is not.
-    path = (root or curation_root()) / "joins.yml"
-    try:
-        text = path.read_text(encoding="utf-8")
-    except OSError:
-        return ()
-    return _parse_relations(text)
+    """The shipped relation declarations (``joins.yml``), parsed once per curation epoch: `relations_for` runs for every
+    column of every rendered file, and re-parsing the file each time was 84 seconds of a single state-year fetch."""
+    return read_relations(root)
 
 
-@lru_cache(maxsize=8)
-def _parse_relations(text: str) -> tuple[SemanticRelation, ...]:
+def read_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
+    """``joins.yml`` as it is now, parsed. What a catalog is seeded from reads the file, not the epoch's copy."""
     from .curation import load_yaml_text
 
+    try:
+        text = ((root or curation_root()) / "joins.yml").read_text(encoding="utf-8")
+    except OSError:
+        return ()
     data = load_yaml_text(text) or {}
     out: list[SemanticRelation] = []
     for body in data.get("relations") or ():
@@ -296,7 +291,7 @@ def _store_relation(conn: Any, item: SemanticRelation, *, authority: str) -> Non
 
 def seed_relations(catalog: CatalogStore, root: Path | None = None) -> int:
     """Synchronize refreshable curated compiler output, preserving local truth."""
-    relations = load_relations(root)
+    relations = read_relations(root)
     with catalog.write() as conn:
         # Curated rows are a compiled snapshot, not durable user decisions. A
         # boundary or artifact change must replace the prior snapshot rather
