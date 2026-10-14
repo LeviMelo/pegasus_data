@@ -205,7 +205,10 @@ Stored aggregates are sums and counts, never finished means.
   the regime (commit, data home, date).
 - **When a documented number is found wrong,** correct it where it was written
   and say so there.
-- **Commits.** Work on a branch; the user merges and pushes.
+- **Commits and merges (user, 2026-10-14).** The agent manages branches and merges its own verified
+  work into the working branch at once, so a change is live before anything runs on it: a fix
+  waiting for a merge had left live runs measuring outdated code. Pushing to GitHub, publishing or
+  contacting anyone still needs explicit authorisation, each time (§4).
 
 ---
 
