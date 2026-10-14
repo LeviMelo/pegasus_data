@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import warnings
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from functools import lru_cache
@@ -212,6 +213,12 @@ def _digits(value: object) -> str:
     return _NON_DIGIT.sub("", str(value or ""))
 
 
+def _warn_registry(report: EnrichmentReport) -> None:
+    if report.registry == "unavailable":
+        warnings.warn(f"{report.route}: the establishment registry (CADGERBR) could not be read, so the answers are the "
+                      "older kits' undated claims alone", stacklevel=3)
+
+
 def _resolver(available_for: Any, distinct: Sequence[SourceVintage | None]) -> Any:
     """``(key, vintage index) -> (candidate values, coarse ambiguity)``, computed once per DISTINCT pair: a table has
     thousands of establishments and a handful of vintages, and its millions of rows ask the same few questions."""
@@ -262,6 +269,7 @@ def enrich_cnpj(
     valid: dict[str, bool] = {}
     report = EnrichmentReport("CNPJ", from_field, f"{from_field}→CNPJ", rows_before=table.num_rows,
                               registry="unavailable" if getattr(rows, "registry_unavailable", False) else "available")
+    _warn_registry(report)
     resolved: list[str | None] = []
     statuses: list[str] = []
     take_indices: list[int] = []
@@ -348,6 +356,7 @@ def enrich_cnes(
         rows_before=table.num_rows,
         registry="unavailable" if getattr(reverse, "registry_unavailable", False) else "available",
     )
+    _warn_registry(report)
     indices: list[int] = []
     resolved: list[str | None] = []
     statuses: list[str] = []

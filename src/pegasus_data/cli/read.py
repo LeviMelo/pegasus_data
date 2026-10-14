@@ -268,7 +268,8 @@ def structure_cmd(
 @app.command(name="graph", rich_help_panel="UNDERSTAND")
 def graph_cmd(
     kind: Annotated[str, typer.Argument(help="contiguity, population_distance, regic_network, regic_health_basic, "
-                                             "regic_health_high, or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN)")],
+                                             "regic_health_high, or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN, SINAN-DENG, ...: "
+                                             "one whose roles declare a residence and a place of the event)")],
     period: Annotated[str | None, typer.Option("--period", help="Care flows: the years counted")] = None,
     geo: Annotated[str, typer.Option("--geo", help="Care flows: the publications read")] = "BR",
     by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC or COMPLEX")] = None,
@@ -282,9 +283,9 @@ def graph_cmd(
     root: RootOpt = None,
 ) -> None:
     """A proximity graph between municipalities, as an edge list (from, to, weight, kind, vintage)."""
-    from ..proximity import FLOWS, care_flows, proximity_graph
+    from ..proximity import care_flows, flows, graph_kinds, proximity_graph
 
-    if kind.upper() in FLOWS:
+    if kind.lower() not in graph_kinds() and kind.upper().replace(".", "-") in flows():
         if period is None:
             raise typer.BadParameter("care flows need --period")
         table = care_flows(kind, period=period, geography=geo, by=by, level=level, destination=to,
