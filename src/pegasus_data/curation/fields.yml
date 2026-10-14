@@ -177,6 +177,7 @@ fields:
     years: 2000, 2010
 
   persons_10_plus_literate:
+    over: persons_10_plus
     series: literacy_10plus
     measure: numerator
     unit: persons
@@ -267,6 +268,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_low_income:
+    over: persons_income_universe
     series: persons_income_band
     measure: numerator
     where: {income_band: [le_half, none]}
@@ -277,6 +279,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_no_income:
+    over: persons_income_universe
     series: persons_income_band
     measure: numerator
     where: {income_band: [none]}
