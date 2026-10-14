@@ -310,7 +310,7 @@ columns:
   COMUNINF:
     role: case.infection_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável da Fonte de Infecção
@@ -421,7 +421,7 @@ columns:
   CON_INF_MU:
     role: case.infection_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"Município provável de infecção (nome de campo legado)\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name.
@@ -435,7 +435,7 @@ columns:
   CON_INF_PA:
     role: case.infection_country
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"País de infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name; draft typed it number, but it is a country code.
@@ -446,7 +446,7 @@ columns:
   CON_INF_UF:
     role: case.infection_state
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"UF provável de infecção (nome de campo legado)\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     note: Legacy 2000-2006 name.
@@ -459,7 +459,7 @@ columns:
   COPAISINF:
     role: case.infection_country
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: País Provável da Fonte de Infecção
@@ -471,7 +471,7 @@ columns:
   COUFINF:
     role: case.infection_state
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: UF Provável da Fonte de Infecção
@@ -1712,7 +1712,7 @@ columns:
   MUNICIPIO:
     role: case.hospital_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"Município (da hospitalização)\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.
@@ -2331,7 +2331,7 @@ columns:
   UF:
     role: case.hospital_state
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"UF de hospitalização\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     note: Only filled when HOSPITALIZ = 1.

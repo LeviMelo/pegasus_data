@@ -82,7 +82,7 @@ columns:
   ATE_MUNICI:
     role: case.hospital_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"Município do hospital\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: Município do hospital
@@ -100,7 +100,7 @@ columns:
   ATE_UF_INT:
     role: case.hospital_state
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"UF do hospital\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:

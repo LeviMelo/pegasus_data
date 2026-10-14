@@ -44,7 +44,7 @@ columns:
   COD_MUN_HO:
     role: case.hospital_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"Município do hospital\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     name: Município do hospital
@@ -56,7 +56,7 @@ columns:
   COD_UF_HOS:
     role: case.hospital_state
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"UF de hospitalização\" (case.hospital_state): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:

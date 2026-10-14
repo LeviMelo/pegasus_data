@@ -360,7 +360,7 @@ columns:
   COMUNINF:
     role: case.infection_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"Município Provável de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: Município Provável de Infecção

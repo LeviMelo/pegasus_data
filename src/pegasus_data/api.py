@@ -996,8 +996,16 @@ def _read_generations(
         optional.append("year")
         optional.append("_competencia")
         optional.append("_source_resolution")
-        # a row filter needs its columns in the generation: one without them holds none of the filtered rows
-        filtered = bool(rows) and all(c in _physical_columns(cat, system, str(family["family_id"])) for c in rows)
+        # a row filter needs its columns in the generation. One without them cannot say which of its rows match: none
+        # is returned, unread, and the absence is RECORDED, never an empty generation that looks like no records (a
+        # residence filter on SIM-DOFET's 1995 files, whose residence is MUNIRES, had read as no foetal deaths)
+        if rows:
+            physical = _physical_columns(cat, system, str(family["family_id"]))
+            unfilterable = [c for c in rows if c not in physical]
+            if unfilterable:
+                structurally_absent.setdefault(str(family["family_id"]), []).extend(
+                    f"{c} (row filter)" for c in unfilterable)
+                continue
         try:
             table = cat.lake.read(
                 system=system,
@@ -1006,10 +1014,8 @@ def _read_generations(
                 years=years,
                 columns=projection,
                 optional_columns=optional,
-                where=_rows_expression(rows) if filtered else None,
+                where=_rows_expression(rows) if rows else None,
             )
-            if rows and not filtered:
-                table = table.slice(0, 0)
         except FileNotFoundError:
             continue
         if table.num_rows:

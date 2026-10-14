@@ -54,7 +54,7 @@ columns:
   COMUNINF:
     role: case.infection_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"Município Provável da Fonte de Infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
     codelists:
@@ -73,7 +73,7 @@ columns:
   COPAISINF:
     role: case.infection_country
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"País Provável da Fonte de Infecção\" (case.infection_country): place of infection, exposure, travel, risk or accident: exposure of the case"
     codelists:
@@ -86,7 +86,7 @@ columns:
   COUFINF:
     role: case.infection_state
     kind: place
-    model: mark
+    model: where
     fact_domain: clinical
     fact_domain_evidence: "\"UF Provável da Fonte de Infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
     codelists:
@@ -935,7 +935,7 @@ columns:
   NM_MUNIC_H:
     role: case.hospital_municipality
     kind: place
-    model: mark
+    model: where
     fact_domain: process
     fact_domain_evidence: "\"Município do Hospital (nome)\n\" (case.hospital_municipality): municipality or state where the case was cared for, diagnosed or treated, or delivered: how care happened"
     codelists:
