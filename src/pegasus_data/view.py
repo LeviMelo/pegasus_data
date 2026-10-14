@@ -511,7 +511,7 @@ def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) ->
     """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094)."""
     try:
         table = read_reference_table(lake, str(via["table"]), system=system)
-    except (FileNotFoundError, OSError, KeyError):
+    except (FileNotFoundError, KeyError):
         return None
     field_name = str(via.get("field") or "label")
     if field_name not in table.column_names:
@@ -602,7 +602,7 @@ def _labelled_codes(lake: Path, classification: str, codes: object, *, as_code: 
     """
     try:
         table = read_reference_table(lake, classification)
-    except (FileNotFoundError, OSError):
+    except FileNotFoundError:
         return None
     if as_code:
         return _per_distinct(codes, lambda v: v or None)
@@ -621,7 +621,7 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
         return None
     try:
         table = read_reference_table(lake, classification)
-    except (FileNotFoundError, OSError):
+    except FileNotFoundError:
         return None
     names = _names_of(table, [str(v).strip()[:digits] for v in _distinct(codes)])
 

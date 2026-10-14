@@ -29,6 +29,6 @@ directories and what a dataset's year was by selecting every file of it.
   `schema_presence` holds nothing (30 of 321 signatures). An empty or blank `rows=` prefix list raises `ValueError`; a filter
   that matches nothing returns an empty table with its schema.
 
-**Consequences.** Undated intake records (`year=0`, never a publication, unlisted by `intake.py`) are no longer reached by
-`load(years=None)`. A lake rebuilt in place keeps its list exact, because `write_batches` updates it with the file. The fetch
+**Consequences.** Undated intake records (`year=0`, never a publication) were unlisted by `intake.py` and so no longer reached by
+`load(years=None)`; corrected by ADR-0174 (they are a listed partition). A lake rebuilt in place keeps its list exact, because `write_batches` updates it with the file. The fetch
 path's own `uf=None` selection (`retrieve._select_files`) is unchanged: `query()` passes explicit states.
