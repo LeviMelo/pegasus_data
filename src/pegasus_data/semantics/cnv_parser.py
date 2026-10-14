@@ -552,9 +552,10 @@ def expand_expression(
                     continue
             unexpanded.append(part)
             continue
-        codes.append(part)
-        if width and part.isdigit() and len(part) < width:
-            codes.append(part.zfill(width))
+        # The declared width, exactly as a range emits it: a code written shorter is padded to it and the unpadded
+        # form is not also emitted (it would label a stray shorter value with the padded code's label). A header
+        # with no width leaves the code as written.
+        codes.append(part.zfill(width) if width and part.isdigit() and len(part) < width else part)
     # Preserve first-seen order while removing duplicates.
     return list(dict.fromkeys(codes)), unexpanded
 

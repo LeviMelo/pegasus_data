@@ -68,15 +68,22 @@ class TestTokenRuleInference:
         assert infer_token_rule(values) == {"width": 4}
 
     def test_sentinels_do_not_drive_the_inference(self):
-        assert infer_token_rule(["0000", "0000", "", "A419"]) == {}
+        assert infer_token_rule(["0000", "0000", "", "A419"], {"0000"}) == {}
 
 
 class TestQualityClassification:
     def test_a_sentinel_is_not_malformed(self):
         """DIAG_SECUN is dead, not dirty, and the report has to say which."""
-        q = measure_column(["0000"] * 5, system="SIHSUS", field_name="DIAG_SECUN")
+        q = measure_column(["0000"] * 5, system="SIHSUS", field_name="DIAG_SECUN", sentinels={"0000"})
         assert q.sentinel == 5
         assert q.malformed == 0
+
+    def test_a_code_no_role_declares_missing_is_not_assumed_to_be(self):
+        """No code is a sentinel in every column: an undeclared 0000 is counted as what it looks like, a real 0 stays a code."""
+        q = measure_column(["0000"] * 5, system="SIHSUS", field_name="DIAG_SECUN")
+        assert q.sentinel == 0
+        q = measure_column(["0"], system="SIHSUS", field_name="X", sentinels={"0"}, known_codes={"0": "zero"})
+        assert (q.sentinel, q.single_valid) == (0, 1)
 
     def test_icd9_is_a_different_revision_not_broken_data(self):
         """SIM ran on CID-9 until 1996 and those years are still on the tree."""

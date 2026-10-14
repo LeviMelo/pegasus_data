@@ -7,7 +7,11 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
 * ``kind``: death, foetal death, birth, hospitalisation, notification, case;
 * ``classifiers``: the code columns that partition the events, one
   ``primary`` and any ``alternative`` (different families of fields over the
-  same events, never independent of each other);
+  same events, never independent of each other); ``role`` is required. An alternative that
+  ``recodes`` the primary is a second coding of the SAME attribute (SIM's original underlying cause beside the
+  underlying cause, same ICD-10 structure): it corroborates or compares and is never a further dimension, since
+  counting by it counts the same events again; one that does not is another attribute of the same events, a facet
+  (SIH's procedure beside its diagnosis) that partitions them differently;
 * ``status``: which rows count (a column and the codes that count, read
   from that dataset's own form or layout, never guessed);
 * ``consolidation``: the key whose distinct values are the events (SIH's
@@ -40,7 +44,8 @@ count of hospitalisations is one rule wherever it is asked.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
@@ -54,6 +59,8 @@ class Classifier:
     column: str
     role: str            # primary | alternative
     structure: str | None = None   # the code structure it lives in (ICD10, SIGTAP...)
+    #: The primary column this one re-codes (a second coding of the same attribute, same structure); None: a facet
+    recodes: str | None = None
 
 
 #: The columns a weight grid's events carry in place of a record's sex and age: sex 1 male / 2 female (None unknown),
@@ -109,7 +116,8 @@ class EventType:
         return {
             "dataset": self.dataset, "system": self.system, "series": self.series, "name": self.name,
             "kind": self.kind, "grain": self.grain,
-            "classifiers": [{"column": c.column, "role": c.role, "structure": c.structure} for c in self.classifiers],
+            "classifiers": [{"column": c.column, "role": c.role, "structure": c.structure, "recodes": c.recodes}
+                           for c in self.classifiers],
             "status": ({"column": self.status_column, "values": list(self.status_values),
                         "excluded": list(self.status_excluded)} if self.status_column else None),
             "consolidation": {"key": list(self.consolidation_key)} if self.consolidation_key else None,
@@ -141,7 +149,7 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
 
     out: dict[str, list[EventType]] = {}
     for path in sorted((curation_root() / "datasets").glob("*.yml")):
-        doc = read_yaml(path)
+        doc = read_yaml(path, shared=True)
         # a file's shared event types hold for every dataset in it that does not declare one of the same name
         # (SINAN's notification: every agravo carries the notification block, so a row is a notification in all 58)
         shared = (doc.get("shared") or {}).get("event_types") or ()
@@ -169,13 +177,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
     kind = str(spec.get("kind") or "")
     if kind not in KINDS:
         raise ValueError(f"{where}: {key}.{name}: kind {kind!r} not in {sorted(KINDS)}")
-    classifiers = tuple(
-        Classifier(str(c["column"]).upper(), str(c.get("role", "alternative")), c.get("structure"))
-        for c in spec.get("classifiers") or ()
-    )
-    primaries = [c for c in classifiers if c.role == "primary"]
-    if len(primaries) > 1 or any(c.role not in ("primary", "alternative") for c in classifiers):
-        raise ValueError(f"{where}: {key}.{name}: one primary classifier at most, the others alternative")
+    classifiers = _classifiers(spec.get("classifiers"), f"{where}: {key}.{name}")
     status = spec.get("status") or {}
     if status and bool(status.get("values")) == bool(status.get("exclude")):
         raise ValueError(f"{where}: {key}.{name}: a status lists either the codes that count or those that do not")
@@ -204,6 +206,31 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         source_notes=_source_notes(spec.get("source_notes"), f"{where}: {key}.{name}"),
         exposure=_exposure(spec.get("exposure"), f"{where}: {key}.{name}"),
     )
+
+
+def _classifiers(specs: list[dict[str, Any]] | None, where: str) -> tuple[Classifier, ...]:
+    """The declared classifiers, validated: every one names its ``role``; one primary at most; ``recodes`` names the
+    primary column it re-codes, in the same code structure."""
+    classifiers = []
+    for c in specs or ():
+        if "role" not in c:
+            raise ValueError(f"{where}: classifier {c.get('column')!r} names no role (primary or alternative)")
+        recodes = str(c["recodes"]).upper() if c.get("recodes") else None
+        classifiers.append(Classifier(str(c["column"]).upper(), str(c["role"]), c.get("structure"), recodes))
+    primaries = [c for c in classifiers if c.role == "primary"]
+    if len(primaries) > 1 or any(c.role not in ("primary", "alternative") for c in classifiers):
+        raise ValueError(f"{where}: one primary classifier at most, the others alternative")
+    for c in classifiers:
+        if c.recodes is None:
+            continue
+        if c.role != "alternative":
+            raise ValueError(f"{where}: {c.column} recodes {c.recodes}, so it is an alternative classifier")
+        if not primaries or primaries[0].column != c.recodes:
+            raise ValueError(f"{where}: {c.column} recodes {c.recodes}, which is not this event's primary classifier")
+        if not c.structure or c.structure != primaries[0].structure:
+            raise ValueError(f"{where}: {c.column} recodes {c.recodes} and must be in its code structure "
+                             f"({primaries[0].structure!r}), not {c.structure!r}")
+    return tuple(classifiers)
 
 
 def _exposure(spec: dict[str, Any] | None, where: str) -> dict[str, Any] | None:
@@ -355,19 +382,31 @@ def event_type(dataset: str, name: str) -> EventType:
     raise KeyError(f"{dataset!r} declares no event type {name!r}")
 
 
-def events_of(table: pa.Table, event: EventType) -> pa.Table:
+#: Schema-metadata key `events_of` sets on its result: how many rows had no consolidation key (kept as events of
+#: their own), as text. Absent when none.
+UNKEYED = b"pegasus.unkeyed"
+
+
+def events_of(table: pa.Table, event: EventType, *, flag_absent_ok: bool = False) -> pa.Table:
     """The rows of ``table`` that are events of this type, one per event.
 
     Duplicate entries first (a declared ``duplicates`` rule: rows equal on every column but entry metadata are one
-    record, the first in file order kept; the table must then carry every column), then status (which rows count),
-    then consolidation: one row per distinct key, the first in file order. Exact string matching: a status code is
-    matched at the width the dataset files it.
+    record, the first in file order kept; the table must then carry every column; the source's own flag drops the
+    rows it marks, and its column must be in the table: ``flag_absent_ok`` is for the reader that found the form
+    without it, `read_events`, never a forgotten projection), then status (which rows count), then consolidation: one
+    row per distinct key, the first in file order. A row with no key (null or blank in any key column) identifies no
+    event to join and is kept as an event of its own; their number is the result's `UNKEYED` metadata. Exact string
+    matching: a status code is matched at the width the dataset files it.
     """
-    if event.duplicates_flag and event.duplicates_flag[0] in table.column_names:
+    if event.duplicates_flag:
         column, codes = event.duplicates_flag
-        flagged = pc.is_in(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())),
-                           value_set=pa.array(list(codes), pa.string()))
-        table = table.filter(pc.invert(pc.fill_null(flagged, False)))
+        if column in table.column_names:
+            flagged = pc.is_in(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())),
+                               value_set=pa.array(list(codes), pa.string()))
+            table = table.filter(pc.invert(pc.fill_null(flagged, False)))
+        elif not flag_absent_ok:
+            raise KeyError(f"{event.name}: the source's duplicate flag {column} is not in the table; select it, or the "
+                           f"duplicates it marks are counted")
     if event.duplicates_except is not None and table.num_rows:
         key = [c for c in table.column_names if not c.startswith("_") and c not in event.duplicates_except]
         indexed = table.append_column("__i", pa.array(range(table.num_rows), pa.int64()))
@@ -387,10 +426,20 @@ def events_of(table: pa.Table, event: EventType) -> pa.Table:
         missing = [c for c in event.consolidation_key if c not in table.column_names]
         if missing:
             raise KeyError(f"{event.name}: consolidation key {missing} is not in the table")
-        indexed = table.append_column("__i", pa.array(range(table.num_rows), pa.int64()))
-        first = indexed.group_by(list(event.consolidation_key), use_threads=False).aggregate([("__i", "min")])
-        keep = pc.sort_indices(first.column("__i_min"))
-        table = table.take(pc.take(first.column("__i_min"), keep))
+        unkeyed = pa.repeat(pa.scalar(False), table.num_rows)
+        for c in event.consolidation_key:
+            text = pc.utf8_trim_whitespace(pc.cast(table.column(c), pa.string()))
+            unkeyed = pc.or_(unkeyed, pc.fill_null(pc.equal(text, ""), True))
+        if isinstance(unkeyed, pa.ChunkedArray):
+            unkeyed = unkeyed.combine_chunks()
+        position = pa.array(range(table.num_rows), pa.int64())
+        first = table.filter(pc.invert(unkeyed)).append_column("__i", pc.filter(position, pc.invert(unkeyed))).group_by(
+            list(event.consolidation_key), use_threads=False).aggregate([("__i", "min")]).column("__i_min")
+        keep = pa.concat_arrays([*first.chunks, pc.filter(position, unkeyed)])
+        table = table.take(pc.take(keep, pc.sort_indices(keep)))
+        n_unkeyed = pc.sum(unkeyed).as_py() or 0
+        if n_unkeyed:
+            table = table.replace_schema_metadata({**(table.schema.metadata or {}), UNKEYED: str(n_unkeyed).encode()})
     return table
 
 
@@ -475,19 +524,38 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
     return long.filter(pc.or_(pc.greater(long.column("events"), 0), pc.greater(long.column("unquantified"), 0)))
 
 
-def _read(query: Callable[..., pa.Table], event: EventType, dataset: str, select: list[str] | None,
-          **kwargs: Any) -> pa.Table:
-    """``query`` of an event's columns with its duplicate flag, which a form or a year may lack: then read without it
-    (`events_of` flags none); any other missing column raises."""
+def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, records: pa.Table | None = None,
+                **query_kwargs: Any) -> pa.Table:
+    """The events of one type read from ``dataset`` (``period``, ``geography``, ... as `query`), or from ``records``
+    already read (an extract's, `pegasus_data.extract`): the one place that assembles an event type's reading.
+
+    It selects ``columns`` and what the rule itself reads (status, consolidation key, weight, grid, and the source's
+    duplicate flag, which a form or a year may lack: then it reads without it and the flag marks none; any other missing
+    column raises), or every column when the duplicates rule compares whole rows. The result is `events_of`'s, and
+    for an event that is not a grid, carries ``__w``: the number of events each row stands for (`event_weights`).
+    ``records`` are taken as they come: a duplicate flag they lack raises, as a forgotten projection would."""
     flag = event.duplicates_flag[0] if event.duplicates_flag else None
-    if select is None or flag is None:
-        return query(dataset, select=select, present="codes", **kwargs)
-    try:
-        return query(dataset, select=sorted({*select, flag}), present="codes", **kwargs)
-    except Exception as exc:
-        if f"'{flag}' is not present" not in str(exc):
-            raise
-        return query(dataset, select=select, present="codes", **kwargs)
+    if records is not None:
+        table = records
+    else:
+        from .._query_engine.executor import query
+
+        needed = {c for c in (*columns, event.status_column, *event.consolidation_key, event.weight, event.grid_total,
+                              event.grid_margin, *(c.column for c in event.grid)) if c}
+        select = None if event.duplicates_except is not None else (sorted(needed) or None)
+        if select is None or flag is None:
+            table = query(dataset, select=select, present="codes", **query_kwargs)
+        else:
+            try:
+                table = query(dataset, select=sorted({*select, flag}), present="codes", **query_kwargs)
+            except Exception as exc:
+                if f"'{flag}' is not present" not in str(exc):
+                    raise
+                table = query(dataset, select=select, present="codes", **query_kwargs)
+    events = events_of(table, event, flag_absent_ok=records is None)
+    if event.grid:
+        return events
+    return events.append_column("__w", event_weights(events, event))
 
 
 def count_events(
@@ -499,32 +567,34 @@ def count_events(
     query of ``period`` and ``geography``.
 
     A grid event's ``by`` may name `GRID_SEX` and `GRID_AGE`, and its result has a column ``unquantified``: the rows
-    whose grid and total are both blank, a group whose people were not counted (`grid_events`)."""
-    from .._query_engine.executor import query
+    whose grid and total are both blank, a group whose people were not counted (`grid_events`).
 
+    The result's metadata `UNKEYED` is the number of rows that had no consolidation key and were counted as events of
+    their own; a warning says so."""
     event = event_type(dataset, name)
     if event.grid:
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
-        columns = {c for c in (event.status_column, event.grid_total, event.grid_margin, *(c.column for c in event.grid),
-                               *record_by) if c}
-        table = records if records is not None else _read(
-            query, event, dataset, None if event.duplicates_except is not None else sorted(columns),
-            period=period, geography=geography, **query_kwargs)
-        long = grid_events(events_of(table, event), event, record_by)
+        events = read_events(dataset, event, record_by, records=records, period=period, geography=geography,
+                             **query_kwargs)
+        long = grid_events(events, event, record_by)
         if not by:
-            return pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
-                             "unquantified": [pc.sum(long.column("unquantified")).as_py() or 0]})
-        return long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
-            [*by, "events", "unquantified"])
-    columns = {c for c in (event.status_column, *event.consolidation_key, event.weight, *(by or [])) if c}
-    table = records if records is not None else _read(
-        query, event, dataset, None if event.duplicates_except is not None else (sorted(columns) or None),
-        period=period, geography=geography, **query_kwargs)
-    events = events_of(table, event)
-    events = events.append_column("__w", event_weights(events, event))
+            out = pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
+                            "unquantified": [pc.sum(long.column("unquantified")).as_py() or 0]})
+        else:
+            out = long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
+                [*by, "events", "unquantified"])
+        return out
+    events = read_events(dataset, event, by or (), records=records, period=period, geography=geography, **query_kwargs)
     if not by:
-        return pa.table({"events": [pc.sum(events.column("__w")).as_py() or 0]})
-    return events.group_by(by).aggregate([("__w", "sum")]).rename_columns([*by, "events"])
+        out = pa.table({"events": [pc.sum(events.column("__w")).as_py() or 0]})
+    else:
+        out = events.group_by(by).aggregate([("__w", "sum")]).rename_columns([*by, "events"])
+    unkeyed = int((events.schema.metadata or {}).get(UNKEYED, b"0"))
+    if unkeyed:
+        warnings.warn(f"{dataset} {name}: {unkeyed} rows have no {'/'.join(event.consolidation_key)}; each is counted "
+                      f"as an event of its own, as consolidating them into one would lose events", stacklevel=2)
+        out = out.replace_schema_metadata({UNKEYED: str(unkeyed).encode()})
+    return out
 
 
 def field_overlap(
@@ -537,14 +607,13 @@ def field_overlap(
     listed prefixes: ``{"CAUSABAS": ["I21"]}`` or, for "any mention",
     ``{"LINHAA": ["I21"], "LINHAB": ["I21"], ...}``. The overlap is the shared
     events over the smaller field's events (DESIGN §3.5): two fields above 0.05
-    are never tested against each other as if independent.
+    are never tested against each other as if independent. The events are read as `count_events` reads
+    them (`read_events`): the source's duplicates dropped, the status applied, a weighted row counted
+    for its quantity.
     """
-    from .._query_engine.executor import query
-
     event = event_type(dataset, name)
-    columns = {c for c in (event.status_column, *event.consolidation_key, *a, *b) if c}
-    table = events_of(query(dataset, period=period, geography=geography, select=sorted(columns),
-                            present="codes", **query_kwargs), event)
+    table = read_events(dataset, event, {*a, *b}, period=period, geography=geography, **query_kwargs)
+    weights = table.column("__w") if "__w" in table.column_names else pa.repeat(pa.scalar(1, pa.int64()), table.num_rows)
 
     def members(predicate: dict[str, list[str]]) -> pa.Array:
         hit = pa.array([False] * table.num_rows)
@@ -554,9 +623,11 @@ def field_overlap(
                 hit = pc.or_(hit, pc.fill_null(pc.starts_with(values, str(prefix).upper()), False))
         return hit
 
+    def total(mask: pa.Array) -> int:
+        return pc.sum(pc.if_else(mask, weights, 0)).as_py() or 0
+
     in_a, in_b = members(a), members(b)
-    n_a, n_b = pc.sum(in_a).as_py() or 0, pc.sum(in_b).as_py() or 0
-    shared = pc.sum(pc.and_(in_a, in_b)).as_py() or 0
+    n_a, n_b, shared = total(in_a), total(in_b), total(pc.and_(in_a, in_b))
     smaller = min(n_a, n_b)
-    return {"events": table.num_rows, "a": n_a, "b": n_b, "shared": shared,
+    return {"events": pc.sum(weights).as_py() or 0, "a": n_a, "b": n_b, "shared": shared,
             "overlap": (shared / smaller) if smaller else None}

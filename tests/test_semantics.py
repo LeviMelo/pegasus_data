@@ -282,34 +282,14 @@ class TestLedger:
         # A diagnosis code is never summable, whatever its distribution looks like.
         assert by_field["DIAG_PRINC"].aggregation == "non_summable"
 
-    def test_sentinels_come_from_the_field_not_a_global_rule(self, catalog: CatalogStore):
-        from pegasus_data.semantics.dictionary import DictionaryEntry
+    def test_sentinels_come_from_the_columns_role_never_from_a_label(self):
+        """A code is missing where the column's role declares it so (``missing:``); a label that reads "Ignorado"
+        or "Branco" makes nothing missing, and the raw code of a category is kept."""
         from pegasus_data.semantics.ledger import _sentinels_for
 
-        persist_entries(
-            catalog,
-            [
-                DictionaryEntry(
-                    system="S", value_raw="9", value_label="Ignorado", source="cnv",
-                    source_ref="x", confidence=0.95, value_group="SEXO",
-                ),
-                DictionaryEntry(
-                    system="S", value_raw="9", value_label="Nove anos", source="cnv",
-                    source_ref="x", confidence=0.95, value_group="ESCOLARIDADE",
-                ),
-            ],
-        )
-        from pegasus_data.semantics.dictionary import CodelistBinding
-
-        persist_bindings(
-            catalog,
-            [
-                CodelistBinding("S", "SEXO", "SEXO", "def", "x", 0.9),
-                CodelistBinding("S", "ESCOLARIDADE", "ESCOLARIDADE", "def", "x", 0.9),
-            ],
-        )
-        assert _sentinels_for(catalog, "S", "SEXO") == ["9"]
-        assert _sentinels_for(catalog, "S", "ESCOLARIDADE") == []
+        assert _sentinels_for("CIH", "CR", "COD_IDADE") == ["0"]     # roles/CIH-CR.yml: missing: ['0']
+        assert _sentinels_for("CIH", "CR", "SEXO") == []              # a category: its "Ignorado" is shown, not nulled
+        assert _sentinels_for("S", "NO_SUCH_DATASET", "SEXO") == []   # no roles: none declared
 
 
 @pytest.mark.parametrize(

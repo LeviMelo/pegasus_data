@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -592,8 +593,9 @@ def decide(
             })
             if len(artifacts) == 1:
                 return LabelBinding((artifacts[0],), "curated", reason="reviewed adjudication")
-        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
-            pass
+        except sqlite3.OperationalError as exc:   # an older catalog lacks the table: no adjudications to read
+            if "no such table" not in str(exc) and "no such column" not in str(exc):
+                raise
     if form_fallback is not None:
         # Before measurement, which cannot tell two forms' tables apart when
         # they share codes: weighing gave AIDA (adult) CRITERIO the children's

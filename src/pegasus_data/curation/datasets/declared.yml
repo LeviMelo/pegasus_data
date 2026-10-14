@@ -1151,7 +1151,7 @@ datasets:
         kind: foetal_death
         classifiers:
           - {column: CAUSABAS, role: primary, structure: ICD10}
-          - {column: CAUSABAS_O, role: alternative, structure: ICD10}
+          - {column: CAUSABAS_O, role: alternative, structure: ICD10, recodes: CAUSABAS}
         status:
           column: TIPOBITO
           values: ["1"]

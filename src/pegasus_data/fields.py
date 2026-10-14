@@ -20,12 +20,28 @@ is read, reduced and served by that one mechanism: the DEMAS API and the Portal 
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
 
 __all__ = ["build_fields", "declared_fields", "field_rate", "load_field"]
+
+
+def write_parquet_atomic(table: pa.Table, target: Path, **options: Any) -> None:
+    """Write ``target`` whole or not at all: to a hidden file beside it (a dataset scan ignores a leading ``_``), then
+    renamed over it. A second process finding the file never reads half of it, and a crash leaves no truncated file for
+    a cache to trust forever."""
+    import pyarrow.parquet as pq
+
+    target = Path(target)
+    tmp = target.with_name(f"_{target.name}.{os.getpid()}.tmp")
+    try:
+        pq.write_table(table, tmp, **options)
+        os.replace(tmp, target)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -102,7 +118,6 @@ def _build_series_field(settings: Any, sidra: Any, name: str, spec: dict[str, An
     figure that is missing for a municipality stays a null with IBGE's reason.
     """
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .sidra.series import series_values
 
@@ -129,7 +144,7 @@ def _build_series_field(settings: Any, sidra: Any, name: str, spec: dict[str, An
             statuses[state] = statuses.get(state, 0) + 1
         target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(table, target / "part.parquet", compression="zstd")
+        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
         written += n
     return {"years": len(wanted), "rows": written, "statuses": statuses}
 
@@ -141,7 +156,6 @@ def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], yea
     value and IBGE's marker as a status (``-`` a true zero; ``..``, ``...`` and ``X`` null with their reason).
     """
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     wanted = [y for y in _years(spec["years"]) if not years or y in years]
     chosen = _classification(spec)
@@ -174,7 +188,7 @@ def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], yea
             statuses[state] = statuses.get(state, 0) + 1
         target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(table, target / "part.parquet", compression="zstd")
+        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
         written += n
     return {"years": len(wanted), "rows": written, "statuses": statuses}
 
@@ -182,7 +196,6 @@ def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], yea
 def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
     """ANS beneficiaries of each year's December file (``sources.ans``)."""
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .sources.ans import beneficiaries
 
@@ -198,7 +211,7 @@ def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] 
         table = table.append_column("source", pa.array([f"ANS PDA-024 {year}-12"] * n, pa.string()))
         target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(table.drop_columns(["year"]), target / "part.parquet", compression="zstd")
+        write_parquet_atomic(table.drop_columns(["year"]), target / "part.parquet", compression="zstd")
         medical = table.filter(pc.equal(table.column("coverage"), "Médico-hospitalar"))
         written[str(year)] = {"rows": n, "medical_hospital": pc.sum(medical.column("value")).as_py()}
     return written
@@ -207,7 +220,6 @@ def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] 
 def _build_inep(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
     """INEP school-census enrolment margins per municipality (``sources.inep``)."""
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .sources.inep import enrolments
 
@@ -221,7 +233,7 @@ def _build_inep(settings: Any, name: str, spec: dict[str, Any], years: list[int]
         table = table.append_column("source", pa.array([f"INEP microdados_ed_basica_{year}"] * n, pa.string()))
         target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(table, target / "part.parquet", compression="zstd")
+        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
         total = table.filter(pc.equal(table.column("margin"), "total"))
         written[str(year)] = {"rows": n, "enrolments": pc.sum(total.column("value")).as_py()}
     return written
@@ -234,7 +246,6 @@ def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int
     true 0 included (``ok``); one that has no establishment in the register is a null with ``no_cnes_record``.
     Codes the register holds that are not an IBGE municipality are *unallocated*: summed and reported per field.
     """
-    import pyarrow.parquet as pq
 
     from .geography import municipalities
     from .sources import cnes
@@ -264,7 +275,7 @@ def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int
             })
             target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
             target.mkdir(parents=True, exist_ok=True)
-            pq.write_table(table, target / "part.parquet", compression="zstd")
+            write_parquet_atomic(table, target / "part.parquet", compression="zstd")
             unallocated = {k: v for k, v in found.items() if k not in code7}
             report[name]["years"][str(year)] = {
                 "total": sum(v for k, v in found.items() if k in code7), "unallocated": sum(unallocated.values()),
@@ -308,7 +319,6 @@ def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None 
 def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
     """Station-month climate placed in the municipality each station stands in (``sources.inmet``)."""
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .sources.inmet import monthly, stations
 
@@ -331,7 +341,7 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
         part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
         target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(part, target / "part.parquet", compression="zstd")
+        write_parquet_atomic(part, target / "part.parquet", compression="zstd")
         written += part.num_rows
     return {"rows": written, "stations_placed": len(placed), "station_months_unplaced": unplaced}
 
@@ -339,7 +349,6 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
 def _build_disasters(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
     """S2iD's recorded disasters, one row per municipal event (``sources.s2id``)."""
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .sources.s2id import events
 
@@ -353,7 +362,7 @@ def _build_disasters(settings: Any, name: str, years: list[int] | None) -> dict[
         part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
         target = Path(settings.lake_dir) / "fields" / name / f"year={int(year)}"
         target.mkdir(parents=True, exist_ok=True)
-        pq.write_table(part, target / "part.parquet", compression="zstd")
+        write_parquet_atomic(part, target / "part.parquet", compression="zstd")
         written += part.num_rows
     return {"rows": written, "undated": undated}
 

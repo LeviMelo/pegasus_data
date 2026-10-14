@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import re
+import warnings
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
 
-from ._vintage import SourceVintage, source_vintages, window_covers, window_overlaps
+from ._vintage import SourceVintage, vintage_groups, window_covers, window_overlaps
 from .identifiers import valid_cnpj
 
 __all__ = ["EnrichmentReport", "EnrichmentRequest", "enrich_cnes", "enrich_cnpj", "enrichment", "valid_cnpj"]
@@ -39,6 +41,9 @@ class EnrichmentReport:
     confirmed: int = 0
     conflicts: int = 0
     ambiguous: int = 0
+    #: ``unavailable`` when the establishment registry could not be had: the claims come from the older kits alone,
+    #: which carry no validity window, and the answers are not the registry's
+    registry: str = "available"
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -58,6 +63,12 @@ def _pack_path() -> Path:
     return local if local.is_file() else Path(
         str(files("pegasus_data.resources") / "labels_crosswalk.parquet")
     )
+
+
+class ClaimMap(dict):  # type: ignore[type-arg]
+    """``key -> claims``, and whether the registry that dates them could be read."""
+
+    registry_unavailable: bool = False
 
 
 def _crosswalk_slice(
@@ -114,7 +125,9 @@ def _crosswalk_slice(
         if codelist_name in table.column_names
         else [""] * table.num_rows
     )
-    out: dict[str, list[tuple[str, str, str, str]]] = _registry_slice(codes, reverse=reverse)
+    registry, unavailable = _registry_slice(codes, reverse=reverse)
+    out = ClaimMap(registry)
+    out.registry_unavailable = unavailable
     for key, value, lo, hi, codelist in zip(
         table[key_field].to_pylist(),
         table[value_field].to_pylist(),
@@ -143,24 +156,25 @@ def _punctuated(cnpj: str) -> str:
 REGISTRY_SOURCE = "registry:CADGERBR"
 
 
-def _registry_slice(codes: set[str], *, reverse: bool) -> dict[str, list[tuple[str, str, str, str]]]:
-    """CNES <-> CNPJ from the establishment registry (ADR-0100).
+def _registry_slice(codes: set[str], *, reverse: bool) -> tuple[dict[str, list[tuple[str, str, str, str]]], bool]:
+    """CNES <-> CNPJ from the establishment registry (ADR-0100), and whether the registry could be read.
 
     The registry's ``cnpj`` is a column checked against the CNPJ check digits,
     not text parsed out of a name, and each establishment carries the dates it
     entered and left the registry, which bound the claim. A registry that
-    cannot be had contributes nothing; the pack's claims still apply.
+    cannot be had (``lookup`` says so, with a warning) contributes nothing, the pack's claims
+    still apply, and the answer is flagged: they are the older kits' undated claims. Any other
+    failure reading it is not "no registry" and propagates.
     """
     import pyarrow.compute as pc
 
     from .registry import lookup
 
-    try:
-        table = lookup("CADGERBR", "CNES")
-    except Exception:  # noqa: BLE001 - no registry is a gap, not a crash
-        table = None
-    if table is None or "cnpj" not in table.column_names or not codes:
-        return {}
+    if not codes:
+        return {}, False
+    table = lookup("CADGERBR", "CNES")
+    if table is None or "cnpj" not in table.column_names:
+        return {}, True
     key = "cnpj" if reverse else "code"
     table = table.filter(pc.is_in(table[key], value_set=pa.array(sorted(codes), pa.string())))
     table = table.filter(pc.is_valid(table["cnpj"]))
@@ -174,7 +188,7 @@ def _registry_slice(codes: set[str], *, reverse: bool) -> dict[str, list[tuple[s
         hi = "" if hi.startswith("9999") else hi
         k, v = (cnpj, code) if reverse else (code, cnpj)
         out.setdefault(str(k), []).append((str(v), lo, hi, REGISTRY_SOURCE))
-    return out
+    return out, False
 
 
 def _covering(available: Sequence[tuple[str, str, str, str]], vintage: SourceVintage | None) -> set[str]:
@@ -191,8 +205,37 @@ def _covering(available: Sequence[tuple[str, str, str, str]], vintage: SourceVin
     return {v for v, lo, hi, src in claims if src != REGISTRY_SOURCE and window_covers(lo, hi, vintage)}
 
 
+_NON_DIGIT = re.compile(r"\D")
+
+
+@lru_cache(maxsize=1 << 16)
 def _digits(value: object) -> str:
-    return re.sub(r"\D", "", str(value or ""))
+    return _NON_DIGIT.sub("", str(value or ""))
+
+
+def _warn_registry(report: EnrichmentReport) -> None:
+    if report.registry == "unavailable":
+        warnings.warn(f"{report.route}: the establishment registry (CADGERBR) could not be read, so the answers are the "
+                      "older kits' undated claims alone", stacklevel=3)
+
+
+def _resolver(available_for: Any, distinct: Sequence[SourceVintage | None]) -> Any:
+    """``(key, vintage index) -> (candidate values, coarse ambiguity)``, computed once per DISTINCT pair: a table has
+    thousands of establishments and a handful of vintages, and its millions of rows ask the same few questions."""
+    memo: dict[tuple[str, int], tuple[set[str], bool]] = {}
+
+    def resolve(key: str, vintage_index: int) -> tuple[set[str], bool]:
+        hit = memo.get((key, vintage_index))
+        if hit is None:
+            available = available_for(key)
+            vintage = distinct[vintage_index]
+            candidates = _covering(available, vintage)
+            coarse = bool(vintage is not None and not vintage.exact and not candidates
+                          and any(window_overlaps(lo, hi, vintage) for _value, lo, hi, _source in available))
+            hit = memo[(key, vintage_index)] = (candidates, coarse)
+        return hit
+
+    return resolve
 
 
 #: A record's own CNPJ for its establishment, by layout: compared with the
@@ -216,29 +259,28 @@ def enrich_cnpj(
     source_values = table[from_field].to_pylist()
     raw_field = raw_field or next((f for f in OWN_CNPJ_FIELDS if f in table.column_names), None)
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
-    vintages = source_vintages(table)
+    distinct, vintage_index = vintage_groups(table)
     rows = _crosswalk_slice(
         {str(value or "").strip() for value in source_values},
-        vintages,
+        distinct,
         resource_path=resource_path,
     )
-    report = EnrichmentReport("CNPJ", from_field, f"{from_field}→CNPJ", rows_before=table.num_rows)
+    resolve = _resolver(lambda key: rows.get(key, ()), distinct)
+    valid: dict[str, bool] = {}
+    report = EnrichmentReport("CNPJ", from_field, f"{from_field}→CNPJ", rows_before=table.num_rows,
+                              registry="unavailable" if getattr(rows, "registry_unavailable", False) else "available")
+    _warn_registry(report)
     resolved: list[str | None] = []
     statuses: list[str] = []
     take_indices: list[int] = []
-    for row_index, (source, raw, vintage) in enumerate(
-        zip(source_values, raw_values, vintages, strict=True)
+    for row_index, (source, raw, vintage_at) in enumerate(
+        zip(source_values, raw_values, vintage_index.to_pylist(), strict=True)
     ):
-        available = rows.get(str(source or "").strip(), ())
-        candidates = _covering(available, vintage)
-        coarse_ambiguity = bool(
-            vintage is not None
-            and not vintage.exact
-            and any(window_overlaps(lo, hi, vintage) for _value, lo, hi, _source in available)
-            and not candidates
-        )
+        candidates, coarse_ambiguity = resolve(str(source or "").strip(), vintage_at)
         raw_digits = _digits(raw)
-        raw_valid = valid_cnpj(raw_digits)
+        raw_valid = valid.get(raw_digits)
+        if raw_valid is None:
+            raw_valid = valid[raw_digits] = valid_cnpj(raw_digits)
         if len(candidates) > 1 and explode:
             for candidate in sorted(candidates):
                 take_indices.append(row_index)
@@ -300,32 +342,28 @@ def enrich_cnes(
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNPJ→CNES enrichment")
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
-    vintages = source_vintages(table)
+    distinct, vintage_index = vintage_groups(table)
     source_values = table[from_field].to_pylist()
     reverse = _crosswalk_slice(
         {_digits(value) for value in source_values},
-        vintages,
+        distinct,
         reverse=True,
         resource_path=resource_path,
     )
+    resolve = _resolver(lambda key: reverse.get(key, ()), distinct)
     report = EnrichmentReport(
         "CNES", from_field, f"{from_field}→CNES", cardinality="one-to-many per validity window",
         rows_before=table.num_rows,
+        registry="unavailable" if getattr(reverse, "registry_unavailable", False) else "available",
     )
+    _warn_registry(report)
     indices: list[int] = []
     resolved: list[str | None] = []
     statuses: list[str] = []
-    for index, (cnpj, raw, vintage) in enumerate(
-        zip(source_values, raw_values, vintages, strict=True)
+    for index, (cnpj, raw, vintage_at) in enumerate(
+        zip(source_values, raw_values, vintage_index.to_pylist(), strict=True)
     ):
-        available = reverse.get(_digits(cnpj), ())
-        candidates = _covering(available, vintage)
-        coarse_ambiguity = bool(
-            vintage is not None
-            and not vintage.exact
-            and any(window_overlaps(lo, hi, vintage) for _value, lo, hi, _source in available)
-            and not candidates
-        )
+        candidates, coarse_ambiguity = resolve(_digits(cnpj), vintage_at)
         if len(candidates) > 1 and explode:
             for candidate in sorted(candidates):
                 indices.append(index)

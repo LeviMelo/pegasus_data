@@ -8,9 +8,17 @@ PegaSUS; handoff 2026-10-04 §2). Each column states three things:
   event attribute (a mark); it describes what the event points to, an
   institution or place attribute; it identifies, an identifier;
 * ``kind``: how its values behave (:data:`KINDS`);
-* ``model``: what a model may do with it (:data:`MODELS`). A **stratum** must
+* ``model``: what a model may do with it (:data:`MODEL_MEANING`). A **stratum** must
   be carried by a population account (age, sex, race, residence); every other
   categorical fact about persons is a dimension or a mark.
+
+A **place** (``kind: place``) is read by its model, and the two that say where something happened are told apart by
+what the place is of: **where** is the place where the event, its care, its notification or its infection happened
+(the death's municipality, the hospital's, the birth's, the notifying unit's, the municipality where the infection was
+acquired), the one an event is placed at; **mark** is a place the record only names, which the event did not happen at
+(the registry office, the death-verification service, a managing authority, a place of travel or exposure). The
+residence of the person is a stratum; where they were born or work, a dimension. Flows between places
+(`proximity.flows`) read the pair (residence, where) and never a mark.
 
 Every column a study reads as a field (any kind, model not ``link_only`` or ``excluded``: categories, numbers, dates,
 codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
@@ -30,8 +38,23 @@ from pathlib import Path
 from typing import Any
 
 KINDS = frozenset({"category", "code_tree", "number", "date", "place", "institution", "identifier", "text"})
-MODELS = frozenset({"stratum", "dimension", "event_type", "mark", "when", "where", "institution",
-                    "link_only", "excluded"})
+#: What each model means. A place's two models that say where something happened are defined in the module docstring.
+MODEL_MEANING = {
+    "stratum": "a property a population account carries (age, sex, race, residence): a study's units are strata of it",
+    "dimension": "a categorical fact about persons or their events that a study may cut by",
+    "event_type": "the code that says what kind of event a record is (a diagnosis, a procedure, a cause)",
+    "mark": "a fact the record carries that no model conditions on: a quantity, a date it only names, or, for a place, "
+            "one the record only names (registry office, death-verification service, managing authority, travel or "
+            "exposure place)",
+    "when": "the date the event happened",
+    "where": "a place: where the event, its care, its notification or its infection happened",
+    "institution": "the establishment or organisation the record is of",
+    "link_only": "read only to link records, never as a field",
+    "excluded": "set aside: not a fact about the event",
+}
+MODELS = frozenset(MODEL_MEANING)
+#: The models a place column may have.
+PLACE_MODELS = frozenset({"where", "mark", "stratum", "dimension", "link_only", "excluded"})
 #: The keys a column's declaration may carry.
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
@@ -140,7 +163,7 @@ def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
     for path in sorted(folder.glob("*.yml")):
         if path.name.endswith(".draft.yml"):
             continue
-        body = read_yaml(path)
+        body = read_yaml(path, shared=True)
         dataset = str(body.get("dataset") or path.stem).upper()
         rows = []
         for column, spec in (body.get("columns") or {}).items():
@@ -171,6 +194,10 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad(f"a stratum must be a property a population account carries {sorted(STRATA)}, not {prop!r}")
     if kind == "identifier" and model not in ("link_only", "excluded"):
         raise bad("an identifier is link_only or excluded")
+    if kind == "place" and model not in PLACE_MODELS:
+        raise bad(f"a place is one of {sorted(PLACE_MODELS)}, not {model!r}")
+    if model == "where" and kind != "place":
+        raise bad("`where` is a place's model: where the event happened")
     also = tuple(str(a) for a in spec.get("also") or ())
     for extra in also:
         if not _ROLE.match(extra):

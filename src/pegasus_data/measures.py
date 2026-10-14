@@ -153,15 +153,20 @@ class _Count(Kind):
 
 @dataclass(frozen=True, slots=True)
 class _Sum(Kind):
+    """A sum over the values that parse. A cell none of whose rows holds a value has NO sum (``None``, as SQL's
+    ``SUM``), not a sum of zero: a column a generation lacks, or one that is blank for a month, is missing, and
+    reading it as 0 is a claim nobody made. ``None`` is the identity of the merge; a state is stored as a column
+    that is null in such a cell."""
+
     def identity(self) -> State:
-        return (0.0,)
+        return (None,)  # type: ignore[return-value]
 
     def lift(self, value: Any) -> State:
-        number = _number(value)
-        return (0.0,) if number is None else (number,)
+        return (_number(value),)  # type: ignore[return-value]
 
     def merge(self, left: State, right: State) -> State:
-        return (left[0] + right[0],)
+        a, b = left[0], right[0]
+        return (b,) if a is None else (a,) if b is None else (a + b,)
 
     def finalize(self, state: State) -> float | None:
         return state[0]

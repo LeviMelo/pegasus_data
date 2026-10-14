@@ -30,6 +30,7 @@ has no contiguity row and says so rather than inheriting a neighbour's.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -180,6 +181,11 @@ def _pack(name: str) -> pa.Table:
     return pq.read_table(Path(__file__).resolve().parent / "resources" / name)
 
 
+def graph_kinds() -> list[str]:
+    """The shipped graphs: ``contiguity``, ``population_distance`` and REGIC's links."""
+    return sorted(set(_pack(PROXIMITY_PACK_NAME).column("kind").to_pylist()))
+
+
 def proximity_graph(kind: str) -> pa.Table:
     """A shipped graph as an edge list: ``contiguity`` or ``population_distance``."""
     edges = _pack(PROXIMITY_PACK_NAME)
@@ -195,29 +201,119 @@ def municipality_areas() -> pa.Table:
     return _pack(AREAS_PACK_NAME)
 
 
-#: dataset -> (event type, origin column, destination column, what the flow is). SIH-RD reads the
-#: residence through ``MUNIC_RES_municipio``, which gives Brasilia's 2008-2017 administrative-region
-#: codes (530020 ... 530180) back to the one municipality, 530010 (DATA_SOURCES).
-FLOWS = {
-    "SIH-RD": ("hospitalisation", "MUNIC_RES_municipio", "MUNIC_MOV", "residence -> hospital municipality"),
-    "CIHA": ("hospitalisation", "MUNIC_RES", "MUNIC_MOV", "residence -> hospital municipality"),
-    "SINASC-DN": ("birth", "CODMUNRES", "CODMUNNASC", "mother's residence -> place of birth"),
-    "SIM-DO": ("death", "CODMUNRES", "CODMUNOCOR", "residence -> place of death"),
-}
-#: dataset -> the column naming the establishment: the institution variant of the same graph
-#: (``destination="establishment"``), for the institution lattice.
-FACILITIES = {"SIH-RD": "CNES", "SINASC-DN": "CODESTAB"}
+@dataclass(frozen=True, slots=True)
+class FlowGeneration:
+    """One layout generation of a care flow: the columns, valid for ``years``, that state where a person lives and
+    where the event happened."""
+
+    years: tuple[int | None, int | None]
+    #: the residence column; `care_flows` reads it through the derived column its variable declares to remap its codes
+    #: to the municipality, if any (SIH's ``MUNIC_RES_municipio``: Brasilia's 2008-2017 administrative-region codes read
+    #: as the one municipality)
+    origin: str
+    #: the event entity's ``where`` municipality column
+    destination: str
+    #: the same entity's facility (CNES) column, if its roles declare one: the institution variant of the graph
+    establishment: str | None
+    residence_role: str
+    place_role: str
+    #: the crawled system the columns belong to (the key of the variable docs)
+    system: str = ""
+    #: the event type counted when the caller names none: the dataset's only one, or the only one whose kind is the
+    #: place role's entity (SINAN's ``notification`` beside its ``case``); None when that is not unique
+    event: str | None = None
+
+    def covers(self, year: int) -> bool:
+        lo, hi = self.years
+        return (lo is None or lo <= year) and (hi is None or year <= hi)
+
+
+@lru_cache(maxsize=1)
+def _municipality_remaps() -> dict[tuple[str, str], str]:
+    """``(system, column) -> the derived column that remaps its codes to municipalities``, from the variables' own
+    ``derived`` declarations (a ``remap`` derived from that one column)."""
+    from .config import curation_root
+    from .semantics.curation import iter_curation_files, parse_variable_file, read_yaml
+
+    root = curation_root()
+    out: dict[tuple[str, str], str] = {}
+    for path in iter_curation_files(root):
+        if path.relative_to(root).parts[0] != "variables":
+            continue
+        data = read_yaml(path, shared=True)
+        if "variables" not in data:
+            continue
+        for doc in parse_variable_file(path, data):
+            for recipe in doc.derived:
+                if recipe.get("remap") and [str(f).upper() for f in recipe.get("from") or ()] == [doc.field_name]:
+                    out[(doc.system, doc.field_name)] = str(recipe["name"])
+    return out
+
+
+@lru_cache(maxsize=1)
+def flows() -> dict[str, tuple[FlowGeneration, ...]]:
+    """The care flows the roles declare: ``dataset -> its layout generations``, derived, never listed.
+
+    A dataset has a flow when it declares event types and its column roles state both a **residence** (the
+    ``stratum`` place whose property is ``residence``: a population account's stratum) and a **place of the event**
+    (a ``where`` place whose property is ``municipality`` or ``facility_municipality``: where the event, its care, its
+    notification happened). Origin is the first, destination the second, paired within the years both columns exist.
+    A ``mark`` place (the registry office, a managing authority, a travel place) is never a destination. A dataset
+    whose roles name two candidate pairs for the same years states no unique flow and has none.
+    """
+    from .semantics.column_roles import load_column_roles
+    from .semantics.event_types import _canonical_system, _key, load_event_types
+
+    declared = load_event_types()
+    out: dict[str, tuple[FlowGeneration, ...]] = {}
+    for dataset, columns in load_column_roles().items():
+        try:
+            if not declared.get(_key(dataset)):
+                continue
+        except (KeyError, ValueError):
+            continue
+        system = _canonical_system(dataset.split("-", 1)[0])
+        residences = [c for c in columns if c.kind == "place" and c.model == "stratum" and c.property == "residence"]
+        places = [c for c in columns if c.kind == "place" and c.model == "where"
+                  and c.property in ("municipality", "facility_municipality")]
+        pairs = []
+        for res in residences:
+            for place in places:
+                lo = max((y for y in (res.years[0], place.years[0]) if y is not None), default=None)
+                hi = min((y for y in (res.years[1], place.years[1]) if y is not None), default=None)
+                if lo is None or hi is None or lo <= hi:
+                    pairs.append((res, place, (lo, hi)))
+        if not pairs or any(_overlap(a[2], b[2]) for i, a in enumerate(pairs) for b in pairs[i + 1:]):
+            continue
+        generations = []
+        for res, place, years in pairs:
+            facility = next((c.column for c in columns if c.kind == "institution" and c.model == "institution"
+                             and c.role == f"{place.entity}.facility" and _overlap(c.years, years)), None)
+            events = declared[_key(dataset)]
+            own = [e.name for e in events if e.kind == place.entity]
+            named = events[0].name if len(events) == 1 else own[0] if len(own) == 1 else None
+            generations.append(FlowGeneration(years, res.column, place.column, facility, res.role, place.role,
+                                              system, named))
+        out[dataset] = tuple(sorted(generations, key=lambda g: (g.years[0] is not None, g.years[0] or 0)))
+    return out
+
+
+def _overlap(a: tuple[int | None, int | None], b: tuple[int | None, int | None]) -> bool:
+    return ((a[0] is None or b[1] is None or a[0] <= b[1]) and (b[0] is None or a[1] is None or b[0] <= a[1]))
 
 
 def care_flows(dataset: str, *, period: object, geography: object = "BR", by: str | None = None,
-               level: str | None = None, destination: str = "municipality", **query_kwargs: Any) -> pa.Table:
+               level: str | None = None, destination: str = "municipality", event: str | None = None,
+               **query_kwargs: Any) -> pa.Table:
     """The care-flow graph: events moving from residence to where they happened, per year.
 
     One edge per (``from``, ``to``, ``vintage`` = the year [, ``by``]): ``weight`` is the events,
     ``share`` the part of the origin's events in the same year (and ``by`` group) that went to
     ``to``, ``kind`` ``care_flow:<dataset>``. Municipalities are IBGE's 7-digit codes, as in the
     other graphs. ``by`` names a classifier and ``level`` a level of its code structure
-    (``by="DIAG_PRINC", level="chapter"``, or ``by="COMPLEX"``).
+    (``by="DIAG_PRINC", level="chapter"``, or ``by="COMPLEX"``). The columns are the dataset's declared
+    residence and place of the event (`flows`); ``event`` names the event type counted when the dataset
+    declares several.
 
     ``destination="establishment"`` ends the edges at the facility (SIH ``CNES``) instead of its
     municipality: the institution graph, whose ``to`` is the CNES code.
@@ -231,24 +327,23 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
     import json
 
     from ._aggregate import _tree_pushforward
-    from ._query_engine.executor import query
     from ._query_engine.model import _period
     from .geography import municipalities
-    from .semantics.event_types import event_type, events_of
+    from .semantics.event_types import UNKEYED, event_type, load_event_types, read_events
 
-    key = dataset.upper()
-    if key not in FLOWS:
-        raise KeyError(f"no flow declared for {dataset!r}; declared: {sorted(FLOWS)}")
+    key = dataset.upper().replace(".", "-")
+    declared = flows()
+    if key not in declared:
+        raise KeyError(f"no flow declared for {dataset!r}: a flow needs event types and a residence and a place of the "
+                       f"event in the column roles; declared: {sorted(declared)}")
     if destination not in ("municipality", "establishment"):
         raise ValueError("destination is 'municipality' or 'establishment'")
-    name, origin, to_column, _what = FLOWS[key]
-    if destination == "establishment":
-        if key not in FACILITIES:
-            raise KeyError(f"{dataset} declares no establishment column; declared: {sorted(FACILITIES)}")
-        to_column = FACILITIES[key]
-    event = event_type(dataset, name)
-    columns = {origin, to_column, *(c for c in (event.status_column, *event.consolidation_key) if c),
-               *([by] if by else [])}
+    generations = declared[key]
+    named = event or generations[0].event
+    if named is None:
+        raise ValueError(f"{dataset} declares several event types "
+                         f"{[e.name for e in load_event_types()[_flow_key(dataset)]]}; name the one counted with event=")
+    counted_event = event_type(dataset, named)
     span = _period(period)
     if span is None:
         raise ValueError("care flows are counted per year: pass a period")
@@ -267,27 +362,42 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
 
     pieces, accounting, events_total, unplaced_total, unresolved_total = [], {}, 0, 0, 0
     for year in span.years:
-        part = events_of(query(dataset, period=str(year), geography=geography, select=sorted(columns),
-                               present="codes", **query_kwargs), event)
+        generation = next((g for g in generations if g.covers(year)), None)
+        if generation is None:
+            raise KeyError(f"{dataset}: no residence and place columns are declared for {year}; "
+                           f"declared years: {[g.years for g in generations]}")
+        origin = _municipality_remaps().get((generation.system, generation.origin), generation.origin)
+        to_column = generation.destination
+        if destination == "establishment":
+            if generation.establishment is None:
+                raise KeyError(f"{dataset} declares no establishment column for {year}")
+            to_column = generation.establishment
+        part = read_events(dataset, counted_event, {origin, to_column, *([by] if by else [])},
+                           period=str(year), geography=geography, **query_kwargs)
+        weight = (part.column("__w") if "__w" in part.column_names
+                  else pa.repeat(pa.scalar(1, pa.int64()), part.num_rows))
         raw_o, raw_d = trimmed(part.column(origin)), trimmed(part.column(to_column))
         o = municipal(raw_o)
         d = municipal(raw_d) if destination == "municipality" else raw_d
         placed = pc.and_(pc.is_valid(raw_o), pc.is_valid(raw_d))
         usable = pc.and_(pc.is_valid(o), pc.is_valid(d))
         unresolved = pc.and_(placed, pc.invert(usable))
-        n_unplaced, n_unresolved = part.num_rows - (pc.sum(placed).as_py() or 0), pc.sum(unresolved).as_py() or 0
+        n_events = pc.sum(weight).as_py() or 0
+        n_unplaced = n_events - (pc.sum(pc.filter(weight, placed)).as_py() or 0)
+        n_unresolved = pc.sum(pc.filter(weight, unresolved)).as_py() or 0
         lost = pc.filter(pc.if_else(pc.is_valid(o), raw_d, raw_o), unresolved)
-        accounting[str(year)] = {"events": part.num_rows, "unplaced": n_unplaced, "unresolved": n_unresolved,
+        accounting[str(year)] = {"events": n_events, "unplaced": n_unplaced, "unresolved": n_unresolved,
                                  "unresolved_codes": {c["values"]: c["counts"] for c in
-                                                      sorted(pc.value_counts(lost).to_pylist(), key=lambda c: -c["counts"])[:30]}}
-        events_total, unplaced_total, unresolved_total = (events_total + part.num_rows, unplaced_total + n_unplaced,
+                                                      sorted(pc.value_counts(lost).to_pylist(), key=lambda c: -c["counts"])[:30]},
+                                 "columns": [origin, to_column],
+                                 **({"unkeyed": int(part.schema.metadata[UNKEYED])}
+                                    if UNKEYED in (part.schema.metadata or {}) else {})}
+        events_total, unplaced_total, unresolved_total = (events_total + n_events, unplaced_total + n_unplaced,
                                                           unresolved_total + n_unresolved)
         parts = {"from": pc.filter(o, usable), "to": pc.filter(d, usable)}
         if by:
             values = pc.filter(pc.cast(part.column(by), pa.string()), usable)
             if level:
-                from .semantics.event_types import load_event_types
-
                 structure = next((c.structure for e in load_event_types().get(_flow_key(dataset), ())
                                   for c in e.classifiers if c.column == by and c.structure), None)
                 if structure is None:
@@ -296,20 +406,21 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
                 values = pc.take(pa.array(list(mapping.values()), pa.string()),
                                  pc.index_in(values, value_set=pa.array(list(mapping), pa.string())))
             parts[by] = values
-        counted = pa.table(parts).group_by(list(parts)).aggregate([([], "count_all")]).rename_columns([*parts, "weight"])
+        counted = pa.table({**parts, "weight": pc.filter(weight, usable)}).group_by(list(parts)).aggregate(
+            [("weight", "sum")]).rename_columns([*parts, "weight"])
         pieces.append(counted.append_column("vintage", pa.array([year] * counted.num_rows, pa.int32())))
         del part
-    flows = pa.concat_tables(pieces, promote_options="default")
+    edges = pa.concat_tables(pieces, promote_options="default")
     import duckdb
 
     # share: the origin's events of the year (and group) going to `to`; a window, since a null group is a group.
     cut = ", ".join(['"vintage"', '"from"', *([f'"{by}"'] if by else [])])
-    flows = duckdb.sql(f'SELECT *, weight / sum(weight) OVER (PARTITION BY {cut}) AS share FROM flows '
+    edges = duckdb.sql(f'SELECT *, weight / sum(weight) OVER (PARTITION BY {cut}) AS share FROM edges '
                        'ORDER BY vintage, "from", weight DESC, "to"').to_arrow_table()
     kind = f"care_flow:{key}" + (":establishment" if destination == "establishment" else "")
-    flows = flows.append_column("kind", pa.array([kind] * flows.num_rows, pa.string()))
-    flows = flows.select(["from", "to", "weight", "kind", "vintage", "share", *([by] if by else [])])
-    return flows.replace_schema_metadata({
+    edges = edges.append_column("kind", pa.array([kind] * edges.num_rows, pa.string()))
+    edges = edges.select(["from", "to", "weight", "kind", "vintage", "share", *([by] if by else [])])
+    return edges.replace_schema_metadata({
         b"events": str(events_total).encode(), b"unplaced": str(unplaced_total).encode(),
         b"unresolved": str(unresolved_total).encode(), b"accounting": json.dumps(accounting, ensure_ascii=False).encode()})
 

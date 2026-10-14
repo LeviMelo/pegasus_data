@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 from functools import lru_cache
@@ -57,9 +58,9 @@ def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
 
 @lru_cache(maxsize=8)
 def _parse_relations(text: str) -> tuple[SemanticRelation, ...]:
-    import yaml
+    from .curation import load_yaml_text
 
-    data = yaml.safe_load(text) or {}
+    data = load_yaml_text(text) or {}
     out: list[SemanticRelation] = []
     for body in data.get("relations") or ():
         out.append(
@@ -133,8 +134,9 @@ def relations_for(
                     evidence="explicit curated variable codelist (migration bridge)",
                 )
                 candidates.append((0, item))
-        except Exception:  # pragma: no cover - old/read-only partial catalogs
-            pass
+        except sqlite3.OperationalError as exc:    # an older catalog lacks the table: no adjudications, no bridge
+            if "no such table" not in str(exc) and "no such column" not in str(exc):
+                raise
 
     requested_vintage = int(vintage) if vintage is not None else None
 

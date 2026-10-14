@@ -7,9 +7,11 @@ a consumer should be able to filter on data quality rather than discover it thre
 analyses later.
 
 The classification below is deliberately five-way rather than valid/invalid.
-``0000`` is not malformed — it is the sentinel SIH writes into ``DIAG_SECUN``
-from the 113-column generation onward, and calling it "invalid" would hide that
-the column is dead rather than dirty. A code that is syntactically perfect but
+A code the column's role declares as "not recorded" (``missing:``; SIH writes
+``0000`` into ``DIAG_SECUN`` from the 113-column generation onward) is a
+sentinel, not malformed: calling it "invalid" would hide that the column is dead
+rather than dirty. No code is a sentinel in every column, so none is assumed:
+an undeclared ``0000`` is malformed until the role says otherwise. A code that is syntactically perfect but
 absent from the CID table for its vintage is a different finding again: usually
 a real code from a later revision, which says the vintage window is wrong, not
 the data.
@@ -22,7 +24,7 @@ deleting it destroys the only record that it happened.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -44,8 +46,9 @@ ICD_DOTTED = re.compile(r"^[A-Z]\d{2}\.\d$")
 #: invites someone to "clean" real data away.
 ICD9_CODE = re.compile(r"^[EV]?\d{3,4}$")
 
-#: Values that mean "nothing here" rather than a code.
-SENTINELS = frozenset({"0000", "000", "00", "0", "", "----", "....", "9999"})
+#: The one value that means "nothing here" in every column: an empty cell. Any other code that means it is
+#: declared by the column's role (``missing:``), per column: a global list called a real ``0`` or ``9999`` missing.
+BLANK = frozenset({""})
 
 #: Candidate separators for a multi-valued cell. Which one a column uses is
 #: *measured*, not ranked: SIM's LINHAA fields use ``*`` and its ATESTADO field
@@ -104,7 +107,7 @@ def _normalise(value: str) -> str:
     return value.strip().upper()
 
 
-def infer_token_rule(values: Sequence[str]) -> dict[str, object]:
+def infer_token_rule(values: Sequence[str], sentinels: Collection[str] = BLANK) -> dict[str, object]:
     """Work out how a column packs several codes into one cell.
 
     A delimiter, when one is present in a meaningful share of values, beats fixed
@@ -115,7 +118,8 @@ def infer_token_rule(values: Sequence[str]) -> dict[str, object]:
     Returns an empty rule for a column that holds one code per cell. That is not
     a failure to infer; it is the answer.
     """
-    populated = [v for v in (_normalise(x) for x in values) if v and v not in SENTINELS]
+    blank = {_normalise(x) for x in (*sentinels, "")}
+    populated = [v for v in (_normalise(x) for x in values) if v not in blank]
     if not populated:
         return {}
     # Pick the delimiter that actually appears most, rather than the first one
@@ -158,6 +162,7 @@ def measure_column(
     known_codes: Mapping[str, str] | None = None,
     rule: Mapping[str, object] | None = None,
     other_revision_bound: bool = False,
+    sentinels: Collection[str] = BLANK,
 ) -> ColumnQuality:
     """Classify every observed value of one ICD column.
 
@@ -165,9 +170,13 @@ def measure_column(
     to this column. When it is, a numeric CID-9 code is not a curiosity to be
     counted apart — it is a valid, labellable value, and reporting it as
     anything else overstates how much of the column is unusable.
+
+    ``sentinels`` are the codes this column's role declares as "not recorded" (and the empty cell): a value
+    that a bound table decodes is a code even when it equals one, as a real ``0`` would.
     """
     out = ColumnQuality(system=system, field_name=field_name)
-    token_rule: dict[str, Any] = dict(rule) if rule else infer_token_rule(values)
+    token_rule: dict[str, Any] = dict(rule) if rule else infer_token_rule(values, sentinels)
+    blank = {_normalise(x) for x in (*sentinels, "")}
     out.inferred_rule = token_rule
     delimiter = token_rule.get("delimiter")
     width = int(token_rule.get("width") or 0)
@@ -177,7 +186,7 @@ def measure_column(
             continue
         value = _normalise(str(raw))
         out.values_examined += 1
-        if value in SENTINELS:
+        if value in blank and not (known_codes is not None and value in known_codes):
             out.sentinel += 1
             continue
 
@@ -228,6 +237,17 @@ def measure_column(
             if len(out.examples_absent) < 20:
                 out.examples_absent.append(value)
     return out
+
+
+def _declared_missing(system: str, field_name: str) -> frozenset[str]:
+    """The codes the role files declare as "not recorded" for this system's column of this name (``missing:``)."""
+    from .column_roles import load_column_roles
+    from .event_types import _canonical_system
+
+    codes = {code for dataset, columns in load_column_roles().items()
+             if _canonical_system(dataset.split("-", 1)[0]) == system.upper()
+             for c in columns if c.column.upper() == field_name.upper() for code in c.missing or ()}
+    return frozenset(codes)
 
 
 def measure_icd_columns(
@@ -290,12 +310,15 @@ def measure_icd_columns(
     )
     out: list[ColumnQuality] = []
     for r in rows:
+        # this system's families only: a field name is not a field (a CAUSABAS of one system is not another's), and the
+        # token rule persisted for (system, field) must come from its own values
         values = [
             str(v["value"])
             for v in catalog.query(
-                "SELECT value FROM value_frequencies WHERE field_name = ? "
-                "AND value IS NOT NULL ORDER BY count DESC LIMIT 5000",
-                (r["field_name"],),
+                "SELECT value FROM value_frequencies WHERE field_name = ? AND value IS NOT NULL"
+                " AND family_id IN (SELECT family_id FROM families WHERE system = ?)"
+                " ORDER BY count DESC LIMIT 5000",
+                (r["field_name"], r["system"]),
             )
         ]
         if not values:
@@ -316,6 +339,7 @@ def measure_icd_columns(
                 field_name=field_name,
                 known_codes=_known_for(system, bound),
                 other_revision_bound=any("CID9" in b.upper() for b in bound),
+                sentinels=_declared_missing(system, field_name),
             )
         )
     return sorted(out, key=lambda q: (-q.values_examined, q.field_name))
@@ -330,6 +354,9 @@ def persist_token_rules(catalog: CatalogStore, measured: Sequence[ColumnQuality]
     """
     import json
 
+    from .curation import forget_variable_docs
+
+    forget_variable_docs(catalog)
     written = 0
     for q in measured:
         if not q.inferred_rule:
