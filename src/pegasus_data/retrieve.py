@@ -282,6 +282,7 @@ def fetch(
     on_progress: Callable[[str, int, int], None] | None = None,
     report: bool = False,
     _only_paths: Sequence[str] | None = None,
+    _record_key: bool = True,
     as_of: str | date | datetime | None = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
@@ -305,7 +306,8 @@ def fetch(
     ``provenance=True`` keeps ``_source_path``, ``_blob_sha256``,
     ``_ingested_at`` and ``_schema_signature``. They are off by default: they
     are constant per source file and cost width in every row to say something
-    the report already says once.
+    the report already says once. The record key (an MD5 of each row's fields) is computed only then, and not when
+    the internal ``_record_key=False`` says the caller keeps the other four and drops the key.
 
     ``dictionary=True`` also returns a :class:`DataDictionary` — one row per
     column, with what it means, which reference table decoded it and the
@@ -380,6 +382,7 @@ def fetch(
             only_paths=_only_paths,
             as_of=as_of,
             memo=decoded_before,
+            record_key=provenance and _record_key,
         )
         refused: set[str] = set()
         while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
@@ -416,6 +419,7 @@ def fetch(
                 exclude_paths=frozenset(refused),
                 as_of=as_of,
                 memo=decoded_before,
+                record_key=provenance and _record_key,
             )
         if refused:
             fetch_report.warnings.append(
@@ -924,11 +928,17 @@ def _select_files(
     max_bytes: int | None = None,
     exclude_paths: frozenset[str] = frozenset(),
     plans: dict[str, NormalizePlan] | None = None,
+    one_reading: bool = True,
 ) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
     """Decide WHICH files answer this request, and refuse the ones that cannot.
 
     ``plans``, when given, is filled with the plan built for each family that has files, so the caller does not build
     them a second time.
+
+    With no state asked, a year DATASUS publishes as a national file AND as one file per state (SIM, SINASC) is read
+    from the national file alone: the state files are the same records, and taking both returned every death and every
+    birth twice (the rule of ``query()``, `national_or_states`). ``one_reading=False`` takes every file: a caller that
+    names exact paths (``_only_paths``) must get the file it named.
 
     Everything before a byte is fetched: matching files to the requested axes,
     building each generation's normalisation plan, applying the structural
@@ -972,6 +982,24 @@ def _select_files(
             and (month_set is None or _month_of(row["normalized_date"]) in month_set)
             and str(row["path"]) not in exclude_paths
         ]
+        if uf_set is None and one_reading:
+            from ._query_engine.coverage import national_or_states
+
+            by_year: dict[object, list[dict[str, Any]]] = {}
+            for row in global_matched:
+                by_year.setdefault(row["year"], []).append(row)
+            kept = {
+                id(row)
+                for rows_of_year in by_year.values()
+                for row in national_or_states(rows_of_year, lambda r: r["geo_code"])
+            }
+            if len(kept) < len(global_matched):
+                left_out = {str(row["logical_id"] or row["path"]) for row in global_matched if id(row) not in kept}
+                report.warnings.append(
+                    f"no state was asked: {len(left_out)} state publication(s) of years that also have a national "
+                    "file were left out; the national file holds the same records (ask for states with uf=)"
+                )
+                global_matched = [row for row in global_matched if id(row) in kept]
         from .representations import choose_representations
 
         choice = choose_representations(catalog, global_matched)
@@ -1020,8 +1048,7 @@ def _select_files(
         except KeyError as exc:
             report.warnings.append(f"{family_id}: no normalisation plan ({exc})")
             continue
-        plan.keep_raw = True
-        plan.emit_labels = False  # labels are joined at render time, not here
+        plan.keep_raw = True  # labels are joined at render time (`emit_labels` stays off)
         if plans is not None:
             plans[family_id] = plan
         report.families.append(family_id)
@@ -1221,6 +1248,7 @@ def _read_families(
     exclude_paths: frozenset[str] = frozenset(),
     as_of: str | date | datetime | None = None,
     memo: dict[tuple[str, str, str], dict[str, Any]] | None = None,
+    record_key: bool = True,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1256,6 +1284,7 @@ def _read_families(
         max_bytes=max_bytes,
         exclude_paths=exclude_paths,
         plans=plans,
+        one_reading=not only_paths,
     )
     if only_paths:
         # Internal: the binding compile reads exactly its sampled file, not every
@@ -1277,7 +1306,6 @@ def _read_families(
             except KeyError:
                 continue
             alt.keep_raw = True
-            alt.emit_labels = False
         alternatives.append((family_id, alt))
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     unique_paths = {str(item["path"]) for _f, _p, item in selected}
@@ -1354,6 +1382,7 @@ def _read_families(
                     keep_columns=keep_columns,
                     decode_members=members_by_path.get(path),
                     alternatives=alternatives,
+                    record_key=record_key,
             )
             decoded_batches, matched_here, read_bytes, used_family, failure = (
                 work()
@@ -1521,6 +1550,7 @@ def _decode_one(
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
     alternatives: Sequence[tuple[str, NormalizePlan]] = (),
+    record_key: bool = True,
 ) -> tuple[list[pa.RecordBatch], bool, int, str | None, str | None]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -1621,7 +1651,7 @@ def _decode_one(
         matched = True
         if (short := short_body_note(decoded)) is not None:
             warnings.warn(f"{path}: {short}; the answer is short of that file's own records", stacklevel=2)
-        for batch in normalize_table(decoded, chosen, blob_sha256=digest):
+        for batch in normalize_table(decoded, chosen, blob_sha256=digest, record_key=record_key):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
     return batches, matched, (size if owner else 0), used_family, None

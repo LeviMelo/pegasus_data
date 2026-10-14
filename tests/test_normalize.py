@@ -113,10 +113,11 @@ class TestTypes:
         assert arrow_type_for("C", 20, 0) == pa.string()
         assert arrow_type_for("D", 8, 0) == pa.date32()
 
-    def test_implied_decimal_point(self):
-        """Old SIH money is an integer string with the point implied by the header."""
-        got = cast_numeric(pa.array(["123456"]), pa.float64(), decimals=2)
-        assert got.to_pylist() == [1234.56]
+    def test_a_value_without_a_point_is_read_at_face_value_not_rescaled(self):
+        """A dBase numeric with decimals writes its point in every value (278,906 values in real SIH/SIASUS/SINAN/PNI
+        files, none without); dividing a point-less cell by 10**decimals mixed a column holding both spellings."""
+        got = cast_numeric(pa.array(["100", "100.00", "5", "0.5"]), pa.float64(), decimals=2, field="VAL_X")
+        assert got.to_pylist() == [100.0, 100.0, 5.0, 0.5]
 
     def test_explicit_decimal_point_is_respected(self):
         got = cast_numeric(pa.array(["1234.56"]), pa.float64(), decimals=2)
@@ -130,7 +131,16 @@ class TestTypes:
 
 class TestNormalizeBatch:
     def _plan(self, **fields: FieldPlan) -> NormalizePlan:
-        return NormalizePlan(family_id="F", system="S", schema_signature="sig", fields=fields)
+        # labels are an opt-in of the plan (`emit_labels`): the default is the read-time join by validity window
+        return NormalizePlan(family_id="F", system="S", schema_signature="sig", fields=fields, emit_labels=True)
+
+    def test_labels_are_not_stored_unless_the_plan_asks(self):
+        batch = pa.RecordBatch.from_arrays([pa.array(["1"])], names=["SEXO"])
+        plan = NormalizePlan(
+            family_id="F", system="S", schema_signature="sig",
+            fields={"SEXO": FieldPlan(name="SEXO", labels={"1": "Masculino"})},
+        )
+        assert "SEXO_label" not in normalize_batch(batch, plan).schema.names
 
     def test_raw_is_kept_alongside_the_label(self):
         """§13: never discard the raw value when writing a decoded label."""

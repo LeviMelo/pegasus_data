@@ -826,11 +826,11 @@ def build(
         bool,
         typer.Option(
             "--labels/--no-labels",
-            help="Materialise a <field>_label column per decoded field. On by default; "
-            "off roughly halves the column count and the footprint, and labels can "
-            "still be applied at read time from the dictionary.",
+            help="Materialise a <field>_label column per small closed codelist. Off by default: a "
+            "stored label is today's meaning on every historical row, and the query path joins "
+            "labels at read time by validity window. Changing it makes every partition stale.",
         ),
-    ] = True,
+    ] = False,
     rebuild: Annotated[
         bool,
         typer.Option(

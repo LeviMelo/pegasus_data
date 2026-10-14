@@ -289,6 +289,8 @@ def query(
                 # are, so they travel with them.
                 derived=derived,
                 provenance=True,
+                # the key is hashed per row (about 9 us each) and kept only for the caller who asked for provenance
+                _record_key=query_plan.spec.provenance == "all",
                 on_missing_column="null_fill",
                 # A file that would not download or open is a recorded gap
                 # (report.excluded), never a silent absence; accepting a short

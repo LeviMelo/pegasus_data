@@ -177,58 +177,45 @@ def parse_date_array(array: pa.Array, *, order: str = "YYYYMMDD", sentinels: tup
         return pa.array(out, type=pa.date32())
 
 
-#: day-number -> (epi_year, epi_week), grown as new spans are seen. A calendar
-#: century is ~36,500 entries, so this stays small however many rows pass.
-_EPI_LUT: dict[int, tuple[pa.Array, pa.Array]] = {}
-_EPI_CHUNK = 4096  # days, ~11 years
+_EPOCH = date(1970, 1, 1)
+#: The days an epidemiological week is computed for: 1900-01-01 .. 2100-12-31 as day numbers. A date outside is a
+#: parsed value no health record carries (the open-ended sentinel 99991231, 00010101), not a week of any calendar year
+#: a surveillance system counts: its week is null and the raw text stays in `_raw`. Before, such a value raised
+#: (`year 10000 is out of range`) and one value killed the whole fetch or partition build.
+_EPI_MIN_DAY = (date(1900, 1, 1) - _EPOCH).days
+_EPI_MAX_DAY = (date(2100, 12, 31) - _EPOCH).days
 
-
-def _epi_lut(chunk: int) -> tuple[pa.Array, pa.Array]:
-    """epi_year/epi_week for every day in one chunk, indexed by offset.
-
-    Computed with :func:`epi_week` itself, so the vectorised path and the scalar
-    rule cannot drift: this is a cache of that function, not a reimplementation
-    of it.
-    """
-    cached = _EPI_LUT.get(chunk)
-    if cached is None:
-        base = date(1970, 1, 1)
-        years: list[int] = []
-        weeks: list[int] = []
-        for offset in range(_EPI_CHUNK):
-            w = epi_week(base + timedelta(days=chunk * _EPI_CHUNK + offset))
-            years.append(w.year)
-            weeks.append(w.week)
-        cached = (pa.array(years, type=pa.int16()), pa.array(weeks, type=pa.int8()))
-        _EPI_LUT[chunk] = cached
-    return cached
+#: day number -> (epi_year, epi_week), filled on demand; at most the 73,000 days of 1900..2100, so it stays small.
+_EPI_DAYS: dict[int, tuple[int, int]] = {}
 
 
 def epi_week_array(dates: pa.Array) -> tuple[pa.Array, pa.Array]:
-    """``(epi_year, epi_week)`` for a date32 column.
+    """``(epi_year, epi_week)`` for a date32 column; null for a null or out-of-range (1900..2100) date.
 
     Only use this where the source publishes no official week. Where it does —
     ``SEM_PRI``, ``SEM_NOT`` — carry the source's value through untouched.
 
     A lookup, not a loop. The epi week of a date depends only on the date, and
     DATASUS spans a few tens of thousands of distinct days against tens of
-    millions of rows — so the rule is evaluated once per DAY and the column is
-    an Arrow take. The loop this replaces cost 2.6 s per million rows, which on
-    one year of SIH is half a minute of turning the same dates into the same
-    answers.
+    millions of rows — so the rule is evaluated once per DISTINCT day (and cached
+    for the process) and the column is an Arrow take. The rule is
+    :func:`epi_week` itself, so this vectorised path and the scalar one cannot drift.
     """
-    if len(dates) == 0:
-        return pa.array([], type=pa.int16()), pa.array([], type=pa.int8())
+    n = len(dates)
     days = pc.cast(dates.cast(pa.date32()), pa.int32())
-    lo = pc.min(days).as_py()
-    if lo is None:  # every value null
-        return (
-            pa.nulls(len(dates), type=pa.int16()),
-            pa.nulls(len(dates), type=pa.int8()),
-        )
-    hi = pc.max(days).as_py()
-    first, last = lo // _EPI_CHUNK, hi // _EPI_CHUNK
-    years = pa.concat_arrays([_epi_lut(c)[0] for c in range(first, last + 1)])
-    weeks = pa.concat_arrays([_epi_lut(c)[1] for c in range(first, last + 1)])
-    index = pc.subtract(days, first * _EPI_CHUNK)
+    in_range = pc.fill_null(
+        pc.and_(pc.greater_equal(days, _EPI_MIN_DAY), pc.less_equal(days, _EPI_MAX_DAY)), False
+    )
+    distinct = pc.unique(pc.filter(days, in_range))
+    if len(distinct) == 0:
+        return pa.nulls(n, type=pa.int16()), pa.nulls(n, type=pa.int8())
+    values = distinct.to_pylist()
+    for day in values:
+        if day not in _EPI_DAYS:
+            week = epi_week(_EPOCH + timedelta(days=day))
+            _EPI_DAYS[day] = (week.year, week.week)
+    years = pa.array([_EPI_DAYS[d][0] for d in values], type=pa.int16())
+    weeks = pa.array([_EPI_DAYS[d][1] for d in values], type=pa.int8())
+    # a null or out-of-range day is not in `distinct`: its index is null, so its year and week are
+    index = pc.index_in(days, value_set=distinct)
     return pc.take(years, index), pc.take(weeks, index)
