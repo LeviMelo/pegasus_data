@@ -9,6 +9,7 @@ check against each table's own totals are the general interface's, not a second 
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -60,7 +61,10 @@ def build_census(sidra: Sidra, population_dir: Path, years: list[int] | None = N
         check = validate_series(sidra, "population_age_sex", only=only)[0]
         symbols = {k: v for k, v in zip(*[table.column("status").value_counts().field(i).to_pylist() for i in (0, 1)], strict=True)
                    if k not in ("value", "zero")}
-        pq.write_table(table.drop_columns(["status"]), out_dir / f"censo_{year}.parquet", compression="zstd")
+        target = out_dir / f"censo_{year}.parquet"
+        tmp = target.with_name(f"{target.name}.{os.getpid()}.tmp")
+        pq.write_table(table.drop_columns(["status"]), tmp, compression="zstd")
+        tmp.replace(target)
         report[year] = {"cells": table.num_rows, "municipalities": check["checked"] + check["total_missing"],
                         "population": int(pc.sum(table.column("population")).as_py()),
                         "mismatched_municipalities": check["mismatched"], "examples": check["examples"],

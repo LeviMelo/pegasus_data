@@ -59,6 +59,7 @@ __all__ = [
     "build_municipality_points",
     "point_sources",
     "distance_km",
+    "great_circle_km",
     "municipality_point",
     "classification_names",
     "municipality_fields",
@@ -327,6 +328,42 @@ def _ipea_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str
     return rows, report
 
 
+def _expand_ranges(ranges: list[tuple[str, str, str, str, str, str, str, tuple[str, str]]],
+                   seen: dict[tuple[str, str, str, str], dict[str, tuple[str, str]]]) -> dict[str, int]:
+    """Give each range row's member to the municipalities (``resources/municipalities.parquet``, 6-digit codes) the range
+    spans, in ``seen``. A row for a single code outranks a range over it (the narrower answer); two ranges that give
+    one municipality different members in the same window and system are a conflict and raise, not a pick. Codes of a
+    range that are no municipality (the "ignorado" spans, the Federal District's administrative regions) are counted per
+    classification and returned. Raises when a municipality a range spans ends without its row."""
+    from importlib.resources import files
+
+    import pyarrow.parquet as pq
+
+    if not ranges:
+        return {}
+    codes = sorted(str(c) for c in pq.read_table(str(files("pegasus_data.resources") / "municipalities.parquet"),
+                                                 columns=["code6"]).column("code6").to_pylist())
+    placeholders: dict[str, int] = {}
+    given: dict[tuple[str, str, str, str, str], tuple[str, str]] = {}
+    for lo, hi, codelist, valid_from, valid_to, system, name, member in ranges:
+        covered = [c for c in codes if lo <= c <= hi]
+        placeholders[name] = placeholders.get(name, 0) + (int(hi) - int(lo) + 1 - len(covered))
+        for code in covered:
+            key = (code, valid_from, valid_to, codelist)
+            if system in seen.get(key, {}):
+                continue                      # a single-code row is the narrower answer
+            previous = given.setdefault((*key, system), member)
+            if previous != member:
+                raise ValueError(f"{codelist} {code} {valid_from}-{valid_to} {system or '*'}: two ranges give it "
+                                 f"{previous} and {member}")
+            seen.setdefault(key, {})[system] = member
+    for lo, hi, codelist, valid_from, valid_to, system, _name, _member in ranges:
+        for code in (c for c in codes if lo <= c <= hi):
+            if system not in seen.get((code, valid_from, valid_to, codelist), {}):
+                raise ValueError(f"{codelist}: range {lo}-{hi} spans municipality {code}, which ended without a row")
+    return placeholders
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
@@ -358,26 +395,31 @@ def build_geography_pack(
 
     # (municipality, window, codelist) -> {system: (code, label)}
     seen: dict[tuple[str, str, str, str], dict[str, tuple[str, str]]] = {}
+    # A row of the label pack may be a RANGE of codes (CIRBRN: 530000-539999 is the Federal District, 110005-110007 the
+    # Vilhena region): it assigns its member to every municipality whose code it spans. The compiled tables hold
+    # CIRBRN 16, CSAUDBR 595, BR_PNDR 19, AGLBR 24, BR_REGMETR 11, BR_TERRCID 3 and BR_CAPITAL 3 such rows, and the
+    # compiler dropped them all: the Federal District and 24 current municipalities had no health region (2026-10-14).
+    ranges: list[tuple[str, str, str, str, str, str, str, tuple[str, str]]] = []
     for i in range(table.num_rows):
         codelist = str(column["codelist"][i]).upper()
         if codelist not in wanted or column["code_width"][i] != 6:
             continue
         lo, hi = column["code_lo"][i], column["code_hi"][i]
-        if lo != hi:
-            # A RANGE in a classification table would assign a span of
-            # municipalities to one region. None of the compiled tables uses
-            # one; if that changes, it needs deciding rather than expanding.
-            continue
         parsed = _MEMBER.match(str(column["label"][i]))
         if not parsed:
             continue
         valid_from = str(column["valid_from"][i] or "") if has_windows else ""
         valid_to = str(column["valid_to"][i] or "") if has_windows else ""
-        key = (str(lo), valid_from, valid_to, codelist)
         system = str(column["system"][i] or "")
         if system == "None":
             system = ""
+        if lo != hi:
+            ranges.append((str(lo), str(hi), codelist, valid_from, valid_to, system, wanted[codelist],
+                           (parsed.group(1), parsed.group(2))))
+            continue
+        key = (str(lo), valid_from, valid_to, codelist)
         seen.setdefault(key, {})[system] = (parsed.group(1), parsed.group(2))
+    placeholders = _expand_ranges(ranges, seen)
 
     rows: list[tuple[str, ...]] = []
     report: dict[str, dict[str, int | str]] = {}
@@ -406,6 +448,7 @@ def build_geography_pack(
     for name, stat in report.items():
         stat["municipalities"] = len(distinct[name])
         stat["contested"] = len(contested_set[name])
+        stat["range_placeholder_codes"] = placeholders.get(name, 0)
 
     if ibge:
         added, seen_classes = _ibge_rows(ibge)
@@ -628,25 +671,37 @@ def memberships(
     six = six.zfill(6) if six.isdigit() else six
 
     stamp = _stamp(vintage)
-    grouped: dict[str, dict[str, tuple[str, str, str, str, str, str]]] = {}
+    covering: dict[str, dict[str, list[tuple[str, str, str, str, str, str]]]] = {}
     for row in index.get(six, ()):
         if not _covers(row[at["valid_from"]], row[at["valid_to"]], stamp):
             continue
-        grouped.setdefault(row[at["classification"]], {})[row[at["system"]]] = (
+        covering.setdefault(row[at["classification"]], {}).setdefault(row[at["system"]], []).append((
             row[at["member_code"]], row[at["member_label"]],
             row[at["source_codelist"]], row[at["valid_from"]], row[at["valid_to"]],
             row[at["authority"]] if "authority" in at else "datasus",
-        )
+        ))
+    # One answer per (classification, system): the narrowest dated window, not the last row of the file (an open row
+    # and four dated ones for one municipality returned whichever came last: 176 groups of health_colegiado).
+    grouped: dict[str, dict[str, tuple[str, str, str, str, str, str]]] = {}
+    window_conflicts: set[str] = set()
+    for classification, by_sys in covering.items():
+        for sys_name, rows in by_sys.items():
+            chosen, conflict = _pick_window(rows, stamp)
+            grouped.setdefault(classification, {})[sys_name] = chosen
+            if conflict:
+                window_conflicts.add(classification)
 
     out: list[Membership] = []
     contested: list[str] = []
     for classification, by_system in sorted(grouped.items()):
-        is_contested = False
+        is_contested = classification in window_conflicts
+        if is_contested:
+            contested.append(classification)
         if system and system.upper() in {s.upper() for s in by_system if s}:
             chosen_system = next(s for s in by_system if s.upper() == system.upper())
         else:
-            is_contested = len({_fold(v[1]) for v in by_system.values()}) > 1
-            if is_contested:
+            if len({_fold(v[1]) for v in by_system.values()}) > 1 and classification not in contested:
+                is_contested = True
                 contested.append(classification)
             # A system-neutral row is a real answer and is preferred. Falling
             # back to `sorted()[0]` is ALPHABETICAL and therefore arbitrary —
@@ -664,6 +719,32 @@ def memberships(
             contested=is_contested, authority=authority,
         ))
     return MembershipSet(municipality=six, memberships=tuple(out), conflicts=tuple(contested))
+
+
+def _window(row: tuple[str, ...]) -> tuple[int, int]:
+    """A row's validity window as (first, last) YYYYMM, open ends as 0 and 999999."""
+    low, high = row[3], row[4]
+    return (int(low) if low and str(low).isdigit() else 0, int(high) if high and str(high).isdigit() else 999999)
+
+
+def _pick_window(rows: list[tuple[str, str, str, str, str, str]], stamp: int | None
+                 ) -> tuple[tuple[str, str, str, str, str, str], bool]:
+    """Among the rows of one classification and system that cover the vintage, the narrowest dated window (a dated
+    window is narrower than an open one; without a vintage, the latest). Also whether the answer is not settled: two
+    dated windows that overlap with different members, or an open row and the chosen dated one that disagree."""
+    if len(rows) == 1:
+        return rows[0], False
+    dated = [r for r in rows if _window(r) != (0, 999999)]
+    opens = [r for r in rows if _window(r) == (0, 999999)]
+    if not dated:
+        return opens[0], len({r[0] for r in opens}) > 1
+    conflict = any(a[0] != b[0] and _window(a)[0] <= _window(b)[1] and _window(b)[0] <= _window(a)[1]
+                   for i, a in enumerate(dated) for b in dated[i + 1:])
+    if stamp is None:
+        chosen = max(dated, key=lambda r: (_window(r)[0], _window(r)[1]))
+    else:
+        chosen = min(dated, key=lambda r: (_window(r)[1] - _window(r)[0], -_window(r)[0]))
+    return chosen, conflict or any(r[0] != chosen[0] for r in opens)
 
 
 def _stamp(vintage: int | str | None) -> int | None:
@@ -888,16 +969,22 @@ def municipality_point(code: str, kind: str = "population") -> tuple[float, floa
     return float(row[f"{kind}_lon"]), float(row[f"{kind}_lat"])
 
 
+def great_circle_km(lon1: Any, lat1: Any, lon2: Any, lat2: Any) -> Any:
+    """Great-circle (haversine) distance in km between points in degrees; scalars or arrays (NaN stays NaN). The one
+    distance code: `distance_km` and the linkage's residence levels both call it."""
+    import numpy as np
+
+    lon1, lat1, lon2, lat2 = (np.radians(np.asarray(x, dtype=float)) for x in (lon1, lat1, lon2, lat2))
+    h = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
+    return 2 * 6371.0088 * np.arcsin(np.sqrt(h))
+
+
 def distance_km(a: str, b: str, kind: str = "population") -> float | None:
     """Great-circle distance between two municipalities' points, in km (None when either is unknown)."""
-    import math
-
     pa_, pb = municipality_point(a, kind), municipality_point(b, kind)
     if pa_ is None or pb is None:
         return None
-    lon1, lat1, lon2, lat2 = map(math.radians, (*pa_, *pb))
-    h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
-    return 2 * 6371.0088 * math.asin(math.sqrt(h))
+    return float(great_circle_km(*pa_, *pb))
 
 
 def _uf_codes(ufs: list[str]) -> list[int]:

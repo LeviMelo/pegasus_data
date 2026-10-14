@@ -100,6 +100,9 @@ class FieldModel:
     u: dict[str, float] = field(default_factory=dict)
     anchors: int = 0
     controls: int = 0
+    #: how the anchors were found: the anchor pairs, and the chance pairs among them (the same join over a shifted left
+    #: key), whose level counts were subtracted from the anchors' (`probabilistic._anchor_levels`)
+    m_source: dict[str, Any] = field(default_factory=dict)
 
     def bits(self, level: str) -> float:
         if level == MISSING:
@@ -117,21 +120,34 @@ class FieldModel:
         return bits if seen else min(bits, 0.0)
 
     def as_dict(self) -> dict[str, Any]:
+        """The channel as a report: ``levels`` rounded for display, ``exact`` the unrounded m and u that a slice pools
+        toward (a level with m = 2e-5 rounded to 5 decimals was off by up to 25%, 0.32 bits: the nation and its slices
+        scored the same pair differently on the rare levels)."""
         levels = sorted(set(self.m) | set(self.u))
         return {"comparison": self.comparison.name, "anchors": self.anchors, "controls": self.controls,
+                "anchor_pairs": self.m_source, "exact": {"m": dict(self.m), "u": dict(self.u)},
                 "levels": {lv: {"m": round(self.m.get(lv, 0.0), 5), "u": round(self.u.get(lv, 0.0), 6),
                                 "bits": round(self.bits(lv), 2)} for lv in levels}}
 
 
-def threshold_for(real: list[float], control: list[float], target: float) -> tuple[float | None, float | None]:
+def threshold_for(real: list[float], control: list[float], target: float, *,
+                  placebo_candidates: int | None = None) -> tuple[float | None, float | None]:
     """The lowest score at which the estimated false-match rate is at most `target`.
 
     Estimated FDR(t) = #control scores >= t / #real scores >= t. The whole
     range is scanned: the ratio is not monotone (a single coincidence at the
     top reads 100% until enough real pairs join it), so stopping at the first
     excess refused every threshold on RR 2022.
+
+    A placebo that produced no candidate pair at all measures nothing: with no control scores the estimate is
+    0/n at every score, and the threshold fell to the lowest real score with a false-match rate of zero
+    (``threshold_for([30, 22, 9, 4, 1], [], 0.01)`` returned ``(1.0, 0.0)``). ``placebo_candidates`` is the number
+    of candidate pairs the placebo generated, scored or not (a placebo whose candidates all score at or below zero is
+    a clean one); without it an empty ``control`` is taken for an empty placebo. Either way: no threshold.
     """
     if not real:
+        return None, None
+    if (placebo_candidates if placebo_candidates is not None else len(control)) == 0:
         return None, None
     real_sorted = sorted(real, reverse=True)
     control_sorted = sorted(control, reverse=True)

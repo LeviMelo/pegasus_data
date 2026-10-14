@@ -21,7 +21,6 @@ links against each other.
 
 from __future__ import annotations
 
-import math
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
@@ -71,19 +70,42 @@ def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
     return out
 
 
+#: stored edge tables by scope and the runs' signature (`_stored_edges`): one load serves every call of a scope until a
+#: run, or what it depends on, changes
+_EDGES: dict[tuple, pa.Table] = {}
+
+
+def _signature(settings: Any, keys: list[Any]) -> str:
+    """What the stored runs of a scope are as files and as current inputs: a re-run (refresh) that changes pairs
+    changes the files' time and size, a rebuilt lake or role changes the fingerprint."""
+    import hashlib
+
+    from . import store
+
+    h = hashlib.sha256()
+    for key in keys:
+        path = store.links_dir(settings) / key.spec / f"{key.stem}.parquet"
+        stat = path.stat() if path.exists() else None
+        h.update(f"{key.stem}|{stat.st_mtime_ns if stat else 0}|{stat.st_size if stat else 0}|"
+                 f"{store.fingerprint(settings, key) if stat else ''};".encode())
+    return h.hexdigest()
+
+
 def _stored_edges(settings: Any, period: object, geography: object, method: str | None,
                   exclude: frozenset[str] = frozenset()) -> pa.Table:
     """Every stored pair of the scope's viable runs as one edge table, with its p_match (1 where the run carries none).
     A run stored with the verdict "not viable" (SINAN's dengue deaths in 2015: its controls matched like its pairs)
-    merges no one."""
-
+    merges no one. Kept in memory by the runs' signature, which the table carries (``signature`` in its metadata)."""
+    runs = [(name, spec, stored_key(name, method or link_method(name), period, geography))
+            for name, spec in _person_of_specs().items() if name not in exclude]
+    signature = _signature(settings, [key for _n, _s, key in runs])
+    memo = (str(period), str(geography), method, signature)
+    if memo in _EDGES:
+        return _EDGES[memo]
     con = connect()
     parts = []
-    for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
-        if name in exclude:
-            continue
-        key = stored_key(name, method or link_method(name), period, geography)
-        stored = load(settings, key)               # through the store: a run named by an old identity is relabelled
+    for name, (lds, lrole, rds, rrole), key in runs:
+        stored = load(settings, key)               # through the store: only a current run
         if stored is None or stored[1].get("verdict") == "not viable":
             continue
         view = f"run_{len(parts)}"
@@ -92,14 +114,13 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
             pm = "p_match" if "p_match" in stored[0].column_names else "1.0"
             ev = "bits"
         else:
-            # a deterministic run has no evidence per pair, only its negative control's share of pairs found by chance:
-            # each pair is right with probability 1 − chance, and weighs log2((1 − chance)/chance) bits, so a weak key
-            # (TOXC to SIH, 8.7 % by chance) merges after strong edges and is drawn at its own precision; the run had
-            # failed the union for want of a bits column (2026-10-11)
-            report = stored[1]
-            chance = report.get("chance_percent", report.get("estimated_fdr_percent"))
-            c = min(max(float(chance) / 100.0 if chance is not None else 0.0, 1e-6), 0.5)
-            pm, ev = f"{1.0 - c!r}", f"CAST({math.log2((1.0 - c) / c)!r} AS DOUBLE)"
+            # a deterministic run has no evidence per pair: each pair is right with probability 1 - chance and weighs
+            # log2((1 - chance) / chance) bits (`uncertainty.run_probability`); the run had failed the union for want of
+            # a bits column (2026-10-11)
+            from .uncertainty import run_probability
+
+            p, b = run_probability(stored[1])
+            pm, ev = repr(p), f"CAST({b!r} AS DOUBLE)"
         parts.append(f"""SELECT '{name}' AS spec, '{lds}' AS lds, '{lrole}' AS lrole, l,
                                  '{rds}' AS rds, '{rrole}' AS rrole, r, {ev} AS bits, CAST({pm} AS DOUBLE) AS p_match
                           FROM {view}""")
@@ -107,7 +128,12 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
         raise FileNotFoundError("no stored links for this scope: run link() first")
     # a total order: a draw keeps each edge by its position, and ties on bits (every pair of a deterministic run has
     # the same) came back in any order, so one draw was another link set on each call (2026-10-12)
-    return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC, spec, l, r").to_arrow_table()
+    edges = con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC, spec, l, r").to_arrow_table()
+    edges = edges.replace_schema_metadata({b"signature": signature.encode()})
+    _EDGES[memo] = edges
+    while len(_EDGES) > 4:
+        _EDGES.pop(next(iter(_EDGES)))
+    return edges
 
 
 def build_entities(*, period: object, geography: object, method: str | None = None,
@@ -127,8 +153,11 @@ def build_entities(*, period: object, geography: object, method: str | None = No
     keep = None
     if seeds is not None and edges.num_rows:
         # the seeds' components of the undrawn graph, once per scope and cohort: a draw only removes edges, so its
-        # seeded components lie inside them (a cohort's ten draws had each rebuilt them over 552,219 edges, 2026-10-12)
-        key = (str(period), str(geography), method, tuple(sorted(exclude)), edges.num_rows, _seeds_digest(seeds))
+        # seeded components lie inside them (a cohort's ten draws had each rebuilt them over 552,219 edges, 2026-10-12).
+        # Keyed by the runs' signature, not by the edges' number: a re-run that changes pairs but not their count
+        # served the old graph's components for the new edges.
+        key = (str(period), str(geography), method, tuple(sorted(exclude)), (edges.schema.metadata or {}).get(b"signature"),
+               _seeds_digest(seeds))
         keep = _SEEDED.get(key)
         if keep is None:
             keep = _SEEDED[key] = _component_mask(edges, seeds)
@@ -145,21 +174,76 @@ def build_entities(*, period: object, geography: object, method: str | None = No
             edges = edges.filter(pa.array(_component_mask(edges, seeds)))   # the draw may split a seed's component
     elif keep is not None:
         edges = edges.filter(pa.array(keep))
-    spec = edges.column("spec").to_pylist()
-    lnode = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("lds").to_pylist(), edges.column("lrole").to_pylist(),
-                                                edges.column("l").to_pylist(), strict=True)]
-    rnode = [f"{d}|{r}|{x}" for d, r, x in zip(edges.column("rds").to_pylist(), edges.column("rrole").to_pylist(),
-                                                edges.column("r").to_pylist(), strict=True)]
-    bits = edges.column("bits").to_numpy()
-    index: dict[str, int] = {}
-    for name in lnode + rnode:
-        index.setdefault(name, len(index))
-    parent = np.arange(len(index))
-    # Per root: how many nodes of each kind it holds.
-    kinds: list[Counter] = []
-    for name in index:
-        ds, role, _ = name.split("|", 2)
-        kinds.append(Counter({(ds, role): 1}))
+    return _merge(edges)
+
+
+def _merge(edges: pa.Table) -> Entities:
+    """Persons from an edge table (strongest first). Edges are merged in their order under the constraints of a person
+    (`AT_MOST_ONE`, `EXCLUSIVE`), but only where a constraint can bind: the link graph's connected components never
+    interact, and a component with no two nodes of an at-most-one kind and no exclusive pair can refuse nothing, so its
+    edges all merge, and which of them are kept (the others re-state a merge already made) is its minimum spanning
+    forest under the edge order. Those are found in C (scipy); the order-dependent union-find runs over the few
+    components that can refuse (about 3% of edges), where it took 97 s over 2.4 M edges before."""
+    import pyarrow.compute as pc
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components, minimum_spanning_tree
+
+    m = edges.num_rows
+    if not m:
+        return Entities(pa.table({"record": pa.array([], pa.string()), "dataset": pa.array([], pa.string()),
+                                  "role": pa.array([], pa.string()), "person": pa.array([], pa.int64())}))
+
+    def names(side: str) -> pa.Array:
+        cols = [edges.column(f"{side}ds"), edges.column(f"{side}role"), edges.column(side)]
+        return pc.binary_join_element_wise(*[pc.cast(c, pa.string()) for c in cols], "|").combine_chunks()
+
+    def kinds(side: str) -> pa.Array:
+        return pc.binary_join_element_wise(pc.cast(edges.column(f"{side}ds"), pa.string()),
+                                           pc.cast(edges.column(f"{side}role"), pa.string()), "|").combine_chunks()
+
+    enc = pc.dictionary_encode(pa.concat_arrays([names("l"), names("r")]))
+    idx = enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    li, ri = idx[:m], idx[m:]
+    n = len(enc.dictionary)
+    kenc = pc.dictionary_encode(pa.concat_arrays([kinds("l"), kinds("r")]))
+    kidx = kenc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    kind_names = kenc.dictionary.to_pylist()
+    kind_of = np.full(n, -1, np.int64)
+    kind_of[li], kind_of[ri] = kidx[:m], kidx[m:]
+    kind_id = {name: i for i, name in enumerate(kind_names)}
+    ncomp, label = connected_components(coo_matrix((np.ones(m), (li, ri)), shape=(n, n)), directed=False)
+
+    # components that hold two nodes of an at-most-one kind, or every kind of the exclusive set
+    constrained = np.zeros(ncomp, bool)
+    for ds, role in AT_MOST_ONE:
+        k = kind_id.get(f"{ds}|{role}")
+        if k is not None:
+            constrained |= np.bincount(label[kind_of == k], minlength=ncomp) >= 2
+    exclusive = [kind_id.get(f"{ds}|{role}") for ds, role in EXCLUSIVE]
+    if all(k is not None for k in exclusive):
+        both = np.ones(ncomp, bool)
+        for k in exclusive:
+            both &= np.bincount(label[kind_of == k], minlength=ncomp) > 0
+        constrained |= both
+    tied = constrained[label[li]]                     # per edge: lies in a component that can refuse
+
+    spec_enc = pc.dictionary_encode(edges.column("spec").combine_chunks())
+    spec_code = spec_enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    spec_name = spec_enc.dictionary.to_pylist()
+    kept_edge = np.zeros(m, bool)
+
+    # unconstrained edges: the first of each node pair, kept when it is in the minimum spanning forest by position
+    free = np.nonzero(~tied)[0]
+    if len(free):
+        lo, hi = np.minimum(li[free], ri[free]), np.maximum(li[free], ri[free])
+        _, first = np.unique(lo * n + hi, return_index=True)
+        cand = free[first]
+        tree = minimum_spanning_tree(coo_matrix((cand + 1.0, (np.minimum(li[cand], ri[cand]),
+                                                              np.maximum(li[cand], ri[cand]))), shape=(n, n)).tocsr())
+        kept_edge[tree.data.astype(np.int64) - 1] = True
+
+    # constrained edges: the order-dependent union-find with the person's constraints
+    parent = np.arange(n)
 
     def find(x: int) -> int:
         root = x
@@ -169,42 +253,59 @@ def build_entities(*, period: object, geography: object, method: str | None = No
             parent[x], x = root, parent[x]
         return root
 
-    kept = 0
+    held: dict[int, Counter] = {}          # per root: how many nodes of each kind it holds
+
+    def kinds_of(root: int) -> Counter:
+        if root not in held:
+            held[root] = Counter({kind_names[kind_of[root]]: 1})
+        return held[root]
+
+    wanted = {f"{ds}|{role}": (ds, role) for ds, role in AT_MOST_ONE}
+    bits = edges.column("bits").to_numpy()
     refused: list[dict[str, Any]] = []
-    by_spec: dict[str, dict[str, int]] = {}
-    for i in range(len(spec)):
-        a, b = find(index[lnode[i]]), find(index[rnode[i]])
-        stats = by_spec.setdefault(spec[i], {"edges": 0, "kept": 0, "already_one_person": 0, "refused": 0})
-        stats["edges"] += 1
+    refused_edge = np.zeros(m, bool)
+    for i in np.nonzero(tied)[0].tolist():
+        a, b = find(int(li[i])), find(int(ri[i]))
         if a == b:
-            stats["already_one_person"] += 1
             continue
-        merged = kinds[a] + kinds[b]
-        broken: list[tuple[Any, ...]] = [k for k in AT_MOST_ONE if merged[k] > 1]
-        if all(merged[k] for k in EXCLUSIVE):
+        merged = kinds_of(a) + kinds_of(b)
+        broken: list[tuple[Any, ...]] = [wanted[k] for k in wanted if merged[k] > 1]
+        if all(merged[f"{ds}|{role}"] for ds, role in EXCLUSIVE):
             broken.append(EXCLUSIVE)
         if broken:
-            stats["refused"] += 1
-            refused.append({"spec": spec[i], "left": lnode[i], "right": rnode[i], "bits": float(bits[i]),
+            refused_edge[i] = True
+            refused.append({"spec": spec_name[spec_code[i]], "left": enc.dictionary[int(li[i])].as_py(),
+                            "right": enc.dictionary[int(ri[i])].as_py(), "bits": float(bits[i]),
                             "would_break": [str(k) for k in broken]})
             continue
-        if kinds[a].total() < kinds[b].total():
+        if kinds_of(a).total() < kinds_of(b).total():
             a, b = b, a
         parent[b] = a
-        kinds[a] = merged
-        kinds[b] = Counter()
-        kept += 1
-        stats["kept"] += 1
-    names = list(index)
-    persons = [int(find(i)) for i in range(len(names))]
-    parts = [n.split("|", 2) for n in names]
-    nodes = pa.table({
-        "record": pa.array([p[2] for p in parts], pa.string()),
-        "dataset": pa.array([p[0] for p in parts], pa.string()),
-        "role": pa.array([p[1] for p in parts], pa.string()),
-        "person": pa.array(persons, pa.int64()),
-    })
-    return Entities(nodes, kept, refused, by_spec)
+        held[a] = merged
+        held.pop(b, None)
+        kept_edge[i] = True
+
+    person = label.astype(np.int64)
+    for node in np.nonzero(constrained[label])[0].tolist():
+        person[node] = ncomp + find(node)
+
+    by_spec: dict[str, dict[str, int]] = {}
+    first_seen = np.unique(spec_code, return_index=True)
+    for code in first_seen[0][np.argsort(first_seen[1])].tolist():
+        mine = spec_code == code
+        by_spec[spec_name[code]] = {
+            "edges": int(mine.sum()), "kept": int((mine & kept_edge).sum()),
+            "already_one_person": int((mine & ~kept_edge & ~refused_edge).sum()), "refused": int((mine & refused_edge).sum())}
+
+    record = np.empty(n, dtype=object)
+    record[li] = pc.cast(edges.column("l"), pa.string()).to_numpy(zero_copy_only=False)
+    record[ri] = pc.cast(edges.column("r"), pa.string()).to_numpy(zero_copy_only=False)
+    take = pa.array(kind_of)
+    dataset = pc.take(pa.array([k.split("|", 1)[0] for k in kind_names], pa.string()), take)
+    role = pc.take(pa.array([k.split("|", 1)[1] for k in kind_names], pa.string()), take)
+    nodes = pa.table({"record": pa.array(record, pa.string()), "dataset": dataset, "role": role,
+                      "person": pa.array(person, pa.int64())})
+    return Entities(nodes, int(kept_edge.sum()), refused, by_spec)
 
 
 #: the seeds' component masks of undrawn edge sets, by scope and cohort (`build_entities`)
@@ -264,7 +365,7 @@ def triangles(*, period: object, geography: object, settings: Any = None,
     from ..config import load_settings
 
     settings = settings or load_settings()
-    edges = _stored_edges(settings, period, geography, None, exclude)
+    edges = _stored_edges(settings, period, geography, None, exclude)       # loaded once for every spec
     out: dict[str, dict[str, Any]] = {}
     con = connect()
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
@@ -272,11 +373,11 @@ def triangles(*, period: object, geography: object, settings: Any = None,
         direct = edges.filter(mask).select(["l", "r"])
         if direct.num_rows == 0:
             continue
-        try:
-            others = build_entities(period=period, geography=geography, settings=settings, exclude=frozenset({name}))
-        except FileNotFoundError:
+        rest = edges.filter(pa.compute.invert(mask))
+        if rest.num_rows == 0:
             out[name] = {"pairs": direct.num_rows, "with_route": 0, "agree": 0, "disagree": 0, "agreement": None}
             continue
+        others = _merge(rest)
         routed = person_pairs(others, (lds, lrole), (rds, rrole))
         con.register("d", pa.table({"l": _as_str(direct.column("l")), "r": _as_str(direct.column("r"))}))
         con.register("o", pa.table({"l": _as_str(routed.column("l")), "r": _as_str(routed.column("r"))}))

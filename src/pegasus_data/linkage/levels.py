@@ -217,19 +217,17 @@ def _municipality_km(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     Each distinct code is looked up once; candidate batches run to millions
     of pairs over a few thousand municipalities.
     """
-    from ..geography import _points
+    from ..geography import _points, great_circle_km
 
     points = _points()
     codes, inverse = np.unique(np.concatenate([a, b]).astype(str), return_inverse=True)
     rows = [points.get(c) for c in codes]
-    lon = np.radians(np.array([r["population_lon"] if r and r.get("population_lon") is not None else np.nan
-                               for r in rows], dtype=float))
-    lat = np.radians(np.array([r["population_lat"] if r and r.get("population_lat") is not None else np.nan
-                               for r in rows], dtype=float))
+    lon = np.array([r["population_lon"] if r and r.get("population_lon") is not None else np.nan for r in rows],
+                   dtype=float)
+    lat = np.array([r["population_lat"] if r and r.get("population_lat") is not None else np.nan for r in rows],
+                   dtype=float)
     ia, ib = inverse[: len(a)], inverse[len(a):]
-    lon1, lat1, lon2, lat2 = lon[ia], lat[ia], lon[ib], lat[ib]
-    h = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
-    return 2 * 6371.0088 * np.arcsin(np.sqrt(h))
+    return great_circle_km(lon[ia], lat[ia], lon[ib], lat[ib])
 
 
 def _levels_municipality(a: pa.Array, b: pa.Array) -> Levels:

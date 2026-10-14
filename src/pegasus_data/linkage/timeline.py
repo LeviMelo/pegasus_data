@@ -22,8 +22,6 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
-from ..retrieve import NothingPublished
-from .engine import LinkNotViable, link
 from .identity import record_ids
 from .roles import role_table
 
@@ -47,20 +45,39 @@ def _records(dataset: str, period: object, geography: object) -> dict[str, dict[
     return dict(zip(ids.to_pylist(), rows, strict=True))
 
 
-@lru_cache(maxsize=16)
 def _pairs(spec: str, method: str, period: object, geography: object) -> tuple[list[tuple[str, str, float | None]], str]:
-    try:
-        result = link(spec, period=period, geography=geography, method=method, allow_partial=True)
-    except LinkNotViable as exc:
-        return [], str(exc.result.summary().get("verdict"))
-    except NothingPublished as exc:
-        # A partner DATASUS does not publish at this scope (CIHA has no
-        # Roraima file in any year): the event cannot attach, and the reason
-        # is the source's, not a failure of the timeline.
-        return [], f"not published: {exc}"
-    t = result.pairs
+    """The pairs of a STORED run of the scope. A timeline is read inside a request: a run that is absent raises
+    ``LookupError`` (link it first) instead of being computed there, which took hours (2026-10-14 review). A stored run
+    that is not viable attaches nothing and is named by its verdict."""
+    from ..config import load_settings
+    from . import store
+    from .engine import stored_key
+
+    settings = load_settings()
+    key = stored_key(spec, method, period, geography)
+    path = store.links_dir(settings) / key.spec / f"{key.stem}.parquet"
+    if not path.exists():
+        raise LookupError(f"{spec} {period} {geography}: no stored {method} run (link it first)")
+    return _pairs_at(spec, method, period, geography, path.stat().st_mtime_ns)
+
+
+@lru_cache(maxsize=16)
+def _pairs_at(spec: str, method: str, period: object, geography: object, stamp: int
+              ) -> tuple[list[tuple[str, str, float | None]], str]:
+    """`_pairs` of the run file as it was at ``stamp`` (a re-run is a new entry)."""
+    from ..config import load_settings
+    from . import store
+    from .engine import stored_key
+
+    stored = store.load(load_settings(), stored_key(spec, method, period, geography))
+    if stored is None:
+        raise LookupError(f"{spec} {period} {geography}: the stored {method} run is not current (link it again)")
+    t, report = stored
+    verdict = str(report.get("verdict"))
+    if verdict == "not viable":
+        return [], verdict
     bits = t.column("bits").to_pylist() if "bits" in t.column_names else [None] * t.num_rows
-    return list(zip(t.column("l").to_pylist(), t.column("r").to_pylist(), bits, strict=True)), str(result.verdict)
+    return list(zip(t.column("l").to_pylist(), t.column("r").to_pylist(), bits, strict=True)), verdict
 
 
 @lru_cache(maxsize=1)

@@ -66,6 +66,7 @@ def age_standardised_rates(
     age: str = "IDADE_anos",
     by: str | None = None,
     uf: str | Sequence[str] | None = None,
+    area: str | Sequence[str] | None = None,
     standard: str = "who2000",
     per: float = 100_000,
     sex: str | None = None,
@@ -77,6 +78,13 @@ def age_standardised_rates(
     each municipality, or None for one rate over the whole denominator.
     ``uf`` is the denominator's scope: the states the records cover. It is
     inferred from ``by``'s codes when given, and is the nation otherwise.
+    ``area`` is where the numerator is complete: state codes ("27") or municipality codes whose residents' events
+    ``records`` hold in full. A dataset published by residence (SIM, SINASC) is complete everywhere; one published by
+    the place of care (SIH, CIHA: one state's files) is complete only for the state's own residents, and a municipality
+    of another state in its records has the full POPSVS denominator and only the events treated here, a crude rate
+    that is a fraction of the residence rate (SIH-RD Alagoas rated by MUNIC_RES gave Sergipe and Bahia municipalities
+    rates with no flag). With ``area`` only its groups are returned; without it every group is, and
+    ``numerator_complete`` is None: the table does not know.
     ``sex`` restricts the denominator ("1" male, "2" female in POPSVS); the
     records must already be that sex.
 
@@ -103,7 +111,9 @@ def age_standardised_rates(
             continue
         cases[(group, band)] = cases.get((group, band), 0) + 1
 
-    states = ([uf] if isinstance(uf, str) else list(uf)) if uf else (sorted({g[:2] for g, _ in cases}) if by else None)
+    prefixes = tuple(str(a) for a in ([area] if isinstance(area, str) else area or ()))
+    states = ([uf] if isinstance(uf, str) else list(uf)) if uf else (
+        sorted({a[:2] for a in prefixes}) if prefixes and by else sorted({g[:2] for g, _ in cases}) if by else None)
     population = load_population(series="POPSVS", years=year, uf=states,
                                  by=("municipality", "year", "sex", "age"), settings=settings)
     people: dict[tuple[str, int | None], float] = {}
@@ -119,8 +129,10 @@ def age_standardised_rates(
     weights = _standard(standard, settings)
     total_weight = sum(weights.values())
     out: dict[str, list[Any]] = {k: [] for k in ("group", "events", "population", "crude_rate", "standardised_rate",
-                                                 "ci95_low", "ci95_high", "unaged", "standard")}
+                                                 "ci95_low", "ci95_high", "unaged", "standard", "numerator_complete")}
     for group in sorted({g for g, _ in people} | {g for g, _ in cases}):
+        if prefixes and by and not group.startswith(prefixes):
+            continue
         events = sum(cases.get((group, b), 0) for b in BANDS)
         pop = sum(people.get((group, b), 0.0) for b in BANDS)
         rate = variance = 0.0
@@ -151,4 +163,5 @@ def age_standardised_rates(
         out["ci95_high"].append(high)
         out["unaged"].append(unaged.get(group, 0))
         out["standard"].append(standard)
+        out["numerator_complete"].append(True if prefixes and by else None)
     return pa.table(out)

@@ -11,9 +11,15 @@ Runs a link spec's ``probabilistic`` block (``curation/links.yml``):
 3. **Candidates** from several blocking keys (intrinsic roles; geography never
    filters), each pair scored as the sum of its fields' bits.
 4. **Control.** The same candidate generation and scoring with every left
-   date (birth and event dates) shifted by 400 days. A year, a month and a day
-   all change, so no block reaches a true partner and no date earns typo
-   credit; what the control still scores high is coincidence.
+   date (birth and event dates) moved by half a year *inside the partner
+   side's own period* (a rotation of that period, in whole weeks: the weekday is
+   kept). A date moved out of the partner's period meets no partner: a flat
+   +400 days left 2.1-3.1% of the neonatal admissions a partner-side birth on
+   the shifted day (+7 days: 99.8%), so the false pairs the date blocks
+   create had no placebo, the threshold came out lower than the data needs and
+   the false-match rate read 1% by construction (2026-10-14). A block whose
+   placebo does not reach the coincidences its real candidates must hold
+   (`_placebo_report`) fails the run.
 5. **Threshold** where the estimated false-match rate (control pairs over real
    pairs above it, both resolved 1:1) is at most ``target_fdr``; then 1:1
    resolution by descending score.
@@ -37,7 +43,9 @@ Scope invariance (docs/plans/linkage-theory.md §3.2, step T2):
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
 import duckdb
@@ -51,9 +59,19 @@ from .engine import LinkSpec, _prepare, _q, judge, links_file, load_links, store
 from .identity import connect, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import dataset_roles, role_table
+from .roles import dataset_roles, role_table, unusable_roles
 
-CONTROL_SHIFT_DAYS = 400
+#: How far the placebo rotates a date inside the partner's period: half a year (26 weeks), so the day-month changes
+#: (a shift of about a year would hand back the same day-month and earn typo credit) and the weekday does not. A
+#: partner period shorter than a year is rotated by half of it.
+PLACEBO_DAYS = 182
+#: A block's placebo must produce at least this share of its real candidates' coincidences. The coincidences are at
+#: least `candidates - left records` (a left record has at most one true partner), whatever the true-link rate is;
+#: a faithful placebo has about that many, half is the slack for the season and weekday mix a rotation changes.
+PLACEBO_REACH = 0.5
+#: ... and is judged only when the coincidences expected are at least this many (below it a Poisson count falls short
+#: of half by chance)
+PLACEBO_MIN_EXPECTED = 30
 #: Random pairs for chance agreement (u). 200,000 pairs over 50,000-record
 #: reservoirs left "birth date equal" (u about 5e-5, a dozen occurrences) with
 #: 0.76 bits of sampling noise between seeds, enough to move thousands of
@@ -88,11 +106,6 @@ class ProbabilisticSpec:
     target_fdr: float = 0.01
     control_role: str = ""
     inherit: tuple[Inherit, ...] = ()
-    #: How far the placebo moves every left date. 400 days suits a birth date;
-    #: a link blocked only on an event date of the year (a death day) needs a
-    #: shift that stays inside the partner's period, or the placebo finds no
-    #: one and the error estimate is empty (SINAN dengue deaths, 2026-10-03).
-    control_shift_days: int = CONTROL_SHIFT_DAYS
 
 
 def load_probabilistic(name: str) -> ProbabilisticSpec:
@@ -112,14 +125,8 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
                         given_side=str(item[2].get("side", "right")) if len(item) > 2 else "right")
         for item in body["compare"]
     )
-    # A block key is [left, right] or [left, right, "typo"]: the typo form also
-    # matches the left date through its plausible mistypings (typo_variants).
     blocks = tuple(
-        tuple(
-            (str(key[0]), "..".join(key[1]) if isinstance(key[1], list) else str(key[1]))
-            + (("typo",) if len(key) > 2 and key[2] == "typo" else ())
-            for key in block
-        )
+        tuple((str(key[0]), "..".join(key[1]) if isinstance(key[1], list) else str(key[1])) for key in block)
         for block in body["blocks"]
     )
     inherit = tuple(
@@ -127,8 +134,7 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         for side in ("left", "right") for item in ((body.get("inherit") or {}).get(side) or [])
     )
     return ProbabilisticSpec(compare, blocks, float(body.get("target_fdr", 0.01)),
-                             str(body.get("control_role") or spec.control_role), inherit,
-                             int(body.get("control_shift_days", CONTROL_SHIFT_DAYS)))
+                             str(body.get("control_role") or spec.control_role), inherit)
 
 
 @dataclass
@@ -148,6 +154,16 @@ class ProbabilisticResult:
     verdict: str = "not viable"
     threshold_source: str = "own"
     calibration: dict[str, Any] = field(default_factory=dict)
+    #: what failed the verdict, in words (empty when viable)
+    reasons: list[str] = field(default_factory=list)
+    #: per block: real and placebo candidate pairs and whether the placebo reaches the block (`_placebo_report`)
+    placebo: list[dict[str, Any]] = field(default_factory=list)
+    #: comparisons and blocks left out because a role they read is absent or has no value in the scope, with the reason
+    skipped: dict[str, str] = field(default_factory=dict)
+    #: per year, what the two sides' files lacked (`roles.role_gaps`)
+    role_gaps: dict[str, Any] = field(default_factory=dict)
+    #: where the threshold came from when it is not the nation's: "no national reference for <period>"
+    reference: str = ""
     #: The error channels per setting (the state that publishes the left
     #: record), each shrunk toward the national channel (ADR-0123).
     models_by_setting: dict[str, list[FieldModel]] = field(default_factory=dict)
@@ -164,23 +180,64 @@ class ProbabilisticResult:
             "fdr_upper95_percent": self.fdr_upper95_percent, "validations": self.validations,
             "verdict": self.verdict, "threshold_source": self.threshold_source,
             "calibration": self.calibration, "models": [m.as_dict() for m in self.models],
+            "verdict_reasons": self.reasons, "placebo": self.placebo, "skipped": self.skipped,
+            "role_gaps": self.role_gaps, "reference": self.reference,
             "models_by_setting": {key: [{"comparison": m.comparison.name, "anchors": m.anchors,
                                          "m": {k: round(v, 5) for k, v in m.m.items()}} for m in ms]
                                   for key, ms in sorted(self.models_by_setting.items())},
         }
 
 
-def _shifted_left(con: duckdb.DuckDBPyConnection, roles: list[str], days: int) -> None:
-    """The placebo's left side: EVERY compared or blocking date shifted.
+def _partner_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, left_dates: list[str]
+                    ) -> dict[str, tuple[date, date]]:
+    """For each left date role, the first and last date of the partner side's roles it is compared or blocked with (an
+    interval's start and end both): the period a placebo date has to stay inside to meet a partner. A role the
+    comparisons and blocks do not pair (the control role alone) is placed inside its own side's period."""
+    partners: dict[str, set[str]] = {role: set() for role in left_dates}
+    for c in prob.compare:
+        if c.left in partners:
+            partners[c.left].update(c.right_roles)
+    for block in prob.blocks:
+        for left, right in block:
+            if left in partners:
+                partners[left].update(right.split(".."))
+    out: dict[str, tuple[date, date]] = {}
+    for role, rights in partners.items():
+        view, columns = ("R", sorted(rights)) if rights else ("L", [role])
+        union = " UNION ALL ".join(f"SELECT {_q(c)} AS v FROM {view}" for c in columns)
+        lo, hi = con.execute(f"SELECT min(v), max(v) FROM ({union})").fetchone() or (None, None)  # type: ignore[misc]
+        if lo is not None:
+            out[role] = (lo, hi)
+    return out
+
+
+def _shifted_left(con: duckdb.DuckDBPyConnection, ranges: dict[str, tuple[date, date]]) -> dict[str, int]:
+    """The placebo's left side ``LS``: EVERY compared or blocking date rotated inside the partner's period.
 
     Shifting only the birth date left a pair reachable through another block
     (death day + hospital): the true partner came back into the placebo, short
     only of the birth date's bits, and sat at the threshold (national 23.22
     against 23.35; a Sergipe slice 23.9, half its pairs; 2026-10-03). Every
-    date moves, so no block can reach a true partner.
+    date moves, so no block can reach a true partner. And each moves *inside*
+    the period the partner side covers (`PLACEBO_DAYS`; a date outside that period meets no partner
+    in the real run either, and stays), so the blocks that hold a date generate
+    placebo candidates at the density the real ones do. Returns the days each role moved.
     """
-    replaced = ", ".join(f"CAST({_q(r)} + INTERVAL {days} DAY AS DATE) AS {_q(r)}" for r in roles)
-    con.execute(f"CREATE OR REPLACE TEMP TABLE LS AS SELECT * REPLACE ({replaced}) FROM L")
+    shifts: dict[str, int] = {}
+    replaced: list[str] = []
+    for role, (lo, hi) in ranges.items():
+        span = (hi - lo).days + 1
+        k = min(PLACEBO_DAYS, span // 2)
+        k = k - k % 7 if k >= 7 else k
+        if k < 1:
+            continue
+        shifts[role] = k
+        q, a = _q(role), f"DATE '{lo.isoformat()}'"
+        replaced.append(f"CASE WHEN {q} BETWEEN {a} AND DATE '{hi.isoformat()}' "
+                        f"THEN {a} + CAST(({q} - {a} + {k}) % {span} AS INTEGER) ELSE {q} END AS {q}")
+    clause = f"REPLACE ({', '.join(replaced)})" if replaced else ""
+    con.execute(f"CREATE OR REPLACE TEMP TABLE LS AS SELECT * {clause} FROM L")
+    return shifts
 
 
 def _materialise(con: duckdb.DuckDBPyConnection, name: str) -> pa.Array:
@@ -200,85 +257,52 @@ def _condition(a: str, b: str) -> str:
     return f"l.{_q(a)} = r.{_q(b)}"
 
 
-def typo_variants(dates: pa.Array) -> tuple[np.ndarray, pa.Array]:
-    """Plausible mistypings of each date, as (row index, variant date).
-
-    From the error channel measured on SIA's encrypted CNS (EVALUATION
-    2026-09-30, national linkage measurements): one digit replaced by a key
-    adjacent to it on the numeric keypad or top row (60% of one-digit errors),
-    two neighbouring digits swapped, and day and month exchanged. A variant
-    that is not a calendar date is dropped, and so is the original.
-    """
-    from .levels import _ADJ, _digits
-
-    digits = _digits(dates)
-    valid = digits[:, 0] >= 0
-    rows_all, texts = [], []
-    base = np.nonzero(valid)[0]
-    d = digits[base]
-    for pos in range(8):
-        for new in range(10):
-            hit = _ADJ[d[:, pos].clip(0), new] & (d[:, pos] != new)
-            if hit.any():
-                v = d[hit].copy()
-                v[:, pos] = new
-                rows_all.append(base[hit])
-                texts.append(v)
-    for pos in range(7):
-        differ = d[:, pos] != d[:, pos + 1]
-        if differ.any():
-            v = d[differ].copy()
-            v[:, [pos, pos + 1]] = v[:, [pos + 1, pos]]
-            rows_all.append(base[differ])
-            texts.append(v)
-    swap = (d[:, 0:2] != d[:, 2:4]).any(axis=1)
-    if swap.any():
-        v = d[swap].copy()
-        v[:, 0:4] = np.concatenate([v[:, 2:4], v[:, 0:2]], axis=1)
-        rows_all.append(base[swap])
-        texts.append(v)
-    if not rows_all:
-        return np.zeros(0, dtype=np.int64), pa.array([], pa.date32())
-    rows = np.concatenate(rows_all)
-    grid = np.concatenate(texts)
-    strings = ["".join(map(str, r)) for r in grid]
-    parsed = pc.cast(pc.strptime(pa.array(strings), format="%d%m%Y", unit="s", error_is_null=True), pa.date32())
-    keep = pc.is_valid(parsed).to_numpy(zero_copy_only=False)
-    return rows[keep], parsed.filter(pa.array(keep))
-
-
-def _typo_view(con: duckdb.DuckDBPyConnection, left_view: str, role: str) -> str:
-    """A temp table of (_id, variant) for one date role of one left view."""
-    name = f"typo_{left_view}_{abs(hash(role)) % 10**8}"
-    exists = con.execute(f"SELECT count(*) FROM information_schema.tables WHERE table_name = '{name}'").fetchone()[0]  # type: ignore[index]
-    if not exists:
-        base = con.execute(f"SELECT DISTINCT _id, {_q(role)} AS d FROM {left_view} WHERE {_q(role)} IS NOT NULL").to_arrow_table()
-        idx, variants = typo_variants(base.column("d").combine_chunks())
-        table = pa.table({"_id": base.column("_id").take(pa.array(idx)), "v": variants})
-        con.register(f"{name}_src", table)
-        con.execute(f"CREATE TEMP TABLE {name} AS SELECT * FROM {name}_src")
-        con.unregister(f"{name}_src")
-    return name
-
-
-def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
-    parts = []
+def _block_sql(left_view: str, blocks: Any) -> list[str]:
+    """One SQL per block: the (left, right) pairs agreeing on every key of the block."""
+    out = []
     for block in blocks:
-        typo = [k for k in block if len(k) > 2]
-        conds, notnull, joins = [], [], ""
-        for key in block:
-            a, b = key[0], key[1]
-            if len(key) > 2:
-                view = _typo_view(con, left_view, a)
-                joins = f" JOIN {view} tv ON tv._id = l._id"
-                conds.append(f"tv.v = r.{_q(b)}")
-            else:
-                conds.append(_condition(a, b))
-                notnull.append(f"l.{_q(a)} IS NOT NULL")
-        where = f" WHERE {' AND '.join(notnull)}" if notnull else ""
-        del typo
-        parts.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l{joins} JOIN R r ON {' AND '.join(conds)}{where}")
-    return " UNION ".join(parts)
+        conds = [_condition(a, b) for a, b in block]
+        notnull = " AND ".join(f"l.{_q(a)} IS NOT NULL" for a, _b in block)
+        out.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l JOIN R r ON {' AND '.join(conds)}"
+                   f" WHERE {notnull}")
+    return out
+
+
+def _build_candidates(con: duckdb.DuckDBPyConnection, left_view: str, name: str, blocks: Any) -> list[tuple[int, int]]:
+    """The temp table ``name`` of the candidate pairs of all blocks (each pair once), and per block its pairs and the
+    left records among them."""
+    counts: list[tuple[int, int]] = []
+    sqls = _block_sql(left_view, blocks)
+    for i, sql in enumerate(sqls):
+        con.execute(f"CREATE TEMP TABLE {name}_{i} AS {sql}")
+        n, left = con.execute(f"SELECT count(*), count(DISTINCT l) FROM {name}_{i}").fetchone()  # type: ignore[misc]
+        counts.append((int(n), int(left)))
+    con.execute(f"CREATE TEMP TABLE {name} AS " + " UNION ".join(f"SELECT l, r FROM {name}_{i}" for i in range(len(sqls))))
+    for i in range(len(sqls)):
+        con.execute(f"DROP TABLE {name}_{i}")
+    return counts
+
+
+def _placebo_report(blocks: Any, real: list[tuple[int, int]], control: list[tuple[int, int]]
+                    ) -> tuple[list[dict[str, Any]], list[str]]:
+    """Per block, whether the placebo reaches it, and the failures in words. A left record has at most one true
+    partner, so of a block's real candidates at least ``candidates - left records`` are coincidences, and the placebo
+    (which holds only coincidences) must hold about as many. Fewer than `PLACEBO_REACH` of them: it does not reach the
+    block, and the threshold chosen against it would let through the false pairs the block creates."""
+    rows: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for block, (cand, left), (ctl, _l) in zip(blocks, real, control, strict=True):
+        expected = max(cand - left, 0)
+        reaches = expected < PLACEBO_MIN_EXPECTED or ctl >= PLACEBO_REACH * expected
+        label = " + ".join(f"{a}~{b}" for a, b in block)
+        rows.append({"block": label, "candidates": cand, "left_records": left, "control_candidates": ctl,
+                     "coincidences_at_least": expected, "reaches": reaches})
+        if not reaches:
+            failures.append(f"the placebo does not reach block [{label}]: {ctl:,} control candidates against at least "
+                            f"{expected:,} coincidences among {cand:,} real candidates")
+    if sum(r["candidates"] for r in rows) and not sum(r["control_candidates"] for r in rows):
+        failures.append("the placebo generated no candidate pair")
+    return rows, failures
 
 
 def _select_values(left_view: str, pairs_sql: str, compare, setting: bool = False) -> str:
@@ -489,12 +513,6 @@ def apply_calibration(scores: np.ndarray, curve: dict[str, Any]) -> np.ndarray:
     return 1.0 - rate[pos]
 
 
-def match_probability(scores: np.ndarray, real: list[float], control: list[float],
-                      bin_bits: float = 1.0) -> np.ndarray:
-    """P(true match) of each score, calibrated on this run's own placebo."""
-    return apply_calibration(scores, calibration(real, control, bin_bits))
-
-
 def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tuple[str, bool]:
     """Pairs linked 1:1 on every other comparison (or their control).
 
@@ -595,13 +613,24 @@ def _exact_equal(con: duckdb.DuckDBPyConnection, comp, u: dict[str, float]) -> d
     return {lv: p for lv, p in out.items() if p > 0}
 
 
+def _national_channels(model: dict[str, Any]) -> tuple[dict[str, float], dict[str, float]]:
+    """(m, u) of a stored national model: the unrounded values it stores under ``exact`` (`FieldModel.as_dict`), else the
+    rounded ``levels`` of a report written before they were."""
+    exact = model.get("exact")
+    if exact:
+        return {k: float(v) for k, v in exact["m"].items()}, {k: float(v) for k, v in exact["u"].items()}
+    levels_ = model.get("levels", {})
+    return ({lv: float(v["m"]) for lv, v in levels_.items()}, {lv: float(v["u"]) for lv, v in levels_.items()})
+
+
 def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
     """Shrink a run's m toward the stored national m (POOL_PSEUDO_ANCHORS)."""
     if not national or national.get("comparison") != fm.comparison.name:
         return fm
     n = fm.anchors
     k = POOL_PSEUDO_ANCHORS
-    nat = {lv: float(v["m"]) for lv, v in national.get("levels", {}).items() if float(v.get("m", 0.0)) > 0}
+    nat_m, nat_u = _national_channels(national)
+    nat = {lv: v for lv, v in nat_m.items() if v > 0}
     if not nat:
         return fm
     levels_ = set(fm.m) | set(nat)
@@ -610,18 +639,84 @@ def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
     # state's records against the nation share a residence far less often than
     # two random Brazilians (SE: u 0.00067 against 0.0056), which put a slice's
     # scores on another scale than the national threshold (2026-10-03).
-    nat_u = {lv: float(v["u"]) for lv, v in national.get("levels", {}).items()}
     u = {**fm.u, **nat_u} if nat_u else fm.u
     pooled = FieldModel(fm.comparison, m, u, anchors=n + k,
                         controls=max(fm.controls, int(national.get("controls") or 0)))
-    pooled.m_source = {**getattr(fm, "m_source", {}), "pooled_with_national": k}  # type: ignore[attr-defined]
+    pooled.m_source = {**fm.m_source, "pooled_with_national": k}
     return pooled
+
+
+def _usable(prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> tuple[ProbabilisticSpec, dict[str, str]]:
+    """The comparisons and blocks the tables can serve, and why the others are left out. A role the scope lacks, or
+    no value of which normalised, makes a null column: a key comparison on it left every other comparison without
+    anchors, and a block on it generated nothing, with no note (``absent_roles`` had no reader). Raises when no block
+    is left."""
+    from dataclasses import replace as _replace
+
+    left_names = {r for c in prob.compare for r in c.side_roles("left")} | {k[0] for b in prob.blocks for k in b}
+    right_names = ({r for c in prob.compare for r in c.side_roles("right")}
+                   | {r for b in prob.blocks for k in b for r in k[1].split("..")})
+    left_bad = unusable_roles(left, sorted(left_names))
+    right_bad = unusable_roles(right, sorted(right_names))
+
+    def why(lefts: Any, rights: Any) -> str:
+        return "; ".join([f"{r} {left_bad[r]}" for r in lefts if r in left_bad]
+                         + [f"{r} {right_bad[r]}" for r in rights if r in right_bad])
+
+    skipped: dict[str, str] = {}
+    compare = []
+    for c in prob.compare:
+        reason = why(c.side_roles("left"), c.side_roles("right"))
+        if reason:
+            skipped[f"comparison {c.name}"] = reason
+        else:
+            compare.append(c)
+    blocks = []
+    for b in prob.blocks:
+        reason = why([k[0] for k in b], [r for k in b for r in k[1].split("..")])
+        if reason:
+            skipped["block " + " + ".join(f"{a}~{r}" for a, r in b)] = reason
+        else:
+            blocks.append(b)
+    if not blocks:
+        raise ValueError(f"no block can run on these tables ({skipped}); the scope lacks or cannot read a role "
+                         "every block keys on")
+    return _replace(prob, compare=tuple(compare), blocks=tuple(blocks)), skipped
+
+
+def _used_roles(spec: LinkSpec, prob: ProbabilisticSpec) -> tuple[set[str], set[str]]:
+    """The roles each side contributes to the probabilistic method (comparisons, blocks, side filters): a validation
+    reading one agrees by construction (`engine.validate`)."""
+    left = ({r for c in prob.compare for r in c.side_roles("left")} | {k[0] for b in prob.blocks for k in b}
+            | set(re.findall(r'"([^"]+)"', spec.left.where)))
+    right = ({r for c in prob.compare for r in c.side_roles("right")}
+             | {r for b in prob.blocks for k in b for r in k[1].split("..")} | set(re.findall(r'"([^"]+)"', spec.right.where)))
+    return left, right
+
+
+def _anchor_channel(con: duckdb.DuckDBPyConnection, comp: Comparison, anchors: pa.Table, anchor_levels: Any,
+                    control_sql: str, n_anchor_control: int) -> tuple[dict[str, float], int]:
+    """m of a comparison: the level distribution of its anchors less that of the chance pairs among them. The anchors
+    are pairs agreeing 1:1 on every other key field; a weakly keyed set (dengue deaths without the death day: sex,
+    integer age, residence, facility) holds coincidences, which would flatten the "equal" level. The control join (the
+    same over a shifted left key) counts them and their levels, and its counts are subtracted from the anchors'."""
+    counts = _counts(anchor_levels) if anchors.num_rows else {}
+    if n_anchor_control:
+        ctl = con.execute(_select_values("L", control_sql, [comp])).to_arrow_table()
+        if ctl.num_rows:
+            chance = _counts(_batch_levels(ctl.combine_chunks().to_batches()[0], [comp])[0])
+            counts = {k: max(v - chance.get(k, 0), 0) for k, v in counts.items()}
+    total = sum(counts.values())
+    return ({k: v / total for k, v in counts.items() if v} if total else {}), int(total)
 
 
 def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, right: pa.Table,
                       national: dict[str, Any] | None = None) -> ProbabilisticResult:
     from dataclasses import replace as _replace
 
+    from .roles import role_gaps
+
+    prob, skipped = _usable(prob, left, right)
     con = connect()
     setting_role = dataset_roles(spec.left.dataset).setting
     with_setting = bool(setting_role and setting_role in left.column_names)
@@ -630,8 +725,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                                   pc.utf8_slice_codeunits(pc.cast(left.column(setting_role), pa.string()), 0, 2))
     # An interval is compared as an interval here: the deterministic engine's
     # one-row-per-day explosion is its way of making "inside" an equality.
-    n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None))
-    n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None))
+    n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None), materialise=False)
+    n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None), materialise=False)
     # Each side once, as a table keyed by an integer: every later query joined
     # 32-character ids and re-deduplicated the whole view (57% of a link's
     # time was SQL, profile 2026-10-03). The record ids come back at the end.
@@ -665,11 +760,12 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {r for r in block_roles if r in left.column_names
                            and pa.types.is_date(left.schema.field(r).type)}
                         | {prob.control_role})
-    _shifted_left(con, left_dates, prob.control_shift_days)
+    _shifted_left(con, _partner_ranges(con, prob, left_dates))
     evidence_only = [c for c in prob.compare if not c.is_key]
-    # The candidate pairs, real and placebo, built once each.
-    con.execute(f"CREATE TEMP TABLE C AS {_candidates(con, 'L', prob.blocks)}")
-    con.execute(f"CREATE TEMP TABLE CS AS {_candidates(con, 'LS', prob.blocks)}")
+    # The candidate pairs, real and placebo, built once each, and counted per block.
+    real_counts = _build_candidates(con, "L", "C", prob.blocks)
+    control_counts = _build_candidates(con, "LS", "CS", prob.blocks)
+    placebo, placebo_failures = _placebo_report(prob.blocks, real_counts, control_counts)
     candidate_u = (dict(zip([c.name for c in evidence_only],
                             _distributions_stream(con, _select_values("L", "SELECT l, r FROM C", evidence_only),
                                                   evidence_only), strict=True))
@@ -686,14 +782,15 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
         anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).to_arrow_table()
         anchor_levels: Any = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
                          else np.array([], dtype=object))
-        m, n_m = _distribution(anchor_levels)
+        m, n_m = _anchor_channel(con, comp, anchors, anchor_levels, control_sql, int(n_anchor_control))
         fm = FieldModel(comp, m, u, anchors=n_m, controls=n_u)
-        fm.m_source = {"anchors": n_anchor, "anchor_control": n_anchor_control}  # type: ignore[attr-defined]
+        fm.m_source = {"anchors": int(n_anchor), "anchor_control": int(n_anchor_control),
+                       "chance_share": round(n_anchor_control / n_anchor, 4) if n_anchor else None}
         ref = next((d for d in ((national or {}).get("models") or []) if d.get("comparison") == comp.name), None)
         pooled = _pool(fm, ref)
         models.append(pooled)
         if with_setting and anchors.num_rows:
-            reference = {lv: float(v["m"]) for lv, v in ref.get("levels", {}).items()} if ref else m
+            reference = _national_channels(ref)[0] if ref else m
             settings_ = np.asarray(pc.fill_null(anchors.column("s"), "").to_numpy(zero_copy_only=False),
                                    dtype=object)
             per_setting.append(_by_setting(comp, anchor_levels.strings(), settings_, reference, pooled))
@@ -712,7 +809,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # Threshold on 1:1-resolved scores, so real and control are counted alike.
     real_scores = _one_to_one(rl, rr, rscore, float("-inf"))[2]
     control_scores = _one_to_one(cl, cr, cscore, float("-inf"))[2]
-    t, fdr = threshold_for(real_scores.tolist(), control_scores.tolist(), prob.target_fdr)
+    t, fdr = threshold_for(real_scores.tolist(), control_scores.tolist(), prob.target_fdr,
+                           placebo_candidates=sum(n for n, _l in control_counts))
     curve = calibration(real_scores.tolist(), control_scores.tolist())
     threshold_source = "own"
     if national and national.get("threshold_bits") is not None and (national.get("calibration") or {}).get("bins"):
@@ -729,17 +827,19 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                       "p_match": pa.array(np.round(p_match, 5), pa.float64())})
     con.register("linked_ids", pa.table({"l": pa.array(kl, pa.int64()), "r": pa.array(kr, pa.int64())}))
     con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM linked_ids")
-    validations = validate(con, spec)
+    validations = validate(con, spec, _used_roles(spec, prob))
     fdr_percent = round(100.0 * fdr, 2) if fdr is not None else None
     # The estimate rests on few control pairs when the left side is small (a
     # state's infant deaths): say how few, and the 95% upper bound (Poisson on
     # the control count, over the real pairs kept).
     control_kept = int((control_scores >= t).sum()) if t is not None else 0
     upper = upper95(control_kept, len(kl))
-    verdict = judge(len(kl), fdr_percent, validations, upper)
+    verdict, reasons = judge(len(kl), fdr_percent, validations, upper, placebo_failures=placebo_failures)
+    reasons += [f"{what} left out: {why}" for what, why in skipped.items()]
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
-                               validations, verdict, threshold_source, curve, by_setting)
+                               validations, verdict, threshold_source, curve, reasons, placebo, skipped,
+                               {"left": role_gaps(left), "right": role_gaps(right)}, "", by_setting)
 
 
 def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,
@@ -822,8 +922,16 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
                        geography=right_geo, roles=right_roles, **query_kwargs)
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
                        period=right_period or period, geography=right_geo, settings=settings, **rest)
-    national = None if str(geography).upper() == "BR" and right_geography is None else load_params(settings, name)
-    return run_probabilistic(spec, prob, left, right, national)
+    national, reference = None, ""
+    if not (str(geography).upper() == "BR" and right_geography is None):
+        # a slice decides with the national run of ITS period (`store.save_params`: one reference per period)
+        key = stored_key(name, "probabilistic", period, "BR", right_period=right_period)
+        national = load_params(settings, key)
+        if national is None:
+            reference = f"no current national reference for {key.period}: decided on the slice's own placebo"
+    result = run_probabilistic(spec, prob, left, right, national)
+    result.reference = reference
+    return result
 
 
 __all__ = ["ProbabilisticResult", "ProbabilisticSpec", "link_probabilistic", "load_probabilistic", "run_probabilistic"]

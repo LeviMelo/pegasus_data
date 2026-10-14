@@ -22,9 +22,9 @@
     "geography": {
       "file": "geography.parquet",
       "tier": "A",
-      "bytes": 251832,
-      "rows": 74973,
-      "sha256": "6f69bba460b3a1f397355ceceac5c652bee1ab21de472c6b7497ee8cb22a6da6"
+      "bytes": 252262,
+      "rows": 110120,
+      "sha256": "15aabc6d8547a32e86f525af307b85e6799731f1665b9a15a4657c6256236c32"
     },
     "municipalities": {
       "file": "municipalities.parquet",

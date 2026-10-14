@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -18,6 +20,10 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .engine import raw_links
+
+#: Bumped when the engine, the levels, the placebo or the verdict rules change what a run holds: every stored run
+#: written under another version is stale (`fingerprint`).
+LINKAGE_VERSION = 2
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for
@@ -64,82 +70,78 @@ def links_dir(settings: Any) -> Path:
     return Path(settings.lake_dir) / "links"
 
 
+def _fingerprint_of(settings: Any, spec: str, period: str, seen: frozenset[str] = frozenset()) -> str:
+    from .engine import load_links, raw_links
+    from .roles import table_key
+
+    sides = load_links()[spec]
+    years = sorted({int(t) for t in re.findall(r"\d{4}", period)})
+    h = hashlib.sha256(f"{LINKAGE_VERSION}|{spec}|".encode())
+    for side in (sides.left, sides.right):
+        for year in range(years[0], years[-1] + 1) if years else ():
+            h.update(f"{side.dataset}|{year}|{table_key(side.dataset, year, settings)}|".encode())
+    # a link that takes a role from another stored link (`inherit`) is as current as that link
+    body = (raw_links().get("links") or {}).get(spec) or {}
+    for side in ("left", "right"):
+        for item in ((body.get("probabilistic") or {}).get("inherit") or {}).get(side) or []:
+            via = str(item["via"])
+            if via not in seen:
+                h.update(_fingerprint_of(settings, via, period, seen | {spec}).encode())
+    return h.hexdigest()[:20]
+
+
+def fingerprint(settings: Any, key: RunKey) -> str:
+    """What a run depends on besides its spec: the engine's own version (``LINKAGE_VERSION``) and the role tables of
+    the years it read, by their keys (`roles.table_key`: the datasets' role blocks, the labels and the lake partition
+    files of each year). A run is served only while its fingerprint is the current one. The record identity is a hash
+    of the normalised fields, so a normalisation fix, a republished preliminary file or a changed role makes every
+    stored id match nothing, and the runs built on them (linked shares, entities, inherited roles) read zero without
+    an error (2026-10-10, again 2026-10-14)."""
+    return _fingerprint_of(settings, key.spec, key.period)
+
+
+def _write_atomic(path: Path, write: Any) -> None:
+    """``write(tmp)`` then rename: a reader never meets half a file, and two processes never share a temporary name."""
+    tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    write(tmp)
+    tmp.replace(path)
+
+
 def save(settings: Any, key: RunKey, pairs: pa.Table, summary: dict[str, Any]) -> Path:
+    """The pairs first, the report last: a run exists when its report does, and the report names the pairs file's
+    size, so a crash between the two (or a reader between the two renames) never serves old pairs under a new report."""
     folder = links_dir(settings) / key.spec
     folder.mkdir(parents=True, exist_ok=True)
-    pq.write_table(pairs, folder / f"{key.stem}.parquet", compression="zstd")
+    target = folder / f"{key.stem}.parquet"
+    _write_atomic(target, lambda tmp: pq.write_table(pairs, tmp, compression="zstd"))
     report = {**summary, "run": {"spec": key.spec, "method": key.method, "period": key.period,
-                                 "geography": key.geography, "spec_digest": key.digest}}
-    (folder / f"{key.stem}.json").write_text(json.dumps(report, ensure_ascii=False, indent=1, default=str),
-                                            encoding="utf-8")
-    return folder / f"{key.stem}.parquet"
+                                 "geography": key.geography, "spec_digest": key.digest,
+                                 "fingerprint": fingerprint(settings, key), "pairs_bytes": target.stat().st_size}}
+    _write_atomic(folder / f"{key.stem}.json", lambda tmp: tmp.write_text(
+        json.dumps(report, ensure_ascii=False, indent=1, default=str), encoding="utf-8"))
+    return target
 
 
-def load(settings: Any, key: RunKey) -> tuple[pa.Table, dict[str, Any]] | None:
+def load(settings: Any, key: RunKey, *, allow_stale: bool = False) -> tuple[pa.Table, dict[str, Any]] | None:
+    """A stored run, or None when there is none or it is not current: written under other inputs (``fingerprint``) or
+    before runs carried one, or its pairs file is not the one its report describes. ``allow_stale`` returns it
+    anyway with ``report["stale"]`` naming why, for a reader that wants to see old runs."""
     folder = links_dir(settings) / key.spec
     pairs, report = folder / f"{key.stem}.parquet", folder / f"{key.stem}.json"
     if not (pairs.exists() and report.exists()):
         return None
-    table, body = pq.read_table(pairs), json.loads(report.read_text(encoding="utf-8"))
-    if _named_by_row(table):
-        table, body = _relabel(settings, key.spec, table, body)
-        pq.write_table(table, pairs.with_suffix(".tmp"), compression="zstd")
-        pairs.with_suffix(".tmp").replace(pairs)
-        report.write_text(json.dumps(body, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-    return table, body
-
-
-def _named_by_row(table: pa.Table) -> bool:
-    """Whether a run names records by the fallback identity, ``<_blob_sha256>:<_row>``, rather than by the content key."""
-    for side in ("l", "r"):
-        if side in table.column_names and table.num_rows:
-            sample = [x for x in table.column(side).slice(0, 100).to_pylist() if x]
-            if any(len(x.partition(":")[0]) == 64 and x.partition(":")[2].isdigit() for x in sample):
-                return True
-    return False
-
-
-def _relabel(settings: Any, spec: str, table: pa.Table, body: dict[str, Any]) -> tuple[pa.Table, dict[str, Any]]:
-    """A run's pairs renamed to each record's current identity (`identity.RECORD_ID_SQL`), read from the lake.
-
-    Runs stored before the lake stamped ``_record_key`` named records ``<_blob_sha256>:<_row>``, while every reader
-    since names them by the content key: a stored national run then matched none of its side's records, and the linked
-    shares and cohort outcomes built on it read zero without an error (2026-10-10). Both names come from the same
-    lake row, so the old one maps to the new one exactly. A record whose file is no longer in the lake (republished
-    since) keeps its old name, and the count is recorded in the report."""
-    from .._request import parse_dataset
-    from .engine import load_links
-    from .identity import DUP_SQL, RECORD_ID_SQL, connect
-
-    sides = load_links()[spec]
-    con = connect()
-    out = table
-    unmapped = {}
-    for col, side in (("l", sides.left), ("r", sides.right)):
-        if col not in table.column_names:
-            continue
-        system, series = parse_dataset(side.dataset)
-        # published partitions only: a lake write in progress stages under a hidden `.year=…__staging__` directory
-        files = Path(settings.lake_dir) / system / f"{system}_{series or system}_*" / "schema_signature=*" / "uf=*" / "year=*" / "*.parquet"
-        con.register("p", pa.table({"old": table.column(col), "pos": pa.array(range(table.num_rows), pa.int64())}))
-        con.execute("CREATE OR REPLACE TEMP TABLE blobs AS SELECT DISTINCT split_part(old, ':', 1) AS b FROM p "
-                    "WHERE old LIKE '%:%'")
-        if any(Path(settings.lake_dir).glob(f"{system}/{system}_{series or system}_*/schema_signature=*/uf=*/year=*/*.parquet")):
-            con.execute(f"""CREATE OR REPLACE TEMP TABLE m AS
-                SELECT _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS old, {RECORD_ID_SQL} AS new
-                FROM (SELECT _blob_sha256, _row, _source_path, _record_key, {DUP_SQL}
-                      FROM read_parquet('{files.as_posix()}', union_by_name=true)
-                      WHERE _blob_sha256 IN (SELECT b FROM blobs))""")
-        else:   # the side's dataset is not in this lake (SINAN dengue's runs were made elsewhere): its names stay, counted
-            con.execute("CREATE OR REPLACE TEMP TABLE m AS SELECT NULL::VARCHAR AS old, NULL::VARCHAR AS new WHERE false")
-        new = con.execute("SELECT coalesce(m.new, p.old) AS id, m.new IS NULL AND p.old LIKE '%:%' AS miss "
-                          "FROM p LEFT JOIN m USING (old) ORDER BY p.pos").to_arrow_table()
-        if new.num_rows != table.num_rows:
-            raise RuntimeError(f"{spec}: relabelling the {col} side changed the number of pairs (duplicate lake rows?)")
-        unmapped[col] = sum(bool(x) for x in new.column("miss").to_pylist())
-        out = out.set_column(out.schema.get_field_index(col), col, new.column("id"))
-    return out, {**body, "identity": {"relabelled": "fallback <_blob_sha256>:<_row> to the content key (2026-10-10)",
-                                      "unmapped": unmapped}}
+    body = json.loads(report.read_text(encoding="utf-8"))
+    run = body.get("run") or {}
+    stale = ""
+    if run.get("pairs_bytes") != pairs.stat().st_size:
+        stale = "pairs file is not the report's (or the run predates fingerprints)"
+    elif run.get("fingerprint") != fingerprint(settings, key):
+        stale = "inputs changed since the run (roles, labels, lake files or engine version)"
+    if stale:
+        if not allow_stale:
+            return None
+        body["stale"] = stale
+    return pq.read_table(pairs), body
 
 
 def runs(settings: Any) -> list[dict[str, Any]]:
@@ -155,6 +157,11 @@ def runs(settings: Any) -> list[dict[str, Any]]:
             run["current"] = run.get("spec_digest") == _spec_digest(run.get("spec", ""))
         except Exception:  # noqa: BLE001 - a spec deleted since is simply not current
             run["current"] = False
+        try:
+            run["fingerprint_current"] = run.get("fingerprint") == _fingerprint_of(settings, run.get("spec", ""),
+                                                                                    str(run.get("period", "")))
+        except Exception:  # noqa: BLE001
+            run["fingerprint_current"] = False
         body["run"] = run
         body.pop("models", None)
         out.append(body)
@@ -177,26 +184,32 @@ class StoredResult:
         return self.report
 
 
-__all__ = ["RunKey", "StoredResult", "links_dir", "load", "run_key", "runs", "save"]
+def _params_path(settings: Any, spec: str, period: str) -> Path:
+    return links_dir(settings) / "_params" / f"{spec}_{_spec_digest(spec)}_{period}.json"
 
 
-def _params_path(settings: Any, spec: str) -> Path:
-    return links_dir(settings) / "_params" / f"{spec}_{_spec_digest(spec)}.json"
-
-
-def save_params(settings: Any, spec: str, summary: dict[str, Any], scope: str) -> Path:
-    """A national run's error channels, threshold and calibration curve: the
-    reference a slice pools toward and decides with (linkage-theory §3.2)."""
-    path = _params_path(settings, spec)
+def save_params(settings: Any, key: RunKey, summary: dict[str, Any]) -> Path:
+    """A national run's error channels (unrounded), threshold and calibration curve: the reference a slice of the same
+    period pools toward and decides with (linkage-theory §3.2). One file per period: a single file per spec was
+    overwritten by whichever national run came last, so a slice of 2021 decided with the threshold of 2025
+    (22.93 against 25.27)."""
+    path = _params_path(settings, key.spec, key.period)
     path.parent.mkdir(parents=True, exist_ok=True)
-    body = {"spec": spec, "scope": scope, "models": summary.get("models") or [],
-            "threshold_bits": summary.get("threshold_bits"), "calibration": summary.get("calibration") or {}}
-    path.write_text(json.dumps(body, indent=1), encoding="utf-8")
+    body = {"spec": key.spec, "scope": f"{key.geography} {key.period}", "models": summary.get("models") or [],
+            "threshold_bits": summary.get("threshold_bits"), "calibration": summary.get("calibration") or {},
+            "fingerprint": fingerprint(settings, key)}
+    _write_atomic(path, lambda tmp: tmp.write_text(json.dumps(body, indent=1), encoding="utf-8"))
     return path
 
 
-def load_params(settings: Any, spec: str) -> dict[str, Any] | None:
-    path = _params_path(settings, spec)
+def load_params(settings: Any, key: RunKey) -> dict[str, Any] | None:
+    """The national reference of ``key``'s spec and period, or None when there is none or it is not current."""
+    path = _params_path(settings, key.spec, key.period)
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    body = json.loads(path.read_text(encoding="utf-8"))
+    return body if body.get("fingerprint") == fingerprint(settings, key) else None
+
+
+__all__ = ["LINKAGE_VERSION", "RunKey", "StoredResult", "fingerprint", "links_dir", "load", "load_params", "run_key",
+           "runs", "save", "save_params"]

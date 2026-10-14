@@ -27,6 +27,7 @@ parents). The first version of the account (Gibbs-sampled hierarchical migration
 
 from __future__ import annotations
 
+import os
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -192,7 +193,9 @@ def collect_events(root: str | Path, years: range | list[int], events_dir: str |
                 tab = pg.count_events(dataset, event, period=y, geography="BR", by=by, root=root,
                                       allow_partial=False, max_download=8 * 1024**3)
             tab = pa.table({c: pc.cast(tab[c], pa.string()) for c in by} | {"events": tab["events"]})
-            pq.write_table(tab, f)
+            tmp = f.with_name(f"{f.name}.{os.getpid()}.tmp")     # whole or absent: a truncated file passed `f.exists()` for good
+            pq.write_table(tab, tmp)
+            tmp.replace(f)
             log(f"{name} {y}: {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
 
 
