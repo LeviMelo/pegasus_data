@@ -71,6 +71,8 @@ $PD translate <file> --system SIHSUS                           # label files you
 $PD explore [SIH.RD]                                           # what exists, offline
 $PD info SIH.RD                                                # what it is
 $PD facts SIH.RD                                               # what the curation documents of it, with sources
+$PD garbage-codes [GBD2017] --out garbage.csv                  # the GBD garbage codes with level and package (curation/garbage_codes.yml)
+$PD price-index --years 2014-2025 --reference 2025-12 --out ipca.csv   # IPCA by month with the deflator to December 2025 (fetches SIDRA 1737 once)
 $PD publications SIH.RD --years 2014..2023 --uf AL --out files.csv   # the files it was read from: size, date, digest, rows, status
 $PD search raça                                                # which columns and codes mean what
 $PD download --system SIHSUS                                   # maintainer: raw files into the cache

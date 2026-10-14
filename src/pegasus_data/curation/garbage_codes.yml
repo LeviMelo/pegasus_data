@@ -1,0 +1,622 @@
+# Garbage codes: the ICD-10 codes of underlying cause of death that say little about what the person died of (ill-defined
+# R00-R99, heart failure, septicaemia, unspecified stroke, ...), classified by how far the true cause could lie from the
+# code: the Global Burden of Disease's four levels, the classification Brazilian and global burden studies use. Read through
+# `pegasus_data.garbage_codes()`; what it is and the two editions' differences are in DATA_SOURCES.md.
+#
+# Every list below is TRANSCRIBED from a published table, never typed from memory, and keeps its source's spelling (typos
+# included: "ID5.9", "TO7.", "E998", "Z17-unsp."). An edition is a published list, so a code ICD-10 created after the list
+# was published is not in it, whatever a range spells (U07.1, COVID-19, 2020-01, lies inside GBD 2017's "U07-U81").
+#
+# `reading`: how an endpoint is read, found by reproducing a published count (docs/evaluation/2026-10-14-garbage-codes.md).
+# `ranges`: comma-separated codes and ranges as printed.
+#
+# Sources, both open access; the file's own licence record (Springer Nature's Figshare) reads "CC BY + CC0", CC BY 4.0:
+#   GBD2017  França E, Ishitani L, Teixeira R, Duncan BB, Marinho F, Naghavi M. Changes in the quality of cause-of-death
+#            statistics in Brazil: garbage codes among registered deaths in 1996-2016. Popul Health Metr 2020;18(Suppl 1):20.
+#            doi:10.1186/s12963-020-00221-4. Supplementary file 1 (12963_2020_221_MOESM1_ESM.docx, doi:10.6084/m9.figshare.13023345.v1) transcribes the GBD 2017
+#            Causes of Death Collaborators' Supplementary appendix 1 (Lancet 2018;392:1736-88).
+#   GBD2019  Johnson SC, Cunningham M, Dippenaar IN, et al. Public health utility of cause of death data: applying empirical
+#            algorithms to improve data quality. BMC Med Inform Decis Mak 2021;21:175. doi:10.1186/s12911-021-01501-1.
+#            Supplemental Appendix (12911_2021_1501_MOESM1_ESM.pdf, doi:10.6084/m9.figshare.14721984.v1): Figure 3 (the cause "Garbage Code": every ICD-10 code the
+#            GBD 2019 treats as one) and Figure 4 (ICD-10 codes by garbage package and class, pp. 35-37).
+
+reading: >-
+  A range lists every ICD-10 code between its two endpoints in ICD-10's own order, written with the point: a three-character
+  code comes before its subcodes (A00, A00.0, A00.9, A01). A range closes at its last endpoint, so "A40-A44.9" holds A40
+  and every subcode of A44, and "R58.0-R78" stops at R78 itself, without R78.0-R78.9. A code written alone is that code
+  only ("A01" is the three-character code, not A01.0-A01.4). An endpoint is a position in the order, as printed: one that
+  is not an ICD-10 code ("ID5.9", "ZB0", "unsp.") closes the range where it falls. The printed two-character blocks ("C1",
+  "D0") name no code.
+levels:
+  1: >-
+    the true cause could be in any of the three broad GBD groups (communicable, maternal, neonatal and nutritional; non-communicable;
+    injuries)
+  2: the true cause is in one of those groups but could be any of its level-2 causes
+  3: the true cause could be any of the level-3 causes of its level-2 cause
+  4: the true cause could be any of the level-4 causes of its level-3 cause
+editions:
+  GBD2017:
+    study: Global Burden of Disease 2017
+    as_of: 201811
+    as_of_basis: issue of 10 November 2018 of the Lancet article whose appendix prints the list (392:1736-88)
+    source: >-
+      França et al. 2020, Popul Health Metr 18(Suppl 1):20, Supplementary file 1, after the GBD 2017 Causes of Death Collaborators,
+      Lancet 2018;392:1736-88, Supplementary appendix 1
+    cite: França et al. 2020, Suppl. file 1 (GBD 2017)
+    licence: CC BY 4.0 ("CC BY + CC0" on the Figshare record of the file)
+    use: >-
+      For deaths of 2020 onwards use GBD2019: in the SIM-DO files read, COVID-19 is the underlying cause B34.2 (Alagoas
+      by residence, 2020-2023: 3,589, 4,239, 735 and 80 deaths; U07.1 and U07.2 do not occur), which this list holds at
+      level 2 and the GBD 2019 does not. Level 2 of Alagoas was 5% of its deaths in 2019 and 20% in 2020 on this list.
+    declarations:
+    - level: 1
+      ranges: >-
+        A31-A31.9, A40-A44.9, A48.0, A48.3, A49.0-A49.1, A59-A59.9, A71-A71.9, A74.0, B07-B07.9, B30-B30.9, B35-B46.9, B49-B49.9,
+        B55.1-B55.2, B58-B59.9, B85-B85.4, B87-B88.9, B94.0, C46-C46.9, D50-D50.0, D50.9, D62-D63.0, D63.8-D64, D64.1-D65.9,
+        D68, D69.9, D80-D84.9, D89.8-D89.9, E12-E15, E16, E50-E50.9, E64.1, E85.3-E87.6, E87.8-E87.9, F06.2-F06.4, F07.2,
+        F09-F09.9, F17-F17.9, F20-F23.9, F25-F49, F51-F99.0, G06-G08.0, G32-G32.8, G43-G44.2, G44.4-G44.8, G47-G47.2, G47.4-G47.9,
+        G50-G60.9, G62-G65.2, G80-G83.9, G89-G89.4, G91-G91.2, G91.4-G92.9, G93.1-G93.2, G93.4-G93.6, G98, G99-H05, H05.2-H69.9,
+        H71-H99, I26-I26.9, I31.2-I31.4, I37.9, I46-I46.9, I50-I50.9, I51.7, I67.4, I76, I95-I95.1, I95.8-I95.9, J40-J40.9,
+        J47-J47.9, J69-J69.9, J80-J80.9, J85-J85.3, J86-J86.9, J93-J93.1, J93.8-J93.9, J94.2, J96-J96.9, J98.1-J98.3, K00-K19,
+        K30, K65-K66.1, K66.9, K70.4-K71.6, K71.8-K73.9, K75.0, L20-L30.9, L40-L50.9, L52-L54.8, L56-L56.2, L56.4-L56.5,
+        L57-L57.9, L59-L68.9, L70-L76.8, L80-L87.9, L90-L92.9, L94-L96, L98.5-L99.8, M04, M10-M12.0, M12.2-M29, M37-M39,
+        M43.2-M49, M49.2-M64, M65.1-M71, M71.2-M72.4, M72.8-M73, M73.8-M79.9, M83-M86.2, M86.5-M86.9, M87.2-M87.9, M89.1-M89.4,
+        M90-M99.9, N17-N17.9, N19-N19.9, N32.1-N32.2, N32.8-N33.8, N35-N35.9, N37-N37.8, N39.3-N39.8, N42-N43.4, N44.1-N44.8,
+        N46-N48.9, N50-N53.9, N61-N64.9, N82-N82.9, N91-N91.5, N95, N95.1-N95.9, N97-N97.9, R02-R02.9, R03.1, R07.0, R08-R09,
+        R09.3, R11-R12.0, R14-R15.9, R19-R19.6, R19.8-R23, R23.1-R30.9, R32-R50.1, R50.8-R57.9, R58.0-R78, R78.6-R94.8,
+        R96-R99.9, U05, U07-U81, U89.9-U99, X40-X44.9, X49-X49.9, Y10-Y14.9, Y16-Y19.9, Z00-Z15.8, Z17-unsp.
+    - level: 2
+      ranges: >-
+        A14.9, A29-A30.9, A45-A45.9, A47-A48, A48.8-A49, A49.3-A49.9, A61-A62, A72-A73, A76, A97, B08-B09, B11-B14, B28-B29,
+        B31-B32.4, B34-B34.9, B61-B62, B68-B68.9, B73-B74.2, B76-B76.9, B78-B81.8, B84, B92-B94, B94.8-B94.9, B95.6-B97.3,
+        B97.7-B99.9, D59, D59.4, D59.8-D59.9, G44.3, G91.3, G93.0, G93.3, I10-I10.9, I15-I15.9, I27-I27.0, I27.2-I27.9,
+        I28.9, I70-I70.1, I70.9, I74-I75.8, J81-J81.1, J90-J90.0, J94-J94.1, J94.8-J94.9, K92.0-K92.2, N70-N71.9, N73-N74.0,
+        N74.2-N74.8, R03-R03.0, R04-R06.9, R09.0-R09.2, R09.8-R10.9, R13-R13.9, R16-R18.9, R23.0, R58, S00-T98.3, W47-W48,
+        W63, W71-W72, W76-W76.9, W82, W95-W97, W98, X07, X55-X56, X59-X59.9, Y20-Y34.9, Y86-Y87, Y87.2, Y89, Y89.9-Y99.9
+    - level: 3
+      ranges: >-
+        A01, A49.2, A64-A64.0, A99-A99.0, B89, C14-C14.9, C26-C29, C35-C36, C39-C39.9, C42, C55-C55.9, C57.9, C59, C63.9,
+        C68, C68.9, C75.9-C80.9, C87, C97-D00.0, D01, D01.4-D02, D02.4-D02.9, D07, D07.3, D07.6-D09, D09.1, D09.7, D09.9-D10,
+        D10.9, D13, D13.9-D14, D14.4, D17-D21.9, D28, D28.9-D29, D29.9-D30, D30.9, D36.0, D36.9-D37.0, D37.6-D38, D38.6-D39.0,
+        D39.7, D39.9-D40, D40.9-D41, D41.9, D44, D44.9, D48, D48.7-D49.1, D49.5, D49.7-D49.9, D54, D75.9, D79, D85, D87-D88,
+        D90-D99, E07.8-E08.9, E17-E19, E34.9-E35.8, E37-E39, E47-E49., E62, E69, E87.7, E90-E998, F04-F06.1, F06.5-F07.0,
+        F07.8-F08, F50, F50.8-F50.9, G09-G09.9, G15-G19, G21-G21.2, G21.4-G22.0, G27-G29, G33-G34, G38-G39., G42, G48-G49,
+        G66-G69, G74-G79, G84-G88, G93, G93.8-G94.8, G96-G96.9, G98.0-G98.9, I00.0, I03-I04., I14-I14., I16-I19, I29-I29.9,
+        I44-I45.9, I49-I49.9, I51, I51.6, I51.8-I59, I90-I94, I96-I96.9, I98.4-I98.8, I99-ID5.9, J02.9, J03.9, J04.3, J06,
+        J06.9, J48-J59, J71-J79, J81.9, J83, J85.9, J87-J89, J90.9, J93.6, J97-J98.0, J98.4-J99.8, K31.9-K34, K39, K47-K49,
+        K53-K54, K63-K63.4, K63.8-K63.9, K69, K75, K78-K79, K84, K87-K89, K92, K92.9-K93, K96-K99, L06-L07, L09, L15-L19,
+        L31-L39, L69, L77-L79, N09, N13-N13.9, N24, N28.8-N28.9, N38, N39.9-N40.9, N54-N59, N66-N69, N78-N79, N84, N84.2-N86,
+        N88-N90.9, N92-N94.9, N95.0, O08-O08.9, O17-O19, O27, O37-O39, O49-O59, O78-O79, O93-O95.9, P06, P16-P18, P30-P34.2,
+        P40-P49, P62-P69, P73, P79, P82, P85-P89, P96.9-P99.9, Q08-Q10.3, Q19, Q29-Q29., Q36.0-Q36.9, Q46-Q49, Q88, Q89.9,
+        Q94, Q99.9-R01.2, R07, R07.1-R07.9, R31-R31.9
+    - level: 4
+      ranges: >-
+        B54-B55, B55.9, B64, B82-B82.9, B83.9, G00, G00.9-G02.8, G03.9, I42-I42.0, I42.9, I51.5, I64-I64.9, I67, I67.8-I68,
+        I68.8-I69, I69.4-I69.9, J07-J08, J15.9, J17-J19.6, J22-J29, J64-J64.9, P23, P23.5-P23.9, P37.3-P37.4, V87-V87.1,
+        V87.4-V88.1, V88.4-V89.9, V99-V99.0, Y09-Y09.9, Y85-Y85.9
+    amendments:
+    - ranges: J47
+      level: 3
+    - ranges: K70.4-K70.9
+      level: 3
+    - ranges: E12-E15
+      level: 4
+    - ranges: K73-K73.9
+      level: 2
+    amendments_note: >-
+      The note under Level 1 of the supplement: "The following codes were classified in other levels: J47, K70.4-K70.9 considered
+      as level3; E12-E15 considered as level 4; K73 considered as level 2." They stay in the level 1 list as printed; the
+      table gives the level the note states and keeps the printed one in amended_from. K73 is read as the category and its
+      subcodes (K73-K73.9): with it, level 2 of Brazil 2016 is 33,076 male and 27,394 female deaths, the supplement paper's
+      Table 1 to the unit.
+  GBD2019:
+    study: Global Burden of Disease 2019
+    as_of: 202010
+    as_of_basis: >-
+      issue of 17 October 2020 of the GBD 2019 Lancet article (396:1204-22); the list is printed in Johnson et al. 2021
+    source: Johnson et al. 2021, BMC Med Inform Decis Mak 21:175, Supplemental Appendix, Figures 3 and 4
+    cite: Johnson et al. 2021, Suppl. appendix Figs 3-4 (GBD 2019)
+    licence: CC BY 4.0 ("CC BY + CC0" on the Figshare record of the file)
+    membership:
+      figure: 3
+      ranges: >-
+        A01, A14.9, A29-A31.9, A40-A45.9, A47-A48.0, A48.3, A48.8-A49.9, A59-A59.9, A61-A62, A64-A64.0, A71-A73, A74.0,
+        A76, A97, A99-A99.0, B07-B09, B11-B14, B16.9-B17, B17.1, B17.8-B17.9, B19-B19.0, B19.2-B19.9, B28-B29, B30-B32.4,
+        B34-B34.1, B34.3-B46.9, B49-B49.9, B54-B55, B55.1-B55.9, B58-B59.9, B61-B62, B64, B68-B68.9, B73-B74.2, B76-B76.9,
+        B78-B82.9, B83.9-B85.4, B87-B89, B92-B94.0, B94.2-B94.9, B95.6-B97.1, B97.3, B97.7-B99.9, C14-C14.9, C22.9, C26-C29,
+        C35-C36, C39-C39.9, C42, C46-C46.9, C55-C55.9, C57.9, C59-C6, C63.9, C68, C68.9-C69, C69.9, C74-C74.9, C75.9-C80.9,
+        C83, C83.9, C85.1, C85.9, C87, C91.1, C91.4-C91.5, C91.7-C91.9, C92.7-C92.9, C93.2, C93.5-C93.7, C93.9, C94.6, C97-D00.0,
+        D01, D01.4-D02, D02.4-D02.9, D07, D07.3, D07.6-D09, D09.1, D09.7, D09.9-D10, D10.9, D13, D13.9-D14, D14.4, D17-D21.9,
+        D28, D28.9-D29, D29.9-D30, D30.9, D36.0, D36.9-D37.0, D37.6-D38, D38.6-D39.0, D39.7, D39.9-D40, D40.9-D41, D41.9,
+        D44, D44.9, D48, D48.7-D49.1, D49.5, D49.7-D50.0, D50.9, D54, D59, D59.4, D59.8-D59.9, D62-D63.0, D63.8-D64, D64.1-D65.9,
+        D68, D69.9, D75.9, D79-D85, D87-D88, D89.8-D99, E07.8-E08.9, E12-E16, E17-E19, E34.0, E34.9-E35.8, E37-E39, E47-E50.9,
+        E62, E64.1, E69, E85.3-E87.9, E90-E998, F04-F07.0, F07.2-F09.9, F17-F17.9, F19-F23.9, F25-F50, F50.8-G00, G00.9-G02.8,
+        G03.9, G06-G09.9, G15-G19, G21, G21.2, G21.4-G22.0, G27-G29, G32-G34, G38-G39., G42-G44.8, G47-G47.2, G47.4-G60.9,
+        G62-G62.0, G62.2-G69, G74-G89.4, G91-G93.6, G93.8-G94.8, G96-G96.9, G98-H05, H05.2-H69.9, H71-H99, I00.0, I03-I04.,
+        I10-I10.9, I14-I19, I26-I27, I27.8-I27.9, I29-I29.9, I31.2-I31.4, I37.9, I42-I42.0, I42.9, I44-I46.9, I49-I51, I51.5-I59,
+        I64-I64.9, I67, I67.4, I67.8-I68, I68.8-I69, I69.4-I70.1, I70.9, I74-I76, I90-I95.1, I95.8-I96.9, I98.4-I98.8, I99-ID5.9,
+        J02.9, J03.9, J04.3, J06, J06.9-J08, J15.9, J17-J19.6, J22-J29, J40-J40.9, J47-J59, J64-J65.0, J69-J69.9, J71-J81.9,
+        J83, J85-J90.9, J93-J94.9, J96-K19, K21-K21.9, K22.7, K30, K31.9-K34, K39, K47-K49, K53-K54, K63-K63.4, K63.8-K63.9,
+        K65-K66.1, K66.9, K68.1-K69, K70.4-K71.6, K71.8-K72.9, K75.0, K78-K79, K84, K87-K89, K92-K92.2, K92.9-K93, K96-K99,
+        L06-L07, L09, L15-L50.9, L52-L54.8, L56-L56.2, L56.4-L56.5, L57-L57.9, L59-L87.9, L90-L92.9, L94-L96, L98.5-L99.8,
+        M04, M10-M12.0, M12.2-M29, M37-M39, M43.2-M49, M49.2-M64, M65.1-M71, M71.2-M72.4, M72.8-M73, M73.8-M79.9, M83-M86.2,
+        M86.5-M86.9, M87.2-M87.9, M89.1-M89.4, M90-M99.9, N09, N13-N13.5, N13.7-N13.9, N17-N17.9, N19-N19.9, N24, N28.8-N28.9,
+        N32.1-N32.2, N32.8-N33.8, N35-N35.9, N37-N38, N39.3-N40.9, N42-N43.4, N44.1-N44.8, N46-N48.9, N50-N59, N61-N64.9,
+        N66-N71.9, N73-N74.0, N74.2-N74.8, N78-N79, N82-N82.9, N84, N84.2-N86, N88-N95.9, N97-N97.9, O08-O08.9, O17-O19,
+        O27, O37-O39, O49-O59, O78-O79, O93-O95.9, P06, P16-P18, P23, P23.5-P23.9, P30-P34.2, P37.3-P37.4, P40-P49, P62-P69,
+        P73, P79, P82, P85-P89, P96.9-P99.9, Q08-Q10.3, Q19, Q29-Q29., Q36.0-Q36.9, Q46-Q49, Q88, Q89.9, Q94, Q99.9-R19.6,
+        R19.8-R50.1, R50.8-R78, R78.6-R94.8, R96-TO7., U05, U08-U81, U89.9-U99, V87-V87.1, V87.4-V88.1, V88.4-V89.9, V99-V99.0,
+        W47-W48, W63, W71-W72, W76-W76.9, W82, W95-W97, W98, X07, X40-X44.9, X46-X46.9, X49-X49.9, X55-X56, X59-X59.9, X84-X84.9,
+        Y09-Y14.9, Y16-Y34.9, Y85-Y87, Y87.2, Y89, Y89.9-Z15.8, Z17-ZZZ
+    packages_note: >-
+      Figure 4 gives each garbage package its class (1 to 4, the levels above) and its ICD-10 ranges. A code is in the edition
+      when Figure 3 lists it, and has the class and package of each Figure 4 package that lists it: a code in two packages
+      has two rows. Figure 3 lists 1,633 codes that no Figure 4 package does, which have neither: the nature-of-injury codes
+      S00-T98 (1,459; the appendix maps them apart, Figure 12 "N-code ICD mappings"), the mycoses B37-B49, B55, B58-B59
+      and A31, A42-A44, D80-D84, D89.8-D89.9, C46, and single codes among them I50.0 and I50.1 (heart failure), N17.0-N17.9
+      (acute kidney failure), I70.1, I70.9, K75.0 and Y25.3. A Figure 4 range that names a three-character code Figure 3
+      does not list (C22 in "C2, C22, C22.9", the parent of a listed subcode) names no member. Figure 3 and the GBD 2017
+      list differ in 86 of about 5,900 codes: B34.2 (coronavirus infection, site unspecified), which GBD 2017 holds at level
+      2, is not in the GBD 2019 list.
+    packages:
+    - package: All, Ill Defined code for causes of death
+      class: 1
+      ranges: >-
+        A59-A59.9, A71-A71.9, A74-A74.0, B07-B07.9, B30-B30.9, B35-B36.9, B85-B85.4, B87-B88.9, B94-B94.0, D68, E15-E16,
+        E50-E50.9, E64, E64.1, F06, F06.3-F06.4, F07, F07.2, F09-F09.9, F30-F49, F51-F99.0, G32-G32.8, G43-G44.2, G44.4-G44.8,
+        G47-G47.2, G47.4-G47.9, G50-G60.9, G62-G62.0, G62.2-G65.2, G89-G89.4, G99-H05, H05.2-H69.9, H71-H99, K00-K19, K30,
+        L20-L30.9, L40-L50.9, L52-L54.8, L56-L56.2, L56.4-L56.5, L57-L57.9, L59-L68.9, L70-L76.8, L80-L87.9, L90-L92.9,
+        L94-L96, L98, L98.5-L99.8, M04, M10-M12.0, M12.2-M29, M37-M39, M43, M43.2-M49, M49.2-M65, M65.1-M71, M71.2-M72.4,
+        M72.8-M73, M73.8-M79.9, M83-M85.9, M87, M87.2-M87.9, M89, M89.1-M89.4, M90-M99.9, N32, N32.8-N33.8, N35-N35.9, N37-N37.8,
+        N39, N39.3-N39.8, N42-N44, N44.1-N44.8, N46-N48.9, N50-N53.9, N61-N64.9, N91-N91.5, N95, N95.1-N95.9, N97-N97.9,
+        R07-R07.0, R08-R09, R09.3, R12-R12.0, R14-R15.9, R19-R19.6, R19.8-R23, R23.1-R30.9, R32-R39.9, R41-R49.9, R51-R53.8,
+        R55-R55.0, R58-R63.3, R63.5, R63.8-R65.1, R66-R72.9, R74-R78, R78.6-R94.8, R96-R99.9, U05, U08-U81, U89-U99, Z00-Z15.8,
+        Z17-ZB0
+    - package: Senility
+      class: 1
+      ranges: R54-R54.9
+    - package: Unspecified Infectious Diseases
+      class: 2
+      ranges: >-
+        A14-A14.9, A29-A30.9, A45-A45.9, A47, A61-A62, A72-A73, A76, A97, B11-B14, B28-B29, B31-B32.4, B61-B62, B68-B68.9,
+        B73-B74.2, B76-B76.9, B78-B81.8, B84, B92-B94, B94.8-B95, B95.6-B97.1, B97.3, B97.7-B99.9
+    - package: Unspecified Bacterial Diseases
+      class: 2
+      ranges: A48, A48.8-A49, A49.3-A49.9
+    - package: Unspecified STD
+      class: 3
+      ranges: A64-A64.0
+    - package: Unspecified Hemorrhagic Fever
+      class: 3
+      ranges: A99-A99.0
+    - package: Unspecified Viral Diseases
+      class: 2
+      ranges: B08-B09, B34-B34.1, B34.3-B34.9, G93, G93.3
+    - package: Unspecified Protozoal Diseases
+      class: 4
+      ranges: B64
+    - package: Unspecified Intestinal Parasite
+      class: 4
+      ranges: B82-B83, B83.9
+    - package: Unspecified Parasitic Diseases
+      class: 3
+      ranges: B89
+    - package: Typhoid or paratyphoid fevers
+      class: 3
+      ranges: A01
+    - package: Haemophilus influenza infection, unspecified site
+      class: 3
+      ranges: A49, A49.2
+    - package: Unspecified Malaria
+      class: 4
+      ranges: B54-B54.0, P37, P37.3-P37.4
+    - package: Unspecified Oropharynx Cancer
+      class: 3
+      ranges: C1, C14-C14.9, D0-D00.0, D10, D10.9, D37-D37.0
+    - package: Unspecified GI Cancer
+      class: 3
+      ranges: C2, C26-C3, C35-C36, D0-D00, D01, D01.4-D01.9, D13, D13.9, D37, D37.6-D37.9, D4, D49-D49.0
+    - package: Unspecified Respiratory Cancer
+      class: 3
+      ranges: C3, C39-C39.9, D0, D02, D02.4-D02.9, D14, D14.4, D38, D38.6, D4, D49, D49.1
+    - package: Unspecified Uterus Cancer
+      class: 3
+      ranges: C5, C55-C55.9
+    - package: Unspecified Female Genital Cancer
+      class: 3
+      ranges: C5, C57, C57.9, C59-C6, D0, D07, D07.3, D28, D28.9, D39-D39.0, D39.7, D39.9, N84, N84.2-N84.8
+    - package: Unspecified Male Genital Cancer
+      class: 3
+      ranges: C6, C63, C63.9, D0, D07, D07.6, D29, D29.9, D4-D40, D40.9
+    - package: Unspecified Urinary Cancer
+      class: 3
+      ranges: C6, C68, C68.9, D0, D09, D09.1, D30, D30.9, D4, D41, D41.9
+    - package: Unspecified Endocrine Cancer
+      class: 3
+      ranges: C7, C75, C75.9, D4, D44, D44.9, D49, D49.7, E34-E34.0
+    - package: Unspecified Site Cancer
+      class: 3
+      ranges: >-
+        C4, C42, C7, C76, C76.7-C77, C77.3-C77.4, C77.8-C78, C79, C79.2-C80.9, C87, C97-D0, D08-D09, D09.7, D09.9, D36-D36.0,
+        D36.9, D4, D48, D48.7-D49, D49.8-D49.9, D54
+    - package: Head and Neck Cancer
+      class: 3
+      ranges: C7, C76-C76.1, C77-C77.1, C78-C78.3, D17-D21.9
+    - package: Abdomen and Pelvis Cancer
+      class: 3
+      ranges: C7, C76, C76.2-C76.3, C77, C77.2, C77.5, C78, C78.4-C79.1
+    - package: Unspecified genital Cancer
+      class: 3
+      ranges: D0, D07, D4, D49, D49.5
+    - package: Acquired hemolytic anemia
+      class: 2
+      ranges: D59, D59.4, D59.8-D59.9
+    - package: Unspecified Blood Diseases
+      class: 3
+      ranges: D75, D75.9, D79, D85, D87-D88, D90-D99
+    - package: Unspecified Thyroid Diseases
+      class: 3
+      ranges: E07, E07.8-E07.9
+    - package: Unspecified Diabetes Related cause
+      class: 3
+      ranges: E08-E08.9
+    - package: Unspecified Endo/Metabolic Diseases
+      class: 3
+      ranges: E17-E19, E35, E37-E39, E47-E49, E62, E69, E90-E998
+    - package: Unspecified Endocrine Diseases
+      class: 3
+      ranges: E34, E34.9-E35.8
+    - package: Unspecified Mental/Brain Disorders
+      class: 3
+      ranges: F06-F06.1, F06.5-F07.0, F07.8-F08
+    - package: Unspecified Eating Disorders
+      class: 3
+      ranges: F50, F50.8-F50.9
+    - package: Unspecified Meningitis
+      class: 4
+      ranges: G00, G00.9-G03, G03.9
+    - package: Unspecified CNS Infection
+      class: 3
+      ranges: G09-G09.9
+    - package: Unspecified CNS Diseases
+      class: 3
+      ranges: G15-G19, G21, G21.2, G21.4-G22.0, G27-G29, G33-G34, G38-G39, G42, G48-G49, G66-G69, G74-G79, G84-G88
+    - package: External Causes UDI, type unspecified
+      class: 2
+      ranges: >-
+        G44, G44.3, G91, G91.3, R58, TO7., W47-W47., Y24, Y24.5-Y24.7, Y25, Y25.2, Y26, Y26.3, Y27, Y27.4-Y27.5, Y28, Y28.3,
+        Y28.5, Y29, Y29.3, Y33-Y34.9, Y86-Y87, Y87.2, Y89, Y89.9-Y99.9
+    - package: Unspecified Brain Diseases
+      class: 3
+      ranges: G93, G93.8-G94, G96-G96.9, G98-G98.9
+    - package: CNS Fluid Diseases
+      class: 3
+      ranges: E87, E87.7
+    - package: Unspecified CNS sign and symptom
+      class: 3
+      ranges: F04-F05.9
+    - package: CNS Abscess
+      class: 1
+      ranges: G06-G08.0
+    - package: Unspecified cardiovascular diseases
+      class: 3
+      ranges: >-
+        I00-I00.0, I03, I04, I14, I16-I18, I19, I29-I29.9, I51, I51.6, I52-I59, I90-I94, I96-I96.9, I98, I98.4-I98.8, I99-ID5.9
+    - package: Cerebral Cysts
+      class: 2
+      ranges: G93-G93.0
+    - package: Hypertension
+      class: 2
+      ranges: I10-I10.9, I15-I15.9, I67, I67.4, R03-R03.0, R04-R04.0
+    - package: Pulmonary Embolism
+      class: 1
+      ranges: I26-I26.9
+    - package: right heart failure and pulmonary heart disease
+      class: 2
+      ranges: I27, I27.8-I27.9
+    - package: Sepsis (Non- maternal and neonatal sepsis)
+      class: 1
+      ranges: >-
+        A40-A41.9, A48-A48.0, A48.3, A49-A49.1, D65-D65.9, I76, R02-R02.9, R50-R50.1, R50.8-R50.9, R56-R56.0, R65, R65.2
+    - package: Amyloidosis
+      class: 1
+      ranges: E85, E85.3-E85.9
+    - package: Cerebral Palsy
+      class: 1
+      ranges: G80-G80.9, G82, G82.1, G82.4, G83-G83.0, G83.8
+    - package: Left heart failure
+      class: 1
+      ranges: I50, I50.2-I50.4
+    - package: Unspecified Heart Diseases
+      class: 3
+      ranges: I51, I51.7-I51.9
+    - package: Unspecified type of Stroke
+      class: 4
+      ranges: I64-I64.9, I67, I67.8-I68, I68.8-I69, I69.4-I69.9
+    - package: Atherosclerosis
+      class: 2
+      ranges: I70-I70.0
+    - package: Arterial Embolism
+      class: 2
+      ranges: I74-I75.8
+    - package: Unspecified upper respiratory infectious
+      class: 3
+      ranges: J02, J02.9-J03, J03.9-J04, J04.3, J06, J06.9
+    - package: Unspecified acute respiratory infectious
+      class: 4
+      ranges: J07-J08, J23-J29
+    - package: Unspecified lower respiratory infectious
+      class: 4
+      ranges: J15, J15.9, J17-J19.6, J22-J22.9, P23, P23.5-P23.9
+    - package: Unspecified chronic respiratory diseases
+      class: 3
+      ranges: J48-J59, J71-J79, J81, J81.9, J83, J85, J85.9, J87-J90, J90.9, J93, J93.6, J97-J98.0, J98.4-J99.8
+    - package: Unspecified Pneumoconiosis
+      class: 4
+      ranges: J64-J64.9
+    - package: Pneumonitis
+      class: 1
+      ranges: J69-J69.9, J85-J85.3
+    - package: Chronic respiratory failure
+      class: 1
+      ranges: J96, J96.1-J96.8
+    - package: Unspecified Digestive Diseases
+      class: 3
+      ranges: K31, K31.9-K34, K39, K47, K48-K49, K53-K54, K69, K78-K79, K84, K87-K89, K92, K92.9-K93, K96-K99
+    - package: Unspecified Intestine Diseases
+      class: 3
+      ranges: K21-K22, K22.7, K63-K63.4, K63.8-K63.9
+    - package: Alcoholic hepatic failure
+      class: 3
+      ranges: K70, K70.4-K70.9
+    - package: Gastrointestinal Bleeding
+      class: 2
+      ranges: K92-K92.2
+    - package: Unspecified Skin Diseases
+      class: 3
+      ranges: L06-L07, L09, L15-L19, L31-L39, L69, L77-L79
+    - package: Osteomyelitis
+      class: 1
+      ranges: M86-M86.2, M86.5-M86.9
+    - package: Unspecified Urinary Diseases
+      class: 3
+      ranges: >-
+        N09, N24, N28, N28.8-N28.9, N38-N39, N39.9-N40.9, N54-N59, N66-N69, N78-N79, N84, N84.9-N86, N88-N90.9
+    - package: Urinary Obstruction Diseases
+      class: 3
+      ranges: N13-N13.5, N13.7-N13.9, R31-R31.9
+    - package: Acute kidney failure
+      class: 1
+      ranges: N17, N19-N19.9
+    - package: Fistula
+      class: 1
+      ranges: N32, N32.1-N32.2, N82-N82.9
+    - package: Unspecified Gynecologic Diseases
+      class: 3
+      ranges: N92-N95.0
+    - package: Maternal Complication
+      class: 3
+      ranges: O08-O08.9
+    - package: Unspecified Maternal Diseases
+      class: 3
+      ranges: O17-O19, O27, O37-O39, O49-O59, O78-O79, O93-O95.9
+    - package: Unspecified Neonatal Diseases
+      class: 3
+      ranges: P06, P16-P17, P18, P30-P34.2, P40-P49, P62-P69, P73, P79, P82, P85-P89, P96, P96.9-P99.9
+    - package: Unspecified Congenital Diseases
+      class: 3
+      ranges: Q08-Q10.3, Q19, Q29, Q36-Q36.9, Q46-Q49, Q88-Q89, Q89.9, Q94
+    - package: Unspecified Chromosomal Diseases
+      class: 3
+      ranges: Q99, Q99.9
+    - package: Unspecified sign and symptom for Heart diseases
+      class: 3
+      ranges: R00-R01.2, R07, R07.1-R07.9
+    - package: Unspecified sign and symptom for Respiratory diseases
+      class: 2
+      ranges: R05-R06.9, R23-R23.0
+    - package: Unspecified sign and symptom for GI diseases
+      class: 2
+      ranges: R13-R13.9
+    - package: Nausea and Vomiting
+      class: 1
+      ranges: R11-R11.9
+    - package: Exposure to unspecified factor X59
+      class: 2
+      ranges: W47, W48, W63, W71-W72, W82, W95-W97, W98, X07, X55, X56, X59-X59.9
+    - package: Unspecified Transport Injuries
+      class: 4
+      ranges: V99-V99.0, Y85-Y85.9
+    - package: Unspecified Road Injuries
+      class: 4
+      ranges: V89-V89.9
+    - package: Unspecified Traffic Injuries
+      class: 4
+      ranges: V87-V87.1, V87.4-V88.1, V88.4-V88.9
+    - package: Self-harm by unspecified means
+      class: 4
+      ranges: X84-X84.9
+    - package: Assault by unspecified means
+      class: 4
+      ranges: Y09-Y09.9
+    - package: Undetermined intent Poisoning by no opioid analgesics
+      class: 1
+      ranges: Y10-Y10.9
+    - package: Undetermined intent Poisoning by antiepileptic and psychotropic drugs
+      class: 1
+      ranges: Y11-Y11.9
+    - package: Undetermined intent Poisoning by narcotics and psychodysleptics drugs
+      class: 1
+      ranges: Y12-Y12.9
+    - package: Undetermined intent Poisoning by autonomic nervous system drugs
+      class: 1
+      ranges: Y13-Y13.9
+    - package: Undetermined intent Poisoning by unspecified drugs and biological drugs
+      class: 1
+      ranges: Y14-Y14.9
+    - package: Undetermined intent Poisoning by solvents and halogenated hydrocarbons
+      class: 1
+      ranges: Y16-Y16.9
+    - package: Undetermined intent Poisoning by other gases and vapors
+      class: 1
+      ranges: Y17-Y17.9
+    - package: Undetermined intent Poisoning by pesticides
+      class: 1
+      ranges: Y18-Y18.9
+    - package: Undetermined intent Poisoning by unspecified chemicals and noxious substances
+      class: 1
+      ranges: Y19-Y19.9
+    - package: Undetermined intent Strangulation
+      class: 2
+      ranges: W76-W76.9, Y20-Y20.9
+    - package: Undetermined intent Drowning
+      class: 2
+      ranges: Y21-Y21.9
+    - package: Undetermined intent shooting by Handgun Firearm
+      class: 2
+      ranges: Y22-Y22.9
+    - package: Undetermined intent shooting by rifle and larger firearm
+      class: 2
+      ranges: Y23-Y23.2, Y23.4-Y23.7
+    - package: Undetermined intent shooting by unspecified firearm
+      class: 2
+      ranges: Y23, Y23.3, Y23.8-Y24.4, Y24.8-Y24.9
+    - package: Undetermined intent of Explosion
+      class: 2
+      ranges: Y25-Y25.1, Y25.4-Y25.9
+    - package: Undetermined intent of fire and flames
+      class: 2
+      ranges: Y26-Y26.2, Y26.4-Y26.9
+    - package: Undetermined intent of Hot Objects
+      class: 2
+      ranges: Y27-Y27.3, Y27.6-Y27.9
+    - package: Undetermined intent of Sharp Objects
+      class: 2
+      ranges: Y28-Y28.2, Y28.4, Y28.6-Y28.9
+    - package: Undetermined intent of Blunt Objects
+      class: 2
+      ranges: Y29-Y29.0
+    - package: Undetermined intent of Moving Objects
+      class: 2
+      ranges: Y31-Y31.9
+    - package: Undetermined intent of fall
+      class: 2
+      ranges: Y29, Y29.1-Y29.2, Y29.4-Y30.9
+    - package: Undetermined intent Poisoning by multiple or unspecified drug
+      class: 1
+      ranges: F19-F19.9, X40-X44.9, X46-X46.9, X49-X49.9, X55-X55.
+    - package: Undetermined intent of Crashing
+      class: 2
+      ranges: Y32-Y32.9
+    - package: Anemia in neoplastic Diseases
+      class: 1
+      ranges: D63-D63.0
+    - package: Anemia Unspecified
+      class: 1
+      ranges: D50-D50.0, D50.9, D62-D63, D63.8-D64, D64.1-D64.9, D69, D69.9
+    - package: Unspecified Cardiomyopathy
+      class: 4
+      ranges: I42-I42.0, I42.9
+    - package: Myocardial Degeneration
+      class: 4
+      ranges: I51, I51.5
+    - package: Female pelvic inflammatory diseases
+      class: 2
+      ranges: N70-N71.9, N73-N74.0, N74.2-N74.8
+    - package: Schizophrenia
+      class: 1
+      ranges: F06, F06.2, F20-F23.9, F25-F29.9
+    - package: Diabetes unspecified type
+      class: 4
+      ranges: E12-E12.1, E12.3-E13.1, E13.3-E14.1, E14.3-E14.9, R73-R73.9
+    - package: CKD due to diabetes Unspecified type
+      class: 4
+      ranges: E12, E12.2, E13, E13.2, E14, E14.2
+    - package: Unspecified Bronchitis and Bronchiectasis
+      class: 3
+      ranges: J40-J40.9, J47-J47.9
+    - package: Valve Disorder and Endocarditis
+      class: 4
+      ranges: I37, I37.9
+    - package: Primary or secondary Liver Cancer Unspecified
+      class: 3
+      ranges: C2, C22, C22.9
+    - package: Eye Unspecified Site Cancer
+      class: 4
+      ranges: C6, C69, C69.9
+    - package: Adrenal Unspecified Site Cancer-parent cause
+      class: 3
+      ranges: C7, C74-C74.0
+    - package: Chronic lymphocytic leukemia by age
+      class: 4
+      ranges: C91, C91.1
+    - package: Lymphoid leukemia unspecified by age
+      class: 4
+      ranges: C91, C91.4-C91.5, C91.7-C91.9
+    - package: myeloid leukemia by age
+      class: 4
+      ranges: C92, C92.7-C93, C93.2, C93.5-C93.7, C93.9
+    - package: Adrenal Unspecified Site Cancer in medulla or cortex
+      class: 3
+      ranges: C7, C74, C74.1
+    - package: Adrenal Site Cancer unspecified part of adrenal gland
+      class: 3
+      ranges: C7, C74, C74.9
+    - package: Heart failure unspecified right or left
+      class: 2
+      ranges: I50, I50.8-I50.9, J81, J81.1
+    - package: Hepatitis Unspecified
+      class: 3
+      ranges: B17, B17.1, B17.8-B17.9, B19-B19.0, B19.2-B19.9, B94, B94.2
+    - package: Hepatic Failure
+      class: 1
+      ranges: K71-K71.6, K71.8-K72.9, R16-R18.9
+    - package: Fluid, Electrolyte, Acid Base Disorders
+      class: 1
+      ranges: E86-E87.6, E87.8-E87.9
+    - package: Cardiac rhythm disorders
+      class: 3
+      ranges: I44-I45.9, I49-I49.9
+    - package: Assigned death to tobacco
+      class: 2
+      ranges: F17-F17.9
+    - package: Intermediate cause for CNS
+      class: 1
+      ranges: G91-G91.2, G91.4-G93, G93.1-G93.2, G93.4-G93.6, G94-G94.8
+    - package: Cachexia
+      class: 1
+      ranges: R63, R63.4, R63.6, R64
+    - package: Peritonitis & Acute Abdomen
+      class: 1
+      ranges: K65-K66.1, K66.9, K68-K68.9, R10-R10.9
+    - package: Acute Respiratory Failure
+      class: 1
+      ranges: J80-J81.0, J96-J96.0, J96.9, J98, J98.1-J98.3
+    - package: Shock, Cardiac Arrest, Coma
+      class: 1
+      ranges: >-
+        I46-I46.9, I95-I95.1, I95.8-I95.9, R03, R03.1, R09-R09.0, R09.2, R09.8, R40-R40.4, R55, R56, R56.1-R57.9
+    - package: hepatitis B unspecified
+      class: 4
+      ranges: B16, B16.9
+    - package: Plegia
+      class: 1
+      ranges: G81-G82.0, G82.2-G82.3, G82.5-G83, G83.1-G83.5, G83.9
+    - package: Pleurisy, Pyothorax
+      class: 1
+      ranges: J86-J86.9, J90-J90.0, J94-J94.1, J94.8-J94.9, R09, R09.1
+    - package: Pneumothorax
+      class: 1
+      ranges: I31, I31.2-I31.4, J93-J93.1, J93.8-J94, J94.2, R04, R04.1-R04.9
+    - package: Non-follicular lymphoma, unspecified
+      class: 3
+      ranges: C8, C83, C83.9, C85, C85.1, C85.9
+    - package: Pneumoconiosis associated with tuberculosis
+      class: 3
+      ranges: J65-J65.0
+    - package: upper and lower limb cancer
+      class: 3
+      ranges: C7, C76, C76.4-C76.5
+    - package: MDS not classified
+      class: 3
+      ranges: C94, C94.6

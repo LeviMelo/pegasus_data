@@ -512,7 +512,7 @@ variables:
       the 2002 self-extracting archive, which holds only DBFs; the column is not named
       in any of them).'
     notes: 'Nominal reais, never deflated. Comparing 2002 to 2020 without an index
-      compares two different currencies.
+      compares two different currencies; `price_index()` (IBGE''s IPCA) is the index.
 
       '
   COB_VALPR:

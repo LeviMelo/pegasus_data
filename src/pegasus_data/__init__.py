@@ -40,6 +40,7 @@ _EXPORTS: dict[str, str] = {
     "load_field": ".fields",
     "field_rate": ".fields",
     "Sidra": ".sidra",
+    "price_index": ".sidra.prices",
     "age_standardised_rates": ".rates",
     "race_reliability": ".quality",
     "load_reference": ".api",
@@ -62,6 +63,7 @@ _EXPORTS: dict[str, str] = {
     "code_structure": ".semantics.code_structures",
     "code_attributes": ".semantics.code_structures",
     "code_bridge": ".semantics.code_structures",
+    "garbage_codes": ".semantics.code_structures",
     "field_overlap": ".semantics.event_types",
     "proximity_graph": ".proximity",
     "municipality_areas": ".proximity",
@@ -197,10 +199,17 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         NothingPublished,
         PublishedEmpty,
     )
-    from .semantics.code_structures import code_attributes, code_bridge, code_structure, code_structures
+    from .semantics.code_structures import (
+        code_attributes,
+        code_bridge,
+        code_structure,
+        code_structures,
+        garbage_codes,
+    )
     from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types, field_overlap
     from .sidra import Sidra
+    from .sidra.prices import price_index
 
 
 def __getattr__(name: str) -> Any:

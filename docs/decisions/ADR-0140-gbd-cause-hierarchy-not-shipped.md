@@ -12,7 +12,7 @@
 3. **What must stay true:**
    - nothing default and no test depends on it;
    - an absent GBD raises with instructions, never an empty table.
-4. **Garbage codes:** an openly licensed list is shipped only after its licence is checked, for example the supplements of open-access papers such as Naghavi et al. 2010, *Population Health Metrics*.
+4. **Garbage codes:** an openly licensed list is shipped only after its licence is checked, for example the supplements of open-access papers such as Naghavi et al. 2010, *Population Health Metrics*. Done 2026-10-14 from two CC BY 4.0 supplements (França et al. 2020; Johnson et al. 2021): ADR-0182.
 
 **Evidence.**
 - PegaSUS does not need GBD: its blocks are ICD-10 chapters, and GBD would be one more overlapping list.
