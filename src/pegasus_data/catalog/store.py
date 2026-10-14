@@ -402,6 +402,72 @@ def _missing_columns(
     return missing
 
 
+#: How many results one store remembers (see ``CatalogStore.memo``).
+_MEMO_MAX = 256
+#: How many catalogs one process keeps a shared connection to.
+_SHARED_MAX = 4
+_SHARED: dict[str, CatalogStore] = {}
+_SHARED_LOCK = threading.Lock()
+
+
+def _identity(path: Path) -> tuple[int, int] | None:
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    return stat.st_dev, stat.st_ino
+
+
+def _acquire_shared(cls: type[CatalogStore], path: Path) -> CatalogStore:
+    key = str(path.resolve())
+    with _SHARED_LOCK:
+        store = _SHARED.get(key)
+        identity = _identity(path)
+        if store is not None and (identity is None or store._identity != identity):
+            # the file was replaced (deleted and rebuilt): the open connection belongs to the old one
+            del _SHARED[key]
+            _retire(store)
+            store = None
+        if store is None:
+            store = cls(path, read_only=True)
+            store._shared_key = key
+            store._identity = _identity(path)
+            _SHARED[key] = store
+            while len(_SHARED) > _SHARED_MAX:
+                oldest = next(iter(_SHARED))
+                if oldest == key:
+                    break
+                _retire(_SHARED.pop(oldest))
+        else:
+            _SHARED[key] = _SHARED.pop(key)          # most recently used last
+        store._shared_users += 1
+        return store
+
+
+def _retire(store: CatalogStore) -> None:
+    """Close a shared store as soon as nobody uses it (now, when nobody does)."""
+    store._retired = True
+    if store._shared_users <= 0:
+        store._close_connection()
+
+
+def _release_shared(store: CatalogStore) -> None:
+    with _SHARED_LOCK:
+        store._shared_users = max(0, store._shared_users - 1)
+        if store._retired and store._shared_users == 0:
+            store._close_connection()
+
+
+def close_shared() -> None:
+    """Close every shared connection that nobody holds, and retire the others (a test removing a catalog; a process
+    about to delete a data home)."""
+    with _SHARED_LOCK:
+        stores = list(_SHARED.values())
+        _SHARED.clear()
+    for store in stores:
+        _retire(store)
+
+
 class CatalogStore:
     """A connection to the catalog database.
 
@@ -425,6 +491,14 @@ class CatalogStore:
         if not read_only:
             self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        #: ``memo`` results, valid for ``_memo_version`` only (read-only stores).
+        self._memo: dict[Any, Any] = {}
+        self._memo_version: int | None = None
+        #: A process-wide store (``shared``): ``close`` releases a user instead of closing the connection.
+        self._shared_users = 0
+        self._shared_key: str | None = None
+        self._identity: tuple[int, int] | None = None
+        self._retired = False
         if not self.path.exists():
             # A catalog that does not exist yet starts from the shipped seed:
             # what the tree is and what it means (ADR-0067, catalog/seed.py).
@@ -611,12 +685,63 @@ class CatalogStore:
         }
 
     def close(self) -> None:
+        if self._shared_key is not None:
+            _release_shared(self)
+            return
+        self._close_connection()
+
+    def _close_connection(self) -> None:
         with self._lock:
             try:
                 self.conn.commit()
             except sqlite3.Error:
                 pass
             self.conn.close()
+
+    # ----------------------------------------------------------- shared, cached reads
+
+    @classmethod
+    def shared(cls, path: str | Path) -> CatalogStore:
+        """The process's one read-only connection to the catalog at ``path``, to be ``close()``d like any other.
+
+        A query opened 4-5 fresh connections, each with a cold page cache, so nothing it had worked out about the catalog
+        (a dataset's file axes, its families, its lake partitions) could outlive the call: 0.65 s of every query was
+        that. One long-lived connection keeps the page cache warm and gives ``memo`` something to be exact against.
+        ``close()`` releases the caller's use; the connection itself stays until the file is replaced, the registry is
+        full, or ``close_shared``.
+        """
+        return _acquire_shared(cls, Path(path))
+
+    def data_version(self) -> int:
+        """SQLite's ``PRAGMA data_version``: changes whenever ANOTHER connection (another process included) commits.
+
+        Unchanged by this connection's own writes, so it is only an invalidation token for a read-only store, whose
+        every change is another connection's.
+        """
+        with self._lock:
+            return int(self.conn.execute("PRAGMA data_version").fetchone()[0])
+
+    def memo(self, key: Any, compute: Any) -> Any:
+        """``compute()``, remembered under ``key`` until the catalog changes (a read-only store only).
+
+        Exact, not heuristic: every value is dropped when ``data_version`` moves, so a crawl, a build or a fetch in any
+        process is seen by the next call. A writable store computes every time (its own uncommitted writes are not a
+        snapshot). Callers treat the value as read-only.
+        """
+        if not self.read_only:
+            return compute()
+        with self._lock:
+            version = self.data_version()
+            if version != self._memo_version:
+                self._memo.clear()
+                self._memo_version = version
+            if key in self._memo:
+                return self._memo[key]
+            value = compute()
+            if len(self._memo) >= _MEMO_MAX:
+                self._memo.pop(next(iter(self._memo)))
+            self._memo[key] = value
+            return value
 
     def __enter__(self) -> CatalogStore:
         return self

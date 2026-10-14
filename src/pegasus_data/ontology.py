@@ -661,9 +661,14 @@ class Ontology:
             hit = self._by_system_series.get((declared_system, key))
             if hit:
                 return hit
-        # Series-only fallback, but never when the code is ambiguous across
-        # systems — a wrong bind is worse than an unbound one.
-        if key not in self._series_collisions:
+        # Series-only fallback, for a republication tree (Dados_Abertos files its datasets under their own names, not
+        # its directory's) or for a system the declaration has never heard of. Never for a declared data system: a
+        # series filed there that no dataset of it declares is UNBOUND, not the same-named series of another system
+        # (`bind("SINAN", "RD")` was SIH.RD). And never when the code is ambiguous across systems: a wrong bind is
+        # worse than an unbound one, and it removes the file from `data_files_unbound`, the number the project is
+        # judged on.
+        node = self.systems.get(declared_system) if declared_system else None
+        if (node is None or node.republishes) and key not in self._series_collisions:
             return self._by_series.get(key)
         return None
 
@@ -804,15 +809,18 @@ class Ontology:
                 pairs[(system, series)] = code
         return pairs
 
-    def axes_for(self, conn: sqlite3.Connection, dataset: str) -> DatasetAxes | None:
+    def axes_for(
+        self, conn: sqlite3.Connection, dataset: str, *, pairs: dict[tuple[Any, Any], str] | None = None,
+    ) -> DatasetAxes | None:
         """:meth:`axes` for ONE dataset, without measuring the other 130.
 
         ``fetch()`` and ``describe()`` ask about a single dataset and then throw
         the rest of the sweep away. Narrowing it in SQL is the same measurement
-        over the only rows that can contribute to the answer.
+        over the only rows that can contribute to the answer. ``pairs``: the result of :meth:`_bound_pairs`
+        when the caller has it already (it is the same for every dataset).
         """
         code = str(dataset or "").strip().upper()
-        wanted = {p for p, c in self._bound_pairs(conn).items() if c == code}
+        wanted = {p for p, c in (self._bound_pairs(conn) if pairs is None else pairs).items() if c == code}
         if not wanted:
             return None
 

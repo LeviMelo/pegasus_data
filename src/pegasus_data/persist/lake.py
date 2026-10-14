@@ -18,9 +18,9 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -47,6 +47,38 @@ class WrittenPartition:
     relative_path: str
     row_count: int
     byte_size: int
+
+
+@dataclass(frozen=True, slots=True)
+class LakePartition:
+    """One partition file the catalog lists (a row of ``lake_partitions``)."""
+
+    family_id: str
+    schema_signature: str
+    uf: str
+    year: int
+    relative_path: str
+
+
+class PartialLakeError(RuntimeError):
+    """The catalog lists lake partitions the disk does not hold.
+
+    Raised rather than skipped: a generation that contributes nothing because its file went missing (a pruned or moved
+    lake, a partition caught between the two renames of a rebuild) shortens the table and nothing in it says so.
+    """
+
+    def __init__(self, family_id: str, missing: Sequence[str]) -> None:
+        self.family_id = family_id
+        self.missing = list(missing)
+        shown = ", ".join(self.missing[:3]) + (" ..." if len(self.missing) > 3 else "")
+        super().__init__(
+            f"the catalog lists {len(self.missing)} lake partition file(s) of {family_id} that are not on disk "
+            f"({shown}); the table would be short. Rebuild them (`pegasus-data build`) or restore the lake."
+        )
+
+
+#: ``(path, mtime_ns, size) -> column names`` of a Parquet file's schema, read once per file state.
+_SCHEMAS: dict[tuple[str, int, int], tuple[str, ...]] = {}
 
 
 class Lake:
@@ -252,59 +284,137 @@ class Lake:
                 return False
         return True
 
-    def _clear_partition(
-        self,
-        system: str,
-        family_id: str,
-        schema_signature: str,
-        uf: str,
-        year: int,
-        *,
-        keep: Path | None = None,
-    ) -> int:
-        """Drop the Parquet and the catalog rows for one partition, together.
-
-        Both or neither: a file left on disk without its catalog row still gets
-        read by ``ds.dataset()``, which globs the directory and does not consult
-        the catalog at all. Clearing only the catalog would hide the duplication
-        rather than remove it.
-        """
-        directory = self.partition_dir(system, family_id, schema_signature, uf, year)
-        removed = 0
-        if directory.is_dir():
-            for stale in directory.glob("*.parquet"):
-                if keep is not None and stale.resolve() == keep.resolve():
-                    # The replacement itself. Clearing now happens AFTER the
-                    # swap, so the file that just landed must survive it.
-                    continue
-                stale.unlink()
-                removed += 1
-        if self.catalog is not None:
-            self.catalog.execute(
-                "DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? "
-                "AND uf=? AND year=?",
-                (family_id, schema_signature, uf, year),
-            )
-        return removed
-
-    def next_part_number(
-        self, system: str, family_id: str, schema_signature: str, uf: str, year: int
-    ) -> int:
-        directory = self.partition_dir(system, family_id, schema_signature, uf, year)
-        if not directory.is_dir():
-            return 0
-        existing = sorted(directory.glob("part-*.parquet"))
-        return len(existing)
-
     # ------------------------------------------------------------------- read
 
     def dataset(self, system: str, family_id: str, schema_signature: str | None = None) -> ds.Dataset:
+        """The directory's own view of a family: every Parquet file under it, listed or not.
+
+        What a lake without a catalog (``Lake(root)``) has, and what the tests of the write path look at. Reads go
+        through :meth:`listed` instead, so a stray or in-flight file the catalog does not list is never read, and
+        a directory is never walked per query.
+        """
         base = self.root / _safe(system) / _safe(family_id)
         if schema_signature:
             base = base / f"schema_signature={_safe(schema_signature)}"
         if not base.exists():
             raise FileNotFoundError(f"no lake data at {base}")
         return ds.dataset(base, format="parquet", partitioning="hive")
+
+    # -------------------------------------------------- the catalog's list of partitions
+
+    def listed(self, family_ids: Sequence[str]) -> dict[str, tuple[LakePartition, ...]] | None:
+        """The partitions the catalog lists for ``family_ids`` (all states and years), by family; ``None`` without one.
+
+        The one answer to "which files hold this family": ``lake_partitions`` is written with the file, so reading
+        from it is a list lookup, where discovering the directory again for every read cost 0.3-0.7 s of a query
+        (a walk of every ``schema_signature=/uf=/year=/part-*`` of the family). Remembered until the catalog changes.
+        """
+        catalog = self.catalog
+        if catalog is None:
+            return None
+        ids = tuple(sorted({str(f) for f in family_ids}))
+        if not ids:
+            return {}
+
+        def load() -> dict[str, tuple[LakePartition, ...]]:
+            found: dict[str, list[LakePartition]] = {}
+            for start in range(0, len(ids), 500):
+                chunk = ids[start:start + 500]
+                marks = ",".join("?" for _ in chunk)
+                for row in catalog.query(
+                    f"SELECT family_id, schema_signature, uf, year, relative_path FROM lake_partitions "
+                    f"WHERE family_id IN ({marks})", chunk,
+                ):
+                    found.setdefault(str(row["family_id"]), []).append(LakePartition(
+                        str(row["family_id"]), str(row["schema_signature"]), str(row["uf"]),
+                        int(row["year"] or 0), str(row["relative_path"]).replace("\\", "/"),
+                    ))
+            return {fam: tuple(sorted(parts, key=lambda p: (p.uf, p.year, p.relative_path)))
+                    for fam, parts in found.items()}
+
+        return catalog.memo(("lake_partitions", ids), load)
+
+    @staticmethod
+    def narrow(
+        parts: Iterable[LakePartition], uf: str | Sequence[str] | None = None,
+        years: Sequence[int] | range | None = None, schema_signature: str | None = None,
+    ) -> list[LakePartition]:
+        """The partitions in the states and years asked (``None``: all of that axis)."""
+        ufs = None if uf is None else {str(u).upper() for u in ([uf] if isinstance(uf, str) else uf)}
+        wanted_years = None if years is None else {int(y) for y in years}
+        return [
+            p for p in parts
+            if (ufs is None or p.uf.upper() in ufs)
+            and (wanted_years is None or p.year in wanted_years)
+            and (not schema_signature or p.schema_signature == schema_signature)
+        ]
+
+    def missing(self, parts: Iterable[LakePartition]) -> list[LakePartition]:
+        """Listed partitions whose file is not on disk."""
+        return [p for p in parts if not (self.root / p.relative_path).is_file()]
+
+    def check_files(self, parts: Sequence[LakePartition]) -> None:
+        """Raise :class:`PartialLakeError` when a listed file is not on disk: a listed partition is never skipped."""
+        gone = self.missing(parts)
+        if gone:
+            raise PartialLakeError(gone[0].family_id, [p.relative_path for p in gone])
+
+    def dataset_of(self, parts: Sequence[LakePartition]) -> ds.Dataset:
+        """A dataset over exactly these partition files (no directory is walked)."""
+        if not parts:
+            raise FileNotFoundError("no lake partition is listed for this request")
+        base = self.root.joinpath(*PurePosixPath(parts[0].relative_path).parts[:2])
+        return ds.dataset(
+            [str(self.root / p.relative_path) for p in parts], format="parquet",
+            partitioning="hive", partition_base_dir=str(base),
+        )
+
+    def columns_of(self, parts: Sequence[LakePartition]) -> tuple[str, ...]:
+        """The columns a family's files carry (the first present listed file's schema), with the partition keys.
+
+        What the written Parquet says, for a generation the catalog holds no schema census for; read once per file
+        state. Empty when no listed file is on disk.
+        """
+        for part in parts:
+            path = self.root / part.relative_path
+            try:
+                stat = path.stat()
+            except OSError:
+                continue
+            key = (str(path), stat.st_mtime_ns, stat.st_size)
+            if key not in _SCHEMAS:
+                if len(_SCHEMAS) > 4096:
+                    _SCHEMAS.clear()
+                _SCHEMAS[key] = tuple(pq.read_schema(path).names)
+            return (*_SCHEMAS[key], "schema_signature", "uf", "year")
+        return ()
+
+    def _source(
+        self, system: str, family_id: str, schema_signature: str | None,
+        uf: str | Sequence[str] | None, years: Sequence[int] | range | None,
+        partitions: Sequence[LakePartition] | None,
+    ) -> tuple[ds.Dataset, ds.Expression | None]:
+        """What to scan, and the state/year predicate it still needs (none when the files were listed)."""
+        if partitions is None:
+            listed = self.listed([family_id])
+            if listed is not None:
+                partitions = self.narrow(listed.get(family_id, ()), uf, years, schema_signature)
+                if not partitions:
+                    raise FileNotFoundError(
+                        f"no lake partition is listed for {family_id} (uf={uf}, years={years}); "
+                        "run `pegasus-data build`"
+                    )
+                self.check_files(partitions)
+        if partitions is not None:
+            return self.dataset_of(partitions), None
+        # no catalog: the directory is the only evidence, and the axes are predicates over it
+        expression = None
+        if uf is not None:
+            expression = ds.field("uf").isin([uf] if isinstance(uf, str) else list(uf))
+        if years is not None:
+            year_filter = ds.field("year").isin(list(years))
+            expression = year_filter if expression is None else (expression & year_filter)
+        return self.dataset(system, family_id, schema_signature), expression
 
     def read(
         self,
@@ -317,17 +427,15 @@ class Lake:
         columns: Sequence[str] | None = None,
         optional_columns: Sequence[str] | None = None,
         where: ds.Expression | None = None,
+        partitions: Sequence[LakePartition] | None = None,
     ) -> pa.Table:
-        dataset = self.dataset(system, family_id, schema_signature)
+        """The rows of a family in the states and years asked. ``partitions``: the files already chosen and checked
+        (:meth:`check_files`); otherwise the catalog's list narrowed to ``uf`` and ``years``, every file of which must
+        be on disk (:class:`PartialLakeError`)."""
+        dataset, axes = self._source(system, family_id, schema_signature, uf, years, partitions)
         expression = where              # a caller's own predicate on the data columns, pushed into the scan
-        if uf is not None:
-            ufs = [uf] if isinstance(uf, str) else list(uf)
-            uf_filter = ds.field("uf").isin(ufs)
-            expression = uf_filter if expression is None else (expression & uf_filter)
-        if years is not None:
-            year_list = list(years)
-            year_filter = ds.field("year").isin(year_list)
-            expression = year_filter if expression is None else (expression & year_filter)
+        if axes is not None:
+            expression = axes if expression is None else (expression & axes)
         # `None` means EVERYTHING; `[]` means NOTHING. Testing truthiness
         # conflated them, so a generation where none of the requested fields
         # physically exists asked for an empty projection and got every column
@@ -388,22 +496,17 @@ class Lake:
         optional_columns: Sequence[str] | None = None,
         where: ds.Expression | None = None,
         batch_size: int = 131_072,
+        partitions: Sequence[LakePartition] | None = None,
     ) -> ds.Scanner:
         """:meth:`read` without materialising the table.
 
-        Same projection and same partition filters, handed to a Scanner instead
+        Same files, projection and predicate, handed to a Scanner instead
         of `to_table()`, so a caller can iterate batches under bounded memory.
         `where` is an extra predicate on the data columns, pushed into the scan
         rather than applied afterwards.
         """
-        dataset = self.dataset(system, family_id, schema_signature)
-        expression = None
-        if uf is not None:
-            ufs = [uf] if isinstance(uf, str) else list(uf)
-            expression = ds.field("uf").isin(ufs)
-        if years is not None:
-            year_filter = ds.field("year").isin(list(years))
-            expression = year_filter if expression is None else (expression & year_filter)
+        dataset, axes = self._source(system, family_id, schema_signature, uf, years, partitions)
+        expression = axes
         if where is not None:
             expression = where if expression is None else (expression & where)
         projection = self._projection(dataset, family_id, columns, optional_columns)
@@ -422,9 +525,3 @@ class Lake:
             dict(r)
             for r in self.catalog.query(f"SELECT * FROM lake_partitions{clause}", params)
         ]
-
-    def size_on_disk(self) -> int:
-        return sum(p.stat().st_size for p in self.root.rglob("*.parquet"))
-
-    def iter_parquet(self) -> Iterator[Path]:
-        yield from self.root.rglob("*.parquet")

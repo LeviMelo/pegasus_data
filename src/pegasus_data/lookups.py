@@ -9,6 +9,8 @@ is the one reset.
 
 from __future__ import annotations
 
+import os
+import re
 from collections.abc import Callable, Mapping
 from functools import lru_cache
 from pathlib import Path
@@ -40,29 +42,40 @@ def clear_lookup_caches() -> None:
     _REGISTRIES_BY_CONTENT.clear()
 
 
-# Cached for the life of the process, like the packed reads underneath: a
-# monthly dataset asks for the same map twelve times per fetch. Callers
-# treat the returned dict as read-only; mutating it would poison the cache.
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=4096)
+def _safe_name(codelist: str) -> str:
+    """The directory a codelist is written under (`persist.reference._SAFE`)."""
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", codelist)
+
+
+@lru_cache(maxsize=4096)
+def _is_registry(codelist: str) -> bool:
+    from .registry import is_registry
+
+    return is_registry(codelist)
+
+
 def _reference_version(lake_root: Path, codelist: str) -> tuple[int, ...]:
     """What a reference table's content depends on, as file times.
 
-    The lake's copy of the table and any registry cache of that name. Shipped
-    canonical tables change only with the package, so they need no stamp.
+    The lake's copy of the table and, for a registry, its cache files. Shipped canonical tables change only with the
+    package, so they need no stamp. NOT cached: every map below is keyed on this stamp, and a stamp frozen at first use
+    hid a reference rebuild by another process from a long-lived one (``serve/``) until restart, and kept a table
+    absent at first use "absent" after it was written. It is one ``stat`` (a registry adds one directory scan).
     """
-    import re as _re
-
-    from .config import load_settings
-
     stamps: list[int] = []
-    lake_copy = Path(lake_root) / "reference" / _re.sub(r"[^A-Za-z0-9_.-]", "_", codelist)
-    if lake_copy.exists():
-        stamps.append(lake_copy.stat().st_mtime_ns)
     try:
-        registries = Path(load_settings().root) / "registries"
-        stamps.extend(p.stat().st_mtime_ns for p in sorted(registries.glob(f"*/{codelist.upper()}.parquet")))
-    except OSError:  # pragma: no cover - an unreadable home is not a cache key
+        stamps.append(os.stat(os.path.join(lake_root, "reference", _safe_name(codelist))).st_mtime_ns)
+    except OSError:
         pass
+    if _is_registry(codelist):
+        from .config import load_settings
+
+        try:
+            registries = Path(load_settings().root) / "registries"
+            stamps.extend(p.stat().st_mtime_ns for p in sorted(registries.glob(f"*/{codelist.upper()}.parquet")))
+        except OSError:  # pragma: no cover - an unreadable home is not a cache key
+            pass
     return tuple(stamps)
 
 

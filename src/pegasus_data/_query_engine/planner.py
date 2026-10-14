@@ -9,7 +9,7 @@ from typing import Literal
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest
 from ..providers import provider
-from .coverage import _coverage
+from .coverage import _coverage, download_estimate, shared_catalog
 from .model import Adaptation, QueryPlan, RetrievalPlan, SemanticPlan, _spec
 
 #: What an establishment WAS at a record's competence, read from CNES.ST for
@@ -62,10 +62,11 @@ def plan(
     )
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, series = parse_dataset(dataset)
-    capabilities = _coverage(
-        resolved, system, series, years=spec.period.years if spec.period else (),
-        geography=spec.geography,
-    )
+    with shared_catalog(resolved) as catalog:
+        capabilities = _coverage(
+            resolved, catalog, system, series, years=spec.period.years if spec.period else (),
+            geography=spec.geography,
+        )
     resolution = capabilities.resolution
     has_uf_axis = capabilities.physical_uf
     strategy = capabilities.source_strategy
@@ -102,6 +103,18 @@ def plan(
         adaptations.append(Adaptation(
             "geography", "BR", ",".join(physical_uf),
             "DATASUS publishes this dataset per state only; the nation is read as every state",
+        ))
+    if capabilities.year_geography:
+        national = ", ".join(str(year) for year, _ in capabilities.year_geography)
+        adaptations.append(Adaptation(
+            "geography", "all states", "BR",
+            f"DATASUS publishes {national} both as a national file and as one file per state, the same records; "
+            "only the national file is read (the state files would count every record twice)",
+        ))
+    if capabilities.missing_lake_years:
+        adaptations.append(Adaptation(
+            "lake_partition", f"{', '.join(map(str, capabilities.missing_lake_years))} from the lake", "the source",
+            "the catalog lists lake partitions of these years that are not on disk, so they are read from the source",
         ))
     if spec.geography and spec.geography.municipality:
         raise ValueError(
@@ -151,18 +164,18 @@ def plan(
     requirements = tuple(
         provider(name).describe(resolved, resource_period) for name in required
     )
-    from .coverage import download_estimate
-
-    estimate = download_estimate(
-        resolved, system, series, capabilities.fetch_years, dict(year_months), physical_uf
-    )
+    with shared_catalog(resolved) as catalog:
+        estimate = download_estimate(
+            resolved, catalog, system, series, capabilities.fetch_years, dict(year_months), physical_uf,
+            dict(capabilities.year_geography),
+        )
     return QueryPlan(
         spec,
         RetrievalPlan(
             system, series, resolution, years, months, physical_uf, strategy,
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
-            tuple(year_months), estimate[0], estimate[1],
+            tuple(year_months), estimate[0], estimate[1], capabilities.year_geography,
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

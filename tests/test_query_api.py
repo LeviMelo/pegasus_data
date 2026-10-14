@@ -52,6 +52,10 @@ def _catalogue_publications(settings, publications, *, covered=()) -> None:
                 "relative_path, source_paths) VALUES (?,?,?,?,?,?)",
                 (family, signature, "AL", year, f"year={year}/part.parquet", json.dumps(paths)),
             )
+            # a listed partition is a file on disk: the planner no longer calls a year lake-complete without it
+            partition_file = settings.lake_dir / f"year={year}" / "part.parquet"
+            partition_file.parent.mkdir(parents=True, exist_ok=True)
+            partition_file.write_bytes(b"")
     finally:
         store.close()
 

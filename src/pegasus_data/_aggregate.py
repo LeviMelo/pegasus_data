@@ -9,8 +9,11 @@ of national SIH volume.
 So an aggregate is built once, offline, and served cheaply. Two surfaces:
 
 * :func:`build_aggregate` — maintainer, expensive, writes an artifact under the
-  lake. Its ONLY source of rows is :func:`pegasus_data.query`; there is no
-  second retrieval path in this module.
+  lake. Its rows come from :func:`pegasus_data.fetch`, chunk by chunk (a state-year at a time, to bound memory), NOT from
+  the lake or from :func:`pegasus_data.query`: a built lake is never used by an aggregate build, and the planner's
+  lake/fetch/hybrid choice is bypassed (hence `_physical_geography`, which asks the plan only which files a year is
+  published as). Routing it through `query()` with `select=` is the open alternative (review of the read path, 2026-10-14,
+  finding 30).
 * :func:`aggregate` — filter, roll up, finalize. Arithmetic on a few thousand
   rows, no microdata touched.
 
@@ -173,13 +176,28 @@ def _physical_geography(dataset: str, year: int, settings: Settings) -> tuple[st
     """The publications a national read of this dataset-year selects: ("BR",)
     for one national file, () for a dataset with no state axis, the states
     otherwise; None when the year cannot be planned (per-state chunks)."""
-    from ._query_engine.planner import plan
+    import sqlite3
+    import time
 
-    try:
-        retrieval = plan(dataset, period=str(year), geography="BR", settings=settings).retrieval
-    except Exception:  # noqa: BLE001 - an unplannable year keeps the per-state chunks
-        return None
-    return tuple(retrieval.physical_geography or ())
+    from ._query_engine.planner import plan
+    from ._request import DatasetUnknown
+
+    # A catalog that does not know the dataset yet (none at all, or no family of it: a fresh install, which `fetch`
+    # discovers on demand) keeps the per-state chunks. A locked catalog is retried once, then raised, and any other
+    # planning error is raised as it is: swallowing it turned a year held as one national file into 27 state probes
+    # that all failed the same way (`NothingPublished` per chunk is recorded; this is not that).
+    for attempt in (1, 2):
+        try:
+            retrieval = plan(dataset, period=str(year), geography="BR", settings=settings).retrieval
+        except (FileNotFoundError, DatasetUnknown):
+            return None
+        except sqlite3.OperationalError:
+            if attempt == 2:
+                raise
+            time.sleep(0.25)
+        else:
+            return retrieval.geography_for(year) or ()
+    return None
 
 
 #: Every UF, for chunking a national build. Ordered by IBGE code so a build's
@@ -321,6 +339,10 @@ class AggregateReport:
     #: A December admission is billed in January, so a series by admission date
     #: built from one publication year is missing its own edges.
     partial_periods: tuple[str, ...] = ()
+    #: The (year, state) chunks that had no publication, so no cells: a hole in the series that is a gap, not a zero.
+    missing_chunks: list[str] = field(default_factory=list)
+    #: Rows read that no cell holds: no municipality, or a period that is not a month of a plausible year.
+    unkeyed_rows: int = 0
     warnings: list[str] = field(default_factory=list)
     fingerprint: str = ""
 
@@ -331,6 +353,8 @@ class AggregateReport:
             "unmapped": self.unmapped, "contested": list(self.contested),
             "uf": list(self.uf),
             "partial_periods": list(self.partial_periods),
+            "missing_chunks": list(self.missing_chunks),
+            "unkeyed_rows": self.unkeyed_rows,
             "warnings": self.warnings, "fingerprint": self.fingerprint,
         }
 
@@ -440,6 +464,7 @@ def build_aggregate(
     that is arithmetic: lift each row into accumulator state, group by the key
     tuple, merge.
     """
+    import pyarrow.compute as pc
     import pyarrow.parquet as pq
 
     from ._availability import field_available
@@ -530,7 +555,7 @@ def build_aggregate(
     national_fallback = not report.uf
 
     for year, chunk_uf in chunks:
-        # `query()` is the only retrieval path. It plans lake-vs-fetch, unions
+        # `fetch()` is the retrieval path of a build (not `query()`: see the module docstring). It unions
         # schema generations with structural nulls and returns raw codes, which
         # is what `lift` needs.
         try:
@@ -544,8 +569,10 @@ def build_aggregate(
             # error: a dataset published one national file per year -- SINAN's
             # agravos -- answers every per-UF probe with nothing, and raising
             # here made the national fallback unreachable for exactly the
-            # datasets it was written for.
+            # datasets it was written for. It is RECORDED all the same: a state-year absent on the server
+            # leaves a hole in the series that is a gap, never a zero.
             if national_fallback:
+                report.missing_chunks.append(f"{year} {chunk_uf}")
                 continue
             raise
         report.rows_read += table.num_rows
@@ -602,6 +629,7 @@ def build_aggregate(
             )
             continue
         keyed, keep_mask = keyed_and_mask
+        report.unkeyed_rows += table.num_rows - int(pc.sum(keep_mask).as_py() or 0)
         _accumulate(cells, table.filter(keep_mask), keyed, spec)
         if year not in report.years:
             report.years = (*report.years, year)
@@ -611,6 +639,7 @@ def build_aggregate(
         # mean nothing was published at all. More likely the dataset is NOT
         # partitioned by state -- IBGE's population files are national, and so
         # is anything published one file a year. Ask for it whole.
+        report.missing_chunks = []          # the whole-year read below replaces the per-state probes
         report.warnings.append(
             "no state-partitioned files found; retrying as a single national "
             "fetch. This dataset appears not to be published per UF, so the "
@@ -638,6 +667,7 @@ def build_aggregate(
             if keyed_and_mask is None:
                 continue
             keyed, keep_mask = keyed_and_mask
+            report.unkeyed_rows += table.num_rows - int(pc.sum(keep_mask).as_py() or 0)
             _accumulate(cells, table.filter(keep_mask), keyed, spec)
             if year not in report.years:
                 report.years = (*report.years, year)
@@ -646,6 +676,24 @@ def build_aggregate(
     if not cells:
         raise AggregationRefused(
             f"{name}: no cells produced for years {sorted(wanted_years)}"
+        )
+    if report.unkeyed_rows:
+        report.warnings.append(
+            f"{report.unkeyed_rows:,} of {report.rows_read:,} rows read have no municipality or no valid period "
+            "(a month 01-12 of a year 1900-2200) and are in no cell"
+        )
+    # What the build did not produce is said, in the report and the manifest, never left as a shorter series.
+    no_cells = sorted(set(wanted_years) - set(report.years))
+    if no_cells:
+        report.warnings.append(f"no cells for year(s) {no_cells}: nothing was read or nothing usable in them")
+    if report.missing_chunks:
+        by_year: dict[str, int] = {}
+        for chunk in report.missing_chunks:
+            by_year[chunk.split()[0]] = by_year.get(chunk.split()[0], 0) + 1
+        report.warnings.append(
+            f"{len(report.missing_chunks)} (year, state) chunk(s) had no publication, so no cells: "
+            + ", ".join(f"{y}: {n}" for y, n in sorted(by_year.items()))
+            + " (named in missing_chunks); those states are NOT OBSERVED in those years, not zero"
         )
 
     key_names = (GEOGRAPHY_KEY, TIME_KEY, *spec.dimensions)
@@ -669,6 +717,8 @@ def build_aggregate(
         "uf": list(report.uf),
         "support": report.support,
         "partial_periods": list(report.partial_periods),
+        "missing_chunks": list(report.missing_chunks),
+        "unkeyed_rows": report.unkeyed_rows,
         "key_columns": list(key_names),
         "warnings": report.warnings,
     }, indent=2, ensure_ascii=False) + "\n"
@@ -858,6 +908,10 @@ def _date_layout(values: Sequence[Any]) -> str | None:
     return None
 
 
+#: AAAAMM: a year 1900-2200 and a month 01-12 (`normalize.time.competencia_to_year_month`'s own bounds).
+_PERIOD = r"^(19\d\d|20\d\d|21\d\d|2200)(0[1-9]|1[0-2])$"
+
+
 def _competencia_column(
     table: Any, time_fields: Sequence[str], encoding: str = ""
 ) -> Any | None:
@@ -897,7 +951,10 @@ def _competencia_column(
                 month = pc.utf8_slice_codeunits(joined, 2, 4)
                 joined = pc.binary_join_element_wise(year, month, "")
     sliced = pc.utf8_slice_codeunits(joined, 0, 6)
-    return pc.if_else(pc.equal(pc.utf8_length(sliced), 6), sliced, pa.nulls(len(sliced), pa.string()))
+    # a period is a month of a plausible year, as `normalize.time.competencia_to_year_month` judges it: the length alone
+    # let `00000000` and `20229999` become periods 000000 and 202299 (month 99), each a cell of its own
+    valid = pc.fill_null(pc.match_substring_regex(sliced, _PERIOD), False)
+    return pc.if_else(valid, sliced, pa.nulls(len(sliced), pa.string()))
 
 
 def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, Any], list[str]]:
@@ -1379,10 +1436,11 @@ def aggregate(
         else [c for m in chosen for c in m.state_columns()]
     )
     if reduced:
+        # a reduced-time measure (a bed stock) takes the same tail as every other: the data version, and the mass a
+        # partial classification left unmapped, which returned before either (a roll-up to `metropolitan_region`,
+        # 1,325 of 5,570 municipalities, gave a subset total with no warning)
         result = _reduce_over_time(working, chosen, group_by, emit_as, TIME_KEY)
-        report.cells = result.num_rows
-        return (result, report) if return_report else result
-    if key_names:
+    elif key_names:
         aggregated = working.group_by(list(group_by)).aggregate(
             [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
         suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}"

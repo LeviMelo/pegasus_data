@@ -31,8 +31,8 @@ from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake
-from .persist.lake import Lake
-from .persist.reference import available_tables, is_hierarchical, read_reference_table
+from .persist.lake import Lake, LakePartition
+from .persist.reference import is_hierarchical, read_reference_table
 from .persist.staging import staged_file
 from .profile.drift import field_availability
 from .semantics.dictionary import (
@@ -206,7 +206,9 @@ class Catalog:
                 "`pegasus-data crawl` to build one. Pass create=True to make an "
                 "empty catalog here on purpose."
             )
-        self.store = _Store(self.settings.catalog_path, read_only=exists)
+        # An existing catalog is read through the process's one read-only connection to it (`CatalogStore.shared`):
+        # warm pages, and the snapshot the memoised reads below are exact against. close() releases it.
+        self.store = _Store.shared(self.settings.catalog_path) if exists else _Store(self.settings.catalog_path)
         self._lake: Lake | None = None
 
     def close(self) -> None:
@@ -358,52 +360,6 @@ class Catalog:
         return duck
 
 
-def _by_vintage(table: pa.Table, years: Sequence[int] | None):
-    """Split a table into ``(chunk, year)`` so each is rendered at its own vintage.
-
-    The lake stores ``year`` as a partition column, so it is present on every
-    row and the split is exact. Without that column there is nothing to split
-    on and the whole table is rendered once, with the request's earliest year as
-    the hint — the old behaviour, kept only for that case.
-    """
-    import pyarrow.compute as pc
-
-    if "year" not in table.column_names:
-        return [(table, min(years) if years else None)]
-    distinct = pc.unique(table.column("year")).to_pylist()
-    usable = sorted(y for y in distinct if y not in (None, 0))
-    if len(usable) <= 1:
-        only = usable[0] if usable else (min(years) if years else None)
-        return [(table, only)]
-    out: list[tuple[pa.Table, int | None]] = []
-    for year in usable:
-        mask = pc.equal(table.column("year"), year)
-        chunk = table.filter(mask)
-        if chunk.num_rows:
-            out.append((chunk, int(year)))
-    # Rows whose year is null or 0 carry no vintage of their own.
-    rest = table.filter(pc.is_null(pc.if_else(pc.equal(table.column("year"), 0), None, table.column("year"))))
-    if rest.num_rows:
-        out.append((rest, min(years) if years else None))
-    return out
-
-
-def _merge_reports(into, addition):
-    """Fold one render report into another, keeping every field's information."""
-    if into is None:
-        return addition
-    for name in ("labelled", "unlabelled", "derived_added", "companions_dropped", "warnings"):
-        seen = set(getattr(into, name))
-        for item in getattr(addition, name, ()):
-            if item not in seen:
-                getattr(into, name).append(item)
-                seen.add(item)
-    into.constant.update(getattr(addition, "constant", {}) or {})
-    for key, value in (getattr(addition, "tokens_unmatched", {}) or {}).items():
-        into.tokens_unmatched[key] = into.tokens_unmatched.get(key, 0) + value
-    return into
-
-
 def _system_spellings(system: str) -> list[str]:
     """Every name the crawl might have filed this system under.
 
@@ -446,42 +402,47 @@ def _resolve_family(store: _Store, system: str, series: str | None, field_name: 
     `describe("SIHSUS", "RD")` worked, and `fetch("SIH-RD")` worked throughout.
     Every spelling the declaration knows is asked for instead.
     """
-    spellings = _system_spellings(system)
-    rows = store.query(
-        "SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "
-        f"FROM families WHERE system IN ({','.join('?' * len(spellings))}) "
-        "ORDER BY COALESCE(time_max, 0) DESC",
-        spellings,
-    )
-    families = [dict(r) for r in rows]
-    if series:
-        from ._request import _ontology
+    def resolve() -> list[dict[str, Any]]:
+        spellings = _system_spellings(system)
+        rows = store.query(
+            "SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "
+            f"FROM families WHERE system IN ({','.join('?' * len(spellings))}) "
+            "ORDER BY COALESCE(time_max, 0) DESC",
+            spellings,
+        )
+        families = [dict(r) for r in rows]
+        if series:
+            from ._request import _ontology
 
-        onto = _ontology()
-        target = onto.resolve(f"{system}.{series}") if onto else None
-        bound: list[dict[str, Any]] = []
-        if onto and target and target[0] == "dataset":
-            code = target[1].code
-            bound = [
+            onto = _ontology()
+            target = onto.resolve(f"{system}.{series}") if onto else None
+            bound: list[dict[str, Any]] = []
+            if onto and target and target[0] == "dataset":
+                code = target[1].code
+                bound = [
+                    f
+                    for f in families
+                    if onto.bind(str(f["system"]), str(f["series"])).dataset == code
+                ]
+            # Fall back to the plain match when the ontology cannot name it: a
+            # narrower answer beats an exception.
+            families = bound or [f for f in families if str(f["series"]) == series]
+        if field_name:
+            with_field = [
                 f
                 for f in families
-                if onto.bind(str(f["system"]), str(f["series"])).dataset == code
+                if store.count(
+                    "schema_presence", "schema_signature = ? AND field_name = ?",
+                    (f["schema_signature"], field_name),
+                )
             ]
-        # Fall back to the plain match when the ontology cannot name it: a
-        # narrower answer beats an exception.
-        families = bound or [f for f in families if str(f["series"]) == series]
-    if field_name:
-        with_field = [
-            f
-            for f in families
-            if store.count(
-                "schema_presence", "schema_signature = ? AND field_name = ?",
-                (f["schema_signature"], field_name),
-            )
-        ]
-        if with_field:
-            return with_field
-    return families
+            if with_field:
+                return with_field
+        return families
+
+    # remembered until the catalog changes: the same dataset is resolved by every read of it (0.1-0.2 s on
+    # SIA-PA's 736 spellings), and callers get their own copies
+    return [dict(f) for f in store.memo(("family", system, series, field_name), resolve)]
 
 
 def describe(
@@ -768,6 +729,61 @@ LAKE_COLUMNS: frozenset[str] = frozenset(
 )
 
 
+@dataclass(slots=True)
+class _Resolved:
+    """What :func:`_resolve_generations` decided: which generations answer a request, which files, what they carry."""
+
+    #: the generations in play: those with a listed lake partition in the states and years asked
+    families: list[dict[str, Any]]
+    #: schema signature -> the fields its census lists, for every generation of the dataset
+    presence: dict[str, frozenset[str]]
+    axis_notes: list[str]
+    #: family_id -> the partition files to read (the catalog's list, narrowed to the request)
+    partitions: dict[str, list[LakePartition]]
+    #: every generation of the dataset (or the one family asked for), in play or not
+    dataset_families: list[dict[str, Any]]
+
+
+def _schema_presence(store: _Store, families: Sequence[Mapping[str, Any]]) -> dict[str, frozenset[str]]:
+    """``signature -> fields`` of these generations' schema census, one query for all, remembered per catalog state.
+
+    ``schema_presence`` is the index of the census; where it holds nothing for a signature (30 of the real catalog's 321,
+    among them SIM's 2006 and SIH's 1994, 2002-2004 generations) the schema's own field list stands in, the record
+    `normalize` and `profile` read the fields from. A signature with neither is absent from the answer: uncensused.
+    """
+    signatures = tuple(sorted({str(f["schema_signature"]) for f in families}))
+    if not signatures:
+        return {}
+
+    def load_presence() -> dict[str, frozenset[str]]:
+        found: dict[str, set[str]] = {}
+        for start in range(0, len(signatures), 500):
+            chunk = signatures[start:start + 500]
+            marks = ",".join("?" for _ in chunk)
+            for row in store.query(
+                f"SELECT schema_signature AS sig, field_name AS fld FROM schema_presence "
+                f"WHERE schema_signature IN ({marks})", chunk,
+            ):
+                found.setdefault(str(row["sig"]), set()).add(str(row["fld"]))
+        unindexed = [sig for sig in signatures if sig not in found]
+        for start in range(0, len(unindexed), 500):
+            chunk = unindexed[start:start + 500]
+            marks = ",".join("?" for _ in chunk)
+            for row in store.query(
+                f"SELECT schema_signature AS sig, fields_json FROM schemas WHERE schema_signature IN ({marks})", chunk,
+            ):
+                try:
+                    names = json.loads(row["fields_json"] or "[]")
+                except json.JSONDecodeError:
+                    continue
+                fields = {str(f["name"] if isinstance(f, dict) else f) for f in names}
+                if fields:
+                    found[str(row["sig"])] = fields
+        return {sig: frozenset(fields) for sig, fields in found.items()}
+
+    return store.memo(("presence", signatures), load_presence)
+
+
 def _resolve_generations(
     store: _Store,
     system: str,
@@ -776,15 +792,14 @@ def _resolve_generations(
     family_id: str | None,
     uf: Sequence[str] | None,
     years: Sequence[int] | None,
-    columns: Sequence[str] | None,
-) -> tuple[list, dict[str, set[str]], list[str]]:
-    """Which schema generations answer this request, and what fields they carry.
+    lake: Lake,
+) -> _Resolved:
+    """Which schema generations answer this request, which files they are, and what fields they carry.
 
-    Dataset resolution, the file-axis refusal, partition pruning and the
-    schema-presence matrix — everything that decides WHICH generations are in
-    play, before any of them is opened. Kept apart from reading them because
-    the two failure modes differ: this one refuses a question, the other
-    reports what a generation could not give.
+    Dataset resolution, the file-axis refusal, the lake's own list of partitions and the schema-presence matrix —
+    everything that decides WHICH generations are in play, before any of them is opened. Kept apart from reading them
+    because the two failure modes differ: this one refuses a question, the other reports what a generation could not
+    give. ``load`` and ``scan`` both start here, so a dataset is resolved, refused and pruned one way.
     """
     families = _resolve_family(store, system, series, None)
     if not families:
@@ -806,6 +821,7 @@ def _resolve_generations(
                 f"{len(families)} exist, e.g. {known}"
             )
         families = narrowed
+    dataset_families = families
 
     # The same guard fetch() has. Without it, load(uf="AC") on a national
     # dataset filtered a Hive partition that does not exist and returned a
@@ -823,76 +839,110 @@ def _resolve_generations(
     if refusal:
         raise FilterHasNoAxis(refusal)
 
-    wanted: list[str] | None = list(columns) if columns else None
+    # The files come from the catalog's list of the lake (`lake_partitions`, written with each file), not from a walk
+    # of the directory: only the generations with a partition in the states and years asked are opened, and a file
+    # the catalog does not list is never read.
+    listed = lake.listed([str(f["family_id"]) for f in families]) or {}
+    partitions: dict[str, list[LakePartition]] = {}
+    for f in families:
+        # an empty list of states or years is no filter, as it is to the axis refusal above (`bool(uf)`)
+        parts = Lake.narrow(listed.get(str(f["family_id"]), ()), uf or None, years or None)
+        if parts:
+            partitions[str(f["family_id"])] = parts
+    if not uf:
+        # no state asked: a year held as the national file AND as its state files is the same records twice
+        from ._query_engine.coverage import national_or_states
 
-    # PRUNE before touching the filesystem. load() used to try every family
-    # the ontology resolves and let a FileNotFoundError say no — one dataset
-    # open per generation per call, which on a fragmented system is most of
-    # the call. lake_partitions already knows exactly which (family, uf,
-    # year) exist.
-    family_ids = [str(f["family_id"]) for f in families]
-    if family_ids:
-        marks = ",".join("?" for _ in family_ids)
-        held: dict[str, set[tuple[str, int]]] = {}
-        for row in store.query(
-            f"SELECT family_id AS fam, uf, year FROM lake_partitions "
-            f"WHERE family_id IN ({marks})",
-            tuple(family_ids),
-        ):
-            held.setdefault(str(row["fam"]), set()).add(
-                (str(row["uf"]), int(row["year"] or 0))
-            )
-        # Only prune on evidence. An empty lake_partitions means the catalog
-        # does not know what the lake holds, not that the lake is empty, and
-        # pruning on that would turn a stale catalog into "no data".
-        if held:
-            want_ufs = {str(u).upper() for u in (uf or [])}
-            want_years = {int(y) for y in (years or [])}
-
-            def _relevant(fid: str) -> bool:
-                parts = held.get(fid)
-                if parts is None:
-                    return True  # nothing recorded for it; let it try
-                return any(
-                    (not want_ufs or p_uf.upper() in want_ufs)
-                    and (not want_years or p_year in want_years)
-                    for p_uf, p_year in parts
-                )
-
-            narrowed = [f for f in families if _relevant(str(f["family_id"]))]
-            if narrowed:
-                families = narrowed
-
-    # ONE presence query for every remaining generation. This was a query
-    # per family, and on the failure path a count() per (family x missing
-    # column) inside a loop over families — N+1 nested in N+1, on the path
-    # that is already about to raise.
-    presence: dict[str, set[str]] = {}
-    if wanted:
-        signatures = sorted({str(f["schema_signature"]) for f in families})
-        if signatures:
-            marks = ",".join("?" for _ in signatures)
-            for row in store.query(
-                f"SELECT schema_signature AS sig, field_name AS fld "
-                f"FROM schema_presence WHERE schema_signature IN ({marks})",
-                tuple(signatures),
-            ):
-                presence.setdefault(str(row["sig"]), set()).add(str(row["fld"]))
-    return families, presence, axis_notes
+        by_year: dict[int, list[tuple[str, LakePartition]]] = {}
+        for fid, parts in partitions.items():
+            for part in parts:
+                by_year.setdefault(part.year, []).append((fid, part))
+        kept: set[tuple[str, str]] = set()
+        total = 0
+        for items in by_year.values():
+            chosen = national_or_states(items, lambda item: item[1].uf)
+            kept.update((fid, part.relative_path) for fid, part in chosen)
+            total += len(items)
+        if len(kept) < total:
+            partitions = {
+                fid: [p for p in parts if (fid, p.relative_path) in kept] for fid, parts in partitions.items()
+            }
+            partitions = {fid: parts for fid, parts in partitions.items() if parts}
+            axis_notes = [*axis_notes, (
+                f"{system}.{series or ''}: the lake holds {total - len(kept)} state partition(s) of years that also have "
+                "a national file; only the national file is read (the state files are the same records)"
+            )]
+    in_play = [f for f in families if str(f["family_id"]) in partitions]
+    return _Resolved(
+        in_play, _schema_presence(store, dataset_families), list(axis_notes), partitions, dataset_families,
+    )
 
 
-def _physical_columns(cat: Catalog, system: str, family_id: str) -> set[str]:
-    """What the written Parquet actually carries, when the catalog cannot say.
+def _require_known_columns(
+    store: _Store, system: str, series: str | None, dataset_families: Sequence[Mapping[str, Any]],
+    columns: Sequence[str], *, exempt: frozenset[str] = frozenset(),
+) -> None:
+    """Raise :class:`MissingColumnError` for a column NO generation of the dataset carries.
 
-    The last resort before making a claim: an empty answer here means the lake
-    holds nothing for this generation, which is a different fact from "the
-    field is absent" and is handled by the caller as a missing partition rather
-    than a missing column.
+    ``on_missing_column="null_fill"`` is for a field that exists in some generations and not others: the structural
+    absence is recorded and the rows are null. A column in none of them is a typo or a renamed field, and filling it
+    with nulls (the column is "structurally absent from every generation") is the empty result that looks legitimate.
+    ``exempt`` are names produced after reading (derived columns); the partition keys, the stored labels and the
+    companions of a known column are never refused. Silent when a generation has no schema census: absence of
+    evidence is not evidence of absence.
     """
-    try:
-        return set(cat.lake.dataset(system, family_id).schema.names)
-    except (FileNotFoundError, OSError):
-        return set()
+    presence = _schema_presence(store, dataset_families)
+    signatures = {str(f["schema_signature"]) for f in dataset_families}
+    if not signatures or any(not presence.get(sig) for sig in signatures):
+        return
+    known = frozenset().union(*(presence[sig] for sig in signatures)) | LAKE_COLUMNS
+    known_upper = {k.upper() for k in known}
+    skip = {c.upper() for c in (*LAKE_COLUMNS, *exempt)}
+
+    def produced_from_known(name: str) -> bool:
+        upper = name.upper()
+        return any(
+            upper.endswith(suffix.upper()) and upper[: -len(suffix)] in known_upper
+            for suffix in ("_label", *COMPANION_SUFFIXES)
+        )
+
+    unknown = [c for c in columns if c not in known and c.upper() not in skip and not produced_from_known(c)]
+    if unknown:
+        label = f"{system}.{series}" if series else system
+        near = sorted(k for k in known if k.upper() in {u.upper() for u in unknown})
+        raise MissingColumnError(
+            unknown[0], f"{label}, in any of its {len(dataset_families)} generations", near, also_absent=unknown[1:],
+        )
+
+
+def _keeps_companions(profile: str, companions: bool | Sequence[str] | None) -> bool:
+    """Will the render keep companion columns (``X_uf``, ``X_ibge7`` ...)? If not they are not worth reading."""
+    from .view import resolve_profile
+
+    if isinstance(companions, (list, tuple, set)):
+        return bool(companions)
+    return resolve_profile(profile, companions=companions).companions
+
+
+def _rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[str, ...]]:
+    """The row filter, checked: ``{column: code prefixes}``, each a non-empty column name with non-empty prefixes.
+
+    An empty list of prefixes selects no row, and the filter used to select every row instead (a topic with no codes
+    read a whole year of admissions as its cases); a second empty one crashed in Arrow.
+    """
+    out: dict[str, tuple[str, ...]] = {}
+    for column, prefixes in (rows or {}).items():
+        if not isinstance(column, str) or not column.strip():
+            raise ValueError(f"rows: {column!r} is not a column name")
+        if isinstance(prefixes, str):
+            prefixes = [prefixes]
+        codes = tuple(str(p) for p in prefixes)
+        if not codes:
+            raise ValueError(f"rows[{column!r}] is empty: a filter on no codes selects no record (give prefixes, or drop it)")
+        if any(not p.strip() for p in codes):
+            raise ValueError(f"rows[{column!r}] holds a blank prefix, which every value starts with")
+        out[column] = codes
+    return out
 
 
 def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
@@ -900,11 +950,11 @@ def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
     import pyarrow.compute as pc
 
     out = None
-    for column, prefixes in rows.items():
+    for column, prefixes in _rows_filters(rows).items():
         text = pc.field(column).cast(pa.string())
         hit = None
         for p in prefixes:
-            one = pc.starts_with(text, pattern=str(p))
+            one = pc.starts_with(text, pattern=p)
             hit = one if hit is None else (hit | one)
         out = hit if out is None else (out & hit)
     return out
@@ -912,15 +962,14 @@ def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
 
 def _read_generations(
     cat: Catalog,
-    families: Sequence[Mapping[str, Any]],
+    resolved: _Resolved,
     *,
     system: str,
-    uf: Sequence[str] | None,
-    years: Sequence[int] | None,
     wanted: list[str] | None,
-    presence: dict[str, set[str]],
     on_missing_column: str,
     rows: Mapping[str, Sequence[str]] | None = None,
+    companion_probes: bool = True,
+    leave_out: frozenset[str] = frozenset(),
 ) -> tuple[list, dict[str, list[str]]]:
     """Read each generation, applying the structural missing-column policy.
 
@@ -928,10 +977,20 @@ def _read_generations(
     and combined by the caller: two generations do not share a schema, and
     which of them may be null-filled together is a policy decision
     (``on_missing_column``), not something a reader should settle quietly.
+
+    Every file the catalog lists for the request must be on disk (`PartialLakeError`): a generation is never skipped
+    because its file went missing. ``leave_out``: stored columns not worth decoding when ``wanted`` is None (the
+    provenance the caller drops, labels the renderer ignores).
     """
+    lake = cat.lake
     structurally_absent: dict[str, list[str]] = {}
     tables: list[pa.Table] = []
-    for family in families:
+    filters = _rows_filters(rows)
+    where = _rows_expression(filters) if filters else None
+    for family in resolved.families:
+        fid = str(family["family_id"])
+        parts = resolved.partitions[fid]
+        lake.check_files(parts)
         projection = None
         if wanted:
             # Partition columns are columns of the LAKE, not fields of the
@@ -946,24 +1005,24 @@ def _read_generations(
             # the one substitution this package exists to refuse. The Parquet
             # files are the fallback evidence: they are the data, and they say
             # exactly which columns are in them.
-            present = presence.get(str(family["schema_signature"]), set())
+            present = resolved.presence.get(str(family["schema_signature"]), frozenset())
             if not present:
-                present = _physical_columns(cat, system, str(family["family_id"]))
+                present = frozenset(lake.columns_of(parts))
             present = present | LAKE_COLUMNS
             missing = [c for c in wanted if c not in present]
             if missing and on_missing_column == "null_fill":
                 # Keep the generation and read what it does have; concat
                 # null-fills the rest. Recorded, because those nulls are
                 # STRUCTURAL — the field does not exist here.
-                structurally_absent[str(family["family_id"])] = list(missing)
+                structurally_absent[fid] = list(missing)
                 projection = [c for c in wanted if c in present]
                 missing = []
             if missing:
                 elsewhere = [
                     str(f["family_id"])
-                    for f in families
+                    for f in resolved.dataset_families
                     if all(
-                        c in presence.get(str(f["schema_signature"]), set())
+                        c in resolved.presence.get(str(f["schema_signature"]), frozenset())
                         for c in missing
                     )
                 ]
@@ -982,9 +1041,15 @@ def _read_generations(
                 )
             if projection is None:
                 projection = list(wanted)
-        # Companion columns the build materialised are still worth reading;
-        # labels are no longer projected here, they are joined below.
-        optional = [f"{c}{suffix}" for c in (wanted or []) for suffix in COMPANION_SUFFIXES]
+        elif leave_out:
+            stored = lake.columns_of(parts)
+            projection = [
+                c for c in stored
+                if c not in leave_out and not (c.endswith("_label") and c.removesuffix("_label") in stored)
+            ]
+        # Companion columns the build materialised are still worth reading when the caller keeps companions; labels
+        # are no longer projected here, they are joined below.
+        optional = [f"{c}{suffix}" for c in (wanted or []) for suffix in COMPANION_SUFFIXES] if companion_probes else []
         # `year` is an internal SEMANTIC DEPENDENCY of rendering, not a column
         # the caller asked for. Rendering splits the answer so 1995 records are
         # translated with the 1995 codebook, and that split reads the `year`
@@ -999,27 +1064,24 @@ def _read_generations(
         # a row filter needs its columns in the generation. One without them cannot say which of its rows match: none
         # is returned, unread, and the absence is RECORDED, never an empty generation that looks like no records (a
         # residence filter on SIM-DOFET's 1995 files, whose residence is MUNIRES, had read as no foetal deaths)
-        if rows:
-            physical = _physical_columns(cat, system, str(family["family_id"]))
-            unfilterable = [c for c in rows if c not in physical]
+        if filters:
+            physical = set(lake.columns_of(parts))
+            unfilterable = [c for c in filters if c not in physical]
             if unfilterable:
-                structurally_absent.setdefault(str(family["family_id"]), []).extend(
-                    f"{c} (row filter)" for c in unfilterable)
+                structurally_absent.setdefault(fid, []).extend(f"{c} (row filter)" for c in unfilterable)
                 continue
-        try:
-            table = cat.lake.read(
-                system=system,
-                family_id=family["family_id"],
-                uf=uf,
-                years=years,
-                columns=projection,
-                optional_columns=optional,
-                where=_rows_expression(rows) if rows else None,
-            )
-        except FileNotFoundError:
-            continue
-        if table.num_rows:
-            tables.append((family["family_id"], table))
+        table = lake.read(
+            system=system,
+            family_id=fid,
+            columns=projection,
+            optional_columns=optional,
+            where=where,
+            partitions=parts,
+        )
+        # A generation read and filtered to nothing is a result (zero records of the codes asked), kept so the answer
+        # can be an empty table with its schema; without a filter an empty read has nothing to say.
+        if table.num_rows or where is not None:
+            tables.append((fid, table))
     return tables, structurally_absent
 
 
@@ -1046,10 +1108,13 @@ def load(
     report: bool = False,
     _preserve_internal: bool = False,
     rows: Mapping[str, Sequence[str]] | None = None,
+    _leave_out: frozenset[str] = frozenset(),
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
     """Read a family out of the lake, rendered for reading. ``rows`` (``{column: code prefixes}``) keeps only the rows
     whose columns start with one of their codes, pushed into the scan, before anything is rendered or derived: a code
-    set's records out of a year of admissions, not the year labelled and then filtered.
+    set's records out of a year of admissions, not the year labelled and then filtered. An empty list of codes is
+    refused (``ValueError``), a column no generation carries raises :class:`MissingColumnError`, and a filter that
+    matches no record returns an empty table with its schema (not ``NothingPublished``, which is "no lake data").
 
     Labels are produced **here**, at read time, by joining the version-scoped
     reference table for the years being read — not projected out of the Parquet.
@@ -1092,16 +1157,18 @@ def load(
     cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
-        families, presence, axis_notes = _resolve_generations(
+        resolved = _resolve_generations(
             store,
             system,
             series,
             family_id=family_id,
             uf=uf,
             years=years,
-            columns=columns,
+            lake=cat.lake,
         )
+        filters = _rows_filters(rows)
         wanted: list[str] | None = list(columns) if columns else None
+        derived_names: frozenset[str] = frozenset()
         if wanted and derived:
             # A curated derived column (IDADE_anos from IDADE and COD_IDADE) is
             # computed at render from its inputs, so a projection naming only the
@@ -1113,21 +1180,47 @@ def load(
             from .semantics.curation import load_variable_docs
 
             upper = {str(c).upper() for c in wanted}
-            for name, sources in _derived_inputs(load_variable_docs(store, system)).items():
+            inputs_of = _derived_inputs(load_variable_docs(store, system))
+            derived_names = frozenset(inputs_of)
+            for name, sources in inputs_of.items():
                 if name in upper:
                     wanted += [s for s in sources if s not in upper and s not in wanted]
+        # A column NO generation carries is a typo or a renamed field, never a structural absence to fill with nulls;
+        # likewise a row filter on one. (A column some generations lack stays the recorded, null-filled case.)
+        if columns and on_missing_column == "null_fill":
+            _require_known_columns(store, system, series, resolved.dataset_families, list(columns), exempt=derived_names)
+        if filters:
+            _require_known_columns(store, system, series, resolved.dataset_families, list(filters))
+        if not resolved.families:
+            from .retrieve import NothingPublished
+
+            raise NothingPublished(
+                f"no lake data for system={system!r} series={series!r}"
+                + (f", uf={list(uf)}" if uf else "") + (f", years={list(years)}" if years else "")
+                + "; the catalog lists no lake partition for it. Run `pegasus-data build` first"
+            )
         tables, structurally_absent = _read_generations(
             cat,
-            families,
+            resolved,
             system=system,
-            uf=uf,
-            years=years,
             wanted=wanted,
-            presence=presence,
             on_missing_column=on_missing_column,
-            rows=rows,
+            rows=filters,
+            companion_probes=_keeps_companions(profile, companions),
+            leave_out=_leave_out,
         )
         if not tables:
+            # Every generation in play lacks a column the filter is on: the rows asked for cannot be told from the
+            # others, and an empty answer would read as "none of those codes" (recorded in structural_absence).
+            names = sorted({c.removesuffix(" (row filter)") for cols in structurally_absent.values() for c in cols})
+            if filters and names:
+                carriers = [
+                    str(f["family_id"]) for f in resolved.dataset_families
+                    if all(c in resolved.presence.get(str(f["schema_signature"]), frozenset()) for c in names)
+                ]
+                raise MissingColumnError(
+                    names[0], ", ".join(sorted(structurally_absent)), carriers, also_absent=names[1:],
+                )
             # The same class fetch() raises for the same situation. load() used
             # to raise a bare FileNotFoundError here and KeyError above, so
             # robust downstream handling depended on which retrieval path the
@@ -1185,7 +1278,7 @@ def load(
             rendered = rendered.drop_columns(["_competencia"])
         if not _preserve_internal and "_source_resolution" in rendered.column_names:
             rendered = rendered.drop_columns(["_source_resolution"])
-        for note in axis_notes:
+        for note in resolved.axis_notes:
             render_report.warnings.append(note)
         if structurally_absent and render_report is not None:
             render_report.structural_absence = dict(sorted(structurally_absent.items()))
@@ -1313,22 +1406,6 @@ def load_reference(
             cat.close()
 
 
-def reference_tables(
-    root: str | Path | None = None, *, settings: Settings | None = None
-) -> list[dict[str, Any]]:
-    """Which reference tables the lake holds, and in which validity windows.
-
-    ``settings=`` for the same reason every neighbouring reader takes it: a
-    caller holding a configured Settings should not have to reconstruct one
-    from a path to ask this question.
-    """
-    cat = Catalog(root, settings=settings)
-    try:
-        return available_tables(cat.settings.lake_dir)
-    finally:
-        cat.close()
-
-
 @dataclass
 class LakeScan:
     """A lazy, bounded-memory read of one dataset. The missing middle primitive.
@@ -1445,60 +1522,31 @@ def scan(
     cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
-        families = _resolve_family(store, system, series, None)
-        if not families:
-            from .retrieve import DatasetUnknown
-
-            raise DatasetUnknown(
-                f"no family found for system={system!r} series={series!r}"
-            )
-        if family_id:
-            families = [f for f in families if f["family_id"] == family_id]
         if isinstance(years, int):
             years = [years]
         if isinstance(uf, str):
             uf = [uf]
 
-        # The same refusal load() and fetch() apply. A filter on an axis this
-        # dataset does not have is a false answer, not a narrow one.
-        from .retrieve import FilterHasNoAxis, axis_refusal
-
-        refusal, axis_notes = axis_refusal(
-            store,
-            system,
-            series or (families[0]["series"] if families else None),
-            uf=bool(uf),
-            years=bool(years),
-            months=False,
+        # The same resolution, axis refusal and pruning `load()` applies (`_resolve_generations`): a filter on an axis
+        # this dataset does not have is a false answer, not a narrow one.
+        resolved = _resolve_generations(
+            store, system, series, family_id=family_id, uf=uf, years=years, lake=cat.lake,
         )
-        if refusal:
-            raise FilterHasNoAxis(refusal)
-
-        warnings_out: list[str] = list(axis_notes)
+        warnings_out: list[str] = list(resolved.axis_notes)
         absent_by_family: dict[str, list[str]] = {}
         scanners: list[tuple[str, ds.Scanner]] = []
         requested = list(dict.fromkeys(str(c) for c in columns)) if columns else None
         requested_fields: dict[str, pa.Field] = {}
         declared_requested: set[str] = set()
         if requested:
-            signatures = [str(f["schema_signature"]) for f in families]
-            marks = ",".join("?" for _ in signatures)
-            if marks:
-                declared_requested = {
-                    str(row["field_name"])
-                    for row in store.query(
-                        f"SELECT DISTINCT field_name FROM schema_presence "
-                        f"WHERE schema_signature IN ({marks})",
-                        tuple(signatures),
-                    )
-                    if str(row["field_name"]) in requested
-                }
-        for family in families:
+            # a field some generation of the dataset declares exists, even where this lake holds no partition of it
+            declared_requested = {name for name in requested
+                                  if any(name in fields for fields in resolved.presence.values())}
+        for family in resolved.families:
             family_name = str(family["family_id"])
-            try:
-                physical = cat.lake.dataset(system, family_name)
-            except FileNotFoundError:
-                continue
+            parts = resolved.partitions[family_name]
+            cat.lake.check_files(parts)
+            physical = cat.lake.dataset_of(parts)
 
             available = {field_.name: field_ for field_ in physical.schema}
             projection = requested
@@ -1525,15 +1573,13 @@ def scan(
                     requested_fields.setdefault(name, field_)
                 if missing:
                     if on_missing_column != "null_fill":
-                        from .normalize.engine import MissingColumnError
-
                         raise MissingColumnError(
                             missing[0],
                             family_name,
                             [
                                 str(f["family_id"])
-                                for f in families
-                                if f is not family
+                                for f in resolved.dataset_families
+                                if str(f["family_id"]) != family_name
                             ],
                             also_absent=missing[1:],
                         )
@@ -1544,18 +1590,14 @@ def scan(
                     # requested batches.
                     projection = [name for name in requested if name in available]
 
-            try:
-                scanner = cat.lake.scanner(
-                    system=system,
-                    family_id=family_name,
-                    uf=uf,
-                    years=list(years) if years else None,
-                    columns=projection,
-                    where=where,
-                    batch_size=batch_size,
-                )
-            except FileNotFoundError:
-                continue
+            scanner = cat.lake.scanner(
+                system=system,
+                family_id=family_name,
+                columns=projection,
+                where=where,
+                batch_size=batch_size,
+                partitions=parts,
+            )
             scanners.append((family_name, scanner))
         if not scanners:
             from .retrieve import NothingPublished
@@ -1577,8 +1619,6 @@ def scan(
                     requested_fields[name] = pa.field(name, pa.null())
                     missing_everywhere.remove(name)
             if missing_everywhere:
-                from .normalize.engine import MissingColumnError
-
                 raise MissingColumnError(
                     missing_everywhere[0],
                     "; ".join(fam for fam, _scanner in scanners),

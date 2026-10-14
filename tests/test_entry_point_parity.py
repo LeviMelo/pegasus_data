@@ -216,7 +216,7 @@ class TestTheReadersAgreeOnFilters:
 
     def test_every_reader_takes_settings(self):
         for fn in (load, scan, export, api.describe, api.load_reference,
-                   api.reference_tables, api.load_population):
+                   api.load_population):
             assert "settings" in inspect.signature(fn).parameters, fn.__name__
 
     def test_every_reader_takes_root(self):

@@ -109,6 +109,13 @@ class RetrievalPlan:
     #: are already in the local cache (ADR-0076). None when not estimable.
     download_bytes: int | None = None
     cached_bytes: int | None = None
+    #: With no state asked: the years that are published as a national file AND as state files, with the one reading of
+    #: each (``("BR",)``: the national file, the state files being the same records). Other years read every file.
+    year_geography: tuple[tuple[int, tuple[str, ...]], ...] = ()
+
+    def geography_for(self, year: int | None) -> tuple[str, ...]:
+        """The states' files (``BR``: the national one) a year is read from; empty: every file of the year."""
+        return dict(self.year_geography).get(year, self.physical_geography) if year is not None else self.physical_geography
 
 
 @dataclass(frozen=True, slots=True)

@@ -14,6 +14,7 @@ import pyarrow as pa
 
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
+from .coverage import shared_catalog
 from .filters import _filter_source_period, _with_competence, _with_source_resolution
 from .model import (
     CrosswalkAmbiguityWarning,
@@ -99,8 +100,10 @@ def query(
     chosen), as `load` and `fetch` take it. ``rows`` (``{column: code prefixes}``) keeps only the records whose columns
     start with one of their codes: an explicit filter the caller names (period and geography never filter records),
     pushed into the lake's scan before anything is rendered, and applied to a fetched year as it arrives."""
+    from ..api import _rows_filters
     from ..presentation import resolve as resolve_presentation
 
+    rows = _rows_filters(rows) or None          # a filter that selects no record is refused, not read as "every record"
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
     # How the result is shown (ADR-0084): the engine always builds the
     # canonical form (codes + labels), and the presentation is applied last.
@@ -173,10 +176,9 @@ def query(
         crosswalk_path = ResourceManager(resolved).ensure("cnes_cnpj").path
     report = QueryReport(
         requested_period=str(query_plan.spec.period) if query_plan.spec.period else None,
-        effective_period=(
-            retrieval.adaptations[-1].effective if retrieval.adaptations else (
-                str(query_plan.spec.period) if query_plan.spec.period else None
-            )
+        effective_period=next(
+            (item.effective for item in reversed(retrieval.adaptations) if item.kind == "time_resolution"),
+            str(query_plan.spec.period) if query_plan.spec.period else None,
         ),
         source_strategy=retrieval.source_strategy,
         publication_resolution=retrieval.publication_resolution,
@@ -199,6 +201,20 @@ def query(
         set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
     ) - SYNTHESISED_COLUMNS
     requested_columns = sorted(columns) if query_plan.spec.select is not None else None
+    if requested_columns or rows:
+        # a column NO generation of the dataset carries is a typo or a renamed field: refused here, for the lake and
+        # the fetch path alike, instead of coming back as an all-null column with a warning
+        from ..api import _require_known_columns, _resolve_family
+        from ..retrieve import _derived_inputs
+        from ..semantics.curation import load_variable_docs
+
+        with shared_catalog(resolved) as known_store:
+            dataset_families = _resolve_family(known_store, retrieval.system, retrieval.series, None)
+            derived_names = frozenset(_derived_inputs(load_variable_docs(known_store, retrieval.system)))
+            _require_known_columns(
+                known_store, retrieval.system, retrieval.series, dataset_families,
+                [*(requested_columns or []), *(rows or {})], exempt=derived_names,
+            )
     # Derived columns travel with labels; under the codes presentation only the
     # ones the caller selected are built, as codes (view._apply_derived).
     derived: bool | list[str] = labels or list(query_plan.spec.select or [])
@@ -220,17 +236,31 @@ def query(
             from ..normalize.engine import PROVENANCE_COLUMNS
 
             lake_columns = sorted(set(lake_columns) | set(PROVENANCE_COLUMNS))
+        # a full-width read decodes what the answer then drops: the record key (32 hex characters a row), the blob
+        # digest, the stored labels the renderer ignores
+        leave_out: frozenset[str] = frozenset()
+        if lake_columns is None and query_plan.spec.provenance != "all":
+            from ..normalize.engine import PROVENANCE_COLUMNS
+
+            leave_out = frozenset(c for c in PROVENANCE_COLUMNS if c != "_source_path")
+        # the years of one reading (a national file beside its state files is one) load together
+        by_geography: dict[tuple[str, ...], list[int]] = {}
+        for lake_year in retrieval.lake_years:
+            by_geography.setdefault(retrieval.geography_for(lake_year), []).append(lake_year)
+        if not by_geography:
+            by_geography[retrieval.physical_geography] = []
         try:
-            local_table, local_report = load(
-                retrieval.system, retrieval.series,
-                uf=list(retrieval.physical_geography) or None,
-                years=retrieval.lake_years or None, columns=lake_columns,
-                labels=labels, profile="audit" if labels else "codes", render=render,
-                companions=False, derived=derived, on_missing_column="null_fill",
-                report=True, catalog=cat, _preserve_internal=True, rows=rows,
-            )
-            tables.append(_with_competence(local_table, local_report))
-            source_reports.append(local_report)
+            for geography_ufs, geography_years in by_geography.items():
+                local_table, local_report = load(
+                    retrieval.system, retrieval.series,
+                    uf=list(geography_ufs) or None,
+                    years=geography_years or None, columns=lake_columns,
+                    labels=labels, profile="audit" if labels else "codes", render=render,
+                    companions=False, derived=derived, on_missing_column="null_fill",
+                    report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
+                )
+                tables.append(_with_competence(local_table, local_report))
+                source_reports.append(local_report)
         finally:
             cat.close()
     fetch_years: tuple[int, ...] | tuple[None, ...] = retrieval.fetch_years
@@ -246,10 +276,11 @@ def query(
             fetch_months = months_by_year.get(fetch_year) or None  # type: ignore[arg-type]
             fetched_table, fetched_report = fetch(
                 dataset,
-                uf=list(retrieval.physical_geography) or None,
+                uf=list(retrieval.geography_for(fetch_year)) or None,
                 years=[fetch_year] if fetch_year is not None else None,
                 months=fetch_months,
-                columns=requested_columns,
+                # the filter's columns are read too: it runs on the decoded year, and `select=` drops them after
+                columns=sorted({*requested_columns, *(rows or {})}) if requested_columns is not None else None,
                 labels=labels,
                 profile="audit" if labels else "codes",
                 render=render,
@@ -368,14 +399,10 @@ def query(
 
 def _presented(table: pa.Table, presentation: Any, query_plan: Any, settings: Settings) -> pa.Table:
     """Apply the presentation with the curated names of this dataset's system."""
-    from ..catalog.store import CatalogStore
     from ..presentation import documented_names, present
 
-    store = CatalogStore(settings.catalog_path, read_only=True)
-    try:
+    with shared_catalog(settings) as store:
         names = documented_names(store, query_plan.retrieval.system)
-    finally:
-        store.close()
     metadata = table.schema.metadata
     shown = present(table, presentation, names=names)
     return shown.replace_schema_metadata(metadata) if metadata else shown

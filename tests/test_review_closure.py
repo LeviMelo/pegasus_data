@@ -43,8 +43,8 @@ class TestCR02_RenderingIsScopedPerVintage:
     def test_load_renders_each_family_and_year_separately(self):
         from pegasus_data import api
 
-        source = inspect.getsource(api)
-        assert "_by_vintage" in source and "_merge_reports" in source, (
+        source = inspect.getsource(api.load)
+        assert "split_by_year_column" in source and "render_groups" in source, (
             "one render over concatenated generations applies one vintage's "
             "codelists to every year in the answer"
         )
@@ -110,9 +110,9 @@ class TestCR05_OneDatasetResolver:
         from pegasus_data import api
 
         assert "_resolve_family" in inspect.getsource(api._resolve_generations)
-        assert "_resolve_generations" in inspect.getsource(api.load)
-        for fn in (api.scan, api.describe):
-            assert "_resolve_family" in inspect.getsource(fn), fn.__name__
+        for fn in (api.load, api.scan):
+            assert "_resolve_generations" in inspect.getsource(fn), fn.__name__
+        assert "_resolve_family" in inspect.getsource(api.describe)
 
 
 class TestCR06_PartitionReplacementIsNotDestructiveFirst:

@@ -14,10 +14,16 @@ import pyarrow.parquet as pq
 import pytest
 
 from pegasus_data.acquire.fetcher import Fetcher, FetchResult
-from pegasus_data.api import _by_vintage, _merge_reports
 from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.lake import Lake
+from pegasus_data.render_groups import merge_reports as _merge_reports
+from pegasus_data.render_groups import split_by_year_column
 from pegasus_data.view import RenderReport
+
+
+def _by_vintage(table, years):
+    """The (rows, year) groups `load` renders: the one splitter every reader shares (`render_groups`)."""
+    return [(chunk, year) for chunk, _family, year, _competencia in split_by_year_column(table, years)]
 
 
 class TestP0_1_AFailedRefreshMustNotServeTheStaleBlob:

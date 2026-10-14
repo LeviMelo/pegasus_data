@@ -161,16 +161,13 @@ class TestTheBugItself:
     def test_appending_by_part_number_duplicates_every_row(self, lake: Lake):
         """This is exactly what the build used to do, and what it produced.
 
-        `next_part_number` counted the files already in the directory, so a
+        The part number counted the files already in the directory (the helper that did is gone), so a
         rebuild started numbering after its own stale output instead of over it.
         Both parts stayed on disk, both stayed registered, and the dataset read
         the union — a doubled lake reporting a successful build.
         """
-        part = lake.next_part_number(**self.ARGS)
-        lake.write_batches([_batch(10, "old")], source_paths=["/a"], part=part, replace=False, **self.ARGS)
-        part = lake.next_part_number(**self.ARGS)
-        assert part == 1, "the second write numbered itself after the first"
-        lake.write_batches([_batch(10, "new")], source_paths=["/a"], part=part, replace=False, **self.ARGS)
+        lake.write_batches([_batch(10, "old")], source_paths=["/a"], part=0, replace=False, **self.ARGS)
+        lake.write_batches([_batch(10, "new")], source_paths=["/a"], part=1, replace=False, **self.ARGS)
 
         doubled = lake.dataset("SIHSUS", "fam1").to_table()
         assert doubled.num_rows == 20, "the bug: 10 rows rebuilt into 20"

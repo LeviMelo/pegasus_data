@@ -7,6 +7,9 @@ prefixes) matches, whole, write them, and release the file's blob unless a snaps
 filters are one pass (SIA-PA's serology procedures and its records coded B58 on PA_CIDPRI). Peak disk is one file; the
 extract is each filter's complete records, never a sample.
 
+An extract reads the published files through ``fetch`` (``_only_paths``), one at a time, never the lake or ``query()``: its
+point is a dataset the lake cannot hold, and the planner's lake/fetch choice has nothing to choose.
+
 An extract lives apart from the lake (``<lake>/extracts/<dataset>/<digest>/``): a query for other codes must never read
 a filtered table as if it were the dataset. Its manifest names the filters, every file read with the rows read and
 kept, and the files that failed, so a short extract is visibly short.
@@ -167,6 +170,9 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
     target.mkdir(parents=True, exist_ok=True)
     mpath = target / "manifest.json"
     manifest = _read_manifest(mpath) or {"dataset": dataset, "filters": filt, "files": {}, "failed": {}}
+    # a failure is the file's state until it is read: one a later run read (or an older run listed beside its success)
+    # no longer counts against its year, or `extract_table` would refuse that year for ever
+    manifest["failed"] = {p: why for p, why in (manifest.get("failed") or {}).items() if p not in manifest["files"]}
     files = _files(settings, dataset, years, ufs)
     todo = [f for f in files if f["path"] not in manifest["files"]]
     log(f"extract {dataset} {filt}: {len(files)} files in {sorted(set(map(int, years)))}, {len(todo)} to read")
@@ -212,6 +218,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
         manifest["files"][f["path"]] = {"year": int(f["year"]), "uf": f["geo_code"], "period": f["normalized_date"],
                                         "rows": rows, "kept": kept.num_rows,
                                         "downloaded": int(getattr(report, "bytes_downloaded", 0) or 0)}
+        manifest["failed"].pop(f["path"], None)
         _release(settings, [f["path"]])
         if (i + 1) % 25 == 0 or i + 1 == len(todo):
             _write_manifest(mpath, manifest)
@@ -247,7 +254,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         unread = [p for p in listed if p not in m["files"]]
         # a failure counts against its own year only: one stray file of DATASUS's "teste" folder (2024) had made
         # every year of SIA-PA's extract unheld (2026-10-12)
-        failed = [p for p in m["failed"] if p in listed]
+        failed = [p for p in m["failed"] if p in listed and p not in m["files"]]
         if unread or failed:
             raise LookupError(f"{dataset} {column} {asked}: the extract does not hold {want} whole "
                               f"({len(unread)} files unread, {len(failed)} failed)")

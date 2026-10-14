@@ -97,7 +97,9 @@ system's directory when the catalog has never seen that system
      `municipality_fields` (ADR-0130). Labels are the renderer's, unfiltered (ADR-0061).
 
 `load()` and `scan()` (`api.py`) read the lake instead and render through the
-same `render_groups`.
+same `render_groups`. Both resolve the dataset, refuse an impossible axis and choose their files in one place
+(`_resolve_generations`), from the catalog's list of the lake (`lake_partitions`, ADR-0164), through the process's one
+read-only catalog connection whose reads are remembered until the catalog changes (ADR-0163).
 
 ### 2.3 The semantic build (maintainer)
 
@@ -407,7 +409,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_query_engine/executor.py`: `query()`.
 - `_query_engine/filters.py`: publication-period filters.
 - `_query_engine/semantics.py`: dimensions, enrichments, the `label_of` gate.
-- `_query_engine/coverage.py`: which datasets `query` can serve.
+- `_query_engine/coverage.py`: which datasets `query` can serve, and which years the lake holds whole (files looked at on disk); `national_or_states`: a year published nationally and per state is read once.
 
 ### `acquire/`
 
@@ -418,7 +420,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 ### `catalog/`
 
-- `catalog/store.py`: the SQLite catalog: migrations, upserts, history.
+- `catalog/store.py`: the SQLite catalog: migrations, upserts, history; `shared()` / `memo()`: the read-only connection kept per process and the reads remembered until `data_version` moves (ADR-0163).
 - `catalog/seed.py`: exports the seed from a maintainer catalog and installs it into a fresh one.
 
 ### `decode/`
@@ -458,7 +460,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 ### `persist/`
 
-- `persist/lake.py`: writes the lake.
+- `persist/lake.py`: writes the lake and reads it from the catalog's list of partitions (`Lake.listed`, `dataset_of`; a listed file missing is `PartialLakeError`, ADR-0164).
 - `persist/duck.py`: DuckDB views over it.
 - `persist/reference.py`: version-scoped code tables, with the label pack as fallback.
 - `persist/staging.py`: atomic publish.

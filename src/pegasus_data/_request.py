@@ -8,7 +8,6 @@ years. ``retrieve.fetch`` calls these first.
 
 from __future__ import annotations
 
-import functools
 import re
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, cast
@@ -178,10 +177,7 @@ def axis_refusal(
     if not found or found[0] != "dataset":
         return None, []
     code = found[1].code
-    try:
-        axes = onto.axes_for(catalog.conn, code)
-    except Exception:  # pragma: no cover - a locked or partial catalog
-        return None, []
+    axes = _dataset_axes(catalog, onto, code)
     if axes is None or not axes.files:
         return None, []
 
@@ -206,6 +202,31 @@ def axis_refusal(
                 f"consolidated files)."
             )
     return None, notes
+
+
+def _dataset_axes(catalog: CatalogStore, onto: Ontology, code: str) -> Any:
+    """How ``code``'s files are split on the server, measured over the catalog's ``file_facts`` (the dataset's axes),
+    remembered until the catalog changes.
+
+    The measurement is a scan of the dataset's file facts (129 ms for SIH-RD, 245 ms for SIM-DO) that depends on
+    nothing else, and every query asked for it. A locked catalog is retried once and then raised: the guard that
+    stops ``load(uf="AC")`` on a national dataset returning a false empty must not switch itself off on a busy
+    database (it did, silently, for the rest of the session).
+    """
+    import sqlite3
+    import time
+
+    def measure() -> Any:
+        pairs = catalog.memo(("bound_pairs", onto), lambda: onto._bound_pairs(catalog.conn))
+        for attempt in (1, 2):
+            try:
+                return onto.axes_for(catalog.conn, code, pairs=pairs)
+            except sqlite3.OperationalError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.25)
+
+    return catalog.memo(("axes", onto, code), measure)
 
 
 def _reject_unresolvable(system: str, series: str | None) -> None:
@@ -407,15 +428,21 @@ def _as_list(value: str | Sequence[str] | None) -> list[str]:
     return [str(v).upper() for v in value]
 
 
-@functools.lru_cache(maxsize=1)
+_ONTOLOGY: Ontology | None = None
+
+
 def _ontology() -> Ontology | None:
     """The declared ontology, or ``None`` if it cannot be read.
 
-    Cached because ``fetch`` resolves per call and the declaration is a static
-    file; ``None`` rather than raising, so a malformed curation file degrades
-    resolution instead of breaking every fetch.
+    Cached once it has loaded, because ``fetch`` resolves per call and the declaration is a static file; ``None``
+    rather than raising, so a malformed curation file degrades resolution instead of breaking every fetch. A failed
+    load is NOT cached: a file caught mid-edit, or a transient read error, must not disable resolution (and with it the
+    axis guard) for the rest of the process.
     """
-    try:
-        return Ontology.load()
-    except Exception:  # pragma: no cover - a broken declaration must not block fetching
-        return None
+    global _ONTOLOGY
+    if _ONTOLOGY is None:
+        try:
+            _ONTOLOGY = Ontology.load()
+        except Exception:  # pragma: no cover - a broken declaration must not block fetching
+            return None
+    return _ONTOLOGY
