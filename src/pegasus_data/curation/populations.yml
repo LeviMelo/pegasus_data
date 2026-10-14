@@ -1,0 +1,71 @@
+# What each denominator series IS, as the sources that produce it say (2026-10-14). `load_population` returns this with the
+# table (schema metadata `pegasus.series`) and `Catalog.population_series()` lists it, so a methods paragraph can quote it
+# with its citation. Read by `sources.ibge.series_documentation`; a series with no entry here is undocumented, and says so.
+#
+# Each statement names the document that states it; a figure is measured and says on what.
+
+populations:
+
+  POPSVS:
+    title: "População residente - Estudo de Estimativas Populacionais por Município, Idade e Sexo, 2000-2025 (TabNet popsvs2024br)"
+    producer: >-
+      Ministério da Saúde, Secretaria de Vigilância em Saúde e Ambiente (SVSA), Coordenação-Geral de Informações e
+      Análises Epidemiológicas (CGIAE), Coordenação de Estatísticas Vitais e Morbidades (Coesv). The method is the one
+      defined by the Comitê Temático Interdisciplinar das Estimativas Municipais of the Rede Interagencial de
+      Informações para a Saúde (RIPSA); IBGE took part by supplying the maps and the changes of municipal boundaries.
+      It is IBGE's population as the Ministry of Health distributes it by municipality, sex and age, not an IBGE product.
+    vintage: >-
+      After the 2022 Census. It rests on IBGE's Projeções da População, Revisão 2024 (the states' population by sex and
+      age, 2000-2070) and on IBGE's municipal estimates of 1 July 2024 (published in the Diário Oficial da União). Earlier
+      editions of the Ministry's series were built on the 2013 edition of IBGE's projections (2000-2015) and the 2018
+      edition (2000-2021); the 2024 edition, released in January 2025 (the FTP files POPSBR00-POPSBR24 are listed with
+      that date), was adopted as the Ministry's standard.
+    reference_date: 1 July of each year ("População residente estimada em 1º de julho do ano de referência").
+    years: >-
+      Files for 2000 to 2025. The Ministry's note covers 2000-2024 and calls the municipal figures estimates. In IBGE's own
+      terms, the source of the state totals, 2000-2022 is the estimates period and 2023-2070 the projections period, so
+      2023 and 2024 are projected state totals, with 2024 forced to IBGE's municipal total for 1 July 2024. The 2025 file
+      (POPSBR25, listed 2025-10-29) is later than the note, which does not describe it; no document describing it was
+      found, and it is a projection year of the same IBGE revision.
+    method:
+      - Territorial compatibility: the 2022 municipal mesh applied to 2000-2024, with IBGE's information on boundary changes.
+      - >-
+        The municipalities' sex-by-age populations enumerated by the 2000, 2010 and 2022 Censuses are adjusted so that the
+        municipal totals equal the state totals of the Revisão 2024 projections.
+      - >-
+        The RCoortes method, in two steps, smooths the growth of each cohort over time: factors of differential growth of
+        the intermediate geographic regions against their state, and of the municipalities against their intermediate
+        region, by sex and age group, for 2000-2010 and 2012-2022; the populations at the middle of the intercensal
+        periods are estimated and the years between are interpolated.
+      - >-
+        Throughout, the municipal sums by sex and age equal the state populations IBGE projected; 2024 equals the totals
+        IBGE estimated for 1 July 2024 and published in the Diário Oficial da União.
+    state_totals: >-
+      A state's total, and so its growth, is IBGE's, not the municipalities': the states' projections come from the cohort
+      component method (births, deaths, and internal and international migration). Internal migration is the net balance
+      of the fixed-date question (residence five years before; ages 0-4 by place of birth) of the 2000, 2010 and 2022
+      Censuses, interpolated linearly between them and constant for 2018-2022 at the 2017-2022 level; in the projection
+      years it falls linearly to 70% of the 2022 net migration rate by 2040 and to zero by 2100 (Santa Catarina, Mato
+      Grosso and Roraima keep their 2017-2022 level to 2030). A state that gains little (Alagoas: +0.017% in 2022 and
+      +0.007% in 2023, against Brazil's +0.361% and +0.395%, measured on the POPSVS totals) is a state whose net
+      out-migration offsets its natural increase in that projection: DATA_SOURCES.md §6.1 has the arithmetic for Alagoas.
+    limitations: >-
+      The Ministry's note calls the figures indicative and subject to margins of error that do not replace a census, and
+      warns that growth between censuses is an average that can hide the cohorts' own variation in small areas, and that
+      economic, social and environmental shocks, and the heterogeneity of the municipalities, are not captured.
+    documents:
+      - >-
+        Ministério da Saúde, SVSA/CGIAE, "População residente - Estudo de estimativas populacionais para os municípios
+        brasileiros, desagregadas por sexo e idade, 2000-2024" (technical note), ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/doc/NT-POPULACAO-RESIDENTE-2000-2024.pdf,
+        pp. 1-6 (introduction, data and sources, assumptions, steps, variables, limitations).
+      - >-
+        IBGE, Projeções da População: Brasil e Unidades da Federação: Estimativas e Projeções: Revisão 2024, Notas
+        metodológicas 01/2024, https://biblioteca.ibge.gov.br/visualizacao/livros/liv102111.pdf: Apresentação (reference date
+        1 July; estimates 2000-2022, projections 2023-2070), Migração (pp. 27-36).
+      - >-
+        Observatório de Política e Gestão Hospitalar (Fiocruz), Nota técnica nº 1/2025, 24 February 2025: the history of
+        the Ministry's series (a working group created in 2012 under RIPSA with IBGE; 2013 edition 2000-2015; 2018 edition
+        2000-2021; 2024 edition released in January 2025 and adopted as the Ministry's standard).
+      - >-
+        DATASUS TabNet form http://tabnet.datasus.gov.br/cgi/deftohtm.exe?ibge/cnv/popsvs2024br.def (its 2022 total,
+        210,862,983, equals the local POPSVS in all 27 states: DATA_SOURCES.md §6.1).

@@ -569,17 +569,9 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             }
             described = len(cols & done)
 
-    # What one row IS, if it has been curated.
-    doc = {}
-    for r in store.query(
-        "SELECT what_one_row_is, unit_of_analysis, known_biases, gotchas "
-        "FROM dataset_docs WHERE UPPER(dataset_id) = ? OR "
-        "(UPPER(system) = ? AND UPPER(series) = ?) LIMIT 1",
-        (node.code, node.system, node.short_code),
-    ):
-        # Suppressed on purpose: `r` is a sqlite3.Row, where iteration
-        # yields VALUES. `r.keys()` is the only way to ask for column names.
-        doc = {k: r[k] for k in r.keys() if r[k] is not None}  # noqa: SIM118
+    # What one row IS, if it has been curated: the shipped declaration, the one `dataset_facts` returns.
+    facts = dataset_facts(node.code)
+    doc = {k: facts[k] for k in ("what_one_row_is", "unit_of_analysis", "known_biases", "gotchas") if facts.get(k)}
 
     questions = _open_questions_for(store, crawled_systems, signatures)
 
@@ -651,6 +643,51 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
         },
         notes=notes,
     )
+
+
+def dataset_facts(dataset: str) -> dict[str, Any]:
+    """What the curation documents of ``dataset``, with where each statement comes from: read-only and offline.
+
+    * ``what_one_row_is``, ``unit_of_analysis``, ``known_biases``, ``gotchas``: what a row is and what misleads,
+      asserted by the project (``asserted_by``, ``curation_file``), from measurements and documents named in the text;
+    * ``time`` and ``geography``: the axes a row can be placed on (``default``, and per axis the ``fields`` and their
+      ``encoding``), and ``publication``: how the server files the dataset (``temporal_resolution``, ``physical_geography``);
+    * ``events``: what a row becomes when counted (the event types: ``status`` rule with its evidence, ``consolidation``,
+      ``note``), each with ``source_notes``: the source's own definition, validity, finality rule, acknowledged errors
+      and limitations, with the document (``source``) that states them;
+    * ``documents``: every document the ``source_notes`` cite.
+
+    Declared nothing: ``documented`` is False and the statements are empty (not a statement that nothing is
+    to be said). It reads the shipped curation, not a catalog: ``info`` shows the same statements.
+    """
+    from .semantics.event_types import dataset_declaration, event_types
+
+    declared = dataset_declaration(dataset)
+    file, key, body = declared if declared else (None, None, {})
+    try:
+        events = event_types(dataset)
+    except KeyError:
+        events = []
+    axes = body.get("semantic_axes") or {}
+    gotchas = body.get("gotchas") or []
+
+    def clean(text: Any) -> str | None:
+        return " ".join(str(text).split()) if text else None
+
+    return {
+        "dataset": dataset, "key": key, "documented": bool(declared and (body.get("what_one_row_is") or events)),
+        "what_one_row_is": clean(body.get("what_one_row_is")),
+        "unit_of_analysis": clean(body.get("unit_of_analysis")),
+        "known_biases": clean(body.get("known_biases")),
+        "gotchas": [clean(g) for g in ([gotchas] if isinstance(gotchas, str) else gotchas)],
+        "time": {"default": axes.get("default_time"), "axes": axes.get("time") or {}},
+        "geography": {"default": axes.get("default_geography"), "axes": axes.get("geography") or {}},
+        "publication": {k: v for k, v in (body.get("source_publication") or {}).items()
+                        if k in ("temporal_resolution", "physical_geography")},
+        "events": events,
+        "documents": sorted({e["source_notes"]["source"] for e in events if e.get("source_notes")}),
+        "asserted_by": body.get("asserted_by"), "curation_file": file,
+    }
 
 
 def _open_questions_for(

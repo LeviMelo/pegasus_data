@@ -70,6 +70,8 @@ $PD query SIH.RD --period 2020..2023 --geo AL --select DIAG_PRINC --out d.parque
 $PD translate <file> --system SIHSUS                           # label files you already have
 $PD explore [SIH.RD]                                           # what exists, offline
 $PD info SIH.RD                                                # what it is
+$PD facts SIH.RD                                               # what the curation documents of it, with sources
+$PD publications SIH.RD --years 2014..2023 --uf AL --out files.csv   # the files it was read from: size, date, digest, rows, status
 $PD search raça                                                # which columns and codes mean what
 $PD download --system SIHSUS                                   # maintainer: raw files into the cache
 $PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,0202030873   # a dataset too large for the lake:

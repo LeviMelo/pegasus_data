@@ -45,7 +45,13 @@ from .semantics.dictionary import (
     rollups_for,
 )
 from .semantics.label_bindings import field_decision
-from .sources.ibge import KNOWN_SERIES, UnsupportedStratification, series_catalogue
+from .sources.ibge import (
+    KNOWN_SERIES,
+    SERIES_METADATA,
+    UnsupportedStratification,
+    series_catalogue,
+    series_documentation,
+)
 from .view import (
     COMPANION_SUFFIXES,
     PROFILES,
@@ -327,10 +333,7 @@ class Catalog:
         return coverage_report(self.store)
 
     def population_series(self) -> list[dict[str, Any]]:
-        catalogued = series_catalogue(self.store)
-        if catalogued:
-            return catalogued
-        return [
+        catalogued = series_catalogue(self.store) or [
             {
                 "series": s.name,
                 "authority": s.authority,
@@ -342,6 +345,8 @@ class Catalog:
             }
             for s in KNOWN_SERIES.values()
         ]
+        # what the sources that produce a series say it is (producer, vintage, method, citations): empty when undocumented
+        return [{**row, "documentation": series_documentation(str(row["series"]))} for row in catalogued]
 
     # --------------------------------------------------------------- describe
 
@@ -1362,6 +1367,10 @@ def load_population(
     ``POPTCU`` carries no age and no sex, so asking it for an age breakdown
     raises rather than silently returning a coarser table that would then be
     labelled age-standardised.
+
+    The table carries what the series is (``table.schema.metadata[b"pegasus.series"]``, JSON): its authority and, from
+    ``curation/populations.yml``, the producer, vintage, reference date, years, method, limitations and the documents
+    that state them, or ``"undocumented"``.
     """
     if isinstance(years, int):
         years = [years]
@@ -1405,7 +1414,12 @@ def load_population(
         if years is not None and "year" in dataset.schema.names:
             year_filter = pads.field("year").isin(list(years))
             expression = year_filter if expression is None else (expression & year_filter)
-        return dataset.to_table(filter=expression)
+        table = dataset.to_table(filter=expression)
+        # the series' own description travels with its numbers: a methods paragraph quotes it
+        described = {"series": series, "authority": spec.authority, "directory": spec.directory, "notes": spec.notes,
+                     "documentation": series_documentation(series) or "undocumented: no document has been read"}
+        return table.replace_schema_metadata({**(table.schema.metadata or {}),
+                                              SERIES_METADATA: json.dumps(described, ensure_ascii=False).encode("utf-8")})
     finally:
         if own:
             cat.close()

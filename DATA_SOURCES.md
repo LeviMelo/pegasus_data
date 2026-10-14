@@ -716,6 +716,26 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Populacionais por Município, Idade e Sexo 2000-2025", RIPSA/CGIAE) reads
   `IBGE/POPSVS`. Its 2022 equals the local POPSVS in all 27 states:
   210,862,983. OQ-12 is settled.
+- **What POPSVS is** (2026-10-14; `curation/populations.yml`, returned with `load_population` as `pegasus.series`).
+  - **Producer and vintage.** The Ministry of Health (SVSA/CGIAE/Coesv), by the method of RIPSA's municipal-estimates committee,
+    with IBGE's maps. The files listed 2025-01-07 (2000-2024) are the 2024 edition, built on IBGE's *Projeções da População,
+    Revisão 2024* (after the 2022 Census) and on IBGE's municipal estimate of 1 July 2024 (Ministry's note
+    `ftp.datasus.gov.br/dissemin/publicos/IBGE/doc/NT-POPULACAO-RESIDENTE-2000-2024.pdf`, 521,092 bytes, read in full 2026-10-14;
+    IBGE notes 01/2024; Fiocruz OPGH note 1/2025 for the editions: 2013 → 2000-2015, 2018 → 2000-2021, 2024 → 2000-2024).
+    This confirms what was relayed 2026-10-05 (below). `POPSBR25` (listed 2025-10-29) is later than the note, which does not describe it.
+  - **Reference date and years.** 1 July. IBGE's state series is estimates for 2000-2022 and projections for 2023-2070 (notes 01/2024,
+    Apresentação), so POPSVS 2023-2025 rest on projected state totals; 2024 is forced to IBGE's published municipal total.
+  - **Method.** Census sex-age populations of 2000, 2010 and 2022 per municipality, adjusted to the state totals of the projection;
+    RCoortes smoothing of each cohort's growth (intermediate region against state, municipality against region; 2000-2010 and
+    2012-2022); mid-period populations, interpolation between; sums by sex and age equal the state projection throughout.
+  - **Why Alagoas grows 0.017% in 2022 and 0.007% in 2023** (POPSVS totals 3,217,819 → 3,218,381 → 3,218,607; Brazil
+    210,103,642 → 210,862,983 → 211,695,158, +0.361% and +0.395%). The state total is IBGE's projection (births, deaths, internal and
+    international migration; interstate migration from the 2022 Census's fixed-date question, held through 2022 and falling to 70% of
+    its 2022 rate by 2040). Registered births less deaths of Alagoas residents (SINASC-DN and SIM-DO lakes) are 22,620 in 2022 and 24,578 in 2023
+    (2021: 23,718), about 23,200 and 23,600 between the 1 July dates, so the +562 and +226 imply a net out-migration of about 22,600 and
+    23,400 a year (0.70% and 0.73%); Brazil's implied net balance is -171,700 and -212,600 (0.08% and 0.10%). Registered (not
+    IBGE's corrected) events, spread evenly over the year: the order of magnitude, not IBGE's published component, which the note does
+    not print by state. The state's growth was +1.25% in 2001, +0.43% in 2010 and +0.09% in 2021: a decline, not a break in 2022.
 - **`POPTBR22.zip` and `POPTBR23.zip` hold the national table and its 27
   per-state parts**; other years hold the national table alone. Reading every
   member double-counts (fixed in the population build).
@@ -733,7 +753,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     by state 3.8% (PB) to 15.5% (RJ); by municipality size 3.9% (<14,000) to 13.2% (>1 million). Only the margins are published.
     The age-sex margins give 211.96M, the state margins 213.39M and the size margins 213.02M (the report's 8.3% on 195.10M gives
     212.76M); the three do not reconcile exactly, and the rates are published to one decimal.
-  - **POPSVS 2022 is IBGE's *Projeções Revisão 2024*** (IBGE notes liv102111 and liv102112, relayed 2026-10-05): a demographic
+  - **POPSVS 2022 is IBGE's *Projeções Revisão 2024*** (IBGE notes liv102111 and liv102112, relayed 2026-10-05; the Ministry's note and liv102111's periods and migration sections read 2026-10-14): a demographic
     reconciliation of 2000, 2010 and 2022 with the PES, not an observation. Its 2000 (174.70M) and 2010 (194.75M) are 3.0% and
     2.2% above the raw counts (ages 0–9: 5.3% and 7.4%); at 60 and over it sits 0.25M below the raw 2022 census because IBGE
     carries 2010 forward there. It rests on the same births and deaths as a vital-registration account, so it is no

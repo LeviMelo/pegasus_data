@@ -37,7 +37,7 @@ import pyarrow as pa
 from ._request import _ontology
 from .config import Settings, load_settings
 
-__all__ = ["explore", "Exploration"]
+__all__ = ["explore", "Exploration", "lake_coverage", "publications"]
 
 Level = Literal["systems", "datasets", "coverage", "files"]
 
@@ -494,3 +494,237 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
         y["rows"] += int(r["row_count"] or 0)
         y["bytes"] += int(r["byte_size"] or 0)
     return {k: {**v, "ufs": len(v["ufs"])} for k, v in sorted(out.items())}
+
+
+#: The server's directory of files still being collected (SIM, SINASC and SINAN publish their open years there).
+PRELIMINARY_TREE = "PRELIM"
+_PROVENANCE = ("_source_path", "_blob_sha256", "_ingested_at")
+
+
+def _years(years: int | Sequence[int] | range | None) -> list[int] | None:
+    if years is None:
+        return None
+    return [int(years)] if isinstance(years, int) else sorted({int(y) for y in years})
+
+
+def _final_after_years(dataset: str) -> int | None:
+    """The years after which the source closes a year of ``dataset`` (its event types' ``source_notes``; the largest
+    when several declare one), None when the curation declares none."""
+    from .semantics.event_types import event_types
+
+    try:
+        declared = event_types(dataset)
+    except KeyError:
+        return None
+    found = [int(e["source_notes"]["final_after_years"]) for e in declared
+             if (e.get("source_notes") or {}).get("final_after_years")]
+    return max(found) if found else None
+
+
+def _finality(path: str, year: int | None, seen_at: str | None, final_after: int | None) -> tuple[str, str]:
+    """Whether the source marks a file preliminary or final, and the declaration that says so.
+
+    Two declarations count: the server's preliminary tree, and a year closed ``final_after_years`` later. Neither
+    declared: ``undeclared``, never final by default."""
+    if PRELIMINARY_TREE in {part.upper() for part in path.split("/")}:
+        return "preliminary", f"published under the server's {PRELIMINARY_TREE} tree"
+    if final_after is None:
+        return "undeclared", "no document states when a year of this dataset closes (no final_after_years declared)"
+    if year is None or not seen_at:
+        return "undeclared", "the file's year or the date it was seen is unknown"
+    closes, seen = year + final_after, int(str(seen_at)[:4])
+    if seen > closes:
+        return "final", f"{year} + final_after_years {final_after} = {closes}, before {seen}, the year the file was seen"
+    return "preliminary", (f"{year} + final_after_years {final_after} = {closes}, not before {seen}, "
+                           f"the year the file was seen: the year was still open")
+
+
+def _lake_sources(
+    settings: Settings, partitions: Sequence[Any],
+) -> tuple[dict[tuple[str, str], dict[str, Any]], dict[str, str]]:
+    """What the lake's own rows say of the files they were decoded from: ``{(source path, blob sha256): rows and the
+    first ingestion time}``, counted from the dictionaries of the provenance columns, row group by row group (the
+    values of a file are constant: 119 million rows of the national SIH-RD 2014-2023 count in 5 s), and ``{path:
+    why}`` for the sources of a listed partition whose file cannot be read (never silently absent)."""
+    import json
+
+    import numpy as np
+    import pyarrow.parquet as pq
+
+    found: dict[tuple[str, str], dict[str, Any]] = {}
+    unread: dict[str, str] = {}
+    names = list(_PROVENANCE)
+    for part in partitions:
+        file = settings.lake_dir / str(part["relative_path"])
+        try:
+            local: dict[tuple[str, str], dict[str, Any]] = {}
+            parquet = pq.ParquetFile(file, read_dictionary=names)
+            missing = [c for c in names if c not in parquet.schema_arrow.names]
+            if missing:
+                raise KeyError(f"the partition lacks {missing}")
+            for group in range(parquet.num_row_groups):
+                columns = [c.combine_chunks() for c in parquet.read_row_group(group, columns=names).columns]
+                dictionaries = [c.dictionary.to_pylist() for c in columns]
+                if all(len(d) == 1 for d in dictionaries):
+                    tally = {(0, 0, 0): len(columns[0])}
+                else:
+                    sizes = [len(d) for d in dictionaries]
+                    key = (columns[0].indices.to_numpy(zero_copy_only=False).astype(np.int64) * sizes[1]
+                           + columns[1].indices.to_numpy(zero_copy_only=False)) * sizes[2]                         + columns[2].indices.to_numpy(zero_copy_only=False)
+                    unique, counts = np.unique(key, return_counts=True)
+                    tally = {(int(k) // (sizes[1] * sizes[2]), int(k) // sizes[2] % sizes[1], int(k) % sizes[2]): int(n)
+                             for k, n in zip(unique, counts, strict=True)}
+                for (i, j, k), n in tally.items():
+                    cell = local.setdefault((dictionaries[0][i], dictionaries[1][j]), {"rows": 0, "at": dictionaries[2][k]})
+                    cell["rows"] += n
+                    cell["at"] = min(cell["at"], dictionaries[2][k])
+            for key_, cell in local.items():
+                merged = found.setdefault(key_, {"rows": 0, "at": cell["at"]})
+                merged["rows"] += cell["rows"]
+                merged["at"] = min(merged["at"], cell["at"])
+        except (OSError, KeyError, ValueError) as exc:
+            for path in json.loads(part["source_paths"] or "[]"):
+                unread[str(path)] = f"the lake partition {part['relative_path']} cannot be read ({type(exc).__name__}: {exc})"
+    return found, unread
+
+
+def publications(
+    dataset: str,
+    years: int | Sequence[int] | range | None = None,
+    *,
+    ufs: str | Sequence[str] | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
+) -> pa.Table:
+    """Which published files ``dataset`` was read from, for ``years``: one row per file, read-only.
+
+    The rows are the files the lake holds records of (the provenance every lake row carries: ``_source_path``,
+    ``_blob_sha256``) and the files the catalog lists for those years that the lake does not hold, marked
+    ``in_lake=False`` with the reason when one is known: a missing file is a recorded gap, never an absence.
+
+    ``path``, ``uf``, ``year``, ``competence``
+        the server path, the state (``BR``: national) and year it is published under, and the month (YYYYMM) of a
+        monthly file (null for an annual one).
+    ``listed_size``, ``listed_modified``, ``listed_at``
+        the size and modification date the server listed, and when the catalog last listed the file.
+    ``in_lake``, ``lake_note``
+        whether the lake holds the file's records, and why not when it does not.
+    ``blob_sha256``, ``rows_decoded``, ``decoded_at``
+        the digest of the bytes decoded (the one the lake rows carry), the rows of them in the lake (of the whole file:
+        a national file holds every state's), and when.
+    ``fetched_at``, ``served_by``, ``fetched_size``
+        when those bytes were fetched, from where (``mirror:...`` or the server), and their size.
+    ``server_changed_since_fetch``
+        the listing now differs from the one at the fetch: the server has rewritten the file since.
+    ``status``, ``status_basis``
+        ``preliminary``, ``final`` or ``undeclared`` and the declaration behind it: the server's PRELIM tree, or
+        the dataset's ``final_after_years`` (the event types' ``source_notes``); none declared is ``undeclared``.
+
+    ``ufs`` keeps the files published under those states and the national file, which holds every state: SIM and
+    SINASC publish a year as a national file and as one file per state, the lake reads the national one alone, and
+    ``ufs="AL"`` finds ``DOBR2014`` among the rows and ``DOAL2014`` marked as the same records.
+    """
+    from .catalog.store import CatalogStore
+    from .retrieve import _families
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    system, series = _resolve(dataset)
+    if not system or not series:
+        raise ValueError(f"not a dataset: {dataset!r}")
+    wanted_years = _years(years)
+    wanted_ufs = None if ufs is None else {u.upper() for u in ([ufs] if isinstance(ufs, str) else ufs)} | {"BR"}
+    final_after = _final_after_years(dataset)
+
+    store = CatalogStore(resolved.catalog_path, read_only=True)
+    try:
+        named = sorted({pair[1] or None for pair in _of_dataset(_pairs(store, system, "data"), system, series.upper())},
+                       key=lambda x: (x is None, x or ""))
+        where, params = _scope(system, "data", None, None, named)
+        if wanted_years is not None:
+            where += f" AND fa.year IN ({','.join('?' for _ in wanted_years)})"
+            params += wanted_years
+        listed = {
+            str(r["path"]): dict(r) for r in store.query(
+                "SELECT f.path, fa.geo_code, fa.year, fa.normalized_date, fa.logical_id, f.size, f.modified, f.last_seen"
+                f"{_FROM}{where} ORDER BY f.path", params)
+            if wanted_ufs is None or str(r["geo_code"] or "").upper() in wanted_ufs
+        }
+        families = [str(f["family_id"]) for f in _families(store, system, series)]
+        partitions = [
+            dict(r) for start in range(0, len(families), 500) for r in store.query(
+                "SELECT uf, year, relative_path, source_paths FROM lake_partitions WHERE family_id IN "
+                f"({','.join('?' for _ in families[start:start + 500])})", families[start:start + 500])
+            if (wanted_years is None or int(r["year"]) in wanted_years)
+            and (wanted_ufs is None or str(r["uf"]).upper() in wanted_ufs)
+        ]
+        held, unread = _lake_sources(resolved, partitions)
+        paths = sorted({*listed, *(p for p, _ in held), *unread})
+        facts: dict[str, dict[str, Any]] = {}   # the file name's facts for a path the listing no longer has
+        fetches: dict[str, list[dict[str, Any]]] = {}
+        errors: dict[str, str] = {}
+        for start in range(0, len(paths), 500):
+            chunk = paths[start:start + 500]
+            marks = ",".join("?" for _ in chunk)
+            for r in store.query(
+                "SELECT f.path, fa.geo_code, fa.year, fa.normalized_date, fa.logical_id, f.size, f.modified, f.last_seen "
+                f"FROM files f LEFT JOIN file_facts fa ON fa.path = f.path WHERE f.path IN ({marks})", chunk):
+                facts[str(r["path"])] = dict(r)
+            for r in store.query("SELECT source_path, sha256, byte_size, fetched_at, serving_method, remote_size, "
+                                 f"remote_modified FROM fetches WHERE source_path IN ({marks}) ORDER BY id", chunk):
+                fetches.setdefault(str(r["source_path"]), []).append(dict(r))
+            for r in store.query(f"SELECT path, error FROM decode_attempts WHERE ok = 0 AND path IN ({marks})", chunk):
+                errors[str(r["path"])] = str(r["error"] or "decoding failed")
+    finally:
+        store.close()
+
+    national_held = {int(p["year"]) for p in partitions if str(p["uf"]).upper() == "BR"}
+    read_from = {
+        facts.get(path, {}).get("logical_id") or path: path for path in sorted({p for p, _ in held})
+    }
+    rows: list[dict[str, Any]] = []
+    for path in paths:
+        of_file = {**facts.get(path, {}), **listed.get(path, {})}
+        geo, year, month = str(of_file.get("geo_code") or "") or None, of_file.get("year"), of_file.get("normalized_date")
+        for sha, cell in [(s, c) for (p, s), c in sorted(held.items()) if p == path] or [(None, None)]:
+            fetch = next((f for f in fetches.get(path, []) if f["sha256"] == sha), None) if sha else None
+            if cell is not None:
+                note = None
+            elif path in unread:
+                note = unread[path]
+            elif path in errors:
+                note = f"decoding failed: {errors[path]}"
+            elif read_from.get(of_file.get("logical_id") or path) not in (None, path):
+                note = (f"another publication of {of_file['logical_id']} (a second directory or format); "
+                        f"the lake reads {read_from[of_file['logical_id']]}")
+            elif geo not in ("BR", None) and year in national_held:
+                note = ("the same records are in the national file of the year, which the lake reads alone "
+                        "(a year published nationally and per state is read once)")
+            else:
+                note = "listed by the server, not decoded into the lake"
+            status, basis = _finality(path, int(year) if year else None,
+                                      fetch["fetched_at"] if fetch else of_file.get("last_seen"), final_after)
+            changed = None
+            if fetch and fetch["remote_size"] is not None and of_file.get("size") is not None:
+                changed = (of_file["size"] != fetch["remote_size"]
+                           or (fetch["remote_modified"] is not None and of_file.get("modified") != fetch["remote_modified"]))
+            rows.append({
+                "dataset": dataset, "path": path, "uf": geo, "year": int(year) if year else None,
+                "competence": int(month) if month and int(month) % 100 else None,
+                "listed": path in listed, "listed_size": of_file.get("size"), "listed_modified": of_file.get("modified"),
+                "listed_at": of_file.get("last_seen"), "in_lake": cell is not None, "lake_note": note,
+                "blob_sha256": sha, "rows_decoded": cell["rows"] if cell else None,
+                "decoded_at": cell["at"] if cell else None,
+                "fetched_at": fetch["fetched_at"] if fetch else None, "served_by": fetch["serving_method"] if fetch else None,
+                "fetched_size": fetch["byte_size"] if fetch else None, "server_changed_since_fetch": changed,
+                "status": status, "status_basis": basis,
+            })
+    schema = pa.schema([
+        ("dataset", pa.string()), ("path", pa.string()), ("uf", pa.string()), ("year", pa.int32()),
+        ("competence", pa.int32()), ("listed", pa.bool_()), ("listed_size", pa.int64()), ("listed_modified", pa.string()),
+        ("listed_at", pa.string()), ("in_lake", pa.bool_()), ("lake_note", pa.string()), ("blob_sha256", pa.string()),
+        ("rows_decoded", pa.int64()), ("decoded_at", pa.string()), ("fetched_at", pa.string()), ("served_by", pa.string()),
+        ("fetched_size", pa.int64()), ("server_changed_since_fetch", pa.bool_()), ("status", pa.string()),
+        ("status_basis", pa.string()),
+    ])
+    return pa.Table.from_pylist(rows, schema=schema).sort_by(
+        [("uf", "ascending"), ("year", "ascending"), ("competence", "ascending"), ("path", "ascending")])

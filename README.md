@@ -70,6 +70,9 @@ query("SIH.RD", period=2016, rows={"DIAG_PRINC": ["B58", "P371"]})   # only thos
 explore("SIH.RD")         # years, states, files and bytes on the server, offline
 explore("SIH.RD", year=2023, uf="SP")   # the files themselves, with sizes
 lake_coverage("SIH.RD")   # what the local lake already holds, by year: partitions, states, rows, bytes
+publications("SIH.RD", range(2014, 2024), ufs="AL")   # which files it was read from, one row each: the server's size and date, the digest
+                          # decoded, when and from where fetched, the rows, preliminary or final; the files listed but not held, with why
+dataset_facts("SIH.RD")   # what the curation documents of a dataset, with its sources: what a row is, its dates, the events, the notes
 search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …
 search("Parda", kind="code")            # which codes mean "Parda", in which tables
 ```
@@ -188,7 +191,8 @@ condition_codes(); procedure_compatibility()  # its two tables: each record's ow
 procedure_instruments(["0202030768"])  # the instruments SIGTAP registers a procedure on (BPA, AIH, APAC, RAAS, e-SUS APS): ["01", "02", "05"]
 can_record("SIA-AN", "AP_PRIPAL", codes)  # whether a dataset's column can hold any of the procedures: True, False, or None (undeclared or
                                      # unknown; the declarations are `instruments:` in curation/roles). False means skip the dataset
-load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
+load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12); table.schema.metadata[b"pegasus.series"]
+                                     # says what it is: producer, vintage, reference date, years, method, with the documents
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 query("FA-HUM", period=2017)         # a source off the FTP (curation/intake.yml, intake.py): yellow-fever cases, records in the lake;
                                      # its context fields (load_field("yellow_fever_human_cases")) are derived from them

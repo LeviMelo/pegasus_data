@@ -352,6 +352,67 @@ def info_cmd(
     console.print(str(answer))
 
 
+@app.command(name="facts", rich_help_panel="UNDERSTAND")
+def facts_cmd(
+    dataset: Annotated[str, typer.Argument(help="A dataset: SIH-RD, SIM-DO, SINASC-DN, CIHA, SINAN-DENG ...")],
+    as_json: JsonOpt = False,
+) -> None:
+    """What the curation documents of a dataset, with its sources: what a row is, its dates and places, the events it
+    becomes and what the source says of them. Offline, from the shipped curation (a methods section quotes it)."""
+    from .._info import dataset_facts
+
+    facts = dataset_facts(dataset)
+    if as_json:
+        _emit(facts, True)
+        return
+    for key in ("what_one_row_is", "unit_of_analysis", "known_biases"):
+        if facts[key]:
+            console.print(f"[bold]{key}[/bold]: {facts[key]}")
+    for gotcha in facts["gotchas"]:
+        console.print(f"  - {gotcha}")
+    for axis in ("time", "geography"):
+        console.print(f"[bold]{axis}[/bold]: default {facts[axis]['default']}; "
+                      + "; ".join(f"{name} = {'+'.join(spec['fields'])}" for name, spec in facts[axis]["axes"].items()))
+    for event in facts["events"]:
+        console.print(f"[bold]event {event['name']}[/bold] ({event['kind']}): {event['grain'] or ''}")
+    for document in facts["documents"]:
+        console.print(f"  source: {document}")
+    if not facts["documented"]:
+        console.print(f"[yellow]the curation declares nothing of {dataset!r}[/yellow]")
+
+
+@app.command(name="publications", rich_help_panel="EXPLORE")
+def publications_cmd(
+    dataset: Annotated[str, typer.Argument(help="A dataset: SIH-RD, SIM-DO, SINASC-DN ...")],
+    years: Annotated[str | None, typer.Option("--years", help="A year, or a span: 2014..2023")] = None,
+    uf: Annotated[str | None, typer.Option("--uf", help="States (comma separated); the national file is always kept")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Which published files the lake holds a dataset's records from, one row each: the server's size and date, the
+    digest decoded, when and from where it was fetched, the rows, preliminary or final; and the files the catalog lists
+    that the lake does not hold, with the reason."""
+    from .._explore import publications
+
+    span: object = None
+    if years:
+        low, _, high = years.partition("..")
+        span = range(int(low), int(high or low) + 1)
+    table = publications(dataset, span, ufs=uf.split(",") if uf else None, root=root)  # type: ignore[arg-type]
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} files)")
+        return
+    held = sum(1 for held in table.column("in_lake").to_pylist() if held)
+    _emit({"files": table.num_rows, "in_lake": held, "not_in_lake": table.num_rows - held,
+           "rows_decoded": sum(r or 0 for r in table.column("rows_decoded").to_pylist()),
+           "first": table.slice(0, 3).to_pylist()}, as_json, f"publications {dataset}")
+
+
 @app.command()
 def workbook(
     artifact: Annotated[str, typer.Argument(help="A built aggregate artifact, e.g. sih_rd_municipality_month")],
