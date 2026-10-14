@@ -30,118 +30,36 @@ detector and its open question stay on, because that flag is the evidence.
 #
 # Evaluating annotations eagerly costs nothing here and keeps the lazy import.
 
-from functools import lru_cache
+
 from pathlib import Path
 from typing import Any
+
+from ._cache import ByteCache
+from ._errors import Refused
 
 __all__ = ["create_app", "main"]
 
 API = "/api/v1"
 
-
-@lru_cache(maxsize=64)
-def _population_payload(
-    lake_dir: str,
-    series: str,
-    by: tuple[str, ...],
-    years: tuple[int, ...],
-    dir_mtime_ns: int,
-    bands: tuple[int, ...] = (),
-) -> dict[str, Any]:
-    """One grouped denominator, cached per (request shape, series version).
-
-    ``dir_mtime_ns`` is the series directory's mtime: a re-ingested population
-    is a new key, the same discipline every artifact cache here follows.
-    """
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    from ..api import load_population
-    from ..normalize.geo import uf_from_code
-
-    table = load_population(series=series, years=list(years) or None)
-    columns: dict[str, Any] = {}
-    if "municipality" in by or "uf" in by:
-        code = pc.cast(table.column("municipality"), pa.string())
-        if "municipality" in by:
-            columns["municipality"] = code
-        if "uf" in by:
-            distinct = pc.unique(code).to_pylist()
-            mapping = {c: str(uf_from_code(str(c)) or "") for c in distinct}
-            keys = pa.array(list(mapping.keys()), pa.string())
-            values = pa.array(list(mapping.values()), pa.string())
-            columns["uf"] = pc.take(values, pc.index_in(code, value_set=keys))
-    if "year" in by:
-        columns["year"] = pc.cast(table.column("year"), pa.string())
-    if "age_band" in by:
-        # Banded with the SAME machinery the artifacts use, so the codes match
-        # a derived age dimension's cell values exactly when the edges do.
-        from .._age import NumericBandDimension
-
-        band = NumericBandDimension(
-            name="age_band", field_name="age", bands=bands, label="age band")
-        columns["age_band"] = band.column(table)
-    pop = pc.cast(table.column("population"), pa.float64())
-    total = float(pc.sum(pop).as_py() or 0.0)
-    if not columns:
-        return {"series": series, "by": [], "rows": 1,
-                "data": {"population": [total]}, "total": total}
-    grouped = (
-        pa.table({**columns, "population": pop})
-        .group_by(list(columns))
-        .aggregate([("population", "sum")])
-        .sort_by([(name, "ascending") for name in columns])
-    )
-    data = {name: grouped.column(name).to_pylist() for name in columns}
-    data["population"] = grouped.column("population_sum").to_pylist()
-    return {"series": series, "by": list(by), "rows": grouped.num_rows,
-            "data": data, "total": total}
-
-
-#: Shaped responses as SERIALISED BYTES, keyed by (artifact identity, the
-#: whole request). Bytes, not the dict: FastAPI's encoder walk over a 66k-row
-#: payload costs ~0.4 s per response, which is most of the route's warm time
-#: -- serialising once with orjson and replaying the bytes skips it entirely.
-#: The identity is the pair of file mtimes every other cache here keys on, so
-#: a rebuild is a different key and nothing needs invalidating.
-_RESPONSE_CACHE: dict[tuple, bytes] = {}
-_RESPONSE_CACHE_LIMIT = 256
-
-
-def _artifact_identity(settings: Any, artifact: str) -> tuple[int, int]:
-    from .._aggregate import artifact_dir
-
-    target = artifact_dir(artifact, settings)
-    try:
-        return (
-            (target / "cells.parquet").stat().st_mtime_ns,
-            (target / "manifest.json").stat().st_mtime_ns,
-        )
-    except OSError:
-        return (0, 0)
-
-
-@lru_cache(maxsize=6)
-def _records_table(
-    lake_dir: str, dataset: str, period: str, geography: str, select: tuple[str, ...]
-):
-    """One scope's microdata, assembled once and paged from memory.
-
-    The assembly decodes a territory's source files -- tens of seconds cold --
-    and the pager was doing it PER PAGE. Bounded small: each entry is one
-    territory-period of rows, and six covers a browsing session.
-    """
-    from .. import query as _query
-
-    return _query(
-        dataset, period=period, geography=geography, select=list(select) or None,
-    )
+#: Shaped responses as SERIALISED BYTES, keyed by (the whole request, the
+#: artifact's identity). Bytes, not the dict: FastAPI's encoder walk over a 66k-row
+#: payload costs ~0.4 s per response, which is most of the route's warm time --
+#: serialising once with orjson and replaying the bytes skips it entirely. Bounded
+#: by BYTES (a municipality-month body is megabytes), evicting one entry at a time.
+#: The identity is `capabilities.artifact_identity`, the SAME function the
+#: descriptor cache keys on, so a body and its descriptor never disagree about what
+#: is fresh.
+_RESPONSES = ByteCache(256 * 1024 * 1024)
 
 
 def _error(status: int, message: str, **extra: Any):
     from fastapi.responses import JSONResponse
 
     return JSONResponse({"error": message, **extra}, status_code=status)
+
+
+def _refusal(refused: Refused):
+    return _error(refused.status, refused.message, **refused.extra)
 
 
 def create_app(
@@ -157,16 +75,20 @@ def create_app(
     passes its own; a wildcard is deliberately not the default, because this
     server can be configured to serve microdata.
     """
-    from fastapi import FastAPI, Query, Request
+    from fastapi import FastAPI, Query, Request, Response
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import FileResponse, JSONResponse, ORJSONResponse
+    from fastapi.responses import JSONResponse, ORJSONResponse
 
     from .. import __version__
     from .._aggregate import AggregationRefused, ArtifactMissing, aggregate, spec_named
-    from ..capabilities import capabilities, catalogue
+    from ..capabilities import artifact_identity, capabilities, catalogue
     from ..config import load_settings
-    from ..geography import classifications, memberships, municipalities
+    from ..geography import classifications
+    from . import _filters
+    from ._membership import canonical_system, membership_body, systems
     from ._payload import shape
+    from ._population import population_body
+    from ._records import records_page
 
     settings = load_settings(root=Path(root) if root else None)
     meshes = Path(mesh_dir) if mesh_dir else Path(settings.lake_dir) / "geo"
@@ -232,34 +154,36 @@ def create_app(
         """Roll the base cuboid up to the requested levels and serve the state.
 
         Any query parameter named ``dim.X`` filters dimension ``X`` to the
-        listed codes: ``?dim.SEXO=1,3``. Filtering and marginalising are
-        different operations and stay different here -- a level named in ``by``
-        is kept as an axis, a level filtered by ``dim.`` restricts the
-        population.
+        listed codes: ``?dim.SEXO=1,3`` (repeating the parameter adds codes, it
+        does not replace them). Filtering and marginalising are different
+        operations and stay different here -- a level named in ``by`` is kept as
+        an axis, a level filtered by ``dim.`` restricts the population. A code
+        the artifact does not hold is refused (422) with the codes it does.
         """
         levels = [p.strip() for p in by.split(",") if p.strip()]
         wanted = [p.strip() for p in measures.split(",") if p.strip()]
-        where: dict[str, Any] = {}
-        for key, value in request.query_params.multi_items():
-            if key.startswith("dim.") and value:
-                where[key[4:]] = [v.strip() for v in value.split(",") if v.strip()]
+        where = _filters.parse(request.query_params)
         cache_key = (
-            artifact, tuple(levels), tuple(wanted), system,
+            artifact, str(settings.lake_dir), tuple(levels), tuple(wanted), system,
             tuple(sorted((k, tuple(v)) for k, v in where.items())),
-            _artifact_identity(settings, artifact),
+            artifact_identity(artifact, settings),
         )
-        cached = _RESPONSE_CACHE.get(cache_key)
+        cached = _RESPONSES.get(cache_key)
         if cached is not None:
-            from fastapi import Response
-
             return Response(content=cached, media_type="application/json")
         # Resolved before the try, so "there is no such recipe" cannot be
         # reported as "that roll-up does not mean anything".
         try:
             spec = spec_named(artifact)
-        except Exception:
+        except Exception:  # noqa: BLE001
             return _error(404, f"no artifact named {artifact!r}")
         try:
+            canonical_system(system)
+        except ValueError as exc:
+            return _error(422, str(exc), artifact=artifact, systems=list(systems()))
+        try:
+            capability = capabilities(artifact, settings=settings)
+            where = _filters.check(where, capability, system)
             table, report = aggregate(
                 artifact, by=levels or None, measures=wanted or None,
                 where=where or None, system=system, settings=settings,
@@ -272,6 +196,8 @@ def create_app(
             )
         except ArtifactMissing as exc:
             return _error(404, str(exc), artifact=artifact)
+        except Refused as refused:
+            return _error(refused.status, refused.message, artifact=artifact, **refused.extra)
         except AggregationRefused as exc:
             # A refusal is the point of the algebra, not a failure of it: the
             # message names what was asked and why it does not mean anything.
@@ -279,7 +205,6 @@ def create_app(
         except KeyError as exc:
             return _error(404, f"no artifact named {artifact!r}", detail=str(exc))
 
-        capability = capabilities(artifact, settings=settings)
         levels_by_dimension = {
             d.id: {lv.code: lv.label for lv in d.levels} for d in capability.dimensions
         }
@@ -291,15 +216,10 @@ def create_app(
         )
         body["dataset"] = spec.dataset
         import orjson
-        from fastapi import Response
 
         blob = orjson.dumps(body)
-        if len(_RESPONSE_CACHE) >= _RESPONSE_CACHE_LIMIT:
-            _RESPONSE_CACHE.clear()
-        _RESPONSE_CACHE[cache_key] = blob
+        _RESPONSES.put(cache_key, blob, len(blob))
         return Response(content=blob, media_type="application/json")
-
-    # --------------------------------------------------------- geography
 
     # ------------------------------------------------------------ population
 
@@ -315,56 +235,16 @@ def create_app(
         The client divides AFTER aggregating -- sum of events over sum of
         population -- which is the only order that survives roll-ups. Serving
         pre-divided rates would hand back exactly the mean-of-means the whole
-        cube layer exists to prevent.
+        cube layer exists to prevent. Municipalities are 7-digit IBGE codes in
+        every year of every series; a year the series does not hold is a 422.
         """
-        from ..sources.ibge import KNOWN_SERIES
+        try:
+            return Response(content=population_body(settings, series, by, years, bands),
+                            media_type="application/json")
+        except Refused as refused:
+            return _refusal(refused)
 
-        spec_ = KNOWN_SERIES.get(series)
-        if spec_ is None:
-            return _error(422, f"unknown population series {series!r}", known=sorted(KNOWN_SERIES))
-        wanted = tuple(dict.fromkeys(p.strip() for p in by.split(",") if p.strip()))
-        allowed = {"municipality", "uf", "year", "age_band"}
-        if bad := [w for w in wanted if w not in allowed]:
-            return _error(422, f"cannot serve population by {bad}", allowed=sorted(allowed))
-        try:
-            band_edges = tuple(int(b) for b in bands.split(",") if b.strip())
-        except ValueError:
-            return _error(422, f"bands must be integers, got {bands!r}")
-        if "age_band" in wanted and not band_edges:
-            return _error(
-                422,
-                "by=age_band needs the band edges (bands=0,1,5,...) — the bands "
-                "are the caller's analytical claim, and serving a default would "
-                "let two artifacts silently disagree about what 'menos de 1' means",
-            )
-        supported, missing = spec_.supports(
-            ["age" if w == "age_band" else w for w in wanted if w != "uf"])
-        if not supported:
-            return _error(
-                422,
-                f"{series} does not carry {missing}; a rate built on it would "
-                "divide by a population that does not stratify that way",
-                stratifications=spec_.stratifications,
-            )
-        try:
-            year_tuple = tuple(int(y) for y in years.split(",") if y.strip())
-        except ValueError:
-            return _error(422, f"years must be integers, got {years!r}")
-        directory = settings.population_dir / series
-        if not directory.exists():
-            return _error(
-                404,
-                f"population series {series!r} is not materialised; "
-                "run `pegasus-data population`",
-            )
-        try:
-            payload = _population_payload(
-                str(settings.lake_dir), series, wanted, year_tuple,
-                directory.stat().st_mtime_ns, band_edges,
-            )
-        except Exception as exc:  # noqa: BLE001 - refusal with reason, not a bare 500
-            return _error(422, f"{type(exc).__name__}: {exc}", series=series)
-        return payload
+    # --------------------------------------------------------- geography
 
     @app.get(f"{API}/geo/hierarchies")
     def hierarchies() -> dict[str, Any]:
@@ -383,51 +263,27 @@ def create_app(
 
     @app.get(f"{API}/geo/membership")
     def membership(
+        request: Request,
         system: str | None = Query(None),
         uf: str | None = Query(None, description="restrict to one UF sigla"),
-    ) -> dict[str, Any]:
-        """`code7 -> {name, uf, <classification>: <member>}` for every municipality.
+    ):
+        """`code7 -> {name, uf, memberships: {<classification>: <member>}, conflicts: [...]}`.
 
-        This is the identity service the client joins against. It is one request
-        and it is cacheable forever, so a client never asks the server what a
-        code means twice.
+        This is the identity service the client joins against. The body is built
+        once per (pack, system) and sent with an ETag and a day's max-age, so a
+        client never asks the server what a code means twice. A classification
+        the publishing systems disagree about is listed in that municipality's
+        `conflicts` (its value in `memberships` is then one of several
+        defensible answers); an unknown `system` is a 422.
         """
-        index = municipalities()
-        out: dict[str, dict[str, Any]] = {}
-        for code6, row in index.items():
-            if uf and row["uf_sigla"].upper() != uf.upper():
-                continue
-            # Identity and containment are kept in separate objects because
-            # they COLLIDE: identity's `uf` is the sigla `AC`, while the `uf`
-            # classification's member label is `AC Acre`. Merging them let the
-            # classification silently overwrite the sigla, and the sigla is what
-            # the UF mesh joins on.
-            out[row["code7"]] = {
-                "code6": code6,
-                "name": row["name"],
-                "uf": row["uf_sigla"],
-                "uf_name": row["uf_name"],
-                "uf_code": row["uf_code"],
-                "macroregion": row["macroregion"],
-                "memberships": memberships(code6, system=system).as_dict(),
-            }
-        return {"count": len(out), "system": system, "membership": out}
-
-    @app.get(f"{API}/geo/mesh/{{grain}}")
-    def mesh(grain: str):
-        """TopoJSON for one grain, immutable once built."""
-        path = meshes / f"{grain}.topo.json"
-        if not path.exists():
-            return _error(
-                404,
-                f"no mesh for {grain!r}; build it with "
-                f"`python -m pegasus_data.serve.geometry --grain {grain}`",
-                available=sorted(p.stem.replace(".topo", "") for p in meshes.glob("*.topo.json")),
-            )
-        return FileResponse(
-            path, media_type="application/json",
-            headers={"Cache-Control": "public, max-age=31536000, immutable"},
-        )
+        try:
+            body, etag = membership_body(system, uf)
+        except ValueError as exc:
+            return _error(422, str(exc), systems=list(systems()))
+        headers = {"ETag": etag, "Cache-Control": "public, max-age=86400"}
+        if request.headers.get("if-none-match") == etag:
+            return Response(status_code=304, headers=headers)
+        return Response(content=body, media_type="application/json", headers=headers)
 
     # ----------------------------------------------------------- linkage
 
@@ -448,6 +304,17 @@ def create_app(
         ]
         return {"specs": specs, "runs": store.runs(settings)}
 
+    def _timeline_refusal():
+        """The timeline readers take no settings: another home's request would be answered from the default one."""
+        default = load_settings().lake_dir
+        if default != settings.lake_dir:
+            return _error(
+                409,
+                f"timelines read the default data home ({default}), not this server's "
+                f"({settings.lake_dir}); start the server without --root",
+            )
+        return None
+
     @app.get(f"{API}/links/timeline")
     def timeline_notable(
         period: str = Query(...),
@@ -458,11 +325,16 @@ def create_app(
         """Births with the most linked events, to open a timeline from. Microdata."""
         if not allow_records:
             return _error(403, "timelines are microdata; start the server with --allow-records")
+        if (refusal := _timeline_refusal()) is not None:
+            return refusal
         from ..linkage.timeline import notable_births
 
         try:
             return {"period": period, "geography": geography, "method": method,
                     "births": notable_births(period=period, geography=geography, method=method, limit=limit)}
+        except LookupError as exc:
+            # A timeline is read from STORED link runs; computing one here took hours.
+            return _error(409, str(exc))
         except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
             return _error(400, f"{type(exc).__name__}: {exc}")
 
@@ -476,12 +348,16 @@ def create_app(
         """One pregnancy: a birth and the events linked to it. Microdata."""
         if not allow_records:
             return _error(403, "timelines are microdata; start the server with --allow-records")
+        if (refusal := _timeline_refusal()) is not None:
+            return refusal
         from ..linkage.timeline import timeline
 
         try:
             return timeline(birth, period=period, geography=geography, method=method)
         except KeyError as exc:
             return _error(404, str(exc))
+        except LookupError as exc:
+            return _error(409, str(exc))
         except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
             return _error(400, f"{type(exc).__name__}: {exc}")
 
@@ -496,11 +372,15 @@ def create_app(
         limit: int = Query(500, ge=1, le=5000),
         offset: int = Query(0, ge=0),
     ):
-        """A page of microdata. Off unless the operator turned it on.
+        """A page of microdata from the lake. Off unless the operator turned it on.
 
         Personal identifiers pass through unmodified -- this endpoint does not
         mask, hash or drop anything. What it does is refuse to exist unless
-        someone decided it should.
+        someone decided it should, and refuse to download or decode a territory
+        the lake does not already hold (409), or a span wider than three years.
+        Values are the codes as filed; `effective_period`, `warnings`,
+        `structural_absence`, `complete` and `geography_basis` say what the
+        engine actually did.
         """
         if not allow_records:
             return _error(
@@ -508,7 +388,7 @@ def create_app(
                 "microdata is disabled on this server; start it with "
                 "--allow-records to enable /api/v1/records",
             )
-        columns = [c.strip() for c in select.split(",") if c.strip()]
+        columns = tuple(c.strip() for c in select.split(",") if c.strip())
         if not geography:
             # A national page decodes every state's files for two hundred
             # rows. The client scopes; an unscoped ask is refused with the
@@ -520,44 +400,26 @@ def create_app(
                 "screen of rows",
             )
         try:
-            table = _records_table(
-                str(settings.lake_dir), dataset, period, geography,
-                tuple(columns),
-            )
+            return records_page(settings, dataset, period, geography, columns, offset, limit)
+        except Refused as refused:
+            return _refusal(refused)
         except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
             return _error(400, f"{type(exc).__name__}: {exc}")
-        page = table.slice(offset, limit)
-        return {
-            "dataset": dataset, "period": period, "geography": geography,
-            "total": table.num_rows, "offset": offset, "limit": limit,
-            "columns": list(page.schema.names),
-            "rows": page.to_pylist(),
-        }
 
     @app.on_event("startup")
     def _prewarm() -> None:  # pragma: no cover - timing-dependent warmup
-        """Warm each built artifact's canonical shape before anyone asks.
+        """Build the one body every session asks for first: the system-neutral membership.
 
-        The first municipality-month question against a national artifact
-        costs ~1.5 s of reads and grouping; every later identical question is
-        the response cache. Paying the first one at startup, in a thread,
-        means no user ever does.
+        Artifact roll-ups are not warmed: they were read and thrown away by an LRU smaller
+        than the number of artifacts, and competed with the first real requests.
         """
         import threading
 
         def work() -> None:
-            from .._aggregate import aggregate as _aggregate
-
-            for entry in catalogue(settings=settings):
-                if not entry.get("built"):
-                    continue
-                try:
-                    _aggregate(
-                        entry["id"], by=["municipality", "month"],
-                        settings=settings, finalize=False,
-                    )
-                except Exception:  # noqa: BLE001 - warmup must never block serving
-                    continue
+            try:
+                membership_body(None, None)
+            except Exception:  # noqa: BLE001 - warmup must never block serving
+                return
 
         threading.Thread(target=work, name="prewarm", daemon=True).start()
 
@@ -571,6 +433,9 @@ def create_app(
         return JSONResponse({"error": f"{type(exc).__name__}: {exc}"}, status_code=500)
 
     return app
+
+
+
 
 
 def main(argv: list[str] | None = None) -> int:

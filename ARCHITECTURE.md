@@ -517,6 +517,12 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `serve/__init__.py`: the HTTP server and routes.
 - `serve/__main__.py`: `python -m pegasus_data.serve`.
 - `serve/_payload.py`: response shaping.
+- `serve/_cache.py`: byte-bounded LRU with single-flight (responses, tables, payloads).
+- `serve/_errors.py`: `Refused`, a status and a reason.
+- `serve/_filters.py`: `dim.X` parsing and the check of each code against what the artifact holds.
+- `serve/_membership.py`: `/geo/membership` body per (pack, system), with `conflicts` and an ETag.
+- `serve/_population.py`: `/population`, one `code7` width, years and strata read from the files.
+- `serve/_records.py`: `/records`, lake only, with the effective period and the gaps (ADR-0171).
 
 ### `sources/`
 

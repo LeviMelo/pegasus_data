@@ -28,6 +28,8 @@ derived rather than authored -- an authored one drifts the moment a spec changes
 from __future__ import annotations
 
 import json
+import threading
+from collections import OrderedDict
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from datetime import UTC
@@ -187,30 +189,33 @@ class Capability:
 def _denominators(settings: Any, years: tuple[int, ...]) -> tuple[dict[str, Any], ...]:
     """Population series the lake holds that cover at least one artifact year.
 
-    A PROJECTION of what is materialised, like everything else here: declaring
-    POPSVS while `lake/population/POPSVS` does not exist would hand the UI a
-    rate toggle that 404s. The order is the preference order -- POPSVS carries
-    age and sex, POPTCU is totals-only, and the rest are historical.
+    A PROJECTION of what is materialised, read from the files themselves: the
+    years are the years in the parquet, the stratifications are the declared axes
+    whose columns exist there. Declaring a series by its name alone offered
+    ``CENSO`` against a covariates table that could not give a rate, and
+    advertised years the files did not hold. The order is the preference order --
+    POPSVS carries age and sex, POPTCU is totals-only, and the rest are historical.
     """
-    from .sources.ibge import KNOWN_SERIES
+    from .sources.ibge import KNOWN_SERIES, materialised
 
     out: list[dict[str, Any]] = []
     for name, series in KNOWN_SERIES.items():
-        directory = settings.population_dir / name
-        if not directory.exists():
+        if series.kind != "denominator":
             continue
-        covered = [
-            y for y in years
-            if (series.year_min is None or y >= series.year_min)
-            and (series.year_max is None or y <= series.year_max)
-        ]
+        held = materialised(settings.population_dir / name)
+        if held is None or "population" not in held.columns:
+            continue
+        covered = [y for y in years if y in held.years]
         if not covered:
             continue
+        stratifications = held.stratifications(series.stratifications)
         out.append({
             "series": name,
             "authority": series.authority,
-            "stratifications": list(series.stratifications),
-            "age_standardizable": series.age_standardizable,
+            "stratifications": stratifications,
+            "age_standardizable": (
+                series.age_standardizable and "age" in stratifications and "sex" in stratifications
+            ),
             "years": covered,
             "note": series.notes,
         })
@@ -260,6 +265,42 @@ def _label_for(
 # --------------------------------------------------------------- projection
 
 
+def _mtime_ns(path: Path) -> int:
+    try:
+        return path.stat().st_mtime_ns
+    except OSError:
+        return 0
+
+
+def artifact_identity(name: str, settings: Settings) -> tuple[int, ...]:
+    """Everything an artifact's served answer depends on, as a tuple of mtimes.
+
+    The descriptor and the ``/artifacts`` body are both built from it, so BOTH
+    caches key on this one function and cannot disagree about what is fresh:
+    the cells and the manifest (a rebuild), the aggregate spec (level words and
+    labels), the compiled membership pack and ``geography.yml`` (roll-ups and
+    ``spatial.grains``), and the population series (``denominators``). A changed
+    label, a swapped pack or a newly ingested denominator reaches the next
+    request; none of them waits for a restart.
+    """
+    from ._aggregate import artifact_dir
+    from .config import curation_root
+    from .geography import _pack_mtime, _pack_path
+    from .sources.ibge import KNOWN_SERIES, tree_mtime_ns
+
+    target = artifact_dir(name, settings)
+    pack = _pack_path(None)
+    curation = curation_root()
+    return (
+        _mtime_ns(target / "cells.parquet"),
+        _mtime_ns(target / "manifest.json"),
+        _mtime_ns(curation / "aggregates" / f"{name}.yml"),
+        _pack_mtime(str(pack)) if pack is not None else 0,
+        _mtime_ns(curation / "geography.yml"),
+        *(tree_mtime_ns(settings.population_dir / series) for series in KNOWN_SERIES),
+    )
+
+
 def capabilities(
     name: str,
     *,
@@ -272,56 +313,37 @@ def capabilities(
     is deliberate: a capability describes what *exists*, and describing an
     unbuilt artifact would advertise controls for data that cannot be served.
 
-    Cached on the artifact's on-disk identity. The projection reads the cells,
-    the catalog and the reference tables, which measured at ~1.2 s on a
-    national artifact -- and the serve handler consults the descriptor on EVERY
-    cell request, so an uncached projection put a constant floor under every
-    answer the API gave. A rebuild changes the mtime and the stale entry ages
-    out.
+    Cached on the artifact's identity (:func:`artifact_identity`). The serve
+    handler consults the descriptor on EVERY cell request, so an uncached
+    projection put a constant floor under every answer the API gave. A rebuild
+    changes an mtime and the stale entry ages out; the cache evicts its least
+    recently used entry, never the whole cache.
     """
     from ._aggregate import artifact_dir
     from .config import load_settings as _load
 
-    resolved_early = settings or _load(root=Path(root) if root else None)
-    cells_path = artifact_dir(name, resolved_early) / "cells.parquet"
-    if not cells_path.exists():
-        return _capabilities_uncached(name, settings=resolved_early)
-    # A plain dict rather than lru_cache: Settings is unhashable, and the key
-    # that actually identifies the answer is (artifact, lake, on-disk version).
-    # BOTH files' mtimes, matching _read_artifact's key exactly: the manifest
-    # carries fingerprint, support and partial_periods, and a manifest-only
-    # change must invalidate the descriptor just as it invalidates the read.
-    manifest_mtime = 0
-    try:
-        manifest_mtime = (cells_path.parent / "manifest.json").stat().st_mtime_ns
-    except OSError:
-        pass
-    # The spec file's mtime too: labels and level words live in the SPEC, and
-    # an edited YAML must reach the descriptor without waiting for a rebuild.
-    spec_mtime = 0
-    try:
-        from .config import curation_root
-
-        spec_mtime = (
-            (curation_root() / "aggregates" / f"{name}.yml").stat().st_mtime_ns
-        )
-    except OSError:
-        pass
-    key = (
-        name, str(resolved_early.lake_dir),
-        cells_path.stat().st_mtime_ns, manifest_mtime, spec_mtime,
-    )
-    hit = _CAPABILITY_CACHE.get(key)
-    if hit is not None:
-        return hit
-    built = _capabilities_uncached(name, settings=resolved_early)
-    if len(_CAPABILITY_CACHE) >= 16:
-        _CAPABILITY_CACHE.clear()
-    _CAPABILITY_CACHE[key] = built
+    resolved = settings or _load(root=Path(root) if root else None)
+    if not (artifact_dir(name, resolved) / "cells.parquet").exists():
+        return _capabilities_uncached(name, settings=resolved)
+    key = (name, str(resolved.lake_dir), artifact_identity(name, resolved))
+    with _CAPABILITY_LOCK:
+        hit = _CAPABILITY_CACHE.get(key)
+        if hit is not None:
+            _CAPABILITY_CACHE.move_to_end(key)
+            return hit
+    built = _capabilities_uncached(name, settings=resolved)
+    with _CAPABILITY_LOCK:
+        _CAPABILITY_CACHE[key] = built
+        while len(_CAPABILITY_CACHE) > _CAPABILITY_LIMIT:
+            _CAPABILITY_CACHE.popitem(last=False)
     return built
 
 
-_CAPABILITY_CACHE: dict[tuple[str, str, int, int, int], Capability] = {}
+#: Sized above the number of built artifacts (51 on 2026-10-14), so browsing the
+#: whole catalogue never evicts a descriptor that costs seconds to rebuild.
+_CAPABILITY_LIMIT = 96
+_CAPABILITY_CACHE: OrderedDict[tuple, Capability] = OrderedDict()
+_CAPABILITY_LOCK = threading.Lock()
 
 
 def _capabilities_uncached(
@@ -376,7 +398,13 @@ def _capabilities_uncached(
                 str(v) for v in values if v is not None and str(v).strip() != ""
             )
 
-    periods = sorted({str(p) for p in cells.column("competencia").to_pylist() if p})
+    # Distinct values first, Python second: `to_pylist()` over a national
+    # artifact's 5.1M cells cost 16.9 of this function's 18.3 s (2026-10-14);
+    # `pc.unique` of the same columns is 0.2 s and leaves ~5,600 values to sort.
+    periods = sorted(str(p) for p in pc.unique(cells.column("competencia")).drop_null().to_pylist() if p)
+    municipality_codes = sorted(
+        str(c) for c in pc.unique(cells.column("municipality")).drop_null().to_pylist() if c
+    )
 
     # --- dimensions -----------------------------------------------------
     support = dict(manifest.get("support") or {})
@@ -468,7 +496,7 @@ def _capabilities_uncached(
     # What this build could have SEEN. Distinct from what it found: a
     # municipality outside the fetched UFs was never in view, and reading its
     # absence as a zero turns one state into a country.
-    observed_ufs = sorted({str(code)[:2] for code in cells.column("municipality").to_pylist() if code})
+    observed_ufs = sorted({code[:2] for code in municipality_codes})
     declared_uf = [str(u).upper() for u in (manifest.get("uf") or ())]
     coverage = {
         "kind": "partial" if declared_uf else "unknown",
@@ -478,7 +506,7 @@ def _capabilities_uncached(
         "declared_ufs": declared_uf,
         # The UF prefixes actually present, which is a measurement either way.
         "observed_ufs": observed_ufs,
-        "municipalities": len({str(c) for c in cells.column("municipality").to_pylist() if c}),
+        "municipalities": len(municipality_codes),
         "note": (
             f"Construído apenas a partir de {', '.join(declared_uf)}. "
             "Um município sem célula NÃO foi observado — não é zero — e "
@@ -489,7 +517,7 @@ def _capabilities_uncached(
     if not declared_uf:
         coverage["kind"] = "national" if len(observed_ufs) >= 25 else "unknown"
 
-    declared = classifications(Path(root) if root else None)
+    declared = classifications()
     # `uf` is BOTH a base grain and an IBGE classification, so the two lists
     # overlap. Deduplicated with order kept: the first three are the grains
     # every artifact has, and the rest are what geography.yml declares.
@@ -652,7 +680,7 @@ def catalogue(
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     out: list[dict[str, Any]] = []
-    for name, spec in sorted(load_specs(Path(root) if root else None).items()):
+    for name, spec in sorted(load_specs().items()):
         directory = artifact_dir(name, resolved)
         manifest_path = directory / "manifest.json"
         built = manifest_path.exists() and (directory / "cells.parquet").exists()
