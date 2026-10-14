@@ -21,7 +21,6 @@ links against each other.
 
 from __future__ import annotations
 
-import math
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
@@ -115,14 +114,13 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str 
             pm = "p_match" if "p_match" in stored[0].column_names else "1.0"
             ev = "bits"
         else:
-            # a deterministic run has no evidence per pair, only its negative control's share of pairs found by chance:
-            # each pair is right with probability 1 − chance, and weighs log2((1 − chance)/chance) bits, so a weak key
-            # (TOXC to SIH, 8.7 % by chance) merges after strong edges and is drawn at its own precision; the run had
-            # failed the union for want of a bits column (2026-10-11)
-            report = stored[1]
-            chance = report.get("chance_percent", report.get("estimated_fdr_percent"))
-            c = min(max(float(chance) / 100.0 if chance is not None else 0.0, 1e-6), 0.5)
-            pm, ev = f"{1.0 - c!r}", f"CAST({math.log2((1.0 - c) / c)!r} AS DOUBLE)"
+            # a deterministic run has no evidence per pair: each pair is right with probability 1 - chance and weighs
+            # log2((1 - chance) / chance) bits (`uncertainty.run_probability`); the run had failed the union for want of
+            # a bits column (2026-10-11)
+            from .uncertainty import run_probability
+
+            p, b = run_probability(stored[1])
+            pm, ev = repr(p), f"CAST({b!r} AS DOUBLE)"
         parts.append(f"""SELECT '{name}' AS spec, '{lds}' AS lds, '{lrole}' AS lrole, l,
                                  '{rds}' AS rds, '{rrole}' AS rrole, r, {ev} AS bits, CAST({pm} AS DOUBLE) AS p_match
                           FROM {view}""")

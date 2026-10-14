@@ -59,6 +59,7 @@ __all__ = [
     "build_municipality_points",
     "point_sources",
     "distance_km",
+    "great_circle_km",
     "municipality_point",
     "classification_names",
     "municipality_fields",
@@ -968,16 +969,22 @@ def municipality_point(code: str, kind: str = "population") -> tuple[float, floa
     return float(row[f"{kind}_lon"]), float(row[f"{kind}_lat"])
 
 
+def great_circle_km(lon1: Any, lat1: Any, lon2: Any, lat2: Any) -> Any:
+    """Great-circle (haversine) distance in km between points in degrees; scalars or arrays (NaN stays NaN). The one
+    distance code: `distance_km` and the linkage's residence levels both call it."""
+    import numpy as np
+
+    lon1, lat1, lon2, lat2 = (np.radians(np.asarray(x, dtype=float)) for x in (lon1, lat1, lon2, lat2))
+    h = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
+    return 2 * 6371.0088 * np.arcsin(np.sqrt(h))
+
+
 def distance_km(a: str, b: str, kind: str = "population") -> float | None:
     """Great-circle distance between two municipalities' points, in km (None when either is unknown)."""
-    import math
-
     pa_, pb = municipality_point(a, kind), municipality_point(b, kind)
     if pa_ is None or pb is None:
         return None
-    lon1, lat1, lon2, lat2 = map(math.radians, (*pa_, *pb))
-    h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
-    return 2 * 6371.0088 * math.asin(math.sqrt(h))
+    return float(great_circle_km(*pa_, *pb))
 
 
 def _uf_codes(ufs: list[str]) -> list[int]:
