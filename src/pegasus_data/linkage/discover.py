@@ -15,10 +15,9 @@ instead of asserting it:
    side, so neither record has a look-alike (counting one side only inflates a
    key that a large left side shares with a few right records: every newborn of
    a city and day "meets" its one infant death).
-3. The same count is repeated with every left date in the key shifted by
-   +/-7 days (a week keeps the weekday). A true partner then disagrees, while
-   coincidental agreement keeps its rate: the placebo count is what the key
-   finds by chance.
+3. The same count is repeated with every left date in the key moved by
+   +/-7 days round the partner side's own range (`placebo.rotation`; a week keeps the weekday). A true partner then
+   disagrees, while coincidental agreement keeps its rate: the placebo count is what the key finds by chance.
 4. Two measures, real minus placebo:
    - ``excess_mutual``: pairs a key isolates more often than chance allows
      (the key *identifies* shared people);
@@ -50,7 +49,8 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
-from .identity import connect
+from . import placebo
+from .identity import connect, quote
 from .roles import dataset_roles, role_table
 
 COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
@@ -174,7 +174,8 @@ def _intervals(types: dict[str, str]) -> list[str]:
 
 
 def _count(con: duckdb.DuckDBPyConnection, key: tuple[tuple[str, str], ...], ltypes: dict[str, str],
-           days: dict[str, str]) -> dict[int, tuple[int, int, int, int, int]]:
+           days: dict[str, str], ranges: dict[str, tuple[Any, Any] | None]
+           ) -> dict[int, tuple[int, int, int, int, int]]:
     """Counts for the real key and both placebo shifts, in one pass per side.
 
     The right side is grouped once (shifts move the left side only); the left
@@ -190,8 +191,8 @@ def _count(con: duckdb.DuckDBPyConnection, key: tuple[tuple[str, str], ...], lty
     rsel = ", ".join(f'"{b}" AS k{i}' for i, b in enumerate(rcols))
 
     def lsel(shift: int) -> str:
-        exprs = [f'("{a}" + INTERVAL ({shift}) DAY)::DATE' if ltypes[a] == "date" and shift else f'"{a}"'
-                 for a in lcols]
+        exprs = [(placebo.rotation(a, ranges[b], shift) if ltypes[a] == "date" and shift else None) or quote(a)
+                 for a, b in key]
         return f"SELECT {shift} AS s, " + ", ".join(f"{e} AS k{i}" for i, e in enumerate(exprs)) +             f" FROM L WHERE {lnn}"
 
     shifts = (0, SHIFT_DAYS, -SHIFT_DAYS)
@@ -245,6 +246,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
         days[day] = view
         rt = {**rt, day: "date"}
     measured: dict[tuple[tuple[str, str], ...], KeyResult] = {}
+    ranges: dict[str, tuple[Any, Any] | None] = {}
 
     def measure(keys: Sequence[tuple[tuple[str, str], ...]]) -> list[KeyResult]:
         out = []
@@ -252,7 +254,10 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
             if key in measured:
                 out.append(measured[key])
                 continue
-            c = _count(con, key, lt, days)
+            for a, b in key:
+                if lt[a] == "date" and b not in ranges:     # the period the moved dates must stay inside
+                    ranges[b] = placebo.partner_range(con, [b], days.get(b, "R"))
+            c = _count(con, key, lt, days, ranges)
             nl, nr, real_any, real_mutual, real_rm = c[0]
             p_plus, p_minus = c[SHIFT_DAYS], c[-SHIFT_DAYS]
             res = KeyResult(left, right, key, nl, nr, real_any, real_mutual,

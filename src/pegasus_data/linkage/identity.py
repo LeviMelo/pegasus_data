@@ -13,6 +13,11 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 
+def quote(name: str) -> str:
+    """A role or column name as a SQL identifier."""
+    return '"' + name.replace('"', '""') + '"'
+
+
 def connect() -> duckdb.DuckDBPyConnection:
     """A DuckDB connection for linkage, bounded in memory.
 
@@ -81,4 +86,4 @@ def record_ids(table: pa.Table) -> pa.Array:
                        ).to_arrow_table().column("id").combine_chunks()
 
 
-__all__ = ["DUP_SQL", "RECORD_ID_SQL", "connect", "record_ids"]
+__all__ = ["DUP_SQL", "RECORD_ID_SQL", "connect", "quote", "record_ids"]

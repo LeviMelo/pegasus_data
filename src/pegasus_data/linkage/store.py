@@ -22,8 +22,9 @@ import pyarrow.parquet as pq
 from .engine import raw_links
 
 #: Bumped when the engine, the levels, the placebo or the verdict rules change what a run holds: every stored run
-#: written under another version is stale (`fingerprint`).
-LINKAGE_VERSION = 2
+#: written under another version is stale (`fingerprint`). 3: one placebo for both engines (`placebo`: the deterministic
+#: control and the anchors' control move round the partner's range, as the probabilistic one does).
+LINKAGE_VERSION = 3
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for

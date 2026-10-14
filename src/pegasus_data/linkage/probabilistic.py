@@ -10,16 +10,10 @@ Runs a link spec's ``probabilistic`` block (``curation/links.yml``):
    levels are its error channel, measured without assuming it.
 3. **Candidates** from several blocking keys (intrinsic roles; geography never
    filters), each pair scored as the sum of its fields' bits.
-4. **Control.** The same candidate generation and scoring with every left
+4. **Control** (`placebo`). The same candidate generation and scoring with every left
    date (birth and event dates) moved by half a year *inside the partner
-   side's own period* (a rotation of that period, in whole weeks: the weekday is
-   kept). A date moved out of the partner's period meets no partner: a flat
-   +400 days left 2.1-3.1% of the neonatal admissions a partner-side birth on
-   the shifted day (+7 days: 99.8%), so the false pairs the date blocks
-   create had no placebo, the threshold came out lower than the data needs and
-   the false-match rate read 1% by construction (2026-10-14). A block whose
-   placebo does not reach the coincidences its real candidates must hold
-   (`_placebo_report`) fails the run.
+   side's own period* (`placebo.rotation`). A block whose placebo does not reach the coincidences its real
+   candidates must hold (`placebo.block_report`) fails the run.
 5. **Threshold** where the estimated false-match rate (control pairs over real
    pairs above it, both resolved 1:1) is at most ``target_fdr``; then 1:1
    resolution by descending score.
@@ -43,9 +37,7 @@ Scope invariance (docs/plans/linkage-theory.md §3.2, step T2):
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
-from datetime import date
 from typing import Any
 
 import duckdb
@@ -55,23 +47,23 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
-from .engine import LinkSpec, _prepare, _q, judge, links_file, load_links, stored_key, upper95, validate
-from .identity import connect, record_ids
+from . import placebo
+from .engine import (
+    LinkSpec,
+    Report,
+    _prepare,
+    links_file,
+    load_links,
+    stored_key,
+    upper95,
+    validate,
+    where_roles,
+)
+from .identity import connect, quote, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import dataset_roles, role_table, unusable_roles
+from .roles import dataset_roles, role_table, unusable_roles, why_unusable
 
-#: How far the placebo rotates a date inside the partner's period: half a year (26 weeks), so the day-month changes
-#: (a shift of about a year would hand back the same day-month and earn typo credit) and the weekday does not. A
-#: partner period shorter than a year is rotated by half of it.
-PLACEBO_DAYS = 182
-#: A block's placebo must produce at least this share of its real candidates' coincidences. The coincidences are at
-#: least `candidates - left records` (a left record has at most one true partner), whatever the true-link rate is;
-#: a faithful placebo has about that many, half is the slack for the season and weekday mix a rotation changes.
-PLACEBO_REACH = 0.5
-#: ... and is judged only when the coincidences expected are at least this many (below it a Poisson count falls short
-#: of half by chance)
-PLACEBO_MIN_EXPECTED = 30
 #: Random pairs for chance agreement (u). 200,000 pairs over 50,000-record
 #: reservoirs left "birth date equal" (u about 5e-5, a dozen occurrences) with
 #: 0.76 bits of sampling noise between seeds, enough to move thousands of
@@ -138,11 +130,7 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
 
 
 @dataclass
-class ProbabilisticResult:
-    spec: str
-    left_records: int
-    right_records: int
-    pairs: pa.Table
+class ProbabilisticResult(Report):
     models: list[FieldModel] = field(default_factory=list)
     candidates: int = 0
     control_candidates: int = 0
@@ -150,18 +138,12 @@ class ProbabilisticResult:
     estimated_fdr_percent: float | None = None
     control_above_threshold: int = 0
     fdr_upper95_percent: float | None = None
-    validations: dict[str, Any] = field(default_factory=dict)
-    verdict: str = "not viable"
     threshold_source: str = "own"
     calibration: dict[str, Any] = field(default_factory=dict)
-    #: what failed the verdict, in words (empty when viable)
-    reasons: list[str] = field(default_factory=list)
-    #: per block: real and placebo candidate pairs and whether the placebo reaches the block (`_placebo_report`)
+    #: per block: real and placebo candidate pairs and whether the placebo reaches the block (`placebo.block_report`)
     placebo: list[dict[str, Any]] = field(default_factory=list)
     #: comparisons and blocks left out because a role they read is absent or has no value in the scope, with the reason
     skipped: dict[str, str] = field(default_factory=dict)
-    #: per year, what the two sides' files lacked (`roles.role_gaps`)
-    role_gaps: dict[str, Any] = field(default_factory=dict)
     #: where the threshold came from when it is not the nation's: "no national reference for <period>"
     reference: str = ""
     #: The error channels per setting (the state that publishes the left
@@ -170,26 +152,21 @@ class ProbabilisticResult:
 
     def summary(self) -> dict[str, Any]:
         return {
-            "spec": self.spec, "method": "probabilistic", "left_records": self.left_records,
-            "right_records": self.right_records, "candidates": self.candidates,
+            **self._common(), "method": "probabilistic", "candidates": self.candidates,
             "control_candidates": self.control_candidates, "threshold_bits": self.threshold_bits,
-            "pairs": self.pairs.num_rows,
-            "linked_share": round(self.pairs.num_rows / self.left_records, 4) if self.left_records else 0.0,
             "estimated_fdr_percent": self.estimated_fdr_percent,
             "control_pairs_above_threshold": self.control_above_threshold,
-            "fdr_upper95_percent": self.fdr_upper95_percent, "validations": self.validations,
-            "verdict": self.verdict, "threshold_source": self.threshold_source,
+            "fdr_upper95_percent": self.fdr_upper95_percent, "threshold_source": self.threshold_source,
             "calibration": self.calibration, "models": [m.as_dict() for m in self.models],
-            "verdict_reasons": self.reasons, "placebo": self.placebo, "skipped": self.skipped,
-            "role_gaps": self.role_gaps, "reference": self.reference,
+            "placebo": self.placebo, "skipped": self.skipped, "reference": self.reference,
             "models_by_setting": {key: [{"comparison": m.comparison.name, "anchors": m.anchors,
                                          "m": {k: round(v, 5) for k, v in m.m.items()}} for m in ms]
                                   for key, ms in sorted(self.models_by_setting.items())},
         }
 
 
-def _partner_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, left_dates: list[str]
-                    ) -> dict[str, tuple[date, date]]:
+def _placebo_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, left_dates: list[str]
+                    ) -> dict[str, tuple[Any, Any]]:
     """For each left date role, the first and last date of the partner side's roles it is compared or blocked with (an
     interval's start and end both): the period a placebo date has to stay inside to meet a partner. A role the
     comparisons and blocks do not pair (the control role alone) is placed inside its own side's period."""
@@ -201,43 +178,9 @@ def _partner_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, lef
         for left, right in block:
             if left in partners:
                 partners[left].update(right.split(".."))
-    out: dict[str, tuple[date, date]] = {}
-    for role, rights in partners.items():
-        view, columns = ("R", sorted(rights)) if rights else ("L", [role])
-        union = " UNION ALL ".join(f"SELECT {_q(c)} AS v FROM {view}" for c in columns)
-        lo, hi = con.execute(f"SELECT min(v), max(v) FROM ({union})").fetchone() or (None, None)  # type: ignore[misc]
-        if lo is not None:
-            out[role] = (lo, hi)
-    return out
-
-
-def _shifted_left(con: duckdb.DuckDBPyConnection, ranges: dict[str, tuple[date, date]]) -> dict[str, int]:
-    """The placebo's left side ``LS``: EVERY compared or blocking date rotated inside the partner's period.
-
-    Shifting only the birth date left a pair reachable through another block
-    (death day + hospital): the true partner came back into the placebo, short
-    only of the birth date's bits, and sat at the threshold (national 23.22
-    against 23.35; a Sergipe slice 23.9, half its pairs; 2026-10-03). Every
-    date moves, so no block can reach a true partner. And each moves *inside*
-    the period the partner side covers (`PLACEBO_DAYS`; a date outside that period meets no partner
-    in the real run either, and stays), so the blocks that hold a date generate
-    placebo candidates at the density the real ones do. Returns the days each role moved.
-    """
-    shifts: dict[str, int] = {}
-    replaced: list[str] = []
-    for role, (lo, hi) in ranges.items():
-        span = (hi - lo).days + 1
-        k = min(PLACEBO_DAYS, span // 2)
-        k = k - k % 7 if k >= 7 else k
-        if k < 1:
-            continue
-        shifts[role] = k
-        q, a = _q(role), f"DATE '{lo.isoformat()}'"
-        replaced.append(f"CASE WHEN {q} BETWEEN {a} AND DATE '{hi.isoformat()}' "
-                        f"THEN {a} + CAST(({q} - {a} + {k}) % {span} AS INTEGER) ELSE {q} END AS {q}")
-    clause = f"REPLACE ({', '.join(replaced)})" if replaced else ""
-    con.execute(f"CREATE OR REPLACE TEMP TABLE LS AS SELECT * {clause} FROM L")
-    return shifts
+    found = {role: placebo.partner_range(con, sorted(rights), "R") if rights else placebo.partner_range(con, [role], "L")
+             for role, rights in partners.items()}
+    return {role: within for role, within in found.items() if within is not None}
 
 
 def _materialise(con: duckdb.DuckDBPyConnection, name: str) -> pa.Array:
@@ -253,8 +196,8 @@ def _materialise(con: duckdb.DuckDBPyConnection, name: str) -> pa.Array:
 def _condition(a: str, b: str) -> str:
     if ".." in b:
         start, end = b.split("..")
-        return f"l.{_q(a)} BETWEEN r.{_q(start)} AND r.{_q(end)}"
-    return f"l.{_q(a)} = r.{_q(b)}"
+        return f"l.{quote(a)} BETWEEN r.{quote(start)} AND r.{quote(end)}"
+    return f"l.{quote(a)} = r.{quote(b)}"
 
 
 def _block_sql(left_view: str, blocks: Any) -> list[str]:
@@ -262,7 +205,7 @@ def _block_sql(left_view: str, blocks: Any) -> list[str]:
     out = []
     for block in blocks:
         conds = [_condition(a, b) for a, b in block]
-        notnull = " AND ".join(f"l.{_q(a)} IS NOT NULL" for a, _b in block)
+        notnull = " AND ".join(f"l.{quote(a)} IS NOT NULL" for a, _b in block)
         out.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l JOIN R r ON {' AND '.join(conds)}"
                    f" WHERE {notnull}")
     return out
@@ -283,38 +226,16 @@ def _build_candidates(con: duckdb.DuckDBPyConnection, left_view: str, name: str,
     return counts
 
 
-def _placebo_report(blocks: Any, real: list[tuple[int, int]], control: list[tuple[int, int]]
-                    ) -> tuple[list[dict[str, Any]], list[str]]:
-    """Per block, whether the placebo reaches it, and the failures in words. A left record has at most one true
-    partner, so of a block's real candidates at least ``candidates - left records`` are coincidences, and the placebo
-    (which holds only coincidences) must hold about as many. Fewer than `PLACEBO_REACH` of them: it does not reach the
-    block, and the threshold chosen against it would let through the false pairs the block creates."""
-    rows: list[dict[str, Any]] = []
-    failures: list[str] = []
-    for block, (cand, left), (ctl, _l) in zip(blocks, real, control, strict=True):
-        expected = max(cand - left, 0)
-        reaches = expected < PLACEBO_MIN_EXPECTED or ctl >= PLACEBO_REACH * expected
-        label = " + ".join(f"{a}~{b}" for a, b in block)
-        rows.append({"block": label, "candidates": cand, "left_records": left, "control_candidates": ctl,
-                     "coincidences_at_least": expected, "reaches": reaches})
-        if not reaches:
-            failures.append(f"the placebo does not reach block [{label}]: {ctl:,} control candidates against at least "
-                            f"{expected:,} coincidences among {cand:,} real candidates")
-    if sum(r["candidates"] for r in rows) and not sum(r["control_candidates"] for r in rows):
-        failures.append("the placebo generated no candidate pair")
-    return rows, failures
-
-
 def _select_values(left_view: str, pairs_sql: str, compare, setting: bool = False) -> str:
     """SQL returning l, r and every compared value, one column per role
     (and ``s``, the left record's setting, when asked)."""
-    lcols = [f'l.{_q(c.left)} AS "v{i}_l"' for i, c in enumerate(compare)]
+    lcols = [f'l.{quote(c.left)} AS "v{i}_l"' for i, c in enumerate(compare)]
     rcols = []
     for i, c in enumerate(compare):
         for j, role in enumerate(c.right_roles):
-            rcols.append(f'r.{_q(role)} AS "v{i}_r{j}"')
+            rcols.append(f'r.{quote(role)} AS "v{i}_r{j}"')
         if c.given:
-            rcols.append(f'{c.given_side[0]}.{_q(c.given)} AS "v{i}_g"')
+            rcols.append(f'{c.given_side[0]}.{quote(c.given)} AS "v{i}_g"')
     if setting:
         lcols.append('l."_setting" AS s')
     return f"""SELECT p.l, p.r, {", ".join(lcols + rcols)}
@@ -349,14 +270,6 @@ def _counts(lv: np.ndarray | Levels) -> dict[str, int]:
     codes, names = _factorize(lv)
     n = np.bincount(codes, minlength=len(names))
     return {str(k): int(c) for k, c in zip(names, n, strict=True) if c and str(k) != MISSING}
-
-
-def _distribution(lv: np.ndarray | Levels) -> tuple[dict[str, float], int]:
-    counts = _counts(lv)
-    total = sum(counts.values())
-    if not total:
-        return {}, 0
-    return {k: c / total for k, c in counts.items()}, int(total)
 
 
 def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float], int]]:
@@ -513,20 +426,25 @@ def apply_calibration(scores: np.ndarray, curve: dict[str, Any]) -> np.ndarray:
     return 1.0 - rate[pos]
 
 
-def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tuple[str, bool]:
-    """Pairs linked 1:1 on every other comparison (or their control).
+def _anchor_control(others: list[Comparison], control_role: str, ranges: dict[str, tuple[Any, Any]],
+                    days: int) -> str:
+    """The left side of the anchors' control: the left records with the key the control moves (the control role when an
+    anchor key reads it, else the first date key) moved round the partner's period (`placebo.rotation`, ``days`` as the
+    deterministic passes move it); "" when there is no such key."""
+    date_keys = [c for c in others if c.kind in ("date", "interval")]
+    role = control_role if any(c.left == control_role for c in others) else (date_keys[0].left if date_keys else None)
+    sql = placebo.rotation(role, ranges.get(role), days) if role else None
+    return f"({placebo.moved_sql('L', {role: sql})})" if role and sql else ""
+
+
+def _anchor_sql(others: list[Comparison], left: str = "L") -> str:
+    """Pairs linked 1:1 on every other comparison, among the records of ``left`` (the left side, or its control
+    `_anchor_control`).
 
     A pair is kept when each of its records has exactly one partner under the
     join: the 1:1 rule of the deterministic engine, which also works for an
     interval (a birth day BETWEEN an admission's start and end).
     """
-    date_keys = [c for c in others if c.kind in ("date", "interval")]
-    shift_role = control_role if any(c.left == control_role for c in others) else (date_keys[0].left if date_keys else None)
-    left = "L"
-    if shift:
-        if not shift_role:
-            return "", False
-        left = f"(SELECT * REPLACE (CAST({_q(shift_role)} + INTERVAL 7 DAY AS DATE) AS {_q(shift_role)}) FROM L)"
     if all(".." not in c.right for c in others):
         # Equality keys: a record has exactly one partner exactly when the
         # other side's group of its key has one record. Grouping each side
@@ -534,20 +452,20 @@ def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tup
         # leaving the birth date out of the newborn link joined each admission
         # to every birth of its sex in its hospital, and held the process at
         # 18 GB (2026-10-03). Same pairs as the join below.
-        lk = ", ".join(f"{_q(c.left)} AS k{i}" for i, c in enumerate(others))
-        rk = ", ".join(f"{_q(c.right)} AS k{i}" for i, c in enumerate(others))
-        lnn = " AND ".join(f"{_q(c.left)} IS NOT NULL" for c in others)
-        rnn = " AND ".join(f"{_q(c.right)} IS NOT NULL" for c in others)
+        lk = ", ".join(f"{quote(c.left)} AS k{i}" for i, c in enumerate(others))
+        rk = ", ".join(f"{quote(c.right)} AS k{i}" for i, c in enumerate(others))
+        lnn = " AND ".join(f"{quote(c.left)} IS NOT NULL" for c in others)
+        rnn = " AND ".join(f"{quote(c.right)} IS NOT NULL" for c in others)
         on = " AND ".join(f"lg.k{i} = rg.k{i}" for i in range(len(others)))
         return f"""WITH lg AS (SELECT {lk}, count(*) AS n, min(_id) AS id FROM {left} WHERE {lnn} GROUP BY ALL),
                         rg AS (SELECT {rk}, count(*) AS n, min(_id) AS id FROM R WHERE {rnn} GROUP BY ALL)
-                   SELECT lg.id AS l, rg.id AS r FROM lg JOIN rg ON {on} WHERE lg.n = 1 AND rg.n = 1""", True
+                   SELECT lg.id AS l, rg.id AS r FROM lg JOIN rg ON {on} WHERE lg.n = 1 AND rg.n = 1"""
     cond = " AND ".join(_condition(c.left, c.right) for c in others)
-    notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
+    notnull = " AND ".join(f"l.{quote(c.left)} IS NOT NULL" for c in others)
     return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
                          JOIN R r ON {cond} WHERE {notnull})
                SELECT l, r FROM j
-               QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1""", True
+               QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1"""
 
 
 def _by_setting(comp: Comparison, levels_: np.ndarray, settings: np.ndarray, reference: dict[str, float],
@@ -595,7 +513,7 @@ def _exact_equal(con: duckdb.DuckDBPyConnection, comp, u: dict[str, float]) -> d
     """
     if comp.kind not in _EXACT_EQUAL_KINDS or comp.given or len(comp.right_roles) != 1:
         return u
-    left, right = _q(comp.left), _q(comp.right_roles[0])
+    left, right = quote(comp.left), quote(comp.right_roles[0])
     try:
         n_l, n_r, agree = con.execute(f"""
             WITH a AS (SELECT {left} AS v, count(*) AS c FROM L WHERE {left} IS NOT NULL GROUP BY 1),
@@ -660,8 +578,7 @@ def _usable(prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> tuple[P
     right_bad = unusable_roles(right, sorted(right_names))
 
     def why(lefts: Any, rights: Any) -> str:
-        return "; ".join([f"{r} {left_bad[r]}" for r in lefts if r in left_bad]
-                         + [f"{r} {right_bad[r]}" for r in rights if r in right_bad])
+        return why_unusable(left_bad, right_bad, lefts, rights)
 
     skipped: dict[str, str] = {}
     compare = []
@@ -687,11 +604,9 @@ def _usable(prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> tuple[P
 def _used_roles(spec: LinkSpec, prob: ProbabilisticSpec) -> tuple[set[str], set[str]]:
     """The roles each side contributes to the probabilistic method (comparisons, blocks, side filters): a validation
     reading one agrees by construction (`engine.validate`)."""
-    left = ({r for c in prob.compare for r in c.side_roles("left")} | {k[0] for b in prob.blocks for k in b}
-            | set(re.findall(r'"([^"]+)"', spec.left.where)))
-    right = ({r for c in prob.compare for r in c.side_roles("right")}
-             | {r for b in prob.blocks for k in b for r in k[1].split("..")} | set(re.findall(r'"([^"]+)"', spec.right.where)))
-    return left, right
+    left = {r for c in prob.compare for r in c.side_roles("left")} | {k[0] for b in prob.blocks for k in b}
+    right = {r for c in prob.compare for r in c.side_roles("right")} | {r for b in prob.blocks for k in b for r in k[1].split("..")}
+    return left | where_roles(spec.left), right | where_roles(spec.right)
 
 
 def _anchor_channel(con: duckdb.DuckDBPyConnection, comp: Comparison, anchors: pa.Table, anchor_levels: Any,
@@ -760,12 +675,14 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {r for r in block_roles if r in left.column_names
                            and pa.types.is_date(left.schema.field(r).type)}
                         | {prob.control_role})
-    _shifted_left(con, _partner_ranges(con, prob, left_dates))
+    ranges = _placebo_ranges(con, prob, left_dates)
+    con.execute("CREATE OR REPLACE TEMP TABLE LS AS " + placebo.moved_sql("L", {
+        role: sql for role, within in ranges.items() if (sql := placebo.rotation(role, within, placebo.PLACEBO_DAYS))}))
     evidence_only = [c for c in prob.compare if not c.is_key]
     # The candidate pairs, real and placebo, built once each, and counted per block.
     real_counts = _build_candidates(con, "L", "C", prob.blocks)
     control_counts = _build_candidates(con, "LS", "CS", prob.blocks)
-    placebo, placebo_failures = _placebo_report(prob.blocks, real_counts, control_counts)
+    placebo_rows, placebo_failures = placebo.block_report(prob.blocks, real_counts, control_counts)
     candidate_u = (dict(zip([c.name for c in evidence_only],
                             _distributions_stream(con, _select_values("L", "SELECT l, r FROM C", evidence_only),
                                                   evidence_only), strict=True))
@@ -775,10 +692,11 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     for i, comp in enumerate(prob.compare):
         u, n_u = candidate_u[comp.name] if comp.name in candidate_u else random_u[i]
         others = [c for c in prob.compare if c is not comp and c.is_key]
-        anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
-        control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
+        anchor_sql = _anchor_sql(others)
+        control_left = _anchor_control(others, prob.control_role, ranges, spec.control_shift_days)
+        control_sql = _anchor_sql(others, control_left) if control_left else ""
         n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]  # type: ignore[index]
-        n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0  # type: ignore[index]
+        n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if control_sql else 0  # type: ignore[index]
         anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).to_arrow_table()
         anchor_levels: Any = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
                          else np.array([], dtype=object))
@@ -834,12 +752,15 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # the control count, over the real pairs kept).
     control_kept = int((control_scores >= t).sum()) if t is not None else 0
     upper = upper95(control_kept, len(kl))
-    verdict, reasons = judge(len(kl), fdr_percent, validations, upper, placebo_failures=placebo_failures)
-    reasons += [f"{what} left out: {why}" for what, why in skipped.items()]
-    return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
-                               round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
-                               validations, verdict, threshold_source, curve, reasons, placebo, skipped,
-                               {"left": role_gaps(left), "right": role_gaps(right)}, "", by_setting)
+    result = ProbabilisticResult(
+        spec.name, n_left, n_right, pairs, validations, role_gaps={"left": role_gaps(left), "right": role_gaps(right)},
+        models=models, candidates=len(rscore), control_candidates=len(cscore),
+        threshold_bits=round(t, 2) if t is not None else None, estimated_fdr_percent=fdr_percent,
+        control_above_threshold=control_kept, fdr_upper95_percent=upper, threshold_source=threshold_source,
+        calibration=curve, placebo=placebo_rows, skipped=skipped, models_by_setting=by_setting)
+    result.decide(fdr_percent, upper, placebo_failures=placebo_failures,
+                  left_out=[f"{what} left out: {why}" for what, why in skipped.items()])
+    return result
 
 
 def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,

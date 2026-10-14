@@ -177,6 +177,26 @@ def build_entities(*, period: object, geography: object, method: str | None = No
     return _merge(edges)
 
 
+def _graph(edges: pa.Table) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, int]:
+    """The link graph of an edge table: its nodes ("dataset|role|record") numbered by Arrow's dictionary encoding (a
+    Python dictionary over 1.1 M node names took 2 s), the two ends of each edge as node numbers, each node's connected
+    component and their number. Returns (encoding, left ends, right ends, component of each node, components)."""
+    import pyarrow.compute as pc
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+
+    def names(side: str) -> pa.Array:
+        cols = [edges.column(f"{side}ds"), edges.column(f"{side}role"), edges.column(side)]
+        return pc.binary_join_element_wise(*[pc.cast(c, pa.string()) for c in cols], "|").combine_chunks()
+
+    enc = pc.dictionary_encode(pa.concat_arrays([names("l"), names("r")]))
+    idx = enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
+    m, n = edges.num_rows, len(enc.dictionary)
+    li, ri = idx[:m], idx[m:]
+    ncomp, label = connected_components(coo_matrix((np.ones(m), (li, ri)), shape=(n, n)), directed=False)
+    return enc, li, ri, label, ncomp
+
+
 def _merge(edges: pa.Table) -> Entities:
     """Persons from an edge table (strongest first). Edges are merged in their order under the constraints of a person
     (`AT_MOST_ONE`, `EXCLUSIVE`), but only where a constraint can bind: the link graph's connected components never
@@ -186,24 +206,18 @@ def _merge(edges: pa.Table) -> Entities:
     components that can refuse (about 3% of edges), where it took 97 s over 2.4 M edges before."""
     import pyarrow.compute as pc
     from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components, minimum_spanning_tree
+    from scipy.sparse.csgraph import minimum_spanning_tree
 
     m = edges.num_rows
     if not m:
         return Entities(pa.table({"record": pa.array([], pa.string()), "dataset": pa.array([], pa.string()),
                                   "role": pa.array([], pa.string()), "person": pa.array([], pa.int64())}))
 
-    def names(side: str) -> pa.Array:
-        cols = [edges.column(f"{side}ds"), edges.column(f"{side}role"), edges.column(side)]
-        return pc.binary_join_element_wise(*[pc.cast(c, pa.string()) for c in cols], "|").combine_chunks()
-
     def kinds(side: str) -> pa.Array:
         return pc.binary_join_element_wise(pc.cast(edges.column(f"{side}ds"), pa.string()),
                                            pc.cast(edges.column(f"{side}role"), pa.string()), "|").combine_chunks()
 
-    enc = pc.dictionary_encode(pa.concat_arrays([names("l"), names("r")]))
-    idx = enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
-    li, ri = idx[:m], idx[m:]
+    enc, li, ri, label, ncomp = _graph(edges)
     n = len(enc.dictionary)
     kenc = pc.dictionary_encode(pa.concat_arrays([kinds("l"), kinds("r")]))
     kidx = kenc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
@@ -211,7 +225,6 @@ def _merge(edges: pa.Table) -> Entities:
     kind_of = np.full(n, -1, np.int64)
     kind_of[li], kind_of[ri] = kidx[:m], kidx[m:]
     kind_id = {name: i for i, name in enumerate(kind_names)}
-    ncomp, label = connected_components(coo_matrix((np.ones(m), (li, ri)), shape=(n, n)), directed=False)
 
     # components that hold two nodes of an at-most-one kind, or every kind of the exclusive set
     constrained = np.zeros(ncomp, bool)
@@ -321,23 +334,11 @@ def _seeds_digest(seeds: tuple[str, str, Any]) -> str:
 
 def _component_mask(edges: pa.Table, seeds: tuple[str, str, Any]) -> np.ndarray:
     """Which edges lie in a connected component of the link graph holding a seed record (``seeds``: dataset, role,
-    ids). Nodes are numbered by Arrow's dictionary encoding (a Python dictionary over 1.1 M node names took 2 s)."""
+    ids)."""
     import pyarrow.compute as pc
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
 
     ds, role, ids = seeds
-
-    def names(side):
-        cols = [edges.column(f"{side}ds"), edges.column(f"{side}role"), edges.column(side)]
-        return pc.binary_join_element_wise(*[pc.cast(c, pa.string()) for c in cols], "|").combine_chunks()
-
-    enc = pc.dictionary_encode(pa.concat_arrays([names("l"), names("r")]))
-    idx = enc.indices.to_numpy(zero_copy_only=False).astype(np.int64)
-    m = edges.num_rows
-    li, ri = idx[:m], idx[m:]
-    n = len(enc.dictionary)
-    _, label = connected_components(coo_matrix((np.ones(m), (li, ri)), shape=(n, n)), directed=False)
+    enc, li, _ri, label, _ncomp = _graph(edges)
     at = pc.index_in(pa.array([f"{ds}|{role}|{x}" for x in ids], pa.string()), value_set=enc.dictionary)
     at = at.drop_null().to_numpy(zero_copy_only=False).astype(np.int64)
     return np.isin(label[li], np.unique(label[at]))
