@@ -1,5 +1,7 @@
 # Climate as context fields: one value per municipality and year
 
+*Note, 2026-10-14: the source measured here (INMET's stations) is superseded by BR-DWGD's municipal series (ADR-0178, [2026-10-14-climate-brdwgd](2026-10-14-climate-brdwgd.md)); the figures below stand as measurements of the stations.*
+
 **Date:** 2026-10-14. **Regime:** branch `fix2-climate`; station-month base read from `pegasus_core_data/lake/fields/climate`
 (read-only, 275,810 station-months); derived tables built under a scratch root (`registries/inmet` junctioned to the real one),
 14 s. Decision: ADR-0177.

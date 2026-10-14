@@ -166,7 +166,7 @@ $PD sidra series population_age_sex --fetch --validate   # stitched series (cura
 $PD sidra series literacy_15plus --report              # its comparability, gaps and the places with a figure per census; fields: `$PD fields --name persons_15_plus`
 $PD sidra check                              # compendium and axis maps against IBGE's names
 $PD sidra rebuild 9606                       # re-derive a table's parts from the cached responses, no request
-$PD fields --name climate --name temperature_months --name air_temperature --name air_temperature_monthly_max --name air_temperature_monthly_min --name precipitation_months --name precipitation_mm   # INMET climate (ADR-0177): the station-month base and the six fields read from it; offline from `registries/inmet`, ~15 s
+$PD fields --name climate_monthly --name temperature_months --name air_temperature --name air_temperature_monthly_max --name air_temperature_monthly_min --name precipitation_months --name precipitation_mm   # BR-DWGD climate (ADR-0178): latest Zenodo release of the municipal means (v3.2.3), 3 x 0.5 GB by byte range into `registries/brdwgd`, ~30 min the first time, ~20 s after; then `python scripts/climate_validation.py --root <root>` against INMET's station-months. INMET's own base: `$PD fields --name climate` (offline from `registries/inmet`)
 ```
 
 - Every response is kept under `<root>/registries/sidra/http/` (gzip, with URL, size, SHA-256, time); the

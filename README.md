@@ -215,8 +215,8 @@ age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardise
   disagree the conflict is reported, not resolved. Build it with
   `pegasus-data geography`.
 - **Fields** are municipal context: the IBGE aggregates API (GDP, value
-  added; Census sanitation, literacy and population by race), INMET climate
-  by station-month and S2iD disaster events, built
+  added; Census sanitation, literacy and population by race), BR-DWGD climate
+  by municipality-month and S2iD disaster events, built
   with `pegasus-data fields --name gdp --years 2010-2021`.
 - **SIDRA**, IBGE's whole aggregates catalog (9,336 tables), through one interface: `pegasus-data sidra search esgoto --level N6`,
   `sidra show 6805`, `sidra fetch 6805 -p 2022 -c 11558=all`, then `Sidra().labelled(6805)` for the facts with labels and
