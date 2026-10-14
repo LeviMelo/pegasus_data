@@ -122,15 +122,16 @@ def save(settings: Any, key: RunKey, pairs: pa.Table, summary: dict[str, Any]) -
     return target
 
 
-def load(settings: Any, key: RunKey, *, allow_stale: bool = False) -> tuple[pa.Table, dict[str, Any]] | None:
-    """A stored run, or None when there is none or it is not current: written under other inputs (``fingerprint``) or
-    before runs carried one, or its pairs file is not the one its report describes. ``allow_stale`` returns it
-    anyway with ``report["stale"]`` naming why, for a reader that wants to see old runs."""
+def report(settings: Any, key: RunKey, *, allow_stale: bool = False) -> dict[str, Any] | None:
+    """A stored run's report without its pairs, or None when there is none or it is not current: written under other
+    inputs (``fingerprint``) or before runs carried one, or its pairs file is not the one the report describes.
+    ``allow_stale`` returns it anyway with ``["stale"]`` naming why. The one currency rule of every reader: PegaSUS read
+    the report file directly and took runs of the code before the placebo fix for current (2026-10-14)."""
     folder = links_dir(settings) / key.spec
-    pairs, report = folder / f"{key.stem}.parquet", folder / f"{key.stem}.json"
-    if not (pairs.exists() and report.exists()):
+    pairs, path = folder / f"{key.stem}.parquet", folder / f"{key.stem}.json"
+    if not (pairs.exists() and path.exists()):
         return None
-    body = json.loads(report.read_text(encoding="utf-8"))
+    body = json.loads(path.read_text(encoding="utf-8"))
     run = body.get("run") or {}
     stale = ""
     if run.get("pairs_bytes") != pairs.stat().st_size:
@@ -141,7 +142,16 @@ def load(settings: Any, key: RunKey, *, allow_stale: bool = False) -> tuple[pa.T
         if not allow_stale:
             return None
         body["stale"] = stale
-    return pq.read_table(pairs), body
+    return body
+
+
+def load(settings: Any, key: RunKey, *, allow_stale: bool = False) -> tuple[pa.Table, dict[str, Any]] | None:
+    """A stored run (its pairs and its `report`), or None when there is none or it is not current; ``allow_stale``
+    returns it anyway with ``report["stale"]`` naming why, for a reader that wants to see old runs."""
+    body = report(settings, key, allow_stale=allow_stale)
+    if body is None:
+        return None
+    return pq.read_table(links_dir(settings) / key.spec / f"{key.stem}.parquet"), body
 
 
 def runs(settings: Any) -> list[dict[str, Any]]:
