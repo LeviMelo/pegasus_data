@@ -610,7 +610,8 @@ def publications(
     ``in_lake``, ``lake_note``
         whether the lake holds the file's records, and why not when it does not.
     ``blob_sha256``, ``rows_decoded``, ``decoded_at``
-        the digest of the bytes decoded (the one the lake rows carry), the rows of them in the lake, and when.
+        the digest of the bytes decoded (the one the lake rows carry), the rows of them in the lake (of the whole file:
+        a national file holds every state's), and when.
     ``fetched_at``, ``served_by``, ``fetched_size``
         when those bytes were fetched, from where (``mirror:...`` or the server), and their size.
     ``server_changed_since_fetch``
