@@ -9,12 +9,15 @@ from dataclasses import asdict, dataclass
 from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 
 from ._vintage import SourceVintage, vintage_groups, window_covers, window_overlaps
 from .identifiers import valid_cnpj
+
+if TYPE_CHECKING:
+    from .config import Settings
 
 __all__ = ["EnrichmentReport", "EnrichmentRequest", "enrich_cnes", "enrich_cnpj", "enrichment", "valid_cnpj"]
 
@@ -56,11 +59,10 @@ def enrichment(
     return EnrichmentRequest(target.upper(), from_field, as_field, explode)
 
 
-def _pack_path() -> Path:
-    from .config import load_settings
-
-    local = load_settings().root / "resources" / "labels_crosswalk.parquet"
-    return local if local.is_file() else Path(
+def _pack_path(settings: Settings | None = None) -> Path:
+    """The CNES-CNPJ pack: a copy under the root in use's ``resources/`` when it has one, the shipped one otherwise."""
+    local = settings.root / "resources" / "labels_crosswalk.parquet" if settings is not None else None
+    return local if local is not None and local.is_file() else Path(
         str(files("pegasus_data.resources") / "labels_crosswalk.parquet")
     )
 
@@ -77,13 +79,15 @@ def _crosswalk_slice(
     *,
     reverse: bool = False,
     resource_path: str | Path | None = None,
+    settings: Settings | None = None,
 ) -> dict[str, list[tuple[str, str, str, str]]]:
-    """Scan only requested identifiers and overlapping validity row groups."""
+    """Scan only requested identifiers and overlapping validity row groups. ``settings`` is the root in use: the
+    establishment registry is read from its ``registries_dir`` (OQ 81); without it the registry is unavailable."""
     import pyarrow.dataset as ds
 
     if not codes:
         return {}
-    path = str(resource_path or _pack_path())
+    path = str(resource_path or _pack_path(settings))
     dataset = ds.dataset(path, format="parquet")
     names = set(dataset.schema.names)
     source = "source_code" if "source_code" in names else "code"
@@ -125,7 +129,9 @@ def _crosswalk_slice(
         if codelist_name in table.column_names
         else [""] * table.num_rows
     )
-    registry, unavailable = _registry_slice(codes, reverse=reverse)
+    registry, unavailable = _registry_slice(
+        codes, reverse=reverse, registries=None if settings is None else settings.registries_dir
+    )
     out = ClaimMap(registry)
     out.registry_unavailable = unavailable
     for key, value, lo, hi, codelist in zip(
@@ -156,8 +162,11 @@ def _punctuated(cnpj: str) -> str:
 REGISTRY_SOURCE = "registry:CADGERBR"
 
 
-def _registry_slice(codes: set[str], *, reverse: bool) -> tuple[dict[str, list[tuple[str, str, str, str]]], bool]:
-    """CNES <-> CNPJ from the establishment registry (ADR-0100), and whether the registry could be read.
+def _registry_slice(
+    codes: set[str], *, reverse: bool, registries: Path | None,
+) -> tuple[dict[str, list[tuple[str, str, str, str]]], bool]:
+    """CNES <-> CNPJ from the establishment registry (ADR-0100), and whether the registry could be read. It is read
+    from ``registries``, the root in use's (OQ 81); a caller that names none has no registry.
 
     The registry's ``cnpj`` is a column checked against the CNPJ check digits,
     not text parsed out of a name, and each establishment carries the dates it
@@ -172,7 +181,9 @@ def _registry_slice(codes: set[str], *, reverse: bool) -> tuple[dict[str, list[t
 
     if not codes:
         return {}, False
-    table = lookup("CADGERBR", "CNES")
+    if registries is None:
+        return {}, True
+    table = lookup("CADGERBR", "CNES", registries)
     if table is None or "cnpj" not in table.column_names:
         return {}, True
     key = "cnpj" if reverse else "code"
@@ -252,6 +263,7 @@ def enrich_cnpj(
     as_field: str = "CNPJ_resolved",
     explode: bool = False,
     resource_path: str | Path | None = None,
+    settings: Settings | None = None,
 ) -> tuple[pa.Table, EnrichmentReport]:
     """Resolve CNPJ additively from CNES without changing fact-row count."""
     if from_field not in table.column_names:
@@ -264,6 +276,7 @@ def enrich_cnpj(
         {str(value or "").strip() for value in source_values},
         distinct,
         resource_path=resource_path,
+        settings=settings,
     )
     resolve = _resolver(lambda key: rows.get(key, ()), distinct)
     valid: dict[str, bool] = {}
@@ -337,6 +350,7 @@ def enrich_cnes(
     as_field: str = "CNES_resolved",
     explode: bool = False,
     resource_path: str | Path | None = None,
+    settings: Settings | None = None,
 ) -> tuple[pa.Table, EnrichmentReport]:
     """Reverse CNPJ→CNES lookup; one-to-many is explicit and safe by default."""
     if from_field not in table.column_names:
@@ -349,6 +363,7 @@ def enrich_cnes(
         distinct,
         reverse=True,
         resource_path=resource_path,
+        settings=settings,
     )
     resolve = _resolver(lambda key: reverse.get(key, ()), distinct)
     report = EnrichmentReport(

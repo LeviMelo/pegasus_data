@@ -55,10 +55,10 @@ def _is_registry(codelist: str) -> bool:
     return is_registry(codelist)
 
 
-def _reference_version(lake_root: Path, codelist: str) -> tuple[int, ...]:
+def _reference_version(lake_root: Path, codelist: str, registries: Path | None = None) -> tuple[int, ...]:
     """What a reference table's content depends on, as file times.
 
-    The lake's copy of the table and, for a registry, its cache files. Shipped canonical tables change only with the
+    The lake's copy of the table and, for a registry, its cache files under ``registries`` (the root in use's). Shipped canonical tables change only with the
     package, so they need no stamp. NOT cached: every map below is keyed on this stamp, and a stamp frozen at first use
     hid a reference rebuild by another process from a long-lived one (``serve/``) until restart, and kept a table
     absent at first use "absent" after it was written. It is one ``stat`` (a registry adds one directory scan).
@@ -68,12 +68,9 @@ def _reference_version(lake_root: Path, codelist: str) -> tuple[int, ...]:
         stamps.append(os.stat(os.path.join(lake_root, "reference", _safe_name(codelist))).st_mtime_ns)
     except OSError:
         pass
-    if _is_registry(codelist):
-        from .config import load_settings
-
+    if registries is not None and _is_registry(codelist):
         try:
-            registries = Path(load_settings().root) / "registries"
-            stamps.extend(p.stat().st_mtime_ns for p in sorted(registries.glob(f"*/{codelist.upper()}.parquet")))
+            stamps.extend(p.stat().st_mtime_ns for p in sorted(Path(registries).glob(f"*/{codelist.upper()}.parquet")))
         except OSError:  # pragma: no cover - an unreadable home is not a cache key
             pass
     return tuple(stamps)
@@ -90,9 +87,9 @@ def _packed_codelists() -> frozenset[str]:
     return frozenset(str(v).upper() for v in pq.read_table(path, columns=["codelist"]).column(0).unique().to_pylist())
 
 
-def _exists_anywhere(lake_root: Path, codelist: str) -> bool:
+def _exists_anywhere(lake_root: Path, codelist: str, registries: Path | None = None) -> bool:
     """Does any version of this table exist, whatever the period asked?"""
-    return codelist.upper() in _packed_codelists() or bool(_reference_version(lake_root, codelist))
+    return codelist.upper() in _packed_codelists() or bool(_reference_version(lake_root, codelist, registries))
 
 
 def _vintage_free(codelist: str) -> bool:
@@ -122,6 +119,7 @@ def _lookup_map(
     competencia: int | None = None,
     code_width: int | None,
     only: frozenset[str] | None = None,
+    registries: Path | None = None,
 ) -> Mapping[str, str]:
     """``_lookup_map_uncached``, built once per process per table version.
 
@@ -132,36 +130,39 @@ def _lookup_map(
     """
     if _vintage_free(codelist):
         year = competencia = None
-    version = _reference_version(Path(lake_root), codelist)
+    version = _reference_version(Path(lake_root), codelist, registries)
+    reg = None if registries is None else str(registries)
     if only is not None:
         # ``only``: the codes a column holds. A registry is cut to them, from
         # Arrow arrays cleaned once per table version, before any label
         # becomes a Python string.
-        cleaned = _cached_registry(str(lake_root), codelist, system, year, competencia, code_width, version)
+        cleaned = _cached_registry(str(lake_root), reg, codelist, system, year, competencia, code_width, version)
         if cleaned is not None:
             return _code_map(*cleaned, only=only)
-    return _cached_lookup_map(str(lake_root), codelist, system, year, competencia, code_width, version)
+    return _cached_lookup_map(str(lake_root), reg, codelist, system, year, competencia, code_width, version)
 
 
 @lru_cache(maxsize=256)
 def _cached_lookup_map(
-    lake_root: str, codelist: str, system: str | None, year: int | None,
+    lake_root: str, registries: str | None, codelist: str, system: str | None, year: int | None,
     competencia: int | None, code_width: int | None, version: tuple[int, ...],
 ) -> Mapping[str, str]:
     return _lookup_map_uncached(
-        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width
+        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+        registries=None if registries is None else Path(registries),
     )
 
 
 @lru_cache(maxsize=32)
 def _cached_registry(
-    lake_root: str, codelist: str, system: str | None, year: int | None,
+    lake_root: str, registries: str | None, codelist: str, system: str | None, year: int | None,
     competencia: int | None, code_width: int | None, version: tuple[int, ...],
 ) -> tuple[pa.Array, pa.Array, frozenset[int]] | None:
     """A registry's cleaned codes and labels, or None for a table small enough
     to become one dict (``REGISTRY_ROWS``)."""
     table = read_reference_table(
         Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+        registries=registries,
     )
     if table.num_rows <= REGISTRY_ROWS:
         return None
@@ -185,23 +186,25 @@ def _contradictions(
     year: int | None,
     competencia: int | None = None,
     code_width: int | None,
+    registries: Path | None = None,
 ) -> Mapping[str, set[str]]:
     """``_contradictions_uncached``, cached like ``_lookup_map``."""
     if _vintage_free(codelist):
         year = competencia = None
     return _cached_contradictions(
-        str(lake_root), codelist, system, year, competencia, code_width,
-        _reference_version(Path(lake_root), codelist),
+        str(lake_root), None if registries is None else str(registries), codelist, system, year, competencia,
+        code_width, _reference_version(Path(lake_root), codelist, registries),
     )
 
 
 @lru_cache(maxsize=256)
 def _cached_contradictions(
-    lake_root: str, codelist: str, system: str | None, year: int | None,
+    lake_root: str, registries: str | None, codelist: str, system: str | None, year: int | None,
     competencia: int | None, code_width: int | None, version: tuple[int, ...],
 ) -> Mapping[str, set[str]]:
     return _contradictions_uncached(
-        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width
+        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+        registries=None if registries is None else Path(registries),
     )
 
 
@@ -213,6 +216,7 @@ def _lookup_map_uncached(
     year: int | None,
     competencia: int | None = None,
     code_width: int | None,
+    registries: Path | None = None,
 ) -> dict[str, str]:
     """``code -> label`` for one codelist at one vintage.
 
@@ -228,6 +232,7 @@ def _lookup_map_uncached(
         year=year,
         competencia=competencia,
         code_width=code_width,
+        registries=registries,
     )
     # A vintaged kit table asked for month by month is usually the same table
     # twelve times: built once per distinct content (ADR-0097).
@@ -316,6 +321,7 @@ def _single_lookup(
     year: int | None,
     code_width: int | None,
     competencia: int | None = None,
+    registries: Path | None = None,
 ) -> Mapping[str, str] | None:
     """One codelist's ``code -> label``, or ``None`` if it is not materialised.
 
@@ -330,6 +336,7 @@ def _single_lookup(
             year=year,
             competencia=competencia,
             code_width=code_width,
+            registries=registries,
         )
     except (FileNotFoundError, OSError):
         return None
@@ -344,6 +351,7 @@ def _contradictions_uncached(
     year: int | None,
     competencia: int | None = None,
     code_width: int | None,
+    registries: Path | None = None,
 ) -> dict[str, set[str]]:
     """Codes the table maps to more than one label.
 
@@ -362,6 +370,7 @@ def _contradictions_uncached(
         year=year,
         competencia=competencia,
         code_width=code_width,
+        registries=registries,
     )
     # In Arrow, not per row: the registries hold 700,000 codes and almost none
     # contradict, so only the few that do are brought into Python.
@@ -388,7 +397,7 @@ class CodeMap(dict):  # type: ignore[type-arg]
 
 def _merged_lookup(
     lake: Path, codelists: tuple[str, ...], system: str | None, year: int | None, competencia: int | None,
-    only: frozenset[str] | None = None,
+    only: frozenset[str] | None = None, registries: Path | None = None,
 ) -> tuple[Mapping[str, str], list[str]]:
     """Every table bound to a field, merged in authority order, once per process.
 
@@ -402,13 +411,14 @@ def _merged_lookup(
         # These answer codes the column does not literally hold (a category
         # for an unlisted subcategory): never cut to the observed ones.
         only = None
-    versions = tuple(_reference_version(Path(lake), c) for c in codelists)
-    return _cached_merged_lookup(str(lake), codelists, system, year, competencia, versions, only)
+    versions = tuple(_reference_version(Path(lake), c, registries) for c in codelists)
+    reg = None if registries is None else str(registries)
+    return _cached_merged_lookup(str(lake), reg, codelists, system, year, competencia, versions, only)
 
 
 @lru_cache(maxsize=512)
 def _cached_merged_lookup(
-    lake: str, codelists: tuple[str, ...], system: str | None, year: int | None,
+    lake: str, registries: str | None, codelists: tuple[str, ...], system: str | None, year: int | None,
     competencia: int | None, versions: tuple[tuple[int, ...], ...],
     only: frozenset[str] | None = None,
 ) -> tuple[Mapping[str, str], list[str]]:
@@ -418,7 +428,7 @@ def _cached_merged_lookup(
         try:
             maps.append(_lookup_map(
                 Path(lake), codelist, system=system, year=year, competencia=competencia, code_width=None,
-                only=only,
+                only=only, registries=None if registries is None else Path(registries),
             ))
         except FileNotFoundError:
             missing.append(codelist)

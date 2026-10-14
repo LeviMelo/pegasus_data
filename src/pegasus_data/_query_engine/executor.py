@@ -355,13 +355,13 @@ def query(
             table, enrichment_report = enrich_cnpj(
                 table, from_field=(request.from_field or "CNES").upper(),
                 as_field=request.as_field or "CNPJ_resolved", explode=request.explode,
-                resource_path=crosswalk_path,
+                resource_path=crosswalk_path, settings=resolved,
             )
         elif request.target == "CNES":
             table, enrichment_report = enrich_cnes(
                 table, from_field=(request.from_field or "CNPJ").upper(),
                 as_field=request.as_field or "CNES_resolved", explode=request.explode,
-                resource_path=crosswalk_path,
+                resource_path=crosswalk_path, settings=resolved,
             )
         elif request.target == "CNES.ESTABLISHMENT_NAME":
             table, enrichment_report = _enrich_cnes_name(table, request, resolved)

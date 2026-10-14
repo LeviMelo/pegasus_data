@@ -336,7 +336,7 @@ def _enrich_cnes_name(
     try:
         path = ResourceManager(settings).ensure("cnes_names").path
     except FileNotFoundError:
-        return _enrich_cnes_name_current(table, request, source_field, source_codes)
+        return _enrich_cnes_name_current(table, request, source_field, source_codes, settings)
     competences = (
         distinct["_competencia"].to_pylist()
         if "_competencia" in distinct.column_names
@@ -412,7 +412,7 @@ def _enrich_cnes_name(
 
 
 def _enrich_cnes_name_current(
-    table: pa.Table, request: EnrichmentRequest, source_field: str, source_codes: set[str]
+    table: pa.Table, request: EnrichmentRequest, source_field: str, source_codes: set[str], settings: Settings,
 ) -> tuple[pa.Table, EnrichmentReport]:
     """The establishment's name from the current CNES registry (ADR-0100).
 
@@ -423,7 +423,7 @@ def _enrich_cnes_name_current(
     """
     from ..registry import lookup
 
-    registry = lookup("CADGERBR", "CNES")
+    registry = lookup("CADGERBR", "CNES", settings.registries_dir)
     names: dict[str, str] = {}
     if registry is not None:
         hit = registry.filter(pc.is_in(registry["code"], value_set=pa.array(sorted(source_codes), pa.string())))

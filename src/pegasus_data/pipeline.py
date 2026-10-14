@@ -1124,7 +1124,9 @@ class Pipeline:
         # A detector match only becomes usable for labelling once a record layout
         # independently names the same classification.
         corroborated = corroborate_semantic_bindings(self.catalog)
-        entries = build_ledger(self.catalog, systems=systems)
+        entries = build_ledger(
+            self.catalog, systems=systems, lake_root=self.settings.lake_dir, registries=self.settings.registries_dir
+        )
         persist_ledger(self.catalog, entries, systems=systems)
         covered = sum(1 for e in entries if e.dictionary_coverage >= 0.99)
         mean = sum(e.dictionary_coverage for e in entries) / len(entries) if entries else 0.0

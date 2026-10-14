@@ -262,6 +262,9 @@ def build_plan(
         observed = observed_values(
             catalog, family_id=family_id, field_name=name, schema_signature=signature
         )
+        # The opt-in stored label column's own table (`emit_labels`, off; a read renders from `label_bindings`, OQ 79).
+        # NOT dead when it is off: `labels`, `codelist` and `hierarchical` are inputs of `plan_fingerprint`, which says
+        # which built partitions are current (ADR-0173), so computing them differently would restale every one.
         labels = dict_lookup(
             catalog, system=system, field_name=name, observed=observed, cache=cache
         )

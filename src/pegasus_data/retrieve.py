@@ -532,6 +532,7 @@ def fetch(
                 companions=companions,
                 derived=derived,
                 strict=strict_labels,
+                registries=resolved_settings.registries_dir,
             )
         # NAMED, not masked. The source data is passed through unmodified and
         # that is deliberate — this package does not silently alter what

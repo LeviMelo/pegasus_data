@@ -426,6 +426,7 @@ def _capabilities_uncached(
                 mapping = codelist_levels(
                     dimension, store=store, lake_root=resolved.lake_dir,
                     system=docs_system, family_id=family[0]["family_id"] if family else None, codes=codes,
+                    registries=resolved.registries_dir,
                 )
             except Exception:  # pragma: no cover - a missing reference table
                 mapping = {}

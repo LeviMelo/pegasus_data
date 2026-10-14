@@ -29,6 +29,7 @@ import pyarrow as pa
 from ._lazy import LazyModule  # noqa: E402
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
+from .lookups import _single_lookup
 from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake
 from .persist.lake import Lake, LakePartition
@@ -40,10 +41,10 @@ from .semantics.dictionary import (
     codelists_for,
     lookup,
     match_codelist_by_name,
-    most_granular_codelist,
     observed_values,
     rollups_for,
 )
+from .semantics.label_bindings import field_decision
 from .sources.ibge import KNOWN_SERIES, UnsupportedStratification, series_catalogue
 from .view import (
     COMPANION_SUFFIXES,
@@ -505,7 +506,15 @@ def describe(
         observed = observed_values(
             store, family_id=family_id, field_name=field, schema_signature=signature
         )
-        labels = lookup(store, system=system, field_name=field, observed=observed)
+        # THE labelling table: the one a query renders from (label_bindings.field_decision, OQ 79)
+        decision = field_decision(
+            store, system=system, family_id=family_id, field_name=field, counts=observed,
+            load=lambda codelist: _single_lookup(
+                cat.settings.lake_dir, codelist, system, None, None, registries=cat.settings.registries_dir
+            ),
+        )
+        labelled_by = decision.codelists if decision.labels else ()
+        labels = lookup(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by)
         total = sum(observed.values()) or 1
         top = [
             {
@@ -593,7 +602,7 @@ def describe(
 
         bound = codelists_for(store, system=system, field_name=field)
         sources = binding_sources(store, system=system, field_name=field)
-        chosen = most_granular_codelist(store, bound, system=system, observed=observed)
+        chosen = labelled_by[0] if labelled_by else None
         reference: dict[str, Any] | None = None
         label_policy = "materialised"
         if chosen:
@@ -610,13 +619,18 @@ def describe(
             ]
             reference = {
                 "table": chosen,
+                "tables": list(labelled_by),
+                "decided_by": decision.basis,
+                "decision": decision.reason,
+                # a catalog never profiled holds no values to weigh against: the decision then rests on what needs none
+                "observed_codes": len(observed),
                 "hierarchical": hierarchical,
-                "bound_by": sources.get(chosen, "unknown"),
-                "authoritative": sources.get(chosen) in {"def", "manual", "layout_doc"},
+                "bound_by": sources.get(chosen) or ("curation" if decision.basis == "curated" else "unknown"),
+                "authoritative": decision.basis == "curated" or sources.get(chosen) in {"def", "manual", "layout_doc"},
                 "validity_windows": windows,
                 "rollup_levels": [
                     r["codelist"]
-                    for r in rollups_for(store, system=system, field_name=field, observed=observed)
+                    for r in rollups_for(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by)
                     if r["codelist"] != chosen
                 ][:8],
                 "join": (
@@ -675,7 +689,7 @@ def describe(
             sentinel_values=json.loads(led.get("sentinel_values") or "[]"),
             top_values=top,
             codelists=bound,
-            rollups=rollups_for(store, system=system, field_name=field, observed=observed),
+            rollups=rollups_for(store, system=system, field_name=field, observed=observed, labelled_by=labelled_by),
             provenance=json.loads(led.get("provenance") or "[]"),
             open_questions=open_questions,
             reference=reference,
@@ -710,7 +724,8 @@ def levels(
         candidates = _resolve_family(cat.store, system, series, field)
         family_id = candidates[0]["family_id"] if candidates else None
         return codelist_levels(field, store=cat.store, lake_root=cat.settings.lake_dir, system=system,
-                               family_id=family_id, year=year, codes=list(codes))
+                               family_id=family_id, year=year, codes=list(codes),
+                               registries=cat.settings.registries_dir)
     finally:
         if own:
             cat.close()
@@ -1295,6 +1310,7 @@ def load(
                 companions=companions,
                 derived=derived,
                 strict=strict_labels,
+                registries=cat.settings.registries_dir,
             )
         if helpers:
             from .view import drop_helper_columns
@@ -1434,6 +1450,7 @@ def load_reference(
                 code_width=code_width,
                 # SEXO.CNV means 1/3 in SIHSUS and 1/2 in SINASC.
                 system=system,
+                registries=cat.settings.registries_dir,
             )
     finally:
         if own:

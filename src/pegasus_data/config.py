@@ -202,6 +202,12 @@ class Settings:
     def work_dir(self) -> Path:
         return self.work_root or (self.root / "work")
 
+    @property
+    def registries_dir(self) -> Path:
+        """Where the registries (establishments, teams, the IBGE and SIDRA caches) are built and read: always under
+        the root in use, whatever the lake and catalog placement (OQ 81)."""
+        return self.root / "registries"
+
     def places(self) -> dict[str, Path]:
         """Every directory this installation writes to, by name."""
         return {
