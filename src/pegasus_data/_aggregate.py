@@ -729,7 +729,7 @@ def _accumulate(cells: list, table: Any, keyed: dict, spec: AggregateSpec) -> No
         [n if n in keyed else n.rsplit("_", 1)[0] for n in grouped.schema.names])
     cells.append(pa.table({
         **{k: pc.cast(grouped.column(k), pa.string()) for k in keyed},
-        **{c: pc.fill_null(pc.cast(grouped.column(c), pa.float64()), 0.0) for c in state_names},
+        **{c: _filled(_kind_of(spec.measures, c), pc.cast(grouped.column(c), pa.float64())) for c in state_names},
     }))
 
 
@@ -906,8 +906,9 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
     The mapping is exact, not an approximation of the algebra:
 
     * ``count``  -> a column of ones, so its sum is the row count;
-    * ``sum``    -> the numeric column with nulls as zero, which contributes
-      nothing, unlike a null that would poison the sum;
+    * ``sum``    -> the numeric column, a null staying null: it contributes
+      nothing to a cell that has other values, and a cell with none has no sum
+      (null), not a sum of zero;
     * ``mean``   -> (1 where the value parses, else 0) and (the value, else 0),
       so a blank stay is an unknown length rather than a stay of no days;
     * ``ratio``  -> the value and a validity indicator.
@@ -939,7 +940,7 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
         if measure.kind.name == "count":
             out[columns[0]] = pa.array([1.0] * rows, pa.float64())
         elif measure.kind.name == "sum":
-            out[columns[0]] = filled
+            out[columns[0]] = numeric      # a null stays null: a cell with no value has no sum, not a sum of zero
         elif measure.kind.name in ("mean", "ratio"):
             first, second = columns
             if measure.kind.name == "mean":
@@ -1394,8 +1395,7 @@ def aggregate(
             arrays[emit_as[name]] = pc.cast(aggregated.column(name), pa.string())
         for measure in chosen:
             state = tuple(
-                pc.fill_null(
-                    pc.cast(aggregated.column(suffixed[c]), pa.float64()), 0.0)
+                _filled(measure.kind, pc.cast(aggregated.column(suffixed[c]), pa.float64()))
                 for c in measure.state_columns()
             )
             if finalize:
@@ -1452,7 +1452,7 @@ def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequenc
     suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}" for c in states}
     per_month: dict[str, Any] = {k: monthly.column(k) for k in keys}
     for measure in chosen:
-        state = tuple(pc.fill_null(pc.cast(monthly.column(suffixed[c]), pa.float64()), 0.0)
+        state = tuple(_filled(measure.kind, pc.cast(monthly.column(suffixed[c]), pa.float64()))
                       for c in measure.state_columns())
         per_month[measure.name] = _finalize_column(measure, state)
     table = pa.table(per_month)
@@ -1528,6 +1528,13 @@ def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
     raise AggregationRefused(f"no columnar finalize for kind {kind!r}")
 
 
+def _filled(kind: Any, column: Any) -> Any:
+    """A state column with its nulls made the kind's zero. A ``sum`` keeps them: null is a cell with no value."""
+    import pyarrow.compute as pc
+
+    return column if kind.name == "sum" else pc.fill_null(column, 0.0)
+
+
 def _kind_of(measures: Sequence[Measure], state_column: str) -> Any:
     for measure in measures:
         if state_column in measure.state_columns():
@@ -1546,7 +1553,9 @@ def _merge_column(measure: Measure, column: Any) -> float:
         value = pc.max(column).as_py()
         return float("-inf") if value is None else float(value)
     value = pc.sum(column).as_py()
-    return 0.0 if value is None else float(value)
+    if value is None:
+        return measure.kind.identity()[0]    # a sum that saw no value stays None
+    return float(value)
 
 
 def _mask(filters: Mapping[str, Any], spec: AggregateSpec, table: Any,

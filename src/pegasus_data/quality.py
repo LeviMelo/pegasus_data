@@ -36,6 +36,8 @@ def race_reliability(table: pa.Table, *, race: str = "RACA_COR", facility: str =
       the two mechanisms.
     - ``ok``: neither.
     - ``too_few``: fewer than MIN_ADMISSIONS admissions in the hospital-month.
+    - ``unplaced``: no hospital or no month on the row, so it belongs to no
+      hospital-month and is not judged (it is kept, flagged, not dropped).
 
     SIH publishes by the hospital's state and month, so a query of a state's
     months holds each hospital-month whole. Measured on SIH-RD 2022 (43,945
@@ -48,20 +50,27 @@ def race_reliability(table: pa.Table, *, race: str = "RACA_COR", facility: str =
         if name not in table.column_names:
             raise KeyError(f"{name}: required column for race_reliability is absent")
     con = duckdb.connect()
-    # An explicit position, not row_number() OVER (): a parallel scan does not
-    # promise to keep the input order, and the flags must land on their rows.
-    con.register("t", table.select([race, facility, month]).append_column(
-        "_i", pa.array(range(table.num_rows), pa.int64())))
-    flags = con.execute(f"""
-        WITH r AS (SELECT _i AS i, CAST("{race}" AS VARCHAR) AS code,
-                          CAST("{facility}" AS VARCHAR) AS cnes,
-                          substr(regexp_replace(CAST("{month}" AS VARCHAR), '[^0-9]', '', 'g'), 1, 6) AS ym
-                   FROM t),
-             hm AS (SELECT cnes, ym, count(*) AS n, avg((code = '04')::INT) AS asian,
-                           avg((code = '03')::INT) AS brown FROM r GROUP BY ALL)
-        SELECT CASE WHEN hm.n < {MIN_ADMISSIONS} THEN 'too_few'
-                    WHEN hm.asian > 0.5 OR (hm.brown < 0.01 AND hm.asian > 0.10) THEN 'unreliable'
-                    WHEN hm.asian > 0.10 THEN 'suspect'
-                    ELSE 'ok' END AS flag
-        FROM r JOIN hm USING (cnes, ym) ORDER BY r.i""").to_arrow_table().column("flag")
+    try:
+        # An explicit position, not row_number() OVER (): a parallel scan does not
+        # promise to keep the input order, and the flags must land on their rows.
+        con.register("t", table.select([race, facility, month]).append_column(
+            "_i", pa.array(range(table.num_rows), pa.int64())))
+        # A row with no hospital or month is in no hospital-month: it stays out of the grouping and is left-joined,
+        # so it keeps its place in the result.
+        flags = con.execute(f"""
+            WITH r AS (SELECT _i AS i, CAST("{race}" AS VARCHAR) AS code,
+                              NULLIF(trim(CAST("{facility}" AS VARCHAR)), '') AS cnes,
+                              NULLIF(substr(regexp_replace(CAST("{month}" AS VARCHAR), '[^0-9]', '', 'g'), 1, 6), '') AS ym
+                       FROM t),
+                 hm AS (SELECT cnes, ym, count(*) AS n, avg((code = '04')::INT) AS asian,
+                               avg((code = '03')::INT) AS brown FROM r
+                         WHERE cnes IS NOT NULL AND ym IS NOT NULL GROUP BY ALL)
+            SELECT CASE WHEN hm.n IS NULL THEN 'unplaced'
+                        WHEN hm.n < {MIN_ADMISSIONS} THEN 'too_few'
+                        WHEN hm.asian > 0.5 OR (hm.brown < 0.01 AND hm.asian > 0.10) THEN 'unreliable'
+                        WHEN hm.asian > 0.10 THEN 'suspect'
+                        ELSE 'ok' END AS flag
+            FROM r LEFT JOIN hm ON r.cnes = hm.cnes AND r.ym = hm.ym ORDER BY r.i""").to_arrow_table().column("flag")
+    finally:
+        con.close()
     return table.append_column(f"{race}_reliability", flags)

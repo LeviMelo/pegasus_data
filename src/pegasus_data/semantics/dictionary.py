@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import fnmatch
 import os
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
@@ -58,6 +59,15 @@ SOURCE_AUTHORITY: dict[str, int] = {
     "community": 7,
     "inferred": 8,
 }
+
+#: ``CASE d.source ...`` over ``SOURCE_AUTHORITY`` for the stored side of a
+#: comparison, so Python and SQL rank sources by one table. An unknown source
+#: ranks last, as ``DictionaryEntry.authority`` does.
+_AUTHORITY_SQL = (
+    "CASE d.source "
+    + " ".join(f"WHEN '{source}' THEN {rank}" for source, rank in SOURCE_AUTHORITY.items())
+    + " ELSE 99 END"
+)
 
 DEFAULT_CONFIDENCE: dict[str, float] = {
     "manual": 1.0,
@@ -406,15 +416,14 @@ def persist_entries(catalog: CatalogStore, entries: Sequence[DictionaryEntry]) -
         ).fetchall()
         conflicts.extend(tuple(r) + (now,) for r in rows)
 
-        # An incoming claim only replaces a stored one of strictly worse authority.
+        # An incoming claim replaces a stored one of equal or worse authority
+        # (equal: a corrected re-read of the same source). The stored source's
+        # rank comes from the same table the incoming one does.
         conn.execute(
             f"""
             DELETE FROM dictionary WHERE rowid IN (
                 SELECT d.rowid FROM temp._incoming_dict i CROSS JOIN dictionary d ON {join}
-                 WHERE i.authority <= CASE d.source
-                        WHEN 'manual' THEN 0 WHEN 'cnv' THEN 1 WHEN 'def' THEN 2
-                        WHEN 'dbf_lookup' THEN 3 WHEN 'demas_api' THEN 4
-                        WHEN 'pdf' THEN 5 WHEN 'inferred' THEN 6 ELSE 99 END
+                 WHERE i.authority <= {_AUTHORITY_SQL}
                    -- An identical row stays: deleting and re-inserting every row a
                    -- kit already holds churned five indexes on 22M rows (OQ-24).
                    AND NOT (d.value_label IS i.value_label AND d.source IS i.source
@@ -1080,10 +1089,20 @@ def codelist_values(catalog: CatalogStore, codelist: str, *, system: str | None 
     return {str(r["value_raw"]): str(r["value_label"]) for r in rows}
 
 
+#: An ICD-10 category or subcategory as a rule's bound writes it: ``A00``, ``B99``, ``A090``.
+_ICD_BOUND = re.compile(r"^[A-Z]\d{2}\d?$")
+
+
 def apply_rules(
     catalog: CatalogStore, *, system: str | None, field_name: str, values: Sequence[str]
 ) -> dict[str, str]:
-    """Resolve values that only an unexpanded range covers, e.g. ``A00-B99``."""
+    """Resolve values that only an unexpanded range covers, e.g. ``A00-B99``.
+
+    Widths are matched exactly, as everywhere: a value is in a range only at the range's own width. The one
+    exception is a hierarchy, where a value is truncated to the bounds' width (``A001`` is in ``A00-B99``
+    because a subcategory is in its category's chapter): the rules whose bounds are ICD-10 codes. A value shorter than
+    an ICD bound is not padded to it, and no other range is compared after truncating or padding the value.
+    """
     codelists = codelists_for(catalog, system=system, field_name=field_name) or [field_name]
     placeholders = ",".join("?" * len(codelists))
     rows = catalog.query(
@@ -1097,11 +1116,14 @@ def apply_rules(
             if "-" not in part:
                 continue
             lo, _, hi = part.partition("-")
-            n = max(len(lo), len(hi))
+            hierarchical = bool(_ICD_BOUND.match(lo) and _ICD_BOUND.match(hi))
+            if not hierarchical and len(lo) != len(hi):
+                continue
+            n = len(lo) if not hierarchical else max(len(lo), len(hi))
             for value in values:
-                if value in out:
+                if value in out or len(value) < n or (not hierarchical and len(value) != n):
                     continue
-                if lo <= value[:n].ljust(n) <= hi:
+                if lo <= value[:n] <= hi:
                     out[value] = str(row["value_label"])
     return out
 
@@ -1114,8 +1136,10 @@ def coverage_for_field(
     schema_signature: str,
     labels: dict[str, str] | None = None,
     cache: DictionaryCache | None = None,
-) -> tuple[float, int, int]:
-    """Fraction of *observed* values in a field that have a dictionary entry.
+) -> tuple[float, int, int, float]:
+    """Fraction of *observed* values in a field that have a dictionary entry, with the part of it that a range
+    rule decoded (``via_rule``: a hierarchical match, not an exact entry) given apart: ``(coverage, distinct
+    values, distinct decoded, via_rule share of the observed mass)``.
 
     Weighted by observed mass, not by distinct value: a field whose top three
     codes cover 99.8% of rows and whose long tail is undecoded is not 40% covered,
@@ -1129,7 +1153,8 @@ def coverage_for_field(
         (family_id, field_name, schema_signature),
     )
     if not rows:
-        return 0.0, 0, 0
+        return 0.0, 0, 0, 0.0
+    via_rule: dict[str, str] = {}
     if labels is None:
         system_row = catalog.query("SELECT system FROM families WHERE family_id = ?", (family_id,))
         system = system_row[0]["system"] if system_row else None
@@ -1139,14 +1164,12 @@ def coverage_for_field(
         )
         unresolved = [r["value"] for r in rows if r["value"] not in labels]
         if unresolved:
-            labels = {
-                **labels,
-                **apply_rules(catalog, system=system, field_name=field_name, values=unresolved),
-            }
+            via_rule = apply_rules(catalog, system=system, field_name=field_name, values=unresolved)
     total = sum(int(r["count"]) for r in rows)
-    covered = sum(int(r["count"]) for r in rows if r["value"] in labels)
-    decoded_distinct = sum(1 for r in rows if r["value"] in labels)
-    return (covered / total if total else 0.0), len(rows), decoded_distinct
+    exact = sum(int(r["count"]) for r in rows if r["value"] in labels)
+    by_rule = sum(int(r["count"]) for r in rows if r["value"] in via_rule)
+    decoded_distinct = sum(1 for r in rows if r["value"] in labels or r["value"] in via_rule)
+    return ((exact + by_rule) / total if total else 0.0), len(rows), decoded_distinct, (by_rule / total if total else 0.0)
 
 
 def all_codelist_names(catalog: CatalogStore) -> list[str]:

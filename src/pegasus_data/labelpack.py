@@ -43,6 +43,7 @@ import re
 import sqlite3
 import tempfile
 import unicodedata
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -241,14 +242,24 @@ def _is_catch_all(label: object) -> bool:
     return "".join(_meaning_tokens(str(label or ""))) in _CATCH_ALL
 
 
+#: Tokens that turn a label into its opposite (``Branca`` / ``Não branca``, ``Casado`` / ``Não casado``).
+_NEGATION = frozenset({"nao", "sem", "nenhum", "nenhuma"})
+
+
 def _same_meaning(a: str, b: str) -> bool:
     """Do two claims for one code differ only in wording?
 
     Case, accents, punctuation, a TabWin order mark, an abbreviation (``Bra`` for
     ``Branca``, ``< 7d`` for ``< 7 dias``), an extra qualifier, a plural and a catch-all
     (``Ign``, ``Outros``) all leave the meaning alone. Different words (``Amarela`` /
-    ``Branca``) or different numbers (``Ate 10 anos`` / ``Ate 11 anos``) do not. When in
-    doubt the answer is "same", which keeps both claims and drops nothing.
+    ``Branca``), different numbers (``Ate 10 anos`` / ``Ate 11 anos``) and a negation on
+    one side only (``Branca`` / ``Não branca``) do not. When in doubt the answer is "same",
+    which keeps both claims and drops nothing.
+
+    A catch-all stays "the same" as a category even though ``Ign`` is not ``Branca``: an
+    older kit files ``Ign`` for the codes it does not cover (SIM ANO 00, ``2000`` in the
+    CID-10 kit and ``Ign`` in the CID-9 kit), which is a gap and not a recoding. Calling
+    those recodings flagged 11 more (system, codelist) pairs, none of them recoded.
     """
     tokens_a, tokens_b = _meaning_tokens(a), _meaning_tokens(b)
     if not tokens_a or not tokens_b:
@@ -256,6 +267,8 @@ def _same_meaning(a: str, b: str) -> bool:
     joined_a, joined_b = "".join(tokens_a), "".join(tokens_b)
     if joined_a in _CATCH_ALL or joined_b in _CATCH_ALL:
         return True
+    if bool(_NEGATION & set(tokens_a)) != bool(_NEGATION & set(tokens_b)):
+        return False
     if joined_a.startswith(joined_b) or joined_b.startswith(joined_a):
         return True
     set_a, set_b = set(tokens_a), set(tokens_b)
@@ -855,6 +868,43 @@ def covers(valid_from: str, valid_to: str, span_lo: int, span_hi: int) -> bool:
     return lo <= span_hi and span_lo <= hi
 
 
+def select_windows(
+    windows: Sequence[tuple[str | None, str | None]], span: tuple[int, int] | None
+) -> tuple[list[int], str | None]:
+    """Which validity windows answer a request: the one rule, for pack and warehouse.
+
+    ``windows`` are ``(valid_from, valid_to)`` pairs (empty or ``None`` bound =
+    open at that end; an empty ``valid_from`` is the current, undated vintage);
+    ``span`` is the requested ``(first, last)`` ``AAAAMM``, or ``None`` when the
+    caller named no period. Returns ``(indices, served)``:
+
+    * a window covers the span -> those windows, ``served`` None (answered);
+    * otherwise the open-ended windows -> ``"current"``: a real answer, but not
+      the vintage asked for, so the caller records it;
+    * nothing asked and no open-ended window -> the newest dated window,
+      ``"current"`` (never every vintage at once: windows that disagree would
+      merge into a contradiction that is only editorial drift);
+    * a span nothing covers and no open-ended window -> no window, ``"unresolved"``.
+
+    The label pack (:func:`read_packed`) and the lake's reference warehouse
+    (``persist.reference.read_reference_table``) both resolve a vintage here.
+    """
+    bounds = [(str(lo or ""), str(hi or "")) for lo, hi in windows]
+    if span is not None:
+        covering = [i for i, (lo, hi) in enumerate(bounds) if covers(lo, hi, span[0], span[1])]
+        if covering:
+            return covering, None
+    current = [i for i, (lo, _hi) in enumerate(bounds) if not lo]
+    if current:
+        return current, "current"
+    if span is None:
+        dated = [(lo, i) for i, (lo, _hi) in enumerate(bounds) if lo]
+        if dated:
+            newest = max(lo for lo, _i in dated)
+            return [i for lo, i in dated if lo == newest], "current"
+    return [], "unresolved"
+
+
 def read_packed(
     codelist: str,
     *,
@@ -922,24 +972,11 @@ def packed_mapping_is_time_invariant(
     exists for semantic derivations where choosing a plausible current mapping
     is less safe than returning an unresolved value.
     """
-    import pyarrow.compute as pc
-
-    data = _dataset()
-    if data is None:
+    hit = _scoped_rows(codelist.upper(), (system or "").upper() or None)
+    if hit is None or not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
         return False
-    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
-    if not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
-        return False
-    systems = hit["system"].to_pylist()
-    wanted = (system or "").upper()
-    specific = [index for index, value in enumerate(systems) if value and str(value).upper() == wanted]
-    shared = [index for index, value in enumerate(systems) if not value]
-    indices = specific + shared if specific else shared or list(range(hit.num_rows))
-    return bool(indices) and all(
-        not str(hit["valid_from"][index].as_py() or "")
-        and not str(hit["valid_to"][index].as_py() or "")
-        for index in indices
-    )
+    windows, _index = _scoped_windows(codelist.upper(), (system or "").upper() or None)
+    return all(not lo and not hi for lo, hi in windows)
 
 
 @lru_cache(maxsize=512)
@@ -952,30 +989,12 @@ def packed_mapping_covers_interval(
     and fall back to a current mapping for presentation, while a derived semantic
     value must not turn such a fallback into historical truth.
     """
-    import pyarrow.compute as pc
-
-    data = _dataset()
-    if data is None:
+    hit = _scoped_rows(codelist.upper(), (system or "").upper() or None)
+    if hit is None or not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
         return False
-    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
-    if not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
-        return False
-    systems = hit["system"].to_pylist()
-    wanted = (system or "").upper()
-    specific = [
-        index
-        for index, value in enumerate(systems)
-        if value and str(value).upper() == wanted
-    ]
-    shared = [index for index, value in enumerate(systems) if not value]
-    indices = specific + shared if specific else shared or list(range(hit.num_rows))
-    windows = [
-        (
-            str(hit["valid_from"][index].as_py() or ""),
-            str(hit["valid_to"][index].as_py() or ""),
-        )
-        for index in indices
-    ]
+    # The handful of distinct windows, not the rows: CID10 has hundreds of
+    # thousands of runs in three windows.
+    windows, _index = _scoped_windows(codelist.upper(), (system or "").upper() or None)
     cursor = start
     while cursor <= end:
         if not any(
@@ -999,7 +1018,7 @@ def clear_caches() -> None:
     """
     # `_dataset` may have been monkeypatched to a bare callable; clear what
     # is clearable rather than requiring every stand-in to be an lru_cache.
-    for fn in (_read_packed, _expand_runs, _codelist_runs, _run_windows, _dated_runs, _current_runs,
+    for fn in (_read_packed, _expand_runs, _vintage_runs, _scoped_windows, _scoped_rows,
                _codelist_rows, _dataset):
         clear = getattr(fn, "cache_clear", None)
         if clear is not None:
@@ -1027,12 +1046,55 @@ def _codelist_rows(codelist: str):
 
 
 @lru_cache(maxsize=256)
-def _codelist_runs(codelist: str) -> tuple:
-    """One codelist's rows as run tuples, materialised once per process."""
+def _scoped_rows(codelist: str, system: str | None):
+    """The rows a system reads: its own and the shared ones.
+
+    A system that has neither (a borrow, which the caller accepts or refuses)
+    reads every row. The vintage is chosen among THESE rows, not the whole
+    codelist: CIH's RACACOR and SEXO are dated 200801-201012, and choosing the
+    vintage first let them pre-empt SIHSUS's current rows, which scoping then
+    refused as a borrow (SIH-RD 2008-2010 without sex and race labels;
+    OPEN_QUESTIONS 73).
+    """
+    import pyarrow.compute as pc
+
     hit = _codelist_rows(codelist)
-    if hit is None or not hit.num_rows:
-        return ()
-    return _as_runs(hit)
+    if hit is None or not hit.num_rows or not system:
+        return hit
+    owner = pc.fill_null(hit.column("system"), "")
+    mine = pc.or_(pc.equal(pc.utf8_upper(owner), system), pc.equal(owner, ""))
+    scoped = hit.filter(mine)
+    return scoped if scoped.num_rows else hit
+
+
+@lru_cache(maxsize=256)
+def _scoped_windows(codelist: str, system: str | None) -> tuple[tuple[tuple[str, str], ...], Any]:
+    """The distinct validity windows of the rows a system reads, and each row's window index.
+
+    A monthly dataset asks for every codelist under twelve competencias; testing
+    each run's window per request was a Python loop over the whole codelist
+    every time (2026-10-03: 2.5 of 16 s rendering one state-year of SIH). The
+    index stays in Arrow: turning MUNICBR's 113,179 runs, every vintage of them,
+    into Python tuples to keep one vintage was 0.7 s of a cold query
+    (profiled 2026-10-04).
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    hit = _scoped_rows(codelist, system)
+    if hit is None or not hit.num_rows or "valid_from" not in hit.schema.names:
+        n = 0 if hit is None else hit.num_rows
+        return (("", ""),), pa.array([0] * n, pa.int32())
+    keys = pc.binary_join_element_wise(
+        pc.fill_null(pc.cast(hit.column("valid_from"), pa.string()), ""),
+        pc.fill_null(pc.cast(hit.column("valid_to"), pa.string()), ""),
+        "|",
+    )
+    encoded = pc.dictionary_encode(keys)
+    if isinstance(encoded, pa.ChunkedArray):
+        encoded = encoded.combine_chunks()
+    windows = tuple(tuple(str(k).split("|", 1)) for k in encoded.dictionary.to_pylist())
+    return windows, encoded.indices  # type: ignore[return-value]
 
 
 def _as_runs(hit: Any) -> tuple:
@@ -1052,63 +1114,27 @@ def _as_runs(hit: Any) -> tuple:
     )
 
 
-@lru_cache(maxsize=256)
-def _run_windows(codelist: str) -> tuple[tuple[tuple[str, str], ...], Any]:
-    """The distinct validity windows of a codelist, and each row's window index.
+@lru_cache(maxsize=4096)
+def _vintage_runs(codelist: str, system: str | None, span: tuple[int, int] | None) -> tuple[tuple, str | None]:
+    """The runs :func:`select_windows` picks for a span, in the codelist's own order.
 
-    A monthly dataset asks for every codelist under twelve competencias; testing
-    each run's window per request was a Python loop over the whole codelist
-    every time (2026-10-03: 2.5 of 16 s rendering one state-year of SIH). The
-    index stays in Arrow: turning MUNICBR's 113,179 runs, every vintage of them,
-    into Python tuples to keep one vintage was 0.7 s of a cold query
-    (profiled 2026-10-04).
+    ``served`` is what the caller must record: None when a window covers the
+    span, ``"current"`` when the open-ended (or, with no span, the newest) window
+    stands in, ``"unresolved"`` when nothing answers and the runs are empty.
     """
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    hit = _codelist_rows(codelist)
-    if hit is None or not hit.num_rows or "valid_from" not in hit.schema.names:
-        n = 0 if hit is None else hit.num_rows
-        return (("", ""),), pa.array([0] * n, pa.int32())
-    keys = pc.binary_join_element_wise(
-        pc.fill_null(pc.cast(hit.column("valid_from"), pa.string()), ""),
-        pc.fill_null(pc.cast(hit.column("valid_to"), pa.string()), ""),
-        "|",
-    )
-    encoded = pc.dictionary_encode(keys)
-    if isinstance(encoded, pa.ChunkedArray):
-        encoded = encoded.combine_chunks()
-    windows = tuple(tuple(str(k).split("|", 1)) for k in encoded.dictionary.to_pylist())
-    return windows, encoded.indices  # type: ignore[return-value]
-
-
-def _runs_in_windows(codelist: str, keep: Any) -> tuple:
-    """The runs whose window satisfies ``keep(valid_from, valid_to)``, in order."""
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    hit = _codelist_rows(codelist)
+    hit = _scoped_rows(codelist, system)
     if hit is None or not hit.num_rows:
-        return ()
-    windows, index = _run_windows(codelist)
-    covering = [i for i, (lo, hi) in enumerate(windows) if keep(lo, hi)]
-    if not covering:
-        return ()
-    if len(covering) == len(windows):
-        return _codelist_runs(codelist)
-    return _as_runs(hit.filter(pc.is_in(index, value_set=pa.array(covering, index.type))))
-
-
-@lru_cache(maxsize=4096)
-def _dated_runs(codelist: str, span_lo: int, span_hi: int) -> tuple:
-    """The runs whose window covers the span, in the codelist's own order."""
-    return _runs_in_windows(codelist, lambda lo, hi: covers(lo, hi, span_lo, span_hi))
-
-
-@lru_cache(maxsize=256)
-def _current_runs(codelist: str) -> tuple:
-    """The open-ended (current) runs, in the codelist's own order."""
-    return _runs_in_windows(codelist, lambda lo, _hi: not lo)
+        return (), "unresolved"
+    windows, index = _scoped_windows(codelist, system)
+    chosen, served = select_windows(windows, span)
+    if not chosen:
+        return (), served
+    if len(chosen) == len(windows):
+        return _as_runs(hit), served
+    return _as_runs(hit.filter(pc.is_in(index, value_set=pa.array(chosen, index.type)))), served
 
 
 @lru_cache(maxsize=512)
@@ -1184,45 +1210,44 @@ def _read_packed(
             False,
         )
     has_windows = "valid_from" in hit.schema.names
-    runs: Any = None  # every run: materialised only when nothing narrower answers
 
-    # VINTAGE, before system scoping: a window that covers the request wins;
-    # otherwise the open-ended (current) rows stand in, and that substitution is
-    # recorded so a caller is not told 1995 and handed today.
+    # VINTAGE, among the requested system's own rows and the shared ones: a
+    # window that covers the request wins; otherwise the open-ended (current)
+    # rows stand in, and that substitution is recorded so a caller is not told
+    # 1995 and handed today. No period asked is "the current vintage", recorded
+    # as "unscoped"; never every vintage merged, first window wins.
     asked = competencia if competencia is not None else year
-    if asked is not None:
-        span_lo, span_hi = (
-            (int(competencia), int(competencia))
-            if competencia is not None
-            else (int(year) * 100 + 1, int(year) * 100 + 12)  # type: ignore[arg-type]
+    span: tuple[int, int] | None = None
+    if competencia is not None:
+        span = (int(competencia), int(competencia))
+    elif year is not None:
+        span = (int(year) * 100 + 1, int(year) * 100 + 12)
+    runs, served = _vintage_runs(codelist, system, span)
+    if not has_windows and asked is not None and _is_historical(asked) and policy == "refuse":
+        # REFUSE, rather than answer 1995 with today's mapping. This pack
+        # carries no validity windows, so it cannot choose the historically
+        # correct labels even in principle — and the project's own rule is
+        # that an unlabelled code is visibly unfinished while a confidently
+        # wrong label is not. The caller gets the raw codes and a recorded
+        # reason; the remedy is to rebuild the pack from a full catalog.
+        return (
+            None,
+            (codelist, str(asked), "unresolved", False),
+            f"reference table {codelist!r}: the shipped pack carries no validity windows, so {asked} is refused "
+            "(historical_labels='refuse')",
+            False,
         )
-        # the vintage is chosen among the requested system's own rows and the shared ones: CIH's RACACOR and SEXO
-        # are dated 200801-201012, and choosing the vintage first let them pre-empt SIHSUS's current rows, which
-        # scoping then refused as a borrow (SIH-RD 2008-2010 without sex and race labels; OPEN_QUESTIONS 73)
-        dated = tuple(r for r in _dated_runs(codelist, span_lo, span_hi)
-                      if not system or not r[0] or str(r[0]).upper() == system)
-        if dated:
-            runs = list(dated)
-        elif not has_windows and _is_historical(asked) and policy == "refuse":
-            # REFUSE, rather than answer 1995 with today's mapping. This pack
-            # carries no validity windows, so it cannot choose the historically
-            # correct labels even in principle — and the project's own rule is
-            # that an unlabelled code is visibly unfinished while a confidently
-            # wrong label is not. The caller gets the raw codes and a recorded
-            # reason; the remedy is to rebuild the pack from a full catalog.
-            note = (codelist, str(asked), "unresolved", False)
-            runs = []
-        else:
-            current = list(_current_runs(codelist))
-            note = (
-                codelist,
-                str(asked),
-                "current" if current else "unresolved",
-                has_windows,
-            )
-            runs = current if current else list(_codelist_runs(codelist))
-    if runs is None:
-        runs = list(_codelist_runs(codelist))
+    if served is not None and (has_windows or asked is not None):
+        note = (codelist, str(asked) if asked is not None else "unscoped", served, has_windows)
+    runs = list(runs)
+    if not runs:
+        # Nothing answers this request (note: "unresolved"): an empty table, as
+        # the warehouse returns, never a merge of whichever windows exist.
+        import pyarrow as pa
+
+        empty = pa.table({"code": pa.array([], pa.string()), "label": pa.array([], pa.string()),
+                          "code_width": pa.array([], pa.int32())})
+        return (empty, note, None, False)
 
     wanted = system
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]

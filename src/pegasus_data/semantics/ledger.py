@@ -17,14 +17,15 @@ Two columns carry most of the weight:
 
 ``sentinel_values`` is per field and never global. A ``9`` is missing in one
 field and a valid category in another; a global rule silently corrupts data
-(§13), so a sentinel is only recorded where the dictionary itself labels that
-code as ignored/unknown, or where a detector saw it behave like one.
+(§13), so a sentinel is only recorded where the column's own role declaration
+(``missing:`` in ``curation/roles``) names the code that means "not recorded".
+It is never read from a label: "Ignorado" is a category a report can show as
+undecoded, "Branco" a race, "Não se aplica" an answer to a conditional question.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
@@ -37,7 +38,6 @@ from .dictionary import (
     most_granular_codelist,
     observed_values,
 )
-from .dictionary import lookup as dict_lookup
 
 #: Semantic types that are never additive, whatever their name suggests.
 NON_SUMMABLE_TYPES = {
@@ -49,15 +49,6 @@ NON_SUMMABLE_TYPES = {
 }
 MEAN_TYPES: set[str] = set()
 ADDITIVE_TYPES = {"money", "numeric_measure"}
-
-#: Labels TabNet uses for "unknown / not stated". A code carrying one of these is
-#: a sentinel *for that field only*, evidenced by the dictionary entry itself.
-_IGNORED_LABEL = re.compile(
-    r"^(ign|ign\.|ignorado|ignorada|ignor|nao\s*informad|não\s*informad|sem\s*inform|"
-    r"outras?/?ignorado|branco|em\s*branco|nao\s*se\s*aplica|não\s*se\s*aplica)",
-    re.I,
-)
-
 
 @dataclass(slots=True)
 class LedgerEntry:
@@ -101,9 +92,7 @@ def _official_names(catalog: CatalogStore) -> dict[tuple[str | None, str], str]:
          WHERE lookup_ref IS NULL ORDER BY LENGTH(display_name)
         """
     ):
-        key = (row["system"], row["field_name"])
-        out.setdefault(key, str(row["display_name"]).strip())
-        out.setdefault((None, row["field_name"]), str(row["display_name"]).strip())
+        out.setdefault((row["system"], row["field_name"]), str(row["display_name"]).strip())
     return out
 
 
@@ -125,7 +114,6 @@ def _layout_names(catalog: CatalogStore) -> dict[tuple[str | None, str], tuple[s
     ):
         value = (str(row["description"]).strip(), str(row["source_ref"]))
         out.setdefault((row["system"], row["field_name"]), value)
-        out.setdefault((None, row["field_name"]), value)
     return out
 
 
@@ -141,7 +129,6 @@ def _names_by_codelist(catalog: CatalogStore) -> dict[tuple[str | None, str, str
         codelist = PurePosixPath(str(row["lookup_ref"]).replace("\\", "/")).stem.upper()
         name = str(row["display_name"]).strip()
         out.setdefault((row["system"], row["field_name"], codelist), name)
-        out.setdefault((None, row["field_name"], codelist), name)
     return out
 
 
@@ -150,21 +137,23 @@ def _declared_measures(catalog: CatalogStore) -> set[tuple[str | None, str]]:
     out: set[tuple[str | None, str]] = set()
     for row in catalog.query("SELECT system, field_name FROM def_variables WHERE usage = 'I'"):
         out.add((row["system"], row["field_name"]))
-        out.add((None, row["field_name"]))
     return out
 
 
-def _sentinels_for(
-    catalog: CatalogStore, system: str | None, field_name: str, cache: DictionaryCache | None = None
-) -> list[str]:
-    """Codes the dictionary itself labels as ignored/unknown, for this field only.
+def _sentinels_for(system: str | None, series: str | None, field_name: str) -> list[str]:
+    """The codes the column's role declaration names as "not recorded" (``missing:``), for this field only.
 
-    Derived from the field's own bound codelists, never from a global list: a
-    ``9`` labelled "Ignorado" in ``SEXO`` says nothing about ``9`` in a field
-    where it means a valid category (§13).
-    """
-    labels = dict_lookup(catalog, system=system, field_name=field_name, cache=cache)
-    return sorted({code for code, label in labels.items() if _IGNORED_LABEL.match(str(label or ""))})
+    Never a global list and never a label: a ``9`` labelled "Ignorado" in ``SEXO`` says nothing about ``9`` in a field
+    where it means a valid category (§13), and the raw code of a category stays in the data. A column whose role names
+    none (or none of whose dataset has roles) has none."""
+    from .column_roles import roles
+
+    try:
+        declared = roles(f"{system}.{series}")
+    except KeyError:
+        return []
+    return sorted({str(code) for r in declared if str(r["column"]).upper() == field_name.upper()
+                   for code in r["missing"] or ()})
 
 
 def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None) -> list[LedgerEntry]:
@@ -174,7 +163,7 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
     cache = DictionaryCache(catalog)
     names_by_codelist = _names_by_codelist(catalog)
     layout_names = _layout_names(catalog)
-    sentinel_cache: dict[tuple[str | None, str], list[str]] = {}
+    sentinel_cache: dict[tuple[str | None, str | None, str], list[str]] = {}
 
     clause = ""
     params: list[object] = []
@@ -199,7 +188,7 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
     for row in rows:
         system = row["system"]
         field_name = row["field_name"]
-        coverage, observed, decoded = coverage_for_field(
+        coverage, observed, decoded, via_rule = coverage_for_field(
             catalog,
             family_id=row["family_id"],
             field_name=field_name,
@@ -207,7 +196,9 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
             cache=cache,
         )
         semantic = row["semantic_type"] or "unknown"
-        declared_additive = (system, field_name) in measures or (None, field_name) in measures
+        # a field's name never decides for another system's field: an undeclared field stays non-summable and
+        # unnamed until its own system's documents say otherwise
+        declared_additive = (system, field_name) in measures
         if declared_additive or semantic in ADDITIVE_TYPES:
             aggregation = "additive"
         elif semantic in MEAN_TYPES:
@@ -235,22 +226,22 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
         # with no codelist at all comes last. Only when all three miss is there
         # genuinely no official name.
         name = None
-        layout = layout_names.get((system, field_name)) or layout_names.get((None, field_name))
+        layout = layout_names.get((system, field_name))
         if layout:
             name = layout[0]
             provenance.append("layout_doc:official_name")
         if name is None and chosen:
-            name = names_by_codelist.get((system, field_name, chosen)) or names_by_codelist.get(
-                (None, field_name, chosen)
-            )
+            name = names_by_codelist.get((system, field_name, chosen))
         if name is None:
-            name = official.get((system, field_name)) or official.get((None, field_name))
+            name = official.get((system, field_name))
         if name is not None and "layout_doc:official_name" not in provenance:
             provenance.append("def:official_name")
         if declared_additive:
             provenance.append("def:incremento")
         if coverage > 0:
             provenance.append("dictionary")
+        if via_rule > 0:
+            provenance.append(f"dictionary:via_rule={via_rule:.4f}")
 
         questions: list[str] = []
         if semantic == "categorical_undecoded" and coverage < 0.5:
@@ -296,7 +287,7 @@ def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None)
                 unit=unit,
                 aggregation=aggregation,
                 sentinel_values=sentinel_cache.setdefault(
-                    (system, field_name), _sentinels_for(catalog, system, field_name, cache)
+                    (system, row["series"], field_name), _sentinels_for(system, row["series"], field_name)
                 ),
                 first_seen=row["time_min"],
                 last_seen=row["time_max"],

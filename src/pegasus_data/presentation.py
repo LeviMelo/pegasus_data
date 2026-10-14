@@ -82,9 +82,8 @@ def resolve(spec: str | Presentation | Mapping[str, Any] | None, default: str = 
     raise TypeError(f"presentation must be a preset name, a Presentation or a mapping, not {type(spec).__name__}")
 
 
-#: A leading code inside a label: "24 124-4 Município", "159 ATENCAO PRIMARIA",
-#: "01 VINCULO …", "70-ESF". Two or more digits, or a hyphen or dot, followed by
-#: a CAPITALISED word, so quantities survive: "22 a 27 semanas", "10 dias".
+#: A leading code inside a path segment: "159 ATENCAO PRIMARIA / 001 ATENCAO PRIMARIA". Two or more digits, or a
+#: hyphen or dot, followed by a CAPITALISED word, so quantities survive: "22 a 27 semanas", "10 dias".
 _EMBEDDED_CODE = re.compile(r"^(?:(?:\d{2,}|\d+[.\-]\d*)[\s\-]*)+(?=[A-ZÀ-Ý][A-Za-zÀ-ÿ])")
 
 
@@ -92,15 +91,19 @@ _PLACEHOLDER = re.compile(r"^\d*([a-zA-Z])\1{2,}\s+")
 
 
 def clean_label(label: str) -> str:
-    """A label without the codes DATASUS tables embed in it, segment by segment.
+    """A label without the codes DATASUS tables embed in the segments of a path.
 
     ``159 ATENCAO PRIMARIA / 001 ATENCAO PRIMARIA`` becomes ``ATENCAO PRIMARIA /
-    ATENCAO PRIMARIA``. Applied when showing a label; the canonical ``_label``
-    column keeps the table's text as it is.
+    ATENCAO PRIMARIA``. Only the segments of a " / " path lose a leading number: the
+    number that heads a one-segment label is the label's own text (``10 Horas`` for code 10,
+    one of fourteen hours), and `_render_value` takes it off exactly when it is the row's own
+    code and the template prints that code. Applied when showing a label; the canonical
+    ``_label`` column keeps the table's text as it is.
     """
     label = _PLACEHOLDER.sub("", label.strip()) or label  # "16eeee AP - …" (a TabWin range mask)
-    parts = [_EMBEDDED_CODE.sub("", part.strip()) or part.strip() for part in label.split(" / ")]
-    return " / ".join(parts)
+    if " / " not in label:
+        return label
+    return " / ".join(_EMBEDDED_CODE.sub("", part.strip()) or part.strip() for part in label.split(" / "))
 
 
 _QUANTITY = re.compile(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+,\d+")
