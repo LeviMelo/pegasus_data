@@ -12,6 +12,8 @@ alongside.
 
 from __future__ import annotations
 
+import logging
+
 import pyarrow as pa
 import pyarrow.compute as pc
 
@@ -55,12 +57,21 @@ def arrow_type_for(physical_type: str | None, width: int | None, decimals: int |
     }[kind]
 
 
-def cast_numeric(array: pa.Array, target: pa.DataType, *, decimals: int | None = None) -> pa.Array:
-    """Parse a numeric text column, tolerating DATASUS's implied decimal point.
+#: ``(field, decimals)`` already reported by :func:`cast_numeric`: one warning per column and process, not per batch.
+_POINTLESS_REPORTED: set[tuple[str, int]] = set()
 
-    Old SIH files store money as an integer string with the decimal point implied
-    by the DBF's declared decimal count, e.g. ``123456`` with 2 decimals meaning
-    1234.56. The declared count is therefore applied rather than assumed away.
+
+def cast_numeric(
+    array: pa.Array, target: pa.DataType, *, decimals: int | None = None, field: str = ""
+) -> pa.Array:
+    """Parse a numeric text column at face value; a value that does not parse is null (``_raw`` keeps the text).
+
+    The value is what the text says. A dBase numeric declared with ``decimals > 0`` writes its decimal point in every
+    value: 278,906 values in 40 such columns of SIH, SIASUS, SINAN and PNI files (14 blobs, measured 2026-10-14) carry
+    it, none lacks it. Dividing a point-less value by ``10**decimals`` (the previous rule, "implied decimals") decided
+    per cell and so mixed a column that held both spellings by 100; a point-less value in such a column is not known to
+    be scaled, and a scale a source needs belongs in the ledger for that field. It is kept as written, and counted:
+    ``decimals`` and ``field`` serve only to report it once per column.
     """
     if array.type != pa.string():
         array = array.cast(pa.string())
@@ -68,16 +79,19 @@ def cast_numeric(array: pa.Array, target: pa.DataType, *, decimals: int | None =
     text = pc.replace_substring_regex(text, r"^([+-]?\d+),(\d+)$", r"\1.\2")
     numeric_like = pc.fill_null(pc.match_substring_regex(text, r"^[+-]?\d+(\.\d+)?$"), False)
     text = pc.if_else(numeric_like, text, pa.scalar(None, pa.string()))
-    has_point = pc.fill_null(pc.match_substring_regex(text, r"\."), False)
     try:
         values = pc.cast(text, pa.float64())
     except pa.ArrowInvalid:
         return pa.nulls(len(array), type=target)
-    if decimals and decimals > 0:
-        scaled = pc.divide(values, float(10**decimals))
-        values = pc.if_else(has_point, values, scaled)
-    if pa.types.is_decimal(target):
-        return pc.cast(values, target, safe=False)
+    if decimals and decimals > 0 and (field, decimals) not in _POINTLESS_REPORTED:
+        has_point = pc.fill_null(pc.match_substring(text, "."), False)
+        pointless = pc.sum(pc.and_(numeric_like, pc.invert(has_point)).cast(pa.int64())).as_py() or 0
+        if pointless:
+            _POINTLESS_REPORTED.add((field, decimals))
+            logging.getLogger(__name__).warning(
+                "%s is declared with %d decimals but %d value(s) in a batch have no decimal point; they are read at "
+                "face value, not rescaled", field or "a numeric column", decimals, pointless,
+            )
     if pa.types.is_integer(target):
         return pc.cast(pc.round(values), target, safe=False)
     return pc.cast(values, target, safe=False)

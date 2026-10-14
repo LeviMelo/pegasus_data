@@ -394,7 +394,7 @@ class Builder:
         family_ids: Sequence[str] | None = None,
         max_files_per_family: int | None = None,
         keep_raw: bool | None = None,
-        emit_labels: bool = True,
+        emit_labels: bool = False,
         rebuild: bool = False,
         on_file: Callable[[str, str], None] | None = None,
     ) -> StageResult:

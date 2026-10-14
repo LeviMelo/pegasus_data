@@ -17,9 +17,9 @@ The steps:
 2. **Sentinel nulling**, per field, from ``ledger.sentinel_values`` — a ``9`` is
    missing in one field and a valid category in another, and a global rule
    silently corrupts data.
-3. **Code decoding**, emitting **both** ``field`` (raw) and ``field_label``
-   (decoded). Nothing is destroyed, and the raw column costs almost nothing after
-   Parquet dictionary encoding.
+3. **Code decoding** (opt-in, ``emit_labels``), emitting **both** ``field`` (raw) and
+   ``field_label`` (decoded). Nothing is destroyed, and the raw column costs almost
+   nothing after Parquet dictionary encoding.
 4. **Geo canonicalisation** by join, with the check digit as secondary validation.
 5. **Time canonicalisation**, using the source's own epidemiological week where it
    publishes one.
@@ -120,11 +120,12 @@ class NormalizePlan:
     municipalities: MunicipalityIndex | None = None
     keep_raw: bool = True
     #: Materialise a `<field>_label` column for small closed codelists (§7.1
-    #: step 3). Hierarchical classifications are excluded regardless: they are
-    #: joined from `lake/reference/` at the granularity and vintage the consumer
-    #: chooses. Setting this False drops label columns entirely; every raw code
-    #: and every dictionary entry is still present, so meaning stays recoverable.
-    emit_labels: bool = True
+    #: step 3). Off unless asked: a label frozen into the lake is today's meaning on every historical row, whatever the
+    #: codelist's validity windows (labels are joined at read time, by window). Hierarchical classifications are
+    #: excluded regardless: they are joined from `lake/reference/` at the granularity and vintage the consumer
+    #: chooses. False drops label columns entirely; every raw code and every dictionary entry is still present, so
+    #: meaning stays recoverable. It is part of the plan fingerprint: the built lakes were written with it off.
+    emit_labels: bool = False
 
     def for_field(self, name: str) -> FieldPlan:
         return self.fields.get(name) or FieldPlan(name=name)
@@ -321,7 +322,7 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
             typed = parse_date_array(cleaned, order=fp.date_order, sentinels=tuple(fp.sentinels))
         elif semantic in {"money", "numeric_measure"}:
             target = arrow_type_for(fp.physical_type, fp.width, fp.decimals)
-            typed = cast_numeric(cleaned, target, decimals=fp.decimals)
+            typed = cast_numeric(cleaned, target, decimals=fp.decimals, field=name)
         elif (fp.physical_type or "").upper() == "L":
             typed = cast_boolean(cleaned)
         elif (fp.physical_type or "").upper() == "D":
@@ -360,7 +361,7 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
 
 def add_provenance(
     batch: pa.RecordBatch, *, source_path: str, blob_sha256: str, schema_signature: str,
-    first_row: int = 0, complete: bool = True,
+    first_row: int = 0, record_key: bool = True,
 ) -> pa.RecordBatch:
     n = batch.num_rows
     stamp = utcnow()
@@ -388,8 +389,9 @@ def add_provenance(
         # a content key over a projection is not the record's key: the same record read with other
         # columns got another key, and links stored in a lake-less home could not be joined back to
         # their records (PegaSUS, 2026-10-04). A projected batch carries none; identity then falls
-        # back to _blob_sha256:_row, which every projection of the file shares.
-        "_record_key": record_keys(batch) if complete else pa.nulls(n, pa.string()),
+        # back to _blob_sha256:_row, which every projection of the file shares. Nor is one nobody
+        # reads: a `fetch()` without provenance drops the column, after about 9 us a row to hash it.
+        "_record_key": record_keys(batch) if record_key else pa.nulls(n, pa.string()),
     }
     return pa.RecordBatch.from_arrays(
         list(batch.columns) + list(extra.values()),
@@ -403,8 +405,13 @@ def normalize_table(
     *,
     blob_sha256: str = "",
     with_provenance: bool = True,
+    record_key: bool = True,
 ) -> Iterator[pa.RecordBatch]:
-    """Stream a decoded table through the plan, batch by batch."""
+    """Stream a decoded table through the plan, batch by batch.
+
+    ``record_key=False`` leaves ``_record_key`` null: a caller that drops provenance (``fetch()`` by default) does not
+    pay to hash every row. A batch that lacks some of the family's columns has none either way.
+    """
     first_row = 0
     for batch in table.batches():
         complete = not plan.columns or set(plan.columns) <= set(batch.schema.names)
@@ -416,7 +423,7 @@ def normalize_table(
                 blob_sha256=blob_sha256,
                 schema_signature=plan.schema_signature,
                 first_row=first_row,
-                complete=complete,
+                record_key=record_key and complete,
             )
         first_row += batch.num_rows
         yield out

@@ -33,6 +33,9 @@ ds = LazyModule("pyarrow.dataset")
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
+#: Where a partition is staged while it is written: beside the system directories, so no glob over a family reaches it.
+STAGING_DIR = ".staging"
+
 
 def _safe(part: str) -> str:
     return _SAFE.sub("_", str(part))
@@ -209,7 +212,11 @@ class Lake:
             # concurrent dataset scan saw both generations. A whole-tree rename
             # exposes either the complete old directory or the complete new
             # directory, never their union.
-            with staged_tree(directory) as staged_directory:
+            #
+            # Staged under `<lake>/.staging/`, not beside the partition: DuckDB's `**/*.parquet` glob over the family
+            # walks hidden directories too, so a staging tree inside the family made every query on it fail while a
+            # partition was written (and after a killed build).
+            with staged_tree(directory, staging_root=self.root / STAGING_DIR) as staged_directory:
                 write_parquet(staged_directory / target.name)
         else:
             directory.mkdir(parents=True, exist_ok=True)

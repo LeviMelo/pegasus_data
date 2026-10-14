@@ -463,7 +463,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `persist/lake.py`: writes the lake and reads it from the catalog's list of partitions (`Lake.listed`, `dataset_of`; a listed file missing is `PartialLakeError`, ADR-0164).
 - `persist/duck.py`: DuckDB views over it.
 - `persist/reference.py`: version-scoped code tables, with the label pack as fallback.
-- `persist/staging.py`: atomic publish.
+- `persist/staging.py`: atomic publish. A lake partition is staged under `<lake>/.staging/`, outside every family tree (a glob over a family would read it), and a refused rename is retried (ADR-0173).
 - `persist/decisions.py`: records of label substitutions.
 
 ### `profile/`

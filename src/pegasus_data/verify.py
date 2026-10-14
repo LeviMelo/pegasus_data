@@ -727,7 +727,7 @@ def check_stored_labels_agree(catalog: CatalogStore, settings: Settings) -> Chec
         return _skip(c, "no lake has been built yet")
     files = [
         p for p in lake.rglob("*.parquet")
-        if not {"reference", "population", "demas"} & set(p.parts)
+        if not {"reference", "population", "demas", ".staging"} & set(p.relative_to(lake).parts)
     ]
     if not files:
         return _skip(c, "no family partitions have been built yet")
