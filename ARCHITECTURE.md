@@ -138,8 +138,8 @@ artifacts, capabilities, population, geography memberships and (behind
 
 ## 3. Persistent objects
 
-**The data home** (`config.py`, `locate.py`: five layers decide it; `pegasus-data
-where` says which won):
+**The data home** (`config.py`, `locate.py`: five layers decide it, and an explicit root carries its blobs, lake, work and
+catalog with it, ADR-0175; `pegasus-data where` says which won):
 
 ```text
 <home>/_catalog/catalog.sqlite   the catalog (catalog/schema.sql, catalog/store.py)
@@ -357,9 +357,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `measures.py`: the measure algebra (accumulator states).
 - `capabilities.py`: what a client may do with a built aggregate.
 - `workbook.py`: a built aggregate as an Excel workbook, each sheet its own aggregation (`pegasus-data workbook`).
-- `suggest.py`: recipe suggestions.
-- `geography.py`: health-region memberships and the geography graph. `mesh`: IBGE's polygons for maps.
-- `extract.py`: filtered extracts, `<lake>/extracts/<dataset>/<digest>/`: the records of a dataset that its filters (column → code prefixes) match, its files read, kept and released one by one; a manifest of every file's rows read and kept and the files that failed. Apart from the lake, so no query reads a filtered table as the dataset; `extract_table` serves a code set only where the extract holds its years whole.
+- `suggest.py`: recipe suggestions; what is structural (identifier, date, the event's own place) comes from the dataset's declared column roles, never from names.
+- `geography.py`: health-region memberships and the geography graph. `mesh_file`: IBGE's mesh, downloaded once (the one definition of its URL; `mesh` reads it for maps, the points pack and INMET's station placement take the same file).
+- `extract.py`: filtered extracts, `<lake>/extracts/<dataset>/<digest>/`: the records of a dataset that its filters (column → code prefixes) match, its files read, kept and released one by one; a manifest of every file's rows read and kept and the files that failed. Apart from the lake, so no query reads a filtered table as the dataset; `extract_table` serves a code set only where the extract holds its years whole. A filter column that is in no file's header (the catalog's census) is refused before the first fetch.
 - `concepts.py`: the concept index: which sources hold a condition's codes (every record's own condition code by its role, SINAN's `ID_AGRAVO`; SIGTAP's procedure–ICD compatibility, label search over ICD-10 and SIGTAP), cached in `registries/concepts` (PegaSUS's scope). `dispensed`: the SIGTAP medicine procedures (group 06) of SIA's APAC AM authorised under the codes, one APAC once (the event type's rule), cached per year; `stock_by_state`: BNAFAR's stock of a drug by state and month. `treatments`: the medicines an official document gives for the codes (`curation/treatments.yml`, each substance with the declared fields that count it, their exact filter and denominator); records never name a treatment here. `captures`: the populations several systems list, for capture–recapture (`curation/captures.yml`: one definition across systems, each list's filter on its role table, its grouping into one person and its deaths; a link's side filter is written for pairing and is never a population).
 - `intake.py`: the one intake for sources that are not on the FTP (ADR-0162), declared in `curation/intake.yml`: records land in the lake as Parquet (raw beside typed, DuckDB-streamed) and register as a queryable dataset (catalog family, ontology system and series, curation docs from the same declaration); context fields are derived from the records into `<lake>/fields/`; DEMAS and Portal files are read politely (API tables unstable under paging by partitioned filters), a unit is replaced whole across every schema family (staged, counted, swapped, registered; ADR-0172), and `check_source` sets the used origin against its `compare` origin.
 - `sources/bnafar.py`: BNAFAR/Hórus medicine stock domain logic (CATMAT items, supply units, the monthly grouping) on `intake`; every fresh read also lands in the lake as `BNAFAR-STOCK` with its read day (the endpoint serves current positions only).
@@ -394,10 +394,10 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
 - `snapshot.py`: `pegasus-data snapshot`, the versions of preliminary and current-year files (declared in `curation/snapshots.yml`) kept as they change; `versions()` and `digests_as_of()` behind `query(as_of=)` (ADR-0141).
 - `pipeline.py`: `Pipeline`, the build stages.
-- `build.py`: the stages that write data (lake, population, DEMAS); `build_lake(dataset, years, root=)` builds one dataset's lake for a caller that is not the command line.
+- `build.py`: the stages that write data (lake, population, the DEMAS OpenAPI document); `build_lake(dataset, years, root=)` builds one dataset's lake for a caller that is not the command line.
 - `progress.py`: deadlines and heartbeat.
 - `config.py`, `locate.py`: settings and where the data home is.
-- `textenc.py`: codepage detection.
+- `textenc.py`: codepage detection; `fold`, the one folding of names compared (accents, case, hyphen and apostrophe between words).
 - `_lazy.py`: a module imported on its first use (`pyarrow.dataset`, which loads pandas, kept off every command's start).
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).
 - `cli/`: the Typer CLI (`python -m pegasus_data.cli`, `cli/__main__.py`), one module per help panel: `cli/setup.py`, `cli/pipeline.py`, `cli/read.py`, `cli/audit.py`, `cli/sidra.py` (`pegasus-data sidra`); shared options and helpers in `cli/_common.py`.
@@ -463,7 +463,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `persist/lake.py`: writes the lake and reads it from the catalog's list of partitions (`Lake.listed`, `dataset_of`; a listed file missing is `PartialLakeError`, ADR-0164).
 - `persist/duck.py`: DuckDB views over it.
 - `persist/reference.py`: version-scoped code tables, with the label pack as fallback.
-- `persist/staging.py`: atomic publish.
+- `persist/staging.py`: atomic publish. A lake partition is staged under `<lake>/.staging/`, outside every family tree (a glob over a family would read it), and a refused rename is retried (ADR-0173).
 - `persist/decisions.py`: records of label substitutions.
 
 ### `profile/`

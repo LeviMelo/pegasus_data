@@ -458,7 +458,7 @@ def _legacy_sia_establishments(
                 part = read_reference_table(
                     lake_root, table_id, system="SIASUS", year=year, competencia=competencia
                 )
-            except (FileNotFoundError, OSError, KeyError):
+            except (FileNotFoundError, KeyError):
                 continue
             codes.extend(f"{uf}{c}" for c in part.column("code").to_pylist())
             labels.extend(part.column("label").to_pylist())

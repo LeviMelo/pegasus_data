@@ -251,7 +251,7 @@ class TestItAnswersFastEnoughToServe:
         (target / "manifest.json").write_text(json.dumps({
             "name": "sih_rd_municipality_month", "fingerprint": "scale",
             "cells": len(rows), "years": [2022], "support": {},
-            "key_columns": list(KEYS)}), encoding="utf-8")
+            "key_columns": list(KEYS), "multi_valued_dimensions": []}), encoding="utf-8")
         return settings, len(rows)
 
     def test_a_national_rollup_answers_in_seconds(self, tmp_path) -> None:

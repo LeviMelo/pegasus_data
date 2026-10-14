@@ -240,8 +240,10 @@ class TestLabelsComeFromTheCatalog:
         narrowed = codelist_levels(
             "SEXO", store=catalog, lake_root=resolved.lake_dir, system="SIHSUS",
             codes=["1"])
-        assert len(narrowed) == 1
-        assert len(everything) >= len(narrowed)
+        assert narrowed == {"1": "Masculino"}
+        # Without the observed codes nothing is offered (0354a0a, 2026-10-11): the levels are labelled as a query
+        # labels them, from the codes present, so a table of fourteen thousand is never listed whole.
+        assert everything == {}
 
 
 class TestCoverageIsRecordedNotInferred:

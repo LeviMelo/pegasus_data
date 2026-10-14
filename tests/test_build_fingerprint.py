@@ -93,7 +93,7 @@ class TestTransformFingerprint:
         )
 
     def test_emit_labels_and_keep_raw_change_it(self):
-        assert plan_fingerprint(_plan()) != plan_fingerprint(_plan(emit_labels=False))
+        assert plan_fingerprint(_plan()) != plan_fingerprint(_plan(emit_labels=True))
         assert plan_fingerprint(_plan()) != plan_fingerprint(_plan(keep_raw=False))
 
     def test_the_schema_signature_changes_it(self):

@@ -34,7 +34,7 @@ from __future__ import annotations
 import re
 import warnings
 from collections import Counter
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from pathlib import Path
@@ -190,6 +190,21 @@ def column_kind(name: str, base_columns: frozenset[str]) -> str:
         if name.endswith(suffix) and name[: -len(suffix)] in base_columns:
             return "companion"
     return "raw"
+
+
+def drop_helper_columns(table: pa.Table, helpers: Iterable[str]) -> pa.Table:
+    """``table`` without the columns that were read only so another could be rendered (``required_columns``), and
+    without their labels and companions. ``helpers`` are upper-case names the caller did not ask for."""
+    gone = {str(h).upper() for h in helpers}
+    if not gone:
+        return table
+    suffixes = (LABEL_SUFFIX, *COMPANION_SUFFIXES)
+    keep = [
+        name for name in table.column_names
+        if name.upper() not in gone
+        and not any(name.endswith(s) and name[: -len(s)].upper() in gone for s in suffixes)
+    ]
+    return table if len(keep) == len(table.column_names) else table.select(keep)
 
 
 def codelist_levels(
@@ -457,14 +472,22 @@ def key_parts(key: Sequence[str]) -> list[tuple[str, int | None]]:
     return out
 
 
+def _key_columns(table: pa.Table, key: Sequence[str]) -> tuple[list[tuple[str, int | None]], list[str]]:
+    """A composite key's parts as the table's columns, and the names of those it lacks. ``@UF`` is the file's state:
+    the fetch path carries it as ``_source_uf``, the lake as its ``uf`` partition column."""
+    state = "_source_uf" if "_source_uf" in table.schema.names or "uf" not in table.schema.names else "uf"
+    parts = [(state if name == "@UF" else name, width) for name, width in key_parts(key)]
+    return parts, [name for name, _ in parts if name not in table.schema.names]
+
+
 def compose_key(table: pa.Table, key: Sequence[str]) -> pa.Array | None:
     """The concatenated key the codelist is indexed by, or None if a part is missing.
 
     The one place a composite key is built: rendering and the bindings compiler
     both call it, so a column is measured exactly as it is looked up (ADR-0088).
     """
-    parts = [("_source_uf" if name == "@UF" else name, width) for name, width in key_parts(key)]
-    if not parts or not all(name in table.schema.names for name, _ in parts):
+    parts, missing = _key_columns(table, key)
+    if not parts or missing:
         return None
     arrays = []
     for name, width in parts:
@@ -476,18 +499,19 @@ def compose_key(table: pa.Table, key: Sequence[str]) -> pa.Array | None:
     return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
 
 
-def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array:
-    """The column's own values, or the concatenation its curated ``key:`` names."""
+def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array | None:
+    """The column's own values, or the concatenation its curated ``key:`` names; None when the key names a column the
+    table lacks. Falling back to the column alone matched it against a different key of the same codelist (CLASS_SR
+    against S_CLASSEN's SERV_ESP + CLASS_SR): the column is left undecoded and the report says why."""
     key = getattr(doc, "key", None) if doc is not None else None
-    composed = compose_key(table, key) if key else None
-    return column if composed is None else composed
+    return compose_key(table, key) if key else column
 
 
 def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) -> pa.Array | None:
     """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094)."""
     try:
         table = read_reference_table(lake, str(via["table"]), system=system)
-    except (FileNotFoundError, OSError, KeyError):
+    except (FileNotFoundError, KeyError):
         return None
     field_name = str(via.get("field") or "label")
     if field_name not in table.column_names:
@@ -578,7 +602,7 @@ def _labelled_codes(lake: Path, classification: str, codes: object, *, as_code: 
     """
     try:
         table = read_reference_table(lake, classification)
-    except (FileNotFoundError, OSError):
+    except FileNotFoundError:
         return None
     if as_code:
         return _per_distinct(codes, lambda v: v or None)
@@ -597,7 +621,7 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
         return None
     try:
         table = read_reference_table(lake, classification)
-    except (FileNotFoundError, OSError):
+    except FileNotFoundError:
         return None
     names = _names_of(table, [str(v).strip()[:digits] for v in _distinct(codes)])
 
@@ -995,6 +1019,20 @@ def _render_table(
             names.append(name)
             continue
         key_column = _lookup_key(table, doc, column)
+        if key_column is None:
+            absent = _key_columns(table, doc.key)[1]
+            message = (f"{name}: its codelist is keyed by {' + '.join(doc.key)} and {', '.join(absent)} is not in "
+                       "the table, so the column is left undecoded (its own values would match a different key)")
+            if strict:
+                raise LabelUnavailable(message)
+            report.warnings.append(message)
+            report.unlabelled.append(name)
+            columns.append(column)
+            names.append(name)
+            if _coded(doc):
+                columns.append(pa.nulls(len(column), type=pa.string()))
+                names.append(f"{name}{LABEL_SUFFIX}")
+            continue
         selection = _select_codelists(
             name,
             key_column,

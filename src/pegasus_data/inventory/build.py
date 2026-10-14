@@ -31,16 +31,19 @@ from .systems import (
 )
 
 
-def _republication_trees() -> frozenset[str]:
+def _system_trees() -> tuple[frozenset[str], frozenset[str]]:
     """The crawled names of the ontology's republication trees (`republishes: true`: Dados_Abertos), where a file's
-    name, not its directory, says which system it belongs to."""
+    name, not its directory, says which system it belongs to, and of the ontology's other systems' own trees, where the
+    directory does. A tree in neither is not known (a reorganised one): the name decides (`resolve_system`). An ontology that
+    cannot be read raises: reading it as empty would let every file's name override its tree."""
     from ..ontology import Ontology
 
-    try:
-        ontology = Ontology.load()
-    except Exception:  # noqa: BLE001 - without the declaration the path stays authoritative everywhere
-        return frozenset()
-    return frozenset(alias for s in ontology.systems.values() if s.republishes for alias in (s.code, *s.crawled_as))
+    ontology = Ontology.load()
+
+    def names(wanted: Any) -> frozenset[str]:
+        return frozenset(alias for s in ontology.systems.values() if wanted(s) for alias in (s.code, *s.crawled_as))
+
+    return names(lambda s: s.republishes), names(lambda s: not s.republishes)
 
 
 def _descriptive_tails(parsed_by_path: dict[str, ParsedName], by_directory: dict[str, list[str]]) -> None:
@@ -130,7 +133,7 @@ def build_inventory(
         ),
     )
     learned = load_prefix_systems(catalog)
-    republications = _republication_trees()
+    republications, own_trees = _system_trees()
 
     facts: list[tuple[Any, ...]] = []
     disagreements: list[tuple[str, str | None, str, str, str]] = []
@@ -141,7 +144,7 @@ def build_inventory(
         by_path = system_from_path(path, base_path)
         system, disagreed = resolve_system(
             series_prefix=resolved.series_prefix, system_by_path=by_path, learned=learned,
-            republications=republications,
+            republications=republications, own_trees=own_trees,
         )
         if disagreed and system:
             # resolve_system returns the losing reading: the path's when the name won, the name's when the path did

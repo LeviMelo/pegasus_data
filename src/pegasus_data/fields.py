@@ -320,10 +320,12 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
     """Station-month climate placed in the municipality each station stands in (``sources.inmet``)."""
     import pyarrow.compute as pc
 
+    from .geography import mesh_file
     from .sources.inmet import monthly, stations
 
     cache = Path(settings.root) / "registries" / "inmet"
-    placed = {s["station_id"]: s for s in stations(cache) if s["municipality7"]}
+    mesh = mesh_file("municipality", "maxima", settings.root)
+    placed = {s["station_id"]: s for s in stations(cache, mesh) if s["municipality7"]}
     table = monthly(cache, years)
     ids = table.column("station_id").to_pylist()
     code7 = [placed[i]["municipality7"] if i in placed else None for i in ids]

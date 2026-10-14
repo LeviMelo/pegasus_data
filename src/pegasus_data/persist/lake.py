@@ -33,6 +33,9 @@ ds = LazyModule("pyarrow.dataset")
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
+#: Where a partition is staged while it is written: beside the system directories, so no glob over a family reaches it.
+STAGING_DIR = ".staging"
+
 
 def _safe(part: str) -> str:
     return _SAFE.sub("_", str(part))
@@ -209,7 +212,11 @@ class Lake:
             # concurrent dataset scan saw both generations. A whole-tree rename
             # exposes either the complete old directory or the complete new
             # directory, never their union.
-            with staged_tree(directory) as staged_directory:
+            #
+            # Staged under `<lake>/.staging/`, not beside the partition: DuckDB's `**/*.parquet` glob over the family
+            # walks hidden directories too, so a staging tree inside the family made every query on it fail while a
+            # partition was written (and after a killed build).
+            with staged_tree(directory, staging_root=self.root / STAGING_DIR) as staged_directory:
                 write_parquet(staged_directory / target.name)
         else:
             directory.mkdir(parents=True, exist_ok=True)
@@ -353,9 +360,20 @@ class Lake:
         """Listed partitions whose file is not on disk."""
         return [p for p in parts if not (self.root / p.relative_path).is_file()]
 
-    def check_files(self, parts: Sequence[LakePartition]) -> None:
-        """Raise :class:`PartialLakeError` when a listed file is not on disk: a listed partition is never skipped."""
+    def check_files(self, parts: Sequence[LakePartition], *, patience: float = 1.0) -> None:
+        """Raise :class:`PartialLakeError` when a listed file is not on disk: a listed partition is never skipped.
+
+        A rebuild replaces a partition's directory in two renames (the old one aside, the new one in): a reader that
+        lists the file in the gap between them finds it absent for a few milliseconds. It looks again for up to
+        ``patience`` seconds before calling the lake partial, so the gap is not a failure and a real loss still is.
+        """
+        import time
+
+        deadline = time.monotonic() + patience
         gone = self.missing(parts)
+        while gone and time.monotonic() < deadline:
+            time.sleep(0.1)
+            gone = self.missing(parts)
         if gone:
             raise PartialLakeError(gone[0].family_id, [p.relative_path for p in gone])
 
@@ -379,8 +397,8 @@ class Lake:
             path = self.root / part.relative_path
             try:
                 stat = path.stat()
-            except OSError:
-                continue
+            except FileNotFoundError:
+                continue                # any other OSError (a locked or unreadable file) is not "absent": it raises
             key = (str(path), stat.st_mtime_ns, stat.st_size)
             if key not in _SCHEMAS:
                 if len(_SCHEMAS) > 4096:

@@ -199,10 +199,6 @@ class Settings:
         return self.lake_dir / "population"
 
     @property
-    def demas_dir(self) -> Path:
-        return self.lake_dir / "demas"
-
-    @property
     def work_dir(self) -> Path:
         return self.work_root or (self.root / "work")
 
@@ -224,7 +220,6 @@ class Settings:
             self.blobs_dir,
             self.lake_dir,
             self.population_dir,
-            self.demas_dir,
             self.work_dir,
         ):
             p.mkdir(parents=True, exist_ok=True)

@@ -28,6 +28,7 @@ from typing import Any
 import pyarrow as pa
 
 from .. import intake
+from ..textenc import fold
 
 SOURCE = "bnafar"
 #: The columns kept are declared in ``curation/intake.yml`` (the rest of a row is the establishment's address, telephone and
@@ -39,12 +40,6 @@ def _cache(root: str | Path | None) -> Path:
     path = intake._cache(SOURCE, root)
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-
-def _fold(text: str) -> str:
-    import unicodedata
-
-    return "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c)).upper()
 
 
 # --- CATMAT (the open catalogue) -------------------------------------------------------------------------------------
@@ -91,10 +86,10 @@ def products(term: str, root: str | Path | None = None, units: dict[str, str] | 
     units = units or SOLID_ORAL
     cache = _cache(root) / "product_probe.json"
     probe: dict[str, Any] = json.loads(cache.read_text(encoding="utf8")) if cache.is_file() else {}
-    wanted = _fold(term)
+    wanted = fold(term)
     out = []
     for pdm in catmat_pdms(root):
-        if wanted not in _fold(pdm["nomePdm"]):
+        if wanted not in fold(pdm["nomePdm"]):
             continue
         for item in catmat_items(pdm["codigoPdm"], root)["items"]:
             for suffix, unit in units.items():

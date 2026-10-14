@@ -80,7 +80,6 @@ from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failur
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .pipeline import Pipeline
-from .presentation import LABEL_SUFFIX
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderMode, RenderReport
@@ -282,7 +281,9 @@ def fetch(
     on_progress: Callable[[str, int, int], None] | None = None,
     report: bool = False,
     _only_paths: Sequence[str] | None = None,
+    _record_key: bool = True,
     as_of: str | date | datetime | None = None,
+    rows: Mapping[str, Sequence[str]] | None = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -305,11 +306,17 @@ def fetch(
     ``provenance=True`` keeps ``_source_path``, ``_blob_sha256``,
     ``_ingested_at`` and ``_schema_signature``. They are off by default: they
     are constant per source file and cost width in every row to say something
-    the report already says once.
+    the report already says once. The record key (an MD5 of each row's fields) is computed only then, and not when
+    the internal ``_record_key=False`` says the caller keeps the other four and drops the key.
 
     ``dictionary=True`` also returns a :class:`DataDictionary` — one row per
     column, with what it means, which reference table decoded it and the
     evidence rung behind that.
+
+    ``rows`` (``{column: code prefixes}``, as in :func:`~pegasus_data.api.load`) keeps only the records whose columns
+    start with one of their codes, tested on the decoded codes BEFORE anything is rendered (a labelled year is not
+    filtered by its label text, and a year is not labelled to be thrown away). The filter's columns are read and
+    dropped again unless asked for.
 
     ``as_of`` reads the kept snapshot version each file had on that date
     (``pegasus-data snapshot``, ADR-0141) and touches no network; a file with
@@ -333,6 +340,14 @@ def fetch(
     want_ufs = _clean_ufs(uf)
     want_months = _clean_months(months)
     _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
+    asked_columns = list(columns) if columns else None
+    if rows:
+        from .api import _rows_filters
+
+        rows = _rows_filters(rows)                  # refused when it selects no record, never read as "every record"
+        if columns:
+            asked = {str(c).upper() for c in columns}
+            columns = [*columns, *(c for c in rows if str(c).upper() not in asked)]
 
     pipeline = Pipeline(resolved_settings)
     fetch_report = FetchReport(
@@ -380,6 +395,7 @@ def fetch(
             only_paths=_only_paths,
             as_of=as_of,
             memo=decoded_before,
+            record_key=provenance and _record_key,
         )
         refused: set[str] = set()
         while fetch_report.schema_mismatch and fetch_report.representations_deduplicated:
@@ -416,6 +432,7 @@ def fetch(
                 exclude_paths=frozenset(refused),
                 as_of=as_of,
                 memo=decoded_before,
+                record_key=provenance and _record_key,
             )
         if refused:
             fetch_report.warnings.append(
@@ -439,9 +456,10 @@ def fetch(
             raise PartialFetchError(fetch_report, fetch_report.excluded)
 
         if columns:
-            from .semantics.curation import load_variable_docs
+            from .semantics.curation import derived_inputs, load_variable_docs, required_columns
 
-            derived_names = set(_derived_inputs(load_variable_docs(pipeline.catalog, system)))
+            docs = load_variable_docs(pipeline.catalog, system)
+            derived_names = set(derived_inputs(docs))
             missing = [
                 c for c in columns if c not in table.column_names and str(c).upper() not in derived_names
             ]
@@ -471,12 +489,16 @@ def fetch(
             # What a requested column's LABEL is made from (a composite key's
             # parts, a naming sibling, a unit) survives until rendering and is
             # dropped after it (ADR-0090).
-            render_needs = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - requested
+            render_needs = required_columns(docs, columns) - requested
             keep = [
                 c for c in table.column_names if c in requested or c in internal or c in render_needs
             ]
             table = table.select(keep)
 
+        if rows:
+            from .api import _rows_expression
+
+            table = table.filter(_rows_expression(rows))
         if labels:
             _ensure_reference_tables(pipeline, fetch_report)
         # Per (family, vintage), through the SAME operation load() uses.
@@ -531,12 +553,10 @@ def fetch(
         fetch_report.render = render_report
         fetch_report.rows = rendered.num_rows
         if columns:
-            helpers = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - set(columns)
-            if helpers:
-                rendered = rendered.select([
-                    c for c in rendered.column_names
-                    if c not in helpers and not (c.endswith(LABEL_SUFFIX) and c[: -len(LABEL_SUFFIX)] in helpers)
-                ])
+            from .view import drop_helper_columns
+
+            rendered = drop_helper_columns(
+                rendered, required_columns(docs, columns) - {str(c).upper() for c in asked_columns or ()})
 
         # ORDER MATTERS. Provenance is dropped first so it never appears in the
         # dictionary or gets renamed; the dictionary is built next, against the
@@ -819,77 +839,6 @@ def _strata_for(
     return ids or None
 
 
-def _derived_inputs(docs: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
-    """``DERIVED NAME (upper) -> input columns`` for every curated recipe. A name may have a recipe per layout (SIA's
-    IDADE_anos: AP_NUIDADE and AP_COIDADE in the APACs, IDADEPAC and TPIDADEPAC elsewhere): its inputs are every
-    recipe's, so a narrow projection reads whichever the layout carries (keeping only the last recipe's lost the
-    APAC age, 2026-10-10)."""
-    out: dict[str, tuple[str, ...]] = {}
-    for doc in docs.values():
-        for recipe in getattr(doc, "derived", None) or []:
-            name = str(recipe.get("name") or "").upper()
-            if name:
-                inputs = tuple(str(c).upper() for c in (recipe.get("from") or []))
-                out[name] = tuple(dict.fromkeys((*out.get(name, ()), *inputs)))
-    return out
-
-
-def _keep_columns(
-    catalog: CatalogStore, report: FetchReport, columns: Sequence[str] | None
-) -> frozenset[str] | None:
-    """The requested columns plus what is needed to render or derive them.
-
-    Returns ``None`` for "keep everything", which is the default. A projection
-    that dropped a column some derivation or unit conversion depends on would
-    turn an explicit request into a silently missing output — the same failure
-    HI-22 names on the lake side.
-    """
-    if not columns:
-        return None
-    keep = {str(c).upper() for c in columns}
-    try:
-        from .semantics.curation import load_variable_docs
-
-        docs = load_variable_docs(catalog, report.system or "")
-    except Exception:  # noqa: BLE001 - no docs is not a reason to lose columns
-        return frozenset(keep)
-    # A requested DERIVED column (IDADE_anos, PROC_REA_grupo) is made from its
-    # recipe's inputs, which is what has to be read (ADR-0092).
-    derived_inputs = _derived_inputs(docs)
-    for name in list(keep):
-        for source in derived_inputs.get(name, ()):
-            keep.add(source)
-    for name in list(keep):
-        doc = docs.get(name)
-        if doc is None:
-            continue
-        # Whatever this column's meaning depends on has to survive the prune.
-        for dependency in (doc.depends_on or []):
-            keep.add(str(dependency).upper())
-        for recipe in (doc.derived or []):
-            for source in (recipe.get("from") or []):
-                keep.add(str(source).upper())
-        if doc.modifies:
-            keep.add(str(doc.modifies).upper())
-        # The columns its LABEL is made from: a composite key's parts (ADR-0088)
-        # and a sibling that names it (ADR-0090). Without them a narrow select=
-        # showed CNES ID_SEGM as undecoded while the full query named it.
-        for part in (getattr(doc, "key", None) or []):
-            if not str(part).startswith("@"):  # @UF is the file's state, not a column
-                keep.add(str(part).partition(":")[0].strip().upper())
-        if getattr(doc, "label_from", None):
-            keep.add(str(doc.label_from).upper())
-        via = getattr(doc, "label_via", None)
-        if via and via.get("column"):
-            columns_via = via["column"] if isinstance(via["column"], list) else [via["column"]]
-            keep.update(str(c).upper() for c in columns_via)
-    # And anything that MODIFIES a requested column (a unit beside a duration).
-    for name, doc in docs.items():
-        if doc.modifies and str(doc.modifies).upper() in keep:
-            keep.add(str(name).upper())
-    return frozenset(keep)
-
-
 def _refused_with_alternative(
     catalog: CatalogStore, refused: set[str], alternatives: Sequence[str]
 ) -> set[str]:
@@ -924,11 +873,17 @@ def _select_files(
     max_bytes: int | None = None,
     exclude_paths: frozenset[str] = frozenset(),
     plans: dict[str, NormalizePlan] | None = None,
+    one_reading: bool = True,
 ) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
     """Decide WHICH files answer this request, and refuse the ones that cannot.
 
     ``plans``, when given, is filled with the plan built for each family that has files, so the caller does not build
     them a second time.
+
+    With no state asked, a year DATASUS publishes as a national file AND as one file per state (SIM, SINASC) is read
+    from the national file alone: the state files are the same records, and taking both returned every death and every
+    birth twice (the rule of ``query()``, `national_or_states`). ``one_reading=False`` takes every file: a caller that
+    names exact paths (``_only_paths``) must get the file it named.
 
     Everything before a byte is fetched: matching files to the requested axes,
     building each generation's normalisation plan, applying the structural
@@ -972,6 +927,24 @@ def _select_files(
             and (month_set is None or _month_of(row["normalized_date"]) in month_set)
             and str(row["path"]) not in exclude_paths
         ]
+        if uf_set is None and one_reading:
+            from ._query_engine.coverage import national_or_states
+
+            by_year: dict[object, list[dict[str, Any]]] = {}
+            for row in global_matched:
+                by_year.setdefault(row["year"], []).append(row)
+            kept = {
+                id(row)
+                for rows_of_year in by_year.values()
+                for row in national_or_states(rows_of_year, lambda r: r["geo_code"])
+            }
+            if len(kept) < len(global_matched):
+                left_out = {str(row["logical_id"] or row["path"]) for row in global_matched if id(row) not in kept}
+                report.warnings.append(
+                    f"no state was asked: {len(left_out)} state publication(s) of years that also have a national "
+                    "file were left out; the national file holds the same records (ask for states with uf=)"
+                )
+                global_matched = [row for row in global_matched if id(row) in kept]
         from .representations import choose_representations
 
         choice = choose_representations(catalog, global_matched)
@@ -1020,8 +993,7 @@ def _select_files(
         except KeyError as exc:
             report.warnings.append(f"{family_id}: no normalisation plan ({exc})")
             continue
-        plan.keep_raw = True
-        plan.emit_labels = False  # labels are joined at render time, not here
+        plan.keep_raw = True  # labels are joined at render time (`emit_labels` stays off)
         if plans is not None:
             plans[family_id] = plan
         report.families.append(family_id)
@@ -1221,6 +1193,7 @@ def _read_families(
     exclude_paths: frozenset[str] = frozenset(),
     as_of: str | date | datetime | None = None,
     memo: dict[tuple[str, str, str], dict[str, Any]] | None = None,
+    record_key: bool = True,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1256,6 +1229,7 @@ def _read_families(
         max_bytes=max_bytes,
         exclude_paths=exclude_paths,
         plans=plans,
+        one_reading=not only_paths,
     )
     if only_paths:
         # Internal: the binding compile reads exactly its sampled file, not every
@@ -1277,7 +1251,6 @@ def _read_families(
             except KeyError:
                 continue
             alt.keep_raw = True
-            alt.emit_labels = False
         alternatives.append((family_id, alt))
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     unique_paths = {str(item["path"]) for _f, _p, item in selected}
@@ -1321,7 +1294,11 @@ def _read_families(
     settings = pipeline.settings
     #: What the caller asked for, plus what rendering needs to produce it. None
     #: means "everything", which is the default and the common case.
-    keep_columns = _keep_columns(catalog, report, columns)
+    keep_columns = None
+    if columns:
+        from .semantics.curation import load_variable_docs, required_columns
+
+        keep_columns = required_columns(load_variable_docs(catalog, report.system or ""), columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
     decoded_cache: dict[tuple[str, frozenset[str] | None], Future[tuple[Any, int]]] = {}
@@ -1354,6 +1331,7 @@ def _read_families(
                     keep_columns=keep_columns,
                     decode_members=members_by_path.get(path),
                     alternatives=alternatives,
+                    record_key=record_key,
             )
             decoded_batches, matched_here, read_bytes, used_family, failure = (
                 work()
@@ -1521,6 +1499,7 @@ def _decode_one(
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
     alternatives: Sequence[tuple[str, NormalizePlan]] = (),
+    record_key: bool = True,
 ) -> tuple[list[pa.RecordBatch], bool, int, str | None, str | None]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -1621,7 +1600,7 @@ def _decode_one(
         matched = True
         if (short := short_body_note(decoded)) is not None:
             warnings.warn(f"{path}: {short}; the answer is short of that file's own records", stacklevel=2)
-        for batch in normalize_table(decoded, chosen, blob_sha256=digest):
+        for batch in normalize_table(decoded, chosen, blob_sha256=digest, record_key=record_key):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
     return batches, matched, (size if owner else 0), used_family, None

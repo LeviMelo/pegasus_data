@@ -34,6 +34,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .fields import write_parquet_atomic
+from .textenc import fold
 
 
 def _cache(root: str | Path | None) -> Path:
@@ -359,12 +360,6 @@ def stock_by_state(substances: list[str], year: int, root: str | Path | None = N
     return {"products": found, "monthly": table.to_pylist()}
 
 
-def _fold(text: str) -> str:
-    import unicodedata
-
-    return "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c)).lower()
-
-
 def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") -> list[dict]:
     """The codes of ``structure`` whose label holds one of ``terms``, accents and case ignored ("toxoplasm" finds
     "Toxoplasmose"): (code, label, level, term)."""
@@ -373,7 +368,7 @@ def label_matches(terms: list[str] | tuple[str, ...], structure: str = "ICD10") 
     table, folded_labels = _folded_labels(structure)
     hit = pa.nulls(table.num_rows, pa.string())
     for term in reversed(list(terms)):          # the first term matching a label names it, as before
-        f = _fold(term)
+        f = fold(term)
         if f:
             hit = pc.if_else(pc.match_substring(folded_labels, f), pa.scalar(term), hit)
     keep = pc.is_valid(hit)
@@ -389,7 +384,7 @@ def _folded_labels(structure: str) -> tuple[pa.Table, pa.Array]:
     from .semantics.code_structures import code_structure
 
     table = code_structure(structure)
-    return table, pa.array([_fold(x or "") for x in table.column("label").to_pylist()], pa.string())
+    return table, pa.array([fold(x or "") for x in table.column("label").to_pylist()], pa.string())
 
 
 def concept_index(codes: list[str], terms: list[str] | tuple[str, ...] = (), root: str | Path | None = None,

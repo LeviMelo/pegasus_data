@@ -41,8 +41,6 @@ from . import download
 RECORD = "https://zenodo.org/api/records/14925215/files/{name}/content"
 INMET_STATIONS = "https://apitempo.inmet.gov.br/estacoes/{kind}"
 ISD_HISTORY = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"
-MESH = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
-        "&qualidade=maxima&intrarregiao=municipio")
 #: INMET's firewall resets requests from non-browser clients.
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0"
 #: How far outside the mesh a coastal station may stand and still be placed.
@@ -50,38 +48,22 @@ COAST_TOLERANCE_M = 2000
 #: (mirror catalog, mirror database, INMET API kind, network) for the two station networks.
 NETWORKS = (("inmet_autoh_catalog.csv", "inmet_autoh_db.parquet", "T", "automatic_hourly"),
             ("inmet_convd_catalog.csv", "inmet_convd_db.parquet", "M", "conventional_daily"))
-_SOURCES = {"mesh_max.json": MESH, "isd-history.csv": ISD_HISTORY,
+_SOURCES = {"isd-history.csv": ISD_HISTORY,
             "inmet_stations_T.json": INMET_STATIONS.format(kind="T"),
             "inmet_stations_M.json": INMET_STATIONS.format(kind="M")}
 
-__all__ = ["COAST_TOLERANCE_M", "MESH", "NETWORKS", "RECORD", "fetch", "monthly", "stations"]
+__all__ = ["COAST_TOLERANCE_M", "NETWORKS", "RECORD", "fetch", "monthly", "stations"]
 
 
 def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
-    """One source file (mirror, INMET API, NOAA history or IBGE mesh), cached."""
-    target = Path(cache_dir) / name
-    if target.is_file():
-        return target
-    # streamed to disk (the mirror's database is 1.4 GB), under a name no reader takes for the finished file
-    got = download(_SOURCES.get(name) or RECORD.format(name=name), target.with_name(target.name + ".dl"), timeout=timeout, agent=USER_AGENT)
-    with got.open("rb") as handle:
-        gzipped = handle.read(2) == bytes((0x1F, 0x8B))
-    if gzipped:                            # IBGE sends gzip without saying so: decompressed file to file
-        import gzip
-        import shutil
-
-        tmp = target.with_name(target.name + ".tmp")
-        with gzip.open(got, "rb") as src, tmp.open("wb") as out:
-            shutil.copyfileobj(src, out, 1 << 24)
-        got.unlink()
-        tmp.replace(target)
-    else:
-        got.replace(target)
-    return target
+    """One source file (mirror, INMET API or NOAA history), cached."""
+    # streamed to disk (the mirror's database is 1.4 GB)
+    return download(_SOURCES.get(name) or RECORD.format(name=name), Path(cache_dir) / name, timeout=timeout, agent=USER_AGENT)
 
 
-def stations(cache_dir: str | Path) -> list[dict[str, Any]]:
-    """Every station with readings, its position's source, and the municipality it stands in."""
+def stations(cache_dir: str | Path, mesh: str | Path) -> list[dict[str, Any]]:
+    """Every station with readings, its position's source, and the municipality it stands in (``mesh``: IBGE's maxima
+    municipal mesh, `geography.mesh_file`)."""
     import duckdb
     import geopandas as gpd
     import pandas as pd
@@ -113,7 +95,7 @@ def stations(cache_dir: str | Path) -> list[dict[str, Any]]:
         frames.append(frame[frame["station_id"].isin(seen)].assign(network=network))
     table = pd.concat(frames, ignore_index=True).dropna(subset=["lon", "lat"]).reset_index(drop=True)
     points = gpd.GeoDataFrame(table, geometry=gpd.points_from_xy(table.lon, table.lat), crs="EPSG:4674")
-    mesh = gpd.read_file(fetch("mesh_max.json", cache_dir))[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
+    mesh = gpd.read_file(mesh)[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
     placed = gpd.sjoin(points, mesh, how="left", predicate="within").drop(columns="index_right")
     placed = placed[~placed.index.duplicated()]
     placed["placed_by"] = placed["codarea"].where(placed["codarea"].isna(), "within")

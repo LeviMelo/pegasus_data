@@ -924,8 +924,28 @@ def _keeps_companions(profile: str, companions: bool | Sequence[str] | None) -> 
     return resolve_profile(profile, companions=companions).companions
 
 
+def normalise_prefix(code: object) -> str:
+    """A code prefix as every row filter compares it: without dots, trimmed, upper case (``"j18.9"`` is ``"J189"``,
+    the way DATASUS writes the code). The one spelling for the lake's scan, the fetched year and the extracts."""
+    return str(code).replace(".", "").strip().upper()
+
+
+def prefix_match(text: Any, prefixes: Sequence[str]) -> Any:
+    """Is ``text`` (an array, or a scan expression) one of the codes that start with one of the normalised
+    ``prefixes``? The one prefix test of the lake's scan, the fetched year and the extracts."""
+    import pyarrow.compute as pc
+
+    upper = pc.utf8_upper(text)
+    hit = None
+    for prefix in prefixes:
+        one = pc.starts_with(upper, pattern=prefix)
+        hit = one if hit is None else pc.or_kleene(hit, one)
+    return hit
+
+
 def _rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[str, ...]]:
-    """The row filter, checked: ``{column: code prefixes}``, each a non-empty column name with non-empty prefixes.
+    """The row filter, checked: ``{column: code prefixes}``, each a non-empty column name with non-empty prefixes,
+    the prefixes normalised (:func:`normalise_prefix`).
 
     An empty list of prefixes selects no row, and the filter used to select every row instead (a topic with no codes
     read a whole year of admissions as its cases); a second empty one crashed in Arrow.
@@ -936,10 +956,10 @@ def _rows_filters(rows: Mapping[str, Sequence[str]] | None) -> dict[str, tuple[s
             raise ValueError(f"rows: {column!r} is not a column name")
         if isinstance(prefixes, str):
             prefixes = [prefixes]
-        codes = tuple(str(p) for p in prefixes)
+        codes = tuple(normalise_prefix(p) for p in prefixes)
         if not codes:
             raise ValueError(f"rows[{column!r}] is empty: a filter on no codes selects no record (give prefixes, or drop it)")
-        if any(not p.strip() for p in codes):
+        if any(not p for p in codes):
             raise ValueError(f"rows[{column!r}] holds a blank prefix, which every value starts with")
         out[column] = codes
     return out
@@ -951,11 +971,7 @@ def _rows_expression(rows: Mapping[str, Sequence[str]]) -> ds.Expression:
 
     out = None
     for column, prefixes in _rows_filters(rows).items():
-        text = pc.field(column).cast(pa.string())
-        hit = None
-        for p in prefixes:
-            one = pc.starts_with(text, pattern=p)
-            hit = one if hit is None else (hit | one)
+        hit = prefix_match(pc.field(column).cast(pa.string()), prefixes)
         out = hit if out is None else (out & hit)
     return out
 
@@ -970,6 +986,7 @@ def _read_generations(
     rows: Mapping[str, Sequence[str]] | None = None,
     companion_probes: bool = True,
     leave_out: frozenset[str] = frozenset(),
+    also_read: Sequence[str] = (),
 ) -> tuple[list, dict[str, list[str]]]:
     """Read each generation, applying the structural missing-column policy.
 
@@ -980,7 +997,8 @@ def _read_generations(
 
     Every file the catalog lists for the request must be on disk (`PartialLakeError`): a generation is never skipped
     because its file went missing. ``leave_out``: stored columns not worth decoding when ``wanted`` is None (the
-    provenance the caller drops, labels the renderer ignores).
+    provenance the caller drops, labels the renderer ignores). ``also_read``: columns read only if a generation
+    carries them, for the render to use (a label's key parts) and the caller to drop; never required, never reported.
     """
     lake = cat.lake
     structurally_absent: dict[str, list[str]] = {}
@@ -992,7 +1010,7 @@ def _read_generations(
         parts = resolved.partitions[fid]
         lake.check_files(parts)
         projection = None
-        if wanted:
+        if wanted is not None:
             # Partition columns are columns of the LAKE, not fields of the
             # source schema, so `schema_presence` does not list them. Asking
             # for `year` or `uf` is legitimate and was being refused as a
@@ -1061,6 +1079,7 @@ def _read_generations(
         optional.append("year")
         optional.append("_competencia")
         optional.append("_source_resolution")
+        optional.extend(also_read)
         # a row filter needs its columns in the generation. One without them cannot say which of its rows match: none
         # is returned, unread, and the absence is RECORDED, never an empty generation that looks like no records (a
         # residence filter on SIM-DOFET's 1995 files, whose residence is MUNIRES, had read as no foetal deaths)
@@ -1167,24 +1186,32 @@ def load(
             lake=cat.lake,
         )
         filters = _rows_filters(rows)
-        wanted: list[str] | None = list(columns) if columns else None
+        wanted: list[str] | None = None
+        helpers: frozenset[str] = frozenset()
         derived_names: frozenset[str] = frozenset()
-        if wanted and derived:
-            # A curated derived column (IDADE_anos from IDADE and COD_IDADE) is
-            # computed at render from its inputs, so a projection naming only the
-            # derived column must also read them. fetch() does this
-            # (_keep_columns); load() did not, and the age every newborn and
-            # infant link filters on came back absent over a built lake
-            # (2026-10-03: 0 newborn admissions, link "not viable").
-            from .retrieve import _derived_inputs
-            from .semantics.curation import load_variable_docs
+        file_state = False
+        if columns:
+            # What a projection reads is `required_columns`, the rule fetch() follows too: a curated derived column
+            # (IDADE_anos from IDADE and COD_IDADE) is made at render from its inputs, and a label from the columns of
+            # its key, its sibling or its establishment. A select= that left them out labelled the column for fetched
+            # years and not for lake years (2026-10-03: 0 newborn admissions, link "not viable"; CNES CLASS_SR
+            # keyed by SERV_ESP + CLASS_SR came back undecoded). They are read, used, and dropped again below.
+            from .semantics.curation import derived_inputs, load_variable_docs, required_columns
+            from .view import resolve_profile
 
-            upper = {str(c).upper() for c in wanted}
-            inputs_of = _derived_inputs(load_variable_docs(store, system))
-            derived_names = frozenset(inputs_of)
-            for name, sources in inputs_of.items():
-                if name in upper:
-                    wanted += [s for s in sources if s not in upper and s not in wanted]
+            docs = load_variable_docs(store, system)
+            inputs_of = derived_inputs(docs)
+            produced = isinstance(derived, (list, tuple, set)) and bool(derived) or (
+                derived if isinstance(derived, bool) else resolve_profile(profile).derived)
+            if produced:
+                derived_names = frozenset(inputs_of)
+            asked = {str(c).upper() for c in columns}
+            needed = required_columns(docs, columns)
+            # read only to render, and the derived columns the extra reads made possible: a projection means what it says
+            helpers = frozenset((needed - asked) | (set(inputs_of) - asked))
+            # a derived column is made after reading: its inputs are read, it is not
+            wanted = [c for c in columns if str(c).upper() not in derived_names]
+            file_state = any("@UF" in (docs[c].key or []) for c in needed if c in docs)
         # A column NO generation carries is a typo or a renamed field, never a structural absence to fill with nulls;
         # likewise a row filter on one. (A column some generations lack stays the recorded, null-filled case.)
         if columns and on_missing_column == "null_fill":
@@ -1208,6 +1235,7 @@ def load(
             rows=filters,
             companion_probes=_keeps_companions(profile, companions),
             leave_out=_leave_out,
+            also_read=[*sorted(helpers), *(["uf"] if file_state else [])],
         )
         if not tables:
             # Every generation in play lacks a column the filter is on: the rows asked for cannot be told from the
@@ -1268,6 +1296,12 @@ def load(
                 derived=derived,
                 strict=strict_labels,
             )
+        if helpers:
+            from .view import drop_helper_columns
+
+            rendered = drop_helper_columns(rendered, helpers)
+        if file_state and "uf" in rendered.schema.names and "UF" not in {str(c).upper() for c in columns or ()}:
+            rendered = rendered.drop_columns(["uf"])        # read for a key's "@UF" part, not asked for
         if not _preserve_internal and wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
             "year" in rendered.schema.names
         ):

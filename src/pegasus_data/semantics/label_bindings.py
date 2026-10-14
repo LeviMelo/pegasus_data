@@ -579,23 +579,29 @@ def decide(
         return LabelBinding(curated, "curated", observed=len(observed), candidates=len(curated),
                             reason="declared in curation")
     if store is not None:
-        try:
+        scope = f"{system}.{series}" if family_id else "*"
+
+        def adjudicated() -> list[str]:
             from .relations import RelationType, relations_for
 
-            artifacts = sorted({
-                item.artifact
-                for item in relations_for(
-                    system, f"{system}.{series}" if family_id else "*", field_name,
-                    relation_type=RelationType.LABEL_OF, catalog=store,
-                    # An adjudication with a validity window decides ONE era.
-                    vintage=vintage,
-                )
-            })
-            if len(artifacts) == 1:
-                return LabelBinding((artifacts[0],), "curated", reason="reviewed adjudication")
-        except sqlite3.OperationalError as exc:   # an older catalog lacks the table: no adjudications to read
-            if "no such table" not in str(exc) and "no such column" not in str(exc):
-                raise
+            try:
+                return sorted({
+                    item.artifact
+                    for item in relations_for(
+                        system, scope, field_name, relation_type=RelationType.LABEL_OF, catalog=store,
+                        # An adjudication with a validity window decides ONE era.
+                        vintage=vintage,
+                    )
+                })
+            except sqlite3.OperationalError as exc:   # an older catalog lacks the table: no adjudications to read
+                if "no such table" not in str(exc) and "no such column" not in str(exc):
+                    raise
+                return []
+
+        # the same for every month group of a family: asked once per catalog state, not once per group and column
+        artifacts = store.memo(("label_adjudication", system, scope, field_name, vintage), adjudicated)
+        if len(artifacts) == 1:
+            return LabelBinding((artifacts[0],), "curated", reason="reviewed adjudication")
     if form_fallback is not None:
         # Before measurement, which cannot tell two forms' tables apart when
         # they share codes: weighing gave AIDA (adult) CRITERIO the children's

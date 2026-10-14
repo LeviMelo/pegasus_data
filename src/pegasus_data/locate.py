@@ -32,6 +32,14 @@ Precedence, highest first, with every layer able to set every key:
 Every resolved path carries the layer that decided it, because "which of the
 five is winning?" is the only question anyone asks when a path is not what they
 expected — and answering it by elimination is miserable.
+
+**An explicit root carries its places with it.** The catalog under a root lists the
+lake's partitions relative to that root's lake and the blobs it holds, so an
+explicit ``root=X`` (``--root X``) with ``PEGASUS_LAKE_DIR`` or a config file's
+``lake`` still in force opened the catalog of X over another lake. Under an
+explicit root, ``blobs``, ``lake``, ``work`` and ``catalog`` are X's own unless the
+same call names them; the layers it overrides are named in ``origins``. (The
+curated YAML is code, not data: it keeps its layers.)
 """
 
 from __future__ import annotations
@@ -45,6 +53,7 @@ from pathlib import Path
 __all__ = [
     "CONFIG_FILENAMES",
     "PLACEMENT_KEYS",
+    "UNDER_ROOT",
     "Resolved",
     "config_search_path",
     "find_project_config",
@@ -64,6 +73,9 @@ CONFIG_FILENAMES: tuple[str, ...] = ("pegasus-data.toml", ".pegasus-data.toml")
 #: The TOML table. Nested under a table rather than at top level so the same
 #: file can hold other tools' settings without collision.
 CONFIG_TABLE = "pegasus-data"
+
+#: The places that live under the data home: an explicit root decides them, not the environment or a file.
+UNDER_ROOT: tuple[str, ...] = ("blobs", "lake", "work", "catalog")
 
 #: key -> (environment variable, what it holds). `root` is the only one most
 #: people need; the rest exist because a blob cache and a queryable lake do not
@@ -303,6 +315,12 @@ def resolve_placement(
     for key, (env_name, _what) in PLACEMENT_KEYS.items():
         if key in explicit:
             out[key] = Resolved(key, Path(str(explicit[key])).expanduser(), "argument")
+            continue
+        if "root" in explicit and key in UNDER_ROOT:
+            overridden = [f"{env_name}={os.environ[env_name]}"] if os.environ.get(env_name) else []
+            overridden += [f"{file_origin[key]}: {key}={file_values[key]}"] if key in file_values else []
+            out[key] = Resolved(key, None, "derived",
+                                "from the explicit root" + (f"; not used: {'; '.join(overridden)}" if overridden else ""))
             continue
         env_value = os.environ.get(env_name)
         if env_value:

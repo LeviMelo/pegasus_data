@@ -6,8 +6,8 @@ so a query showed ``CNES 4020197`` with no name. That fails the project's
 standard (every code translatable, ADR-0085). Shipping it in the wheel is also
 the wrong answer: the registry changes every month, and a frozen copy goes stale.
 
-So a registry is fetched **from the requesting system's own TabWin kit, on
-first use**:
+So a registry is built **from the owning system's own TabWin kit, by a command**
+(``pegasus-data registries build CNES``, ADR-0177; ADR-0086 had it built on first use):
 
 1. find the kit, choosing the current ``Auxiliar/TAB_<SYSTEM>.zip`` over the
    dated historical ones;
@@ -16,8 +16,8 @@ first use**:
 3. parse it with the same kit parser the maintainer build uses;
 4. write every registry table in it to ``<home>/registries/<SYSTEM>/<TABLE>.parquet``.
 
-Every later lookup reads the cache. ``pegasus-data registries --refresh``
-re-reads the kit.
+``lookup`` only reads that cache. A read (``load``, ``query``, a label, a crosswalk) never downloads: a registry
+that is not built is a table that is not there, and says the command that builds it. ``--refresh`` re-reads the kit.
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .config import Settings
 from .identifiers import strip_identifier, valid_cnpj
 
 
@@ -52,10 +53,10 @@ def is_registry(codelist: str) -> bool:
     return name == CNPJ_TABLE or any(fnmatch.fnmatch(name, p) for p in _patterns())
 
 
-def _cache_dir(system: str) -> Path:
+def _cache_dir(system: str, settings: Settings | None = None) -> Path:
     from .config import load_settings
 
-    return Path(load_settings().root) / "registries" / system.upper()
+    return Path((settings or load_settings()).root) / "registries" / system.upper()
 
 
 def _current_kit(kits: list[str], sizes: dict[str, int]) -> str | None:
@@ -66,17 +67,18 @@ def _current_kit(kits: list[str], sizes: dict[str, int]) -> str | None:
     return max(pool, key=lambda k: sizes.get(k, 0)) if pool else None
 
 
-def build(system: str, *, refresh: bool = False) -> dict[str, int]:
-    """Fetch the system's kit and cache every registry table in it."""
+def build(system: str, *, refresh: bool = False, settings: Settings | None = None) -> dict[str, int]:
+    """Fetch the system's kit and cache every registry table in it. THE download of a registry, and only an explicit
+    call reaches it (``pegasus-data registries build``); a read goes through :func:`lookup`, which never builds."""
+    from .config import load_settings
     from .pipeline import Pipeline
     from .semantics.tabkit import find_kits
 
-    out_dir = _cache_dir(system)
+    settings = settings or load_settings()
+    out_dir = _cache_dir(system, settings)
     if _current(out_dir) and not refresh:
         return {p.stem: pq.read_metadata(p).num_rows for p in out_dir.glob("*.parquet")}
-    from .config import load_settings
-
-    pipeline = Pipeline(load_settings())
+    pipeline = Pipeline(settings)
     try:
         kits = find_kits(pipeline.catalog, systems=[system])
         sizes = {
@@ -254,24 +256,38 @@ def owner_of(codelist: str, system: str | None) -> str | None:
     return next((sys for prefix, sys in OWNER.items() if name.startswith(prefix)), system)
 
 
+#: The systems whose unbuilt registry has been said once in this process (a render asks for one table per file group).
+_SAID_UNBUILT: set[str] = set()
+
+
 def lookup(codelist: str, system: str | None) -> pa.Table | None:
-    """The registry table from its OWNER's kit, cached on first use; None if not a registry."""
+    """The registry table from its OWNER's cache; ``None`` if it is not a registry or the cache does not hold it.
+
+    READS ONLY. A registry that was never built here (or was built by an older version) is not built now: that is a
+    1-file FTP fetch of 6 to 127 MB inside a read that named no download (a SIH-RD ``load`` of every column spent
+    166 s in it, OQ 80). The read goes on without the table (a column its codes are only in the registry for stays
+    undecoded, visibly), and says once the command that builds it.
+    """
     if not is_registry(codelist):
         return None
     system = owner_of(codelist, system)
     if not system:
         return None
     path = _cache_dir(system) / f"{codelist.upper()}.parquet"
-    if not path.exists() or not _current(path.parent):
-        try:
-            build(system)
-        except Exception as exc:  # noqa: BLE001 - no registry is a gap, not a crash
-            warnings.warn(f"{codelist}: registry unavailable ({type(exc).__name__}: {exc})", stacklevel=2)
-            return None
+    if not _current(path.parent):
+        if system not in _SAID_UNBUILT:
+            _SAID_UNBUILT.add(system)
+            warnings.warn(
+                f"{codelist}: the {system} registry (establishment and team names) is not built here, so its codes "
+                f"are not named; `pegasus-data registries build {system}` downloads {system}'s TabWin kit once and "
+                "builds it (a read never downloads)",
+                stacklevel=2,
+            )
+        return None
     try:
         mtime_ns = path.stat().st_mtime_ns  # one call: `exists()` then `stat()` raced a refresh
     except OSError:
-        return None
+        return None  # built, and the kit does not carry this table
     return _read(str(path), mtime_ns)
 
 

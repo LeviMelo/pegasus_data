@@ -394,7 +394,7 @@ class Builder:
         family_ids: Sequence[str] | None = None,
         max_files_per_family: int | None = None,
         keep_raw: bool | None = None,
-        emit_labels: bool = True,
+        emit_labels: bool = False,
         rebuild: bool = False,
         on_file: Callable[[str, str], None] | None = None,
     ) -> StageResult:
@@ -808,108 +808,50 @@ class Builder:
 
     # ------------------------------------------------------------------ demas
 
-    def demas(
-        self,
-        *,
-        endpoints: Sequence[str] | None = None,
-        max_pages: int = 5,
-        page_size: int = 100,
-    ) -> StageResult:
+    def demas(self) -> StageResult:
+        """Persist DEMAS's OpenAPI document (``api_endpoints``) and set the endpoints ``curation/intake.yml`` declares against
+        it. The API's tables are not read here: each is a declared source, read by `intake` (sources/demas_api.py)."""
         counts: dict[str, object] = {}
         notes: list[str] = []
-        with demas_api.DemasClient() as client:
-            spec = client.swagger()
-            parsed = demas_api.parse_spec(spec)
-            demas_api.persist_spec(self.catalog, spec, parsed)
-            counts["spec_version"] = str((spec.get("info") or {}).get("version") or "unknown")
-            counts["endpoints_in_spec"] = len(parsed)
+        spec = demas_api.swagger()
+        parsed = demas_api.parse_spec(spec)
+        demas_api.persist_spec(self.catalog, spec, parsed)
+        counts["spec_version"] = str((spec.get("info") or {}).get("version") or "unknown")
+        counts["endpoints_in_spec"] = len(parsed)
 
-            wanted = list(endpoints or demas_api.PRIORITY_ENDPOINTS)
-            landed: dict[str, object] = {}
-            granularity: dict[str, list[str]] = {}
-            for path in wanted:
-                endpoint = demas_api.resolve_endpoint(parsed, path)
-                if endpoint is None:
-                    notes.append(f"endpoint not served: {path}")
-                    self.catalog.note_question(
-                        f"api.endpoint_missing:{path}",
-                        area="api",
-                        question=f"The endpoint {path} named in the architecture brief is not in the current DEMAS spec.",
-                        verification_procedure="Re-read /static/swagger.json and search for a renamed equivalent.",
-                        blocking=demas_api.PRIORITY_ENDPOINTS.get(path, ""),
-                    )
-                    continue
-                granularity[endpoint.path] = [
-                    str(p.get("name")) for p in endpoint.parameters if p.get("name")
-                ]
-                rows: list[dict[str, object]] = []
-                ingest_params = json.dumps(
-                    {"limit": page_size, "max_pages": max_pages}
-                )
-                try:
-                    for page_index, page in enumerate(
-                        demas_api.fetch_all(client, endpoint, page_size=page_size, max_pages=max_pages)
-                    ):
-                        rows.extend(page)
-                        if page_index + 1 >= max_pages:
-                            break
-                except Exception as exc:
-                    notes.append(f"{endpoint.path}: fetch failed ({exc})")
-                    self.catalog.executemany(
-                        "DELETE FROM api_ingests WHERE path=? AND params=?",
-                        [(endpoint.path, ingest_params)],
-                    )
-                    continue
-                if not rows:
-                    notes.append(f"{endpoint.path}: returned no rows")
-                    self.catalog.executemany(
-                        "DELETE FROM api_ingests WHERE path=? AND params=?",
-                        [(endpoint.path, ingest_params)],
-                    )
-                    continue
-                table = demas_api.rows_to_table(rows)
-                target = self.settings.demas_dir / _slug(endpoint.path)
-                import pyarrow.parquet as pq
+        served = {e.path: e for e in parsed}
+        granularity: dict[str, list[str]] = {}
+        declared = demas_api.declared_endpoints()
+        for path, source in declared.items():
+            if path in served:
+                granularity[path] = [str(p.get("name")) for p in served[path].parameters if p.get("name")]
+                continue
+            near = demas_api.resolve_endpoint(parsed, path)
+            notes.append(f"endpoint not served: {path} (source {source})" + (f"; nearest {near.path}" if near else ""))
+            self.catalog.note_question(
+                f"api.endpoint_missing:{path}",
+                area="api",
+                question=f"The endpoint {path}, declared by the intake source {source}, is not in the current DEMAS spec.",
+                verification_procedure="Re-read /static/swagger.json and search for a renamed equivalent"
+                                       + (f" (nearest: {near.path})." if near else "."),
+                blocking=f"the {source} source",
+            )
+        counts["declared_endpoints"] = {"declared": len(declared), "served": len(granularity)}
+        counts["reconciliation"] = demas_api.reconciliation_targets(self.catalog)
 
-                with staged_tree(target) as staged_target:
-                    pq.write_table(
-                        table,
-                        staged_target / "part-00000.parquet",
-                        compression=self.settings.compression,
-                    )
-                self.catalog.executemany(
-                    """
-                    INSERT INTO api_ingests (path, params, rows, lake_path, fetched_at)
-                    VALUES (?,?,?,?, datetime('now'))
-                    ON CONFLICT(path, params) DO UPDATE SET rows=excluded.rows, fetched_at=excluded.fetched_at
-                    """,
-                    [
-                        (
-                            endpoint.path,
-                            ingest_params,
-                            table.num_rows,
-                            str(target),
-                        )
-                    ],
-                )
-                landed[endpoint.path] = {"rows": table.num_rows, "columns": table.num_columns}
-            counts["landed"] = landed
-            counts["reconciliation"] = demas_api.reconciliation_targets(self.catalog)
-
-            if granularity:
-                self.catalog.resolve_question(
-                    "V9.demas_granularity",
-                    resolution=(
-                        "Granularity read from the live OpenAPI parameters. BNAFAR/Hórus "
-                        "(/daf/estoque-medicamentos-bnafar-horus) is município × establishment "
-                        "× month, and it DOES carry medication identity via codigo_catmat plus "
-                        "tipo_produto and sigla_programa_saude — so it can see a chronic patient's "
-                        "supply before decompensation. The Previne Brasil cadastro and indicator "
-                        "endpoints are both still served by spec "
-                        f"{counts['spec_version']}. Full parameter lists are in api_endpoints.params_json."
-                    ),
-                    evidence=json.dumps(granularity),
-                )
+        if "/daf/estoque-medicamentos-bnafar-horus" in granularity:      # the endpoint the answer below is about
+            self.catalog.resolve_question(
+                "V9.demas_granularity",
+                resolution=(
+                    "Granularity read from the live OpenAPI parameters. BNAFAR/Hórus "
+                    "(/daf/estoque-medicamentos-bnafar-horus) is município × establishment "
+                    "× month, and it DOES carry medication identity via codigo_catmat plus "
+                    "tipo_produto and sigla_programa_saude — so it can see a chronic patient's "
+                    "supply before decompensation. Full parameter lists are in api_endpoints.params_json "
+                    f"(spec {counts['spec_version']})."
+                ),
+                evidence=json.dumps(granularity),
+            )
         return StageResult("demas", counts=counts, notes=notes)
 
 
@@ -945,10 +887,6 @@ def schema_fit(field_names: Sequence[str], plan: NormalizePlan) -> tuple[str, ..
 def _year_from_path(catalog: CatalogStore, path: str) -> int | None:
     rows = catalog.query("SELECT year FROM file_facts WHERE path = ?", (path,))
     return int(rows[0]["year"]) if rows and rows[0]["year"] is not None else None
-
-
-def _slug(path: str) -> str:
-    return path.strip("/").replace("/", "__").replace("-", "_")
 
 
 def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, labels: bool = False,
