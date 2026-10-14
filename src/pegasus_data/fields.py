@@ -378,7 +378,7 @@ def _build_climate_brdwgd(settings: Any, specs: dict[str, dict[str, Any]], years
                               "municipalities_without_series": sorted(expected - held)}
     if "climate_monthly" in specs:
         base = months.append_column("municipality", pc.utf8_slice_codeunits(months.column("municipality7"), 0, 6))
-        report["climate_monthly"] = {"rows": _write_by_year(base, "climate_monthly", settings),
+        report["climate_monthly"] = {"rows": _write_by_year(base, "climate_monthly", settings, prune=not years),
                                      "years": f"{pc.min(months.column('year')).as_py()}-{pc.max(months.column('year')).as_py()}"}
     derived = {name: spec for name, spec in specs.items() if spec.get("measure")}
     if derived:
@@ -394,22 +394,31 @@ def _build_climate_brdwgd(settings: Any, specs: dict[str, dict[str, Any]], years
                 "value": kept.column(spec["measure"]), "status": status,
                 "unit": pa.array([str(spec["unit"])] * n, pa.string()), "source": kept.column("product"),
                 "months": held_months, "year": kept.column("year")})
-            _write_by_year(out, name, settings)
+            _write_by_year(out, name, settings, prune=not years)
             report[name] = {"rows": n, "ok": int(pc.sum(pc.equal(status, "ok")).as_py() or 0),
                             "partial_year": int(pc.sum(pc.equal(status, "partial_year")).as_py() or 0)}
     return report
 
 
-def _write_by_year(table: pa.Table, name: str, settings: Any) -> int:
+def _write_by_year(table: pa.Table, name: str, settings: Any, prune: bool = False) -> int:
     """``table`` split by its ``year`` column into ``<lake>/fields/<name>/year=<year>/part.parquet`` (the column itself is
-    the partition and is dropped); the rows written."""
+    the partition and is dropped); the rows written. With ``prune`` the years of the field that ``table`` does not hold
+    are removed: a whole-period build replaces the field, it does not leave another source's years beside its own."""
+    import shutil
+
     import pyarrow.compute as pc
 
-    for year in sorted(set(table.column("year").to_pylist())):
+    years = sorted(set(table.column("year").to_pylist()))
+    for year in years:
         part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
         target = Path(settings.lake_dir) / "fields" / name / f"year={int(year)}"
         target.mkdir(parents=True, exist_ok=True)
         write_parquet_atomic(part, target / "part.parquet", compression="zstd")
+    if prune:
+        keep = {f"year={int(y)}" for y in years}
+        for stale in (Path(settings.lake_dir) / "fields" / name).glob("year=*"):
+            if stale.name not in keep:
+                shutil.rmtree(stale)
     return table.num_rows
 
 
