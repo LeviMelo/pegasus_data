@@ -101,12 +101,12 @@ def _vintage_free(codelist: str) -> bool:
     """
     from .persist.reference import CLASSIFICATIONS
     from .registry import is_registry
-    from .semantics.curation import inline_codelist
+    from .semantics.curation import inline_codelist, inline_windows
 
     name = codelist.upper()
     return (
         name in CLASSIFICATIONS or name in ("UF_BR", "CIR_BR", "MUNIC_BR7") or is_registry(name)
-        or inline_codelist(codelist) is not None
+        or (inline_codelist(codelist) is not None and not inline_windows(codelist))
     )
 
 

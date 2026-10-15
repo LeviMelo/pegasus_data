@@ -2,6 +2,8 @@ dataset: SIASUS-AM
 record: procedure
 columns:
   AM_ALTURA:
+    missing: ['000', '0', '00']
+    # 000, 0 and 00 are the unfilled field (1.44% of AM's 74,795,032 rows, 2024-2025, all UFs; a height of 0 cm is no measurement). Measured 2026-10-14.
     role: authorisation.patient_height
     kind: number
     model: mark
@@ -28,9 +30,10 @@ columns:
     codelists:
     - GESTANTE
   AM_PESO:
-    missing: []
-    domain: [0, 999]
-    # proposed (SP 2026-07): the range DATASUS's tabulation bands label as values; outside it 162 of 1508121 values in SP 2026-07 (-99: 162)
+    missing: ['000', '0']
+    domain: [1, 300]
+    # 000 and 0 are the unfilled field (0.22% of AM's 74,795,032 rows, 2024-2025, all UFs; a weight of 0 kg is no measurement). domain [1, 300] kg is a plausibility bound of the
+    # unit: 1,181,452 values lie in 300-998 (tenths without the decimal point) and 160 at 999. Measured 2026-10-14.
     role: authorisation.patient_weight
     kind: number
     model: mark

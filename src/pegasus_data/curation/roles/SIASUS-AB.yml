@@ -32,6 +32,8 @@ columns:
     - 2008
     - 2025
   AB_IMC:
+    missing: ['000', '0', '00']
+    # 000 is the unfilled field (49 of the 700 rows read, AB SP 2012-06; a body-mass index of 0 is no measurement). Measured 2026-10-14.
     role: authorisation.body_mass_index
     kind: number
     model: mark

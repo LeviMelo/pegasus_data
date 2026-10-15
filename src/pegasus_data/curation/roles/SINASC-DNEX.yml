@@ -2,7 +2,8 @@ dataset: SINASC-DNEX
 record: birth
 columns:
   APGAR1:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on none
     domain:
     - 0
     - 10
@@ -19,7 +20,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   APGAR5:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on none
     domain:
     - 0
     - 10
@@ -153,7 +155,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   CONSPRENAT:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 161
     domain:
     - 0
     - 98
@@ -395,7 +398,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   IDADEMAE:
-    missing: []
+    missing: ['00', '99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 1
     domain:
     - 1
     - 65
@@ -560,7 +564,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   PESO:
-    missing: []
+    missing: ['0000', '9999']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on none
     domain:
     - 1
     - 8999
@@ -577,7 +582,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDFILMORT:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 2
     domain:
     - 0
     - 98
@@ -595,7 +601,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDFILVIVO:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 2
     domain:
     - 0
     - 98
@@ -613,7 +620,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDGESTANT:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 2
     domain:
     - 0
     - 30
@@ -646,7 +654,8 @@ columns:
     - 2026
     note: role from SINASC-DN
   QTDPARTNOR:
-    missing: []
+    missing: ['99']
+    # as SINASC-DN, whose layout and tabulation kit DNEX shares (its comment has the evidence); DNEX 2014-2025 (11,106 births) holds the code on 2
     domain:
     - 0
     - 30

@@ -355,7 +355,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (426 of 1,590 distinct `DIAG_PRINC`). CID-9 and CID-10 code spaces share no
   code (F §3d, §3f).
 - **`SIHSUS/2010/XML/` holds 324 empty files** (`RD*.xml`, 0 bytes, listed since 2014). They share their logical ids with the 2010 DBCs in `200801_/Dados/`, and the mirror does not carry them. They are placeholders, not publications (2026-10-04).
-- **SINASC's `SEXO`: the layout says letters, the files measured say numerals** (corrected 2026-10-04; this line first said the national files write M/F/I and the state files 1/2/0, which no file read supports). The 2019 layout lists `M`, `F`, `I`. Read: `DNBR2020`, `DNBR2021` and `DNBR2022` (`1996_/Dados/DNRES/`, 2,730,145 / 2,677,101 / 2,561,922 rows) hold only `1`, `2`, `0` (2021: 1,369,558 / 1,307,126 / 417), and so does `DNSE2021` (31,206 rows). The letters are decoded as well, in case an edition writes them (curation `SEXO`); no file seen does. Not yet read: other state files and years, and the `Dados_Abertos` CSVs.
+- **SINASC's `SEXO` is coded three ways by the files** (measured 2026-10-14 on DNBR2009-2024, 44,934,834 births; corrected: the 2026-10-04 line said no file wrote the letters). `1`/`2`/`0` in 2009, 2012-2013 and 2015-2024; `1`/`2`/`9` in 2010 and 2011 (442 and 436 births, no `0`); `M`/`F`/`I` in 2014 alone (1,526,907 / 1,451,693 / 659). The 1996-2019 evolution document (`SINASC_Estrutura.pdf`, field 16) codes it `1` M, `2` F, `0` I; the 2019 layout and the DN dictionary list the letters; TabNet's current `SEXO.CNV` decodes `0 1 2 F I M` and the 1994-95 kit `3-9` as Ignorado. `9` is no layout's code: its births have the profile of the ignored sex of the other years (Q56 on 41-46% against 32-42% of the `0` and 34% of the `I`; a congenital anomaly flagged on 64-68% against 51-66%; mean weight 2.4 kg against 3.2 kg for sex 1 or 2) and replace the `0` exactly where it is absent, so the curation declares it Ignorado for 2010-2011 only (ADR-0189). Every year decodes to Masculino, Feminino and Ignorado; a table keyed on the raw code lists `1` and `M` apart, a table keyed on the label does not.
 - **SIH-RD writes the Federal District's residents with administrative-region codes until 2017-12** (measured 2026-10-04, DF files): `MUNIC_RES` holds 530020 to 530180 and 530135, which are no municipality (Brasília is 530010). Read: January of 2008, 2010, 2012, 2014, 2015, 2016 and 2017, and December 2017, carry them (January 2008: 2,220 of 7,754 rows; January 2017: 11,941 of 16,649); January 2018, 2019 and 2022 carry none (2018: 12,207 of 15,631 rows are 530010). The whole of 2017 in the DF files: 11,025 rows 530010 and 140,876 region codes, 151,901 together, against TabNet's 152,622 residents of Brasília (the other 721 sit in other states' files). Years before 2008 are unmeasured. Curation recipe `MUNIC_RES_municipio` maps them inside 2008-01 to 2017-12; `MUNIC_RES` is untouched.
   Other systems, DF files: SIM-DO (2000, 2010, 2017) and SINASC-DN (2000, 2017) write 530010 only; SINASC-DN 2010 has 6 of 44,251 rows with one region code. SIA-PA `PA_MUNPCN` carries them (January 2010: 4,192 of 127,264 rows, 20 codes; January 2017: 50,666 of 197,152, 24 codes) and so does CNES-ST `CODUFMUN` (2010: 2,511 of 5,583; 2017: 1,876 of 4,081). Windows (measured 2026-10-05 on DF files, one month per step, bisected at both edges): SIA-PA `PA_MUNPCN` has none in 2008-07 (0 of 113,624), 19 of 116,709 in 2008-08, then every year and still in 2026-06 (26,598 of 531,506): mapped by `PA_MUNPCN_municipio` from 200808, open-ended; CNES-ST `CODUFMUN` from the first file, 2005-08 (1,305 of 3,256), to 2017-11 (1,358 of 2,522), 1 of 2,589 in 2017-12 and none from 2018-01: mapped by `CODUFMUN_municipio` for 200508-201712 (CNES-LT and -EQ 2012-01 carry them too, 392 of 715 and 5,838 of 11,702, none in 2018-01; the recipe is shared by all CNES types). SIA-PA has other 53xxxx codes no region list holds (530005, 530015, 530000, 5399xx; 2022-01: 417 rows): left as written. The pre-2008 PA layout has no `PA_MUNPCN`. SINAN has only national files, not read.
 - **SINASC's newborn `RACACOR` is the mother's declaration** (measured 2026-10-04, SINASC 2020-2022 linked to SIM infant deaths): where both are known, `RACACOR` equals `RACACORMAE` in 50,078 of 50,078 records. Codes 1 Branca, 2 Preta, 3 Amarela, 4 Parda, 5 Indígena in both SIM and SINASC (layouts); TabNet's `RACACOR.CNV` abbreviates them (`Bra`, `Amar`, `Indig`), and SINASC's pre-1996 kit files a different table under the same name (1 Amarela, 2 Branca, 3 Indígena, 5 Preta).
@@ -450,7 +450,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   AMP (891, 2016-, 0.20 M, 65). PS (4,394, 2012-, 170 M) and SAD (1,088, 2012-2018, 3.5 M) are person-level but not APAC.
   The 2001-2007 `AC` (self-extracting `.exe`) is the old dialysis APAC (§1.10).
 - **A row is an APAC-month, not an APAC.** An APAC (`AP_AUTORIZ`) lasts up to three months and has one row per competence
-  (no duplicate `(AP_AUTORIZ, AP_CMP)` in any slice read). `AP_TPAPAC` is 1 on the first row, 2 on later months, 3 on a
+  (no duplicate `(AP_AUTORIZ, AP_CMP)` in any slice read; corrected 2026-10-14: ATD nationally holds 2,029 such pairs twice in 15.6 million rows). `AP_TPAPAC` is 1 on the first row, 2 on later months, 3 on a
   single-row APAC; for type 1 the month of `AP_DTINIC` equals `AP_CMP` (AQ AC 2023: 2,921 of 2,921). AQ AC 2023: 8,417
   rows, 3,287 APACs, 2,921 type-1 rows; the other 366 began in the previous year's files. AR 2023, ACF 2023 and most AD rows (7,946 of 8,585 in AC 2023) are type 3.
 - **The patient key.** `AP_CNSPCN` is 15 non-digit characters, the same pseudonym in every file read: stable across months
@@ -465,6 +465,18 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **Brasília.** `AP_MUNPCN` holds administrative-region codes 530020-530180 in some years (AQ DF: 2008 308 of 20,086;
   2012 17,892 of 26,173; 2018 425; 2021 91; 2022 and 2023 none) and `AP_UFMUN` holds 530180 for a second unit in AQ 2017
   and AN 2008-2014. Derived `AP_MUNPCN_municipio` maps the residence in 2008-2021.
+- **SIA ATD itself (measured 2026-10-14, the lake of every UF, 15,579,053 rows).** The files begin with competence **2014-08** (`ATDAC1408.dbc`;
+  27 UFs, 95,928 rows that month; `AP_MVM` 201408-201412 are the five months of 2014). An APAC is up to three monthly rows (5,590,747 APACs, 2.79
+  rows each: one row 421,205, two 352,991, three 4,814,579). `AP_TPAPAC`: 1 on 5,491,060 rows (every one has the month of `AP_DTINIC` equal to
+  `AP_CMP`; 5,491,059 APACs hold one and it is on their earliest competence), 2 on 10,056,063, 3 on 31,842 (single-row APACs), 4 on 88 (no layout value);
+  67,846 APACs began before the first file and show later months only. `AP_CIDCAS` is `0000` on 76.2% of the authorisations of type 1 or 3 in 2014 and
+  88.1% in 2025; N18 on 23.7% in 2014, 17.0% in 2015, 8.7% in 2023, 8.4% in 2025. `ATD_CARACT` 1 ('caso novo') is 42.9% of them in 2014 and 17.8%
+  in 2023 and is no new patient: 403,686 of 566,867 patients hold a flagged APAC, 173,217 two or more, and the first dialysis precedes it by a median 1.35
+  years (the dataset note in `datasets/declared.yml` has the rest). The laboratory fields (`ATD_HB`, `_FOSFOR`, `_KTVSEM`, `_TRU`, `_ALBUMI`, `_PTH`)
+  are 4-character text: zero in 17-30% of the rows (the export of a blank), `9999` on 14,940 rows (14,939 with it in five of the six at once, RS above
+  all), values at several scales (10, 100 and 1000 are one 10.0 g/dL), comma decimals, and letters from shifted columns (`S`, `N`, `N180`). AN
+  (2009-2014) has the same fill: the all-nines of each field's width on 9,091 lines (`AN_ALTURA` 999, `AN_PESO` 999, `AN_DIURES` 9999, `AN_GLICOS` 9999,
+  `AN_ALBUMI` 99).
 - **Where the diagnosis is.** AQ, AR, AN: `AP_CIDPRI` (tumour site C/D codes; N18x for AN). ATD and ACF: `AP_CIDPRI` and
   `AP_CIDSEC` are `0000` on every ATD row read (2015, 2019, 2023; ACF 2023 `AP_CIDPRI` likewise); the renal CID is in `AP_CIDCAS` (N180 in 2015, N188 in 2019 and 2023, `0000` on 10-41% of rows). ABO has
   no `AP_CIDPRI`. `AQ_CID10` is empty in the 74-column files.
@@ -491,9 +503,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   PESO ≥ 9000 `ign`, SIM PESO > 8000). SIM's QTDFILVIVO/QTDFILMORT bands label
   `0`/`00` `Ignorado`, yet zero is a real count: SIM 2022 holds 5,947 `00`
   against 9,832 `01`, SINASC 2022 1,046,860 `00` of 2.56 M. In the files,
-  `99` is the de facto not-recorded value of the two-digit counts (CONSPRENAT
-  2022: 11,107 at `99`, single records at 66–72), documented nowhere for them
-  (2026-10-07, `scripts/propose_missing.py`).
+  `99` is the not-recorded value of the two-digit counts (CONSPRENAT
+  2022: 11,107 at `99`, single records at 66–72), named by no layout for them
+  (2026-10-07, `scripts/propose_missing.py`); declared missing from 2026-10-14 (ADR-0189), with the national spikes: DNBR2009-2024, `99` on 223,344 births
+  of CONSPRENAT, 52,296 of QTDFILMORT, 27,715 of QTDFILVIVO, 30,468 of APGAR1, 23,887 of APGAR5, 2,079-3,389 of the three previous-pregnancy counts and
+  743 of IDADEMAE, against at most 58 for any other value above 60 (80 in CONSPRENAT); PESO `9999` on 107 births.
 
 ### 2.2 `.DEF` grammar (F §1 V3)
 

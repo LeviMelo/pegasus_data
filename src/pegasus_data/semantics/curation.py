@@ -29,6 +29,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -304,16 +305,44 @@ def curated_codelist_id(system: str, field_name: str) -> str:
 
 
 def _parse_codes(path: Path, name: str, raw: object) -> dict[str, str] | None:
-    """``codes:`` as ``{code: label}``; codes are kept as written ("01" is not "1")."""
+    """``codes:`` as ``{code: label}``; codes are kept as written ("01" is not "1").
+
+    A label is text, or a mapping ``{label, from, to}``: a code the records hold only in some years and no layout names
+    (``from``/``to`` are ``AAAAMM``, either may be left out). It decodes in the files of those years only, and stays
+    undecoded, visibly, in any other (`_code_windows`)."""
     if raw is None:
         return None
     if not isinstance(raw, dict) or not raw:
         raise CurationError(f"{path.name}: {name}: codes must be a non-empty mapping of code to label")
     out: dict[str, str] = {}
     for code, label in raw.items():
-        if label is None or isinstance(label, (dict, list)) or not str(label).strip():
+        text = label.get("label") if isinstance(label, dict) else label
+        if text is None or isinstance(text, (dict, list)) or not str(text).strip():
             raise CurationError(f"{path.name}: {name}: code {code!r} needs a text label")
-        out[str(code).strip()] = str(label).strip()
+        out[str(code).strip()] = str(text).strip()
+    return out
+
+
+def _code_windows(path: Path, name: str, raw: object) -> dict[str, tuple[str, str]]:
+    """The years a ``codes:`` entry is windowed to: ``{code: (from, to)}`` as ``AAAAMM`` ('' = open), for the entries
+    written ``{label, from, to}``; a code with no window decodes in every year."""
+    out: dict[str, tuple[str, str]] = {}
+    for code, label in (raw or {}).items() if isinstance(raw, dict) else ():
+        if not isinstance(label, dict):
+            continue
+        unknown = set(label) - {"label", "from", "to"}
+        if unknown:
+            raise CurationError(f"{path.name}: {name}: code {code!r}: unknown keys {sorted(unknown)} "
+                                "(a coded entry is {label, from, to})")
+        lo, hi = (str(label.get(k) or "") for k in ("from", "to"))
+        if not (lo or hi):
+            raise CurationError(f"{path.name}: {name}: code {code!r} names no window: write its label as text")
+        for bound in (lo, hi):
+            if bound and not re.fullmatch(r"(1[89]|20)\d\d(0[1-9]|1[0-2])", bound):
+                raise CurationError(f"{path.name}: {name}: code {code!r}: {bound!r} is no AAAAMM month")
+        if lo and hi and lo > hi:
+            raise CurationError(f"{path.name}: {name}: code {code!r}: the window ends before it begins")
+        out[str(code).strip()] = (lo, hi)
     return out
 
 
@@ -403,8 +432,9 @@ def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
 
 
 @curated
-def _inline_codelists() -> dict[str, dict[str, str]]:
-    """Every inline code table in the package's own curation, by codelist id.
+def _inline_tables() -> dict[str, tuple[dict[str, str], dict[str, tuple[str, str]]]]:
+    """Every inline code table in the package's own curation, by codelist id: its ``code -> label`` and the validity
+    windows of the codes written with one (`_code_windows`).
 
     Read from the shipped YAML rather than the catalog, so a fresh install
     labels these columns with no catalog, lake or label-pack rebuild.
@@ -412,7 +442,7 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
     from ..config import curation_root
 
     root = curation_root()
-    out: dict[str, dict[str, str]] = {}
+    out: dict[str, tuple[dict[str, str], dict[str, tuple[str, str]]]] = {}
     for path in sorted(root.glob("variables/**/*.yml")):
         data = read_yaml(path, shared=True)
         system = str(data.get("system") or "")
@@ -420,7 +450,8 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
             if isinstance(body, dict) and body.get("codes"):
                 codes = _parse_codes(path, str(name), body["codes"])
                 if codes:
-                    out[curated_codelist_id(system, str(name))] = codes
+                    out[curated_codelist_id(system, str(name))] = (
+                        codes, _code_windows(path, str(name), body["codes"]))
     return out
 
 
@@ -470,11 +501,20 @@ def harvested_codelist(system: str, series: str, field_name: str) -> str | None:
 
 
 def inline_codelist(codelist: str) -> dict[str, str] | None:
-    """The ``code -> label`` of a ``CURATED.`` codelist (inline or harvested), or None."""
+    """The ``code -> label`` of a ``CURATED.`` codelist (inline or harvested), or None: every code of it, whichever
+    years it is windowed to (`inline_windows`)."""
     key = codelist.upper()
     if not key.startswith(CURATED_PREFIX):
         return None
-    return _inline_codelists().get(key) or _harvested_codelists().get(key)
+    inline = _inline_tables().get(key)
+    return (inline[0] if inline else None) or _harvested_codelists().get(key)
+
+
+def inline_windows(codelist: str) -> dict[str, tuple[str, str]]:
+    """``code -> (from, to)`` (``AAAAMM``, '' open) of the codes of an inline codelist that decode only in some years;
+    empty for a list whose codes all decode in every year."""
+    inline = _inline_tables().get(codelist.upper())
+    return dict(inline[1]) if inline else {}
 
 
 def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:

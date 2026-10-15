@@ -2,6 +2,8 @@ dataset: SIASUS-ACF
 record: procedure
 columns:
   ACF_ARTDIA:
+    missing: ['0000', '0', '00', '000']
+    # Zero is the unfilled field: '0' and '0000' are 418 of the 1,042 rows read (ACF SP 2019-06 and 2023-01; a diameter of 0 mm is no measurement). Measured 2026-10-14.
     role: authorisation.artery_diameter
     kind: number
     model: mark
@@ -108,6 +110,8 @@ columns:
     - 2014
     - 2026
   ACF_VEIDIA:
+    missing: ['0000', '0', '00', '000']
+    # Zero is the unfilled field: '0' and '0000' are 419 of the 1,042 rows read (ACF SP 2019-06 and 2023-01; a diameter of 0 mm is no measurement). Measured 2026-10-14.
     role: authorisation.vein_diameter
     kind: number
     model: mark

@@ -604,11 +604,18 @@ columns:
     - 2014
     - 2026
   ATD_ALBUMI:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '9999', '99', '0099']
+    domain: [0.5, 7]
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', optional ('podendo ficar em branco'); a value of zero is 22.2% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 7.2% null, so the export writes a blank as zeros. An albumin of 0 g/dL is no measurement, so zero is not recorded.
+    # 9999 (the width filled with nines) is on 14,940 rows, 14,939 of them with it in five of the six laboratory fields at once (RS above all): a fill of the whole line, no value.
+    # 99 is on 5,367 rows as a number ('0099' on 5,164 of them), 37 times the mean of the five values below it (146): the two-digit fill, no value.
+    # domain [0.5, 7] g/dL is a plausibility bound of the unit (the plasma proteins are 6-8 g/dL, albumin is a part of them); values at another scale fall outside it, and so does 10,
+    # which four establishments file in every laboratory field (see ATD_HB). Measured 2026-10-14.
     role: authorisation.albumi
     kind: number
     model: mark
-    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_ALBUMI as \"Albumina\" with no unit"
+    unit: g/dL
+    unit_evidence: "Manual_Operacional_APAC_v_1_1.pdf s6.2 (nephrology complementary data, SIGTAP group 03 subgroup 05): \"Albumina: Informar Albumina (g%)\"; every ATD row is SIGTAP 0305 (Tratamento em nefrologia)"
     fact_domain: clinical
     fact_domain_evidence: "\"Albumina\" (authorisation.albumi): measurement or laboratory result of the patient: clinical"
     name: Albumina
@@ -650,7 +657,10 @@ columns:
     - 2014
     - 2026
   ATD_FOSFOR:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '9999']
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', required ('SIM') yet filed with zeros; a value of zero is 19.8% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 0.0% null, so the export writes a blank as zeros. A serum phosphorus of 0 is no measurement, so zero is not recorded.
+    # 9999 (the width filled with nines) is on 14,940 rows, 14,939 of them with it in five of the six laboratory fields at once (RS above all): a fill of the whole line, no value.
+    # No document gives its unit or range, so no domain is declared; the filed scales are mixed. Measured 2026-10-14.
     role: authorisation.fosfor
     kind: number
     model: mark
@@ -662,11 +672,20 @@ columns:
     - 2014
     - 2026
   ATD_HB:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '9999']
+    domain: [1, 25]
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', required ('SIM') yet filed with zeros; a value of zero is 17.0% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 0.0% null, so the export writes a blank as zeros. A haemoglobin of 0 g/dL is no measurement, so zero is not recorded.
+    # 9999 (the width filled with nines) is on 14,940 rows, 14,939 of them with it in five of the six laboratory fields at once (RS above all): a fill of the whole line, no value.
+    # domain [1, 25] g/dL is a plausibility bound of the unit (no layout gives a range). Values filed at another scale fall outside it and are no sentinels:
+    # tenths or hundredths without the decimal point (10, 100 and 1000 are one 10.0 g/dL; 12.0 million values are in [1, 25], 0.77 million in (25, 250]).
+    # Comma decimals ('10,5') are text a reader must split.
+    # A default is not told apart: four establishments file 10 in every laboratory field (an albumin of 10 g/dL on 98.8% of one Parana clinic's 11,507 authorisations, 99.1% of one Paraiba
+    # clinic's 6,956, 60.8% of Alagoas's CNES 2010615's 6,527 and 62.9% of Goias's 4,168), so their haemoglobin of 10 is that default, a valid-looking value (OQ 82). Measured 2026-10-14.
     role: authorisation.hb
     kind: number
     model: mark
-    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_HB as \"HB (hemoglobina)\" with no unit"
+    unit: g/dL
+    unit_evidence: "Manual_Operacional_APAC_v_1_1.pdf s6.2 (nephrology complementary data, SIGTAP group 03 subgroup 05): \"HB: informar Hemoglobina (g%)\"; every ATD row is SIGTAP 0305 (Tratamento em nefrologia)"
     fact_domain: clinical
     fact_domain_evidence: "\"Hemoglobina\" (authorisation.hb): measurement or laboratory result of the patient: clinical"
     name: Hemoglobina
@@ -722,7 +741,11 @@ columns:
     - 2014
     - 2026
   ATD_KTVSEM:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '-0,0', '9999', '99', '0099']
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', optional ('podendo ficar em branco'); a value of zero is 30.4% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 18.7% null, so the export writes a blank as zeros. A weekly Kt/V of 0 is no measurement, so zero is not recorded.
+    # 9999 (the width filled with nines) is on 14,940 rows, 14,939 of them with it in five of the six laboratory fields at once (RS above all): a fill of the whole line, no value.
+    # 99 is on 6,669 rows as a number, 6 times the mean of the five values below it (1,130): the two-digit fill.
+    # No document gives its unit or range, so no domain is declared; the filed scales are mixed. Measured 2026-10-14.
     role: authorisation.ktvsem
     kind: number
     model: mark
@@ -746,7 +769,10 @@ columns:
     - 2014
     - 2026
   ATD_PTH:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '9999']
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', optional ('podendo ficar em branco'); a value of zero is 25.3% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 9.6% null, so the export writes a blank as zeros. A PTH of 0 is no measurement, so zero is not recorded.
+    # 9999 (the width filled with nines) is on 14,940 rows, 14,939 of them with it in five of the six laboratory fields at once (RS above all): a fill of the whole line, no value.
+    # No document gives its unit or range, so no domain is declared; the filed scales are mixed. Measured 2026-10-14.
     role: authorisation.pth
     kind: number
     model: mark
@@ -806,11 +832,16 @@ columns:
     - 2014
     - 2026
   ATD_TRU:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '000,', '0,0', '0.0', '0,00', '0.00', '00,0', '00.0', '0,', ',0', ',00', '9999']
+    domain: [0, 100]
+    # Layout_Exportacao_APAC.pdf: the field is 'NUM (podendo haver ponto decimal)', optional ('podendo ficar em branco'); a value of zero is 23.4% of ATD's 15,579,053 rows (2014-08 to 2025-12, all UFs), beside 8.5% null, so the export writes a blank as zeros. A urea reduction of 0% is no measurement, so zero is not recorded.
+    # 9999 is on 2,358 rows. domain [0, 100] is the formula's: a percentage. 99 (10,431 rows as a number) is not a spike (8,595 is the mean of the five values below it), so it stays a value;
+    # values past 100 are scale errors and fall outside the domain. Measured 2026-10-14.
     role: authorisation.tru
     kind: number
     model: mark
-    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf lists ATD_TRU as \"TRU (taxa de redução de ureia)\" with no unit"
+    unit: percent
+    unit_evidence: "Manual_Operacional_APAC_v_1_1.pdf s6.2 (nephrology complementary data, SIGTAP group 03 subgroup 05): \"TRU = (Uréia pré-hemodiálise (mg/dl) - Uréia pós-hemodiálise (mg/dl) x 100) / Uréia pré-hemodiálise (mg/dl)\""
     fact_domain: clinical
     fact_domain_evidence: "\"Taxa de redução de ureia\" (authorisation.tru): measurement or laboratory result of the patient: clinical"
     name: Taxa de redução de ureia

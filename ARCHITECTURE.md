@@ -468,7 +468,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `persist/lake.py`: writes the lake and reads it from the catalog's list of partitions (`Lake.listed`, `dataset_of`; a listed file missing is `PartialLakeError`, ADR-0164).
 - `persist/duck.py`: DuckDB views over it.
-- `persist/reference.py`: version-scoped code tables, with the label pack as fallback; which validity windows answer a request is `labelpack.select_windows`, the rule of both (ADR-0187).
+- `persist/reference.py`: version-scoped code tables, with the label pack as fallback; which validity windows answer a request is `labelpack.select_windows`, the rule of both (ADR-0187). An inline curated codelist reads from the curation itself; a code written `{label, from, to}` decodes only in those years (`curation.inline_windows`, ADR-0189).
 - `persist/staging.py`: atomic publish. A lake partition is staged under `<lake>/.staging/`, outside every family tree (a glob over a family would read it), and a refused rename is retried (ADR-0173).
 - `persist/decisions.py`: records of label substitutions.
 

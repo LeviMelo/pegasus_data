@@ -14,7 +14,11 @@ columns:
     - 2008
     - 2014
   AN_ALBUMI:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['00', '0', '99']
+    domain: [0.5, 7]
+    # The layout's field is 'Albumina em g%', 2 digits: 00 and 0 are the unfilled field (25.2% of AN's 5,652,863 rows, 2009-2014). 99 stands on 9,383 rows
+    # against 253 for the five values below it (37 times): the fill, on the lines that fill AN_ALTURA, AN_PESO, AN_DIURES and AN_GLICOS with their nines (9,091 lines have it in all five).
+    # domain [0.5, 7] g/dL is a plausibility bound of the unit (the plasma proteins are 6-8 g/dL, albumin is a part of them). Measured 2026-10-14.
     role: authorisation.albumi
     kind: number
     model: mark
@@ -28,9 +32,10 @@ columns:
     - 2008
     - 2014
   AN_ALTURA:
-    missing: []
+    missing: ['000', '0', '00', '999']
     domain: [0, 254]
-    # proposed (2013): the range DATASUS's tabulation bands label as values; outside it 5041 of 962772 values in 2013 (999: 1737, 1,6: 1082, 1,7: 553, 1,5: 193)
+    # 000, 0 and 00 are the unfilled field (18.8% of AN's 5,652,863 rows, 2009-2014; a height of 0 cm is no measurement) and 999 the all-nines fill (9,266 rows, the same
+    # lines that fill AN_PESO, AN_DIURES and AN_GLICOS). domain [0, 254]: the range DATASUS's tabulation band labels as values. Measured 2026-10-14.
     role: authorisation.altura
     kind: number
     model: mark
@@ -55,7 +60,9 @@ columns:
     - 2008
     - 2014
   AN_DIURES:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['9999']
+    # 9999 is on 9,277 rows, the all-nines fill of the 9,091 lines that fill AN_ALTURA, AN_PESO and AN_GLICOS. Zero is NOT declared: it is an anuria as readily as a blank
+    # ('0' on 1.30 M rows and '0000' on 1.14 M, 44.7% together, beside 13.6% null) and nothing tells the two apart. No document gives a range. Measured 2026-10-14.
     role: authorisation.diures
     kind: number
     model: mark
@@ -78,7 +85,9 @@ columns:
     - 2008
     - 2014
   AN_GLICOS:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '9999']
+    # Zero is the unfilled field (33.0% of AN's 5,652,863 rows, 2009-2014; a blood glucose of 0 mg/dL is no measurement). 9999 is on 9,327 rows, the fill of the
+    # same 9,091 lines that fill AN_ALTURA, AN_PESO and AN_DIURES (all nines of each field's width). No document gives a range for it. Measured 2026-10-14.
     role: authorisation.glicos
     kind: number
     model: mark
@@ -91,9 +100,11 @@ columns:
     - 2008
     - 2014
   AN_HB:
-    missing: []
-    # no domain declared: the proposed [1, 2] was the range of DATASUS's tabulation bands, but the records hold hemoglobin in g%:
-    # 99.1 % of 5,652,863 values (SIASUS-AN, every UF, 2009-2014) lie outside [1, 2], median 10; the layout gives no bound ("HB em g%")
+    missing: ['00', '0']
+    domain: [1, 25]
+    # The layout's field is 'HB em g%', 2 digits ('NUM'): 00 and 0 are the unfilled field (17.9% of AN's 5,652,863 rows, 2009-2014, all UFs); a haemoglobin of 0 is no
+    # measurement. domain [1, 25] g/dL is a plausibility bound of the unit (no layout gives a range): tenths without the decimal point ('97' for 9.7) fall outside it
+    # (8.2% of the positive values exceed 25). 99 (21,250) stands among 93 (25,408) and 98 (13,660), the tenths of 9.3-9.9: a value. Measured 2026-10-14.
     role: authorisation.hb
     kind: number
     model: mark
@@ -157,9 +168,11 @@ columns:
     - 2008
     - 2014
   AN_PESO:
-    missing: []
-    domain: [0, 999]
-    # proposed (2013): the range DATASUS's tabulation bands label as values; outside it 2556 of 963013 values in 2013 (00N: 130, 56,: 112, 66,: 95, 68,: 93)
+    missing: ['000', '0', '00', '999']
+    domain: [1, 300]
+    # 000, 0 and 00 are the unfilled field (18.2% of AN's 5,652,863 rows, 2009-2014; a weight of 0 kg is no measurement) and 999 the all-nines fill (9,285 rows, the same
+    # lines that fill AN_ALTURA, AN_DIURES and AN_GLICOS). domain [1, 300] kg is a plausibility bound of the unit (the tabulation band's [0, 999] holds its fill): 163,983 values
+    # lie in 300-998, the tenths without the decimal point ('700' for 70.0), and fall outside it. Measured 2026-10-14.
     role: authorisation.peso
     kind: number
     model: mark
@@ -173,11 +186,15 @@ columns:
     - 2008
     - 2014
   AN_TRU:
-    missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
+    missing: ['0000', '0', '00', '000', '9999']
+    domain: [0, 100]
+    # Zero is the unfilled field (24.6% of AN's 5,652,863 rows, 2009-2014; a urea reduction of 0% is no measurement); 9999 is on 19,741 rows against 1 for the
+    # five values below it. domain [0, 100] is the formula's: a percentage. 99 ('0099' 17,090, 6 times its neighbours) is a plausible reduction and stays a value. Measured 2026-10-14.
     role: authorisation.tru
     kind: number
     model: mark
-    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf AN_TRU \"TRU (taxa de redução de ureia)\": a rate with no unit stated"
+    unit: percent
+    unit_evidence: "Manual_Operacional_APAC_v_1_1.pdf s6.2 (nephrology complementary data, SIGTAP group 03 subgroup 05): \"TRU = (Uréia pré-hemodiálise (mg/dl) - Uréia pós-hemodiálise (mg/dl) x 100) / Uréia pré-hemodiálise (mg/dl)\""
     fact_domain: clinical
     fact_domain_evidence: "\"Taxa de redução de ureia\" (authorisation.tru): measurement or laboratory result of the patient: clinical"
     name: Taxa de redução de ureia
