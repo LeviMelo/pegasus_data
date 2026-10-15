@@ -185,7 +185,7 @@ $PD fields --name climate_monthly --name temperature_months --name air_temperatu
 |---|---|
 | list the declared links | `pegasus-data link` |
 | run one (reused from the lake when already run) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo RR [--method probabilistic] [--out pairs.parquet] [--refresh]` (`--refresh` recomputes past a stored run) |
-| follow a diagnosis' admissions to the death certificate of any cause (a cohort link, run per codes; ADR-0192) | `pegasus-data link sih_admissions_to_sim --period 2018..2022 --geo AL --codes I21,I22 [--match any]`; in Python `pegasus_data.linked_deaths("SIH-RD", ["I21", "I22"], years=range(2018, 2023), geography="AL")`: 46 s a run for Alagoas, then read from the store |
+| follow a diagnosis' admissions to the death certificate of any cause (a cohort link, run per codes; ADR-0194) | `pegasus-data link sih_admissions_to_sim --period 2018..2022 --geo AL --codes I21,I22 [--match any]`; in Python `pegasus_data.linked_deaths("SIH-RD", ["I21", "I22"], years=range(2018, 2023), geography="AL")`: 46 s a run for Alagoas, then read from the store |
 | link a state against the nation (scope-invariant, ADR-0120) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo SE --right-geo BR --method probabilistic` (needs the national run stored first: its channels and calibration) |
 | merge stored links into persons | `pegasus-data link-entities --period 2022 --geo BR` |
 | discover which fields two datasets share people through (ADR-0119) | `pegasus-data link-discover SINASC-DN SIH-RD --period 2022 --geo RR [--top 10]`; every pair: `python scripts/link_discovery.py 2022 BR` (roles cached under `data/probes/linkage/discovery/cache/`) |

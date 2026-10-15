@@ -96,7 +96,7 @@ executing it taught is in §11) is executed through T1–T5:
   `link_draws()`.
 - **Discovery** (ADR-0119): a placebo-checked search over typed fields finds
   the hand-written keys. SIH and CIHA share 0.4% of persons.
-- **Cohort links** (ADR-0192): `sih_admissions_to_sim` is declared once and
+- **Cohort links** (ADR-0194): `sih_admissions_to_sim` is declared once and
   run per codes, years and area (`linked_deaths()`). Alagoas I21-I22
   2018-2022: 17.1% dead within 30 days (2.1% coincidences), 28.5% within a
   year (16.0%), 88.8% of in-hospital deaths found. Run per state and period

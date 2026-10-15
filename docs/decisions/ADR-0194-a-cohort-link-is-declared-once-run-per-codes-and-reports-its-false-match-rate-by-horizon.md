@@ -1,4 +1,4 @@
-# ADR-0192: a cohort link is declared once, run per codes, and reports its false-match rate by follow-up horizon
+# ADR-0194: a cohort link is declared once, run per codes, and reports its false-match rate by follow-up horizon
 
 **Date:** 2026-10-14. **Status:** accepted. **Origin:** PegaSUS writes studies of a condition's hospital admissions and needs 30-day and 1-year mortality after admission, which counts the deaths of those discharged alive. `sih_deaths_to_sim` links only admissions that ended in death (MORTE = 1), and the one link that reached other deaths (`sih_toxoplasmosis_admissions_to_sim`) is written for one topic, its codes inside the filter.
 

@@ -1,4 +1,4 @@
-# Admissions to the death certificate of any cause: a cohort link declared once, run per codes (ADR-0192)
+# Admissions to the death certificate of any cause: a cohort link declared once, run per codes (ADR-0194)
 
 Regime: branch `worktree-agent-a0ea7b3fb98fcb091` (from `32d7902`, `pegasus-core-fixes`), 2026-10-14. Read-only on `pegasus_core_data`: its SIH-RD 2018-2022 and SIM-DO 2018-2023 role tables were copied, and its `SIHSUS`, `SIM` and `SINAN` lake directories joined (directory junctions), into a scratch home inside the worktree (`scratch/home`, `PEGASUS_DATA_HOME`), where every run and store was written. Throwaway probes (scratchpad); artifacts `data/probes/linkage/2026-10-14-admission-death-AL-I21I22.json` and `...-other-topics.json`. Machine shared with other sessions: times vary up to 3x.
 
