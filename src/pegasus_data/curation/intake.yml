@@ -29,7 +29,11 @@
 #                       columns: {COLUMN: [v1, v2]}} for a source that files its strata as columns (one row per column, labels
 #                       QUOTED: YAML reads 0_3 as the number 3); or `rows` {name: lake column} for a register read as events (one row
 #                       per record, nothing summed). `declares` is what the field says about itself to its readers (fields.yml's own
-#                       keys: `where`, the rows that make it one value per place; `icd10`, `harm`; `verified`)
+#                       keys: `where`, the rows that make it one value per place; `icd10`, `harm`; `verified`). A field with an
+#                       `outcome` {column: values | {above/below: x}} beside its `where` is a share: it counts the population's
+#                       records that have the outcome, over a field of its own, `<name>_assessed` (the `where`), and has a row (0
+#                       where none had it) wherever the population has one. Every field states the period's `grain` and, when it
+#                       counts or sums, `law: sum` (ADR-0192): a year is the sum of its months, a share's numerator and denominator alike
 #   verified            the check made: {rows, against, measured}
 #
 # What the reduction leaves out is counted, never silent: unplaced (no municipality given), unallocated (given, but not an

@@ -1,0 +1,23 @@
+# ADR-0192: an intake month is read with its zero, an outcome is counted over its population, and a field says its grain
+
+**Date:** 2026-10-14. **Status:** accepted. **Amends:** ADR-0162 (the intake's period derivation and its shares). **Origin:** BACKLOG 5.5 (SISAGUA as a monthly context) found SISAGUA already landed (ADR-0162, 2026-10-11) and read its months, which were wrong.
+
+**Context.** Measured on the shared lake (`pegasus_core_data`, built 2026-10-11) and the Portal's 2018 file:
+- **Months 1-9 had no month.** `period: {type: parts}` took the month from `NU_MES` only when it matched `^(1[0-2]|[1-9])$`. The surveillance files write `01`..`09`, so those landed with `_MONTH` null: 7,895,234 of 34,195,729 surveillance basic rows (23 %) had a month, and every `grain: month` field of the three surveillance families folded January-September into one null-month row per municipality and year. Santa Maria (431690) 2018 had E. coli rows for October, November, December and one null-month row of 341 of its 534 analyses. SNGPC's `NU_MES_VENDA` is padded the same way (121.0 M of 528.5 M industrialised rows and 2.2 M of 11.8 M compounded rows have a month). The control files write `1`..`12` and were right.
+- **A share's numerator lacked its zeros.** An `outcome` field counted the records of its population that have the outcome, so a municipality-month with E. coli samples and none positive had a denominator row and no numerator row. In 2018, 4,997 municipalities had assessed E. coli samples and 3,525 had a numerator row. A consumer reading the two fields apart (PegaSUS's `gateway._context_counts`) got NaN for the other 1,472 and left them out of the context.
+- **A month-grain field did not say so.** `declared_fields()` carried no grain, and `law: sum` (a year is the sum of its months), which the CNES and climate fields declare, was absent from the intake's.
+
+**Decision.**
+- **A month part is a month with or without its zero** (`^(0?[1-9]|1[0-2])$`).
+- **A period derivation is versioned and the fingerprint carries it.** `intake.PERIOD_DERIVATION = {"parts": 2}`: a unit landed by an older derivation of its kind has another fingerprint and is landed again, whatever the file or the declaration (the sidecars would otherwise call the old records current). The version is bumped when the SQL of a kind changes what `_MONTH` and `year` hold. The rule is uniform, so the control files, which were right, are also landed again the next time their fields are built.
+- **An `outcome` is counted over the population's own groups** (`count(*) FILTER (WHERE outcome)`), so the numerator has a row wherever its `<name>_assessed` has one, 0 where none of the samples had the outcome (a true zero), and none where the place-month had no samples (missing, never 0). The two fields have identical keys.
+- **An intake field declares its `grain`** (the period's) and, when it is a count or a sum, `law: sum`. A reader that wants a year sums the months, the numerator and its denominator alike.
+
+**Evidence.** Re-landed 2018 and 2025 into a fresh home (`2026-10-14-sisagua.md`): 2,674,342 and 3,190,790 rows, each equal to the file's lines less the header; no row without a month; E. coli numerator and denominator have the same 47,015 (2018) and 48,230 (2025) municipality-month keys (30,691 and 33,749 of the numerators are 0); the national totals and Santa Maria's months equal a count of the zip with the standard library alone.
+
+**Consequences.**
+- **Re-landing.** SISAGUA surveillance (VIGB, VIGC, VIGD) and SNGPC (IND, MAN) must be landed again in any home built before this commit, and their fields derived again (VIGB 1.79 GB of zips, SNGPC hours); the sidecars of the other `parts` sources (SISAGUA control, yellow fever, SIES) also change fingerprint and are read again when their fields are next built.
+- **The year-grain reader is PegaSUS's.** `pegasus_core.gateway.context_field` selects `(u, year, value)` and drops `month`, and `_context_counts` keeps the last row per place, so a month-grain context entered as a year takes one month of the year, the numerator's and the denominator's possibly not the same. It should sum the rows of a year (`law: sum`) or read the months as a series. Not changed here (`../pegasus_project` is read-only to this work).
+- The SNGPC fields keyed by month are wrong for months 1-9 in a home built before this commit (not re-landed here: hours of download); a sum over the rows of a year (`context_sum`) does not read the month.
+
+**What would overturn it.** A source whose month is filed in another form than digits (`jan`, `2018-01`): its own period kind, with its own version.
