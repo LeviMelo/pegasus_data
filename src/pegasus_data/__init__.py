@@ -145,6 +145,7 @@ _EXPORTS: dict[str, str] = {
     "build_entities": ".linkage.entities",
     "person_pairs": ".linkage.entities",
     "link_draws": ".linkage.uncertainty",
+    "linked_deaths": ".linkage.followup",
 }
 
 __all__ = ["Settings", "load_settings", "__version__", *sorted(_EXPORTS)]

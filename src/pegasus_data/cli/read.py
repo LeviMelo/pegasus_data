@@ -709,6 +709,12 @@ def link_cmd(
     refresh: Annotated[
         bool, typer.Option("--refresh", help="Recompute even when a stored run of this spec and scope exists")
     ] = False,
+    codes: Annotated[
+        str | None, typer.Option("--codes", help="ICD-10 prefixes of a cohort link (I21,I22): the spec is run per codes")
+    ] = None,
+    match: Annotated[
+        str, typer.Option("--match", help="principal | any: the codes on the principal diagnosis or on every diagnosis")
+    ] = "principal",
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
@@ -718,6 +724,11 @@ def link_cmd(
     pass with its negative control (the same join with a birth date shifted by
     a week: its pairs are coincidences), the held-out validations and the
     verdict. A linkage that is not viable exits 1 unless --allow-not-viable.
+
+    A cohort link is run per codes: 'pegasus-data link sih_admissions_to_sim
+    --period 2018..2022 --geo AL --codes I21,I22' (the admissions of a
+    diagnosis to the death certificate of any cause; its report holds the
+    false-match rate at each follow-up horizon).
     """
     from ..linkage.engine import LinkNotViable, link, load_links
     from ..retrieve import DatasetUnknown, NothingPublished
@@ -735,6 +746,7 @@ def link_cmd(
         with console.status(f"linking {spec}…"):
             result = link(spec, period=span, geography=geo, right_geography=right_geography, method=method,
                           allow_not_viable=allow_not_viable, allow_partial=allow_partial, refresh=refresh,
+                          codes=[c.strip() for c in codes.split(",")] if codes else None, match=match,
                           settings=_settings(root))
     except LinkNotViable as exc:
         _emit(exc.result.summary(), as_json, f"link {spec}: NOT VIABLE")

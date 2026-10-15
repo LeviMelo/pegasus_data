@@ -60,12 +60,13 @@ class Entities:
 
 
 def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
-    """spec -> (left dataset, left person role, right dataset, right person role)."""
+    """spec -> (left dataset, left person role, right dataset, right person role). A spec run per caller's codes
+    (`params`) is a cohort's run, not a national one: it merges no persons."""
     raw = read_yaml(links_file()).get("links") or {}
     out = {}
     for name, spec in load_links().items():
         person = (raw.get(name) or {}).get("person")
-        if person:
+        if person and spec.params is None:
             out[name] = (spec.left.dataset, str(person[0]), spec.right.dataset, str(person[1]))
     return out
 

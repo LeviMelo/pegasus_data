@@ -98,6 +98,12 @@ executing it taught is in §11) is executed through T1–T5:
   `link_draws()`.
 - **Discovery** (ADR-0119): a placebo-checked search over typed fields finds
   the hand-written keys. SIH and CIHA share 0.4% of persons.
+- **Cohort links** (ADR-0194): `sih_admissions_to_sim` is declared once and
+  run per codes, years and area (`linked_deaths()`). Alagoas I21-I22
+  2018-2022: 17.1% dead within 30 days (2.1% coincidences), 28.5% within a
+  year (16.0%), 88.8% of in-hospital deaths found. Run per state and period
+  only so far (46 s); the national scope is not measured. SINAN-TOXC cases are
+  declared and not viable.
 
 **National, 2022** (final runs: record keys, per-state channels, u from 10
 million hashed pairs, padded infant and newborn links; `data/logs/final_relink.done`):
