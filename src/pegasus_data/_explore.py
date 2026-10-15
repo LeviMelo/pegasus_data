@@ -496,7 +496,9 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
         y["ufs"].add(str(r["uf"]))
         y["rows"] += int(r["row_count"] or 0)
         y["bytes"] += int(r["byte_size"] or 0)
-    return {k: {**v, "ufs": len(v["ufs"])} for k, v in sorted(out.items())}
+    # the states held by name too: a year built from a national file holds the one partition "BR" where the server
+    # publishes 27 state files beside it, and is whole all the same
+    return {k: {**v, "ufs": len(v["ufs"]), "uf_codes": sorted(v["ufs"])} for k, v in sorted(out.items())}
 
 
 #: The server's directory of files still being collected (SIM, SINASC and SINAN publish their open years there).
