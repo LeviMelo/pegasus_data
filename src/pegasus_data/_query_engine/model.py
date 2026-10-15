@@ -186,6 +186,9 @@ class QueryReport:
     enrichments: list[EnrichmentReport] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     source_report: Any = None
+    #: Under a ``condition``: its clauses and how many records satisfied it (``satisfied``) and how many it could not
+    #: decide (``unknown``), after the period (`conditions.settle`); None without one.
+    condition: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         if isinstance(self.source_report, (list, tuple)):
@@ -210,6 +213,7 @@ class QueryReport:
             "enrichments": [item.as_dict() for item in self.enrichments],
             "warnings": self.warnings,
             "source_report": source_report,
+            **({"condition": self.condition} if self.condition else {}),
         }
 
 

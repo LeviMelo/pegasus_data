@@ -40,6 +40,11 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
 
 :func:`count_events` applies status, consolidation and weight to a query, so a
 count of hospitalisations is one rule wherever it is asked.
+
+Both take ``condition=``: a condition on the record's typed fields written on roles (`pegasus_data.conditions`: births
+under 2,500 g, deaths at an age under one year). It selects the RECORDS the event rule then applies to, as ``rows=`` does.
+The events it could not decide (a weight not recorded) are not counted as satisfying it nor as failing it: they are
+``count_events``' ``unknown`` column, and the result's `conditions.condition_report`.
 """
 
 from __future__ import annotations
@@ -556,7 +561,7 @@ def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None
 
 def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, records: pa.Table | None = None,
                 consolidate: bool = True, prepare: Callable[[pa.Table], pa.Table] | None = None,
-                **query_kwargs: Any) -> pa.Table:
+                condition: object = None, _keep_unknown: bool = False, **query_kwargs: Any) -> pa.Table:
     """The events of one type read from ``dataset`` (``period``, ``geography``, ... as `query`), or from ``records``
     already read (an extract's, `pegasus_data.extract`): the one place that assembles an event type's reading.
 
@@ -569,11 +574,24 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     ``consolidate=False`` reads the event's records, not its events: the duplicates and the status apply, the consolidation
     does not (a continuation AIH is a record of its own; the key is not read). ``prepare`` is applied to the table as read,
     before the rule: a caller that needs a column the rule's own comparison must see (a record identity, which is made from
-    the record's fields) adds it there."""
+    the record's fields) adds it there.
+
+    ``condition`` (clauses on roles, `pegasus_data.conditions`) selects the records the rule applies to, in the scan for
+    raw columns and before anything is rendered, as ``rows=`` does; ``records`` are tested in place. The events whose
+    condition could not be decided are not in the result: their number (events, weights counted) is
+    `conditions.condition_report`'s ``unknown``, beside ``satisfied``. ``_keep_unknown`` (`count_events`') leaves them in, each
+    event's answer in ``conditions.CONDITION``."""
+    from ..conditions import prepare as prepare_condition
+
     flag = event.duplicates_flag[0] if event.duplicates_flag else None
     rule = event if consolidate else dataclasses.replace(event, consolidation_key=())
+    cond = prepare_condition(dataset, condition)
+    if cond is not None:
+        query_kwargs = {**query_kwargs, "condition": cond, "_keep_unknown": True}
     if records is not None:
         table = records
+        if cond is not None:
+            table = _tested(records, cond, dataset, query_kwargs.get("root"))
     else:
         from .._query_engine.executor import query
 
@@ -592,14 +610,59 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     if prepare is not None:
         table = prepare(table)
     events = events_of(table, rule, flag_absent_ok=records is None)
-    if event.grid:
-        return events
-    return events.append_column("__w", event_weights(events, event))
+    if not event.grid:
+        events = events.append_column("__w", event_weights(events, event))
+    return events if cond is None else _settled(events, cond, event, _keep_unknown)
+
+
+def _tested(records: pa.Table, cond: Any, dataset: str, root: object) -> pa.Table:
+    """``records`` already read (an extract's) with each record's answer to ``cond`` in ``conditions.CONDITION``, the
+    records that do not satisfy it out."""
+    from ..conditions import CONDITION
+
+    def docs() -> Any:
+        from .._query_engine.coverage import shared_catalog
+        from ..config import load_settings
+        from .curation import load_variable_docs
+
+        with shared_catalog(load_settings(root=root)) as store:    # type: ignore[arg-type]
+            return load_variable_docs(store, event_system(dataset))
+
+    years = [int(y) for y in pc.unique(records.column("year")).drop_null().to_pylist()] if "year" in records.column_names else None
+    state = cond.state(records, docs, years=years)
+    sure = pc.coalesce(state, pa.scalar(True))
+    return records.filter(sure).append_column(CONDITION, state.filter(sure))
+
+
+def event_system(dataset: str) -> str:
+    from .._request import parse_dataset
+
+    return parse_dataset(dataset)[0]
+
+
+def _settled(events: pa.Table, cond: Any, event: EventType, keep_unknown: bool) -> pa.Table:
+    """The events that satisfy ``cond`` (and, with ``keep_unknown``, those it could not decide, answer in
+    ``conditions.CONDITION``), their numbers in the table's metadata: events, a weighted row counting its quantity."""
+    import json
+
+    from ..conditions import CONDITION, CONDITION_META
+
+    state = events.column(CONDITION)
+    weights = events.column("__w") if "__w" in events.column_names else pa.repeat(pa.scalar(1, pa.int64()), events.num_rows)
+    yes, unknown = pc.coalesce(state, pa.scalar(False)), pc.is_null(state)
+    report = {"clauses": cond.as_list(), "satisfied": int(pc.sum(pc.if_else(yes, weights, 0)).as_py() or 0),
+              "unknown": int(pc.sum(pc.if_else(unknown, weights, 0)).as_py() or 0),
+              "unit": "records" if event.grid else "events"}
+    if not keep_unknown:
+        events = events.filter(yes).drop_columns([CONDITION])
+    else:
+        events = events.filter(pc.or_kleene(yes, unknown))
+    return events.replace_schema_metadata({**(events.schema.metadata or {}), CONDITION_META: json.dumps(report).encode()})
 
 
 def count_events(
     dataset: str, name: str, *, period: object, geography: object = "BR", by: list[str] | None = None,
-    records: pa.Table | None = None, **query_kwargs: Any,
+    records: pa.Table | None = None, condition: object = None, **query_kwargs: Any,
 ) -> pa.Table:
     """Counts of one event type, optionally grouped by columns of the record; a weighted event sums its weight.
     ``records``: the event type's records already read (an extract's, `pegasus_data.extract`), counted in place of a
@@ -609,12 +672,20 @@ def count_events(
     whose grid and total are both blank, a group whose people were not counted (`grid_events`).
 
     The result's metadata `UNKEYED` is the number of rows that had no consolidation key and were counted as events of
-    their own; a warning says so."""
+    their own; a warning says so.
+
+    ``condition`` (clauses on roles, `pegasus_data.conditions`) counts the events whose record satisfies it. The result
+    then has a column ``unknown``: the events whose condition could not be decided (a weight not recorded is not "under
+    2,500 g" and not "over" either), by the same groups, so a rate can state its unknown share; the totals are
+    `conditions.condition_report`'s ``satisfied`` and ``unknown``. A group with only unknown events shows ``events`` 0.
+    A grid event reports its unknown records in that metadata alone."""
+    from ..conditions import CONDITION, CONDITION_META
+
     event = event_type(dataset, name)
     if event.grid:
         record_by = [c for c in by or [] if c not in (GRID_SEX, GRID_AGE)]
         events = read_events(dataset, event, record_by, records=records, period=period, geography=geography,
-                             **query_kwargs)
+                             condition=condition, **query_kwargs)
         long = grid_events(events, event, record_by)
         if not by:
             out = pa.table({"events": [pc.sum(long.column("events")).as_py() or 0],
@@ -622,18 +693,37 @@ def count_events(
         else:
             out = long.group_by(list(by)).aggregate([("events", "sum"), ("unquantified", "sum")]).rename_columns(
                 [*by, "events", "unquantified"])
-        return out
-    events = read_events(dataset, event, by or (), records=records, period=period, geography=geography, **query_kwargs)
-    if not by:
+        return _with_meta(out, events, {CONDITION_META})
+    events = read_events(dataset, event, by or (), records=records, period=period, geography=geography,
+                         condition=condition, _keep_unknown=condition is not None, **query_kwargs)
+    meta = events.schema.metadata or {}
+    if condition is not None:
+        state, weights = events.column(CONDITION), events.column("__w")
+        events = events.append_column("__yes", pc.if_else(pc.coalesce(state, pa.scalar(False)), weights, 0)).append_column(
+            "__unknown", pc.if_else(pc.is_null(state), weights, 0))
+        if not by:
+            out = pa.table({"events": [pc.sum(events.column("__yes")).as_py() or 0],
+                            "unknown": [pc.sum(events.column("__unknown")).as_py() or 0]})
+        else:
+            out = events.group_by(by).aggregate([("__yes", "sum"), ("__unknown", "sum")]).select(
+                [*by, "__yes_sum", "__unknown_sum"]).rename_columns([*by, "events", "unknown"])
+    elif not by:
         out = pa.table({"events": [pc.sum(events.column("__w")).as_py() or 0]})
     else:
         out = events.group_by(by).aggregate([("__w", "sum")]).rename_columns([*by, "events"])
-    unkeyed = int((events.schema.metadata or {}).get(UNKEYED, b"0"))
+    unkeyed = int(meta.get(UNKEYED, b"0"))
     if unkeyed:
         warnings.warn(f"{dataset} {name}: {unkeyed} rows have no {'/'.join(event.consolidation_key)}; each is counted "
                       f"as an event of its own, as consolidating them into one would lose events", stacklevel=2)
         out = out.replace_schema_metadata({UNKEYED: str(unkeyed).encode()})
-    return out
+    return _with_meta(out, events, {CONDITION_META})
+
+
+def _with_meta(out: pa.Table, events: pa.Table, keys: set[bytes]) -> pa.Table:
+    """``out`` with the metadata ``keys`` of ``events`` added to its own."""
+    meta = events.schema.metadata or {}
+    carried = {k: meta[k] for k in keys if k in meta}
+    return out.replace_schema_metadata({**(out.schema.metadata or {}), **carried}) if carried else out
 
 
 def field_overlap(
