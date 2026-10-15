@@ -471,8 +471,10 @@ def _span(years: list[Any]) -> str:
 def lake_coverage(dataset: str, *, root: str | Path | None = None,
                   settings: Settings | None = None) -> dict[int, dict[str, int]]:
     """What the lake already holds of ``dataset``, by year: partitions, states, rows and bytes (the catalog's
-    ``lake_partitions``). A caller deciding what a reading costs needs it beside ``explore``'s published volume: a year
-    in the lake is read in seconds, a year outside it is a download and a decode."""
+    ``lake_partitions`` whose Parquet is on disk). A caller deciding what a reading costs needs it beside ``explore``'s
+    published volume: a year in the lake is read in seconds, a year outside it is a download and a decode. A partition
+    the catalog records and the disk no longer holds is not the lake's: 448 of SIH-RD's 487 had been deleted and still
+    counted, so a study priced national SIH years as free and its lanes, forbidden to download, failed (2026-10-15)."""
     from .catalog.store import CatalogStore
 
     resolved = settings or load_settings(root=Path(root) if root else None)
@@ -482,8 +484,9 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
     prefix = f"{system}_{series}_" if series else f"{system}_"
     store = CatalogStore(resolved.catalog_path, read_only=True)
     try:
-        rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size FROM lake_partitions")
-                if str(r["family_id"]).startswith(prefix)]
+        lake = Path(resolved.lake_dir)
+        rows = [r for r in store.query("SELECT family_id, year, uf, row_count, byte_size, relative_path FROM lake_partitions")
+                if str(r["family_id"]).startswith(prefix) and (lake / str(r["relative_path"])).exists()]
     finally:
         store.close()
     out: dict[int, dict[str, Any]] = {}
