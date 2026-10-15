@@ -234,6 +234,8 @@ columns:
   MORTE:
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='sem óbito', 1='com óbito'): a code table, not a catch-all; no value labelled as not recorded
+    fatal: ['1']
+    # from DATASUS's labels (MORTES, every year): 0='Sem óbito', 1='Com óbito': the stay ended in death (any cause)
     role: admission.death
     kind: category
     model: mark

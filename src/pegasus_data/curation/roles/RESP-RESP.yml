@@ -932,6 +932,8 @@ columns:
   ST_OBITO:
     missing: ['9']
     # declared from DATASUS's own sources (2016): the form's dictionary: 1='Sim', 2='Não', 9='Ignorado'; the tabulation: no value labelled as not recorded
+    fatal: ['1']
+    # from DATASUS's labels (the form's own dictionary CURATED.RESP.RESP.ST_OBITO, 2015-2024): 1='Sim', 2='Não', 9='Ignorado'; 'Evolucao para obito': the notified case died (any cause)
     role: notification.death_outcome_flag
     kind: category
     model: mark

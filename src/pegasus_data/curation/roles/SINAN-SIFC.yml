@@ -297,6 +297,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='vivo', 2='óbito por sífilis congênita', 3='óbito por outras causas', 4='aborto', 5='natimorto', 9='ignorado'; the tabulation: 9='Ignorado'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.SIFC.EVOLUCAO; 2007-2025): 2='óbito por sífilis congênita', 3='óbito por outras causas'; 4='aborto', 5='natimorto' are neither: a fetal loss, not a death of a live-born case
     role: case.outcome
     kind: category
     model: mark

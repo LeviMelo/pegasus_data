@@ -1003,6 +1003,9 @@ columns:
   EVOLUCAO:
     missing: ['0', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.DENG.EVOLUCAO; 2007-2026): 2='óbito pelo agravo', 3='óbito por outras causas'; 4='óbito em investigação' is neither: an open investigation, not yet a death
     role: case.outcome
     kind: category
     model: mark

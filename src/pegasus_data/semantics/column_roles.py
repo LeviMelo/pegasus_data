@@ -24,6 +24,13 @@ Every column a study reads as a field (any kind, model not ``link_only`` or ``ex
 codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
 administrative) with the evidence it rests on; one no documentation places stays undeclared.
 
+An **outcome column** (the event's own result: SINAN's EVOLUCAO, a hospital stay's MORTE) also states which of its
+codes mean death, ``fatal``: the codes of death by the event's own cause (the notified disease; a yes/no death flag's
+"yes"), and ``fatal_other`` the codes of death from another cause, kept apart because a case fatality counts the
+notified disease's deaths only. Both are written from the labels DATASUS publishes for the column (a comment beside
+them names the codelist), never from a label a consumer matches at run time; a code that is neither (an outcome still
+under investigation) is in neither list, and a column whose labels do not decide leaves them undeclared.
+
 A **measure** (a ``kind: number`` that is a quantity, ``measure`` true) also states what it is measured in
 (:data:`UNITS`): ``unit``, with the document line it rests on (``unit_evidence``) and, for a ``count``, what is counted
 (``unit_of``). A measure whose unit no document gives has none and says why (``unit_unknown``), listed by
@@ -96,7 +103,7 @@ PLACE_OF = {
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
-                  "unit_unknown", "unit_from", "competence", "place_of"})
+                  "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -171,6 +178,12 @@ class ColumnRole:
     competence: tuple[str, ...] = ()
     #: For a place: whose it is (`PLACE_OF`). None for every other column.
     place_of: str | None = None
+    #: For an outcome column: the codes that mean death by the event's own cause (``fatal``: SINAN's "Óbito pelo agravo
+    #: notificado"; a yes/no death flag's "Sim") and death from another cause (``fatal_other``: "Óbito por outras
+    #: causas"), each from the labels DATASUS publishes for the column. None: not declared (a consumer computing a case
+    #: fatality finds no code to count and must say so, never match a label).
+    fatal: tuple[str, ...] | None = None
+    fatal_other: tuple[str, ...] | None = None
 
     @property
     def entity(self) -> str:
@@ -187,6 +200,8 @@ class ColumnRole:
                 "last_year": self.years[1], "reviewed": self.reviewed, "derived": self.derived, "note": self.note,
                 "measure": self.measure, "unit": self.unit,
                 "missing": None if self.missing is None else list(self.missing),
+                "fatal": None if self.fatal is None else list(self.fatal),
+                "fatal_other": None if self.fatal_other is None else list(self.fatal_other),
                 "domain": None if self.domain is None else list(self.domain), "fact_domain": self.fact_domain,
                 **({"fact_domain_evidence": self.fact_domain_evidence} if self.fact_domain else {}),
                 **({"width": self.width, "width_evidence": self.width_evidence} if self.width else {}),
@@ -231,6 +246,20 @@ def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
     _agree_with_linkage(out)
     _competence_declared(out)
     return out
+
+
+def _codes(spec: dict[str, Any], key: str, bad: Any) -> tuple[str, ...] | None:
+    """A declared list of codes (``fatal``, ``fatal_other``): strings, each once, at least one."""
+    if key not in spec:
+        return None
+    raw = spec[key]
+    if not isinstance(raw, (list, tuple)) or not raw:
+        raise bad(f"{key} is the list of the outcome's codes, at least one (leave it out when no label decides)")
+    if any(not isinstance(v, str) for v in raw):
+        raise bad(f"{key} codes are strings ('2', not 2): a code is matched as filed")
+    if len(set(raw)) != len(raw):
+        raise bad(f"{key} repeats a code")
+    return tuple(raw)
 
 
 def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> ColumnRole:
@@ -278,6 +307,16 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     elif "measure" in spec:
         raise bad("`measure` is declared for numbers only")
     missing = tuple(str(v) for v in spec["missing"]) if "missing" in spec else None
+    fatal, fatal_other = (_codes(spec, key, bad) for key in ("fatal", "fatal_other"))
+    if (fatal is not None or fatal_other is not None) and kind != "category":
+        raise bad("fatal and fatal_other are declared for a category (an outcome's codes)")
+    if fatal_other is not None and fatal is None:
+        raise bad("fatal_other without fatal: a case fatality counts the event's own deaths first")
+    if fatal and fatal_other and set(fatal) & set(fatal_other):
+        raise bad(f"{sorted(set(fatal) & set(fatal_other))} are both fatal and fatal_other: a code is one or the other")
+    for name, codes in (("fatal", fatal), ("fatal_other", fatal_other)):
+        if codes and missing and set(codes) & set(missing):
+            raise bad(f"{sorted(set(codes) & set(missing))} are both {name} and missing: a death is a recorded outcome")
     dom = spec.get("domain")
     if dom is not None and (len(dom) != 2 or float(dom[0]) > float(dom[1])):
         raise bad(f"domain {dom!r} is not [lo, hi]")
@@ -359,7 +398,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       " ".join(str(spec["unit_evidence"]).split()) if unit is not None else None,
                       " ".join(str(unit_unknown).split()) if unit_unknown is not None else None,
                       int(unit_from) if unit_from is not None else None, competence,
-                      str(place_of) if place_of is not None else None)
+                      str(place_of) if place_of is not None else None, fatal, fatal_other)
 
 
 def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

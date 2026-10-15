@@ -766,6 +766,9 @@ columns:
   EVOLUCAO:
     missing: ['0', '6', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Cura', 2='Abandono', 3='Óbito por LV', 4='Óbito por outras causas', 5='Transferência'; the tabulation: 0='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    fatal: ['3']
+    fatal_other: ['4']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.LEIV.EVOLUCAO; 2007-2025): 3='Óbito por LV', 4='Óbito por outras causas'
     role: case.outcome
     kind: category
     model: mark

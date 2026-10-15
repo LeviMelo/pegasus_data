@@ -884,6 +884,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='alta', 2='óbito por meningite', 3='óbito por outra causa', 9='ignorado'; the tabulation: 9='Ignorado'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.MENI.EVOLUCAO; 2007-2026): 2='óbito por meningite', 3='óbito por outra causa'
     role: case.outcome
     kind: category
     model: mark

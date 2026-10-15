@@ -204,6 +204,8 @@ columns:
     - 2008
     - 2011
   MORTE:
+    fatal: ['1']
+    # from DATASUS's labels (MORTES, every year): 0='Sem óbito', 1='Com óbito': the stay ended in death (any cause)
     role: admission.death
     kind: category
     model: mark

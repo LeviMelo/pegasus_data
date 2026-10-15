@@ -240,6 +240,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='vivo', 2='óbito pelo agravo notificado', 3='óbito por outra causa', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the tabulation table that labels the records, TOXC 2021; 2019-2026): 2='Óbito pelo agravo notificado', 3='Óbito por outra causa'
     role: case.outcome
     kind: category
     model: mark

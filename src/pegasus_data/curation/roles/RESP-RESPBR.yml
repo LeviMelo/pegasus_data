@@ -741,6 +741,8 @@ columns:
   ST_OBITO:
     missing: []
     # declared from DATASUS's own sources (SP 2024): no form dictionary; the table names every code the records use, each with its own label (2='nao'): a code table, not a catch-all; no value labelled as not recorded
+    fatal: ['1']
+    # from DATASUS's labels (SIM_NAO, and the form's dictionary of RESP-RESP, the same notification): 1='Sim', 2='Nao'; 'Evolucao para obito': the notified case died (any cause)
     role: notification.death_outcome_flag
     kind: category
     model: mark
