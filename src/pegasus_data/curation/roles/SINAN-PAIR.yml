@@ -268,6 +268,9 @@ columns:
   EVOLUCAO:
     missing: ['0', '9']
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Cura', 2='Cura não confirmada', 3='Incapacidade temporária', 4='Incapacidade permanente parcial', 5='Incapacidade permanente total', 6='Óbito por doença relacionada ao trabalho', 7='Óbito por outra causa', 8='Outro', 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'
+    fatal: ['6']
+    fatal_other: ['7']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.PAIR.EVOLUCAO; 2006-2026): 6='Óbito por doença relacionada ao trabalho', 7='Óbito por outra causa'
     role: case.outcome
     kind: category
     model: mark

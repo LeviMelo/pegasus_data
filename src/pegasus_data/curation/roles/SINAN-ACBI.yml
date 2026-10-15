@@ -248,6 +248,9 @@ columns:
   EVOLUCAO:
     missing: ['0', '7', '8', '9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Alta com conversão sorológica Especificar vírus', 2='Alta sem conversão sorológica', 3='Alta paciente fonte negativo', 4='Abandono', 5='Óbito por acidente com exposição a material biológico', 6='Óbito por outra causa', 9='Ignorado'; the tabulation: 0='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
+    fatal: ['5']
+    fatal_other: ['6']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.ACBI.EVOLUCAO; 2006-2026): 5='Óbito por acidente com exposição a material biológico', 6='Óbito por outra causa'
     role: case.outcome
     kind: category
     model: mark

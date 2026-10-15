@@ -467,6 +467,8 @@ columns:
   AP_OBITO:
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='nao houve óbito', 1='sim (motivo de saída-óbito)'): a code table, not a catch-all; no value labelled as not recorded
+    fatal: ['1']
+    # from DATASUS's labels (OBITO, the APAC layouts' exit reason): 0='Nao houve ÓBITO', 1='Sim (motivo de saída-ÓBITO)': the authorisation ended in the patient's death (any cause)
     role: authorisation.death
     kind: category
     model: mark

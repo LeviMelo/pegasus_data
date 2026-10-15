@@ -297,6 +297,9 @@ columns:
   EVOLUCAO:
     missing: ['0', '9']
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='Sem evidência da doença (remissão completa)', 2='Remissão parcial', 3='Doença estável', 4='Doença em Progressão', 5='Fora de possibilidade terapêutica', 6='Óbito por câncer relacionado ao trabalho', 7='Óbito por outras causas', 8='Não se aplica', 9='Ignorado'; the tabulation: 0='Ign/Branco', 9='Ign/Branco'
+    fatal: ['6']
+    fatal_other: ['7']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.CANC.EVOLUCAO; 2007-2026): 6='Óbito por câncer relacionado ao trabalho', 7='Óbito por outras causas'
     role: case.outcome
     kind: category
     model: mark

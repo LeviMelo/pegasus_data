@@ -717,6 +717,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2015): the form's dictionary: 1='cura', 2='óbito por cólera', 3='óbito por outras causas', 9='ignorado'; no value of the column was read in 2015
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.COLE.EVOLUCAO; 2007-2025): 2='óbito por cólera', 3='óbito por outras causas'
     role: case.outcome
     kind: category
     model: mark

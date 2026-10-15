@@ -851,6 +851,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='vivo', 2='óbito por chagas', 3='óbito por outras causas', 9='ignorado'; the tabulation: 9='Ignorado'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.CHAG.EVOLUCAO; 2007-2025): 2='óbito por chagas', 3='óbito por outras causas'
     role: case.outcome
     kind: category
     model: mark

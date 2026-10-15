@@ -526,6 +526,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='cura', 2='óbito por doença exantemática', 3='óbito por outras causas', 9='ignorado'; the tabulation: 9='Ignorado'
+    fatal: ['2']
+    fatal_other: ['3']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.EXAN.EVOLUCAO; 2007-2026): 2='óbito por doença exantemática', 3='óbito por outras causas'
     role: case.outcome
     kind: category
     model: mark

@@ -765,6 +765,8 @@ columns:
   MORTE:
     missing: []
     # proposed from DATASUS's labels (2022): no value labelled as not recorded
+    fatal: ['1']
+    # from DATASUS's labels (MORTES, every year): 0='Sem óbito', 1='Com óbito': the stay ended in death (any cause)
     role: admission.death
     kind: category
     model: mark

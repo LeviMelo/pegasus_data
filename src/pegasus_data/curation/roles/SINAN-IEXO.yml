@@ -443,6 +443,9 @@ columns:
   EVOLUCAO:
     missing: ['9']
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 1='Cura sem sequela', 2='Cura com sequela', 3='Óbito por intoxicação exógena', 4='Óbito por outra causa', 5='Perda do seguimento', 9='Ignorada'; the tabulation: 9='Ignorado'
+    fatal: ['3']
+    fatal_other: ['4']
+    # from DATASUS's labels (the form's own dictionary, CURATED.SINAN.IEXO.EVOLUCAO; 2006-2026): 3='Óbito por intoxicação exógena', 4='Óbito por outra causa'
     role: case.outcome
     kind: category
     model: mark
