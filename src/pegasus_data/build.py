@@ -9,11 +9,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 import uuid
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import pyarrow as pa
@@ -31,6 +32,7 @@ from .decode.service import (
     record_decode_failure,
     short_body_note,
 )
+from .inventory.families import schema_signature
 from .normalize.engine import (
     NormalizePlan,
     build_plan,
@@ -42,6 +44,7 @@ from .persist.lake import Lake
 from .persist.staging import staged_tree
 from .pipeline import Pipeline, StageResult
 from .progress import ItemTimeout
+from .representations import RepresentationConflictError, choose_representations
 from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
 
@@ -69,6 +72,9 @@ class BuildStats:
     errors: list[tuple[str, str]] = field(default_factory=list)
     representations_deduplicated: int = 0
     representation_conflicts: list[str] = field(default_factory=list)
+    #: Representations read and refused for their columns (not the family's): the publication was read from another
+    #: representation, or, when none had the columns, is in `files_mismatched` and `errors`.
+    schema_refused: list[str] = field(default_factory=list)
 
     def merge(self, other: BuildStats) -> None:
         """Add another build's counts (a partition built on another thread)."""
@@ -97,6 +103,8 @@ class BuildStats:
             "errors": self.errors[:20],
             "representations_deduplicated": self.representations_deduplicated,
             "representation_conflicts": self.representation_conflicts[:20],
+            "representations_refused": len(self.schema_refused),
+            "refused_examples": self.schema_refused[:20],
         }
 
 
@@ -157,6 +165,11 @@ class Builder:
             compression=self.settings.compression,
             row_group_size=self.settings.row_group_size,
         )
+        #: One acquisition at a time for a representation read after a refusal: partitions build on threads.
+        self._fetch_lock = threading.Lock()
+        #: The paths the last `build` read and refused for their columns (ADR-0190): the caller that releases
+        #: the files of a build holds them with the files its partitions were written from.
+        self.refused: tuple[str, ...] = ()
 
     def _partition_workers(self) -> int:
         """How many partitions build at once: as many as the decoder pool has
@@ -240,24 +253,15 @@ class Builder:
                     except OSError:  # pragma: no cover - Windows may still hold a handle; the janitor takes it
                         pass
 
-        def _member(m: Mapping[str, Any]) -> Iterator[pa.RecordBatch]:
-            """Decode and normalise one member, YIELDING as we go."""
-            path = str(m["path"])
-            digest = digests.get(path)
-            if not digest:
-                stats.skipped.append(path)
-                tally.undecoded += 1
-                return
-            if on_file:
-                on_file(family_id, path)
-            wanted_member = str(m["member"] or "")
-            source_id = logical_source_id(path, wanted_member)
+        def _open(path: str, wanted_member: str, digest: str) -> Any | None:
+            """One acquired file's decoded tables (decoded once per digest), or ``None`` when it could not be read:
+            that is recorded as the gap it is."""
             if digest in failed_digests:
                 _undecodable(path, wanted_member, reason=failed_digests[digest])
-                return
+                return None
             outcome = decoded_outcomes.get(digest)
             if outcome is None:
-                selected_members = members_by_digest[digest]
+                selected_members = members_by_digest.setdefault(digest, {wanted_member})
                 try:
                     outcome = decode_source(
                         self.pipeline.blobs.path_for(digest),
@@ -273,23 +277,40 @@ class Builder:
                     # the exception used to leave `pool.map`, abort every partition and store no outcome row.
                     failed_digests[digest] = f"{type(exc).__name__}: {exc}"
                     _undecodable(path, wanted_member, reason=failed_digests[digest])
-                    return
+                    return None
                 decoded_outcomes[digest] = outcome
+            return outcome
+
+        def _read(
+            item: Mapping[str, Any], digest: str, m: Mapping[str, Any]
+        ) -> Generator[pa.RecordBatch, None, tuple[str, str]]:
+            """Decode and normalise one representation of the publication ``m``, YIELDING as we go.
+
+            Returns what became of it and, for a refusal, what it holds: ``"fit"`` (a table matched the plan, its rows
+            were yielded), ``"mismatch"`` (decoded, and no table has the family's columns) or ``"gap"`` (absent or
+            unreadable: recorded)."""
+            path = str(item["path"])
+            if on_file:
+                on_file(family_id, path)
+            wanted_member = str(item["member"] or "")
+            source_id = logical_source_id(path, wanted_member)
+            outcome = _open(path, wanted_member, digest)
+            if outcome is None:
+                return "gap", ""
             verdict, why = member_verdict(outcome, wanted_member)
             if verdict == ABSENT:
                 # Listed archive without this member: the state published nothing for that component.
                 stats.skipped.append(f"{source_id} (not in the archive)")
-                return
+                return "gap", ""
             if verdict == FAILED:
                 _undecodable(path, wanted_member, reason=why, outcome=outcome)
-                return
-            matched_here = False
-            for table in outcome.tables:
-                if wanted_member and table.member != wanted_member:
-                    continue
-                if not _matches_schema(table.field_names, plan):
-                    continue
-                matched_here = True
+                return "gap", ""
+            asked = [t for t in outcome.tables if not wanted_member or t.member == wanted_member]
+            tables = [t for t in asked if _matches_schema(t.field_names, plan)]
+            if not tables:
+                return "mismatch", "; ".join(
+                    f"{len(t.field_names)} fields, signature {schema_signature(t.field_names)}" for t in asked)
+            for table in tables:
                 if (short := short_body_note(table)) is not None:
                     # Its rows are written, and the partition is short of what the file's own header declares: said
                     # (exit 1), not left as a warning string nobody reads.
@@ -318,20 +339,83 @@ class Builder:
                         "_source_resolution",
                         pa.array([source_resolution] * batch.num_rows, type=pa.string()),
                     )
+            return "fit", ""
+
+        def _next_representation(
+            m: Mapping[str, Any], refused: list[str]
+        ) -> tuple[Mapping[str, Any], str] | None:
+            """The publication's next representation of this family to read after ``refused`` were refused for their
+            columns, acquired; ``None`` when none is left. `choose_representations` picks it, as it picked the first
+            (ADR-0190); one that cannot be fetched is refused in turn."""
+            candidates = [m, *m.get("alternatives", ())]
+            while True:
+                try:
+                    choice = choose_representations(self.catalog, candidates, refused=refused)
+                except RepresentationConflictError:
+                    return None
+                if not choice.selected:
+                    return None
+                nxt = choice.selected[0]
+                nxt_path = str(nxt["path"])
+                with self._fetch_lock:
+                    got = self.pipeline.fetcher.ensure([nxt_path])
+                    fetch_errors = list(getattr(getattr(self.pipeline.fetcher, "last_stats", None), "errors", []))
+                if got.get(nxt_path):
+                    return nxt, got[nxt_path]
+                stats.errors.extend((p, f"fetch: {e}") for p, e in fetch_errors)
+                refused.append(nxt_path)
+
+        def _member(m: Mapping[str, Any]) -> Iterator[pa.RecordBatch]:
+            """Decode and normalise one publication, YIELDING as we go.
+
+            The representation the catalog chose is read first. When it holds columns that are not the family's (a
+            Dados Abertos export hung on the DBC's family: CHIK 2016's CSV has 38 of the DBC's 122 columns), the
+            publication's other representations of the family are read in turn, as `retrieve.fetch` does; the file
+            is a mismatch only when none has the columns (ADR-0190)."""
+            path = str(m["path"])
+            digest = digests.get(path)
+            if not digest:
+                stats.skipped.append(path)
+                tally.undecoded += 1
+                return
+            wanted_member = str(m["member"] or "")
+            refused: list[str] = []
+            seen: list[str] = []
+            item, item_digest = m, digest
+            while True:
+                state, held = yield from _read(item, item_digest, m)
+                if item is not m:
+                    _release(item_digest)
+                if state != "mismatch":
+                    break
+                refused.append(str(item["path"]))
+                seen.append(f"{Path(str(item['path'])).name} ({held})")
+                following = _next_representation(m, refused)
+                if following is None:
+                    break
+                item, item_digest = following
+                remaining[item_digest] = remaining.get(item_digest, 0) + 1
+            stats.schema_refused.extend(refused)
+            if state == "gap":
+                return
             stats.files += 1
             tally.decoded += 1
-            if not matched_here:
-                # The family claims this file but its schema does not fit
-                # the plan. This is the zero-row bug's signature, and it has
-                # to be counted rather than skipped past.
+            if state == "mismatch":
+                # The family claims this file but no representation of it has the family's columns. This is the
+                # zero-row bug's signature: counted and said, not skipped past.
                 tally.mismatched += 1
                 stats.files_mismatched += 1
+                stats.errors.append((
+                    logical_source_id(path, wanted_member),
+                    f"schema: no representation has the columns of {family_id}; read "
+                    + "; ".join(seen),
+                ))
                 # NOT added to `sources`. That list becomes the partition's
                 # recorded provenance, and a file that contributed no rows
                 # did not provenance anything — it made the partition look
                 # derived from evidence it does not contain.
                 return
-            sources.append(source_id)
+            sources.append(logical_source_id(str(item["path"]), wanted_member))
             stats.files_contributing += 1
             tally.contributing += 1
 
@@ -477,8 +561,6 @@ class Builder:
                 if (not uf_set or (row["geo_code"] or "") in uf_set)
                 and (not year_set or row["year"] in year_set)
             ]
-            from .representations import choose_representations
-
             choice = choose_representations(self.catalog, candidates)
             selected_units = {
                 (
@@ -538,6 +620,22 @@ class Builder:
                             if str(m["geo_code"] or "") == "BR" or m["year"] not in national_years]
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
+            # The other representations this family holds of each selected publication: what is read, in the order
+            # `choose_representations` ranks them, when the chosen one has columns that are not the family's (ADR-0190).
+            publication_of = {
+                id(m): (str(m["logical_id"] or m["path"]), str(m["member"] or "")) for m in selected
+            }
+            wanted_publications = set(publication_of.values())
+            others: dict[tuple[str, str], list[dict[str, Any]]] = {}
+            for row in members:
+                key = (str(row["logical_id"] or row["path"]), str(row["member"] or ""))
+                if key in wanted_publications:
+                    others.setdefault(key, []).append(
+                        dict(row, family_id=family_id, schema_signature=family["schema_signature"]))
+            for m in selected:
+                m["family_id"] = family_id
+                m["schema_signature"] = family["schema_signature"]
+                m["alternatives"] = [a for a in others.get(publication_of[id(m)], ()) if a["path"] != m["path"]]
             if not selected:
                 record_outcome((
                     run_id, family_id, family["system"], 0, 0, 0, 0, 0,
@@ -636,11 +734,13 @@ class Builder:
 
             reason = None
             if family_rows == 0:
-                if schema_mismatch:
+                if not jobs:
+                    reason = f"{len(selected)} files: every partition was already current, nothing was rebuilt"
+                elif schema_mismatch:
                     reason = (
                         f"{schema_mismatch} of {len(selected)} selected files did not match the "
-                        f"family's {len(plan.fields)}-field plan; the family points at files whose "
-                        "schema it does not have"
+                        f"family's columns (signature {plan.schema_signature}) in any representation; the family "
+                        "points at files whose schema it does not have"
                     )
                 elif undecoded:
                     reason = f"{undecoded} of {len(selected)} selected files could not be fetched or decoded"
@@ -651,6 +751,7 @@ class Builder:
                 family_files, family_rows, family_parts, reason, utcnow(),
             ))
 
+        self.refused = tuple(stats.schema_refused)
         counts = stats.as_dict()
         counts["run_id"] = run_id
         counts["families_with_no_rows"] = sum(1 for o in outcomes if o[8] is not None)
@@ -893,22 +994,23 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
     ``release`` then deletes the downloaded files of these years that verified partitions hold (`prune` for this
     build alone; ``released`` in the counts): a build otherwise keeps every file beside its Parquet, so each
     downloaded gigabyte cost disk twice, and a rebuild fetches them again."""
-    from pathlib import Path
-
     from ._request import parse_dataset
     from .config import load_settings
 
     system, series = parse_dataset(dataset)
     pipeline = Pipeline(load_settings(root=Path(root) if root else None))
     try:
-        result = Builder(pipeline).build(systems=[system], series=[series] if series else None, years=list(years),
-                                         emit_labels=labels)
+        builder = Builder(pipeline)
+        result = builder.build(systems=[system], series=[series] if series else None, years=list(years),
+                               emit_labels=labels)
         counts = dict(result.counts)
         if release:
             from .extract import _files
 
             paths = [f["path"] for f in _files(pipeline.settings, dataset, years)]
-            counts["released"] = pipeline.blobs.prune_verified(Path(pipeline.settings.lake_dir), paths=paths)
+            # a representation refused for its columns holds no record of any partition: it is released with the rest
+            counts["released"] = pipeline.blobs.prune_verified(
+                Path(pipeline.settings.lake_dir), paths=paths, held=builder.refused)
         return counts
     finally:
         pipeline.close()

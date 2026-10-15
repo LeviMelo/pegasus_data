@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Collection, Mapping, Sequence, Set
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
@@ -52,6 +52,7 @@ def choose_representations(
     rows: Sequence[Mapping[str, Any]],
     *,
     on_conflict: str = "error",
+    refused: Collection[str] = (),
 ) -> RepresentationSelection:
     """Collapse publisher-declared format alternatives, never datasets/members.
 
@@ -60,14 +61,24 @@ def choose_representations(
     while loose ``.dbc``/``.csv``/Parquet alternatives for one publication
     contribute once. A conflict blocks analytical execution unless an expert
     explicitly requests ``on_conflict="all"`` for inspection.
+
+    ``refused`` names paths that were read and whose columns are not their family's (ADR-0190). They are not
+    candidates again, and an export among them is the measurement the family clause of
+    `_exports_behind_native` guesses at: the family's layout is the native files', so its native files are read
+    before the other exports. A publication left with no candidate selects nothing.
     """
     if on_conflict not in {"error", "all"}:
         raise ValueError("on_conflict must be 'error' or 'all'")
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    export_refused: set[tuple[str, str]] = set()
     for raw in rows:
         row = dict(raw)
         logical = str(row.get("logical_id") or row.get("path") or "")
         member = str(row.get("member") or "")
+        if str(row.get("path") or "") in refused:
+            if _representation_kind(row) not in NATIVE_KINDS:
+                export_refused.add((logical, member))
+            continue
         groups.setdefault((logical, member), []).append(row)
 
     # Conflicts are derived here, from catalog facts re-read on every call; a
@@ -83,7 +94,7 @@ def choose_representations(
     selected: list[dict[str, Any]] = []
     dropped: list[str] = []
     conflicts: list[str] = []
-    for (logical, _member), candidates in groups.items():
+    for (logical, member_key), candidates in groups.items():
         if logical in open_conflicts:
             conflicts.append(logical)
             if on_conflict == "all":
@@ -106,7 +117,8 @@ def choose_representations(
             if len(candidates) == 1:
                 selected.extend(candidates)
                 continue
-        exports = _exports_behind_native(candidates, unreachable, export_families)
+        exports = _exports_behind_native(
+            candidates, unreachable, export_families, family_layout_is_native=(logical, member_key) in export_refused)
         if exports:
             dropped.extend(str(row.get("path") or "") for row in exports)
             candidates = [row for row in candidates if not any(row is e for e in exports)]
@@ -231,6 +243,7 @@ NATIVE_KINDS = frozenset({"dbc", "dbf"})
 
 def _exports_behind_native(
     candidates: Sequence[dict[str, Any]], unreachable: set[str], export_families: Set[str] = frozenset(),
+    *, family_layout_is_native: bool = False,
 ) -> list[dict[str, Any]]:
     """The exports to drop because a native file of the publication can be fetched.
 
@@ -242,11 +255,16 @@ def _exports_behind_native(
     export copy: SIH's /SIHSUS/DBF/RDAP1401.dbf (95 fields) is laid out like
     the /SIHSUS/XML/ exports of 2013-2014, not like the 113-field .dbc, and
     counting it native made SIH-RD 2014 refuse as a conflict (2026-10-04).
+
+    That is a guess from the family's membership. When an export of this publication has been read and refused for
+    its columns (``family_layout_is_native``), the family's layout is known to be the native files', and the guess
+    no longer applies: SINAN's families are the DBC's schema with the Dados Abertos exports hung on it, and
+    CHIK 2016's CSV carries 38 of the DBC's 122 columns (ADR-0190).
     """
 
     def is_export(row: Mapping[str, Any]) -> bool:
         return (_representation_kind(row) not in NATIVE_KINDS
-                or str(row.get("family_id") or "") in export_families)
+                or (not family_layout_is_native and str(row.get("family_id") or "") in export_families))
 
     natives = [row for row in candidates if not is_export(row)]
     if not any(str(row.get("path") or "") not in unreachable for row in natives):
