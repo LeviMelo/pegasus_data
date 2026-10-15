@@ -679,15 +679,33 @@ datasets:
           values: ["1", "3"]
           evidence: >-
             AP_TPAPAC is 1 on the first monthly row of an APAC, 2 on the rows of its later months and
-            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on ATD AC 2015, 2019 (type 3: 19 rows) and 2023: every
-            APAC with a row of type 1 has it on its earliest competence, where the month of AP_DTINIC
-            equals AP_CMP (AQ AC 2023: 2,921 of 2,921); an APAC without one began in an earlier file
-            (366 of 3,287). Counting rows of type 1 or 3 counts each APAC once.
+            3 on a single-row APAC (layout: 1 initial, 2 continuity, 3 single). Measured on ATD itself, every UF,
+            competences 2014-08 to 2025-12 (15,579,053 rows, 5,590,747 APACs, 2.79 rows an APAC: one row 421,205 APACs,
+            two 352,991, three 4,814,579): all 5,491,060 rows of type 1 have the month of AP_DTINIC equal to AP_CMP;
+            5,491,059 APACs hold one and it is on the APAC's earliest competence, never a later one (one APAC holds two);
+            the 31,842 rows of type 3 are single-row APACs (no APAC with a type-3 row has another row); 67,846 APACs hold
+            neither, their first month being before the first file (2014-08) so that only later months are seen; 88 rows
+            are of a type 4 the layout does not list (ATD_CARACT null). Counting rows of type 1 or 3 counts each APAC once
+            from 2014-08 (5,522,902 rows for 5,522,901 APACs). The same rule on AQ AC 2023 (2,921 of 2,921) is
+            data/probes/apac/measure6.py's; ATD's own numbers are data/probes/fix9/event_atd.py's (2026-10-14).
         consolidation:
           key: [AP_AUTORIZ]
         note: >-
           The renal diagnosis is in AP_CIDCAS: AP_CIDPRI and AP_CIDSEC are 0000 on every row read (2015, 2019, 2023).
-          Counts treatment periods; prevalence is distinct AP_CNSPCN.
+          AP_CIDCAS is blank ('0000') on most authorisations and the classifier is a minority's: of the authorisations
+          of type 1 or 3 (every UF), '0000' is 76.2% in 2014, 79.9% in 2015, 82.1% in 2016, 85.5% in 2021, 87.5% in 2023 and
+          88.1% in 2025; N18 is 23.7%, 17.0%, 12.8%, 10.2%, 8.7% and 8.4% of them, any other N code under 0.5%, and the rest
+          other chapters (B18 hepatitis, Z21, I10: 0.1% in 2014, 3.0-4.8% from 2015). A count by N18 therefore counts the
+          clinics that code the field, not the people on dialysis (a falling share, 31% to 7% in Alagoas); every row is
+          a dialysis procedure (SIGTAP 0305), so the dialysis authorisations are counted by AP_PRIPAL, not by AP_CIDCAS.
+          ATD_CARACT 1 ('caso novo'; the layout lists 1 caso novo, 2 continuidade do tratamento, 3 usuário em trânsito,
+          4 transferência de local) does not mean a new patient: it is on 42.9% of the authorisations of type 1 or 3 in
+          2014, 38.7% in 2015, 28.8% in 2021 and 17.8% in 2023 (every UF), the first dialysis (ATD_DTPDR) is a median 1.35
+          years before the authorisation it flags (31.4% within 90 days, 45.5% within a year; 2.74 years for a
+          continuity), 403,686 of the 566,867 patients (AP_CNSPCN) hold a flagged APAC, 173,217 hold two or more, and
+          24% of the APACs after a patient's first carry it. It marks the authorisation that opens a treatment period at
+          the clinic. The layout attaches to it the questions asked of a patient starting treatment (ATD_MAISNE,
+          ATD_SITINI). Counts treatment periods; prevalence is distinct AP_CNSPCN.
     asserted_by: pegasus_data
     what_one_row_is: one authorisation for ongoing dialysis, covering a period of treatment
     unit_of_analysis: authorisation
@@ -699,6 +717,7 @@ datasets:
       - Rows are treatment periods, not patients and not sessions.
       - Read with SIA.ACF, which records creating the vascular access this treatment needs.
       - A patient leaving the series may have been transplanted, died, or moved to a private provider; the dataset does not say which.
+      - The files begin with competence 2014-08 (ATDAC1408.dbc, 27 UFs, 95,928 rows that month), so 2014 holds five competences, not twelve, and a year-2014 count or rate compares five months with twelve.
 
   SIA.ACF:
     system: SIA
@@ -810,7 +829,7 @@ datasets:
     unit_of_analysis: authorisation
     known_biases: Follow-up is under-claimed relative to the surgery itself.
     gotchas:
-      - Continues SIA.AB, the same follow-up procedure (0301120056), not its surgical counterpart: the surgery is an AIH in SIH.
+      - Continues SIA.AB, the same follow-up procedure (0301120056), not its surgical counterpart; the surgery is an AIH in SIH.
 
   SIA.AB:
     system: SIA

@@ -2,10 +2,11 @@ dataset: SINASC-DN
 record: birth
 columns:
   APGAR1:
-    missing: []
-    # proposed (2022): its declared domain; outside it 2110 of 2532406 values in 2022 (99: 2110)
+    missing: ['99']
     domain: [0, 10]
-    # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
+    # 99 is the not-recorded code: APGAR.CNV of NASC_NOV_TAB labels it 'Ign' beside the bands 00-03, 04-07 and 08-10 (the 1994-95 kit labels 11-99
+    # 'Ignorado'), the layout's 'entre 00 e 10' leaves it outside. DNBR2009-2024 (44.9 M births): 99 on 30,468 (1,011-2,588 a year); the only other
+    # value outside the domain is 89 (once, 2014) and '-0' (2010-2011). Measured 2026-10-14.
     role: birth.apgar1
     kind: number
     model: mark
@@ -18,10 +19,10 @@ columns:
     - 1994
     - 2026
   APGAR5:
-    missing: []
-    # proposed (2022): its declared domain; outside it 1572 of 2532548 values in 2022 (99: 1572)
+    missing: ['99']
     domain: [0, 10]
-    # Estrutura_SINASC_2019: "Números (entre 00 e 10)"
+    # 99 is the not-recorded code: APGAR.CNV of NASC_NOV_TAB labels it 'Ign' (see APGAR1). DNBR2009-2024: 99 on 23,887 (801-2,005 a year), no other
+    # value outside the domain. Measured 2026-10-14.
     role: birth.apgar5
     kind: number
     model: mark
@@ -216,11 +217,12 @@ columns:
     - 2013
     - 2026
   CONSPRENAT:
-    missing: []
+    missing: ['99']
     domain: [0, 98]
-    # declared 2026-10-08: 00 (no visit) is a value; 99 (13,452 in 2020, its neighbours 0-3) is not, and no meaning
-    # is given to it. 36-41 rise again (1,265 in 2020, a mode at 39) where the visits decay: gestational weeks typed
-    # into the visits field, kept as written and noted (OPEN_QUESTIONS)
+    # 99 is read as not recorded: no kit labels it (SEMADUM.CNV, the band it is bound to, is gestational weeks), the records do. DNBR2010-2024: 99 on
+    # 223,344 births (0.5%; 1,122-30,517 a year), the only value above 80 but for 97 once; the sibling MESPRENAT names 99 Ignorado in the 2019 layout.
+    # 00 (no visit) is a value. 36-41 rise again where the visits decay: gestational weeks typed into the field, kept as written (OPEN_QUESTIONS).
+    # Declared 2026-10-14; before it was read as outside the domain (2026-10-08).
     role: pregnancy.prenatal_visits
     kind: number
     model: mark
@@ -537,9 +539,11 @@ columns:
     - 2026
     note: Clock time packed as HHMM.
   IDADEMAE:
-    missing: []
+    missing: ['00', '99']
     domain: [1, 65]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 22 of 2561896 values in 2022 (99: 22)
+    # 00 and 99 are the not-recorded codes: IDADEMAE.CNV of NASC_NOV_TAB labels 00 'Ign' and 66-99 'Ign' (the 1994-95 kit 00 and 60-99 'Ignorado').
+    # DNBR2009-2024: 99 on 743 births (11-194 a year) beside at most 58 for any age 60-65, 00 on none. Ages 66-98 would stay outside the domain.
+    # Measured 2026-10-14.
     role: mother.age
     kind: number
     model: stratum
@@ -552,9 +556,11 @@ columns:
     - 1994
     - 2026
   IDADEPAI:
-    missing: []
-    domain: [10, 99]
-    # proposed (SP 2011): the range DATASUS's tabulation bands label as values; outside it 0 of 69825 values in SP 2011 (none)
+    missing: ['99']
+    domain: [10, 98]
+    # 99 is read as not recorded, against the tabulation band: IDADEPAI.CNV of NASC_NOV_TAB files 99 under '80 e+' (00-09 'Ign'), but DNBR2010-2024
+    # hold it on 772 fathers against 56-111 for each age 86-98, a tenfold spike that is no age distribution. Both claims are written here; the band
+    # is TabNet's display, the spike is the records'. Ages 00-09 (the band's 'Ign') stay outside the domain. Measured 2026-10-14.
     role: father.age
     kind: number
     model: mark
@@ -690,9 +696,11 @@ columns:
     - 1994
     - 2026
   PESO:
-    missing: []
+    missing: ['0000', '9999']
     domain: [1, 8999]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 2561525 values in 2022 (none)
+    # 0000 and 9999 are the not-recorded codes: PESO1.CNV of NASC_NOV_TAB labels 0000 'ignorado' and 9000-9999 'ignorado' (the 1994-95 kit 0000 and
+    # 8000-9999 'Ignorado'); the band's other codes 9000-9998 are no sentinel and, were any held, stay outside the domain. DNBR2009-2024: 9999 on 107
+    # births (no weight from 8,500 to 9,998 is filed), 0000 on 5 (2014-2015). Measured 2026-10-14.
     role: birth.weight
     kind: number
     model: mark
@@ -718,12 +726,10 @@ columns:
     - 1995
     note: 1994-1995 banded prenatal history.
   QTDFILMORT:
-    missing: []
+    missing: ['99']
     domain: [0, 98]
-    # declared 2026-10-08: 99 is not a value of the column, and no meaning is given to it. SINASC 2020: 08 130, 09 76, 10 94, 99 46 of 2.63 M filled.
-    # The claims: SIM's tabulation band labels 0/00 Ignorado, but the files hold 00 as a count (SINASC's mode);
-    # SIM's layout (sim2025, dicdo) says '9 - ignorado' of a two-character field, where 09 sits on the counts'
-    # smooth decay; 99 alone stands apart. Read 99 as the layout's sentinel, outside the domain
+    # 99 is the not-recorded code: NUMFILH.CNV of NASC_NOV_TAB labels 99 'Ignorado' (see QTDFILVIVO). DNBR2009-2024: 99 on 52,296 births (12,428-21,521
+    # a year to 2011, 2,539 and 1,349 in 2012-2013, 0-113 from 2014), the only value above 60. Declared 2026-10-14; before it was read as outside the domain (2026-10-08).
     role: pregnancy.previous_fetal_losses
     kind: number
     model: mark
@@ -737,12 +743,11 @@ columns:
     - 1996
     - 2026
   QTDFILVIVO:
-    missing: []
+    missing: ['99']
     domain: [0, 98]
-    # declared 2026-10-08: 99 is not a value of the column, and no meaning is given to it. SINASC 2020: 08 3,636, 09 1,887, 10 949, 99 45 of 2.67 M filled.
-    # The claims: SIM's tabulation band labels 0/00 Ignorado, but the files hold 00 as a count (SINASC's mode);
-    # SIM's layout (sim2025, dicdo) says '9 - ignorado' of a two-character field, where 09 sits on the counts'
-    # smooth decay; 99 alone stands apart. Read 99 as the layout's sentinel, outside the domain
+    # 99 is the not-recorded code: NUMFILH.CNV of NASC_NOV_TAB (the kit's table for a number of children) labels 99 'Ignorado'. DNBR2009-2024: 99 on
+    # 27,715 births (6,425-11,145 a year to 2011, 1,614 and 1,195 in 2012-2013, 0-125 from 2014), the only value above 60. 00 is a count (the mode: the band's 'Ignorado' for 00 is
+    # not followed, DATA_SOURCES 1.9). Declared 2026-10-14; before it was read as outside the domain (2026-10-08).
     role: pregnancy.previous_live_births
     kind: number
     model: mark
@@ -756,9 +761,11 @@ columns:
     - 1996
     - 2026
   QTDGESTANT:
-    missing: []
+    missing: ['99']
     domain: [0, 30]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 52 of 2518073 values in 2022 (99: 33, 33: 5, 36: 2, 39: 2)
+    # 99 is read as not recorded: no kit labels it (GESTANT.CNV ends at 30, 'Ign' for everything past its band), the records do. DNBR2010-2024: 99 on
+    # 2,079 births against at most 10 for any other value above 60, and the sibling two-digit fields name it Ignorado (APGAR.CNV, NUMFILH.CNV, MESPRENAT
+    # '99-Ignorado' in the 2019 layout). Values 31-98 stay outside the domain. Declared 2026-10-14.
     role: pregnancy.previous_pregnancies
     kind: number
     model: mark
@@ -772,9 +779,9 @@ columns:
     - 2010
     - 2026
   QTDPARTCES:
-    missing: []
+    missing: ['99']
     domain: [0, 30]
-    # proposed (SP 2011): the range DATASUS's tabulation bands label as values; outside it 6 of 103505 values in SP 2011 (99: 6)
+    # 99 is read as not recorded (see QTDGESTANT): 3,389 births against at most 12 for any other value above 60. Declared 2026-10-14.
     role: pregnancy.previous_cesareans
     kind: number
     model: mark
@@ -788,9 +795,9 @@ columns:
     - 2010
     - 2026
   QTDPARTNOR:
-    missing: []
+    missing: ['99']
     domain: [0, 30]
-    # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 99 of 2503528 values in 2022 (99: 40, 39: 11, 38: 7, 36: 6)
+    # 99 is read as not recorded (see QTDGESTANT): 2,798 births against at most 28 for any other value above 60. Declared 2026-10-14.
     role: pregnancy.previous_vaginal_births
     kind: number
     model: mark
@@ -886,6 +893,7 @@ columns:
   SEXO:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9', I]
     # proposed from DATASUS's labels (2022): 0='Ignorado', 3='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado', I='Ignorado'
+    # measured 2026-10-14 (DNBR2009-2024): the ignored sex is 0 in 2009, 2012-2013 and 2015-2024, 9 in 2010-2011 (878 births) and I in 2014 (659); the codelist (variables/sinasc/_shared.yml) windows the 9
     role: baby.sex
     kind: category
     model: mark

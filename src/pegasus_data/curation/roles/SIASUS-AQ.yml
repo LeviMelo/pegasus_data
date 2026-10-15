@@ -902,7 +902,9 @@ columns:
     - 2008
     - 2026
   AQ_TOTMPL:
-    missing_unknown: 'its tabulation band [1, 99] is continued by the records (1: 21736 beside 0: 46594, 99: 14506 beside 100: 28771, 2023): a display width, not the column''s range'
+    missing: ['999']
+    # 999 is on 11,251 of AQ's 9,624,078 rows (2024-2025, all UFs) against 5 for the mean of the five values below it: the fill of a three-digit field, no number of months.
+    # (The tabulation band [1, 99] is TabNet's display width: 100-120 months are held; they stay values.) Measured 2026-10-14.
     role: authorisation.months_planned
     kind: number
     model: mark

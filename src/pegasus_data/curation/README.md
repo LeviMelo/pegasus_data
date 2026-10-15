@@ -69,3 +69,7 @@ fixed-width packing, `{delimiter: "*"}` for a separator, or both.
 `depends_on` names variables needed to interpret this one. `modifies` is the
 inverse: this variable changes another's meaning. `IDADE` is meaningless without
 `COD_IDADE`, and the pair is the canonical case.
+
+`codes` is a column's own code table (ADR-0079): `{"1": Masculino, "2": Feminino}`. A code the records hold only in some years
+and no layout names is written with its window, `"9": {label: Ignorado, from: 201001, to: 201112}` (`AAAAMM`, either end may be
+left out): it decodes in the files of those years and stays undecoded, visibly, in any other (ADR-0189).

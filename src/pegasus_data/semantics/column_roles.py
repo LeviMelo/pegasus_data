@@ -77,6 +77,7 @@ UNITS = {
     "g/dL": "grams per decilitre (the layouts' \"g%\")",
     "mg/dL": "milligrams per decilitre",
     "score": "points of a score (Apgar 0 to 10, Barros)",
+    "percent": "a percentage (the urea reduction rate: 100 x (urea before - urea after) / urea before)",
     "count": "a number of the things `unit_of` names",
 }
 #: The units that are an amount of money: they name the column(s) of the month the amount belongs to (`competence`).

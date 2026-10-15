@@ -574,7 +574,7 @@ def _read_reference_table(
     """
     from ..registry import is_registry
     from ..registry import lookup as registry_lookup
-    from ..semantics.curation import inline_codelist
+    from ..semantics.curation import inline_codelist, inline_windows
 
     if table_id.upper() == "UF_BR":
         return _states()
@@ -605,8 +605,16 @@ def _read_reference_table(
 
     inline = inline_codelist(table_id)
     if inline is not None:
-        # Written in the curation itself; one vintage, no system copies (ADR-0079).
-        return pa.table({"code": list(inline), "label": list(inline.values())})
+        # Written in the curation itself; one vintage, no system copies (ADR-0079). A code written with a window
+        # decodes in the years of that window only: elsewhere it is undecoded, visibly, never labelled by a table that
+        # does not cover its year.
+        span = (
+            (int(competencia), int(competencia)) if competencia is not None
+            else (year * 100 + 1, year * 100 + 12) if year is not None else None
+        )
+        windows = inline_windows(table_id) if span is not None else {}
+        codes = [c for c in inline if c not in windows or _window_overlaps(windows[c], span)]
+        return pa.table({"code": codes, "label": [inline[c] for c in codes]})
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
         # Nothing in the lake. Fall back to the label pack the package ships,
@@ -643,6 +651,12 @@ def _read_reference_table(
     elif year is not None:
         span = (year * 100 + 1, year * 100 + 12)
     return _in_answering_windows(table, table_id, span, str(competencia if competencia is not None else year))
+
+
+def _window_overlaps(window: tuple[str, str], span: tuple[int, int]) -> bool:
+    """Does an ``AAAAMM`` window (either end '' = open) overlap the requested months?"""
+    lo, hi = window
+    return (int(lo) if lo else 0) <= span[1] and span[0] <= (int(hi) if hi else 999912)
 
 
 def _in_answering_windows(table: pa.Table, table_id: str, span: tuple[int, int] | None, asked: str) -> pa.Table:
@@ -732,6 +746,13 @@ def reference_vintage(
     else:
         span, asked = (year * 100 + 1, year * 100 + 12), str(year)       # type: ignore[operator]
     from ..labelpack import read_packed, select_windows, windows_answering
+    from ..semantics.curation import inline_windows
+
+    windowed = inline_windows(table_id)
+    if windowed:
+        # an inline list whose codes are windowed: the months that open the same codes are one request
+        live = tuple(sorted(code for code, window in windowed.items() if _window_overlaps(window, span)))
+        return _VINTAGES.setdefault(("inline", table_id.upper(), live), (year, competencia))
 
     try:
         if base.is_dir():
