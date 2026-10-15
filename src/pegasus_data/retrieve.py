@@ -920,14 +920,14 @@ def _select_files(
             """,
             tuple(family_ids),
         )
-        global_matched = [
+        asked = [
             dict(row)
             for row in global_rows
             if (uf_set is None or (row["geo_code"] or "") in uf_set)
             and (year_set is None or row["year"] in year_set)
             and (month_set is None or _month_of(row["normalized_date"]) in month_set)
-            and str(row["path"]) not in exclude_paths
         ]
+        global_matched = [row for row in asked if str(row["path"]) not in exclude_paths]
         if uf_set is None and one_reading:
             from ._query_engine.coverage import national_or_states
 
@@ -948,7 +948,11 @@ def _select_files(
                 global_matched = [row for row in global_matched if id(row) in kept]
         from .representations import choose_representations
 
-        choice = choose_representations(catalog, global_matched)
+        # the refused ones are evidence for the choice, not candidates: an export refused for its columns puts the
+        # publication's native file ahead of its other exports (ADR-0190)
+        choice = choose_representations(
+            catalog, [*global_matched, *(row for row in asked if str(row["path"]) in exclude_paths)],
+            refused=exclude_paths)
         globally_selected = {
             (
                 str(row["family_id"]),
