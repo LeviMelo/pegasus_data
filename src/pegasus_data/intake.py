@@ -85,8 +85,9 @@ def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
 def _with_populations(fields: dict[str, Any]) -> dict[str, Any]:
     """A field that declares an ``outcome`` beside its ``where`` counts the records of its population (``where``) with
     the outcome; its population is a field of its own, ``<name>_assessed``, named as its denominator (``over``): samples
-    with E. coli present over the samples assessed for E. coli, never over every analysis. An outcome condition on a
-    column the population also restricts replaces it (present among present-or-absent)."""
+    with E. coli present over the samples assessed for E. coli, never over every analysis. The field keeps its ``outcome``
+    and `_derive` counts it over the population's own groups, so it has a row (0 where none had the outcome) wherever its
+    population has one: a place-month with samples and no positive is a true zero, one without samples is missing."""
     out: dict[str, Any] = {}
     for name, fs in fields.items():
         if not fs.get("outcome"):
@@ -94,8 +95,7 @@ def _with_populations(fields: dict[str, Any]) -> dict[str, Any]:
             continue
         population = {k: v for k, v in fs.items() if k not in ("outcome", "what")}
         out[f"{name}_assessed"] = {**population, "what": f"The population of {name}: {fs.get('what', '')}".strip()}
-        out[name] = {**{k: v for k, v in fs.items() if k != "outcome"}, "where": {**(fs.get("where") or {}), **fs["outcome"]},
-                     "over": f"{name}_assessed"}
+        out[name] = {**fs, "over": f"{name}_assessed"}
     return out
 
 
@@ -108,7 +108,11 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
             years = fs.get("years") or spec.get("years") or (spec.get("period") or {}).get("valid") or ""
             # what the field says about itself to its readers (fields.yml's keys: `where`, the rows that make it one value
             # per place; `icd10`, `harm`...) is `declares`; the rest is derived from the declaration
-            out[field] = {**(fs.get("declares") or {}),
+            # a time-varying field says so: `grain: month` rows carry a `month`; its measures are sums and counts, so `law: sum`
+            # is exact at every coarser grain (a year is the sum of its months, a numerator and its denominator alike)
+            out[field] = {**({"grain": spec["period"]["grain"]} if (spec.get("period") or {}).get("grain") else {}),
+                          **({"law": "sum"} if fs.get("measure") or fs.get("unpivot") else {}),
+                          **(fs.get("declares") or {}),
                           "source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
                           "years": str(years), **({"over": fs["over"]} if fs.get("over") else {}),
                           # its strata as `load_field` names them (`_derive`)
@@ -479,7 +483,8 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
         y = f"regexp_replace({raw[period['year'].upper()]}, '\\.0+$', '')"
         year = f"CASE WHEN regexp_matches({y}, '^[0-9]{{4}}$') THEN CAST({y} AS INTEGER) END"
         m = f"regexp_replace({raw[period['month'].upper()]}, '\\.0+$', '')" if period.get("month") else "NULL"
-        month = f"CASE WHEN regexp_matches({m}, '^(1[0-2]|[1-9])$') THEN CAST({m} AS INTEGER) END"
+        # "01"-"09" as filed by SISAGUA and SNGPC are months; read without the zero they landed as no month (PERIOD_DERIVATION)
+        month = f"CASE WHEN regexp_matches({m}, '^(0?[1-9]|1[0-2])$') THEN CAST({m} AS INTEGER) END"
     elif kind == "month":
         ym = raw[period["column"].upper()]
         year = f"CASE WHEN regexp_matches({ym}, '^[0-9]{{6}}$') THEN CAST(substr({ym}, 1, 4) AS INTEGER) END"
@@ -722,8 +727,16 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
     return [u for u in out if not years or u["year"] is None or u["year"] in years]
 
 
+#: The version of each period derivation (`_records_sql`): bump a kind when its SQL changes what the lake's `_MONTH` and `year`
+#: hold, so the units landed by the old one are landed again (the fingerprint carries it). `parts` 2: a month part accepts
+#: "01"-"09" (SISAGUA's and SNGPC's months 1-9 had landed as no month, 2026-10-14). A kind not listed has never changed.
+PERIOD_DERIVATION = {"parts": 2}
+
+
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
-    return _digest({k: spec.get(k) for k in ("columns", "place", "period", "origin")}, unit.get("url"), unit.get("key"))
+    version = PERIOD_DERIVATION.get((spec.get("period") or {}).get("type"))
+    return _digest({k: spec.get(k) for k in ("columns", "place", "period", "origin")}, unit.get("url"), unit.get("key"),
+                   *([{"period_derivation": version}] if version else []))
 
 
 def _sidecar(source: str, root: Path | str | None, key: str) -> Path:
@@ -1028,6 +1041,21 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
             raise ValueError(f"field {field}: sum of {column} needs a column declared `type: number`, `integer` or `result`")
         return _ident(column.upper())
 
+    def conditions(wanted: dict[str, Any]) -> list[str]:
+        # a list: the raw value is one of them; {prefix: [...]}: it starts with one; {above / below / at_least / at_most: x}:
+        # the typed value against a bound (a potability limit: turbidity above 5 uT)
+        out = []
+        for column, values in wanted.items():
+            if isinstance(values, dict):
+                typed_col = _ident(column.upper())
+                bounds = {"above": ">", "below": "<", "at_least": ">=", "at_most": "<="}
+                parts = [f"{typed_col} {op} {float(values[k])}" for k, op in bounds.items() if k in values]
+                parts += [" OR ".join(f"starts_with({raw_name(column)}, {str(v)!r})" for v in values.get("prefix") or [])]
+                out.append("(" + " AND ".join(f"({x})" for x in parts if x) + ")")
+            else:
+                out.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
+        return out
+
     con = _duck(settings, spec)
     report: dict[str, Any] = {}
     try:
@@ -1041,17 +1069,7 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
                 where.append(f"year BETWEEN {valid[0]} AND {valid[-1]}")
             if years:
                 where.append(f"year IN ({','.join(str(int(y)) for y in years)})")
-            for column, values in (fs.get("where") or {}).items():
-                # a list: the raw value is one of them; {prefix: [...]}: it starts with one; {above / below / at_least /
-                # at_most: x}: the typed value against a bound (a potability limit: turbidity above 5 uT)
-                if isinstance(values, dict):
-                    typed_col = _ident(column.upper())
-                    bounds = {"above": ">", "below": "<", "at_least": ">=", "at_most": "<="}
-                    parts = [f"{typed_col} {op} {float(values[k])}" for k, op in bounds.items() if k in values]
-                    parts += [" OR ".join(f"starts_with({raw_name(column)}, {str(v)!r})" for v in values.get("prefix") or [])]
-                    where.append("(" + " AND ".join(f"({x})" for x in parts if x) + ")")
-                else:
-                    where.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
+            where += conditions(fs.get("where") or {})
             filtered = f"FROM rec WHERE {' AND '.join(where)}"
             if fs.get("rows"):
                 # one row per record, the declared columns of the lake records under the declared names (an event register read
@@ -1073,6 +1091,10 @@ def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[i
             else:
                 measure = fs["measure"]
                 value = "count(*)" if measure == "count" else f"sum({numeric(measure['sum'], name)})"
+                if fs.get("outcome"):
+                    # the population's rows that have the outcome: every (place, month) of the population has a row, 0 where
+                    # none of its samples did (a true zero), while a place-month without samples has none (missing)
+                    value = f"count(*) FILTER (WHERE {' AND '.join(conditions(fs['outcome']))})"
                 group = ", ".join(str(i + 1) for i in range(len(keys)))
                 table = con.execute(f"SELECT {', '.join(keys)}, {value} AS value {filtered} GROUP BY {group}").fetch_arrow_table()
             table = table.set_column(table.schema.get_field_index("value"), "value", pc.cast(table.column("value"), pa.float64()))

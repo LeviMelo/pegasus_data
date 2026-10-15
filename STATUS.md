@@ -36,6 +36,7 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - Two dictionary errors were corrected by supplement, with both claims cited.
 - **Labels.** The label pack chose a vintage before a system, which left SIH 2008–2010 and 378 system-codelists unlabelled in the pack fallback. Fixed (OQ-73); the SIH 2010 links are being recomputed.
 - **Throughput.** `translate` takes 0.1 s a call (from 22 s).
+- **2026-10-14, SISAGUA by municipality and month** (ADR-0192, evaluation 2026-10-14-sisagua): the surveillance basic parameters (E. coli, total coliforms, turbidity, free chlorine, fluoride, colour, with the samples assessed beside each share) were landed with January-September as no month (`NU_MES` `01`-`09`) and with no numerator row for a place-month without a positive; read as `01`-`09`, versioned (`PERIOD_DERIVATION`), zero-filled over the population, and a field declares its `grain` and `law: sum`. Santa Maria 2018 re-landed: E. coli 20 of 534. Open: VIGB/VIGC/VIGD (and SNGPC, with the same padding) are still to be landed again in `pegasus_core_data`; PegaSUS's `context_field` drops the month and must sum the months of a year; the cadastros (population supplied, treatment, catchments) are not ingested.
 - **2026-10-14, source notes of the core systems** (branch `fix2-notes`): SIM-DO, SIM-DOFET, SINASC-DN, SIHSUS-RD and SIA-PA declare `source_notes` from the Ministry's DO/DN manuals, TabNet notes, Portaria SVS 116/2009, RIPSA 2008 and the SIASUS Informe Técnico (DATA_SOURCES); a study's methods section no longer says "no source declares notes" for them.
 - **2026-10-14, units** (branch `fix8-units`, ADR-0184): every measure of SIH-RD/RJ, CIHA, SIM-DO*, SINASC-DN*, SIA's APAC family, PS, SAD and PA states its `unit` with the document line or why none is known (171 and 55; 666 measures elsewhere are listed by `undeclared_units()`); money names its competence column(s) and `unit_from`; SIM/SINASC `SERIESC*` are ordinal numbers, not undecoded categories; PegaSUS reads the new keys from `pg.roles` rows.
 - **2026-10-14, sex codings and measure fills** (branch `fix9-curation`, ADR-0189; the two paper audits): SINASC `SEXO` is `1/2/0`, `1/2/9` (2010-2011) or `M/F/I` (2014) by file year and decodes to the same three labels in all 16 (a curated code may carry a window; `9` only for 2010-2011); the measures' missing codes are declared where a kit, a layout or a spike says so (SINASC `99`, `9999`; APAC laboratory and clinical fields' zero fill and `9999`, ATD and AN, AM, AQ, ACF, AB), with plausibility domains in the unit for haemoglobin and albumin; ATD's event type states ATD's own numbers, `AP_CIDCAS` (a diagnosis on 12-24%) and 'caso novo' (no new patient), and its first competence (2014-08). Open: the scales of the laboratory fields (OQ 82), codes no document names (OQ 83).
@@ -51,8 +52,8 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
     label search over ICD-10 and SIGTAP.
   - `mesh`: IBGE's polygons for maps.
   - DEMAS assessed: 113 paths; the non-FTP origin is the Portal de Dados Abertos.
-  - In progress on their own branches: SISAGUA (`sisagua`), SI-PNI (`pni`), medicines (`medicines`), links for the
-    toxoplasmosis study (`links`).
+  - In progress on their own branches: SI-PNI (`pni`), medicines (`medicines`), links for the toxoplasmosis study
+    (`links`). SISAGUA is merged (ADR-0162).
 
 ## Record linkage (branch `linkage`, ADR-0107 to ADR-0124)
 

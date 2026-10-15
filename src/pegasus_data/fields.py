@@ -374,7 +374,9 @@ def _write_by_year(table: pa.Table, name: str, settings: Any, prune: bool = Fals
 
 
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
-    """One field as (municipality, year, value, status, unit), from the lake."""
+    """One field as (municipality, year, value, status, unit), from the lake. A field declared ``grain: month`` also has a
+    ``month`` (1-12) and one row per municipality and month that has records: a year is the sum of its months (``law: sum``),
+    a municipality-month without records has no row (missing, never 0)."""
     import pyarrow.dataset as ds
 
     from .config import load_settings

@@ -941,6 +941,27 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **ANS PDA-024**, December 2022: 28 state files (27 states and `XX`), 14,070,694 rows. `XX` has `SG_UF` "XX" and municipality `-1`; each state
   has an "ignored" municipality code ending in `0000`. 41,879 of 50,530,569 medical-hospital links (0.08 %) are in neither.
 
+## 13. SISAGUA on the Portal de Dados Abertos (measured 2026-10-14; ADR-0162, ADR-0192)
+
+- **Where.** `dadosabertos.saude.gov.br/dataset/sisagua-<name>` (the CKAN API route now answers 404: the Portal is a Next.js app; the S3
+  bucket listing is `AccessDenied`, so the file list is each dataset page's). 15 datasets, files `s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/<file>_{csv,json,xml}.zip`
+  (`;`, one CSV per zip, UTF-8 and Windows-1252 mixed even within a line) and a dictionary `dicionario_<name>.odt` beside each (a PDF for the monthly control's basic parameters).
+- **Landed** (2014-2026, `curation/intake.yml`): vigilância parâmetros básicos `vigilancia_parametros_basicos_<year>_csv.zip` (13 files, 85-212 MB,
+  1.79 GB; 34,195,729 rows, one per sample x parameter; 2018: 2,674,342 rows, 5,082 municipality codes, 10 parameters of which E. coli 551,959,
+  total coliforms 552,670, turbidity 539,055, free chlorine 411,766, pH, apparent colour, fluoride; SAA 2,143,317, SAC 359,212, SAI 171,813; reason
+  Rotina 2,650,491, Desastre 12,229, Denúncia 5,962, Surto 5,660; 7,541 rows in the Distrito Federal's `5300xx` regions); `vigilancia_demais_parametros_csv.zip`
+  (106 MB; 1,310,890), `vigilancia_cianobacterias_cianotoxinas_csv.zip` (2.4 MB; 49,288); controle mensal `controle_mensal_parametros_basicos_<year>_csv.zip`
+  (13 files, 40-145 MB, 1.30 GB; 118,949,333 rows, supplier x system x point x month x parameter x measure), `controle_mensal_demais_parametros_csv.zip`
+  (147 MB; 3,857,900), `controle_mensal_amostras_fora_padrao_csv.zip` (45 MB; 867,963). `RESULTADO` is a decimal-comma number, `MENOR_LD`/`MENOR_LQ`
+  or `PRESENTE`/`AUSENTE` (coliforms); `NU_MES` is `01`..`09` in the surveillance files and `1`..`12` in the control files; `CO_MUNICIPIO_IBGE` has 6 digits.
+- **Not landed**: cadastro população abastecida (`cadastro_populacao_abastecida_csv.zip`, 77 MB, 1,914,017 rows, 2014-2026, one per supply form x
+  municipality x year with `NU_VALOR_POPULACAO_ESTIMADA`, rural and urban; a SAC or SAI that also receives SAA water is counted in both), cadastro
+  tratamento de água (82 MB), pontos de captação (55 MB), carro-pipa (under 0.1 MB each), controle semestral (`controle_semestral_<year>_csv.zip`, 27-199 MB a year),
+  plano de amostragem (`controle_mensal_plano_amostragem_<year>_csv.zip`, 80-121 MB a year, CSV only from 2022), infraestrutura operacional (42 MB).
+- **Standard.** The out-of-standard shares use the limits read from Portaria GM/MS 888/2021 (Anexo XX of the Portaria de Consolidação 5/2017): E. coli absent in
+  100 mL, turbidity at most 5 uT in the network, free chlorine at least 0.2 and at most 5 mg/L, fluoride at most 1.5 mg/L, apparent colour at most 15 uH,
+  each with its article in the field's `what`. The files publish no out-of-standard flag for the surveillance samples (the control has its own list).
+
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 
 - **Every SINAN file on the server is dated 2021-11 or later**, including data
