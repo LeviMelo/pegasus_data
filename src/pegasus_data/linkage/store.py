@@ -57,14 +57,17 @@ class RunKey:
     period: str
     geography: str
     digest: str
+    #: the digest of a parameterised spec's caller values (`engine.Codes.digest`): two topics' runs of one spec are two
+    #: files. "" for a spec as declared, whose file names are unchanged
+    params: str = ""
 
     @property
     def stem(self) -> str:
-        return f"{self.method}_{self.geography}_{self.period}_{self.digest}"
+        return f"{self.method}_{self.geography}_{self.period}_{self.digest}" + (f"_p{self.params}" if self.params else "")
 
 
-def run_key(spec: str, method: str, period: object, geography: object) -> RunKey:
-    return RunKey(spec, method, _scope(period), _scope(geography), _spec_digest(spec))
+def run_key(spec: str, method: str, period: object, geography: object, params: str = "") -> RunKey:
+    return RunKey(spec, method, _scope(period), _scope(geography), _spec_digest(spec), params)
 
 
 def links_dir(settings: Any) -> Path:
@@ -117,7 +120,8 @@ def save(settings: Any, key: RunKey, pairs: pa.Table, summary: dict[str, Any]) -
     _write_atomic(target, lambda tmp: pq.write_table(pairs, tmp, compression="zstd"))
     report = {**summary, "run": {"spec": key.spec, "method": key.method, "period": key.period,
                                  "geography": key.geography, "spec_digest": key.digest,
-                                 "fingerprint": fingerprint(settings, key), "pairs_bytes": target.stat().st_size}}
+                                 "fingerprint": fingerprint(settings, key), "pairs_bytes": target.stat().st_size,
+                                 **({"params": key.params} if key.params else {})}}
     _write_atomic(folder / f"{key.stem}.json", lambda tmp: tmp.write_text(
         json.dumps(report, ensure_ascii=False, indent=1, default=str), encoding="utf-8"))
     return target

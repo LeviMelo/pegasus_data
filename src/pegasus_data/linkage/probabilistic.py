@@ -814,18 +814,21 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
 
 
 def link_probabilistic(name: str, *, period: object, geography: object, right_period: object = None,
-                       right_geography: object = None, **query_kwargs: Any) -> ProbabilisticResult:
+                       right_geography: object = None, spec: LinkSpec | None = None,
+                       **query_kwargs: Any) -> ProbabilisticResult:
     """Link under ``name``'s probabilistic block, reading both sides through ``query``.
 
     ``right_geography`` reads the right side over another scope: a state's
     records against the nation's (``"BR"``), so a partner outside the state is
-    found and chance agreement is weighed nationally (step T2).
+    found and chance agreement is weighed nationally (step T2). ``spec`` is the
+    spec as bound to a caller's codes (`engine.bind`); a cohort has no national
+    reference to decide with.
     """
     from ..config import load_settings
     from .engine import _roles_needed
     from .store import load_params
 
-    spec = load_links()[name]
+    spec = spec or load_links()[name]
     prob = load_probabilistic(name)
     inherited = {i.as_ for i in prob.inherit}
     setting = dataset_roles(spec.left.dataset).setting
@@ -844,7 +847,7 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
                        period=right_period or period, geography=right_geo, settings=settings, **rest)
     national, reference = None, ""
-    if not (str(geography).upper() == "BR" and right_geography is None):
+    if not (str(geography).upper() == "BR" and right_geography is None) and spec.bound is None:
         # a slice decides with the national run of ITS period (`store.save_params`: one reference per period)
         key = stored_key(name, "probabilistic", period, "BR", right_period=right_period)
         national = load_params(settings, key)

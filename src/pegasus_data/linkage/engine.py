@@ -31,14 +31,17 @@ control, and the run is not viable: an empty placebo reads as "no false pairs".
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import time
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
 import duckdb
+import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
@@ -63,10 +66,11 @@ MIN_COMPARED = 30
 class Side:
     dataset: str
     where: str = ""
-    explode_days: tuple[str, str, str] | None = None  # (start role, end role, new role)
+    explode_days: tuple[str, str | int, str] | None = None  # (start role, end role or a count of days, new role)
     group: tuple[str, ...] = ()                       # one record per group (a delivery)
     latest: str = ""                                  # the group's record with the latest value of this role stands for it
     pad_years: tuple[int, int] = (0, 0)               # years read before and after the left period
+    earliest: str = ""                                # ... or the one with the earliest value (a cohort's first admission)
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +86,42 @@ class Validation:
     right: str | None = None
     tolerance: float | None = None
     sql: str | None = None  # a condition over the pair (l.*, r.*), for one-sided checks
+    among: str | None = None  # the pairs it judges: a condition over (l.*, r.*), e.g. the admissions that ended in death
+
+
+@dataclass(frozen=True, slots=True)
+class CodesParam:
+    """A spec's declared parameter: the caller's codes (ICD-10) filter ``role`` of ``side`` by prefix (`bind`). ``any_role``
+    is the broader role the caller may choose instead (every diagnosis of an admission, not only the principal one)."""
+
+    side: str
+    role: str
+    any_role: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class Codes:
+    """The caller's values of a `CodesParam`, as a run was made with them."""
+
+    codes: tuple[str, ...]
+    match: str = "principal"
+
+    @property
+    def digest(self) -> str:
+        return hashlib.sha256(json.dumps([self.codes, self.match]).encode()).hexdigest()[:10]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"codes": list(self.codes), "match": self.match}
+
+
+@dataclass(frozen=True, slots=True)
+class Outcome:
+    """What a cohort link follows: ``origin`` a date role of the left side (the zero of the follow-up clock) and ``event``
+    the date role of the right side that happens to the person (a death). The event is carried into the run's pairs and
+    its range into the report, so a reader needs neither side's table again (`followup`)."""
+
+    origin: str
+    event: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,10 +141,18 @@ class LinkSpec:
     #: measures the link's sensitivity by residence (`side_counts`); "" when neither side should (two systems that
     #: share some events). A reader of the other side's linked share reads it through this sensitivity
     sensitivity: str = ""
+    #: the parameter the caller gives (`params:` in links.yml): a spec that declares it is run per set of codes
+    #: (`bind`), never alone, and its runs are keyed by them
+    params: CodesParam | None = None
+    outcome: Outcome | None = None
+    #: the caller's codes this spec was bound to (`bind`); None for a spec as declared
+    bound: Codes | None = None
 
 
 def _side(body: dict[str, Any]) -> Side:
     explode = body.get("explode_days")
+    if body.get("latest") and body.get("earliest"):
+        raise ValueError("a link side picks its group's record by `latest` or by `earliest`, not both")
     return Side(
         dataset=str(body["dataset"]).upper(),
         where=str(body.get("where") or ""),
@@ -112,13 +160,16 @@ def _side(body: dict[str, Any]) -> Side:
         group=tuple(body.get("group") or ()),
         latest=str(body.get("latest") or ""),
         pad_years=tuple(int(x) for x in body.get("pad_years") or (0, 0)),  # type: ignore[arg-type]
+        earliest=str(body.get("earliest") or ""),
     )
 
 
 def stored_key(name: str, method: str, period: object, geography: object, *,
-               right_period: object = None, right_geography: object = None) -> Any:
+               right_period: object = None, right_geography: object = None, params: Codes | None = None) -> Any:
     """The key a run of ``name`` is stored under: the scope, and the partner's
-    scope when it differs, including a side's padded period. Every reader of
+    scope when it differs, including a side's padded period, and the caller's
+    ``params`` of a parameterised spec (two topics' runs of one spec never share
+    a file). Every reader of
     stored runs (entities, inheritance) must use it: computing the key from the
     left scope alone missed every padded spec, and entities lost the infant
     deaths and newborns without a word (2026-10-03)."""
@@ -129,7 +180,8 @@ def stored_key(name: str, method: str, period: object, geography: object, *,
         if spec.right.pad_years != (0, 0):
             right_period = padded_period(period, spec.right)
     return store.run_key(name, method, period if right_period is None else (period, right_period),
-                         geography if right_geography is None else (geography, right_geography))
+                         geography if right_geography is None else (geography, right_geography),
+                         params.digest if params else "")
 
 
 def padded_period(period: object, side: Side) -> object:
@@ -164,15 +216,90 @@ def load_links() -> dict[str, LinkSpec]:
         )
         control = body["control"]
         validations = tuple(
-            Validation(str(v["name"]), v.get("left"), v.get("right"), v.get("tolerance"), v.get("sql"))
+            Validation(str(v["name"]), v.get("left"), v.get("right"), v.get("tolerance"), v.get("sql"), v.get("among"))
             for v in body.get("validate") or ()
         )
         out[name] = LinkSpec(
             name, str(body.get("description", "")).strip(), _side(body["left"]), _side(body["right"]),
             passes, str(control["role"]), int(control.get("shift_days", 7)), validations,
-            bool(body["same_event"]), str(body.get("sensitivity") or ""),
+            bool(body["same_event"]), str(body.get("sensitivity") or ""), _params(name, body), _outcome(body),
         )
     return out
+
+
+def _params(name: str, body: dict[str, Any]) -> CodesParam | None:
+    """The parameters a spec declares. Only ``codes`` exists: the role of a side the caller's codes filter by prefix."""
+    declared = body.get("params")
+    if not declared:
+        return None
+    if set(declared) != {"codes"}:
+        raise ValueError(f"links.yml: {name}: params can only declare `codes`, not {sorted(declared)}")
+    item = declared["codes"]
+    side, role = str(item["side"]), str(item["role"])
+    if side not in ("left", "right"):
+        raise ValueError(f"links.yml: {name}: params.codes.side is left or right, not {side!r}")
+    roles = dataset_roles(str(body[side]["dataset"])).roles
+    for r in (role, str(item.get("any") or role)):
+        if r not in roles or roles[r].type not in ("code", "codes"):
+            raise ValueError(f"links.yml: {name}: params.codes names {r!r}, which is not a code or codes role of "
+                             f"{body[side]['dataset']}")
+    return CodesParam(side, role, str(item.get("any") or ""))
+
+
+def _outcome(body: dict[str, Any]) -> Outcome | None:
+    item = body.get("outcome")
+    return Outcome(str(item["origin"]), str(item["event"])) if item else None
+
+
+_CODE = re.compile(r"[A-Z][0-9A-Z]{0,4}")
+
+
+def normalise_codes(codes: Iterable[str] | str) -> tuple[str, ...]:
+    """The caller's ICD-10 codes as prefixes: upper case, without the dot ("i21.0" is I210), sorted and unique. A code
+    that is not one (a range, a word) is refused: the codes become SQL, and a prefix filter that matched nothing would
+    read as a cohort of none."""
+    items = [codes] if isinstance(codes, str) else list(codes)
+    out = tuple(sorted({str(c).replace(".", "").replace(" ", "").upper() for c in items if str(c).strip()}))
+    bad = [c for c in out if not _CODE.fullmatch(c)]
+    if bad or not out:
+        raise ValueError(f"codes are ICD-10 prefixes such as I21 or I210 (a range is the caller's list); got "
+                         f"{bad or 'none'}")
+    return out
+
+
+def _codes_condition(role: str, kind: str, codes: tuple[str, ...]) -> str:
+    """SQL keeping the records whose ``role`` starts with one of ``codes``: a `code` role as it is, a `codes` role (every
+    code of the record, space-separated) at the start of any of them."""
+    name = f'"{role}"'
+    if kind == "codes":
+        return "(" + " OR ".join(f"(' ' || {name}) LIKE '% {c}%'" for c in codes) + ")"
+    return "(" + " OR ".join(f"{name} LIKE '{c}%'" for c in codes) + ")"
+
+
+def bind(spec: LinkSpec, codes: Iterable[str] | str | None = None, match: str = "principal") -> LinkSpec:
+    """``spec`` with the caller's codes in its filter: a spec that declares `params` needs them, one that does not takes
+    none. ``match`` "principal" filters the declared role (the principal diagnosis), "any" the broader one the spec
+    declares (every diagnosis). The bound spec is an ordinary spec to every pass, control and validation, to the
+    probabilistic method too, and carries ``bound`` so its run is stored under the codes."""
+    if spec.params is None:
+        if codes is not None:
+            raise ValueError(f"{spec.name} declares no params; it takes no codes")
+        return spec
+    if codes is None:
+        raise ValueError(f"{spec.name} is run per set of codes (params.codes: {spec.params.role}); give codes=")
+    if match not in ("principal", "any"):
+        raise ValueError(f"match is 'principal' or 'any', not {match!r}")
+    role = spec.params.role
+    if match == "any":
+        if not spec.params.any_role:
+            raise ValueError(f"{spec.name} declares no broader role to match codes against")
+        role = spec.params.any_role
+    side = spec.left if spec.params.side == "left" else spec.right
+    chosen = normalise_codes(codes)
+    cond = _codes_condition(role, dataset_roles(side.dataset).roles[role].type, chosen)
+    filtered = replace(side, where=f"({side.where}) AND {cond}" if side.where else cond)
+    return replace(spec, bound=Codes(chosen, match),
+                   **{"left" if spec.params.side == "left" else "right": filtered})
 
 
 def _roles_needed(spec: LinkSpec, side: str) -> list[str]:
@@ -186,12 +313,16 @@ def _roles_needed(spec: LinkSpec, side: str) -> list[str]:
     s = spec.left if side == "left" else spec.right
     if s.explode_days:
         names.discard(s.explode_days[2])
-        names.update(s.explode_days[:2])
+        names.update(r for r in s.explode_days[:2] if isinstance(r, str))
     names.update(s.group)
     if s.latest:
         names.add(s.latest)
+    if s.earliest:
+        names.add(s.earliest)
+    if spec.outcome:
+        names.add(spec.outcome.origin if side == "left" else spec.outcome.event)
     declared = dataset_roles(s.dataset).roles
-    for text in (s.where, *(v.sql or "" for v in spec.validations)):
+    for text in (s.where, *(t for v in spec.validations for t in (v.sql or "", v.among or ""))):
         names.update(r for r in declared if f'"{r}"' in text)
     if side == "left":
         names.add(spec.control_role)
@@ -272,10 +403,16 @@ class LinkResult(Report):
     chance_upper95_percent: float | None = None
     #: the control's reach per key: the share of left records whose moved value finds a partner value, against the same for the real value
     control_reach: dict[str, Any] = field(default_factory=dict)
+    #: a cohort spec's event role (`Outcome`) carried into the pairs, with its first and last day on the right side
+    carried: dict[str, Any] = field(default_factory=dict)
+    #: a cohort run's pairs, coincidences and verdict at each follow-up horizon (`_horizons`)
+    horizons: list[dict[str, Any]] = field(default_factory=list)
 
     def summary(self) -> dict[str, Any]:
         return {**self._common(), "passes": [vars(p) for p in self.passes], "chance_percent": self.chance_percent,
-                "chance_upper95_percent": self.chance_upper95_percent, "control_reach": self.control_reach}
+                "chance_upper95_percent": self.chance_upper95_percent, "control_reach": self.control_reach,
+                **({"carried": self.carried} if self.carried else {}),
+                **({"horizons": self.horizons} if self.horizons else {})}
 
 
 def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: Side, *, materialise: bool = True) -> int:
@@ -294,37 +431,50 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
         base = f"SELECT *, _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS _id FROM {name}_raw {where}"
     if side.group:
         # One record stands for its group (the live births of one delivery):
-        # the smallest id (or the latest by ``side.latest``), with the group's size kept for validation.
+        # the smallest id (or the latest by ``side.latest``, the earliest by ``side.earliest``), with the group's size
+        # kept for validation.
         # A record missing any key is its own group: null keys partitioned together made every birth of a facility and
         # day without the mother's birth date one "delivery" (SINASC 2010: 2.86 M births, 870 k groups), and its
         # members took one partner (2026-10-08)
         anynull = " OR ".join(f"{quote(g)} IS NULL" for g in side.group)
         keys = f"CASE WHEN {anynull} THEN _id END, " + ", ".join(quote(g) for g in side.group)
-        order = f"{quote(side.latest)} DESC NULLS LAST, _id" if side.latest else "_id"
+        order = (f"{quote(side.latest)} DESC NULLS LAST, _id" if side.latest
+                 else f"{quote(side.earliest)} ASC NULLS LAST, _id" if side.earliest else "_id")
         base = (f"SELECT * EXCLUDE (_n), _n AS _group_size FROM (SELECT *, count(*) OVER (PARTITION BY {keys}) AS _n, "
                 f"row_number() OVER (PARTITION BY {keys} ORDER BY {order}) AS _k FROM ({base})) WHERE _k = 1")
     if side.explode_days:
         start, end, new = side.explode_days
-        base = (f"SELECT *, CAST(unnest(generate_series(CAST({quote(start)} AS TIMESTAMP), CAST({quote(end)} AS TIMESTAMP), "
-                f"INTERVAL 1 DAY)) AS DATE) AS {quote(new)} FROM ({base}) WHERE {quote(start)} IS NOT NULL "
-                f"AND {quote(end)} IS NOT NULL AND {quote(end)} >= {quote(start)} AND {quote(end)} - {quote(start)} <= 120")
+        if isinstance(end, int):
+            # a window of that many days from the start (a cohort's follow-up), not an interval the record carries
+            stop, valid = f"CAST({quote(start)} AS TIMESTAMP) + INTERVAL {end} DAY", f"{quote(start)} IS NOT NULL"
+        else:
+            stop = f"CAST({quote(end)} AS TIMESTAMP)"
+            valid = (f"{quote(start)} IS NOT NULL AND {quote(end)} IS NOT NULL AND {quote(end)} >= {quote(start)} "
+                     f"AND {quote(end)} - {quote(start)} <= 120")
+        base = (f"SELECT *, CAST(unnest(generate_series(CAST({quote(start)} AS TIMESTAMP), {stop}, INTERVAL 1 DAY)) "
+                f"AS DATE) AS {quote(new)} FROM ({base}) WHERE {valid}")
     con.execute(f"CREATE OR REPLACE TEMP {'TABLE' if materialise else 'VIEW'} {name} AS {base}")
     return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
 
-def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str]) -> str:
+def _join(keys: tuple[tuple[str, str], ...], moved: dict[tuple[str, str], str], one_each: bool = False) -> str:
     """SQL for the 1:1 join of the still-unlinked records on `keys`; a key in ``moved`` joins on its moved left value
-    (the control, `placebo.rotation`)."""
+    (the control, `placebo.rotation`). With ``one_each`` a record that pairs with two partners pairs with neither: a
+    cohort's person dies once, and a namesake who died inside the person's window is another candidate for the one
+    death, which no key tells apart (a window explodes a record into one row per day, each unique, so the unique-key
+    rule alone let a person take two deaths: 62 of 3,879 admissions, Alagoas I21-I22)."""
     lk = [f"{moved.get(key, quote(key[0]))} AS k_{i}" for i, key in enumerate(keys)]
     rk = [f"{quote(right)} AS k_{i}" for i, (_l, right) in enumerate(keys)]
     kn = ", ".join(f"k_{i}" for i in range(len(keys)))
     notnull = " AND ".join(f"k_{i} IS NOT NULL" for i in range(len(keys)))
+    each = (" QUALIFY count(*) OVER (PARTITION BY ua._id) = 1 AND count(*) OVER (PARTITION BY ub._id) = 1"
+            if one_each else "")
     return f"""
         WITH a AS (SELECT DISTINCT _id, {', '.join(lk)} FROM L WHERE _id NOT IN (SELECT l FROM linked)),
              b AS (SELECT DISTINCT _id, {', '.join(rk)} FROM R WHERE _id NOT IN (SELECT r FROM linked)),
              ua AS (SELECT * FROM a WHERE {notnull} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1),
              ub AS (SELECT * FROM b WHERE {notnull} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1)
-        SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn})"""
+        SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn}){each}"""
 
 
 def where_roles(side: Side) -> set[str]:
@@ -357,12 +507,18 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
              if (sql := placebo.rotation(key[0], placebo.partner_range(con, [key[1]]), spec.control_shift_days))}
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
+    kept_controls: list[pa.Table] = []      # a cohort's control pairs, kept to read the false-match rate by horizon
     for p in spec.passes:
         if why_skipped[p.name]:
             reports.append(PassReport(p.name, 0, 0, None, False, skipped=why_skipped[p.name]))
             continue
-        real = con.execute(f"SELECT * FROM ({_join(p.keys, {})})").to_arrow_table()
-        control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]
+        one = spec.outcome is not None      # a cohort: a person has one event
+        real = con.execute(f"SELECT * FROM ({_join(p.keys, {}, one)})").to_arrow_table()
+        if one:
+            coincidences = con.execute(_join(p.keys, moved, one)).to_arrow_table()
+            control = coincidences.num_rows
+        else:
+            control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]
         n = real.num_rows
         chance = 100.0 * control / n if n else None
         kept = bool(n) and control < n and (chance is None or chance < CHANCE_DROP)
@@ -371,33 +527,89 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             con.register("_new", real)
             con.execute("INSERT INTO linked SELECT l, r, ? FROM _new", [p.name])
             con.unregister("_new")
-    pairs = con.execute("SELECT * FROM linked").to_arrow_table()
+            if one:
+                kept_controls.append(coincidences)
     kept_pairs = sum(r.pairs for r in reports if r.kept)
     kept_control = sum(r.control_pairs for r in reports if r.kept)
     chance = round(100.0 * kept_control / kept_pairs, 2) if kept_pairs else None
-    validations = validate(con, spec)
+    validations = validate(con, spec)       # makes _vl and _vr, a record once each, which the cohort's outcome reads
+    pairs, carried = _pairs(con, spec)
     worst_pass = max((r.chance_percent or 0.0) for r in reports if r.kept) if any(r.kept for r in reports) else None
     upper = upper95(kept_control, kept_pairs)
     reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0]))) for key in control_keys}
     from .roles import role_gaps
 
+    failures = placebo.key_failures(reach)
     result = LinkResult(spec.name, n_left, n_right, pairs, validations, passes=reports, chance_percent=chance,
-                        chance_upper95_percent=upper, control_reach=reach,
+                        chance_upper95_percent=upper, control_reach=reach, carried=carried,
+                        horizons=_horizons(con, spec, pairs, kept_controls, validations, failures),
                         role_gaps={"left": role_gaps(left), "right": role_gaps(right)})
-    result.decide(worst_pass, upper, placebo_failures=placebo.key_failures(reach),
+    result.decide(worst_pass, upper, placebo_failures=failures,
                   left_out=[f"pass {name!r} skipped: {why}" for name, why in why_skipped.items() if why])
     return result
+
+
+#: the follow-up horizons, in days, a cohort run reports its false-match rate at (those inside the spec's window, and the window)
+HORIZONS = (7, 30, 90, 180, 365)
+
+
+def _horizons(con: duckdb.DuckDBPyConnection, spec: LinkSpec, pairs: pa.Table, controls: list[pa.Table],
+              validations: dict[str, dict[str, Any]], placebo_failures: list[str]) -> list[dict[str, Any]]:
+    """For a cohort spec whose left side looks for the event within a window (`explode_days` of a count of days), the
+    pairs and the control's coincidences found within each horizon, and the verdict that horizon would have by itself.
+    The window is a key: a false pair needs a namesake dying inside the person's window, so the false-match rate grows
+    with the horizon (Alagoas I21-I22: 2.1% within 30 days, 16% within 365), and one run holds every horizon's. Read
+    after `validate`, which makes the views of the one record per id that the offsets read."""
+    window = spec.left.explode_days[1] if spec.left.explode_days else None
+    if spec.outcome is None or not isinstance(window, int):
+        return []
+    origin, event = quote(spec.outcome.origin), quote(spec.outcome.event)
+
+    def offsets(table: pa.Table) -> np.ndarray:
+        if not table.num_rows:
+            return np.zeros(0, dtype=np.int64)
+        con.register("_t", table.select(["l", "r"]))
+        out = con.execute(f"""SELECT CAST(r.{event} - l.{origin} AS INTEGER) FROM _t k JOIN _vl l ON l._id = k.l
+                              JOIN _vr r ON r._id = k.r""").fetchnumpy()
+        con.unregister("_t")
+        return np.asarray(next(iter(out.values())), dtype=np.int64)
+
+    real = offsets(pairs)
+    control = offsets(pa.concat_tables(controls)) if controls else np.zeros(0, dtype=np.int64)
+    rows = []
+    for days in [h for h in HORIZONS if h < window] + [window]:
+        n, c = int((real <= days).sum()), int((control <= days).sum())
+        chance = round(100.0 * c / n, 2) if n else None
+        upper = upper95(c, n)
+        verdict, reasons = judge(n, chance, validations, upper, placebo_failures=placebo_failures)
+        rows.append({"days": days, "pairs": n, "control_pairs": c, "chance_percent": chance, "chance_upper95_percent": upper,
+                     "verdict": verdict, "verdict_reasons": reasons})
+    return rows
+
+
+def _pairs(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> tuple[pa.Table, dict[str, Any]]:
+    """The pairs of the temp table `linked` and, for a cohort spec (`Outcome`), the right side's event date beside each
+    (a column named by the role) with the event's first and last day over everything the right side read: the last day
+    of the deaths a follow-up can see. Call after `validate`, which makes the one-record-per-id view `_vr`."""
+    if spec.outcome is None:
+        return con.execute("SELECT * FROM linked").to_arrow_table(), {}
+    event = quote(spec.outcome.event)
+    pairs = con.execute(f"""SELECT k.l, k.r, k.pass, CAST(v.{event} AS DATE) AS {event}
+                            FROM linked k JOIN _vr v ON v._id = k.r ORDER BY k.l, k.r""").to_arrow_table()
+    first, last = con.execute(f"SELECT min({event}), max({event}) FROM _vr").fetchone() or (None, None)
+    return pairs, {spec.outcome.event: {"first": str(first) if first else None, "last": str(last) if last else None}}
 
 
 _QUOTED = re.compile(r'\b([lr])\."([^"]+)"')
 
 
 def validation_roles(v: Validation) -> tuple[set[str], set[str]]:
-    """The left and right roles a validation reads."""
-    if v.sql:
-        found = _QUOTED.findall(v.sql)
-        return {name for side, name in found if side == "l"}, {name for side, name in found if side == "r"}
-    return {v.left} if v.left else set(), {v.right} if v.right else set()
+    """The left and right roles a validation reads (the pairs it judges included)."""
+    found = _QUOTED.findall(f"{v.sql or ''} {v.among or ''}")
+    left, right = {name for side, name in found if side == "l"}, {name for side, name in found if side == "r"}
+    if not v.sql:
+        left, right = left | ({v.left} if v.left else set()), right | ({v.right} if v.right else set())
+    return left, right
 
 
 def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec,
@@ -419,6 +631,8 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec,
         else:
             cond = f"l.{quote(v.left or '')} = r.{quote(v.right or '')}"
             usable = f"l.{quote(v.left or '')} IS NOT NULL AND r.{quote(v.right or '')} IS NOT NULL"
+        if v.among:
+            usable = f"({usable}) AND ({v.among})"
         row = con.execute(f"""
             SELECT count(*), avg(CASE WHEN {cond} THEN 1.0 ELSE 0 END)
             FROM linked k JOIN _vl l ON l._id = k.l JOIN _vr r ON r._id = k.r
@@ -512,6 +726,8 @@ def link(
     allow_not_viable: bool = False,
     refresh: bool = False,
     persist: bool = True,
+    codes: Iterable[str] | str | None = None,
+    match: str = "principal",
     **query_kwargs: Any,
 ) -> Any:
     """Link two datasets under the declared spec ``name`` (``curation/links.yml``).
@@ -528,14 +744,19 @@ def link(
     measured false-match rate; its pairs carry their score in bits.
 
     Results are kept in the lake (``<lake>/links/<spec>/``) and reused for the
-    same spec content, method and scope; ``refresh=True`` recomputes, and
-    ``persist=False`` keeps nothing.
+    same spec content, method, scope and ``codes``; ``refresh=True``
+    recomputes, and ``persist=False`` keeps nothing.
+
+    A spec that declares ``params`` (a cohort of the caller's diagnoses) is run
+    per ``codes`` (ICD-10 prefixes) and ``match`` ("principal" diagnosis, or
+    "any" of them): two sets of codes are two runs (`bind`).
 
     Example::
 
         result = link("sih_deaths_to_sim", period=2022, geography="RR")
         result.summary()["verdict"]     # 'viable'
         result.pairs                    # l, r, pass
+        link("sih_admissions_to_sim", period=("2018", "2022"), geography="AL", codes=["I21", "I22"])
     """
     from ..config import load_settings
     from . import store
@@ -546,11 +767,13 @@ def link(
         raise KeyError(f"no link spec {name!r}; declared: {sorted(load_links())}") from None
     if method not in ("deterministic", "probabilistic"):
         raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
+    spec = bind(spec, codes, match)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     if right_period is None and spec.right.pad_years != (0, 0):
         right_period = padded_period(period, spec.right)
     right_geography = right_geography_for(spec, geography, right_geography)
-    key = stored_key(name, method, period, geography, right_period=right_period, right_geography=right_geography)
+    key = stored_key(name, method, period, geography, right_period=right_period, right_geography=right_geography,
+                     params=spec.bound)
     if not refresh:
         stored = store.load(settings, key)
         if stored is not None:
@@ -563,7 +786,7 @@ def link(
         from .probabilistic import link_probabilistic
 
         result = link_probabilistic(name, period=period, geography=geography, right_period=right_period,
-                                    right_geography=right_geography, **query_kwargs)
+                                    right_geography=right_geography, spec=spec, **query_kwargs)
     else:
         left = _side_table(spec.left, _roles_needed(spec, "left"), period=period, geography=geography,
                            **query_kwargs)
@@ -574,7 +797,9 @@ def link(
         # its wall time beside it: what a study prices a run it would compute by (pegasus_core `study._link_cost`),
         # and the scope it read: a state's records against the nation's partners, or against the state's own
         scope = {"geography": str(geography), "right_geography": str(right_geography) if right_geography is not None else None}
-        store.save(settings, key, result.pairs, {**result.summary(), "scope": scope, "seconds": round(time.time() - t0, 1)})
+        params = {"params": spec.bound.as_dict()} if spec.bound else {}
+        store.save(settings, key, result.pairs,
+                   {**result.summary(), **params, "scope": scope, "seconds": round(time.time() - t0, 1)})
         if (method == "probabilistic" and str(geography).upper() == "BR" and right_geography is None
                 and result.verdict != "not viable"):
             # the reference slices of this period decide with: never from a run that failed its own verdict
@@ -619,12 +844,12 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
     declared = dataset_roles(s.dataset).roles
     if by not in declared:
         raise KeyError(f"{s.dataset} declares no role {by!r}")
-    needed = sorted({by, *s.group, *([s.latest] if s.latest else []),
+    needed = sorted({by, *s.group, *([s.latest] if s.latest else []), *([s.earliest] if s.earliest else []),
                      *(r for r in declared if s.where and f'"{r}"' in s.where)})
     scope = period if side == "left" else (right_period or period)
     table = role_table(s.dataset, period=scope, geography="BR", roles=needed, **query_kwargs)
     con = duckdb.connect()
-    _prepare(con, "x", table, Side(s.dataset, s.where, None, s.group, s.latest, (0, 0)))
+    _prepare(con, "x", table, replace(s, explode_days=None, pad_years=(0, 0)))
     pairs = stored[0]
     p = pairs.column("p_match") if "p_match" in pairs.column_names else pa.array([1.0] * pairs.num_rows)
     con.register("pm", pa.table({"id": pairs.column("l" if side == "left" else "r"), "p": p}))
@@ -645,5 +870,5 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
         ON m.id = x._id {joined} GROUP BY 1 ORDER BY 1""").fetch_arrow_table()
 
 
-__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "link_method", "load_links", "run",
-           "side_counts", "stored_key"]
+__all__ = ["Codes", "LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "bind", "link", "link_method",
+           "load_links", "normalise_codes", "run", "side_counts", "stored_key"]

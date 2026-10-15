@@ -269,8 +269,15 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   probability that the pair is true. `link_draws(pairs, n=20)` yields
   plausible link sets for multiple imputation; combine the analyses with
   `linkage.uncertainty.combine` (Rubin's rules).
+- **Cohorts.** `linked_deaths("SIH-RD", ["I21", "I22"], years=range(2018, 2023),
+  geography="AL")` returns the first admission of each person with those
+  diagnoses and the date of the death certificate (any cause) found within a
+  year, or none, with the false-match rate and verdict of each horizon;
+  `.mortality(30)` and `.mortality(365)` count over those followed that long. The
+  run is computed once per codes and stored (ADR-0192).
 - **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
-  RR`. The method is in ADR-0107, ADR-0110 and ADR-0111.
+  RR`; `pegasus-data link sih_admissions_to_sim --period 2018..2022 --geo AL
+  --codes I21,I22`. The method is in ADR-0107, ADR-0110 and ADR-0111.
 
 ---
 

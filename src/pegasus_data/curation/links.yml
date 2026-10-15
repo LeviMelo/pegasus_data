@@ -13,11 +13,24 @@
 #                  is the admission's patient); entities.py merges links on it
 #   validate       held-out checks on the linked pairs: two roles that should
 #                  agree (optionally within `tolerance`), or an `sql` condition
-#                  over l.* and r.*
+#                  over l.*, r.*; `among` limits either kind to the pairs a
+#                  condition over l.* and r.* selects (admissions that ended in death)
 #   same_event     required: true when the two records are one event (a death
 #                  in hospital: its admission and its certificate), false when
 #                  they are two events of one person (a birth, then a death);
 #                  counts of the two sides share events only when true
+#   params         a spec run per the caller's codes (one topic's admissions or
+#                  cases) instead of once per period: `codes: {side, role, any}`
+#                  names the role of a side that the caller's ICD-10 codes filter
+#                  by prefix, `any` the broader role (every diagnosis) the caller
+#                  may choose. The codes join the side's filter and the run's
+#                  file name (engine.bind); such a spec declares no `person`,
+#                  being no national run for the persons merge
+#   outcome        {origin, event}: a cohort's follow-up. `origin` a left date
+#                  role (the clock's zero), `event` the right date role that
+#                  happens to the person (a death), carried into the pairs
+#   earliest       a left side's group is stood for by the record with the
+#                  earliest value of this role (`latest`: the latest)
 #
 # The first three reproduce omnisus's deterministic study (EVALUATION
 # 2026-09-30) so both projects can be checked against each other.
@@ -476,3 +489,93 @@ links:
     validate:
       - {name: delivery within ten months of the first symptoms, sql: "r.\"birth.date\" - l.\"case.onset\" BETWEEN -30 AND 300"}
       - {name: age within a year, left: patient.age_years, right: mother.age, tolerance: 1.5}
+
+  # A cohort's follow-up (docs/evaluation/2026-10-14-admission-death-link.md). The admissions of one topic (the caller's
+  # ICD-10 codes) to the death certificate of ANY cause: the 30-day and 1-year mortality of a hospital cohort needs the
+  # deaths of those discharged alive, which sih_deaths_to_sim (MORTE = 1) cannot reach. Declared once, run per
+  # (codes, period, area): `link("sih_admissions_to_sim", period=("2018", "2022"), geography="AL", codes=["I21", "I22"])`.
+  #
+  # The key is a person's birth date, sex and residence, and the day of death inside the follow-up window: without the
+  # window a namesake who died in any of the six years pairs, and the control found 40% of the pairs by chance (Alagoas
+  # I21-I22); inside the first year 16%, the first 30 days 2.1%. One run reports its false-match rate and verdict at each
+  # horizon (`horizons` of the report), as the false-match rate is the window's. The SIH's race is not a key: 60% of
+  # Alagoas's admissions have none and the rest are nearly all "parda".
+  sih_admissions_to_sim:
+    description: >
+      Admissions with the caller's diagnoses (params.codes: ICD-10 prefixes on the principal diagnosis, or on every
+      diagnosis) to the death certificate of any cause that falls within a year of the admission, whether or not the
+      admission ended in death: a person discharged and dead a week or months later, or dead in another hospital, is
+      reached, which sih_deaths_to_sim (admissions that ended in death) cannot. One record stands for each person, the
+      first admission of the period, the origin of a 30-day and 1-year follow-up; a person is a birth date, sex and
+      residence.
+    same_event: false   # an admission and the person's death, possibly months later
+    params:
+      codes: {side: left, role: admission.diagnosis, any: admission.diagnoses}
+    outcome: {origin: admission.start, event: death.date}
+    left:
+      dataset: SIH-RD
+      group: [patient.birth_date, patient.sex, patient.residence]
+      earliest: admission.start
+      explode_days: [admission.start, 365, follow_up.day]   # one row per day of the year after the admission
+    right: {dataset: SIM-DO, pad_years: [0, 1]}   # a year of deaths after the last admission year: the 1-year follow-up
+    passes:
+      - name: birth date, sex, residence, day of death in the year after the admission
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [patient.residence, deceased.residence], [follow_up.day, death.date]]
+      # what the first pass leaves of the admissions that ended in death: a residence the two files write differently, or
+      # a namesake who died in the same year (the window cannot tell them apart, the day and the hospital can: the
+      # pass of sih_deaths_to_sim). Without the hospital the control found 233 of its 288 pairs by chance
+      - name: birth date, sex, death on the discharge day, hospital
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex], [admission.end, death.date],
+               [admission.facility, death.facility]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      # held out: the certificate of an in-hospital death says so, in the hospital's municipality and CNES
+      - name: admissions that ended in death have a certificate of a death in hospital
+        among: "l.\"admission.death\" = '1'"
+        sql: "r.\"death.place\" = 'hospital'"
+      - name: admissions that ended in death have a certificate of a death in the hospital's municipality
+        among: "l.\"admission.death\" = '1'"
+        sql: "r.\"death.municipality\" = l.\"admission.facility_municipality\""
+      # these read the day of death, a key: they cannot decide the verdict, and say whether the window and the dates agree
+      - name: admissions that ended in death have the certificate's death on the discharge day
+        among: "l.\"admission.death\" = '1'"
+        sql: "r.\"death.date\" = l.\"admission.end\""
+      - {name: death on or after the admission, sql: "r.\"death.date\" >= l.\"admission.start\""}
+
+  # The same mechanism on a notification system: the cases of the caller's agravo codes (TOXC's ID_AGRAVO holds P371, B58
+  # and O986) to the death certificate of any cause within a year of the notification, so that a case's survival does
+  # not depend on SINAN closing it as a death (EVOLUCAO is blank or ignored for 55% of the 20,968 TOXC of 2019-2023).
+  # Declared to be measured, and measured not viable (2019-2022, P371: 723 pairs, 680 of them in the control): a cohort
+  # that rarely dies (0.3% of these children) is outnumbered by the infants born the same day in the same city who did,
+  # so a key of birth date, sex and residence cannot tell them apart (docs/evaluation/2026-10-14-admission-death-link.md).
+  sinan_toxc_cases_to_sim:
+    description: >
+      Congenital toxoplasmosis notifications of the caller's agravo codes (params.codes on ID_AGRAVO) to the child's
+      death certificate of any cause within a year of the notification, whether or not SINAN closed the case as a
+      death. One record stands for each child, the first notification (a child is a birth date, sex and residence); a
+      notification aged in months or years has no birth date and is not linked.
+    same_event: false   # a notification and the person's death
+    params:
+      codes: {side: left, role: case.disease}
+    outcome: {origin: notification.date, event: death.date}
+    left:
+      dataset: SINAN-TOXC
+      group: [patient.birth_date, patient.sex, patient.residence]
+      earliest: notification.date
+      explode_days: [notification.date, 365, follow_up.day]
+    right: {dataset: SIM-DO, pad_years: [0, 1]}
+    passes:
+      - name: birth date, sex, residence, day of death in the year after the notification
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [patient.residence, deceased.residence], [follow_up.day, death.date]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      # held out: a case SINAN closed as a death by the agravo has a certificate that names it
+      - name: cases closed as a death by the agravo have a certificate that names it
+        among: "l.\"case.outcome\" = '2'"
+        sql: "r.\"death.cause\" = 'P371' OR r.\"death.causes\" LIKE '%P371%' OR r.\"death.cause\" LIKE 'B58%'"
+      # these read the day of death, a key
+      - name: SINAN's death date is the certificate's
+        among: "l.\"case.death_date\" IS NOT NULL"
+        sql: "r.\"death.date\" = l.\"case.death_date\""
