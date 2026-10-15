@@ -284,6 +284,8 @@ def fetch(
     _record_key: bool = True,
     as_of: str | date | datetime | None = None,
     rows: Mapping[str, Sequence[str]] | None = None,
+    condition: object = None,
+    _condition_state: bool = False,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -317,6 +319,10 @@ def fetch(
     start with one of their codes, tested on the decoded codes BEFORE anything is rendered (a labelled year is not
     filtered by its label text, and a year is not labelled to be thrown away). The filter's columns are read and
     dropped again unless asked for.
+
+    ``condition`` (a list of clauses on roles, :mod:`pegasus_data.conditions`) keeps the records that satisfy it, tested
+    on the decoded codes before anything is rendered, as `load` does; the records it cannot decide are counted in the
+    result's metadata (``conditions.condition_report``). Several layouts in one call must give a role one column.
 
     ``as_of`` reads the kept snapshot version each file had on that date
     (``pegasus-data snapshot``, ADR-0141) and touches no network; a file with
@@ -378,6 +384,22 @@ def fetch(
                 f"nothing catalogued for system={system!r} series={series_name!r}"
                 + ("" if discover else "; discovery is off, so nothing was looked up")
             )
+
+        prepared = None
+        condition_docs: Any = None
+        if condition is not None:
+            from .api import _condition_inputs
+            from .conditions import prepare
+            from .semantics.curation import load_variable_docs as _docs_of
+
+            prepared = prepare(f"{system}-{series_name}" if series_name else system, condition)
+            if not _condition_state:            # the engine (`query`) has asked it of the whole period already
+                prepared.require(list(want_years or ()))
+            condition_docs = _docs_of(pipeline.catalog, system)
+            if columns:
+                # its columns are read to test it and dropped again, unless asked for (as `rows`' are)
+                asked_here = {str(c).upper() for c in columns}
+                columns = [*columns, *sorted(_condition_inputs(prepared, condition_docs) - asked_here)]
 
         decoded_before: dict[tuple[str, str, str], dict[str, Any]] = {}
         table, fetch_report = _read_families(
@@ -499,6 +521,14 @@ def fetch(
             from .api import _rows_expression
 
             table = table.filter(_rows_expression(rows))
+        if prepared is not None:
+            import pyarrow.compute as pc
+
+            from .conditions import CONDITION
+
+            state = prepared.state(table, condition_docs, years=want_years)
+            sure = pc.coalesce(state, pa.scalar(True))
+            table = table.filter(sure).append_column(CONDITION, state.filter(sure))
         if labels:
             _ensure_reference_tables(pipeline, fetch_report)
         # Per (family, vintage), through the SAME operation load() uses.
@@ -558,6 +588,10 @@ def fetch(
 
             rendered = drop_helper_columns(
                 rendered, required_columns(docs, columns) - {str(c).upper() for c in asked_columns or ()})
+        if prepared is not None and not _condition_state:
+            from .conditions import settle
+
+            rendered, _ = settle(rendered, prepared, keep_unknown=False)
 
         # ORDER MATTERS. Provenance is dropped first so it never appears in the
         # dictionary or gets renamed; the dictionary is built next, against the

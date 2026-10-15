@@ -474,7 +474,9 @@ def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:
             and (r["last_year"] is None or r["last_year"] >= lo)]
 
 
-def _all_roles(dataset: str) -> list[dict[str, Any]]:
+def declared_key(dataset: str) -> str:
+    """The key of ``dataset`` in the role files (``SIM-DO``, ``SIH-RD`` for ``SIHSUS-RD``, ``SINAN-*`` for every
+    SINAN agravo's notification block); ``KeyError`` when no role file covers it."""
     from .._request import parse_dataset
 
     declared = load_column_roles()
@@ -490,4 +492,13 @@ def _all_roles(dataset: str) -> list[dict[str, Any]]:
             key = "SINAN-*"     # the notification block every agravo's form carries (roles/SINAN-_notification.yml)
     if key not in declared:
         raise KeyError(f"no column roles declared for {dataset!r}; declared: {sorted(declared)}")
-    return [c.as_dict() for c in declared[key]]
+    return key
+
+
+def declared_columns(dataset: str) -> tuple[ColumnRole, ...]:
+    """The declared columns of ``dataset`` (as :func:`declared_key` finds them), each with its role."""
+    return load_column_roles()[declared_key(dataset)]
+
+
+def _all_roles(dataset: str) -> list[dict[str, Any]]:
+    return [c.as_dict() for c in declared_columns(dataset)]

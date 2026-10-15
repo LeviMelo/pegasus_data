@@ -242,6 +242,87 @@ def s_age() -> dict[str, Any]:
     return out
 
 
+#: DATASUS TabNet's published 2019 figures, consulted 2026-10-15: SINASC (sinasc/cnv/nvuf.def, births by the mother's
+#: residence), SIM (sim/cnv/obt10uf.def, deaths by residence) and SIH (sih/cnv/niuf.def, the twelve 2019 processing months), the
+#: bands summed to the clauses below. What a condition on roles must reproduce.
+TABNET_2019 = {
+    "BR": {
+        "births": 2849146, "weight_under_2500": 247856, "weight_under_1500": 40453, "weight_unknown": 746,
+        "caesarean": 1604189, "vaginal": 1243104, "delivery_unknown": 1853, "preterm_band": 315831,
+        "gestation_unknown": 36313, "mother_under_20": 419255, "mother_age_unknown": 72, "deaths": 1349801,
+        "deaths_under_1y": 35293, "deaths_under_28d": 24504, "deaths_0_6d": 18402, "age_unknown": 2358,
+        "home_deaths": 264628, "sih_admissions": 12181726, "sih_under_1": 644887, "sih_60_plus": 3221765,
+    },
+    "AL": {
+        "births": 49803, "weight_under_2500": 3837, "weight_under_1500": 594, "weight_unknown": 3,
+        "caesarean": 26085, "vaginal": 23676, "delivery_unknown": 42, "preterm_band": 4531, "gestation_unknown": 841,
+        "mother_under_20": 10636, "mother_age_unknown": 0, "deaths": 20287, "deaths_under_1y": 659,
+        "deaths_under_28d": 447, "deaths_0_6d": 344, "age_unknown": 1, "home_deaths": 4888, "sih_admissions": 171660,
+        "sih_under_1": 10312, "sih_60_plus": 34900,
+    },
+    "AC": {
+        "births": 16280, "weight_under_2500": 1187, "weight_under_1500": 167, "weight_unknown": 115,
+        "caesarean": 7232, "vaginal": 9036, "delivery_unknown": 12, "preterm_band": 2234, "gestation_unknown": 468,
+        "mother_under_20": 3901, "mother_age_unknown": 1, "deaths": 4098, "deaths_under_1y": 259,
+        "deaths_under_28d": 131, "deaths_0_6d": 92, "age_unknown": 18, "home_deaths": 950, "sih_admissions": 44563,
+        "sih_under_1": 2165, "sih_60_plus": 6827,
+    },
+}
+
+
+def s_conditions() -> dict[str, Any]:
+    """Record conditions on roles (ADR-0193) against TabNet's published 2019 figures. With PEGASUS_CONDITIONS_ROOT (a built
+    lake, read only: max_download=0, nothing is fetched or written): Brazil's births and deaths and the admissions of Brazil and Alagoas;
+    without it, the live home fetches the state files of PEGASUS_CONDITIONS_GEOS (default AC,AL)."""
+    from pegasus_data import condition_report, count_events
+
+    root = os.environ.get("PEGASUS_CONDITIONS_ROOT")
+    kw: dict[str, Any] = {"root": root, "max_download": 0} if root else {}
+    w = lambda op, v: [{"role": "birth.weight", "op": op, "value": v}]  # noqa: E731
+    age = lambda op, v, unit=None: [{"role": "deceased.age_years", "op": op, "value": v, **({"unit": unit} if unit else {})}]  # noqa: E731
+    cases = [
+        ("births", "SINASC-DN", "birth", None, "births", None),
+        ("weight < 2500 g", "SINASC-DN", "birth", w("<", 2500), "weight_under_2500", "weight_unknown"),
+        ("weight < 1500 g", "SINASC-DN", "birth", w("<", 1500), "weight_under_1500", "weight_unknown"),
+        ("caesarean", "SINASC-DN", "birth", [{"role": "birth.delivery", "in": ["2"]}], "caesarean", "delivery_unknown"),
+        ("vaginal", "SINASC-DN", "birth", [{"role": "birth.delivery", "in": ["1"]}], "vaginal", "delivery_unknown"),
+        ("preterm, gestation band 1-4", "SINASC-DN", "birth", [{"role": "birth.gestation_band", "in": ["1", "2", "3", "4"]}],
+         "preterm_band", "gestation_unknown"),
+        ("preterm, weeks < 37", "SINASC-DN", "birth", [{"role": "birth.gestation_weeks", "op": "<", "value": 37}],
+         "preterm_band", "gestation_unknown"),
+        ("mother under 20", "SINASC-DN", "birth", [{"role": "mother.age", "op": "<", "value": 20}], "mother_under_20", "mother_age_unknown"),
+        ("deaths", "SIM-DO", "death", None, "deaths", None),
+        ("deaths under 1 year", "SIM-DO", "death", age("<", 1), "deaths_under_1y", "age_unknown"),
+        ("deaths under 28 days", "SIM-DO", "death", age("<", 28, "days"), "deaths_under_28d", "age_unknown"),
+        ("deaths under 7 days", "SIM-DO", "death", age("<", 7, "days"), "deaths_0_6d", "age_unknown"),
+        ("deaths at home", "SIM-DO", "death", [{"role": "death.place", "op": "==", "value": "3"}], "home_deaths", None),
+    ]
+    sih = [("SIH admissions", "SIH-RD", "hospitalisation", None, "sih_admissions", None),
+           ("SIH under 1 year", "SIH-RD", "hospitalisation", [{"role": "patient.age_years", "op": "<", "value": 1}], "sih_under_1", None),
+           ("SIH 60 years and over", "SIH-RD", "hospitalisation", [{"role": "patient.age_years", "op": ">=", "value": 60}],
+            "sih_60_plus", None)]
+    out: dict[str, Any] = {}
+    plan = ([(geo, cases) for geo in ("BR",)] + [(geo, sih) for geo in ("AL", "BR")] if root
+            else [(geo, cases) for geo in os.environ.get("PEGASUS_CONDITIONS_GEOS", "AC,AL").split(",")])
+    for geo, rows in plan:
+        for label, dataset, event, condition, key, unknown_key in rows:
+            t = time.perf_counter()
+            result = count_events(dataset, event, period=2019, geography=geo, condition=condition, **kw)
+            got = result.to_pylist()[0]
+            published = TABNET_2019[geo]
+            record: dict[str, Any] = {"events": got["events"], "published": published[key],
+                                      "difference": got["events"] - published[key], "seconds": round(time.perf_counter() - t, 1)}
+            if condition is not None:
+                record["unknown"] = got["unknown"]
+                if unknown_key:
+                    record["published_unknown"] = published[unknown_key]
+                    record["unknown_difference"] = got["unknown"] - published[unknown_key]
+                assert (condition_report(result) or {}).get("unknown") == got["unknown"]
+            out[f"{geo}: {label}"] = record
+    out["differs"] = [k for k, v in out.items() if isinstance(v, dict) and (v["difference"] or v.get("unknown_difference"))]
+    return out
+
+
 def s_sweep() -> dict[str, Any]:
     """Every declared dataset, queried for its cheapest publication: does it return labelled rows?"""
     from pegasus_data import PublishedEmpty, explore, plan, query
@@ -382,6 +463,7 @@ SCENARIOS = {
     "sih_2016": s_sih_2016,
     "sia_sp_parts": s_sia_sp_parts,
     "age": s_age,
+    "conditions": s_conditions,
     "linkage": s_linkage,
     "timeline": s_timeline,
     "sweep": s_sweep,

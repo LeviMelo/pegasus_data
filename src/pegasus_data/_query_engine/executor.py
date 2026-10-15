@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 import pyarrow as pa
 
+from ..conditions import CONDITION
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
 from .coverage import shared_catalog
@@ -37,7 +38,7 @@ from .semantics import (
 SYNTHESISED_COLUMNS = frozenset({"_competencia", "year", "_source_resolution"})
 
 
-def _final_projection(table: pa.Table, spec: QuerySpec) -> pa.Table:
+def _final_projection(table: pa.Table, spec: QuerySpec, *, keep_condition: bool = False) -> pa.Table:
     if spec.select is None:
         keep = list(table.column_names)
     else:
@@ -68,6 +69,8 @@ def _final_projection(table: pa.Table, spec: QuerySpec) -> pa.Table:
         keep = list(dict.fromkeys(keep))
     if spec.provenance != "all":
         keep = [name for name in keep if not name.startswith("_") and name != "year"]
+    if keep_condition and CONDITION in table.column_names:
+        keep.append(CONDITION)         # the engine's: the record's answer to a condition, for the caller to count by group
     return table.select(keep)
 
 
@@ -92,6 +95,8 @@ def query(
     as_of: str | date | datetime | None = None,
     render: Mapping[str, Any] | None = None,
     rows: Mapping[str, Sequence[str]] | None = None,
+    condition: object = None,
+    _keep_unknown: bool = False,
 ) -> pa.Table | tuple[pa.Table, QueryReport]:
     """Run a query. ``as_of`` reads each source file as the snapshot history
     kept it on that date (``pegasus-data snapshot``, ADR-0141): the lake and the
@@ -99,8 +104,18 @@ def query(
     ``render`` sets a column's rendering (``"code"``: as filed, no codelist
     chosen), as `load` and `fetch` take it. ``rows`` (``{column: code prefixes}``) keeps only the records whose columns
     start with one of their codes: an explicit filter the caller names (period and geography never filter records),
-    pushed into the lake's scan, and applied to a fetched year as it is decoded: before anything is rendered."""
+    pushed into the lake's scan, and applied to a fetched year as it is decoded: before anything is rendered.
+
+    ``condition`` keeps the records that satisfy a condition on ROLES (:mod:`pegasus_data.conditions`): a list of
+    clauses ANDed, e.g. ``[{"role": "birth.weight", "op": "<", "value": 2500}, {"role": "birth.delivery", "in": ["2"]}]``.
+    Each role is resolved to the column of the dataset and year that carries it; a number is read as the role's unit
+    says and never from a declared not-recorded value or outside the role's domain, a category as filed, and an age is
+    the role pegasus_data derives in years. The raw columns are tested in the lake's scan, a derived one after the read,
+    both before anything is rendered. Records the condition cannot decide (a missing weight is not "under 2,500") are not in the
+    result; their number is ``report.condition["unknown"]`` and the table's `conditions.condition_report`.
+    ``_keep_unknown`` (the event readers') leaves them in, each record's answer in ``conditions.CONDITION``."""
     from ..api import _rows_filters
+    from ..conditions import prepare
     from ..presentation import resolve as resolve_presentation
 
     rows = _rows_filters(rows) or None          # a filter that selects no record is refused, not read as "every record"
@@ -118,6 +133,10 @@ def query(
     )
     resolved = resolved_settings
     retrieval = query_plan.retrieval
+    # before any file moves: a role the dataset does not declare, a number compared with a code, an ambiguous column
+    prepared = prepare(f"{retrieval.system}-{retrieval.series}" if retrieval.series else retrieval.system, condition)
+    if prepared is not None:
+        prepared.require([*retrieval.lake_years, *retrieval.fetch_years, *(retrieval.years or ())])
     # No period first: the more specific refusal, and the one that says what
     # to change (it was masked by the budget's 22 GiB message, 2026-10-04).
     if not query_plan.spec.period and (
@@ -250,7 +269,7 @@ def query(
                 labels=labels, profile="audit" if labels else "codes", render=render,
                 companions=False, derived=derived, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
-                partitions=retrieval.lake_partitions,
+                partitions=retrieval.lake_partitions, condition=prepared, _condition_state=True,
             )
             tables.append(_with_competence(local_table, local_report))
             source_reports.append(local_report)
@@ -293,6 +312,7 @@ def query(
                 settings=resolved,
                 report=True,
                 rows=rows,                  # tested on the decoded codes, before the year is rendered
+                condition=prepared, _condition_state=True,
             )
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
@@ -343,6 +363,11 @@ def query(
     table = _filter_source_period(
         table, query_plan.spec.period, retain_annual_enclosures=coarsening
     )
+    if prepared is not None:
+        # after the period: a record outside it is neither satisfied nor unknown
+        from ..conditions import settle
+
+        table, report.condition = settle(table, prepared, keep_unknown=_keep_unknown)
     table = _apply_dimensions(table, query_plan, report, resolved)
     for request in query_plan.spec.enrichments:
         if request.target == "CNPJ":
@@ -378,13 +403,19 @@ def query(
         present = {name.upper() for name in table.column_names}
         if str(field_name).upper() not in present and field_name in report.structural_absence:
             table = table.append_column(field_name, pa.nulls(table.num_rows))
-    table = _final_projection(table, query_plan.spec)
+    table = _final_projection(table, query_plan.spec, keep_condition=_keep_unknown)
     metadata = dict(table.schema.metadata or {})
     metadata[b"pegasus.structural_absence"] = json.dumps(
         report.structural_absence, sort_keys=True
     ).encode()
     table = table.replace_schema_metadata(metadata)
+    state = None
+    if _keep_unknown and CONDITION in table.column_names:
+        state = table.column(CONDITION)             # row for row, set aside while the presentation reshapes the columns
+        table = table.drop_columns([CONDITION])
     table = _presented(table, presentation, query_plan, resolved)
+    if state is not None:
+        table = table.append_column(CONDITION, state)
     return (table, report) if return_report else table
 
 

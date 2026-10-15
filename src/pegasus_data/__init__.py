@@ -58,6 +58,7 @@ _EXPORTS: dict[str, str] = {
     "roles": ".semantics.column_roles",
     "event_types": ".semantics.event_types",
     "count_events": ".semantics.event_types",
+    "condition_report": ".conditions",
     "build_extract": ".extract",
     "extract_table": ".extract",
     "code_structure": ".semantics.code_structures",
@@ -188,6 +189,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         load_reference,
     )
     from .careflow import care_flow_catchments, care_flow_communities, care_flow_profile, compare_flow_regions
+    from .conditions import condition_report
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology

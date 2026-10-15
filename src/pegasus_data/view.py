@@ -1409,21 +1409,43 @@ def _apply_derived(
             # unit column's LABELS for words like "meses" and divide, a second
             # converter that disagreed with the aggregate path's and produced
             # nothing when the unit column had no codelist (SIH's COD_IDADE).
-            from ._age import ENCODINGS as AGE_ENCODINGS
-            from ._age import AgeDimension, years_column
+            derived_column = _age_years(recipe, column_name, inputs, source)
+            if derived_column is None:
+                from ._age import ENCODINGS as AGE_ENCODINGS
 
-            encoding = str(recipe.get("encoding") or "")
-            if encoding not in AGE_ENCODINGS:
                 report.warnings.append(
                     f"{column_name}: the curated recipe declares no age encoding "
                     f"({'|'.join(AGE_ENCODINGS)}), so it cannot be derived"
                 )
                 continue
-            derived_column = years_column(
-                AgeDimension(name=column_name, encoding=encoding, fields=tuple(inputs)), source
-            )
             rendered = rendered.append_column(column_name, derived_column)
             report.derived_added.append(column_name)
     return rendered
+
+
+def _age_years(recipe: Mapping[str, Any], name: str, inputs: Sequence[str], source: pa.Table) -> Any:
+    """The age a curated recipe declares, in fractional years, made from ``source``'s raw columns by the one converter
+    (`_age.years_column`); None when the recipe names no age encoding."""
+    from ._age import ENCODINGS as AGE_ENCODINGS
+    from ._age import AgeDimension, years_column
+
+    encoding = str(recipe.get("encoding") or "")
+    if encoding not in AGE_ENCODINGS:
+        return None
+    return years_column(AgeDimension(name=name, encoding=encoding, fields=tuple(inputs)), source)
+
+
+def derived_age_years(docs: Mapping[str, VariableDoc], name: str, source: pa.Table) -> Any:
+    """The derived age column ``name`` (IDADE_anos) of ``source``, a table of raw columns, made as rendering makes it
+    (`_apply_derived`: the recipe whose inputs this layout carries, the one converter): fractional years, null where
+    the age is undecodable. None when no recipe of that name has its inputs in ``source``, or it is no age."""
+    for doc in docs.values():
+        for recipe in doc.derived or []:
+            if str(recipe.get("name") or "").upper() != name.upper():
+                continue
+            inputs = [str(c).upper() for c in (recipe.get("from") or [])]
+            if inputs and all(c in source.schema.names and not pa.types.is_null(source.column(c).type) for c in inputs):
+                return _age_years(recipe, name, inputs, source)
+    return None
 
 
