@@ -79,7 +79,7 @@ columns:
     name: "Município de notificação, código (IBGE)"
   CS_SEXO:
     missing: ['I']
-    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): M='Masculino', F='Feminino', I='Ignorado'
+    # the files' own letters (measured over 4,666,910 rows): M='Masculino', F='Feminino', I='Ignorado'; the dictionary lists the DBF export's 1 Masculino, 2 Feminino, 9 Ignorado, and SINAN's SEXO table writes the same three letters
     role: patient.sex
     kind: category
     model: stratum
@@ -850,7 +850,7 @@ columns:
     fact_domain: clinical
     fact_domain_evidence: "\"Classificação final do caso\" (case.classification): final classification of the case: clinical classification"
     name: "Classificação final do caso"
-    note: "Blank while the case is open (2022 file: 27877 of 560577); no code means discarded. Filed as '5.0' in the INFLUD19 and INFLUD20 files (2018-2021 onsets); read as the integer's digits, the value as filed stays in CLASSI_FIN__RAW. When the laboratory methods disagree the dictionary prioritises the RT-PCR."
+    note: "Blank while the case is open (2022 file: 27877 of 560577); there is no code for a discarded case. Filed as '5.0' in the INFLUD19 and INFLUD20 files (2018-2021 onsets); read as the integer's digits, the value as filed stays in CLASSI_FIN__RAW. When the laboratory methods disagree the dictionary prioritises the RT-PCR."
   CLASSI_OUT:
     role: case.classification_text
     kind: text
