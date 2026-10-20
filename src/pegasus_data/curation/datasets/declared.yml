@@ -1365,16 +1365,27 @@ datasets:
   SISPRENATAL.PN:
     system: SISPRENATAL
     series: PN
+    use: not_an_event_source
+    why_no_event_type: >-
+      A row is a pregnancy's attendance report for one month, not a pregnancy and not an enrolment. In Amapá 2013 (12 monthly
+      files) 3,377 rows hold 2,803 pregnancy numbers (NU_GESTA): 2,485 appear once and 318 two to seven times, always in
+      distinct months (DT_ATEND is the file's month), with QT_CONSULT counting up (001, 002, ...). Counted as events the rows
+      overstate pregnancies by 1.2 times. The pregnancy that a study would count is reached only through a key no document
+      gives (NU_CNS with DT_INC gives 2,804, 0 collisions in Amapá 2012-2014), NU_GESTA is a serial that repeats across states,
+      and no independent total was found to test a count (the DATASUS TabNet index lists no SisPreNatal table, 2026-10-19).
     asserted_by: pegasus_data
-    what_one_row_is: one pregnancy enrolled in antenatal monitoring
-    unit_of_analysis: pregnancy
+    what_one_row_is: one pregnancy's attendance record for one month of SisPreNatal (the month of the file)
+    unit_of_analysis: pregnancy-month
     known_biases: >
       Only pregnancies enrolled in the programme appear. Women who begin antenatal
       care late or not at all are the ones the programme most wants to reach and
-      the ones least likely to be in the data.
+      the ones least likely to be in the data. A pregnancy is in the file for the months in which it
+      was attended and reported, so a pregnancy that stopped attending leaves earlier months only.
     gotchas:
-      - Rows are pregnancies, not women; a woman with two pregnancies appears twice.
-      - Enrolment date is not the date care began, and the gap matters for the first-trimester indicator.
+      - Rows are pregnancy-months, not pregnancies and not women (Amapá 2013 - 3,377 rows, 2,803 pregnancy numbers); a count of rows is a count of attendance reports.
+      - QT_CONSULT and QT_CONS are cumulative up to the month, so summing them over a pregnancy's rows counts its early consultations again, as TabWin's "increment" sum does.
+      - NU_GESTA is a serial of the pregnancy's record, not a count of the woman's pregnancies (it reaches 122,739 in Amapá 2014) and it repeats across states; CO_GESTANT is '0' in every row of the files read (3,377 of 3,377, Amapá 2013).
+      - Enrolment date (DT_INC) is not the date care began - it is after the first attended month for most pregnancies, which are entered late - and the gap matters for the first-trimester indicator.
 
   PAINEL_ONCOLOGIA.PO:
     event_types:
@@ -2059,3 +2070,113 @@ datasets:
       years without deflating compares different things.
     gotchas:
       - Brackets are not constant across census rounds; reconcile them before building a series.
+
+  # ==================================================================== SRAG and yellow fever
+  # Sources of the Portal de Dados Abertos do SUS read by the intake mechanism (curation/intake.yml, ADR-0162). Their
+  # description (what a row is, its biases and gotchas) is written there; the events a row becomes are declared here.
+  SRAG.NOTIF:
+    system: SRAG
+    series: NOTIF
+    # The Ministry's files are by epidemiological year of the first symptoms, and the lake partitions by the year and month of
+    # DT_SIN_PRI, so a period selects onsets; the notification date and the hospital are further axes.
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RES], code_system: ibge_municipality}
+        notification: {fields: [CO_MUN_NOT], code_system: ibge_municipality}
+        hospital: {fields: [CO_MU_INTE], code_system: ibge_municipality}
+      default_time: onset
+      time:
+        onset: {fields: [DT_SIN_PRI], encoding: date}
+        notification: {fields: [DT_NOTIFIC], encoding: date}
+        admission: {fields: [DT_INTERNA], encoding: date}
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification of severe acute respiratory syndrome (SRAG), a hospitalised patient or a death by SRAG; a patient notified twice is two
+        classifiers:
+          - {column: CLASSI_FIN, role: primary}
+        consolidation:
+          key: [NU_NOTIFIC]
+        evidence: >-
+          Every row of the Ministry's SRAG files is one notification of the SIVEP-Gripe form (SRAG hospitalizado). CLASSI_FIN
+          (1 influenza, 2 other respiratory virus, 3 other agent, 4 unspecified, 5 covid-19; blank while the case is open)
+          has no code for a discarded case, so no status rule narrows the notifications; the Ministry reports them as SRAG cases.
+          The dictionary's warning on HOSPITAL other than 1 (the record does not meet the case definition) is not applied,
+          because the files keep those rows and 4,615 of the 11,646 that answer No in 2022 died of SRAG. The final classification is
+          the only classifier: the dictionary has no ICD-10 column, and the tests (PCR_RESUL, RES_AN, ...) are results, not
+          kinds of notification. NU_NOTIFIC is the system's record number: 4,666,881 distinct values in 4,666,910 rows, the 29
+          repeats being one notification in the INFLUD24 and INFLUD25 files (onset date corrected), counted once; the first
+          file's version is kept, which may lack the final classification.
+        source_notes:
+          source: "Dicionário de Dados SIVEP-Gripe, ficha de registro individual de casos de SRAG hospitalizados (25/05/2023), https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/dicionario-de-dados-2019-a-2025.pdf, and the Portal de Dados Abertos do SUS page of the dataset (2026-10-19)"
+          definition: >-
+            A notification of the SRAG form, filled for a hospitalised case or a death by SRAG. The dictionary's field 48 (Houve
+            internação?) warns that a record not answered Yes does not meet the case definition; the case definitions and closing
+            criteria are in the Guia de vigilância integrada da covid-19, influenza e outros vírus respiratórios de importância
+            em saúde pública (2024), which the dictionary does not reproduce.
+          form: Ficha de registro individual - casos de síndrome respiratória aguda grave hospitalizados (SIVEP-Gripe).
+          known_errors:
+            - The notifications are subject to typing and filling errors that can affect one or more fields, and are reviewed continuously by the local teams and the surveillance network (the Portal's note).
+          limitations:
+            - Before the covid-19 pandemic the surveillance rested on sentinel units for influenza; from 2020 it was widened to covid-19 and the other respiratory viruses (the Portal's description), so 2019 and 2020 onward are not one series.
+            - The clinical (3) and clinical-imaging (4) criteria no longer close an SRAG by covid-19 since 31/10/2022 (the dictionary, field 81).
+            - The files of 2019-2024 are frozen and the current year is updated weekly (the Portal's description).
+
+  FA.HUM:
+    system: FA
+    series: HUM
+    semantic_axes:
+      default_geography: infection
+      geography:
+        infection: {fields: [COD_MUN_LPI], code_system: ibge_municipality}
+      default_time: onset
+      time:
+        onset: {fields: [ANO_IS, MES_IS], encoding: year_month}
+        onset_date: {fields: [DT_IS], encoding: date}
+    event_types:
+      - name: case
+        kind: case
+        grain: one confirmed human case of yellow fever, at its probable place of infection
+        present: [ID]
+        evidence: >-
+          The file has no classification column, and its seasons equal the Ministry's confirmed totals, not its notified ones:
+          2016/2017 has 778 cases and 262 deaths (PAHO/WHO update of 13 December 2017: 779 confirmed and 262 deaths), and
+          2017/2018 has 1,376 cases and 483 deaths where the Ministry's informe of 8 May 2018 gave 1,261 confirmed (409
+          deaths) among 6,525 notified. `present: [ID]` drops the empty row the file ends with (ID blank in 1 of 2,912 rows).
+        source_notes:
+          source: "Dicionário de variáveis, Febre Amarela, Portal de Dados Abertos do SUS (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf)"
+          valid_from: 1994
+          limitations:
+            - "The monitoring period runs from 1 July to 30 June (the dictionary's footnote), the Ministry's seasonal year since 2008, not the calendar year."
+            - The Ministry warns that confirmed cases can fall as well as rise between publications, as cases are reclassified (informe of 8 May 2018).
+
+  FA.EPIZ:
+    system: FA
+    series: EPIZ
+    semantic_axes:
+      default_geography: occurrence
+      geography:
+        occurrence: {fields: [COD_MUN_OCOR], code_system: ibge_municipality}
+      default_time: occurrence
+      time:
+        occurrence: {fields: [ANO_OCOR, MES_OCOR], encoding: year_month}
+        occurrence_date: {fields: [DATA_OCOR], encoding: date}
+    event_types:
+      - name: epizootic
+        kind: epizootic
+        grain: one epizootic occurrence in non-human primates in the Ministry's yellow-fever monitoring, at the municipality where it occurred
+        persons: false
+        evidence: >-
+          An epizootic is an event of animals: the row has no person, sex or age, and the population exposed is that of its place.
+          The file has no classification column. Its size is that of the Ministry's confirmed epizootics, not of its notified ones: 867
+          rows for 2017/2018 where the informe of 8 May 2018 had 738 confirmed among 7,410 notified, and 425 for 2016/2017 where
+          the informe 40/2017 of the COES had 474 confirmed among 3,660 notified on 10 May 2017 (the Ministry warns that confirmed
+          numbers fall on reclassification). That the file holds the confirmed epizootics only is a reading of its size, which the
+          dictionary does not state.
+        source_notes:
+          source: "Dicionário de variáveis, Febre Amarela, Portal de Dados Abertos do SUS (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf)"
+          valid_from: 1999
+          limitations:
+            - The monitoring period runs from 1 July to 30 June, as FA-HUM's.
+            - The animals involved are not in the file (the informe 40/2017 counts 5,352 animals in 474 confirmed epizootics).

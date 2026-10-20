@@ -27,6 +27,8 @@ sinan     NU_IDADE_N          4 chars: leading digit 1 hours, 2 days,
                               (0.8% of SINAN-DENG 2022, confirmed by the
                               birth year)
 years     any                 the value already is years (SINASC IDADEMAE)
+sivep     NU_IDADE_N +        TP_IDADE 1 days, 2 months, 3 years (SIVEP-Gripe,
+          TP_IDADE            SRAG); a negative age is undecodable
 band      one code column     the LOWER EDGE, in years, of the band a code names (SISCAN's age bands, from the
                               recipe's `lookup`); a code outside the lookup is null
 ========  ==================  ============================================
@@ -83,7 +85,7 @@ class AgeDimension:
 
 #: the age conventions `years_column` decodes; "dates" is the years from a birth date to a reference date (RESP's
 #: newborns carry DT_NASC and DT_NOTIFIC and no age)
-ENCODINGS = ("sih", "cih", "sim", "sinan", "years", "dates", "band")
+ENCODINGS = ("sih", "cih", "sim", "sinan", "years", "dates", "sivep", "band")
 
 
 def parse_age_dimension(body: Any) -> AgeDimension | None:
@@ -96,7 +98,7 @@ def parse_age_dimension(body: Any) -> AgeDimension | None:
             f"age_dimension.encoding must be {'|'.join(ENCODINGS)}, got {encoding!r}"
         )
     fields = tuple(str(f) for f in (body.get("fields") or ()))
-    if encoding in ("sih", "cih") and len(fields) != 2:
+    if encoding in ("sih", "cih", "sivep") and len(fields) != 2:
         raise ValueError(f"{encoding} age needs [value_field, unit_field]")
     if encoding == "dates" and len(fields) != 2:
         raise ValueError("dates age needs [birth_date_field, reference_date_field]")
@@ -137,6 +139,8 @@ UNITS: dict[str, dict[str, float]] = {
     "sih": {"2": _DAY, "3": _MONTH, "4": _YEAR},
     "sim": {"0": _MINUTE, "1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
     "sinan": {"1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
+    # SIVEP-Gripe's TP_IDADE, measured against DT_NASC and DT_SIN_PRI (SRAG 2022: 1.0 day, 30.2 days and 365-368 days a unit)
+    "sivep": {"1": _DAY, "2": _MONTH, "3": _YEAR},
     # CIH and CIHA: SIH's units, but unit 5 holds the age in decades (below, `_scaled`)
     "cih": {"2": _DAY, "3": _MONTH, "4": _YEAR},
 }
@@ -199,6 +203,20 @@ def years_column(age: AgeDimension, table: Any) -> Any:
         days = pc.divide(pc.cast(pc.cast(pc.subtract(then, born), pa.int64()), pa.float64()), 86400.0)
         years = pc.divide(days, 365.25)
         return pc.if_else(pc.fill_null(pc.less(years, 0.0), True), pa.scalar(None, pa.float64()), years)
+    if age.encoding == "sivep":
+        # the value is a number (SRAG types NU_IDADE_N as a double) or its digits as text; a negative one is no age
+        column = table.column(age.fields[0]) if age.fields[0] in names else None
+        if column is None:
+            return pa.nulls(table.num_rows, pa.float64())
+        if pa.types.is_floating(column.type) or pa.types.is_integer(column.type) or pa.types.is_decimal(column.type):
+            value = pc.cast(column, pa.float64())
+        else:
+            value = _digits_to_years(text_of(age.fields[0]))
+        value = pc.if_else(pc.fill_null(pc.less(value, 0.0), False), pa.scalar(None, pa.float64()), value)
+        unit = text_of(age.fields[1])
+        table_units = UNITS["sivep"]
+        return pc.case_when(pc.make_struct(*[pc.equal(unit, code) for code in table_units]),
+                            *[pc.multiply(value, per) for per in table_units.values()], pa.scalar(None, pa.float64()))
     if age.encoding in ("sih", "cih"):
         return _scaled(_digits_to_years(text_of(age.fields[0])), text_of(age.fields[1]), UNITS[age.encoding],
                        decades=age.encoding == "cih")

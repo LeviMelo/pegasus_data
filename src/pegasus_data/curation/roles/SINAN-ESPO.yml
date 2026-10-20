@@ -98,12 +98,16 @@ columns:
     - 2022
     note: Number of dead cats, if notified (same dictionary).
   ID_MUNICIP:
-    role: notification.municipality
+    # the only municipality of the files is the one that notified: the epizootic is placed there (the engine places a group event
+    # at the municipality of its own entity), the occurrence municipality not being in the data
+    role: epizootic.municipality
+    also:
+    - notification.municipality
     kind: place
     model: where
     place_of: event
     fact_domain: process
-    fact_domain_evidence: "\"Município de Notificação\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    fact_domain_evidence: "\"Município de Notificação\" (epizootic.municipality): the municipality that notified the epizootic, standing as the epizootic's place; when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: Município de Notificação
     codelists:
     - BR_MUNICIPALFA
@@ -116,7 +120,7 @@ columns:
     years:
     - 2013
     - 2022
-    note: role from the notification block
+    note: The municipality of notification; the files hold no municipality of occurrence, so the epizootic is placed here.
   ID_NOTIFIC:
     role: notification.identifier
     kind: identifier

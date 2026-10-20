@@ -1,0 +1,129 @@
+# FA-HUM: the Ministry's monitoring of yellow fever, human cases (fa_casoshumanos_1994-2026.csv, Portal de Dados Abertos do SUS), 1994-2026.
+# Declared from the Dicionário de variáveis (Febre Amarela, Portal de Dados Abertos do SUS) (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/Febre+Amarela/Dicionario+de+variaveis.pdf), which
+# names each column and gives no code table, and checked against the 2912 rows of the lake (2911 cases and the empty row the file ends with).
+dataset: FA-HUM
+record: case
+columns:
+  ID:
+    role: case.identifier
+    kind: identifier
+    model: link_only
+    name: "Identificador sequencial único"
+  MACRORREG_LPI:
+    role: case.infection_macroregion
+    kind: place
+    model: dimension
+    place_of: event
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sigla da macrorregião do local provável de infecção\" (case.infection_macroregion): place of infection, exposure, travel, risk or accident: exposure of the case"
+    name: "Sigla da macrorregião do local provável de infecção"
+  COD_UF_LPI:
+    role: case.infection_state
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código IBGE da Unidade Federada do local provável de infecção\" (case.infection_state): place of infection, exposure, travel, risk or accident: exposure of the case"
+    name: "Código IBGE da Unidade Federada do local provável de infecção"
+  UF_LPI:
+    role: case.infection_state_abbreviation
+    kind: text
+    model: excluded
+    name: "Sigla da Unidade Federada do local provável de infecção"
+  COD_MUN_LPI:
+    # NOT where the person lives: the file has no residence, only the probable place of infection (LPI). The engine places a person's
+    # event through a residence stratum, so the LPI stands there: a case is placed in the population of the municipality it was
+    # infected in (the population exposed), `place_of: subject` being the stratum's formal requirement
+    role: case.residence
+    also:
+    - case.infection_municipality
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: clinical
+    fact_domain_evidence: "\"Código IBGE do município do local provável de infecção\" (case.infection_municipality): the probable place of infection (LPI), not residence: exposure of the case, standing as the case's residence stratum"
+    name: "Código IBGE do município do local provável de infecção"
+    note: "The municipality of the probable place of infection, not the person's residence (the file has none); blank in 8 of 2912 rows, one of them the empty row the file ends with."
+  MUN_LPI:
+    role: case.infection_municipality_name
+    kind: text
+    model: excluded
+    name: "Nome do município do local provável de infecção"
+  SEXO:
+    # the dictionary gives no table; M and F are the codes DATASUS's SINAN SEXO table gives (M Masculino, F Feminino, I Ignorado)
+    role: patient.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do indivíduo\" (patient.sex): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Sexo do indivíduo"
+    note: "M 2420, F 490, blank 2 of 2912 rows (one is the empty row); no I occurs."
+  IDADE:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Idade do indivíduo\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Idade do indivíduo"
+    unit: years
+    unit_evidence: "the dictionary gives no unit. Measured: 2909 ages from 0 to 93; six are fractions below 1 (0.9, 0.5, 0.02, 0.016666667, 0.008, 0.001598174) for infants, filed with a decimal comma. Read in months the cases would be infants."
+    note: "Already years (no IDADE_anos to derive); blank in 3 of 2912 rows."
+  DT_IS:
+    role: case.onset
+    kind: date
+    model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de início dos sintomas do indivíduo (dd/mm/aaaa)\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data de início dos sintomas do indivíduo (dd/mm/aaaa)"
+    note: "Not a date in 17 of 2912 rows: blank in 6, the word Assintomático (no onset, an asymptomatic case) in 9 and 00/04/2000 and 00/02/2003 in 2 (day 00); the value as filed stays in DT_IS__RAW and the year and month come from ANO_IS and MES_IS."
+  SE_IS:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana epidemiológica de início dos sintomas do indivíduo\" (case.onset_epi_week): fact about the health event or the person's health"
+    name: "Semana epidemiológica de início dos sintomas do indivíduo"
+  MES_IS:
+    role: case.onset_month
+    kind: number
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Mês de início dos sintomas do indivíduo\" (case.onset_month): fact about the health event or the person's health"
+    name: "Mês de início dos sintomas do indivíduo"
+    measure: false
+    note: "A calendar index; blank in 12 rows."
+  ANO_IS:
+    role: case.onset_year
+    kind: number
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Ano de início dos sintomas do indivíduo\" (case.onset_year): fact about the health event or the person's health"
+    name: "Ano de início dos sintomas do indivíduo"
+    note: "The lake's year partition (0 for the one row without it, the empty row)."
+  MONITORAMENTO_IS:
+    role: case.monitoring_period
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Período de monitoramento de início dos sintomas do indivíduo\" (case.monitoring_period): fact about the health event or the person's health"
+    name: "Período de monitoramento de início dos sintomas do indivíduo"
+    note: "July to June, '2016/2017' for onsets from 1 July 2016 to 30 June 2017 (the dictionary's footnote, the Ministry's seasonal year since 2008). It agrees with ANO_IS and MES_IS in all but 3 of 2911 rows."
+  OBITO:
+    missing: ['IGN']
+    # the dictionary gives no table; the file writes SIM, NÃO and IGN (88 rows), the words of the answer and DATASUS's abbreviation of Ignorado
+    fatal: ['SIM']
+    # death by the disease: the file is of yellow-fever cases and OBITO is 'evolução para o óbito', with no code for another cause
+    role: case.outcome
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução para o óbito\" (case.outcome): outcome of the case: outcome of the event"
+    name: "Evolução para o óbito"
+    note: "SIM 1069, NÃO 1754, IGN 88, blank 1 (the empty row). 32 of the 1069 deaths carry no DT_OBITO."
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do óbito (dd/mm/aaaa)\" (case.death_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data do óbito (dd/mm/aaaa)"

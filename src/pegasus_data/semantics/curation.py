@@ -452,6 +452,16 @@ def _inline_tables() -> dict[str, tuple[dict[str, str], dict[str, tuple[str, str
                 if codes:
                     out[curated_codelist_id(system, str(name))] = (
                         codes, _code_windows(path, str(name), body["codes"]))
+    # the code lists of the sources the intake mechanism reads (ADR-0162) are written in curation/intake.yml, and served the same way
+    from ..intake import curation_docs
+
+    for data in curation_docs(root)[0]:
+        for name, body in (data.get("variables") or {}).items():
+            if isinstance(body, dict) and body.get("codes"):
+                codes = _parse_codes(root / "intake.yml", str(name), body["codes"])
+                if codes:
+                    out[curated_codelist_id(str(data["system"]), str(name))] = (
+                        codes, _code_windows(root / "intake.yml", str(name), body["codes"]))
     return out
 
 

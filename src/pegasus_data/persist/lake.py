@@ -467,8 +467,17 @@ class Lake:
         # physically exists asked for an empty projection and got every column
         # instead — the opposite of what the caller wanted, and the shape that
         # structural null-filling depends on.
-        projection = self._projection(dataset, family_id, columns, optional_columns)
-        return dataset.to_table(columns=projection, filter=expression)
+        # An intake family (ADR-0162) files its provenance upper-case (`_SOURCE_PATH`, `_READ_ON`), as the source's own columns are:
+        # a read that asks for the lake's `_source_path` takes the upper-case column and hands it back under the name asked
+        available = set(dataset.schema.names)
+        alias = {c: c.upper() for c in (columns or ()) if c.startswith("_") and c not in available and c.upper() in available}
+        projection = self._projection(dataset, family_id, [alias.get(c, c) for c in columns] if columns is not None else None,
+                                      optional_columns)
+        table = dataset.to_table(columns=projection, filter=expression)
+        if alias:
+            back = {v: k for k, v in alias.items()}
+            table = table.rename_columns([back.get(name, name) for name in table.column_names])
+        return table
 
     def _projection(
         self,
