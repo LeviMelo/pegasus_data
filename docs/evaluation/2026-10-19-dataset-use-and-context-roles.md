@@ -33,3 +33,10 @@ SIH-CH, SIH-CM, the POPS/POPT and DADOS_ABERTOS entries state their own `semanti
 columns (`tests/test_semantic_axes.py` names these as the datasets left without both axes, with the reason).
 
 **Found, not fixed (OQ-90).** SNGPC-IND's `TP_RECEITUARIO` lands as `5.`, `1.` ...: the intake drops only a trailing `.0`, so the declared codes `1`-`5` never apply to it.
+
+**The landing fingerprint (same day).** `intake._fingerprint` digested a source's whole `columns` declaration, so editing a role's
+words or a code table downloaded the source again. It now digests `LANDED_KEYS` (type, take, formats, decimal, tokens, aliases,
+optional), and a sidecar holding the old whole digest under the current declaration is current and rewritten (`_current`).
+Dry run over `pegasus_core_data/registries/*/units`, files sources: SISAGUA surveillance 15 units carried over; SISAGUA control
+15, SNGPC industrialised 94 and compounded 34, yellow fever 2 already stale under the old digest (SNGPC-IND's sidecars, 2026-10-11,
+equal the digest without `PERIOD_DERIVATION['parts']` 2: they predate the month fix and land again on their next build).
