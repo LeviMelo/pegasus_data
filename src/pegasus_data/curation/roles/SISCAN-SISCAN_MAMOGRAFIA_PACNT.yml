@@ -34,12 +34,15 @@ columns:
     - 2013
     - 2025
   CO_FAIXA_ETARIA_PACIENTE:
-    role: exam.age_bracket
-    kind: category
-    model: mark
+    role: patient.age
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: "MAMOGRAFIA_PACNT 2013 holds 91,992 three-digit values 000-113, the same extremes and zero count (24) as the exam file's CO_IDADE_PACIENTE (93,229 exams)"
+    missing_unknown: "no document names a code for an unknown age; 113 (2013 minus 1900) on 24 rows and 0 on 24 are kept"
     fact_domain: person
-    fact_domain_evidence: "\"Faixa etária\" (exam.age_bracket): attribute of the person (age)"
-    name: Faixa etária
+    fact_domain_evidence: "\"Faixa etária\" (patient.age): attribute of the person (age)"
+    name: Idade
     years:
     - 2013
     - 2025
@@ -203,6 +206,7 @@ columns:
     - 2013
     - 2025
   SG_SEXO:
+    missing_unknown: "Sexo.CNV (TAB_SISCAN) lists only M and F; the file also holds I (2013 - 1 of CITO_COLO's 134,887 rows, 2 of MAMOGRAFIA's 93,229), which no document names"
     role: patient.sex
     kind: category
     model: stratum

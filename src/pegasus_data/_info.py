@@ -654,6 +654,7 @@ def dataset_facts(dataset: str) -> dict[str, Any]:
     * ``use`` (one of ``semantics.event_types.USES``: ``event_source`` when the rows become events, else ``context``,
       ``denominator``, ``support``, ``reference`` or ``not_an_event_source``; None: not yet declared) and, for a dataset
       with no event type, ``why_no_event_type``: the reason, with its evidence (ADR-0195);
+    * ``implied_sex``: the sex the records imply where the file holds no sex column (``sex`` 1 or 2, ``evidence``), else None;
     * ``time`` and ``geography``: the axes a row can be placed on (``default``, and per axis the ``fields`` and their
       ``encoding``), and ``publication``: how the server files the dataset (``temporal_resolution``, ``physical_geography``);
     * ``events``: what a row becomes when counted (the event types: ``status`` rule with its evidence, ``consolidation``,
@@ -664,7 +665,7 @@ def dataset_facts(dataset: str) -> dict[str, Any]:
     Declared nothing: ``documented`` is False and the statements are empty (not a statement that nothing is
     to be said). It reads the shipped curation, not a catalog: ``info`` shows the same statements.
     """
-    from .semantics.event_types import dataset_declaration, dataset_use, event_types
+    from .semantics.event_types import dataset_declaration, dataset_implied_sex, dataset_use, event_types
 
     declared = dataset_declaration(dataset)
     file, key, body = declared if declared else (None, None, {})
@@ -684,7 +685,7 @@ def dataset_facts(dataset: str) -> dict[str, Any]:
         "unit_of_analysis": clean(body.get("unit_of_analysis")),
         "known_biases": clean(body.get("known_biases")),
         "gotchas": [clean(g) for g in ([gotchas] if isinstance(gotchas, str) else gotchas)],
-        **dataset_use(dataset),
+        **dataset_use(dataset), "implied_sex": dataset_implied_sex(dataset),
         "time": {"default": axes.get("default_time"), "axes": axes.get("time") or {}},
         "geography": {"default": axes.get("default_geography"), "axes": axes.get("geography") or {}},
         "publication": {k: v for k, v in (body.get("source_publication") or {}).items()

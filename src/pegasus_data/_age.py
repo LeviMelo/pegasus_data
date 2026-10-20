@@ -29,6 +29,8 @@ sinan     NU_IDADE_N          4 chars: leading digit 1 hours, 2 days,
 years     any                 the value already is years (SINASC IDADEMAE)
 sivep     NU_IDADE_N +        TP_IDADE 1 days, 2 months, 3 years (SIVEP-Gripe,
           TP_IDADE            SRAG); a negative age is undecodable
+band      one code column     the LOWER EDGE, in years, of the band a code names (SISCAN's age bands, from the
+                              recipe's `lookup`); a code outside the lookup is null
 ========  ==================  ============================================
 
 An unparseable or absent age is a LEVEL, not a dropped row: unknown age is
@@ -59,10 +61,12 @@ class AgeDimension:
     """
 
     name: str
-    encoding: str  # "sih" | "cih" | "sim" | "sinan" | "years" | "dates"
+    encoding: str  # "sih" | "cih" | "sim" | "sinan" | "years" | "dates" | "band"
     fields: tuple[str, ...]
     bands: tuple[int, ...] = DEFAULT_BANDS
     label: str = "Faixa etária"
+    #: ``band`` encoding: (code, lower edge in years) of each band the source file's own table names
+    lookup: tuple[tuple[str, float], ...] = ()
 
     def band_levels(self) -> dict[str, str]:
         """``code -> label`` for every band plus the unknown level."""
@@ -81,7 +85,7 @@ class AgeDimension:
 
 #: the age conventions `years_column` decodes; "dates" is the years from a birth date to a reference date (RESP's
 #: newborns carry DT_NASC and DT_NOTIFIC and no age)
-ENCODINGS = ("sih", "cih", "sim", "sinan", "years", "dates", "sivep")
+ENCODINGS = ("sih", "cih", "sim", "sinan", "years", "dates", "sivep", "band")
 
 
 def parse_age_dimension(body: Any) -> AgeDimension | None:
@@ -98,8 +102,11 @@ def parse_age_dimension(body: Any) -> AgeDimension | None:
         raise ValueError(f"{encoding} age needs [value_field, unit_field]")
     if encoding == "dates" and len(fields) != 2:
         raise ValueError("dates age needs [birth_date_field, reference_date_field]")
-    if encoding in ("sim", "sinan", "years") and len(fields) != 1:
+    if encoding in ("sim", "sinan", "years", "band") and len(fields) != 1:
         raise ValueError(f"{encoding} age needs exactly one field")
+    lookup = tuple((str(k), float(v)) for k, v in (body.get("lookup") or {}).items())
+    if encoding == "band" and not lookup:
+        raise ValueError("band age needs its lookup: code -> the band's lower edge in years")
     bands = tuple(int(b) for b in (body.get("bands") or DEFAULT_BANDS))
     if list(bands) != sorted(set(bands)) or (bands and bands[0] != 0):
         raise ValueError("bands must be strictly increasing and start at 0")
@@ -109,6 +116,7 @@ def parse_age_dimension(body: Any) -> AgeDimension | None:
         fields=fields,
         bands=bands,
         label=str(body.get("label") or "Faixa etária"),
+        lookup=lookup,
     )
 
 
@@ -186,6 +194,10 @@ def years_column(age: AgeDimension, table: Any) -> Any:
 
     if age.encoding == "years":
         return _digits_to_years(text_of(age.fields[0]))
+    if age.encoding == "band":
+        # the lower edge of the band a code names; the exact code (a width is never padded or cut), null for any other
+        edges = pa.array([v for _, v in age.lookup], pa.float64())
+        return pc.take(edges, pc.index_in(text_of(age.fields[0]), value_set=pa.array([k for k, _ in age.lookup], pa.string())))
     if age.encoding == "dates":
         born, then = _date_of(text_of(age.fields[0])), _date_of(text_of(age.fields[1]))
         days = pc.divide(pc.cast(pc.cast(pc.subtract(then, born), pa.int64()), pa.float64()), 86400.0)

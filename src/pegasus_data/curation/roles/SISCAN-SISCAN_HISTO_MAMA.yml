@@ -34,7 +34,10 @@ columns:
   CO_IDADE_PACIENTE:
     role: patient.age
     kind: number
-    model: mark
+    unit: years
+    unit_evidence: "the CSV's ages equal the age (IDADE_PAC) of the TabNet kit on the same exams, which the kit's definition bins in years (Fetaria.CNV 000-009 ... 080-120): RJ 2013 57 of 57, SISCAN_HISTO_MAMA 2013 444 of 444, DF mammograms 25 of 25"
+    missing_unknown: "no document names a code for an unknown age; no value outside 13-87 in 2013"
+    model: stratum
     fact_domain: person
     fact_domain_evidence: "\"Idade\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade
@@ -255,6 +258,7 @@ columns:
     - 2025
     note: '0 or 1 on each exam: summing it counts the exams with this finding.'
   SG_SEXO:
+    missing_unknown: "Sexo.CNV (TAB_SISCAN) lists only M and F; the file also holds I (2013 - 1 of CITO_COLO's 134,887 rows, 2 of MAMOGRAFIA's 93,229), which no document names"
     role: patient.sex
     kind: category
     model: stratum

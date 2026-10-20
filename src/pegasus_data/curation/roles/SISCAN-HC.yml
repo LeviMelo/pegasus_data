@@ -558,7 +558,10 @@ columns:
   CO_PAC_IDA:
     role: patient.age
     kind: number
-    model: mark
+    unit: years
+    unit_evidence: "Idade.CNV and Fetaria.CNV of SISCOLO4 (sources/siscan/siscolo4): `CO_PAC_IDA` agrees with the band `CO_FX_ETAR` of SISCOLO4's own Idade.CNV on every row read (AC 2010-03 5,675, RN 2013-09 9,727, SP 2013-09 2,277 of HC): ages 0-11 in band 00, 12-14 in 61, each 5-year class in its band, 65 or over in 72"
+    missing_unknown: "no document names a code for an unknown age; no value outside 14-99 in HC SP 2013-09"
+    model: stratum
     fact_domain: person
     fact_domain_evidence: "\"Idade do paciente\" (patient.age): attribute of the patient (age, birth, residence, occupation, employer)"
     name: Idade do paciente

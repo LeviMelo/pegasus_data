@@ -253,6 +253,18 @@ def dataset_use(dataset: str) -> dict[str, str | None]:
     return {"use": str(body["use"]) if body.get("use") else None, "why_no_event_type": why}
 
 
+def dataset_implied_sex(dataset: str) -> dict[str, Any] | None:
+    """The sex every record of ``dataset`` implies, ``{"sex": 1 or 2, "evidence": ...}``, when its file has no sex column
+    and the exam or event itself fixes it (SISCOLO's cervical cytology and histopathology: the cervix); None when the
+    curation declares none. The reader of the sex stratum falls back to it where the roles hold no ``sex`` stratum; it is
+    never a column and never defaults."""
+    declared = dataset_declaration(dataset)
+    body = declared[2] if declared else {}
+    if body.get("implied_sex") is None:
+        return None
+    return {"sex": int(body["implied_sex"]), "evidence": " ".join(str(body["implied_sex_evidence"]).split())}
+
+
 def _check_uses(events: dict[str, tuple[EventType, ...]]) -> None:
     """Every declared ``use`` is one of :data:`USES`, and agrees with the dataset's event types: one that has event types
     is an ``event_source`` and gives no ``why_no_event_type``; one that has none declares both a use other than
@@ -260,6 +272,11 @@ def _check_uses(events: dict[str, tuple[EventType, ...]]) -> None:
     for key, (file, name, body) in _declarations().items():
         use, why = body.get("use"), body.get("why_no_event_type")
         where = f"{file}: {name}"
+        if body.get("implied_sex") is not None:
+            if body["implied_sex"] not in (1, 2) or not str(body.get("implied_sex_evidence") or "").strip():
+                raise ValueError(f"{where}: implied_sex is 1 (male) or 2 (female), with its implied_sex_evidence")
+        elif "implied_sex_evidence" in body:
+            raise ValueError(f"{where}: implied_sex_evidence without implied_sex")
         if use is not None and use not in USES:
             raise ValueError(f"{where}: use {use!r} not in {sorted(USES)}")
         if why is not None and not str(why).strip():
