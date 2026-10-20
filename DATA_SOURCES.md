@@ -962,6 +962,18 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   100 mL, turbidity at most 5 uT in the network, free chlorine at least 0.2 and at most 5 mg/L, fluoride at most 1.5 mg/L, apparent colour at most 15 uH,
   each with its article in the field's `what`. The files publish no out-of-standard flag for the surveillance samples (the control has its own list).
 
+## 14. SRAG, the yellow-fever monitoring files and three SINAN/SISPRENATAL structures (measured 2026-10-19; docs/evaluation/2026-10-19-srag-fa-event-types.md)
+
+- **SRAG (SIVEP-Gripe)** is `SRAG/YYYY/INFLUDyy-DD-MM-YYYY.parquet` on the Portal's S3 (the date is the cut: 23-03-2026 for 2019-2024, then 28-09-2026 and 19-10-2026 for the current years, rewritten weekly). One
+  schema of 194 columns, 4,666,910 notifications in the nine onset years of the lake; the dictionary is `SRAG/dicionario-de-dados-2019-a-2025.pdf` (SIVEP-Gripe, 25/05/2023) and the files are anonymised (no name, CPF,
+  CNS, address or notifying unit). The parquet types are the export's: dates timestamps, codes decimals, so the INFLUD19 and INFLUD20 files carry `5.0` where the others carry `5`, and `RAIOX_RES` is `6.0000000000`
+  in all. `CS_SEXO` is M, F, I; names and codes come in pairs (`ID_MN_RESI`/`CO_MUN_RES`); the Distrito Federal resides in its 5300xx administrative regions; `SEM_NOT` is the epidemiological week of `DT_NOTIFIC`
+  (the dictionary says the first symptoms); `TP_IDADE` 1, 2, 3 is days, months, years. A file holds its epidemiological year and 29 notifications repeat in two files.
+- **Yellow fever** is `Febre+Amarela/fa_casoshumanos_1994-2026.csv` (2,912 rows, the last one empty) and `fa_epizpnh_1994-2026.csv` (2,637), `;` and latin1, with a dictionary that gives no code table. The monitoring period runs July to June.
+  The human cases are the Ministry's confirmed ones (above), `DT_IS` may be the word `Assintomático`. The informes read: COES informe 40/2017 (10 May 2017), the monitoring report of 8 May 2018, PAHO/WHO's update of 13 December 2017.
+- **SINAN-ESPO** is the Sinan Net epizootics base (serial `ID_NOTIFICACAO`, gapless 1 to 32,492 for 2013-2022; no classification column). **SINAN-NTRA** holds survey batches whose positives SINAN-TRAC lists one by one.
+- **SISPRENATAL-PN** rows are pregnancy-months with cumulative consultation counts; `NU_GESTA` is a record serial that reaches 122,739, not a gravidity.
+
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 
 - **Every SINAN file on the server is dated 2021-11 or later**, including data

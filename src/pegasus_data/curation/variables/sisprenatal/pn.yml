@@ -329,9 +329,10 @@ variables:
       '
   NU_GESTA:
     official_name: Número de Gestações
-    translated_name: Number of pregnancies (gravidity)
-    description: 'Count of pregnancies the woman has had, not counting the current one — SISPRENATAL
-      Web''s obstetric-history question is documented as recording 00 for a first pregnancy.
+    translated_name: Pregnancy serial number (named Number of pregnancies)
+    description: 'A serial number of the pregnancy''s record, NOT the count of pregnancies the woman has had (measured 2026-10-19: it reaches
+      3,929 in Amapá 2013, 122,739 in Amapá 2014 and 84,061 in Roraima 2013; 2,803 distinct values in 3,377 rows of Amapá 2013, the
+      repeats being the same pregnancy in other months; the values of one state also occur in another).
 
       '
     code_system: none
@@ -342,7 +343,8 @@ variables:
       00 if first pregnancy" question. Reviewed 2026-09-28: no documentation found
       (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota
       técnica, the empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc
-      directory, and the web).'
+      directory, and the web). The gravidity reading is refuted by the values (2026-10-19, above): the
+      name is kept, the meaning is a serial.'
     notes: Declared C(6,0), wider than a small gravidity count would need — likely a generic
       export width.
   NU_IDADE:

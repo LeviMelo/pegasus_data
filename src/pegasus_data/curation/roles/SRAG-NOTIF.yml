@@ -1,0 +1,1482 @@
+# SRAG-NOTIF: the notifications of severe acute respiratory syndrome (SIVEP-Gripe), one file per epidemiological year on
+# the Portal de Dados Abertos do SUS. Every column is declared from the data dictionary of the Ministry of Health
+# (Dicionário de Dados, ficha de registro individual de casos de SRAG hospitalizados, 25/05/2023, 2019-2025,
+# https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/dicionario-de-dados-2019-a-2025.pdf) and checked against the
+# 4,666,910 rows of the 15 lake partitions (one schema, 194 columns, 2018-2026 onsets). A column the dictionary does
+# not describe, or describes without a code table, is `review: draft` and declares no code.
+dataset: SRAG-NOTIF
+record: notification
+columns:
+  NU_NOTIFIC:
+    role: notification.number
+    kind: identifier
+    model: link_only
+    name: "Número do registro"
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    fact_domain: process
+    fact_domain_evidence: "\"Data do preenchimento da ficha de notificação\" (notification.date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Data do preenchimento da ficha de notificação"
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Semana Epidemiológica do preenchimento da ficha de notificação\" (notification.epi_week): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Semana Epidemiológica do preenchimento da ficha de notificação"
+    note: "The dictionary says this week is calculated from the date of first symptoms; it is the epidemiological week of DT_NOTIFIC (Sunday to Saturday, week 1 the first with four days in the year): equal in 100000 of 100000 rows of the 2022 file, against 40102 for DT_SIN_PRI."
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data de 1ºs sintomas\" (case.onset): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data de 1ºs sintomas"
+    note: "The lake partitions this dataset by the year and month of this date (a file holds the notifications of its epidemiological year, and a few onsets of the year before)."
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Semana Epidemiológica dos Primeiros Sintomas\" (case.onset_epi_week): fact about the health event or the person's health"
+    name: "Semana Epidemiológica dos Primeiros Sintomas"
+    note: "The epidemiological week of DT_SIN_PRI in 100000 of 100000 rows of the 2022 file."
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"UF (da unidade notificadora)\" (notification.state): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "UF (da unidade notificadora)"
+  ID_REGIONA:
+    role: notification.health_region_name
+    kind: text
+    model: excluded
+    name: "Regional de Saúde de Notificação"
+  CO_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde de Notificação\" (notification.health_region): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Regional de Saúde de Notificação"
+  ID_MUNICIP:
+    role: notification.municipality_name
+    kind: text
+    model: excluded
+    name: "Município de notificação"
+  CO_MUN_NOT:
+    role: notification.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"Município de notificação, código (IBGE)\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Município de notificação, código (IBGE)"
+  CS_SEXO:
+    missing: ['I']
+    # the files' own letters (measured over 4,666,910 rows): M='Masculino', F='Feminino', I='Ignorado'; the dictionary lists the DBF export's 1 Masculino, 2 Feminino, 9 Ignorado, and SINAN's SEXO table writes the same three letters
+    role: patient.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo\" (patient.sex): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Sexo"
+    note: "The open files file M, F and I; the dictionary lists the DBF export's 1, 2 and 9 (4,666,910 rows measured: M 2483220, F 2182883, I 807, none other)."
+  DT_NASC:
+    role: patient.birth_date
+    kind: date
+    model: excluded
+    name: "Data de nascimento"
+    note: "A personal birth date: passed through unmodified and flagged, never modelled (205 of 560577 rows of the 2022 file are blank)."
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Idade\" (patient.age_coded): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Idade"
+    measure: false
+    note: "-9 and other negative values occur (the dictionary says at most 150); the age stratum is the derived IDADE_anos."
+  TP_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Tipo da idade\" (patient.age_unit): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Tipo da idade"
+    note: "Measured against DT_NASC and DT_SIN_PRI (2022 file, 560372 rows with both dates) - unit 1 is 1.0 day per unit, unit 2 is 30.2 days per unit, unit 3 is 365 to 368 days per unit."
+  COD_IDADE:
+    role: patient.age_code
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: "\"Código da idade\" (patient.age_code): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Código da idade"
+    review: draft
+    note: "Not in the dictionary. Measured: equals TP_IDADE followed by NU_IDADE_N in three digits in 560576 of 560577 rows of the 2022 file (the one other holds -9)."
+  CS_GESTANT:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='1º Trimestre', 2='2º Trimestre', 3='3º Trimestre', 4='Idade Gestacional Ignorada', 5='Não', 6='Não se aplica', 9='Ignorado'
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Gestante\" (patient.pregnancy_status): fact about the health event or the person's health"
+    name: "Gestante"
+    note: "The code 0 occurs (1493 rows over the nine years) and the dictionary does not name it: it stays undecoded."
+  CS_RACA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Branca', 2='Preta', 3='Amarela', 4='Parda', 5='Indígena', 9='Ignorado'
+    role: patient.race
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: "\"Raça/Cor\" (patient.race): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Raça/Cor"
+  CS_ETINIA:
+    role: patient.indigenous_ethnicity
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Se indígena, qual etnia?\" (patient.indigenous_ethnicity): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Se indígena, qual etnia?"
+  CS_ESCOL_N:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 0='Sem escolaridade/Analfabeto', 1='Fundamental 1º ciclo (1ª a 5ª série)', 2='Fundamental 2º ciclo (6ª a 9ª série)', 3='Médio (1º ao 3º ano)', 4='Superior', 5='Não se aplica', 9='Ignorado'
+    role: patient.education
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Escolaridade\" (patient.education): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Escolaridade"
+  ID_PAIS:
+    role: patient.residence_country_name
+    kind: text
+    model: excluded
+    name: "País de residência"
+  CO_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: "\"País (se residente fora do Brasil)\" (patient.residence_country): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "País (se residente fora do Brasil)"
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: "\"UF de residência\" (patient.residence_state): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "UF de residência"
+  ID_RG_RESI:
+    role: patient.residence_health_region_name
+    kind: text
+    model: excluded
+    name: "Regional de Saúde de Residência"
+  CO_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: "\"Regional de Saúde de Residência\" (patient.residence_health_region): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Regional de Saúde de Residência"
+  ID_MN_RESI:
+    role: patient.residence_municipality_name
+    kind: text
+    model: excluded
+    name: "Município de residência"
+  CO_MUN_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: "\"Município de residência, código (IBGE)\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Município de residência, código (IBGE)"
+  CS_ZONA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Urbana', 2='Rural', 3='Periurbana', 9='Ignorado'
+    role: patient.residence_zone
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Zona\" (patient.residence_zone): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Zona"
+  NOSOCOMIAL:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.nosocomial
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Caso nosocomial (infecção adquirida no hospital)?\" (case.nosocomial): place of infection, exposure, travel, risk or accident: exposure of the case"
+    name: "Caso nosocomial (infecção adquirida no hospital)?"
+  AVE_SUINO:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim, aves e/ou suínos', 2='Não, nenhum', 3='Sim, outros', 9='Ignorado'
+    role: case.animal_contact
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Paciente trabalha ou tem contato direto com aves, suínos, ou outro animal?\" (case.animal_contact): place of infection, exposure, travel, risk or accident: exposure of the case"
+    name: "Paciente trabalha ou tem contato direto com aves, suínos, ou outro animal?"
+  OUT_ANIM:
+    role: case.animal_contact_text
+    kind: text
+    model: excluded
+    name: "Contato com outro animal (especificar)"
+  FEBRE:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_fever
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Febre\" (case.sign_fever): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Febre"
+  TOSSE:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_cough
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Tosse\" (case.sign_cough): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Tosse"
+  GARGANTA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_sore_throat
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Dor de Garganta\" (case.sign_sore_throat): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Dor de Garganta"
+  DISPNEIA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_dyspnoea
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Dispneia\" (case.sign_dyspnoea): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Dispneia"
+  DESC_RESP:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_respiratory_distress
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Desconforto Respiratório\" (case.sign_respiratory_distress): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Desconforto Respiratório"
+  SATURACAO:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_low_saturation
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Saturação O2 < 95%\" (case.sign_low_saturation): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Saturação O2 < 95%"
+  DIARREIA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_diarrhoea
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Diarreia\" (case.sign_diarrhoea): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Diarreia"
+  VOMITO:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_vomiting
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Vômito\" (case.sign_vomiting): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Vômito"
+  OUTRO_SIN:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_other
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Outros\" (case.sign_other): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Outros"
+  OUTRO_DES:
+    role: case.sign_other_text
+    kind: text
+    model: excluded
+    name: "Sinais e Sintomas/Outros (Descrição)"
+  FATOR_RISC:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.risk_factor
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco\" (patient.risk_factor): fact about the health event or the person's health"
+    name: "Fatores de risco"
+    note: "Only the code 1 and blank occur in the files (2538444 and 2128466 rows of 4666910)."
+  PUERPERA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.puerperal
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Puérpera\" (patient.puerperal): fact about the health event or the person's health"
+    name: "Fatores de risco/Puérpera"
+  CARDIOPATI:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.chronic_cardiovascular_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Doença Cardiovascular Crônica\" (patient.chronic_cardiovascular_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Doença Cardiovascular Crônica"
+  HEMATOLOGI:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.hematologic_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Doença Hematológica Crônica\" (patient.hematologic_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Doença Hematológica Crônica"
+  SIND_DOWN:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.down_syndrome
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Síndrome de Down\" (patient.down_syndrome): fact about the health event or the person's health"
+    name: "Fatores de risco/Síndrome de Down"
+  HEPATICA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.liver_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Doença Hepática Crônica\" (patient.liver_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Doença Hepática Crônica"
+  ASMA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.asthma
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Asma\" (patient.asthma): fact about the health event or the person's health"
+    name: "Fatores de risco/Asma"
+  DIABETES:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.diabetes
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Diabetes mellitus\" (patient.diabetes): fact about the health event or the person's health"
+    name: "Fatores de risco/Diabetes mellitus"
+  NEUROLOGIC:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.chronic_neurologic_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Doença Neurológica Crônica\" (patient.chronic_neurologic_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Doença Neurológica Crônica"
+  PNEUMOPATI:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.other_chronic_lung_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Outra Pneumatopatia Crônica\" (patient.other_chronic_lung_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Outra Pneumatopatia Crônica"
+  IMUNODEPRE:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.immunodeficiency
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Imunodeficiência ou Imunodepressão\" (patient.immunodeficiency): fact about the health event or the person's health"
+    name: "Fatores de risco/Imunodeficiência ou Imunodepressão"
+  RENAL:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.chronic_kidney_disease
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Doença Renal Crônica\" (patient.chronic_kidney_disease): fact about the health event or the person's health"
+    name: "Fatores de risco/Doença Renal Crônica"
+  OBESIDADE:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.obesity
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Obesidade\" (patient.obesity): fact about the health event or the person's health"
+    name: "Fatores de risco/Obesidade"
+  OBES_IMC:
+    role: patient.bmi
+    kind: number
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Obesidade (Descrição IMC)\" (patient.bmi): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Fatores de risco/Obesidade (Descrição IMC)"
+    unit_unknown: "the vocabulary of units has no kg/m2 (a body mass index is a ratio of kilograms to square metres); the dictionary gives the field as 3 characters and no unit"
+    note: "Filed as text with decimals ('30.00'); values such as 0.00 occur (282 in the 2022 file)."
+  OUT_MORBI:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.other_risk_factor
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Outros\" (patient.other_risk_factor): fact about the health event or the person's health"
+    name: "Fatores de risco/Outros"
+  MORB_DESC:
+    role: patient.other_risk_factor_text
+    kind: text
+    model: excluded
+    name: "Fatores de risco/Outros (Descrição)"
+  TABAG:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.smoker
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Fatores de risco/Tabagismo\" (patient.smoker): fact about the health event or the person's health"
+    name: "Fatores de risco/Tabagismo"
+    note: "Blank in every row of the nine years (4666910 of 4666910), though the dictionary lists it."
+  VACINA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.influenza_vaccinated
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Recebeu vacina contra Gripe na última campanha?\" (patient.influenza_vaccinated): fact about the health event or the person's health"
+    name: "Recebeu vacina contra Gripe na última campanha?"
+  DT_UT_DOSE:
+    role: patient.influenza_vaccination_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da vacinação\" (patient.influenza_vaccination_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data da vacinação"
+  MAE_VAC:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.mother_influenza_vaccinated
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se < 6 meses: a mãe recebeu a vacina?\" (patient.mother_influenza_vaccinated): fact about the health event or the person's health"
+    name: "Se < 6 meses: a mãe recebeu a vacina?"
+  DT_VAC_MAE:
+    role: patient.mother_vaccination_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se sim, data (da vacina da mãe)\" (patient.mother_vaccination_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Se sim, data (da vacina da mãe)"
+  M_AMAMENTA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.breastfed_by_mother
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se < 6 meses: a mãe amamenta a criança?\" (patient.breastfed_by_mother): fact about the health event or the person's health"
+    name: "Se < 6 meses: a mãe amamenta a criança?"
+  DT_DOSEUNI:
+    role: patient.influenza_single_dose_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se >= 6 meses e <= 8 anos: Data da dose única 1/1\" (patient.influenza_single_dose_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Se >= 6 meses e <= 8 anos: Data da dose única 1/1"
+  DT_1_DOSE:
+    role: patient.influenza_first_dose_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se >= 6 meses e <= 8 anos: Data da 1ª dose\" (patient.influenza_first_dose_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Se >= 6 meses e <= 8 anos: Data da 1ª dose"
+  DT_2_DOSE:
+    role: patient.influenza_second_dose_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Se >= 6 meses e <= 8 anos: Data da 2ª dose\" (patient.influenza_second_dose_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Se >= 6 meses e <= 8 anos: Data da 2ª dose"
+  ANTIVIRAL:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: treatment.antiviral_used
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Usou antiviral para gripe?\" (treatment.antiviral_used): treatment given: serum, drug, doses, dates or transfer"
+    name: "Usou antiviral para gripe?"
+  TP_ANTIVIR:
+    role: treatment.antiviral_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Qual antiviral?\" (treatment.antiviral_type): treatment given: serum, drug, doses, dates or transfer"
+    name: "Qual antiviral?"
+  OUT_ANTIV:
+    role: treatment.antiviral_other_text
+    kind: text
+    model: excluded
+    name: "Qual antiviral / Outro, especifique"
+  DT_ANTIVIR:
+    role: treatment.antiviral_start_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do início do tratamento\" (treatment.antiviral_start_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data do início do tratamento"
+  HOSPITAL:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.hospitalised
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: "\"Houve internação?\" (case.hospitalised): how care or investigation was carried out"
+    name: "Houve internação?"
+    note: "The system warns that a record whose answer is not 1 does not meet the case definition, yet the files keep them (2022 file: 2 in 11646 rows, 9 in 957, blank in 17674; 4615 of the 11646 died of SRAG)."
+  DT_INTERNA:
+    role: case.hospital_admission_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da internação por SRAG\" (case.hospital_admission_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da internação por SRAG"
+  SG_UF_INTE:
+    role: case.hospital_state
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"UF de internação\" (case.hospital_state): how care or investigation was carried out"
+    name: "UF de internação"
+  ID_RG_INTE:
+    role: case.hospital_health_region_name
+    kind: text
+    model: excluded
+    name: "Regional de Saúde de Internação"
+  CO_RG_INTE:
+    role: case.hospital_health_region
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"Regional de Saúde de Internação\" (case.hospital_health_region): how care or investigation was carried out"
+    name: "Regional de Saúde de Internação"
+  ID_MN_INTE:
+    role: case.hospital_municipality_name
+    kind: text
+    model: excluded
+    name: "Município de internação"
+  CO_MU_INTE:
+    role: case.hospital_municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: process
+    fact_domain_evidence: "\"Município de internação, código (IBGE)\" (case.hospital_municipality): how care or investigation was carried out"
+    name: "Município de internação, código (IBGE)"
+  NM_UN_INTE:
+    role: case.hospital_name
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Unidade de Saúde de internação\" (case.hospital_name): facility register and record keeping"
+    name: "Unidade de Saúde de internação"
+  UTI:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.icu_admitted
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Internado em UTI?\" (case.icu_admitted): fact about the health event or the person's health"
+    name: "Internado em UTI?"
+  DT_ENTUTI:
+    role: case.icu_entry_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da entrada na UTI\" (case.icu_entry_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da entrada na UTI"
+  DT_SAIDUTI:
+    role: case.icu_exit_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da saída da UTI\" (case.icu_exit_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da saída da UTI"
+  SUPORT_VEN:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim, invasivo', 2='Sim, não invasivo', 3='Não', 9='Ignorado'
+    role: case.ventilatory_support
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Uso de suporte ventilatório?\" (case.ventilatory_support): fact about the health event or the person's health"
+    name: "Uso de suporte ventilatório?"
+  RAIOX_RES:
+    missing: ['9', '9.0']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Normal', 2='Infiltrado intersticial', 3='Consolidação', 4='Misto', 5='Outro', 6='Não realizado', 9='Ignorado'
+    role: case.chest_xray_result
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Raio X de Tórax\" (case.chest_xray_result): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Raio X de Tórax"
+    note: "Filed as a float's text ('6.0000000000') in every file; read as the integer's digits, the value as filed stays in RAIOX_RES__RAW."
+  RAIOX_OUT:
+    role: case.chest_xray_other_text
+    kind: text
+    model: excluded
+    name: "Raio X de Tórax/Outro (especificar)"
+  DT_RAIOX:
+    role: case.chest_xray_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do Raio X\" (case.chest_xray_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data do Raio X"
+  AMOSTRA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sample_collected
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Coletou amostra?\" (case.sample_collected): how care or investigation was carried out"
+    name: "Coletou amostra?"
+  DT_COLETA:
+    role: case.sample_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Coleta\" (case.sample_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da Coleta"
+  TP_AMOSTRA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Secreção de Naso-orofaringe', 2='Lavado Broco-alveolar', 3='Tecido post-mortem', 4='Outra, qual?', 5='LCR', 9='Ignorado'
+    role: case.sample_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de amostra\" (case.sample_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Tipo de amostra"
+  OUT_AMOST:
+    role: case.sample_type_text
+    kind: text
+    model: excluded
+    name: "Tipo de amostra/Outra"
+  PCR_RESUL:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Detectável', 2='Não Detectável', 3='Inconclusivo', 4='Não Realizado', 5='Aguardando Resultado', 9='Ignorado'
+    role: case.pcr_result
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado da RT-PCR/outro método por Biologia Molecular\" (case.pcr_result): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Resultado da RT-PCR/outro método por Biologia Molecular"
+  DT_PCR:
+    role: case.pcr_result_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do Resultado RT-PCR/outro método por Biologia Molecular\" (case.pcr_result_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data do Resultado RT-PCR/outro método por Biologia Molecular"
+  POS_PCRFLU:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.pcr_influenza_positive
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Positivo para Influenza?\" (case.pcr_influenza_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Positivo para Influenza?"
+  TP_FLU_PCR:
+    role: case.pcr_influenza_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Se sim, qual Influenza?\" (case.pcr_influenza_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Se sim, qual Influenza?"
+  PCR_FLUASU:
+    role: case.pcr_influenza_a_subtype
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Se Influenza A, qual subtipo?\" (case.pcr_influenza_a_subtype): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Se Influenza A, qual subtipo?"
+  FLUASU_OUT:
+    role: case.pcr_influenza_a_subtype_text
+    kind: text
+    model: excluded
+    name: "Se Influenza A, qual subtipo? Outro, especifique"
+  PCR_FLUBLI:
+    role: case.pcr_influenza_b_lineage
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Se Influenza B, qual linhagem?\" (case.pcr_influenza_b_lineage): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Se Influenza B, qual linhagem?"
+  FLUBLI_OUT:
+    role: case.pcr_influenza_b_lineage_text
+    kind: text
+    model: excluded
+    name: "Se Influenza B, qual linhagem? Outro, especifique"
+  POS_PCROUT:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.pcr_other_virus_positive
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Positivo para outros vírus?\" (case.pcr_other_virus_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Positivo para outros vírus?"
+  PCR_VSR:
+    role: case.pcr_rsv
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: VSR\" (case.pcr_rsv): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: VSR"
+    note: "Marked 1 by the user, blank when not marked."
+  PCR_PARA1:
+    role: case.pcr_parainfluenza_1
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 1\" (case.pcr_parainfluenza_1): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Parainfluenza 1"
+  PCR_PARA2:
+    role: case.pcr_parainfluenza_2
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 2\" (case.pcr_parainfluenza_2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Parainfluenza 2"
+  PCR_PARA3:
+    role: case.pcr_parainfluenza_3
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 3\" (case.pcr_parainfluenza_3): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Parainfluenza 3"
+  PCR_PARA4:
+    role: case.pcr_parainfluenza_4
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Parainfluenza 4\" (case.pcr_parainfluenza_4): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Parainfluenza 4"
+  PCR_ADENO:
+    role: case.pcr_adenovirus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Adenovírus\" (case.pcr_adenovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Adenovírus"
+  PCR_METAP:
+    role: case.pcr_metapneumovirus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Metapneumovírus\" (case.pcr_metapneumovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Metapneumovírus"
+  PCR_BOCA:
+    role: case.pcr_bocavirus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Bocavírus\" (case.pcr_bocavirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Bocavírus"
+  PCR_RINO:
+    role: case.pcr_rhinovirus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Rinovírus\" (case.pcr_rhinovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Rinovírus"
+  PCR_OUTRO:
+    role: case.pcr_other_virus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: Outro vírus respiratório, especifique\" (case.pcr_other_virus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: Outro vírus respiratório, especifique"
+  DS_PCR_OUT:
+    role: case.pcr_other_virus_text
+    kind: text
+    model: excluded
+    name: "Outro vírus respiratório (Descrição)"
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    fact_domain: clinical
+    fact_domain_evidence: "\"Classificação final do caso\" (case.classification): final classification of the case: clinical classification"
+    name: "Classificação final do caso"
+    note: "Blank while the case is open (2022 file: 27877 of 560577); there is no code for a discarded case. Filed as '5.0' in the INFLUD19 and INFLUD20 files (2018-2021 onsets); read as the integer's digits, the value as filed stays in CLASSI_FIN__RAW. When the laboratory methods disagree the dictionary prioritises the RT-PCR."
+  CLASSI_OUT:
+    role: case.classification_text
+    kind: text
+    model: excluded
+    name: "Classificação final do caso/SRAG por outro agente etiológico, qual"
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Critério de Encerramento\" (case.confirmation_criterion): fact about the health event or the person's health"
+    name: "Critério de Encerramento"
+    note: "The dictionary says the clinical (3) and clinical-imaging (4) criteria are no longer used to close SRAG by covid-19 since 31/10/2022, and imaging (4) never closes SRAG by influenza, other viruses, other agents or unspecified SRAG."
+  EVOLUCAO:
+    missing: ['9', '9.0']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Cura', 2='Óbito', 3='Óbito por outras causas', 9='Ignorado'
+    fatal: ['2', '2.0']
+    fatal_other: ['3', '3.0']
+    # from the dictionary's labels for the column: 2='Óbito', 3='Óbito por outras causas'; '2.0' and '3.0' are the same codes as the INFLUD19 and INFLUD20 files filed them
+    role: case.outcome
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Evolução do caso\" (case.outcome): outcome of the case: outcome of the event"
+    name: "Evolução do caso"
+    note: "Filed as '2.0' in the INFLUD19 and INFLUD20 files; read as the integer's digits, the value as filed stays in EVOLUCAO__RAW. Blank while the outcome is unknown."
+  DT_EVOLUCA:
+    role: case.outcome_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da alta ou óbito\" (case.outcome_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data da alta ou óbito"
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do Encerramento\" (notification.closing_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Data do Encerramento"
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da digitação\" (notification.entry_date): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
+    name: "Data da digitação"
+  HISTO_VGM:
+    role: case.travel_history
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Histórico de viagem\" (case.travel_history): place of infection, exposure, travel, risk or accident: exposure of the case"
+    name: "Histórico de viagem"
+    review: draft
+    note: "Not in the 2023 dictionary and no earlier one was found. The codes in the files are 0 (3744410 rows), 1 (1056), 2 (783417) and 9 (138027); none is declared. PAIS_VGM, CO_PS_VGM, LO_PS_VGM, DT_VGM and DT_RT_VGM are blank in the 2022 file."
+  PAIS_VGM:
+    role: case.travel_country_name
+    kind: text
+    model: excluded
+    name: "(histórico de viagem) país"
+    review: draft
+  CO_PS_VGM:
+    role: case.travel_country
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"(histórico de viagem) código do país\" (case.travel_country): fact about the health event or the person's health"
+    name: "(histórico de viagem) código do país"
+    review: draft
+  LO_PS_VGM:
+    role: case.travel_place_text
+    kind: text
+    model: excluded
+    name: "(histórico de viagem) local"
+    review: draft
+  DT_VGM:
+    role: case.travel_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"(histórico de viagem) data\" (case.travel_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "(histórico de viagem) data"
+    review: draft
+  DT_RT_VGM:
+    role: case.travel_return_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"(histórico de viagem) data de retorno\" (case.travel_return_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "(histórico de viagem) data de retorno"
+    review: draft
+  PCR_SARS2:
+    role: case.pcr_sars2
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico RT-PCR: SARS-CoV-2\" (case.pcr_sars2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico RT-PCR: SARS-CoV-2"
+    note: "Filed as '1.0' in the INFLUD20 file; read as the integer's digits, the value as filed stays in PCR_SARS2__RAW."
+  PAC_COCBO:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Ocupação"
+    note: "The code 'XXX' (1563 rows of the 2022 file) is filed with the description NAO INFORMADO."
+  PAC_DSCBO:
+    role: patient.occupation_text
+    kind: text
+    model: excluded
+    name: "Ocupação (descrição)"
+  DOR_ABD:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_abdominal_pain
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Dor abdominal\" (case.sign_abdominal_pain): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Dor abdominal"
+  FADIGA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_fatigue
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Fadiga\" (case.sign_fatigue): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Fadiga"
+  PERD_OLFT:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_loss_of_smell
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Perda do Olfato\" (case.sign_loss_of_smell): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Perda do Olfato"
+  PERD_PALA:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.sign_loss_of_taste
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Sinais e Sintomas/Perda do Paladar\" (case.sign_loss_of_taste): fact about the health event or the person's health"
+    name: "Sinais e Sintomas/Perda do Paladar"
+  TOMO_RES:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Típico covid-19', 2='Indeterminado covid-19', 3='Atípico covid-19', 4='Negativo para Pneumonia', 5='Outro', 6='Não realizado', 9='Ignorado'
+    role: case.ct_result
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Aspecto Tomografia\" (case.ct_result): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Aspecto Tomografia"
+  TOMO_OUT:
+    role: case.ct_result_text
+    kind: text
+    model: excluded
+    name: "Aspecto Tomografia/Outro (especificar)"
+  DT_TOMO:
+    role: case.ct_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da Tomografia\" (case.ct_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da Tomografia"
+  TP_TES_AN:
+    role: case.antigen_test_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo do Teste antigênico\" (case.antigen_test_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Tipo do Teste antigênico"
+  DT_RES_AN:
+    role: case.antigen_result_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do resultado teste Antigênico\" (case.antigen_result_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data do resultado teste Antigênico"
+  RES_AN:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Positivo', 2='Negativo', 3='Inconclusivo', 4='Não realizado', 5='Aguardando resultado', 9='Ignorado'
+    role: case.antigen_result
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Teste Antigênico\" (case.antigen_result): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Resultado do Teste Antigênico"
+  POS_AN_FLU:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.antigen_influenza_positive
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Positivo para Influenza?\" (case.antigen_influenza_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Positivo para Influenza?"
+  TP_FLU_AN:
+    role: case.antigen_influenza_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Se sim, qual Influenza?\" (case.antigen_influenza_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Se sim, qual Influenza?"
+  POS_AN_OUT:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.antigen_other_virus_positive
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Positivo para outros vírus?\" (case.antigen_other_virus_positive): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Positivo para outros vírus?"
+  AN_SARS2:
+    role: case.antigen_sars2
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: SARS-CoV-2\" (case.antigen_sars2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: SARS-CoV-2"
+    note: "Filed as '1.0' in the INFLUD20 file; read as the integer's digits, the value as filed stays in AN_SARS2__RAW."
+  AN_VSR:
+    role: case.antigen_rsv
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: VSR\" (case.antigen_rsv): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: VSR"
+  AN_PARA1:
+    role: case.antigen_parainfluenza_1
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 1\" (case.antigen_parainfluenza_1): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Parainfluenza 1"
+  AN_PARA2:
+    role: case.antigen_parainfluenza_2
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 2\" (case.antigen_parainfluenza_2): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Parainfluenza 2"
+  AN_PARA3:
+    role: case.antigen_parainfluenza_3
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Parainfluenza 3\" (case.antigen_parainfluenza_3): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Parainfluenza 3"
+  AN_ADENO:
+    role: case.antigen_adenovirus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Adenovírus\" (case.antigen_adenovirus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Adenovírus"
+  AN_OUTRO:
+    role: case.antigen_other_virus
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Agente etiológico Teste Antigênico: Outro vírus respiratório\" (case.antigen_other_virus): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Agente etiológico Teste Antigênico: Outro vírus respiratório"
+  DS_AN_OUT:
+    role: case.antigen_other_virus_text
+    kind: text
+    model: excluded
+    name: "Outro vírus respiratório (Descrição)"
+  TP_AM_SOR:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sangue/plasma/soro', 2='Outra, qual?', 9='Ignorado'
+    role: case.serology_sample_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de Amostra Sorológica para SARS-Cov-2\" (case.serology_sample_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Tipo de Amostra Sorológica para SARS-Cov-2"
+  SOR_OUT:
+    role: case.serology_sample_type_text
+    kind: text
+    model: excluded
+    name: "Tipo de Amostra Sorológica para SARS-Cov-2/Outra, qual?"
+  DT_CO_SOR:
+    role: case.serology_sample_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data da coleta (sorologia)\" (case.serology_sample_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data da coleta (sorologia)"
+  TP_SOR:
+    role: case.serology_test_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Tipo de Sorologia para SARS-Cov-2\" (case.serology_test_type): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Tipo de Sorologia para SARS-Cov-2"
+  OUT_SOR:
+    role: case.serology_test_type_text
+    kind: text
+    model: excluded
+    name: "Tipo de Sorologia para SARS-Cov-2/Outro, qual?"
+  DT_RES:
+    role: case.serology_result_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do Resultado (sorologia)\" (case.serology_result_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data do Resultado (sorologia)"
+  RES_IGG:
+    role: case.serology_igg
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgG\" (case.serology_igg): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Resultado do Teste Sorológico para SARS-CoV-2: IgG"
+    review: draft
+    note: "The dictionary names the field and no code table. The codes in the files are 1, 2, 3, 4, 5 and 9; none is declared (RES_AN's table has the same digits but is another field's)."
+  RES_IGM:
+    role: case.serology_igm
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgM\" (case.serology_igm): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Resultado do Teste Sorológico para SARS-CoV-2: IgM"
+    review: draft
+    note: "As RES_IGG: no code table in the dictionary."
+  RES_IGA:
+    role: case.serology_iga
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgA\" (case.serology_iga): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Resultado do Teste Sorológico para SARS-CoV-2: IgA"
+    review: draft
+    note: "As RES_IGG: no code table in the dictionary."
+  POV_CT:
+    role: patient.traditional_community_member
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"É membro de povo ou comunidade tradicional?\" (patient.traditional_community_member): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "É membro de povo ou comunidade tradicional?"
+  TP_POV_CT:
+    role: patient.traditional_community
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Se sim, qual?\" (patient.traditional_community): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Se sim, qual?"
+  TEM_CPF:
+    role: patient.has_cpf
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Tem CPF?\" (patient.has_cpf): facility register and record keeping"
+    name: "Tem CPF?"
+  ESTRANG:
+    role: patient.foreigner
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: "\"Estrangeiro\" (patient.foreigner): attribute of the patient (age, birth, residence, occupation, employer)"
+    name: "Estrangeiro"
+  VACINA_COV:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: patient.covid_vaccinated
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Recebeu vacina COVID-19?\" (patient.covid_vaccinated): fact about the health event or the person's health"
+    name: "Recebeu vacina COVID-19?"
+  DOSE_1_COV:
+    role: patient.covid_dose_1_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data 1ª dose da vacina COVID-19\" (patient.covid_dose_1_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data 1ª dose da vacina COVID-19"
+  DOSE_2_COV:
+    role: patient.covid_dose_2_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data 2ª dose da vacina COVID-19\" (patient.covid_dose_2_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data 2ª dose da vacina COVID-19"
+  DOSE_REF:
+    role: patient.covid_booster_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da dose reforço da vacina COVID-19\" (patient.covid_booster_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data da dose reforço da vacina COVID-19"
+  DOSE_2REF:
+    role: patient.covid_booster_2_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da 2ª dose reforço da vacina COVID-19\" (patient.covid_booster_2_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data da 2ª dose reforço da vacina COVID-19"
+  DOSE_ADIC:
+    role: patient.covid_additional_dose_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data da dose adicional da vacina COVID-19\" (patient.covid_additional_dose_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data da dose adicional da vacina COVID-19"
+  DOS_RE_BI:
+    role: patient.covid_bivalent_booster_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data dose reforço bivalente COVID-19\" (patient.covid_bivalent_booster_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data dose reforço bivalente COVID-19"
+  FAB_COV_1:
+    role: patient.covid_dose_1_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante 1ª dose da vacina COVID-19\" (patient.covid_dose_1_manufacturer): facility register and record keeping"
+    name: "Fabricante 1ª dose da vacina COVID-19"
+    note: "The dictionary names it FAB_COV1; the files file FAB_COV_1."
+  FAB_COV_2:
+    role: patient.covid_dose_2_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante 2ª dose da vacina COVID-19\" (patient.covid_dose_2_manufacturer): facility register and record keeping"
+    name: "Fabricante 2ª dose da vacina COVID-19"
+    note: "The dictionary names it FAB_COV2; the files file FAB_COV_2."
+  FAB_COVRF:
+    role: patient.covid_booster_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante dose reforço da vacina COVID-19\" (patient.covid_booster_manufacturer): facility register and record keeping"
+    name: "Fabricante dose reforço da vacina COVID-19"
+  FAB_COVRF2:
+    role: patient.covid_booster_2_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante 2ª dose reforço da vacina COVID-19\" (patient.covid_booster_2_manufacturer): facility register and record keeping"
+    name: "Fabricante 2ª dose reforço da vacina COVID-19"
+  FAB_ADIC:
+    role: patient.covid_additional_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante dose adicional da vacina COVID-19\" (patient.covid_additional_manufacturer): facility register and record keeping"
+    name: "Fabricante dose adicional da vacina COVID-19"
+  FAB_RE_BI:
+    role: patient.covid_bivalent_manufacturer
+    kind: text
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fabricante dose reforço bivalente COVID-19\" (patient.covid_bivalent_manufacturer): facility register and record keeping"
+    name: "Fabricante dose reforço bivalente COVID-19"
+  LOTE_1_COV:
+    role: patient.covid_dose_1_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote 1ª Dose"
+  LOTE_2_COV:
+    role: patient.covid_dose_2_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote 2ª Dose"
+  LOTE_REF:
+    role: patient.covid_booster_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote dose reforço"
+  LOTE_REF2:
+    role: patient.covid_booster_2_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote 2ª dose reforço"
+  LOTE_ADIC:
+    role: patient.covid_additional_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote dose adicional"
+  LOT_RE_BI:
+    role: patient.covid_bivalent_lot
+    kind: text
+    model: excluded
+    name: "Lote da vacina COVID-19: Lote dose reforço bivalente"
+  FNT_IN_COV:
+    role: notification.covid_vaccine_source
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: "\"Fonte dos dados/informação sobre a vacina COVID-19\" (notification.covid_vaccine_source): record type, internal flag or system field"
+    name: "Fonte dos dados/informação sobre a vacina COVID-19"
+  TRAT_COV:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: treatment.covid_antiviral_used
+    kind: category
+    model: dimension
+    fact_domain: clinical
+    fact_domain_evidence: "\"Recebeu tratamento antiviral para covid-19?\" (treatment.covid_antiviral_used): treatment given: serum, drug, doses, dates or transfer"
+    name: "Recebeu tratamento antiviral para covid-19?"
+  TIPO_TRAT:
+    role: treatment.covid_antiviral_type
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Qual antiviral (covid-19)?\" (treatment.covid_antiviral_type): treatment given: serum, drug, doses, dates or transfer"
+    name: "Qual antiviral (covid-19)?"
+  DT_TRT_COV:
+    role: treatment.covid_antiviral_start_date
+    kind: date
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Data do início do tratamento (covid-19)\" (treatment.covid_antiviral_start_date): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
+    name: "Data do início do tratamento (covid-19)"
+  OUT_TRAT:
+    role: treatment.covid_antiviral_other_text
+    kind: text
+    model: excluded
+    name: "Qual antiviral / Outro, especifique (covid-19)"
+  SURTO_SG:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.outbreak_member
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Faz parte de uma cadeia de surto de SG?\" (case.outbreak_member): fact about the health event or the person's health"
+    name: "Faz parte de uma cadeia de surto de SG?"
+  CO_DETEC:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.codetection
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"É um caso de co-detecção?\" (case.codetection): fact about the health event or the person's health"
+    name: "É um caso de co-detecção?"
+    note: "The dictionary names it CO-DETEC."
+  VG_OMS:
+    role: case.variant_who
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Designação da variante (OMS)\" (case.variant_who): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Designação da variante (OMS)"
+  VG_OMSOUT:
+    role: case.variant_who_text
+    kind: text
+    model: excluded
+    name: "Designação da variante (OMS): Outra, especifique"
+  VG_LIN:
+    role: case.variant_lineage
+    kind: text
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Linhagem da variante\" (case.variant_lineage): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Linhagem da variante"
+  VG_MET:
+    role: case.sequencing_method
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Método laboratorial mais recente\" (case.sequencing_method): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Método laboratorial mais recente"
+  VG_METOUT:
+    role: case.sequencing_method_text
+    kind: text
+    model: excluded
+    name: "Método laboratorial mais recente: Outro, especifique"
+  VG_DTRES:
+    role: case.sequencing_result_date
+    kind: date
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: "\"Data do resultado (vigilância genômica)\" (case.sequencing_result_date): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"
+    name: "Data do resultado (vigilância genômica)"
+  VG_ENC:
+    role: case.variant_closure
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Encerramento do caso (para VOC, VOI ou VUM)\" (case.variant_closure): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
+    name: "Encerramento do caso (para VOC, VOI ou VUM)"
+  VG_REINF:
+    missing: ['9']
+    # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Sim', 2='Não', 9='Ignorado'
+    role: case.reinfection_possible
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Possível caso de reinfecção por covid-19?\" (case.reinfection_possible): fact about the health event or the person's health"
+    name: "Possível caso de reinfecção por covid-19?"
+    note: "Blank in every row of the nine years (4666910 of 4666910); the files carry the answer in REINF."
+  VG_CODEST:
+    role: case.sequencing_establishment
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: "\"Código (CNES) do Estabelecimento responsável pelo preenchimento (vigilância genômica)\" (case.sequencing_establishment): facility register and record keeping"
+    name: "Código (CNES) do Estabelecimento responsável pelo preenchimento (vigilância genômica)"
+    note: "The dictionary names it VG_CODDEST."
+  REINF:
+    role: case.reinfection_possible_flag
+    kind: category
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: "\"Possível caso de reinfecção por covid-19?\" (case.reinfection_possible_flag): fact about the health event or the person's health"
+    name: "Possível caso de reinfecção por covid-19?"
+    review: draft
+    note: "Not in the 2023 dictionary under this name (it lists VG_REINF, which the files leave blank). Only the code 2 occurs (1269819 rows of 4666910); the dictionary's table for VG_REINF is not carried over to another name."
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: "made by the query, not filed by DATASUS: fractional years from NU_IDADE_N and its unit TP_IDADE (1 days, 2 months, 3 years; ADR-0070, `_age.py`, encoding sivep); units measured against DT_NASC and DT_SIN_PRI"
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
+    derived: true
+    note: Fractional years derived from NU_IDADE_N and TP_IDADE by the query (ADR-0070); a negative age is undecodable.
