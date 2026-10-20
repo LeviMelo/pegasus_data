@@ -553,16 +553,52 @@ variables:
     notes: 'Codes observed in the 2013 CSV beyond this list (for example X290, X306, X389, and a 2-digit 02) are not in etnia.CNV and stay undecoded.'
   CO_FAIXA_ETARIA_PACIENTE:
     official_name: Faixa etária
-    translated_name: Age bracket
-    description: 'Patient''s age grouped into five-year brackets (e.g. 40-44, 45-49)
-      on the breast cytopathology form, used for age-stratified screening tabulation.
-
-      '
+    translated_name: Age bracket (exam file) / age in years (patient files)
+    description: 'In SISCAN_CITO_MAMA, the patient''s age in five-year bands (Fetaria2.CNV: 01 up to 9, 02 10-14 ... 15 75-79, 16 80 or over). In SISCAN_CITO_MAMA_PACNT and SISCAN_MAMOGRAFIA_PACNT the same name holds the age in years, three digits (016, 050).'
     code_system: internal
+    codes:
+      '01': 'Até 9 anos'
+      '02': 'Entre 10 a 14 anos'
+      '03': 'Entre 15 a 19 anos'
+      '04': 'Entre 20 a 24 anos'
+      '05': 'Entre 25 a 29 anos'
+      '06': 'Entre 30 a 34 anos'
+      '07': 'Entre 35 a 39 anos'
+      '08': 'Entre 40 a 44 anos'
+      '09': 'Entre 45 a 49 anos'
+      '10': 'Entre 50 a 54 anos'
+      '11': 'Entre 55 a 59 anos'
+      '12': 'Entre 60 a 64 anos'
+      '13': 'Entre 65 a 69 anos'
+      '14': 'Entre 70 a 74 anos'
+      '15': 'Entre 75 a 79 anos'
+      '16': 'Acima de 79 anos'
+    derived:
+    - name: IDADE_faixa_anos
+      from:
+      - CO_FAIXA_ETARIA_PACIENTE
+      encoding: band
+      lookup:
+        '01': 0
+        '02': 10
+        '03': 15
+        '04': 20
+        '05': 25
+        '06': 30
+        '07': 35
+        '08': 40
+        '09': 45
+        '10': 50
+        '11': 55
+        '12': 60
+        '13': 65
+        '14': 70
+        '15': 75
+        '16': 80
+      rule: 'the lower edge, in whole years, of the band a two-digit code names (TAB_SISCAN Fetaria2.CNV); a three-digit value (the patient files, where the column is the age) is no code and gives null. A lower bound, never a guess inside the band.'
     source: layout_doc
-    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
-
-      '
+    source_ref: 'TAB_SISCAN.rar!Fetaria2.CNV; Nota Tecnica 12 SISCAN (sources/docs/nota_tecnica12_cito_mama_residencia.pdf), Faixa etária, classes de 5 anos'
+    notes: 'Measured: in CITO_MAMA 2013 the kit''s ages (IDADE_PAC) binned by these edges equal the CSV''s band counts in every band in 13 of 14 states (SP aside). In the patient files the column is the age (CITO_MAMA_PACNT 016-087 in 2013, MAMOGRAFIA_PACNT 000-113): its role is patient.age there.'
   CO_FX_ETAR:
     official_name: Faixa Etária
     translated_name: Age band
@@ -581,6 +617,27 @@ variables:
     notes: 'A banding of CO_PAC_IDA, not an independent fact. Use one or the other.
 
       '
+    derived:
+    - name: IDADE_faixa_anos
+      from:
+      - CO_FX_ETAR
+      encoding: band
+      lookup:
+        '00': 0
+        '61': 11
+        '62': 15
+        '63': 20
+        '64': 25
+        '65': 30
+        '66': 35
+        '67': 40
+        '68': 45
+        '69': 50
+        '70': 55
+        '71': 60
+        '72': 65
+        '73': 70
+      rule: 'the lower edge, in whole years, of the band a code names in SISMAMA''s Fetaria.CNV (00 up to 10, 61 11-14, 62 15-19 ... 72 65-69, 73 70 or over; 99 inconsistent is no age). Made for CM, HM and MM, which carry no age in years. SISCOLO4''s table (CC, HC) differs at 61 (12-14) and 72 (65 or over), and those two carry CO_PAC_IDA, the age itself.'
   CO_IDADE_PACIENTE:
     official_name: Idade
     translated_name: Patient age
@@ -735,27 +792,28 @@ variables:
 
       '
   CO_LAUDO_CITOPATOLOGICO:
-    official_name: Laudo citopatológico (inferido)
+    official_name: Laudo citopatológico
     translated_name: Overall cytopathology result
-    description: 'Single code carrying the exam''s overall diagnostic conclusion, spanning
-      normal, ASC-US/ASC-H, low- or high-grade squamous or glandular lesions, and invasive
-      carcinoma categories.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'CO_ + LAUDO_CITOPATOLOGICO by naming grammar; Nota Tecnica 2 lists the full
-      set of mutually exclusive diagnostic-result categories (Dentro da Normalidade through
-      Outras Neoplasias) this single field is the code for. Reviewed 2026-09-28: no documentation
-      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
-      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
-      DOC folders and the web). TAB_SISCAN ships laudo_citopatologico.cnv (13 categories from
-      invasive squamous carcinoma to Negativo) consistent with this reading, but no .def binds
-      it to the column.'
-    source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, resultado
-      categories section
-
-      '
+    description: 'The exam''s overall diagnostic conclusion: one code, for the most serious finding, from invasive squamous carcinoma (01) to negative (13); 00 where the sample was rejected or unsatisfactory and has no result.'
+    code_system: internal
+    codes:
+      '00': 'Sem laudo (amostra rejeitada ou insatisfatória)'
+      '01': 'Carcinoma epidermoide invasor'
+      '02': 'Adenocarcinoma invasor'
+      '03': 'Adenocarcinoma in situ'
+      '04': 'Lesão intraepitelial de alto grau'
+      '05': 'Células glandulares atípicas, não se pode afastar lesão de alto grau'
+      '06': 'Células escamosas atípicas, não se pode afastar lesão de alto grau (ASC-H)'
+      '07': 'Células atípicas de origem indefinida, não se pode afastar lesão de alto grau'
+      '08': 'Lesão intraepitelial de baixo grau'
+      '09': 'Células glandulares atípicas, possivelmente não neoplásicas'
+      '10': 'Células escamosas atípicas, possivelmente não neoplásicas (ASC-US)'
+      '11': 'Células atípicas de origem indefinida, possivelmente não neoplásicas'
+      '12': 'Outras neoplasias'
+      '13': 'Negativo'
+    source: layout_doc
+    source_ref: 'TAB_SISCAN.rar!laudo_citopatologico.cnv (13 categories; no .def binds it to the column), expanded by Nota Técnica 3 SISCAN (sources/docs/nota_tecnica_3_cito_colo_resid.pdf, pp. 4-6); code 00 is in no table'
+    notes: 'Bound by the counters, not by a .def: in SISCAN_CITO_COLO 2013 each code 01-13 has exactly the NU_ counter of its finding on its rows (08 on 1,129 rows = NU_LESAO_IE_BAIXO_GRAU 1,129; 10 on 1,908 = ASC-US; 04 on 383 = 337 high-grade + 46 high-grade with micro-invasion not excluded). 00 (1,141 rows) is the 56 rejected plus 1,085 unsatisfactory samples of TP_AVALIACAO_AMOSTRA, and Nota Técnica 1 calls the laudo of such women ignorado.'
   CO_MIC_ACTINOMYCES:
     official_name: Mic.actinomyces sp (inferido)
     translated_name: Microbiology - Actinomyces sp.
@@ -1992,29 +2050,39 @@ variables:
   TP_LESAO:
     official_name: Tipo lesão
     translated_name: Lesion type
-    description: 'Overall result class of the breast histopathology: benign lesion, indeterminate
-      core biopsy, suspicious core biopsy, or malignant neoplastic lesion.'
+    description: 'Overall result class of the breast histopathology: benign, indeterminate core biopsy, suspicious core biopsy, or malignant neoplastic lesion; blank where the result is unsatisfactory.'
     code_system: internal
-    source: layout_doc
-    source_ref: TabWin definition histo_mama.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar,
-      variável "Tipo Lesão" (TP_LESAO.CNV); Nota Técnica 13 SISCAN - Histopatológico de mama
-      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf, "Tipo
-      lesão"
+    codes:
+      '01': 'Caráter benigno'
+      '02': 'Core biopsy indeterminada'
+      '03': 'Core biopsy suspeita'
+      '04': 'Caráter neoplásico maligno'
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Tipo Lesão (TP_LESAO, TP_LESAO.CNV); Nota Técnica 13 SISCAN (sources/docs/nota_tecnica13_histo_mama_atend.pdf)'
+    notes: 'Measured (2014): 04 is on 4,441 rows; the malignant subtype TP_LESAO_CARAT_NEOPL_MALI is filled on 4,440 of them and on no row of another class. The class counts equal the patient file''s laudo class for class, in reversed code order (LAUDO_HISTOP.CNV has 01 malignant, 04 benign). Blank (98 rows) is the laudo não informado, an unsatisfactory result (73 rows in the patient file).'
   TP_LESAO_CARAT_NEOPL_MALI:
     official_name: Lesão de caráter neoplásico maligno
     translated_name: Malignant neoplasia subtype
-    description: 'Predominant type of malignant breast lesion: ductal carcinoma in situ of
-      low, intermediate or high grade, lobular carcinoma in situ, Paget disease without tumour,
-      invasive ductal carcinoma (with or without predominant intraductal component), invasive
-      lobular, tubular, mucinous, medullary carcinoma, or other.'
-    code_system: none
-    source: layout_doc
+    description: 'Predominant type of malignant breast lesion, filled only where TP_LESAO is malignant: ductal carcinoma in situ of low, intermediate or high grade, lobular carcinoma in situ, Paget disease without tumour, invasive ductal carcinoma (with or without predominant intraductal component), invasive lobular, tubular, mucinous, medullary carcinoma, or other.'
+    code_system: internal
+    codes:
+      '01': 'Carcinoma intraductal (in situ) de baixo grau histológico'
+      '02': 'Carcinoma intraductal (in situ) de grau intermediário'
+      '03': 'Carcinoma intraductal (in situ) de alto grau histológico'
+      '04': 'Carcinoma lobular in situ'
+      '05': 'Doença de Paget do mamilo sem tumor associado'
+      '06': 'Carcinoma ductal infiltrante'
+      '07': 'Carcinoma ductal infiltrante com componente intraductal predominante'
+      '08': 'Carcinoma lobular invasivo'
+      '09': 'Carcinoma tubular'
+      '10': 'Carcinoma mucinoso'
+      '11': 'Carcinoma medular'
+      '12': 'Outros'
     depends_on:
     - TP_LESAO
-    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
-      "Les carat neo mal"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
-      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
-      p.2 "Lesão de caráter neoplásico maligno (tipo predominante)"
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Les carat neo mal (LESAO_CNM, CNEOMALIG.CNV); INCA, Requisição de Exame Histopatológico - Mama (formulário nº 335), p.2, Lesão de caráter neoplásico maligno (tipo predominante)'
+    notes: 'Measured (2014): filled on 4,440 exams with TP_LESAO 04 and on 3,877 of the patient file''s 3,878 malignant laudos, and on no other.'
   TP_LESAO_CARAT_NEOP_PRENEO:
     official_name: Res_Neopl_Preneo_Escam
     translated_name: Squamous neoplastic/pre-neoplastic result
@@ -2027,6 +2095,7 @@ variables:
       "Res_Neopl_Preneo_Escam"; INCA, Requisição de Exame Histopatológico - Colo do Útero
       (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
       p.2 "Lesões de caráter neoplásico ou pré-neoplásico"
+    notes: 'The two names are swapped in the patient file SISCAN_HISTO_COLO_PACNT: there TP_LESAO_CARAT_NEOP_PRENEO holds the glandular codes (01 adenocarcinoma in situ, 02 invasive; 2014 - 46 and 83 rows, on NU_LAUDO_HISTOP 03 for 43 and 02 for 83) and TP_LESAO_CARAT_NEOP_PREN_AD the squamous codes 01-06 (4,705, 2,287, 2,667, 116, 653 and 109 rows, on NU_LAUDO_HISTOP 06, 05, 04 and, for 04-06, 01). In the exam file SISCAN_HISTO_COLO the names are as documented (squamous 01 NIC I, 02 NIC II, 03 NIC III, 04 micro-invasive, 05 invasive, 06 not assessable = RES_NEOPL_PRENEO_ESCAM.CNV, equal to the NU_ counters: 4,951, 2,653, 2,894, 117, 660, 109 rows in 2014). No code table is bound, because one table would be wrong in one of the two files.'
   TP_LESAO_CARAT_NEOP_PREN_AD:
     official_name: Res_Neopl_Glandular
     translated_name: Glandular neoplastic result
@@ -2040,6 +2109,7 @@ variables:
       "Res_Neopl_Glandular"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
       nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
       p.2 "Adenocarcinoma in situ / Adenocarcinoma invasor"
+    notes: 'Glandular in the exam file SISCAN_HISTO_COLO (01 adenocarcinoma in situ on 52 rows, 02 invasive on 85 in 2014, = RES_NEOPLl_GLANDULAR.CNV and the NU_ counters) but squamous in SISCAN_HISTO_COLO_PACNT (see TP_LESAO_CARAT_NEOP_PRENEO); no code table is bound, because one table would be wrong in one of the two files.'
   TP_LINFONODO_AXILAR_PALPAVEL:
     official_name: Linfonodo axilar palpável
     translated_name: Palpable axillary lymph node

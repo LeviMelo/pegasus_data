@@ -374,6 +374,7 @@ columns:
     - 2013
     - 2025
   SG_SEXO:
+    missing_unknown: "Sexo.CNV (TAB_SISCAN) lists only M and F; the file also holds I (2013 - 1 of CITO_COLO's 134,887 rows, 2 of MAMOGRAFIA's 93,229), which no document names"
     role: patient.sex
     kind: category
     model: stratum
@@ -503,6 +504,20 @@ columns:
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado PAAF\" (exam.fine_needle_aspiration_result): result of a test or finding on the person"
     name: Resultado PAAF
+    years:
+    - 2013
+    - 2025
+  IDADE_faixa_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: "made by the query from CO_FAIXA_ETARIA_PACIENTE, not filed by DATASUS: the lower edge, in whole years, of the age band the code names (TAB_SISCAN's Fetaria2.CNV: 01 up to 9, 02 10-14 ... 15 75-79, 16 80 or over; the bands equal the kit's ages binned the same way in 13 of 14 states); a code outside the table is no age (recipe encoding band, _age.py)"
+    missing_unknown: "the age is only known to within its band; the lower edge is a lower bound, never a guess inside the band"
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_faixa_anos\" (patient.age_years): attribute of the person (age)"
+    derived: true
+    name: Idade (limite inferior da faixa etária)
     years:
     - 2013
     - 2025

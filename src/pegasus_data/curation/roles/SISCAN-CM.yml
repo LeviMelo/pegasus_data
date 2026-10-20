@@ -142,6 +142,8 @@ columns:
     codelists:
     - RACACOR
   CO_PAC_SEX:
+    missing: ['9']
+    # SISMAMA's SEXO.CNV: 1 Masculino, 2 Feminino, 9 Informação inconsistente (MM AC 2010-03: 9 on 1 of 224 rows)
     role: patient.sex
     kind: category
     model: stratum
@@ -632,6 +634,20 @@ columns:
     codelists:
     - REGIAO
     name: Região da unidade de coleta
+    years:
+    - 2009
+    - 2015
+  IDADE_faixa_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: "made by the query from CO_FX_ETAR, not filed by DATASUS: the lower edge, in whole years, of the age band the code names (SISMAMA's Fetaria.CNV: 00 up to 10, 61 11-14, 62 15-19 ... 72 65-69, 73 70 or over, 99 inconsistent); a code outside the table is no age (recipe encoding band, _age.py)"
+    missing_unknown: "the age is only known to within its band; the lower edge is a lower bound, never a guess inside the band"
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_faixa_anos\" (patient.age_years): attribute of the person (age)"
+    derived: true
+    name: Idade (limite inferior da faixa etária)
     years:
     - 2009
     - 2015

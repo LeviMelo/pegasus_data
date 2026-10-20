@@ -485,11 +485,51 @@ variables:
   CO_FAIXA_ETARIA:
     official_name: Faixa etária
     translated_name: Age bracket
-    description: Age band of the patient, in five-year classes.
+    description: 'Age band of the patient on the cervical histopathology exam, in five-year classes (Fetaria2.CNV: 01 up to 9, 02 10-14 ... 15 75-79, 16 80 or over).'
     code_system: internal
+    codes:
+      '01': 'Até 9 anos'
+      '02': 'Entre 10 a 14 anos'
+      '03': 'Entre 15 a 19 anos'
+      '04': 'Entre 20 a 24 anos'
+      '05': 'Entre 25 a 29 anos'
+      '06': 'Entre 30 a 34 anos'
+      '07': 'Entre 35 a 39 anos'
+      '08': 'Entre 40 a 44 anos'
+      '09': 'Entre 45 a 49 anos'
+      '10': 'Entre 50 a 54 anos'
+      '11': 'Entre 55 a 59 anos'
+      '12': 'Entre 60 a 64 anos'
+      '13': 'Entre 65 a 69 anos'
+      '14': 'Entre 70 a 74 anos'
+      '15': 'Entre 75 a 79 anos'
+      '16': 'Acima de 79 anos'
+    derived:
+    - name: IDADE_faixa_anos
+      from:
+      - CO_FAIXA_ETARIA
+      encoding: band
+      lookup:
+        '01': 0
+        '02': 10
+        '03': 15
+        '04': 20
+        '05': 25
+        '06': 30
+        '07': 35
+        '08': 40
+        '09': 45
+        '10': 50
+        '11': 55
+        '12': 60
+        '13': 65
+        '14': 70
+        '15': 75
+        '16': 80
+      rule: 'the lower edge, in whole years, of the band a code names (TAB_SISCAN Fetaria2.CNV). A lower bound, never a guess inside the band.'
     source: layout_doc
-    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
-      "Faixa etária"
+    source_ref: 'TAB_SISCAN.rar!Fetaria2.CNV; Nota Técnica 5 SISCAN (sources/docs/nota_tecnica_5_histo_colo_atend.pdf), Faixa etária'
+    notes: 'Measured: in HISTO_COLO 2013 the kit''s ages (IDADE_PAC) binned by these edges equal the CSV''s band counts in every band but 15-19 (kit 83, CSV 57), whose other 26 exams have a blank band.'
   CO_MARG:
     official_name: Margens cirúrgicas
     translated_name: Surgical margin status

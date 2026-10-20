@@ -1432,7 +1432,8 @@ def _age_years(recipe: Mapping[str, Any], name: str, inputs: Sequence[str], sour
     encoding = str(recipe.get("encoding") or "")
     if encoding not in AGE_ENCODINGS:
         return None
-    return years_column(AgeDimension(name=name, encoding=encoding, fields=tuple(inputs)), source)
+    lookup = tuple((str(k), float(v)) for k, v in (recipe.get("lookup") or {}).items())
+    return years_column(AgeDimension(name=name, encoding=encoding, fields=tuple(inputs), lookup=lookup), source)
 
 
 def derived_age_years(docs: Mapping[str, VariableDoc], name: str, source: pa.Table) -> Any:

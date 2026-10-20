@@ -56,6 +56,10 @@ datasets:
     source: manual
     source_ref: sources/siscan/CColo4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
     what_one_row_is: a group of cervical cytology exams that share every published attribute (QTDEXA of them), filed by the woman's state of residence and the month of competence
+    implied_sex: 2
+    implied_sex_evidence: >-
+      The file has no sex column and the exam is of the cervix (CColo4.def: "Exame Citopatológico Cérvico-Vaginal e Microflora"); its
+      successor SISCAN_CITO_COLO records F on 134,857 of 134,887 exams (2013), SISCAN_HISTO_COLO on 1,210 of 1,210. Implied by the exam, not recorded.
     unit_of_analysis: exam group
     semantic_axes:
       default_geography: residence
@@ -107,6 +111,10 @@ datasets:
     source: manual
     source_ref: sources/siscan/HColo4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
     what_one_row_is: a group of cervical histopathology exams that share every published attribute (QTDEXA of them), filed by the woman's state of residence and the month of competence
+    implied_sex: 2
+    implied_sex_evidence: >-
+      The file has no sex column and the exam is of the cervix (HColo4.def: cervical histopathology); its successor SISCAN_HISTO_COLO
+      records F on 1,210 of 1,210 exams (2013). Implied by the exam, not recorded.
     unit_of_analysis: exam group
     semantic_axes:
       default_geography: residence
@@ -452,11 +460,10 @@ datasets:
           key: [CO_PACIENTE, NU_ANO_COMPETENCIA]
         classifiers:
           - {column: NU_LAUDO_HISTOP, role: primary}
-          - {column: TP_LESAO_CARAT_NEOP_PRENEO, role: alternative}
         evidence: >-
           Nota Técnica 4 tabulates women and not exams, the worst result prevailing, and lists nine laudo categories
           (squamous carcinoma, invasive adenocarcinoma, adenocarcinoma in situ, NIC III, NIC II, NIC I, other neoplasm,
-          benign, unsatisfactory): NU_LAUDO_HISTOP has nine codes, 01-09 (labels not bound). 2014: 20,849 rows for 20,226
+          benign, unsatisfactory): NU_LAUDO_HISTOP has nine codes, 01-09, bound in that order (the variable note gives the counts that confirm it). 2014: 20,849 rows for 20,226
           patients (623 second rows); the key counts a woman once a year, keeping the first row.
         note: >-
           Not the exam: SISCAN_HISTO_COLO holds the exams of these women, and the two are never added. A total over several
@@ -491,7 +498,8 @@ datasets:
       appear on more than one row (3% of the 2014 rows are a second row).
     gotchas:
       - Not the exams of SISCAN_HISTO_COLO; never add the two.
-      - NU_LAUDO_HISTOP is a code (01-09), not a number; its labels are not bound.
+      - NU_LAUDO_HISTOP is a code (01-09), not a number.
+      - The squamous and glandular result columns have each other's names in this file (TP_LESAO_CARAT_NEOP_PRENEO holds the glandular codes, TP_LESAO_CARAT_NEOP_PREN_AD the squamous ones; the variable notes give the counts), so neither is a classifier here and no code table is bound to them.
       - CO_PACIENTE recurs across years (52 of the 1,174 women of 2013 are in the 2014 file, all with the same municipality, race and sex), so a multi-year count is women-years.
 
   SISCAN.SISCAN_CITO_MAMA:

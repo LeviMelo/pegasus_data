@@ -9,16 +9,21 @@ asserted_by: pegasus_data
 
 variables:
   CO_LAUDO:
-    official_name: Código do laudo
-    translated_name: Mammography report identifier
-    description: Identifying number of the mammography report (laudo), on the patient-dimension
-      extract.
-    code_system: none
-    source: inferred
-    reasoning: 'LAUDO is the standard Portuguese word for a diagnostic report, unabbreviated.
-      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
-      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
-      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
+    official_name: Laudo mamografia
+    translated_name: Mammography result of the patient (BI-RADS)
+    description: 'The BI-RADS category of the patient''s most serious mammogram of the year, stored as the category plus one (1 is category 0 ... 7 is category 6), as CO_BIRADS of the exam file.'
+    code_system: internal
+    codes:
+      '1': 'Categoria 0'
+      '2': 'Categoria 1'
+      '3': 'Categoria 2'
+      '4': 'Categoria 3'
+      '5': 'Categoria 4'
+      '6': 'Categoria 5'
+      '7': 'Categoria 6'
+    source: layout_doc
+    source_ref: 'TAB_SISCAN.rar!CBIRARDS.CNV (Categoria 0 ... Categoria 6, codes 1-7); Nota Tecnica 9 SISCAN (sources/docs/nota_tecnica9_mamografia_paciente.pdf), Laudo Mamografia, BI-RADS 0 a 6'
+    notes: 'Not an identifier (the earlier reading, a report number, was wrong). Measured, 2013: the code shares equal CO_BIRADS of the 93,229 exams within 0.1 point (2: 44.4% and 44.5%; 3: 41.6% and 41.6%; 1: 10.7% and 10.6%). 0 (4 rows) is in no table and stays undecoded.'
   CO_PACIENTE:
     official_name: Código do paciente
     translated_name: Patient code
@@ -119,16 +124,23 @@ variables:
       "Ano Resultado"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
       "Mês/Ano Resultado"
   NU_LAUDO_HISTOP:
-    official_name: Número do laudo histopatológico
-    translated_name: Histopathology report number
-    description: Identifying number of the histopathology report (laudo) this patient-dimension
-      row refers to.
-    code_system: none
-    source: inferred
-    reasoning: 'LAUDO_HISTOP unambiguously abbreviates laudo histopatológico (histopathology
-      report). Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
-      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
-      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
+    official_name: Laudo histopatológico
+    translated_name: Histopathology result of the woman (cervix)
+    description: 'The woman''s cervical histopathology result of the year, her most serious: carcinoma epidermoide, invasive adenocarcinoma, adenocarcinoma in situ, NIC III / carcinoma in situ, NIC II, NIC I, other neoplasm, benign, unsatisfactory.'
+    code_system: internal
+    codes:
+      '01': 'Carcinoma epidermoide'
+      '02': 'Adenocarcinoma invasor'
+      '03': 'Adenocarcinoma in situ'
+      '04': 'NIC III / carcinoma in situ'
+      '05': 'NIC II'
+      '06': 'NIC I'
+      '07': 'Outra neoplasia'
+      '08': 'Benigno'
+      '09': 'Insatisfatório'
+    source: layout_doc
+    source_ref: 'Nota Tecnica 4 SISCAN (sources/docs/nota_tecnica_4_histo_colo_paciente.pdf), Laudo Histopatológico: the nine categories in this order'
+    notes: 'Not a number (the earlier reading, a report number, was wrong). Measured, SISCAN_HISTO_COLO_PACNT 2014 (20,849 rows): the squamous codes of the file''s TP_LESAO_CARAT_NEOP_PREN_AD sit on 06 (NIC I, 4,704 of 4,705), 05 (2,284 of 2,287), 04 (2,659 of 2,667) and, for the micro-invasive, invasive and not-assessable codes, on 01 (878 of 878); the glandular codes of TP_LESAO_CARAT_NEOP_PRENEO on 02 (invasive, 83 of 83) and 03 (in situ, 43 of 46); 07, 08 and 09 on rows with neither.'
   REQ:
     official_name: Requisição
     translated_name: Exam request (order) number
