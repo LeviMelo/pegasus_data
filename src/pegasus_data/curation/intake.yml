@@ -1521,8 +1521,9 @@ sources:
         apply to antimicrobials only.
     - >-
         TP_RECEITUARIO is written with a trailing period ('5.', '1.') in these files, in the three landed
-        months read (2014-01, 2017-12, 2021-10) and in the raw files of 2014-01, 2021-10 and 2026-01, so the
-        declared codes ('1' to '5') do not match it (OQ-90); NU_IDADE is written '67.' or '5.0'.
+        months read (2014-01, 2017-12, 2021-10) and in the raw files of 2014-01, 2021-10 and 2026-01; it is read as
+        `int_code`, so '5.' is the code '5' with the value as filed in TP_RECEITUARIO__RAW, from the next landing of the
+        months (OQ 90); NU_IDADE is written '67.' or '5.0'.
     citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
     dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Industrializados.pdf (ANVISA; §3.7 the published period, §5 the fields and codes)
     origin:
@@ -1556,7 +1557,7 @@ sources:
         type: code
       TP_RECEITUARIO:
         role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
-        type: code
+        type: int_code      # filed '5.', '1.' in the industrialised files (OQ 90)
         codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
                 "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
                 "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
