@@ -97,9 +97,11 @@ def _with_populations(fields: dict[str, Any]) -> dict[str, Any]:
         if not fs.get("outcome"):
             out[name] = fs
             continue
-        population = {k: v for k, v in fs.items() if k not in ("outcome", "what")}
-        out[f"{name}_assessed"] = {**population, "what": f"The population of {name}: {fs.get('what', '')}".strip()}
-        out[name] = {**fs, "over": f"{name}_assessed"}
+        # the population is a field of its own and names itself (`population_label`): it must not inherit its outcome's label
+        population = {k: v for k, v in fs.items() if k not in ("outcome", "what", "label", "population_label")}
+        out[f"{name}_assessed"] = {**population, "what": f"The population of {name}: {fs.get('what', '')}".strip(),
+                                   **({"label": fs["population_label"]} if fs.get("population_label") else {})}
+        out[name] = {**{k: v for k, v in fs.items() if k != "population_label"}, "over": f"{name}_assessed"}
     return out
 
 
@@ -118,6 +120,7 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
                           **({"law": "sum"} if fs.get("measure") or fs.get("unpivot") else {}),
                           **(fs.get("declares") or {}),
                           "source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
+                          **({"label": fs["label"]} if fs.get("label") else {}),
                           "years": str(years), **({"over": fs["over"]} if fs.get("over") else {}),
                           # its strata as `load_field` names them (`_derive`)
                           **({"by": [alias for _, alias in _strata(fs)]} if fs.get("by") or fs.get("unpivot") else {})}

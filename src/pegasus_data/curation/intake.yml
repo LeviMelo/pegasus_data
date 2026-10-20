@@ -37,12 +37,14 @@
 #                       per record, nothing summed). `declares` is what the field says about itself to its readers (fields.yml's own
 #                       keys: `where`, the rows that make it one value per place; `icd10`, `harm`; `verified`). A field with an
 #                       `outcome` {column: values | {above/below: x}} beside its `where` is a share: it counts the population's
-#                       records that have the outcome, over a field of its own, `<name>_assessed` (the `where`), and has a row (0
-#                       where none had it) wherever the population has one. Every field states the period's `grain` and, when it
+#                       records that have the outcome, over a field of its own, `<name>_assessed` (the `where`; its label is the
+#                       outcome's `population_label`), and has a row (0 where none had it) wherever the population has one. Every field states the period's `grain` and, when it
 #                       counts or sums, `law: sum` (ADR-0192): a year is the sum of its months, a share's numerator and denominator alike
 #   one_row, unit_of_analysis, known_biases, gotchas   the dataset's description (`info`, `facts`): what a row is, what it
 #                       counts, what the source silently leaves out, and the mistakes made with it first
 #   verified            the check made: {rows, against, measured}
+#   fields.<name>.label  the field's short name in a list (sentence case, about six words), unique among all declared fields:
+#                       `unlabelled_fields` and `shared_labels` (pegasus_data.fields) list the failures
 #
 # What the reduction leaves out is counted, never silent: unplaced (no municipality given), unallocated (given, but not an
 # IBGE municipality of the universe), undated, out of range; and a value that its declared type (date, number, integer, year) does
@@ -483,10 +485,12 @@ sources:
     period: {type: parts, year: ANO_IS, month: MES_IS, grain: month, valid: 1994-2026}
     fields:
       yellow_fever_human_cases:
+        label: "Yellow-fever human cases"
         measure: count
         unit: cases
         what: Yellow-fever human cases by municipality of the probable place of infection and month of onset.
       yellow_fever_human_deaths:
+        label: "Yellow-fever human deaths"
         measure: count
         where: {OBITO: [SIM]}
         unit: deaths
@@ -540,6 +544,7 @@ sources:
     period: {type: parts, year: ANO_OCOR, month: MES_OCOR, grain: month, valid: 1994-2026}
     fields:
       yellow_fever_epizootics:
+        label: "Yellow-fever epizootics in non-human primates"
         measure: count
         unit: epizootics
         what: Epizootics in non-human primates by municipality of occurrence and month.
@@ -794,20 +799,24 @@ sources:
     period: {type: date, column: DT_SIN_PRI, grain: month}
     fields:
       srag_cases:
+        label: "SRAG notifications"
         measure: count
         unit: notifications
         what: SRAG notifications by municipality of residence and month of the first symptoms.
       srag_covid:
+        label: "SRAG notifications classified covid-19"
         measure: count
         where: {CLASSI_FIN: ["5"]}
         unit: notifications
         what: Of those, the notifications classified SRAG by covid-19 (CLASSI_FIN 5).
       srag_deaths:
+        label: "SRAG deaths"
         measure: count
         where: {EVOLUCAO: ["2"]}
         unit: notifications
         what: Of those, the notifications that evolved to death by SRAG (EVOLUCAO 2); a death by another cause (3) is not counted.
       srag_icu:
+        label: "SRAG notifications admitted to ICU"
         measure: count
         where: {UTI: ["1"]}
         unit: notifications
@@ -862,12 +871,14 @@ sources:
     period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
     fields:
       sies_distributed:
+        label: "Supplies distributed to state secretariats"
         measure: {sum: QTDE}
         where: {ORIGEM: [Distribuido]}
         by: [TX_INSUMO]
         unit: doses and units
         what: Quantity of each supply distributed to the state secretariat, by month.
       sies_requested:
+        label: "Supplies requested by state secretariats"
         measure: {sum: QTDE}
         where: {ORIGEM: [Solicitado]}
         by: [TX_INSUMO]
@@ -971,12 +982,14 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_surveillance_analyses:
+        label: "Water surveillance analyses"
         measure: count
         by:
         - PARAMETRO
         unit: analyses
         what: Surveillance analyses by parameter (a sample analysed for several parameters counts once for each).
       sisagua_surveillance_censored:
+        label: "Water results below detection/quantification limit"
         measure: count
         by:
         - PARAMETRO
@@ -987,6 +1000,7 @@ sources:
         unit: analyses
         what: Of those, results below the limit of detection or quantification (not zeros).
       sisagua_surveillance_result_sum:
+        label: "Sum of quantified water results"
         measure:
           sum: RESULTADO
         by:
@@ -997,6 +1011,7 @@ sources:
         unit: the parameter's unit
         what: Sum of the quantified results by parameter (with `sisagua_surveillance_quantified`, their mean).
       sisagua_surveillance_quantified:
+        label: "Quantified water results (count)"
         measure: count
         by:
         - PARAMETRO
@@ -1006,6 +1021,7 @@ sources:
         unit: analyses
         what: Quantified results by parameter (the count the sum is over).
       sisagua_surveillance_outbreak_analyses:
+        label: "Water analyses from outbreak samples"
         measure: count
         by:
         - PARAMETRO
@@ -1015,6 +1031,8 @@ sources:
         unit: analyses
         what: Analyses of samples collected because of an outbreak (Surto).
       sisagua_surveillance_ecoli_present:
+        label: "Water samples with E. coli"
+        population_label: "Water samples assessed for E. coli"
         measure: count
         where:
           PARAMETRO:
@@ -1033,6 +1051,8 @@ sources:
         what: 'Samples with Escherichia coli present (Portaria GM/MS 888/2021, Anexo XX, Anexo 1 (ausência em 100 mL, SAI e
           SAA/SAC na saída do tratamento e na distribuição): absence required).'
       sisagua_surveillance_total_coliforms_present:
+        label: "Water samples with total coliforms"
+        population_label: "Water samples assessed for total coliforms"
         measure: count
         where:
           PARAMETRO:
@@ -1047,6 +1067,8 @@ sources:
         what: 'Samples with total coliforms present (a fact, not a standard: the rule is by population and share of the month''s
           samples).'
       sisagua_surveillance_turbidity_above_5:
+        label: "Turbidity analyses above 5 uT"
+        population_label: "Turbidity analyses assessed (5 uT limit)"
         measure: count
         where:
           PARAMETRO:
@@ -1068,6 +1090,8 @@ sources:
           network, reservoirs and consumption points)). Results below a limit of detection or quantification, empty or unparsed
           are not assessed.
       sisagua_surveillance_chlorine_below_0_2:
+        label: "Free chlorine analyses below 0.2 mg/L"
+        population_label: "Free chlorine analyses assessed (0.2 mg/L minimum)"
         measure: count
         where:
           PARAMETRO:
@@ -1090,6 +1114,8 @@ sources:
           reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
           empty or unparsed are not assessed.
       sisagua_surveillance_chlorine_above_5:
+        label: "Free chlorine analyses above 5 mg/L"
+        population_label: "Free chlorine analyses assessed (5 mg/L maximum)"
         measure: count
         where:
           PARAMETRO:
@@ -1112,6 +1138,8 @@ sources:
           reservoirs and consumption points) and Anexo 9 (VMP 5 mg/L)). Results below a limit of detection or quantification,
           empty or unparsed are not assessed.
       sisagua_surveillance_fluoride_above_1_5:
+        label: "Fluoride analyses above 1.5 mg/L"
+        population_label: "Fluoride analyses assessed (1.5 mg/L limit)"
         measure: count
         where:
           PARAMETRO:
@@ -1134,6 +1162,8 @@ sources:
         what: Fluoride above 1,5 mg/L (Portaria GM/MS 888/2021, Anexo XX, Anexo 9 and art. 36 §1º (VMP 1,5 mg/L)). Results below
           a limit of detection or quantification, empty or unparsed are not assessed.
       sisagua_surveillance_colour_above_15:
+        label: "Apparent colour analyses above 15 uH"
+        population_label: "Apparent colour analyses assessed (15 uH limit)"
         measure: count
         where:
           PARAMETRO:
@@ -1204,6 +1234,7 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_surveillance_other_analyses:
+        label: "Water surveillance analyses, other parameters"
         measure: count
         by:
         - PARAMETRO
@@ -1259,6 +1290,7 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_surveillance_cyano_analyses:
+        label: "Cyanobacteria and cyanotoxin analyses"
         measure: count
         by:
         - PARAMETRO
@@ -1315,6 +1347,7 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_control_counts:
+        label: "Water supplier control counts"
         measure:
           sum: VALOR
         by:
@@ -1383,6 +1416,7 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_control_other_analyses:
+        label: "Water supplier analyses, other parameters"
         measure: count
         by:
         - PARAMETRO
@@ -1443,6 +1477,7 @@ sources:
       valid: 2014-2026
     fields:
       sisagua_control_outside_standard:
+        label: "Water supplier samples outside standard"
         measure: count
         by:
         - PARAMETRO
@@ -1563,6 +1598,7 @@ sources:
       valid: 2014-2026
     fields:
       sngpc_industrialized_sales:
+        label: "Industrialized medicines sold"
         measure:
           sum: QT_VENDIDA
         by:
@@ -1571,6 +1607,7 @@ sources:
         unit: the unit of DS_UNIDADE_MEDIDA
         what: Quantity of each active principle sold, by municipality and month.
       sngpc_industrialized_sales_by_cid:
+        label: "Industrialized medicines sold, by patient ICD-10"
         measure:
           sum: QT_VENDIDA
         by:
@@ -1694,6 +1731,7 @@ sources:
       valid: 2014-2026
     fields:
       sngpc_compounded_units:
+        label: "Compounded medicine units sold"
         measure:
           sum: QT_UNIDADE_FARMACOTECNICA
         by:
@@ -1762,6 +1800,7 @@ sources:
     period: {type: date, column: Data_Evento, grain: year}
     fields:
       disasters:
+        label: "Disaster events (S2iD)"
         rows:
           protocol: PROTOCOLO_S2ID
           municipality7: COD_IBGE_MUN
@@ -1859,6 +1898,7 @@ sources:
     period: {type: file}
     fields:
       ans_beneficiaries:
+        label: "Private health-plan beneficiaries"
         measure: {sum: QT_BENEFICIARIO_ATIVO}
         by: [{TP_SEXO: sex}, {DE_FAIXA_ETARIA: age_band}, {COBERTURA_ASSIST_PLAN: coverage}, {SG_UF: file_uf}]
         over: population
@@ -1934,6 +1974,7 @@ sources:
     period: {type: year, column: NU_ANO_CENSO, grain: year}
     fields:
       inep_enrolments:
+        label: "Basic-education enrolments"
         unpivot:
           as: [margin, category]
           columns:

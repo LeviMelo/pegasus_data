@@ -16,6 +16,9 @@ series' own statement of comparability and gaps. A share is a numerator field ov
 
 A field declared in ``curation/intake.yml`` (`pegasus_data.intake`, ADR-0162) comes from a source that is not on the FTP and
 is read, reduced and served by that one mechanism: the DEMAS API and the Portal de Dados Abertos' files.
+
+Every declared field has a ``label``, its short name for a list (sentence case, about six words), beside ``what``, its
+sentence; two fields that differ say how in their labels (`unlabelled_fields`, `shared_labels`).
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ import pyarrow as pa
 
 from .semantics.epoch import curated
 
-__all__ = ["build_fields", "declared_fields", "field_rate", "load_field"]
+__all__ = ["build_fields", "declared_fields", "field_rate", "load_field", "shared_labels", "unlabelled_fields"]
 
 
 def write_parquet_atomic(table: pa.Table, target: Path, **options: Any) -> None:
@@ -55,6 +58,25 @@ def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
 
     base = root or curation_root()
     return {**dict((_read_yaml(base / "fields.yml") or {}).get("fields") or {}), **intake_fields(base)}
+
+
+def unlabelled_fields() -> list[str]:
+    """The declared fields with no ``label`` (the short name a list shows; ``what`` is the sentence). The list a reviewer
+    closes, never a default."""
+    return sorted(n for n, spec in declared_fields().items() if not str(spec.get("label") or "").strip())
+
+
+def shared_labels() -> dict[str, list[str]]:
+    """The labels two or more declared fields carry, folded as names are matched (case, hyphens and spaces do not tell
+    two labels apart), each with its fields: fields that differ (SUS or all, jobs or persons) say how. Empty when none."""
+    from .textenc import fold
+
+    declared = declared_fields()
+    seen: dict[str, list[str]] = {}
+    for name, spec in declared.items():
+        if str(spec.get("label") or "").strip():
+            seen.setdefault(fold(spec["label"]), []).append(name)
+    return {declared[names[0]]["label"]: names for names in seen.values() if len(names) > 1}
 
 
 def _years(text: str) -> list[int]:

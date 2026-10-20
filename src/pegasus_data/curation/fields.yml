@@ -17,6 +17,9 @@
 # no count: `gaussian` for a mean level (a temperature summed over the months observed and read over them, ADR-0177),
 # which a consumer must not model as events.
 #
+# Every field has a `label`, its short name in a list (sentence case, about six words) beside `what`, its sentence; labels are
+# unique, and two fields that differ (SUS or all, jobs or persons) say how (`unlabelled_fields`, `shared_labels`).
+#
 # IBGE's markers are kept as a status beside the value: "-" is a true zero;
 # ".." not applicable, "..." not available and "X" suppressed for disclosure
 # are null with their reason, never zero.
@@ -52,6 +55,7 @@ cnes:
 fields:
 
   gdp:
+    label: "Municipal GDP at current prices"
     over: population
     table: 5938
     variable: 37
@@ -63,6 +67,7 @@ fields:
     verified: {year: 2021, municipalities: 5570, total_thousand_reais: 9012142031, measured: 2026-10-03}
 
   gross_value_added_public_administration:
+    label: "Public administration gross value added"
     over: gdp
     table: 5938
     variable: 525
@@ -74,6 +79,7 @@ fields:
     years: 2002-2023
 
   gross_value_added_agriculture:
+    label: "Agriculture and livestock gross value added"
     over: gdp
     table: 5938
     variable: 513
@@ -88,6 +94,7 @@ fields:
   # it (IBGE's `...`), and the status says so.
 
   households:
+    label: "Permanent private households"
     series: households_total
     unit: households
     what: >
@@ -96,6 +103,7 @@ fields:
     years: 2000, 2010, 2022
 
   households_sewer_network:
+    label: "Households on sewer network (census 2022)"
     over: households
     table: 6805
     variable: 381
@@ -109,6 +117,7 @@ fields:
     years: 2022
 
   households_sewer_network_comparable:
+    label: "Households on sewer network (comparable)"
     over: households
     series: households_sewer_network
     measure: numerator
@@ -119,6 +128,7 @@ fields:
     years: 2000, 2010, 2022
 
   households_without_bathroom:
+    label: "Households without bathroom or toilet"
     over: households
     series: households_without_bathroom
     measure: numerator
@@ -127,6 +137,7 @@ fields:
     years: 2000, 2010, 2022
 
   households_water_network:
+    label: "Households on water network (census 2022)"
     over: households
     table: 6803
     variable: 381
@@ -139,6 +150,7 @@ fields:
     years: 2022
 
   households_water_network_comparable:
+    label: "Households on water network (comparable)"
     over: households
     series: households_water_network
     measure: numerator
@@ -149,6 +161,7 @@ fields:
     years: 2000, 2010, 2022
 
   households_waste_collected:
+    label: "Households with waste collection"
     over: households
     series: households_waste_collected
     measure: numerator
@@ -157,6 +170,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_15_plus:
+    label: "Persons aged 15 and over"
     series: literacy_15plus
     measure: denominator
     unit: persons
@@ -165,6 +179,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_15_plus_literate:
+    label: "Literate persons aged 15 and over"
     over: persons_15_plus
     series: literacy_15plus
     measure: numerator
@@ -173,6 +188,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_10_plus:
+    label: "Persons aged 10 and over"
     series: literacy_10plus
     measure: denominator
     unit: persons
@@ -180,6 +196,7 @@ fields:
     years: 2000, 2010
 
   persons_10_plus_literate:
+    label: "Literate persons aged 10 and over"
     over: persons_10_plus
     series: literacy_10plus
     measure: numerator
@@ -188,6 +205,7 @@ fields:
     years: 2000, 2010
 
   population_resident_census:
+    label: "Resident population (census)"
     series: population_urban
     measure: denominator
     unit: persons
@@ -195,6 +213,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_urban:
+    label: "Urban population"
     over: population_resident_census
     series: population_urban
     measure: numerator
@@ -205,6 +224,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_race_universe:
+    label: "Population in race/colour tables"
     series: population_race
     measure: denominator
     unit: persons
@@ -214,6 +234,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_white:
+    label: "Population declared white"
     over: population_race_universe
     series: population_race
     measure: numerator
@@ -223,6 +244,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_black:
+    label: "Population declared black"
     over: population_race_universe
     series: population_race
     measure: numerator
@@ -232,6 +254,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_asian:
+    label: "Population declared Asian"
     over: population_race_universe
     series: population_race
     measure: numerator
@@ -241,6 +264,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_brown:
+    label: "Population declared brown"
     over: population_race_universe
     series: population_race
     measure: numerator
@@ -250,6 +274,7 @@ fields:
     years: 2000, 2010, 2022
 
   population_indigenous:
+    label: "Population declared indigenous"
     over: population_race_universe
     series: population_race
     measure: numerator
@@ -262,6 +287,7 @@ fields:
   # compared in reais. persons_low_income / persons_income_universe is the share of people with a per-capita income
   # of up to half a minimum wage or none; 2000 is the family's per-capita income, 2010 and 2022 the household's.
   persons_income_universe:
+    label: "Persons in per-capita income tables"
     series: persons_income_band
     measure: denominator
     unit: persons
@@ -271,6 +297,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_low_income:
+    label: "Persons with low per-capita income"
     over: persons_income_universe
     series: persons_income_band
     measure: numerator
@@ -282,6 +309,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_no_income:
+    label: "Persons with no income"
     over: persons_income_universe
     series: persons_income_band
     measure: numerator
@@ -291,6 +319,7 @@ fields:
     years: 2000, 2010, 2022
 
   persons_income_over_2_sm:
+    label: "Persons with income over 2 minimum wages"
     over: persons_income_universe
     series: persons_income_band
     measure: numerator
@@ -310,6 +339,7 @@ fields:
   # months has status `partial_year`, and `source` names the release of the row. Not in the release: Fernando de Noronha and
   # Bombinhas (no grid cell), the six municipalities created after 2010 (no series), the days after 2024-03-20.
   climate_monthly:
+    label: "Monthly climate sums (BR-DWGD)"
     source: brdwgd
     unit: "°C (temperature), mm (precipitation): sums of daily values and the days held"
     what: >
@@ -327,6 +357,7 @@ fields:
     years: 1961-2024
 
   temperature_months:
+    label: "Months with temperature data"
     source: brdwgd
     measure: temperature_months
     law: sum
@@ -335,6 +366,7 @@ fields:
     years: 1961-2024
 
   air_temperature:
+    label: "Mean air temperature"
     family: gaussian
     over: temperature_months
     source: brdwgd
@@ -353,6 +385,7 @@ fields:
     years: 1961-2024
 
   air_temperature_monthly_max:
+    label: "Mean daily maximum temperature"
     family: gaussian
     over: temperature_months
     source: brdwgd
@@ -369,6 +402,7 @@ fields:
     years: 1961-2024
 
   air_temperature_monthly_min:
+    label: "Mean daily minimum temperature"
     family: gaussian
     over: temperature_months
     source: brdwgd
@@ -384,6 +418,7 @@ fields:
     years: 1961-2024
 
   precipitation_months:
+    label: "Months with precipitation data"
     source: brdwgd
     measure: precipitation_months
     law: sum
@@ -392,6 +427,7 @@ fields:
     years: 1961-2024
 
   precipitation_mm:
+    label: "Monthly precipitation"
     family: gaussian
     over: precipitation_months
     source: brdwgd
@@ -410,6 +446,7 @@ fields:
     years: 1961-2024
 
   climate:
+    label: "INMET station observations"
     source: inmet
     unit: "mm (precipitation), °C (temperature): sums, counts and extremes"
     what: >
@@ -426,6 +463,7 @@ fields:
   # the register cannot tell. A municipality with no establishment in the year's ST file has status
   # `no_cnes_record` and a null value; one that has establishments but none of this kind is a true 0.
   cnes_facilities_hospital_sus:
+    label: "Hospitals linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -438,6 +476,7 @@ fields:
       Registered hospitals (general, specialised, mixed unit) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_hospital_nonsus:
+    label: "Hospitals not linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -450,6 +489,7 @@ fields:
       Registered hospitals (general, specialised, mixed unit) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_primary_care_unit_sus:
+    label: "Primary-care units linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -462,6 +502,7 @@ fields:
       Registered primary-care units (health post, UBS, family-health unit) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_primary_care_unit_nonsus:
+    label: "Primary-care units not linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -474,6 +515,7 @@ fields:
       Registered primary-care units (health post, UBS, family-health unit) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_specialised_clinic_sus:
+    label: "Specialised clinics linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -486,6 +528,7 @@ fields:
       Registered specialised clinics (polyclinic, clinic / specialty centre) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_specialised_clinic_nonsus:
+    label: "Specialised clinics not linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -498,6 +541,7 @@ fields:
       Registered specialised clinics (polyclinic, clinic / specialty centre) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_other_sus:
+    label: "Other establishments linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -510,6 +554,7 @@ fields:
       Registered other establishments (offices, diagnostic units, emergency, pharmacies, CAPS, mobile units, ...) linked to the SUS (VINC_SUS 1), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
   cnes_facilities_other_nonsus:
+    label: "Other establishments not linked to the SUS"
     over: population
     source: cnes
     family: facilities
@@ -521,30 +566,30 @@ fields:
     what: >
       Registered other establishments (offices, diagnostic units, emergency, pharmacies, CAPS, mobile units, ...) not linked to the SUS (VINC_SUS 0), December of the year (CNES-ST, one row per establishment).
     gaps: SUS = VINC_SUS 1. The register counts what is registered, not what works.
-  cnes_beds_total: {over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: all, unit: beds, what: "Existing hospital beds of every kind (QT_EXIST: surgical, clinical, obstetric, paediatric, other specialties, hospital-day and the complementary ICU and isolation beds), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. Complementary beds (ICU, intermediate, isolation) are inside the total: subtract cnes_beds_icu_total for the others."}
-  cnes_beds_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: sus, unit: beds, what: "Beds available to the SUS (QT_SUS), December (CNES-LT).", gaps: "QT_SUS is what the establishment makes available to the SUS; contracted beds (QT_CONTR) are a contractual figure and are not used."}
-  cnes_beds_nonsus: {over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: nonsus, unit: beds, what: "Beds not available to the SUS (QT_NSUS), December (CNES-LT).", gaps: "The split is the establishment declaration: existing equals SUS plus non-SUS, off by 17 beds in 2008 and exact in 2015 and 2023."}
-  cnes_beds_icu_total: {over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: icu, sector: all, unit: beds, what: "Existing intensive-care beds (adult, paediatric, neonatal, burns, coronary; codes in cnes.icu_bed_codes), December (CNES-LT).", gaps: "Intermediate-care and isolation beds are not counted."}
-  cnes_beds_icu_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: icu, sector: sus, unit: beds, what: "Intensive-care beds available to the SUS (QT_SUS), December (CNES-LT).", gaps: "As cnes_beds_icu_total."}
-  cnes_equipment_ct: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: ct, sector: all, unit: units, what: "Existing computed-tomography scanners (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
-  cnes_equipment_ct_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: ct, sector: sus, unit: units, what: "Existing computed-tomography scanners whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_ct."}
-  cnes_equipment_mri: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mri, sector: all, unit: units, what: "Existing magnetic-resonance scanners (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
-  cnes_equipment_mri_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mri, sector: sus, unit: units, what: "Existing magnetic-resonance scanners whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_mri."}
-  cnes_equipment_mammography: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mammography, sector: all, unit: units, what: "Existing mammography units (simple, stereotactic, computed) (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
-  cnes_equipment_mammography_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mammography, sector: sus, unit: units, what: "Existing mammography units (simple, stereotactic, computed) whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_mammography."}
-  cnes_equipment_dialysis: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: dialysis, sector: all, unit: units, what: "Existing haemodialysis equipment (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
-  cnes_equipment_dialysis_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: dialysis, sector: sus, unit: units, what: "Existing haemodialysis equipment whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_dialysis."}
-  cnes_physicians_jobs: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: jobs, unit: jobs, what: "Registrations of physicians (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
-  cnes_physicians_professionals: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: professionals, unit: persons, what: "Distinct physicians (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
-  cnes_physicians_weekly_hours: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of physicians (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
-  cnes_physicians_weekly_hours_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of physicians registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
-  cnes_nurses_jobs: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: jobs, unit: jobs, what: "Registrations of nurses (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
-  cnes_nurses_professionals: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: professionals, unit: persons, what: "Distinct nurses (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
-  cnes_nurses_weekly_hours: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of nurses (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
-  cnes_nurses_weekly_hours_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of nurses registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
-  cnes_community_health_agents_jobs: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: jobs, unit: jobs, what: "Registrations of community health agents (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
-  cnes_community_health_agents_professionals: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: professionals, unit: persons, what: "Distinct community health agents (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
-  cnes_community_health_agents_weekly_hours: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of community health agents (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
-  cnes_community_health_agents_weekly_hours_sus: {over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of community health agents registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
-  cnes_teams_esf: {over: population, source: cnes, years: 2008-2023, law: sum, family: teams, group: esf, unit: teams, what: "Active family-health teams (ESF, every modality: with oral health, riverside, fluvial, transitional), December (CNES-EP, TIPO_EQP in cnes.team_groups.esf, without a deactivation date).", gaps: "Registered teams, not the Ministry financed or validated teams. Coverage = teams x 3,450 / population is the conventional parameter, not a measurement, and exceeds 100% where teams are denser than it."}
-  cnes_teams_eab_eap: {over: population, source: cnes, years: 2008-2023, law: sum, family: teams, group: eab_eap, unit: teams, what: "Active basic-care teams (EAB types I-III) and primary-care teams (EAP), December (CNES-EP).", gaps: "None is registered before 2011 (70 teams in 2011, 3,194 in 2020 when EAP type 76 appears): zero there means the type did not exist, not that no basic-care team worked."}
+  cnes_beds_total: {label: "Existing hospital beds", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: all, unit: beds, what: "Existing hospital beds of every kind (QT_EXIST: surgical, clinical, obstetric, paediatric, other specialties, hospital-day and the complementary ICU and isolation beds), December (CNES-LT).", gaps: "Registered capacity, not staffed or occupied beds. Complementary beds (ICU, intermediate, isolation) are inside the total: subtract cnes_beds_icu_total for the others."}
+  cnes_beds_sus: {label: "Beds available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: sus, unit: beds, what: "Beds available to the SUS (QT_SUS), December (CNES-LT).", gaps: "QT_SUS is what the establishment makes available to the SUS; contracted beds (QT_CONTR) are a contractual figure and are not used."}
+  cnes_beds_nonsus: {label: "Beds not available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: all, sector: nonsus, unit: beds, what: "Beds not available to the SUS (QT_NSUS), December (CNES-LT).", gaps: "The split is the establishment declaration: existing equals SUS plus non-SUS, off by 17 beds in 2008 and exact in 2015 and 2023."}
+  cnes_beds_icu_total: {label: "Existing ICU beds", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: icu, sector: all, unit: beds, what: "Existing intensive-care beds (adult, paediatric, neonatal, burns, coronary; codes in cnes.icu_bed_codes), December (CNES-LT).", gaps: "Intermediate-care and isolation beds are not counted."}
+  cnes_beds_icu_sus: {label: "ICU beds available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: beds, kind: icu, sector: sus, unit: beds, what: "Intensive-care beds available to the SUS (QT_SUS), December (CNES-LT).", gaps: "As cnes_beds_icu_total."}
+  cnes_equipment_ct: {label: "Existing CT scanners", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: ct, sector: all, unit: units, what: "Existing computed-tomography scanners (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
+  cnes_equipment_ct_sus: {label: "CT scanners available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: ct, sector: sus, unit: units, what: "Existing computed-tomography scanners whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_ct."}
+  cnes_equipment_mri: {label: "Existing MRI scanners", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mri, sector: all, unit: units, what: "Existing magnetic-resonance scanners (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
+  cnes_equipment_mri_sus: {label: "MRI scanners available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mri, sector: sus, unit: units, what: "Existing magnetic-resonance scanners whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_mri."}
+  cnes_equipment_mammography: {label: "Existing mammography units", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mammography, sector: all, unit: units, what: "Existing mammography units (simple, stereotactic, computed) (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
+  cnes_equipment_mammography_sus: {label: "Mammography units available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: mammography, sector: sus, unit: units, what: "Existing mammography units (simple, stereotactic, computed) whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_mammography."}
+  cnes_equipment_dialysis: {label: "Existing haemodialysis equipment", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: dialysis, sector: all, unit: units, what: "Existing haemodialysis equipment (QT_EXIST), December (CNES-EQ).", gaps: "Registered units, in use or not (QT_USO is the in-use count). A unit is placed in the municipality of the establishment that holds it."}
+  cnes_equipment_dialysis_sus: {label: "Haemodialysis equipment available to the SUS", over: population, source: cnes, years: 2008-2023, law: sum, family: equipment, equipment: dialysis, sector: sus, unit: units, what: "Existing haemodialysis equipment whose row is flagged available to the SUS (IND_SUS 1), December (CNES-EQ).", gaps: "The flag is per row and the quantity is not split by sector: a row flagged both SUS and non-SUS counts in full here and in cnes_equipment_dialysis."}
+  cnes_physicians_jobs: {label: "Physician registrations (jobs)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: jobs, unit: jobs, what: "Registrations of physicians (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
+  cnes_physicians_professionals: {label: "Physicians (distinct persons)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: professionals, unit: persons, what: "Distinct physicians (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
+  cnes_physicians_weekly_hours: {label: "Physicians' contracted weekly hours", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of physicians (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
+  cnes_physicians_weekly_hours_sus: {label: "Physicians' contracted weekly hours, SUS-registered", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: physicians, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of physicians registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
+  cnes_nurses_jobs: {label: "Nurse registrations (jobs)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: jobs, unit: jobs, what: "Registrations of nurses (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
+  cnes_nurses_professionals: {label: "Nurses (distinct persons)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: professionals, unit: persons, what: "Distinct nurses (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
+  cnes_nurses_weekly_hours: {label: "Nurses' contracted weekly hours", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of nurses (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
+  cnes_nurses_weekly_hours_sus: {label: "Nurses' contracted weekly hours, SUS-registered", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: nurses, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of nurses registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
+  cnes_community_health_agents_jobs: {label: "Community health agent registrations (jobs)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: jobs, unit: jobs, what: "Registrations of community health agents (CNES-PF rows: one per professional, establishment, occupation and contract), December.", gaps: "A person with two jobs counts twice. CNES-PF lists who is registered with contracted hours, not who attended."}
+  cnes_community_health_agents_professionals: {label: "Community health agents (distinct persons)", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: professionals, unit: persons, what: "Distinct community health agents (by CNS_PROF) registered in the municipality establishments, December.", gaps: "Distinct CNS within a municipality only: a person in two municipalities is in both, so a coarser sum is person-municipality pairs, and one person can hold several CNS numbers. Nationally the physician sum is 805,369 in 2023 against about 570,000 physicians in the profession count (CFM): an upper bound, good for comparing places, not a national headcount. Registrations without a CNS are not in this count."}
+  cnes_community_health_agents_weekly_hours: {label: "Community health agents' contracted weekly hours", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: hours, unit: weekly contracted hours, what: "Weekly contracted hours of community health agents (HORA_AMB + HORAHOSP + HORAOUTR), December. FTE at use: hours / 40.", gaps: "Contracted, not worked, hours; the 40-hour week is the FTE convention (44 is also used)."}
+  cnes_community_health_agents_weekly_hours_sus: {label: "Community health agents' contracted weekly hours, SUS-registered", over: population, source: cnes, years: 2008-2023, law: sum, family: professionals, group: community_health_agents, measure: hours_sus, unit: weekly contracted hours, what: "Weekly contracted hours of community health agents registered as attending the SUS (PROF_SUS 1), December.", gaps: "The flag is the registration, and the hours are not split between SUS and private work."}
+  cnes_teams_esf: {label: "Active family-health teams (ESF)", over: population, source: cnes, years: 2008-2023, law: sum, family: teams, group: esf, unit: teams, what: "Active family-health teams (ESF, every modality: with oral health, riverside, fluvial, transitional), December (CNES-EP, TIPO_EQP in cnes.team_groups.esf, without a deactivation date).", gaps: "Registered teams, not the Ministry financed or validated teams. Coverage = teams x 3,450 / population is the conventional parameter, not a measurement, and exceeds 100% where teams are denser than it."}
+  cnes_teams_eab_eap: {label: "Active basic-care and primary-care teams", over: population, source: cnes, years: 2008-2023, law: sum, family: teams, group: eab_eap, unit: teams, what: "Active basic-care teams (EAB types I-III) and primary-care teams (EAP), December (CNES-EP).", gaps: "None is registered before 2011 (70 teams in 2011, 3,194 in 2020 when EAP type 76 appears): zero there means the type did not exist, not that no basic-care team worked."}
