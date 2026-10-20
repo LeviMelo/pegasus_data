@@ -31,14 +31,19 @@ columns:
     model: excluded
     name: "Sigla da Unidade Federada do local provável de infecção"
   COD_MUN_LPI:
-    role: case.infection_municipality
+    # NOT where the person lives: the file has no residence, only the probable place of infection (LPI). The engine places a person's
+    # event through a residence stratum, so the LPI stands there: a case is placed in the population of the municipality it was
+    # infected in (the population exposed), `place_of: subject` being the stratum's formal requirement
+    role: case.residence
+    also:
+    - case.infection_municipality
     kind: place
-    model: where
-    place_of: event
+    model: stratum
+    place_of: subject
     fact_domain: clinical
-    fact_domain_evidence: "\"Código IBGE do município do local provável de infecção\" (case.infection_municipality): place of infection, exposure, travel, risk or accident: exposure of the case"
+    fact_domain_evidence: "\"Código IBGE do município do local provável de infecção\" (case.infection_municipality): the probable place of infection (LPI), not residence: exposure of the case, standing as the case's residence stratum"
     name: "Código IBGE do município do local provável de infecção"
-    note: "Blank in 8 of 2912 rows, one of them the empty row the file ends with."
+    note: "The municipality of the probable place of infection, not the person's residence (the file has none); blank in 8 of 2912 rows, one of them the empty row the file ends with."
   MUN_LPI:
     role: case.infection_municipality_name
     kind: text
