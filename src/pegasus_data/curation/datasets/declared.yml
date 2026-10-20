@@ -212,6 +212,11 @@ datasets:
   SIH.RJ:
     system: SIH
     series: RJ
+    use: not_an_event_source
+    why_no_event_type: >-
+      A rejection is an administrative outcome of a billing claim, not a clinical event. In Alagoas, 2018, RJ's
+      23,601 rows carry 18,598 distinct AIH numbers (a claim is presented again), and 4,885 of them (26.3%) are
+      also in SIH-RD that year, so counting RJ beside RD counts admissions twice.
     asserted_by: pegasus_data
     what_one_row_is: one AIH that was rejected in processing
     unit_of_analysis: rejected admission claim
@@ -220,13 +225,22 @@ datasets:
       track the competence of a hospital's billing office as much as anything
       about care.
     gotchas:
-      - These admissions are ABSENT from SIH.RD. An analysis of RD alone silently drops them.
-      - A rejected AIH may be corrected and re-presented, appearing later in RD; the same episode can exist in both.
+      - >-
+        Most rejected AIH numbers are absent from SIH.RD, so an analysis of RD alone silently drops them: in Alagoas,
+        2018, 13,713 of RJ's 18,598 distinct AIH numbers are not in RD that year.
+      - >-
+        A rejected AIH may be corrected and re-presented, appearing in RD: 4,885 of those 18,598 numbers (26.3%) are
+        also in RD in 2018, so the same episode can exist in both.
+      - One AIH can be rejected more than once (23,601 rows for 18,598 numbers in Alagoas, 2018); rows are not admissions.
       - Do not add RJ to RD as though they were disjoint populations over time.
 
   SIH.ER:
     system: SIH
     series: ER
+    use: not_an_event_source
+    why_no_event_type: >-
+      The errors of RJ's claims, one row per error: in Alagoas, 2018, ER has 27,769 rows for 18,598 AIH numbers
+      (up to 14 each) and every one is an RJ number, so a row is neither an admission nor a rejection.
     asserted_by: pegasus_data
     what_one_row_is: one rejection, carrying the error that caused it
     unit_of_analysis: rejection reason
@@ -241,6 +255,11 @@ datasets:
   CNES.ST:
     system: CNES
     series: ST
+    use: support
+    why_no_event_type: >-
+      A register of establishments: one row per establishment and monthly competence (861 rows for 861 distinct
+      CNES codes in Acre, 2018-12), a standing that lasts while the establishment stays registered, not
+      something that happened.
     asserted_by: pegasus_data
     what_one_row_is: one health establishment, as registered in one monthly competência
     unit_of_analysis: establishment-month
@@ -269,6 +288,10 @@ datasets:
   CNES.PF:
     system: CNES
     series: PF
+    use: support
+    why_no_event_type: >-
+      A register of professional posts: one row per professional, establishment and month, so a row is a post
+      held (a doctor at four hospitals is four rows), not an event.
     asserted_by: pegasus_data
     what_one_row_is: one professional's registration AT one establishment, in one month
     unit_of_analysis: professional-establishment-month
@@ -284,6 +307,10 @@ datasets:
   CNES.LT:
     system: CNES
     series: LT
+    use: support
+    why_no_event_type: >-
+      A register of bed counts: one row per establishment and bed type with the existing, contracted and SUS
+      quantities (201 rows for 32 establishments in Acre, 2018-12), a stock at the month, not events.
     asserted_by: pegasus_data
     what_one_row_is: a bed count for one establishment and bed type, in one month
     unit_of_analysis: establishment-bed type-month
@@ -299,6 +326,10 @@ datasets:
   CNES.EQ:
     system: CNES
     series: EQ
+    use: support
+    why_no_event_type: >-
+      A register of equipment counts: one row per establishment and equipment type with the existing and in-use
+      quantities (2,473 rows for 589 establishments in Acre, 2018-12), a stock, not events.
     asserted_by: pegasus_data
     what_one_row_is: an equipment count for one establishment and equipment type, in one month
     unit_of_analysis: establishment-equipment type-month
@@ -312,6 +343,10 @@ datasets:
   CNES.EP:
     system: CNES
     series: EP
+    use: support
+    why_no_event_type: >-
+      A register of care teams: a team stays registered from month to month, so a row is a team standing in a
+      month, not an event.
     asserted_by: pegasus_data
     what_one_row_is: one registered care team at one establishment, in one month
     unit_of_analysis: team-month
@@ -326,6 +361,10 @@ datasets:
   CNES.HB:
     system: CNES
     series: HB
+    use: support
+    why_no_event_type: >-
+      A register of accreditations: what an establishment is authorised to bill for, with validity dates; not
+      care given.
     asserted_by: pegasus_data
     what_one_row_is: one high-complexity accreditation held by an establishment
     unit_of_analysis: accreditation
@@ -339,6 +378,9 @@ datasets:
   CNES.SR:
     system: CNES
     series: SR
+    use: support
+    why_no_event_type: >-
+      A register of specialised services an establishment declares offering: an offer, not activity.
     asserted_by: pegasus_data
     what_one_row_is: one specialised service offered by an establishment, with its classification
     unit_of_analysis: service-establishment
@@ -350,6 +392,10 @@ datasets:
   CNES.RC:
     system: CNES
     series: RC
+    use: support
+    why_no_event_type: >-
+      A register of the contractual rules under which an establishment serves the SUS: the funding relationship,
+      not care.
     asserted_by: pegasus_data
     what_one_row_is: one contractual rule under which an establishment serves SUS
     unit_of_analysis: contract rule
@@ -360,6 +406,10 @@ datasets:
   CNES.IN:
     system: CNES
     series: IN
+    use: support
+    why_no_event_type: >-
+      A register of the financial incentives an establishment receives: the history of federal programmes, not
+      events.
     asserted_by: pegasus_data
     what_one_row_is: one financial incentive an establishment receives
     unit_of_analysis: incentive
@@ -372,6 +422,10 @@ datasets:
   CNES.DC:
     system: CNES
     series: DC
+    use: support
+    why_no_event_type: >-
+      Complementary attributes of the establishment register, one row per establishment and month, a supplement
+      of CNES.ST: not events.
     asserted_by: pegasus_data
     what_one_row_is: complementary attributes of one establishment, in one month
     unit_of_analysis: establishment-month
@@ -382,6 +436,9 @@ datasets:
   CNES.GM:
     system: CNES
     series: GM
+    use: support
+    why_no_event_type: >-
+      A register of management arrangements and contracted targets: a target agreed, not activity achieved.
     asserted_by: pegasus_data
     what_one_row_is: management arrangements and contracted targets for one establishment
     unit_of_analysis: establishment-month
@@ -394,6 +451,10 @@ datasets:
   CNES.EF:
     system: CNES
     series: EF
+    use: support
+    why_no_event_type: >-
+      A register of the philanthropic status of an establishment and its conditions: an attribute of the
+      establishment, not an event.
     asserted_by: pegasus_data
     what_one_row_is: philanthropic status of one establishment, and the conditions attached
     unit_of_analysis: establishment-month
@@ -406,6 +467,10 @@ datasets:
   CNES.EE:
     system: CNES
     series: EE
+    use: support
+    why_no_event_type: >-
+      A register of the teaching and research attributes of an establishment: an attribute of the establishment,
+      not an event.
     asserted_by: pegasus_data
     what_one_row_is: teaching and research attributes of one establishment
     unit_of_analysis: establishment-month
@@ -773,22 +838,233 @@ datasets:
   SIA.AC:
     system: SIA
     series: AC
+    # An explicit empty block, as IBGE.PROJUF's: the 2001-2007 APAC blocks (AC, CO, EX, OP, PC, PF, PQ, PR, UD, UO) carry none of the AP_* columns of SIA's
+    # APAC header block, and no layout names their place and competence columns (ADR-0077): nothing is inherited.
+    semantic_axes: {}
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet: the authorisation header of the 2001-2007 APAC archives (one row per APAC), the same
+      kind of event the 2008-onward APAC datasets declare as an authorisation; its closing and validity rules
+      were never read from a layout (none found, ADR-0077; catalogue confidence medium), and the sibling blocks
+      hold the same APACs.
     asserted_by: pegasus_data
-    what_one_row_is: >
-      depends on the block. This dataset is seven linked tables in one archive,
-      joined by the APAC authorisation number
-    unit_of_analysis: varies by block; the patient block is one dialysis patient
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.AC: the authorisation block of the 2001-2007 APAC archives, ACAC0201.EXE) and ADR-0077
+    what_one_row_is: >-
+      one APAC (authorisation of high-complexity outpatient care) of 2001-2007: its issue and validity dates, type,
+      main procedure and closing reason, with the CPF/CNS and names of the patient, the responsible professional and the director
+    unit_of_analysis: APAC
     known_biases: >
-      A 2002-era registry, published as self-extracting archives that
-      extension-based scanners skip entirely. It covers renal replacement therapy
-      only.
+      Published as self-extracting archives (ACAC0201.EXE) that extension-based
+      scanners skip entirely. An archive holds up to seven tables, and from 2005
+      the archives named AC hold only the billing block, SIA.CO (ADR-0077).
     gotchas:
-      - Seven DBF members per file, not one table. Reading only the first member silently discards six datasets.
-      - The blocks join on their *_NUM column; the patient block matched the exam block one-to-one when measured.
-      - The exam block carries HIV, HBsAg, hepatitis and HLA results.
+      - >-
+        One archive is up to seven DBF members, each its own dataset here (SIA.AC, CO, EX, OP, PC, PF, PQ, PR, UD, UO).
+        Reading only the first member silently discards the others.
+      - The blocks join on their *_NUM column (the APAC number) or *_CODUNI (the unit).
       - Patient CPF columns fail the CPF check digit and are pseudonyms; the responsible-professional and director CPFs are real. See FINDINGS.md 3j.
       - Date of birth, sex, municipality and full postcode are real and unobfuscated, which makes the record re-identifiable without any direct identifier.
 
+  SIA.CO:
+    system: SIA
+    series: CO
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.CO) and ADR-0077; no layout document found
+    what_one_row_is: >-
+      one billed procedure of an APAC of 2001-2007: the procedure, its specialty, the quantity and value
+      presented and approved (COB_*), with the credit-assignment CNPJ and invoice
+    unit_of_analysis: APAC-billed procedure
+    use: not_an_event_source
+    why_no_event_type: >-
+      The billing lines of the APACs of SIA-AC (COB_*: procedure, quantity and value presented and approved), a
+      second table of the same authorisations, so counting it with AC counts them twice; from 2005 the archives
+      carry only this block, whose billed-procedure event is not declared.
+    gotchas:
+      - Joins SIA.AC on the APAC number (COB_NUM); from 2005 the archives carry only this block (ADR-0077).
+      - >-
+          Presented and approved quantities and values are separate columns; the money is of the competence
+          month.
+  SIA.EX:
+    system: SIA
+    series: EX
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.EX: named from its columns EXA_*) and ADR-0077; no layout document found
+    what_one_row_is: >-
+      the exams of one renal-replacement patient under an APAC of 2001-2007: creatinine, pre- and post-dialysis
+      urea, hepatitis, HBsAg, HIV and HLA (EXA_*)
+    unit_of_analysis: APAC-exam set
+    use: not_an_event_source
+    why_no_event_type: >-
+      The exams of renal-replacement patients per APAC (EXA_*): findings attached to an authorisation of SIA-AC,
+      not a second authorisation.
+    gotchas:
+      - >-
+          The exam block carries HIV, HBsAg, hepatitis and HLA results: identifying health information,
+          though the patient is pseudonymous.
+      - Joins SIA.AC on the APAC number; a patient with several APACs has several exam sets.
+  SIA.OP:
+    system: SIA
+    series: OP
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.OP: named from its columns OPC_*, confidence low) and ADR-0077; no layout
+      document found
+    what_one_row_is: >-
+      the patient block of an APAC of 2001-2007 outside renal therapy and oncology: birth date, sex, residence,
+      main procedure, its result, ICD-10 and the linked AIH (OPC_*)
+    unit_of_analysis: APAC patient
+    use: not_an_event_source
+    why_no_event_type: >-
+      The patient block of the APACs outside renal therapy and oncology (OPC_*), joined to SIA-AC on the APAC
+      number: it describes the authorisations of AC, so counting it with AC counts them twice.
+    gotchas:
+      - >-
+          Named from its columns, and the catalogue's confidence in the identity is low.
+      - >-
+          Date of birth, sex and residence are real and unobfuscated, which makes the record re-identifiable
+          without any direct identifier.
+  SIA.PC:
+    system: SIA
+    series: PC
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.PC: PAC_*) and ADR-0077; no layout document found
+    what_one_row_is: >-
+      the patient block of a renal-replacement APAC of 2001-2007: birth date, sex, residence, treatment start,
+      primary and secondary diagnosis, transplant indication and waiting-list registration (PAC_*)
+    unit_of_analysis: APAC patient
+    use: not_an_event_source
+    why_no_event_type: >-
+      The patient block of the renal-replacement APACs (PAC_*), joined to SIA-AC on the APAC number: it
+      describes the authorisations of AC, so counting it with AC counts them twice.
+    gotchas:
+      - >-
+          Date of birth, sex and residence are real and unobfuscated, which makes the record re-identifiable
+          without any direct identifier.
+      - >-
+          Joins SIA.EX and SIA.AC on the APAC number; the patient block matched the exam block one-to-one
+          when measured (FINDINGS 3j).
+  SIA.PF:
+    system: SIA
+    series: PF
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.PF, named by 'PF- APAC - Pacientes Medicamentos.def' in
+      TAB_SIA_199911-200307.zip and TAB_SIA_200308-200712.zip) and ADR-0077
+    what_one_row_is: >-
+      the patient block of a high-cost-medicines APAC of 2001-2007 (PAF_*), in the layout of SIA.PC
+    unit_of_analysis: APAC patient
+    use: not_an_event_source
+    why_no_event_type: >-
+      The patient block of the high-cost medicines APACs (PAF_*), joined to SIA-AC on the APAC number: it
+      describes the authorisations of AC, so counting it with AC counts them twice.
+    gotchas:
+      - The medicines part of the layout is in sources/apac_layout1.txt (type of care 36).
+      - >-
+          Date of birth, sex and residence are real and unobfuscated, which makes the record re-identifiable
+          without any direct identifier.
+  SIA.PQ:
+    system: SIA
+    series: PQ
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.PQ, 'PQ- APAC - Pacientes Quimioterapia.def' in TAB_SIA_199911-200307.zip and
+      TAB_SIA_200308-200712.zip) and sources/apac_layout1.txt (QUIMIO)
+    what_one_row_is: >-
+      the patient block of a chemotherapy APAC of 2001-2007: diagnosis, morphology, metastasis, diagnosis date,
+      treatment start, previous treatments, tumour state and planned months (PAQ_*)
+    unit_of_analysis: APAC patient
+    use: not_an_event_source
+    why_no_event_type: >-
+      The patient block of the chemotherapy APACs (PAQ_*), joined to SIA-AC on the APAC number, and the pre-2008
+      counterpart of SIA-AQ (whose authorisation event is declared): it describes the authorisations of AC, so
+      counting it with AC counts them twice.
+    gotchas:
+      - >-
+          The pre-2008 counterpart of SIA.AQ: PQ's files end in 2007 and AQ's start in 2008 (the catalog).
+      - >-
+          Date of birth, sex and residence are real and unobfuscated, which makes the record re-identifiable
+          without any direct identifier.
+  SIA.PR:
+    system: SIA
+    series: PR
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.PR, 'PR- APAC - Pacientes Radioterapia.def' in TAB_SIA_199911-200307.zip and
+      TAB_SIA_200308-200712.zip) and sources/apac_layout1.txt (RADIOTERAPIA)
+    what_one_row_is: >-
+      the patient block of a radiotherapy APAC of 2001-2007: diagnosis, morphology, metastasis, purpose,
+      diagnosis date, previous treatments, tumour state, irradiated areas and fields (PAR_*)
+    unit_of_analysis: APAC patient
+    use: not_an_event_source
+    why_no_event_type: >-
+      The patient block of the radiotherapy APACs (PAR_*), joined to SIA-AC on the APAC number, and the pre-2008
+      counterpart of SIA-AR (whose authorisation event is declared): it describes the authorisations of AC, so
+      counting it with AC counts them twice.
+    gotchas:
+      - >-
+          The pre-2008 counterpart of SIA.AR: PR's files end in 2007 and AR's start in 2008 (the catalog).
+      - >-
+          Date of birth, sex and residence are real and unobfuscated, which makes the record re-identifiable
+          without any direct identifier.
+  SIA.UD:
+    system: SIA
+    series: UD
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.UD: named from its columns UDI_*) and ADR-0077; no layout document found
+    what_one_row_is: >-
+      one dialysis unit in one month: counts of machines and modalities, water treatment, the partner
+      laboratories and services, and the unit's responsible nephrologist and director (UDI_*)
+    unit_of_analysis: dialysis unit-month
+    use: support
+    why_no_event_type: >-
+      A census of the dialysis units, one row per unit and month (UDI_*): machines, modalities, partner services
+      and responsible professionals; a standing, not an event.
+    gotchas:
+      - A census of units, not of patients or sessions.
+      - >-
+          Joins on the unit's CNES code (*_CODUNI).
+  SIA.UO:
+    system: SIA
+    series: UO
+    semantic_axes: {}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIA.UO: named from its columns UDO_*) and ADR-0077; no layout document found
+    what_one_row_is: >-
+      one oncology unit in one month: radiotherapy rooms and equipment (simulator, cobalt, linear accelerator,
+      brachytherapy), partner services and responsible professionals (UDO_*)
+    unit_of_analysis: oncology unit-month
+    use: support
+    why_no_event_type: >-
+      A census of the oncology units, one row per unit and month (UDO_*): radiotherapy rooms and equipment,
+      partner services and responsible professionals; a standing, not an event.
+    gotchas:
+      - A census of units, not of patients or sessions.
+      - >-
+          Joins on the unit's CNES code (*_CODUNI).
   SIA.ABO:
     system: SIA
     series: ABO
@@ -988,6 +1264,11 @@ datasets:
   PNI.DPNI:
     system: PNI
     series: DPNI
+    use: context
+    why_no_event_type: >-
+      Counts of doses by municipality, vaccine and dose number (an aggregate; the IG and UF files are the same
+      measure at other aggregations): vaccinations delivered by place, not records. A dose count could be an
+      event type with that quantity as its weight (as SIA-PA's); none has been declared.
     asserted_by: pegasus_data
     what_one_row_is: a count of doses administered, by municipality, immunobiological and dose number
     unit_of_analysis: municipality-vaccine-dose-period
@@ -1003,6 +1284,10 @@ datasets:
   PNI.CPNI:
     system: PNI
     series: CPNI
+    use: context
+    why_no_event_type: >-
+      A coverage rate (doses over an estimated target population) per municipality, vaccine and period: a rate
+      is not an event, and it is never summed.
     asserted_by: pegasus_data
     what_one_row_is: a vaccination coverage figure for one municipality, vaccine and period
     unit_of_analysis: municipality-vaccine-period
@@ -1014,6 +1299,69 @@ datasets:
       - A RATE, already divided. Never sum it across municipalities; recompute from doses and population instead.
       - The denominator changes when population estimates are revised, so a coverage series can move without any change in doses.
 
+  DADOS_ABERTOS.COBERTURA_RESIDENCIA:
+    system: DADOS_ABERTOS
+    series: COBERTURA_RESIDENCIA
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUNICIPIO], code_system: ibge_municipality}
+      default_time: reference
+      time:
+        reference: {fields: [CO_ANO], encoding: year}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (Dados_Abertos/SIPNIBD/Cobertura_Residencia.parquet, 1,088,479 rows, 2015-2026) and
+      curation/roles/DADOS_ABERTOS-COBERTURA_RESIDENCIA.yml
+    what_one_row_is: >-
+      the vaccination coverage of one municipality of residence for one immunobiological and year (SI-PNI/RNDS):
+      doses, target population and coverage
+    unit_of_analysis: municipality of residence-vaccine-year
+    use: context
+    why_no_event_type: >-
+      A published coverage rate by municipality of residence, vaccine and year (a fraction): a rate is not an
+      event, and it is never summed or recomputed.
+    known_biases: >
+      Coverage is doses over an estimated target population (NU_POPULACAO), so it inherits every error of that
+      denominator.
+    gotchas:
+      - A fraction (0.96), not a percentage; the published rate, never summed or recomputed.
+      - >-
+          Not an alias of PNI.CPNI: another system (SI-PNI/RNDS), the municipality of residence rather than
+          of application, another layout.
+  DADOS_ABERTOS.DOSES_RESIDENCIA:
+    system: DADOS_ABERTOS
+    series: DOSES_RESIDENCIA
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUNICIPIO], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO, NU_MES], encoding: year_month}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (Dados_Abertos/SIPNIBD/Doses_Residencia.parquet, 236,140,984 rows read 2026-10-08)
+      and curation/roles/DADOS_ABERTOS-DOSES_RESIDENCIA.yml
+    what_one_row_is: >-
+      the doses administered to the residents of one municipality in one year and month, by strategy,
+      immunobiological, dose, age, race/colour and sex (SI-PNI/RNDS)
+    unit_of_analysis: municipality of residence-year-month-strategy-vaccine-dose-age-race-sex
+    use: context
+    why_no_event_type: >-
+      Cells of doses (QT_DOSE) by residence, year, month, strategy, vaccine, dose, age, race and sex
+      (236,140,984 rows read on 2026-10-08), not records of vaccinations. A dose count could be an event type
+      with that quantity as its weight (as SIA-PA's); none has been declared.
+    known_biases: >
+      Counted by the residence of the person vaccinated, where PNI.DPNI counts where the dose was given, so the
+      two can disagree for a municipality with a regional vaccination post.
+    gotchas:
+      - Aggregate. Sum QT_DOSE, never the rows.
+      - >-
+          Not the DPNI tables: another system (SI-PNI/RNDS), another place (residence), another layout.
+          Until 2026-10-08 it was declared an alias of PNI.DPNI, so a query read the old DBF tables instead.
   SISPRENATAL.PN:
     system: SISPRENATAL
     series: PN
@@ -1090,6 +1438,11 @@ datasets:
   PCE.PCE:
     system: PCE
     series: PCE
+    use: context
+    why_no_event_type: >-
+      Survey summaries by locality, phase and month: stool exams performed, positives, people treated and snails
+      captured (QT_EXAM, QT_POS, QT_TRAT, QT_CAP), not records of cases. In states with focal transmission the
+      cases are notified in SINAN, and Bahia 2000-2004 recorded no egg counts (PCE technical note).
     asserted_by: pegasus_data
     what_one_row_is: survey and treatment results for schistosomiasis in one locality
     unit_of_analysis: locality-survey
@@ -1128,6 +1481,12 @@ datasets:
   SIM.DOEXT:
     system: SIM
     series: DOEXT
+    use: not_an_event_source
+    why_no_event_type: >-
+      A subset of SIM-DO that DATASUS extracts: the deaths with an underlying cause in chapter XX (V01-Y98). In
+      Acre, 2018, all 689 DOEXT deaths of residents are among SIM-DO's 4,094 and SIM-DO has exactly 689 deaths
+      with a V-Y underlying cause, so counting both counts them twice. They are counted from SIM-DO with a
+      condition on the cause.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as SIM.DOEXT
@@ -1231,6 +1590,12 @@ datasets:
   SIM.DOINF:
     system: SIM
     series: DOINF
+    use: not_an_event_source
+    why_no_event_type: >-
+      A subset of SIM-DO that DATASUS extracts: the deaths under one year of age (IDADE below 400, the minutes,
+      hours, days and months of the age code; 7 of the 35,864 records of 2018 carry 400, zero years). In Acre,
+      2018, all 273 DOINF deaths of residents are among SIM-DO's 4,094 and SIM-DO has exactly 273 with IDADE
+      below 400, so counting both counts them twice. They are counted from SIM-DO with a condition on the age.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as SIM.DOINF
@@ -1246,6 +1611,13 @@ datasets:
   SIM.DOMAT:
     system: SIM
     series: DOMAT
+    use: not_an_event_source
+    why_no_event_type: >-
+      A subset of SIM-DO that DATASUS extracts by its maternal-death rule (1,639 of the 1,658 records of 2018
+      have an obstetric-chapter underlying cause, 17 B and 2 F codes). In Acre, 2018, all 9 DOMAT deaths of
+      residents are among SIM-DO's 4,094; the rule is narrower than the pregnancy and puerperium flags (16
+      deaths there carry an O-chapter cause or a flag), so counting both counts them twice and a flag does not
+      reproduce it. They are counted from SIM-DO.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as SIM.DOMAT
@@ -1263,6 +1635,11 @@ datasets:
   SIM.DOR:
     system: SIM
     series: DOR
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet: the deaths of 1979-1995 in the ICD-9 era, whose causes are CID-9 (CID9WHO); the death
+      event is declared for the ICD-10 files (SIM-DO from 1996) and an ICD-9 event needs its own classifier and
+      the ICD-9 to ICD-10 bridge (STATUS lists ICD-9 as not done).
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: MORT98.HLP (SIM/CID9/DOCS), directory DORES
@@ -1306,6 +1683,10 @@ datasets:
   SIM.DORIG:
     system: SIM
     series: DORIG
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet, as SIM-DOR (ICD-9 era): the 1995 deaths of residents abroad or of unknown residence, the
+      complement of SIM-DOR's state files; it holds one file, 1995.
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: MORT98.HLP (SIM/CID9/DOCS), directory DOIGN
@@ -1334,6 +1715,11 @@ datasets:
   SINASC.DNR:
     system: SINASC
     series: DNR
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet: the live births of 1994-1995 in SINASC's first layout, which has its own codes
+      (TIPO_PARTO holds 3 and 4, which PARTO does not define); the birth event is declared for SINASC-DN and
+      DNEX, whose layouts were read.
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: NASC98.HLP (SINASC/1994_1995/Doc), directory DNRES
@@ -1345,6 +1731,10 @@ datasets:
   SINASC.DNRIG:
     system: SINASC
     series: DNRIG
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet, as SINASC-DNR: the 1995 births to mothers resident abroad or of unknown residence, the
+      complement of DNR's state files, in the first layout (3 files, 30 columns).
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: NASC98.HLP (SINASC/1994_1995/Doc), directory DNIGN
@@ -1354,39 +1744,98 @@ datasets:
       - The complement of SINASC.DNR's state files for 1995, not an original version of them.
 
   # ==================================================================== SIH
+  SIH.CM:
+    system: SIH
+    series: CM
+    # A register of maintainers has a month and no place: nothing is inherited from SIH's AIH block.
+    semantic_axes:
+      default_time: competence
+      time:
+        competence: {fields: [COMPET], encoding: yyyymm}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (SIH.CM: CMBRaamm.dbc, SIHSUS/200801_/Dados) and the catalog's family (3 columns:
+      CNPJ_MANT, COMPET, RAZAO; 42 files, 2019-2026)
+    what_one_row_is: >-
+      one entity that maintains SIH hospitals, in one monthly register of maintainers (CMBRaamm)
+    unit_of_analysis: maintainer-month
+    use: support
+    why_no_event_type: >-
+      A register of the entities that maintain SIH's hospitals: one row per maintainer and monthly competence
+      (CNPJ and legal name), a standing, not an event.
+    gotchas:
+      - A dimension, not activity. Counting rows counts maintainers on file, not admissions.
+      - Joined to SIH.CH by CNPJ_MANT; the competence is COMPET here and CMPT in CH.
   SIH.CH:
     system: SIH
     series: CH
+    # CH is its own register: the municipality of the hospital and the month of the snapshot, not SIH's AIH block (MUNIC_RES, ANO_CMPT).
+    semantic_axes:
+      default_geography: facility
+      geography:
+        facility: {fields: [MUNIC_LOC], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [CMPT], encoding: yyyymm}
+    use: support
+    why_no_event_type: >-
+      A register of the hospitals that bill SIH: one row per hospital and monthly competence (CNES, CNPJ,
+      maintainer, municipality, names), a standing, not an admission.
     asserted_by: pegasus_data
     source: manual
-    source_ref: identity declared in curation/ontology.yml as SIH.CH
-    what_one_row_is: one hospital in the register that accompanied the older SIH generations
-    unit_of_analysis: establishment
+    source_ref: >-
+      curation/ontology.yml (SIH.CH, corrected 2026-10-08: CHBRaamm.dbc, 2019 onward, 3,785 hospitals in 2026-03) and the
+      catalog's family (7 columns: CMPT, CNES, CGC_HOSP, CNPJ_MANT, MUNIC_LOC, NOMEFANT, RAZAO; 42 files, 2019-2026)
+    what_one_row_is: one hospital that bills SIH, in one monthly register (CHBRaamm)
+    unit_of_analysis: hospital-month
     gotchas:
       - This is a dimension, not activity. Counting rows counts hospitals on file, not admissions.
-      - Superseded by CNES as the establishment register. For any period CNES covers, use CNES; this exists for the years before it.
+      - >-
+        Not a retired pre-CNES register: the files run from 2019 to 2026 beside CNES. It names the hospitals that bill
+        SIH, with the maintainer's CNPJ (joined to SIH.CM).
   SIH.MT:
     system: SIH
     series: MT
+    use: not_an_event_source
+    why_no_event_type: >-
+      Not declared yet: the professional acts billed under an AIH, 1995-1997 (ATO_PROF, QTD_ATO, VAL_ATO per
+      N_AIH), the predecessor of SIH-SP, whose procedure event is declared; MT's 17-column layout was never read
+      against it.
     asserted_by: pegasus_data
     source: manual
-    source_ref: identity declared in curation/ontology.yml as SIH.MT
-    what_one_row_is: one admission whose billed procedure changed during the stay
-    unit_of_analysis: admission
+    source_ref: >-
+      curation/ontology.yml (SIH.MT, corrected 2026-10-08: the expansion of MT is not documented; 4,057,795 rows in
+      1997-02) and the catalog's family (17 columns: ATO_PROF, N_AIH, QTD_ATO, VAL_ATO, TIPO_ATO, CGC_CPF ...; 24 files, 1995-1997)
+    what_one_row_is: one professional act billed under an AIH, 1995-1997 (national monthly files)
+    unit_of_analysis: professional act
     gotchas:
-      - A small subset of admissions, not a separate population. Pooling with SIH.RD counts these admissions twice.
-      - A procedure change is a billing event. It signals that the recorded procedure in RD is not the whole story for that AIH.
+      - >-
+        Not a subset of admissions: this entry used to read MT as procedure changes, a reading from the name that the
+        columns do not support (the ontology was corrected on 2026-10-08).
+      - >-
+        The predecessor of SIH.SP (professional services): the act's procedure (ATO_PROF, eight-digit SIH codes), its type,
+        quantity, points and value, and the CGC or CPF of the professional or entity paid. A row is an act, not an admission.
   SIH.BASE_AIH1:
     system: SIH
     series: BASE_AIH1
+    use: not_an_event_source
+    why_no_event_type: >-
+      The same admissions as SIH-RD in another layout (one 12 GB DuckDB star schema, 221.5 million AIH rows from
+      2008-01, according to the ontology's measurement of 2026-10-08), so counting it beside RD counts every
+      admission twice.
     asserted_by: pegasus_data
     source: manual
-    source_ref: identity declared in curation/ontology.yml as SIH.BASE_AIH1
-    what_one_row_is: one AIH, from a consolidated base published outside the monthly competence cycle
+    source_ref: >-
+      curation/ontology.yml (SIH.BASE_AIH1, corrected 2026-10-08: SIHSUS/base_aih1.duck, 12 GB, fact table stg_aih of 221.5
+      million rows and 74 columns) and the catalog's family (one file, 74 columns, no period)
+    what_one_row_is: one approved AIH in a consolidated star schema (a DuckDB database), from 2008-01
     unit_of_analysis: admission
     gotchas:
-      - Not part of the regular monthly series. It overlaps SIH.RD for whatever period it consolidates, so pooling double-counts.
-      - Because it sits outside the competence cycle, it cannot be aligned to a month the way RD can.
+      - >-
+        The same admissions as SIH.RD in another layout, not a supplementary file; never pooled with SIH.RD (twelve
+        dimension tables: municipalities, establishments, procedures, ICD subcategories with CSAP groups).
+      - Not part of the monthly series: the file has no competence in its name, its competence is the column DT_COMPET.
 
   # =========================================================== not datasets
   # These bind files that are not tables of rows. Leaving their unit blank made
@@ -1434,6 +1883,10 @@ datasets:
   IBGE.POP:
     system: IBGE
     series: POP
+    use: denominator
+    why_no_event_type: >-
+      The resident population by municipality, sex and age: a count of people at a date, the denominator of a
+      rate, not events.
     # Overrides the IBGE family block: the population file keys on MUNIC_RES.
     semantic_axes:
       default_geography: area
@@ -1454,9 +1907,66 @@ datasets:
     gotchas:
       - The denominator for most rates computed against DATASUS health data. Match its year to the numerator's year, not to the year of publication.
       - Municipality codes change as municipalities are created and merged. A join on code alone across decades silently loses or mismatches areas.
+  IBGE.POPS:
+    system: IBGE
+    series: POPS
+    # Keys on COD_MUN and ANO (curation/roles/IBGE-POPS.yml), not on the family's MUNCOD.
+    semantic_axes:
+      default_geography: area
+      geography:
+        area: {fields: [COD_MUN], code_system: ibge_municipality}
+      default_time: reference
+      time:
+        reference: {fields: [ANO], encoding: year}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (IBGE.POPS: IBGE/POPSVS/POPSBRaa.zip, 26 files, 2000-2025 in the catalog)
+    what_one_row_is: >-
+      the resident population of one municipality, sex and age in one year, as the Ministry of Health's SVS
+      estimates it
+    unit_of_analysis: municipality-sex-age-year
+    use: denominator
+    why_no_event_type: >-
+      The Ministry's estimate of the resident population by municipality, sex and age: a count of people at a
+      date, another estimate beside IBGE.POP and IBGE.POPT, not events.
+    gotchas:
+      - Another estimate of the same population as IBGE.POP and IBGE.POPT; never added to them.
+      - >-
+          Match its year to the numerator's, and record which of the three estimates a rate used.
+  IBGE.POPT:
+    system: IBGE
+    series: POPT
+    # Keys on MUNIC_RES and ANO (curation/roles/IBGE-POPT.yml), not on the family's MUNCOD.
+    semantic_axes:
+      default_geography: area
+      geography:
+        area: {fields: [MUNIC_RES], code_system: ibge_municipality}
+      default_time: reference
+      time:
+        reference: {fields: [ANO], encoding: year}
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: >-
+      curation/ontology.yml (IBGE.POPT: IBGE/POPTCU/POPTBRaa.zip, 33 files, 1992-2025 in the catalog)
+    what_one_row_is: >-
+      the total resident population of one municipality in one year, as IBGE sends it each year to the Tribunal
+      de Contas da União
+    unit_of_analysis: municipality-year
+    use: denominator
+    why_no_event_type: >-
+      IBGE's estimate of the total resident population by municipality, as sent to the Tribunal de Contas da
+      União: a count of people, no sex or age, not events.
+    gotchas:
+      - >-
+          No sex or age: it cannot be a denominator for a sex- or age-specific rate.
+      - Another estimate of the same population as IBGE.POP and IBGE.POPS; never added to them.
   IBGE.PROJUF:
     system: IBGE
     series: PROJUF
+    use: denominator
+    why_no_event_type: >-
+      A projection of the resident population by state: a count of people at a date, not events.
     # Projected by STATE, not by municipality. An EXPLICIT empty block, which
     # is a statement that this dataset has no municipality axis -- different
     # from saying nothing, which would inherit the family's MUNCOD and key the
@@ -1478,6 +1988,9 @@ datasets:
   IBGE.ALF:
     system: IBGE
     series: ALF
+    use: context
+    why_no_event_type: >-
+      A census table of the resident population by literacy (1991, 2000 and 2010): who lives where, not events.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.ALF
@@ -1489,6 +2002,10 @@ datasets:
   IBGE.ESCA:
     system: IBGE
     series: ESCA
+    use: context
+    why_no_event_type: >-
+      A census table of the population aged 15 and over by schooling band, sex, race and situation (1991, 2000
+      and 2010): who lives where, not events.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.ESCA
@@ -1500,6 +2017,10 @@ datasets:
   IBGE.ESCB:
     system: IBGE
     series: ESCB
+    use: context
+    why_no_event_type: >-
+      A census table of the population aged 18 to 24 by schooling band, sex, race and situation (1991, 2000 and
+      2010): who lives where, not events.
     asserted_by: pegasus_data
     source: manual
     source_ref: the files' totals (1991, 2000, 2010) against the census population aged 18 to 24
@@ -1510,6 +2031,10 @@ datasets:
   IBGE.IDOSO:
     system: IBGE
     series: IDOSO
+    use: denominator
+    why_no_event_type: >-
+      The population aged 60 and over, a subset of the resident population of IBGE.POP published separately: a
+      count of people, not events.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.IDOSO
@@ -1520,6 +2045,9 @@ datasets:
   IBGE.RENDA:
     system: IBGE
     series: RENDA
+    use: context
+    why_no_event_type: >-
+      A census table of the population by income bracket (1991, 2000 and 2010): who lives where, not events.
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.RENDA

@@ -37,6 +37,7 @@ reasoning.
         core.yml                what one row IS, for the first datasets documented
         declared.yml            the same, for the rest of the declared datasets
         sinan_agravos.yml       one entry per SINAN agravo
+                                a dataset with no event type also states its `use` and `why_no_event_type` (ADR-0195)
       variables/
         <system>/<dataset>.yml  what each COLUMN means — one file per dataset
         <system>/_shared.yml    columns carried by more than one dataset

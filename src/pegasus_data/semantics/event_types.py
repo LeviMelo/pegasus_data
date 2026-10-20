@@ -178,7 +178,9 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
                     spec = {**spec, "duplicates": shared_dups}
                 event = _event(str(key).upper(), body, spec, path.name)
                 out.setdefault(f"{event.system}-{event.series}", []).append(event)
-    return {k: tuple(v) for k, v in out.items()}
+    events = {k: tuple(v) for k, v in out.items()}
+    _check_uses(events)
+    return events
 
 
 @curated
@@ -207,6 +209,64 @@ def dataset_declaration(dataset: str) -> tuple[str, str, dict[str, Any]] | None:
     declares nothing. Read from the shipped YAML, not from the catalog's copy of it: the copy is keyed otherwise
     (``SIHSUS_RD``, not the ontology's ``SIH.RD``) and is only as current as the last write to the catalog."""
     return _declarations().get(_key(dataset))
+
+
+#: What a dataset is for (``use``, ADR-0195). Declared beside ``what_one_row_is`` for every dataset that has no event type,
+#: with ``why_no_event_type`` (the evidence); a dataset with event types is an ``event_source`` and declares neither.
+USES = {
+    "event_source": "its rows become events (it declares `event_types`): derived, never declared",
+    "context": "values by place and period that a study conditions on or compares with (an exposure, a service, a "
+               "supply, a hazard, a coverage): read as fields, not counted as events",
+    "denominator": "the population, or the persons covered, that a rate is taken over",
+    "support": "a register of establishments, services, equipment or professionals that answers questions of facilities "
+               "(capacity, supply, access) and that other records are linked to",
+    "reference": "a lookup (geography, classification, membership) that other datasets are read through",
+    "not_an_event_source": "records of health events that are not counted as events, for the reason `why_no_event_type` "
+                           "gives (a subset or republication of a counted source, an administrative document, an era "
+                           "without a classifier)",
+}
+
+
+def dataset_use(dataset: str) -> dict[str, str | None]:
+    """What ``dataset`` is for: ``use`` (one of :data:`USES`) and ``why_no_event_type``, as the curation declares them.
+    A dataset with event types is an ``event_source``; one that declares nothing has ``use`` None (it is listed by
+    :func:`undeclared_uses`, never defaulted)."""
+    if load_event_types().get(_key(dataset)):
+        return {"use": "event_source", "why_no_event_type": None}
+    declared = dataset_declaration(dataset)
+    body = declared[2] if declared else {}
+    why = " ".join(str(body["why_no_event_type"]).split()) if body.get("why_no_event_type") else None
+    return {"use": str(body["use"]) if body.get("use") else None, "why_no_event_type": why}
+
+
+def _check_uses(events: dict[str, tuple[EventType, ...]]) -> None:
+    """Every declared ``use`` is one of :data:`USES`, and agrees with the dataset's event types: one that has event types
+    is an ``event_source`` and gives no ``why_no_event_type``; one that has none declares both a use other than
+    ``event_source`` and the sentence that says why (with its evidence), or neither."""
+    for key, (file, name, body) in _declarations().items():
+        use, why = body.get("use"), body.get("why_no_event_type")
+        where = f"{file}: {name}"
+        if use is not None and use not in USES:
+            raise ValueError(f"{where}: use {use!r} not in {sorted(USES)}")
+        if why is not None and not str(why).strip():
+            raise ValueError(f"{where}: why_no_event_type states the reason, with its evidence")
+        if events.get(key):
+            if why is not None or use not in (None, "event_source"):
+                raise ValueError(f"{where}: a dataset with event types is an event_source and has no why_no_event_type")
+        elif (use is None) != (why is None) or use == "event_source":
+            raise ValueError(f"{where}: a dataset without event types declares its `use` (not event_source) and "
+                             "`why_no_event_type` together, or neither")
+
+
+def undeclared_uses() -> list[str]:
+    """The ontology's datasets that have no event type and state no ``use`` (tooling is not data): the list a reviewer
+    closes, never a default. Dataset codes as the ontology writes them (``SIM.DOEXT``)."""
+    from ..config import curation_root
+    from ..ontology import Ontology
+
+    events = load_event_types()
+    return [code for code, node in sorted(Ontology.load(curation_root()).datasets.items())
+            if node.status != "tooling" and not events.get(_key(code)) and dataset_use(code)["use"] is None]
 
 
 def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> EventType:

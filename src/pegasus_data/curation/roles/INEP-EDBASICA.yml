@@ -1,0 +1,286 @@
+# INEP school census (microdados_ed_basica): one row per school and census year, 2021-2024 (intake source inep).
+# Meaning from the 'Dicionário de Variáveis - Tabela de Escolas' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário de Dados). The file has 426 columns; these 18 are the ones pegasus_data declares and reads (the intake's `columns`); the others are landed as filed, undeclared.
+dataset: INEP-EDBASICA
+record: school
+columns:
+  CO_ENTIDADE:
+    role: school.code
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"Código da Escola" (school.code): the school: the school register'
+    name: Código da Escola
+    years:
+    - 2021
+    - 2024
+    note: INEP code of the school, 8 digits (dictionary).
+  CO_MUNICIPIO:
+    role: school.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código do Município" (school.municipality): municipality of the school: the school register'
+    name: Código do Município
+    years:
+    - 2021
+    - 2024
+    note: IBGE code, 7 digits (dictionary). Where the school is, not where the student lives.
+  NU_ANO_CENSO:
+    role: school.census_year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano do Censo" (school.census_year): year of the census: the period the record belongs to'
+    name: Ano do Censo
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS:
+    missing: []
+    role: school.enrolments
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica" (school.enrolments): enrolments of the school in basic
+      education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica'''
+    name: Número de Matrículas da Educação Básica
+    years:
+    - 2021
+    - 2024
+    note: Excludes classes exclusively of complementary activity or of specialised educational care (dictionary note). An
+      enrolment is not a person.
+  QT_MAT_BAS_0_3:
+    missing: []
+    role: school.enrolments_age_0_3
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Até 3 anos de idade" (school.enrolments_age_0_3): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, até 3 anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Até 3 anos de idade'''
+    name: Número de Matrículas da Educação Básica - Até 3 anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_11_14:
+    missing: []
+    role: school.enrolments_age_11_14
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Entre 11 e 14 anos de idade" (school.enrolments_age_11_14):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, entre 11 e 14 anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Entre 11 e 14 anos de idade'''
+    name: Número de Matrículas da Educação Básica - Entre 11 e 14 anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_15_17:
+    missing: []
+    role: school.enrolments_age_15_17
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Entre 15 e 17 anos de idade" (school.enrolments_age_15_17):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, entre 15 e 17 anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Entre 15 e 17 anos de idade'''
+    name: Número de Matrículas da Educação Básica - Entre 15 e 17 anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_18_MAIS:
+    missing: []
+    role: school.enrolments_age_18_plus
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Com 18 ou mais anos de idade" (school.enrolments_age_18_plus):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, com 18 ou mais anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Com 18 ou mais anos de idade'''
+    name: Número de Matrículas da Educação Básica - Com 18 ou mais anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_4_5:
+    missing: []
+    role: school.enrolments_age_4_5
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Entre 4 e 5 anos de idade" (school.enrolments_age_4_5):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, entre 4 e 5 anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Entre 4 e 5 anos de idade'''
+    name: Número de Matrículas da Educação Básica - Entre 4 e 5 anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_6_10:
+    missing: []
+    role: school.enrolments_age_6_10
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Entre 6 e 10 anos de idade" (school.enrolments_age_6_10):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, entre 6 e 10 anos de idade
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Entre 6 e 10 anos de idade'''
+    name: Número de Matrículas da Educação Básica - Entre 6 e 10 anos de idade
+    years:
+    - 2021
+    - 2024
+    note: Age band computed from the student's age on the census reference date, the last Wednesday of May (dictionary note).
+  QT_MAT_BAS_AMARELA:
+    missing: []
+    role: school.enrolments_yellow
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Amarela" (school.enrolments_yellow): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça amarela
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Amarela'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Amarela
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_BRANCA:
+    missing: []
+    role: school.enrolments_white
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Branca" (school.enrolments_white): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça branca
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Branca'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Branca
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_FEM:
+    missing: []
+    role: school.enrolments_female
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Feminino" (school.enrolments_female): enrolments of
+      the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, feminino
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Feminino'''
+    name: Número de Matrículas da Educação Básica - Feminino
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_INDIGENA:
+    missing: []
+    role: school.enrolments_indigenous
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Indígena" (school.enrolments_indigenous): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça indígena
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Indígena'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Indígena
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_MASC:
+    missing: []
+    role: school.enrolments_male
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Masculino" (school.enrolments_male): enrolments of the
+      school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, masculino
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Masculino'''
+    name: Número de Matrículas da Educação Básica - Masculino
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_ND:
+    missing: []
+    role: school.enrolments_race_not_declared
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Não Declarada" (school.enrolments_race_not_declared):
+      enrolments of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça não declarada
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Não Declarada'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Não Declarada
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_PARDA:
+    missing: []
+    role: school.enrolments_brown
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Parda" (school.enrolments_brown): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça parda
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Parda'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Parda
+    years:
+    - 2021
+    - 2024
+  QT_MAT_BAS_PRETA:
+    missing: []
+    role: school.enrolments_black
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Número de Matrículas da Educação Básica - Cor/Raça Preta" (school.enrolments_black): enrolments
+      of the school in basic education, by the census: count of persons'
+    unit: count
+    unit_of: enrolments in basic education, cor/raça preta
+    unit_evidence: '''Dicionário de Variáveis - Tabela de Escolas'' (microdados_censo_escolar_2024.zip, Anexos/ANEXO I - Dicionário
+      de Dados): ''Número de Matrículas da Educação Básica - Cor/Raça Preta'''
+    name: Número de Matrículas da Educação Básica - Cor/Raça Preta
+    years:
+    - 2021
+    - 2024

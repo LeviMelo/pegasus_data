@@ -1,0 +1,316 @@
+# SISAGUA CTLD: Control, other parameters including the raw-water intake: one file, 2014-2026.
+# Columns as the intake lands them (curation/intake.yml, source sisagua_control_other; the 28 headers of the file read through the
+# shared SISAGUA dictionary's aliases). Meaning from the system's own data dictionary: dicionario_controle_mensal_demais_parametros.odt
+# (https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/; copy in registries/sisagua/dictionaries), checked against the header and first rows of the published file.
+dataset: SISAGUA-CTLD
+record: water_analysis
+columns:
+  CO_MUNICIPIO_IBGE:
+    role: sample.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE" (sample.municipality): geographic location of the collection municipality in the
+      surveillance or control register'
+    name: Código IBGE
+    years:
+    - 2014
+    - 2026
+    note: 'IBGE code of the municipality where the sample was collected, 6 digits (dictionary). The Distrito Federal is split
+      into its Regiões Administrativas with codes 530001-5300xx made up in the IBGE format (Brasília 530010): the dictionary
+      says so, and they are not IBGE municipalities.'
+  DT_COLETA:
+    role: sample.collection_date
+    kind: date
+    model: when
+    fact_domain: process
+    fact_domain_evidence: '"Data da Coleta" (sample.collection_date): date the sample was collected: the sampling process'
+    name: Data da Coleta
+    years:
+    - 2014
+    - 2026
+  DT_FORMULARIO_CADASTRO:
+    role: sample.report_filled_date
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de preenchimento do relatório mensal" (sample.report_filled_date): record keeping: dates
+      the record was entered or filled in SISAGUA'
+    name: Data de preenchimento do relatório mensal
+    years:
+    - 2014
+    - 2026
+    note: Date the person responsible for the supply filled the monthly report (dictionary).
+  DT_INCLUSAO_REGISTRO:
+    role: sample.registered_date
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de Registro no SISAGUA" (sample.registered_date): record keeping: dates the record was entered
+      or filled in SISAGUA'
+    name: Data de Registro no SISAGUA
+    years:
+    - 2014
+    - 2026
+    note: Saved automatically when the data are entered (dictionary).
+  NO_CATEGORIA_MANANCIAL:
+    role: sample.surface_source_category
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Categoria do manancial superficial" (sample.surface_source_category): where and how the sample
+      was taken at the supply: the sampling site description'
+    name: Categoria do manancial superficial
+    years:
+    - 2014
+    - 2026
+  NO_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_name
+    kind: text
+    model: excluded
+    name: Nome do escritório regional/local
+    years:
+    - 2014
+    - 2026
+    note: The institution's deconcentrated unit; empty for Local institutions (dictionary).
+  NO_ETA:
+    role: supply.treatment_plant_name
+    kind: text
+    model: excluded
+    name: Nome da ETA/UTA
+    years:
+    - 2014
+    - 2026
+    note: Water treatment plant or unit where the sample was taken; empty when it was taken elsewhere (dictionary).
+  NO_INSTITUICAO:
+    role: institution.name
+    kind: text
+    model: excluded
+    name: Nome da Instituição
+    years:
+    - 2014
+    - 2026
+  NO_MANANCIAL:
+    role: sample.surface_source_name
+    kind: text
+    model: excluded
+    name: Nome do manancial superficial
+    years:
+    - 2014
+    - 2026
+  NO_MUNICIPIO:
+    role: sample.municipality_name
+    kind: text
+    model: excluded
+    name: Município
+    years:
+    - 2014
+    - 2026
+    note: Name of the municipality of CO_MUNICIPIO_IBGE; the code is the place.
+  NO_PONTO_CAPTACAO:
+    role: sample.underground_capture_name
+    kind: text
+    model: excluded
+    name: Nome do ponto de captação subterrânea
+    years:
+    - 2014
+    - 2026
+  NO_REGIAO:
+    role: sample.macro_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Região Geográfica" (sample.macro_region): geographic location of the collection municipality in
+      the surveillance or control register'
+    name: Região Geográfica
+    years:
+    - 2014
+    - 2026
+    note: Name of the macro-region (SUDESTE, NORDESTE ...) of the collection municipality.
+  NO_REGIONAL:
+    role: sample.health_regional
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Regional de Saúde" (sample.health_regional): geographic location of the collection municipality
+      in the surveillance or control register'
+    name: Regional de Saúde
+    years:
+    - 2014
+    - 2026
+    note: 'Free text kept by the SISAGUA managers of each state (dictionary: ''mantida pelos gestores do Sisagua em cada UF'');
+      not IBGE''s nor the Ministry''s health region table.'
+  NO_SOLUCAO_ABASTECIMENTO:
+    role: supply.name
+    kind: text
+    model: excluded
+    name: Nome da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+  NU_ANO:
+    role: sample.year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano" (sample.year): year of the collection: the period the record belongs to'
+    name: Ano
+    years:
+    - 2014
+    - 2026
+  NU_CNPJ_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_cnpj
+    kind: institution
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ do escritório regional/local" (institution.office_cnpj): the supplier institution responsible
+      for the supply: the supplier register'
+    name: CNPJ do escritório regional/local
+    years:
+    - 2014
+    - 2026
+  NU_CNPJ_INSTITUICAO:
+    role: institution.cnpj
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ da Instituição" (institution.cnpj): the supplier institution responsible for the supply:
+      the supplier register'
+    name: CNPJ da Instituição
+    years:
+    - 2014
+    - 2026
+    note: CNPJ of the headquarters when the institution is regional (dictionary); filed as a number with a trailing .0, which
+      the intake drops.
+  NU_MES:
+    role: sample.month
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Mês" (sample.month): month of the collection: the period the record belongs to'
+    name: Mês
+    years:
+    - 2014
+    - 2026
+  NU_SOLUCAO_ABASTECIMENTO:
+    role: supply.code
+    kind: identifier
+    model: link_only
+    name: Código Forma de abastecimento
+    years:
+    - 2014
+    - 2026
+    note: 'Generated by SISAGUA when the supply is registered (dictionary): S or C, the 6-digit municipality and a sequence.'
+  PARAMETRO:
+    role: analysis.parameter
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Parâmetro" (analysis.parameter): parameter, limit or result of the laboratory or field analysis
+      of the water sample: the investigation of the water'
+    name: Parâmetro
+    years:
+    - 2014
+    - 2026
+    note: Water-quality parameter, spelled differently between files and years (Cloro Residual Livre / Cloro residual livre);
+      the other-parameters tables carry the limit (VMP) in the name.
+  RESULTADO:
+    missing: []
+    role: analysis.result
+    kind: number
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Resultado" (analysis.result): parameter, limit or result of the laboratory or field analysis of
+      the water sample: the investigation of the water'
+    unit_unknown: 'the unit is the parameter''s own: PARAMETRO names it (mg/L, uT, uH, UFC/mL) or, in the control''s UNIDADE
+      column, states it; no single unit holds for the column'
+    name: Resultado
+    years:
+    - 2014
+    - 2026
+    note: 'The typed column is the quantified value (decimal comma); MENOR_LD, MENOR_LQ (below the limit of detection or quantification,
+      never zero), PRESENTE and AUSENTE are not numbers: they are null here and named in RESULTADO__FLAG, with the value as
+      filed in RESULTADO__RAW.'
+  SG_INSTITUICAO:
+    role: institution.abbreviation
+    kind: text
+    model: excluded
+    name: Sigla da Instituição
+    years:
+    - 2014
+    - 2026
+  SG_UF:
+    role: sample.state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"UF" (sample.state): geographic location of the collection municipality in the surveillance or
+      control register'
+    name: UF
+    years:
+    - 2014
+    - 2026
+  TP_ABASTECIMENTO:
+    role: supply.type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Forma de Abastecimento" (supply.type): attribute of the water supply (system or alternative
+      solution) the sample belongs to: the supply register'
+    name: Tipo da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+    note: SAA sistema de abastecimento de água, SAC solução alternativa coletiva, SAI solução alternativa individual (dictionary).
+  TP_CAPTACAO:
+    role: sample.capture_type
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Tipo de captação" (sample.capture_type): kind of water capture (surface or underground) of the
+      sampled point: the sampling site'
+    name: Tipo de captação
+    years:
+    - 2014
+    - 2026
+    note: Only filled when the sample has a capture point identified (dictionary).
+  TP_CATEGORIA_CAPT_SUB:
+    role: sample.underground_capture_category
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Categoria do ponto de captação subterrânea" (sample.underground_capture_category): where and how
+      the sample was taken at the supply: the sampling site description'
+    name: Categoria do ponto de captação subterrânea
+    years:
+    - 2014
+    - 2026
+  TP_EMPRESA:
+    role: institution.type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Instituição" (institution.type): the supplier institution responsible for the supply:
+      the supplier register'
+    name: Tipo da Instituição
+    years:
+    - 2014
+    - 2026
+    note: The CTLD dictionary describes this column as Local or Regional, as TP_ABRANGENCIA of the other control files, but
+      the file holds the kind of company (Empresa Estadual ...).
+  UNIDADE:
+    role: analysis.unit
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Unidade" (analysis.unit): parameter, limit or result of the laboratory or field analysis of the
+      water sample: the investigation of the water'
+    name: Unidade
+    years:
+    - 2014
+    - 2026
+    note: 'Unit of measure of the parameter (E.COLI/100ML ...): states the unit of RESULTADO row by row (dictionary).'
