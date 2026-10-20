@@ -214,10 +214,12 @@ not_established:
   - want: a longitudinal patient across SISCAN exams
     proposed_key: CO_PACIENTE
     finding: >
-      CO_PACIENTE exists only in SISCAN.PACNT. None of the exam datasets
-      (SISCAN.CC, MM, HC, CM, HM) carries it, so there is no published column to
-      join a patient's exams on. Whether the identifier is even stable across
-      exports is separately unestablished.
+      CO_PACIENTE exists only in the five SISCAN `*_PACNT` patient files. None of the
+      exam datasets carries it, so there is no published column to join a patient's
+      exams on. Across years it is stable: the ids found in both the 2013 and the 2014
+      files of the three small patient files (90) agree on municipality, race and sex
+      in all of them (docs/evaluation/2026-10-19-siscan-event-types.md); whether one
+      id is one woman across datasets is not established.
   - want: SIH delivery admissions linked to SINASC births
     proposed_key: none published
     finding: >
