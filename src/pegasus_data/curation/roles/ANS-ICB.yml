@@ -1,0 +1,269 @@
+# ANS PDA-024, consolidated beneficiaries: per month, state and municipality, the active, joined and cancelled links of each operator's plans (intake source ans, December of 2021-2025).
+# Meaning from the ANS dictionary dicionario-pda-024-informacoes_consolidadas_de_beneficiarios.ods (https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/dicionario/, updated 2024-06-25); its 22 fields are the 22 headers of the file read (pda-024-icb-AC-2025_12).
+dataset: ANS-ICB
+record: beneficiaries
+columns:
+  CD_MUNICIPIO:
+    role: beneficiary.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Código do município de residência do beneficiário" (beneficiary.residence): municipality of residence
+      of the beneficiary: attribute of the person'
+    name: Código do município de residência do beneficiário
+    years:
+    - 2021
+    - 2025
+    note: IBGE code without the check digit, as the operator informed it to the SIB/ANS (dictionary, 6 digits). -1 when none;
+      a code ending 0000 is the state's ignored municipality.
+  CD_OPERADORA:
+    role: operator.ans_code
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"Código de registro da operadora na ANS" (operator.ans_code): the operator that sells the plan:
+      the operator register'
+    name: Código de registro da operadora na ANS
+    years:
+    - 2021
+    - 2025
+    note: Foreign key of the 'Registro ANS' of the open datasets of active and cancelled operators (dictionary note a).
+  CD_PLANO:
+    role: plan.code
+    kind: identifier
+    model: link_only
+    name: Código do plano
+    years:
+    - 2021
+    - 2025
+    note: With CD_OPERADORA and the plan's term, the key of the 'Características dos produtos da saúde suplementar' dataset
+      (dictionary note b).
+  COBERTURA_ASSIST_PLAN:
+    role: plan.coverage
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de cobertura do plano" (plan.coverage): attribute of the health plan the beneficiaries hold:
+      the plan register'
+    name: Tipo de cobertura do plano
+    years:
+    - 2021
+    - 2025
+    note: Médico-hospitalar with or without dental cover, or exclusively dental (dictionary).
+  DE_ABRG_GEOGRAFICA_PLANO:
+    role: plan.geographic_scope
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de abrangência do plano" (plan.geographic_scope): attribute of the health plan the beneficiaries
+      hold: the plan register'
+    name: Tipo de abrangência do plano
+    years:
+    - 2021
+    - 2025
+    note: Nacional, grupo de estados, estadual, grupo de municípios, municipal, outras (dictionary).
+  DE_CONTRATACAO_PLANO:
+    role: plan.contracting
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de contratação do plano" (plan.contracting): attribute of the health plan the beneficiaries
+      hold: the plan register'
+    name: Tipo de contratação do plano
+    years:
+    - 2021
+    - 2025
+    note: Individual or family, collective by company, collective by membership and their combinations (dictionary).
+  DE_FAIXA_ETARIA:
+    role: beneficiary.age_band
+    kind: category
+    model: dimension
+    fact_domain: person
+    fact_domain_evidence: '"Faixa etária do beneficiário" (beneficiary.age_band): age band of the beneficiary: attribute of
+      the person (age)'
+    name: Faixa etária do beneficiário
+    years:
+    - 2021
+    - 2025
+  DE_FAIXA_ETARIA_REAJ:
+    role: plan.readjustment_age_band
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Faixa etária do beneficiário usada para o reajuste do plano" (plan.readjustment_age_band): attribute
+      of the health plan the beneficiaries hold: the plan register'
+    name: Faixa etária do beneficiário usada para o reajuste do plano
+    years:
+    - 2021
+    - 2025
+    note: The band Lei 9.656 uses to readjust the price of plans contracted from 1999-01-02 (dictionary).
+  DE_SEGMENTACAO_PLANO:
+    role: plan.segmentation
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Segmentação assistencial do plano" (plan.segmentation): attribute of the health plan the beneficiaries
+      hold: the plan register'
+    name: Segmentação assistencial do plano
+    years:
+    - 2021
+    - 2025
+    note: Ambulatorial, hospitalar with or without obstetrics, odontológico, referência and their combinations (dictionary).
+  DT_CARGA:
+    role: beneficiaries.load_date
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de carga da tabela" (beneficiaries.load_date): date and time the table was loaded: record
+      keeping'
+    name: Data de carga da tabela
+    years:
+    - 2021
+    - 2025
+  ID_CMPT_MOVEL:
+    role: beneficiaries.competence
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Competência dos dados" (beneficiaries.competence): month of the position (AAAA-MM): the period
+      the record belongs to'
+    name: Competência dos dados
+    years:
+    - 2021
+    - 2025
+  MODALIDADE_OPERADORA:
+    role: operator.modality
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Modalidade da operadora" (operator.modality): the operator that sells the plan: the operator register'
+    name: Modalidade da operadora
+    years:
+    - 2021
+    - 2025
+    note: 'Legal form: administradora, cooperativa médica, cooperativa odontológica, autogestão, medicina de grupo, odontologia
+      de grupo, filantropia, seguradora especializada em saúde, seguradora, administradora de benefícios (dictionary).'
+  NM_MUNICIPIO:
+    role: beneficiary.municipality_name
+    kind: text
+    model: excluded
+    name: Nome do município de residência do beneficiário
+    years:
+    - 2021
+    - 2025
+  NM_RAZAO_SOCIAL:
+    role: operator.name
+    kind: text
+    model: excluded
+    name: Razão Social da Operadora
+    years:
+    - 2021
+    - 2025
+  NR_CNPJ:
+    role: operator.cnpj
+    kind: institution
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ da Operadora" (operator.cnpj): the operator that sells the plan: the operator register'
+    name: CNPJ da Operadora
+    years:
+    - 2021
+    - 2025
+  QT_BENEFICIARIO_ADERIDO:
+    missing: []
+    role: beneficiaries.joined
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Quantidade de beneficiários aderidos na competência" (beneficiaries.joined): the beneficiaries
+      of a health plan: the register of the private health plans'
+    unit: count
+    unit_of: beneficiary links joined in the month
+    unit_evidence: 'ANS dictionary dicionario-pda-024-informacoes_consolidadas_de_beneficiarios.ods (https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/dicionario/,
+      updated 2024-06-25): QT_BENEFICIARIO_ADERIDO ''Quantidade de beneficiários aderidos na competência'''
+    name: Quantidade de beneficiários aderidos na competência
+    years:
+    - 2021
+    - 2025
+  QT_BENEFICIARIO_ATIVO:
+    missing: []
+    role: beneficiaries.active
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Quantidade de beneficiários ativos na competência" (beneficiaries.active): the beneficiaries of
+      a health plan: the register of the private health plans'
+    unit: count
+    unit_of: beneficiary links (a person holding two plans counts twice)
+    unit_evidence: 'ANS dictionary dicionario-pda-024-informacoes_consolidadas_de_beneficiarios.ods (https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/dicionario/,
+      updated 2024-06-25): QT_BENEFICIARIO_ATIVO ''Quantidade de beneficiários ativos na competência''; the row is a plan
+      x municipality x sex x age band cell, so the count is of links'
+    name: Quantidade de beneficiários ativos na competência
+    years:
+    - 2021
+    - 2025
+  QT_BENEFICIARIO_CANCELADO:
+    missing: []
+    role: beneficiaries.cancelled
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Quantidade de beneficiários cancelados na competência" (beneficiaries.cancelled): the beneficiaries
+      of a health plan: the register of the private health plans'
+    unit: count
+    unit_of: beneficiary links cancelled in the month
+    unit_evidence: 'ANS dictionary dicionario-pda-024-informacoes_consolidadas_de_beneficiarios.ods (https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/dicionario/,
+      updated 2024-06-25): QT_BENEFICIARIO_CANCELADO ''Quantidade de beneficiários cancelados na competência'''
+    name: Quantidade de beneficiários cancelados na competência
+    years:
+    - 2021
+    - 2025
+  SG_UF:
+    role: beneficiary.state
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Sigla da UF de residência do beneficiário" (beneficiary.state): state of residence of the beneficiary:
+      attribute of the person'
+    name: Sigla da UF de residência do beneficiário
+    years:
+    - 2021
+    - 2025
+    note: XX is not identified and EX abroad (dictionary); the XX file is read like the others.
+  TIPO_VINCULO:
+    role: beneficiary.link_type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de vínculo do beneficiário" (beneficiary.link_type): relation of the beneficiary to the plan
+      (titular, dependente): the plan register'
+    name: Tipo de vínculo do beneficiário
+    years:
+    - 2021
+    - 2025
+  TP_SEXO:
+    role: beneficiary.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"Sexo do beneficiário" (beneficiary.sex): sex of the beneficiary, as informed by the operator:
+      attribute of the person (sex)'
+    name: Sexo do beneficiário
+    years:
+    - 2021
+    - 2025
+    note: M or F (dictionary).
+  TP_VIGENCIA_PLANO:
+    role: plan.law_period
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Início da vigência do plano para comercialização" (plan.law_period): attribute of the health plan
+      the beneficiaries hold: the plan register'
+    name: Início da vigência do plano para comercialização
+    years:
+    - 2021
+    - 2025
+    note: A before Lei 9.656/1998, P after it or adapted to it (dictionary).

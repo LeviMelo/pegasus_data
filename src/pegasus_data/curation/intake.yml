@@ -2,6 +2,10 @@
 # everything else (fetch, stream, reduce, serve as `curation/fields.yml` fields). The format:
 #
 #   what / citation     one sentence, and the string every row of the field carries as `source`
+#   one_row, unit_of_analysis, known_biases, gotchas, use, why_no_event_type
+#                       the dataset's description, the keys of curation/datasets/*.yml (what one row is, what misleads, and what the
+#                       dataset is for: `use` is context | denominator | support | reference | not_an_event_source, with the evidence
+#                       for having no event type, ADR-0195)
 #   origin              the one route used: kind api (DEMAS: base, endpoint, paging {rows: the answer's list key, size, style})
 #                       or files (Portal de Dados Abertos: files [{url, key?, extension?, year?}] or pattern + years/months, and
 #                       `across: {name: [values]}` for further axes of the pattern, one file per combination (ANS: one per state);
@@ -372,10 +376,21 @@ sources:
     snapshot: true
     one_row: one lot of one product at one establishment, at its last stock report
     unit_of_analysis: lot position
+    use: context
+    why_no_event_type: >-
+      Stock positions of a lot at an establishment on its last report (11,220 rows read, quantities 0 to
+      225,760): a stock of medicines, not events; the endpoint serves the current position only.
+    known_biases: >-
+      A position, not a history: each read is the current stock of every lot at the establishments that reported
+      it, so a place with no rows has not reported, which is not the same as no stock.
     gotchas:
       - The endpoint serves each lot's CURRENT position, not a history; every read is kept here with its read day (_READ_ON), so a history accrues from the first read.
       - A municipality code ending in 0000 is the state's "ignored municipality", not a place.
       - Offset paging of the live table is unstable (pages overlap and differ between reads), so a filter is split by state until it fits one page.
+      - >-
+          The endpoint serves codigo_cnes as a number: 396 of 11,220 rows read have fewer than the 7
+          characters of a CNES code (leading zeros lost), which curation/roles/BNAFAR-STOCK.yml declares as
+          width 7.
     place: {column: codigo_municipio, type: municipality}
     period: {type: date, column: data_posicao_estoque}
     origin:
@@ -520,6 +535,13 @@ sources:
       doses, by supply.
     one_row: one supply requested or distributed to one secretariat in one month (an aggregate)
     unit_of_analysis: secretariat x supply x month x kind
+    use: context
+    why_no_event_type: >-
+      Quantities of immunobiologicals and supplies requested by or distributed to a state health secretariat in
+      a month: a supply flow (secretariat x supply x month x kind), not care given.
+    known_biases: >-
+      These are the national programme's flows to the state secretariats: they say nothing of the doses applied
+      to people, nor of the municipalities.
     gotchas:
       - The IBGE column holds one code per secretariat (27 distinct values for 27 secretariats), the secretariat's seat; the unit is the state secretariat, not the municipality, so the key here is the secretariat (TX_SIGLA).
       - ORIGEM says whether the quantity was requested (Solicitado) or distributed (Distribuido).
@@ -572,6 +594,10 @@ sources:
     what: Each municipality's health region and macro-region (codes and names) as the Ministry publishes them now, with IBGE's 2022 population estimate.
     one_row: one municipality
     unit_of_analysis: municipality
+    use: reference
+    why_no_event_type: >-
+      A lookup: each municipality's health region and macro-region as the Ministry publishes them now, with no
+      period.
     gotchas:
       - The table is a current state with no period; it is kept as read, stamped with the year of the read.
       - The municipality name carries its state ("AC - ACRELANDIA").
@@ -613,6 +639,15 @@ sources:
       total coliforms, E. coli.'
     one_row: one analysis of one sample for one parameter
     unit_of_analysis: sample x parameter
+    use: context
+    why_no_event_type: >-
+      Analyses of water samples by parameter, taken by the health sector's surveillance: they describe the water
+      of a place and month (a sample analysed for several parameters is several rows), not events that happened
+      to people.
+    known_biases: >-
+      Samples are taken where and when the surveillance chooses, so the share of failing samples is not the
+      share of the population exposed; a month with no sample is missing, not clean water (Santa Maria, 2018:
+      March and September unsampled, docs/evaluation/2026-10-14-sisagua.md).
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
@@ -840,6 +875,14 @@ sources:
       sample and parameter. Other parameters (pesticides, inorganic, organic, disinfection by-products, radioactivity).'
     one_row: one analysis of one sample for one parameter
     unit_of_analysis: sample x parameter
+    use: context
+    why_no_event_type: >-
+      Analyses of water samples for the other parameters (pesticides, organoleptic, by-products, radioactivity,
+      inorganic and organic substances), taken by the health sector's surveillance: they describe the water of a
+      place and month, not events that happened to people.
+    known_biases: >-
+      Samples are taken where and when the surveillance chooses, so the share of failing samples is not the
+      share of the population exposed; a month with no sample is missing, not clean water.
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
@@ -888,6 +931,13 @@ sources:
       sample and parameter. Cyanobacteria and cyanotoxins.'
     one_row: one analysis of one sample for one parameter
     unit_of_analysis: sample x parameter
+    use: context
+    why_no_event_type: >-
+      Analyses of water samples for cyanobacteria and cyanotoxins, taken by the health sector's surveillance:
+      they describe the water of a place and month, not events that happened to people.
+    known_biases: >-
+      Samples are taken where and when the surveillance chooses, so they are not a sample of the population's
+      water; a month with no sample is missing, not clean water.
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
@@ -936,6 +986,13 @@ sources:
       parameters, one row per supplier, system, point, month, parameter and measure (CAMPO) with its value (VALOR).'
     one_row: one measure of one parameter for one supply system, point and month
     unit_of_analysis: supplier x system x point x month x parameter x measure
+    use: context
+    why_no_event_type: >-
+      The supplier's monthly aggregate for a supply, point, parameter and measure (CAMPO: counts, a percentile
+      or a mean): a control report on the water, not records of anything that happened to people.
+    known_biases: >-
+      The supplier reports on itself, and what it reports is an aggregate by month; a month with no report is
+      missing, not clean water.
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
@@ -996,11 +1053,20 @@ sources:
       parameters, including at the raw-water intake.'
     one_row: one analysis of one parameter for one supply system
     unit_of_analysis: supplier x system x point x month x parameter x measure
+    use: context
+    why_no_event_type: >-
+      The supplier's analyses for the other parameters, including the raw-water intake: they describe the water
+      of a place and month, not events that happened to people.
+    known_biases: >-
+      The supplier reports on itself; a month with no analysis is missing, not clean water.
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
       IBGE municipalities, so unallocated in the fields, kept in the records.'
     - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    - >-
+        The header TP_EMPRESA is described by the dictionary as the institution type Local or Regional, but
+        the file holds the kind of company (Empresa Estadual ...).
     citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
     dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
       registries/sisagua/dictionaries)
@@ -1044,11 +1110,23 @@ sources:
       the supplier lists as outside the standard, with the action taken.'
     one_row: one sample outside the standard
     unit_of_analysis: sample x parameter
+    use: context
+    why_no_event_type: >-
+      The samples the supplier lists as outside the standard, with the action taken: a list the supplier is not
+      obliged to fill (dictionary), a subset of the control's out-of-standard results, not events that happened
+      to people.
+    known_biases: >-
+      The supplier is not obliged to list the results outside the standard (the dictionary: filling them in is
+      not mandatory); the monthly control dataset (CTLB) gives their total, so this list can be shorter than the
+      count of results beyond a limit.
     gotchas:
     - 'The files mix UTF-8 and Windows-1252, even within a line: read as `encoding: mixed`.'
     - 'The Distrito Federal is split into its Regiões Administrativas with made-up codes 530001-5300xx (Brasília 530010): not
       IBGE municipalities, so unallocated in the fields, kept in the records.'
     - 'Two header generations (the system''s NO_/CO_ names and the dictionary''s accented ones): read through `aliases`.'
+    - >-
+        The dictionary says filling in the results outside the standard is not mandatory (the monthly control
+        dataset gives the total of such results).
     citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
     dictionary: https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/ (archived at web.archive.org; copies in
       registries/sisagua/dictionaries)
@@ -1089,8 +1167,17 @@ sources:
     official_name: Vendas de medicamentos industrializados
     translated_name: Vendas de medicamentos industrializados
     what: Manufactured controlled medicines and antimicrobials sold by retail pharmacies.
-    one_row: one sale line (a pharmacy, a month, a medicine, a prescription)
-    unit_of_analysis: sale line
+    one_row: "one group of sales: a medicine presentation sold in one municipality and month on prescriptions with the same council, type and (antimicrobials) patient sex, age and ICD-10"
+    unit_of_analysis: sales group
+    use: context
+    why_no_event_type: >-
+      Groups of sales of one medicine presentation with no pharmacy, prescription or patient identifier: a row
+      can stand for more than one sale (ANVISA's dictionary v1.0, section 5.2.1) and the quantity says how many
+      boxes or vials. Medicine sold per municipality and month, not dispensing events nor patients.
+    known_biases: >-
+      Only sales that pharmacies are obliged to record in the SNGPC appear: controlled substances and
+      antimicrobials, and from 2026-01-02 GLP-1 agonists (dictionary section 3.4); the patient fields apply to
+      antimicrobials only (section 3.6); late submissions edit past months (section 3.8.2).
     gotchas:
     - 'Published months: 2014-01 to 2021-10 and 2026-01 on; 2021-11 to 2025-12 were never published (ANVISA''s dictionary, §3.7).'
     - 'The 2014-2017 headers misspell NO_CONSELHO_PRESCRITOR as NO_CONSEITOR: read through its alias.'
@@ -1098,6 +1185,16 @@ sources:
       the name kept.'
     - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
     - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
+    - >-
+        A row can stand for more than one sale of the same medicine when its other fields are identical
+        (ANVISA's dictionary v1.0, 2020, section 5.2.1): rows are lines, so sum the quantity.
+    - >-
+        The file has no pharmacy, prescription or patient identifier; the patient fields (sex, age, ICD-10)
+        apply to antimicrobials only.
+    - >-
+        TP_RECEITUARIO is written with a trailing period ('5.', '1.') in these files, in the three landed
+        months read (2014-01, 2017-12, 2021-10) and in the raw files of 2014-01, 2021-10 and 2026-01, so the
+        declared codes ('1' to '5') do not match it (OQ-90); NU_IDADE is written '67.' or '5.0'.
     citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
     dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Industrializados.pdf (ANVISA; §3.7 the published period, §5 the fields and codes)
     origin:
@@ -1201,8 +1298,17 @@ sources:
     official_name: Vendas de medicamentos manipulados
     translated_name: Vendas de medicamentos manipulados
     what: Compounded controlled medicines and antimicrobials sold by retail pharmacies.
-    one_row: one sale line (a pharmacy, a month, a medicine, a prescription)
-    unit_of_analysis: sale line
+    one_row: "one group of sales: an active substance of compounded medicines sold in one municipality and month with the same pharmacotechnical unit, prescriber council and prescription type"
+    unit_of_analysis: sales group
+    use: context
+    why_no_event_type: >-
+      Groups of sales of one active substance of compounded medicines, with no pharmacy, prescription or patient
+      identifier: the quantity says how many pharmacotechnical units, and the compounded-medicines dictionary
+      does not say whether a row is one sale. Medicine sold per municipality and month, not dispensing events
+      nor patients.
+    known_biases: >-
+      Only sales that pharmacies are obliged to record in the SNGPC appear: controlled substances and
+      antimicrobials; the patient fields apply to antimicrobials only; late submissions edit past months.
     gotchas:
     - 'Published months: 2014-01 to 2021-10 and 2026-01 on; 2021-11 to 2025-12 were never published (ANVISA''s dictionary, §3.7).'
     - 'The 2014-2017 headers misspell NO_CONSELHO_PRESCRITOR as NO_CONSEITOR: read through its alias.'
@@ -1210,6 +1316,10 @@ sources:
       the name kept.'
     - 'Late submissions edit past months (§3.8.2): a month is read again when its size or ETag changes.'
     - 'The server streams at about 0.8 MB/s per connection: a 2019-2021 build is hours of download.'
+    - >-
+        The file has no pharmacy, prescription or patient identifier; the patient fields (sex, age, ICD-10)
+        apply to antimicrobials only, and the compounded-medicines dictionary does not say whether a row is
+        one sale.
     citation: ANVISA, dados abertos do SNGPC (https://dados.anvisa.gov.br/dados/SNGPC/)
     dictionary: https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Manipulados.pdf (ANVISA; the same codes under the panel's names)
     origin:
@@ -1315,10 +1425,23 @@ sources:
       material, environmental and economic damages as reported.
     one_row: one disaster event reported by one municipality
     unit_of_analysis: municipal event
+    use: context
+    why_no_event_type: >-
+      Disasters are events, but not health events: a row is a municipal disaster report with the damage as the
+      municipality counts it, which conditions health outcomes (it is not one). The same people are in every
+      event that affects them: 'other affected' sums to 295,022,756 over the 76,190 events, more than Brazil's
+      population.
+    known_biases: >-
+      A disaster enters S2iD when a municipality reports it to obtain recognition and federal aid, so reporting
+      capacity and incentives shape the series as much as the hazards do; the damages are the municipality's own
+      counts.
     gotchas:
       - S2iD types an event by its trigger, not its consequence - the great landslide disasters are registered as intense rain (Petrópolis 2022, São Sebastião 2023) or flash floods (the Serrana region 2011), not as mass movement.
       - The damage columns are counts as reported by the municipality; a value that is no number is kept in its __RAW column and counted in `unparsed`.
       - MIDR's firewall rejects a path ending in lowercase .csv; the portal's bare /download route passes.
+      - >-
+          The human damage columns are counts per event, not additive across events as persons: DH_OUTROS
+          AFETADOS sums to 295,022,756 over the 76,190 events of 1991-2025, more than Brazil's population.
     citation: MIDR/SEDEC, S2iD, Danos Informados 1991-2025 (dadosabertos.mdr.gov.br, dataset s2id_sedec, CC-BY)
     dictionary: https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234 (resources Dicionário de dados and COBRADE)
     origin:
@@ -1405,6 +1528,15 @@ sources:
       by the beneficiary's municipality, sex and age band, with the plan's coverage (medical-hospital or dental only).
     one_row: the beneficiary links of one operator's plan in one municipality, sex and age band, in one month
     unit_of_analysis: plan x municipality x sex x age band
+    use: denominator
+    why_no_event_type: >-
+      Beneficiary links (vínculos) of private plans per operator's plan, municipality, sex and age band: not
+      persons (someone with two plans counts twice) and not events. It is the covered population that
+      sus_dependent.py subtracts from the resident population.
+    known_biases: >-
+      A beneficiary is a link to a plan, not a person: someone with two plans counts twice, so the counts
+      overstate the people covered (the bias has one sign; its size is not measured). Beneficiaries with no
+      state (XX) or municipality (-1) cannot be placed.
     gotchas:
       - A beneficiary here is a plan LINK (vínculo), not a person - someone with two plans counts twice.
       - The state file XX holds the beneficiaries with no state; its municipality code is -1 and it is unallocated, not a place.
@@ -1464,10 +1596,20 @@ sources:
       declared") and by age band (0-3, 4-5, 6-10, 11-14, 15-17, 18+). The crossing of the three is not published.
     one_row: one school in one census year
     unit_of_analysis: school
+    use: context
+    why_no_event_type: >-
+      A census of schools: one row per school and year with its enrolments by sex, race and age band; a school
+      is a unit and an enrolment is not a person or a health event.
+    known_biases: >-
+      An enrolment is taken at the census date (the last Wednesday of May, which also fixes the age bands) and
+      counts a place at a school, not a person.
     gotchas:
       - The municipality is where the school is, not where the student lives, and an enrolment is not a person.
       - The zip holds a second table (suplemento_cursos_tecnicos); only the schools' table is read.
       - Each margin (sex, race, age band) sums to the total (QT_MAT_BAS).
+      - >-
+          The age bands are computed from the student's age on the census reference date, the last Wednesday
+          of May (INEP's dictionary).
     citation: INEP, Censo Escolar da Educação Básica, microdados_ed_basica (download.inep.gov.br/dados_abertos)
     dictionary: https://download.inep.gov.br/dados_abertos/ (the dictionary inside each year's zip)
     origin:

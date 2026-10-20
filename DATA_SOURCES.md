@@ -1079,3 +1079,15 @@ The 1996 `.DEF` binds `CIRCOBITO` to `TIPOVIOL.CNV`, which in that kit is the ne
   - the other hospitals are flat.
   It is recording at two facilities, not incidence. Nationally, P37.1 admissions per 1,000 live births rise 4-fold over
   2010–2024 (0.21 → 0.87), with deaths flat (about 30 a year).
+
+## Facts read off the context sources' files (measured 2026-10-19; docs/evaluation/2026-10-19-dataset-use-and-context-roles.md)
+
+- **SISAGUA headers.** The surveillance basic files and the control's other-parameters and outside-the-standard files use the system's `NO_`/`CO_`/`NU_` names, the other three (the surveillance other-parameters and cyanobacteria files and the control's basic file) the dictionary's accented ones
+  (`Código IBGE`, `Ano de referência`); the monthly control's basic file has no per-sample columns (`Campo`, `Valor` per parameter and month). In the surveillance basic files `ANALISE_REALIZADA`
+  and `PROVIDENCIA` are filled to 2022 and `DT_ANALISE`, `LD`, `LQ` from 2023. The outside-the-standard file pads every value with blanks to its column width, and the dictionary says its
+  results are not obligatory to fill; the other-parameters control holds the kind of company (`Empresa Estadual`) in the column the dictionary calls Local or Regional.
+- **SNGPC.** ANVISA's open files have no pharmacy, prescription or patient identifier; the 2020 dictionary says a row can stand for several identical sales. The industrialised files write whole numbers
+  with a trailing period (`TP_RECEITUARIO` `5.`, `NU_IDADE` `67.`), the compounded ones do not. The dictionary of February 2026 (v3.00) lists the prescription codes `1`-`5`; the 2020 one lists none.
+- **BNAFAR.** `codigo_cnes` is served as a number (leading zeros lost); the endpoint returns the establishment's address and contact fields beside the ones landed. REGIAO's `municipio` carries its state (`AL - AGUA BRANCA`).
+- **S2iD** (MIDR, 76,190 events 1991-2025): the human-damage columns are per-event counts that cannot be added as persons (`DH_OUTROS AFETADOS` sums to 295,022,756); the dictionary published is that of 2021, with other column spellings.
+- **ANS PDA-024** has 22 columns (the dictionary `dicionario-pda-024-informacoes_consolidadas_de_beneficiarios.ods`, updated 2024-06-25); **INEP's school census** has 426, with a dictionary in each year's zip (`ANEXO I`).

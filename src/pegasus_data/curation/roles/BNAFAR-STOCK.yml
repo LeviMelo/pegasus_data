@@ -1,0 +1,132 @@
+# BNAFAR/Hórus medicine stock: one lot of one product at one establishment, at its last stock report (intake source bnafar, read by filter).
+# Meaning from DEMAS /daf/estoque-medicamentos-bnafar-horus (https://apidadosabertos.saude.gov.br/static/swagger.json, the endpoint's parameter descriptions), which describes the filters, not the answer's columns; value checks on 11,220 rows landed in
+# registries/bnafar/stock and 4 rows of the endpoint (Alagoas, 2026-10-19). The endpoint also returns the establishment's address and contact
+# fields and descricao_programa_saude, which the intake does not land.
+dataset: BNAFAR-STOCK
+record: stock
+columns:
+  codigo_catmat:
+    role: stock.item
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código CATMAT com unidade de fornecimento" (stock.item): position of the stock of a medicine at
+      an establishment: the stock register'
+    name: Código CATMAT com unidade de fornecimento
+    note: 'CATMAT item with its supply unit (BR0268954U0042: BR, the item, the unit); filtered whole.'
+  codigo_cnes:
+    role: stock.facility
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"Código CNES do estabelecimento" (stock.facility): position of the stock of a medicine at an establishment:
+      the stock register'
+    width: 7
+    width_evidence: 'the endpoint serves codigo_cnes as a number: of 11,220 landed rows 10,824 have 7 characters and 396 have
+      1 to 6 (their leading zeros lost), while the CNES code is 7 digits'
+    name: Código CNES do estabelecimento
+    note: CNES code of the establishment that reports the stock.
+  codigo_municipio:
+    role: stock.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE do município" (stock.municipality): position of the stock of a medicine at an establishment:
+      the stock register'
+    name: Código IBGE do município
+    note: IBGE code of the municipality the establishment belongs to; 6 digits in all 11,220 rows read. A code ending 0000
+      is the state's ignored municipality, not a place.
+  codigo_uf:
+    role: stock.state_code
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE da Unidade da Federação" (stock.state_code): position of the stock of a medicine at
+      an establishment: the stock register'
+    name: Código IBGE da Unidade da Federação
+    note: IBGE code of the state the establishment belongs to (DEMAS /daf/estoque-medicamentos-bnafar-horus (https://apidadosabertos.saude.gov.br/static/swagger.json,
+      the endpoint's parameter descriptions)).
+  data_posicao_estoque:
+    role: stock.position_date
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Data da posição de estoque" (stock.position_date): position of the stock of a medicine at an establishment:
+      the stock register'
+    name: Data da posição de estoque
+    note: 'Date of the lot''s last stock report: the endpoint serves each lot''s current position, not a history, so a history
+      accrues only from the days it is read (the intake''s _READ_ON).'
+  data_validade:
+    role: stock.expiry_date
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de validade" (stock.expiry_date): position of the stock of a medicine at an establishment:
+      the stock register'
+    name: Data de validade
+    note: Written 2027-07-31 00:00:00-03.
+  descricao_produto:
+    role: stock.product_description
+    kind: text
+    model: excluded
+    name: Descrição do produto
+  municipio:
+    role: stock.municipality_name
+    kind: text
+    model: excluded
+    name: Município
+  numero_lote:
+    role: stock.lot
+    kind: identifier
+    model: link_only
+    name: Número do lote
+  quantidade_estoque:
+    missing: []
+    role: stock.quantity
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Quantidade em estoque" (stock.quantity): position of the stock of a medicine at an establishment:
+      the stock register'
+    unit: count
+    unit_of: supply units of the CATMAT item (the unidade de fornecimento in codigo_catmat)
+    unit_evidence: 'DEMAS /daf/estoque-medicamentos-bnafar-horus (https://apidadosabertos.saude.gov.br/static/swagger.json,
+      the endpoint''s parameter descriptions): codigo_catmat ''Código CATMAT com unidade de fornecimento do item em estoque'';
+      quantities 0.0 to 225,760.0 in 11,220 rows read'
+    name: Quantidade em estoque
+    note: The swagger gives the column no description; read from its name and values.
+  sigla_programa_saude:
+    role: stock.programme
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Sigla do programa de saúde vinculado ao item" (stock.programme): position of the stock of a medicine
+      at an establishment: the stock register'
+    name: Sigla do programa de saúde vinculado ao item
+    note: TOXO, AF, ANTMICRO, PRODSAUDE, INFECDST, HOSP ...; NI is not informed.
+  sigla_sistema_origem:
+    role: stock.source_system
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Sigla do sistema de origem do dado" (stock.source_system): the system the report came from: record
+      keeping'
+    name: Sigla do sistema de origem do dado
+    note: HORUS or SI_BNAFAR in the rows read.
+  tipo_produto:
+    role: stock.product_type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Sigla do tipo do produto em estoque" (stock.product_type): position of the stock of a medicine
+      at an establishment: the stock register'
+    name: Sigla do tipo do produto em estoque
+    note: S, B and O in 11,220 rows read (6,319, 4,811 and 90); the swagger names the filter but does not expand the sigla.
+  uf:
+    role: stock.state
+    kind: text
+    model: excluded
+    name: UF
+    note: Abbreviation of the state.

@@ -1,0 +1,86 @@
+# Municipalities with their health macro-region and region (intake source health_regions, read by state).
+# Columns are the 11 keys of DEMAS /macrorregiao-e-regiao-de-saude/municipio (https://apidadosabertos.saude.gov.br/static/swagger.json), which describes the filters only; values read from the answer for Alagoas (2026-10-19) and the 22-row unit landed for one state.
+dataset: REGIAO-MUNICIPIO
+record: municipality
+columns:
+  codigo_macrorregiao_saude:
+    role: municipality.health_macro_region_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código da macrorregião de saúde" (municipality.health_macro_region_code): the Ministry''s grouping
+      of municipalities into health regions and macro-regions, as it publishes it now'
+    name: Código da macrorregião de saúde
+  codigo_municipio:
+    role: municipality.code
+    kind: place
+    model: link_only
+    place_of: record
+    name: Código do município
+    note: 'IBGE code, 6 digits: the key other datasets join to this table by. The table is a current state with no period,
+      kept as read and stamped with the year of the read.'
+  codigo_regiao_pais:
+    role: municipality.country_region_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código da região do país" (municipality.country_region_code): code of the country region (1 Norte
+      ... 5 Centro-Oeste): the geographic hierarchy of the municipality'
+    name: Código da região do país
+  codigo_regiao_saude:
+    role: municipality.health_region_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código da região de saúde" (municipality.health_region_code): the Ministry''s grouping of municipalities
+      into health regions and macro-regions, as it publishes it now'
+    name: Código da região de saúde
+  codigo_uf:
+    role: municipality.state_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE da UF" (municipality.state_code): IBGE code of the state: the geographic hierarchy
+      of the municipality'
+    name: Código IBGE da UF
+  macrorregiao_saude:
+    role: municipality.health_macro_region_name
+    kind: text
+    model: excluded
+    name: Macrorregião de saúde
+  municipio:
+    role: municipality.name
+    kind: text
+    model: excluded
+    name: Município
+    note: Written with its state ('AL - AGUA BRANCA').
+  populacao_estimada_ibge_2022:
+    missing: []
+    role: municipality.population_2022
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"População estimada IBGE 2022" (municipality.population_2022): population estimate of the municipality
+      (IBGE 2022): count of persons'
+    unit: count
+    unit_of: residents (IBGE's population estimate, 2022)
+    unit_evidence: 'DEMAS /macrorregiao-e-regiao-de-saude/municipio (https://apidadosabertos.saude.gov.br/static/swagger.json):
+      the column is named populacao_estimada_ibge_2022; the swagger describes the filters only, the count is read from the
+      name and values (19,174 for Água Branca, AL)'
+    name: População estimada IBGE 2022
+    note: 'One estimate: not a time series, and not the denominator of any year but 2022.'
+  regiao_pais:
+    role: municipality.country_region_name
+    kind: text
+    model: excluded
+    name: Região do país
+  regiao_saude:
+    role: municipality.health_region_name
+    kind: text
+    model: excluded
+    name: Região de saúde
+  uf:
+    role: municipality.state_name
+    kind: text
+    model: excluded
+    name: Nome da UF

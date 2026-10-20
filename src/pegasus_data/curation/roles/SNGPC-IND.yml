@@ -1,0 +1,200 @@
+# SNGPC industrialised medicines sold by retail pharmacies, one CSV a month (intake source sngpc_industrialized).
+# Meaning from ANVISA's 'Dicionário de dados abertos de venda de medicamentos industrializados' v3.00 (2026-02-10, https://dados.anvisa.gov.br/dados/Dicionario_de_Dados_Painel_SNGPC_Venda_de_Industrializados.pdf, section 5) and v1.0 (2020-09, web.archive.org 20231205043815, section 5.2.1); the 15 (IND) or 17 (MAN) headers were read in the files of 2014-01 or 2019-01 and 2026-01, and the code values
+# tabulated in the first rows of five months (2014-01, 2021-10 and 2026-01 industrialised; 2019-01 and 2026-01 compounded).
+# The file has no pharmacy, prescription or patient identifier: a row is a group of sales (the quantity says how many units).
+dataset: SNGPC-IND
+record: sale
+columns:
+  CO_CID10:
+    role: patient.diagnosis
+    kind: code_tree
+    model: mark
+    fact_domain: clinical
+    fact_domain_evidence: '"Classificação Internacional de Doença" (patient.diagnosis): ICD-10 code of the patient''s condition
+      entered by the pharmacist, for antimicrobials only: the prescription'
+    codelists:
+    - ICD10
+    name: Classificação Internacional de Doença
+    years:
+    - 2014
+    - 2026
+    note: 'Applicable to antimicrobials only and often blank even then (dictionary section 3.6): 2 of the first 4,063 rows
+      filled in 2021-10, none in the first rows of the other four months read.'
+  DS_DESCRICAO_APRESENTACAO:
+    role: medicine.presentation
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição da apresentação" (medicine.presentation): the medicine sold: the sales register'
+    name: Descrição da apresentação
+    years:
+    - 2014
+    - 2026
+    note: How the medicine is presented in its packaging (5 MG COM CT BL AL X 20), in ANVISA's controlled vocabulary.
+  DS_PRINCIPIO_ATIVO:
+    role: medicine.active_principle
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Nome do princípio ativo do medicamento industrializado" (medicine.active_principle): the medicine
+      sold: the sales register'
+    name: Nome do princípio ativo do medicamento industrializado
+    years:
+    - 2014
+    - 2026
+    note: Several active principles are joined by '+' (dictionary); as registered at ANVISA, in the form of salts or esters.
+  DS_UNIDADE_MEDIDA:
+    role: sale.quantity_unit
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Unidade de medida" (sale.quantity_unit): unit of the quantity sold: the sales register'
+    name: Unidade de medida
+    years:
+    - 2014
+    - 2026
+    note: CAIXA or FRASCO (dictionary).
+  NO_CONSELHO_PRESCRITOR:
+    role: prescriber.council
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Conselho de Classe do prescritor" (prescriber.council): the prescription the sale was made against:
+      the sales register'
+    name: Conselho de Classe do prescritor
+    years:
+    - 2014
+    - 2026
+    note: CRM, CRO, CRMV, RMS, COREN ...; the 2014-2017 headers misspell it NO_CONSEITOR.
+  NO_MUNICIPIO_VENDA:
+    role: sale.municipality_name
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Município do endereço da farmácia ou drogaria" (sale.municipality_name): when and where the sale
+      happened: the sales register'
+    name: Município do endereço da farmácia ou drogaria
+    years:
+    - 2014
+    - 2026
+    note: Name only; the file has no IBGE code. The intake matches the folded name to IBGE's within the state and leaves the
+      rest unplaced, the name kept.
+  NU_ANO_VENDA:
+    role: sale.year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano da venda do medicamento" (sale.year): year of the sale: the period the record belongs to'
+    name: Ano da venda do medicamento
+    years:
+    - 2014
+    - 2026
+  NU_IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Idade do paciente" (patient.age): attribute of the patient the medicine was prescribed to (antimicrobials
+      only)'
+    measure: false
+    name: Idade do paciente
+    years:
+    - 2014
+    - 2026
+    note: The age in the unit NU_UNIDADE_IDADE gives; blank outside antimicrobials. The industrialised files write whole numbers
+      with a trailing period ('67.') or '.0'; the typed column reads both.
+  NU_MES_VENDA:
+    role: sale.month
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Mês da venda do medicamento" (sale.month): month of the sale: the period the record belongs to'
+    name: Mês da venda do medicamento
+    years:
+    - 2014
+    - 2026
+  NU_UNIDADE_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Unidade de medida da idade" (patient.age_unit): unit of the patient''s age: encoding unit of another
+      field'
+    name: Unidade de medida da idade
+    years:
+    - 2014
+    - 2026
+    note: 1 years, 2 months (dictionary).
+  QT_VENDIDA:
+    missing: []
+    role: sale.quantity
+    kind: number
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Quantidade vendida" (sale.quantity): quantity sold in the row: the sales register'
+    unit: count
+    unit_of: boxes or vials of the presentation (DS_UNIDADE_MEDIDA says which)
+    unit_evidence: 'ANVISA''s industrialised-medicines dictionary v3.00 section 5: QTD_VENDIDA ''Quantidade vendida de caixas
+      ou frascos do medicamento'''
+    name: Quantidade vendida
+    years:
+    - 2014
+    - 2026
+    note: 'The dictionary spells it QTD_VENDIDA; the files, QT_VENDIDA. A row can stand for more than one sale of the same
+      medicine when its other fields are identical (v1.0 section 5.2.1), so rows are lines, never sales: sum this column.'
+  SG_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"Sexo do paciente" (patient.sex): attribute of the patient the medicine was prescribed to (antimicrobials
+      only)'
+    name: Sexo do paciente
+    years:
+    - 2014
+    - 2026
+    note: 1 male, 2 female (dictionary); blank outside antimicrobials.
+  SG_UF_CONSELHO_PRESCRITOR:
+    role: prescriber.council_state
+    kind: place
+    model: mark
+    place_of: record
+    fact_domain: administrative
+    fact_domain_evidence: '"UF do Conselho de Classe do prescritor" (prescriber.council_state): the prescription the sale
+      was made against: the sales register'
+    name: UF do Conselho de Classe do prescritor
+    years:
+    - 2014
+    - 2026
+  SG_UF_VENDA:
+    role: sale.state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Unidade Federativa do endereço da farmácia ou drogaria" (sale.state): when and where the sale
+      happened: the sales register'
+    name: Unidade Federativa do endereço da farmácia ou drogaria
+    years:
+    - 2014
+    - 2026
+    note: State of the pharmacy's address in ANVISA's registry, taken as the state where the sale happened (dictionary).
+  TP_RECEITUARIO:
+    role: prescription.type
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Tipo de receituário" (prescription.type): the prescription the sale was made against: the sales
+      register'
+    name: Tipo de receituário
+    years:
+    - 2014
+    - 2026
+    note: '1 Receita de Controle Especial em 2 vias (branca), 2 Notificação de Receita B (azul), 3 Notificação de Receita
+      Especial (branca), 4 Notificação de Receita A (amarela), 5 Receita Antimicrobiano e GLP-1 em 2 vias (dictionary v3.00,
+      2026). Code 5 is already the commonest in 2014-01 (2,953,904 of 4,543,907 industrialised rows), years before GLP-1 agonists
+      entered the SNGPC (2026-01-02, section 3.4.1), so the label fits those years as the antimicrobial prescription only.
+      The industrialised files write the code with a trailing period (''5.'', ''1.''): so in the three landed months read
+      (2014-01, 2017-12, 2021-10) and in the raw files of 2014-01, 2021-10 and 2026-01, and ''N.'' is not the declared code
+      ''N'', so the code table does not apply to it.'

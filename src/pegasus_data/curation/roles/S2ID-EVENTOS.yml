@@ -1,0 +1,223 @@
+# S2iD, disasters registered by municipalities since 1991: one row per municipal event (intake source s2id).
+# Meaning from the MIDR/SEDEC 'Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados' (updated 2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234), whose column names are the 2021 file's; the file of 2026 (70 columns, 76,190 rows) was read. These 15 columns are the ones pegasus_data declares and reads; the others are landed as filed, undeclared.
+dataset: S2ID-EVENTOS
+record: disaster
+columns:
+  Cod_Cobrade:
+    role: disaster.cobrade
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"COBRADE" (disaster.cobrade): the disaster event reported by a municipality: the disaster register'
+    name: COBRADE
+    years:
+    - 1991
+    - 2025
+    note: Brazilian classification of disasters; the dictionary calls it the type of disaster. S2iD types an event by its
+      trigger, not its consequence.
+  Cod_IBGE_Mun:
+    role: disaster.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Município" (disaster.municipality): the disaster event reported by a municipality: the disaster
+      register'
+    width: 7
+    width_evidence: all 76,190 values of the 2026 file have 7 characters (IBGE code with check digit)
+    name: Município
+    years:
+    - 1991
+    - 2025
+  Data_Evento:
+    role: disaster.date
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Data do evento" (disaster.date): the disaster event reported by a municipality: the disaster register'
+    name: Data do evento
+    years:
+    - 1991
+    - 2025
+    note: dd/mm/yyyy; 1991 to 2025 in the file read.
+  descricao_tipologia:
+    role: disaster.type_description
+    kind: text
+    model: excluded
+    name: Descrição da tipologia
+    years:
+    - 1991
+    - 2025
+  DH_AFETADOS_SECA_ESTIAGEM:
+    missing: []
+    role: disaster.affected_drought
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Afetados por seca e estiagem" (disaster.affected_drought): human damage of the
+      disaster (afetados por seca e estiagem): count of persons affected by the event'
+    unit: count
+    unit_of: people afetados por seca e estiagem in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Afetados por seca e estiagem
+      ''quantidade de afetados por seca e estiagem, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Afetados por seca e estiagem
+    years:
+    - 1991
+    - 2025
+  DH_DESABRIGADOS:
+    missing: []
+    role: disaster.homeless
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Desabrigados" (disaster.homeless): human damage of the disaster (desabrigados):
+      count of persons affected by the event'
+    unit: count
+    unit_of: people desabrigados in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Desabrigados ''quantidade
+      de desabrigados, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Desabrigados
+    years:
+    - 1991
+    - 2025
+  DH_DESALOJADOS:
+    missing: []
+    role: disaster.displaced
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Desalojados" (disaster.displaced): human damage of the disaster (desalojados):
+      count of persons affected by the event'
+    unit: count
+    unit_of: people desalojados in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Desalojados ''quantidade
+      de desalojados, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Desalojados
+    years:
+    - 1991
+    - 2025
+  DH_DESAPARECIDOS:
+    missing: []
+    role: disaster.missing
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Desaparecidos" (disaster.missing): human damage of the disaster (desaparecidos):
+      count of persons affected by the event'
+    unit: count
+    unit_of: people desaparecidos in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Desaparecidos ''quantidade
+      de desaparecidos, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Desaparecidos
+    years:
+    - 1991
+    - 2025
+  DH_ENFERMOS:
+    missing: []
+    role: disaster.sick
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Enfermos" (disaster.sick): human damage of the disaster (enfermos): count of persons
+      affected by the event'
+    unit: count
+    unit_of: people enfermos in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Enfermos ''quantidade
+      de enfermos, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Enfermos
+    years:
+    - 1991
+    - 2025
+  DH_FERIDOS:
+    missing: []
+    role: disaster.injured
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Feridos" (disaster.injured): human damage of the disaster (feridos): count of
+      persons affected by the event'
+    unit: count
+    unit_of: people feridos in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Feridos ''quantidade de
+      feridos, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Feridos
+    years:
+    - 1991
+    - 2025
+  DH_MORTOS:
+    missing: []
+    role: disaster.deaths
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Mortos" (disaster.deaths): human damage of the disaster (mortos): count of persons
+      affected by the event'
+    unit: count
+    unit_of: people mortos in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Mortos ''quantidade de
+      mortos, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Mortos
+    years:
+    - 1991
+    - 2025
+    note: Counts per event as the municipality reported them; a value that is no number is kept in the __RAW column and counted
+      as unparsed.
+  DH_OUTROS AFETADOS:
+    missing: []
+    role: disaster.affected_other
+    kind: number
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Danos Humanos - Outros Afetados" (disaster.affected_other): human damage of the disaster (outros
+      afetados): count of persons affected by the event'
+    unit: count
+    unit_of: people outros afetados in the event, as the municipality reported it
+    unit_evidence: 'MIDR/SEDEC ''Dicionário de Dados - Reconhecimento Federal - Relatório Gerencial - Dados informados'' (updated
+      2021-10-13, https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234): DH_Outros Afetados ''quantidade
+      de outros afetados, pessoas que foram diretamente afetadas pelo desastre'''
+    name: Danos Humanos - Outros Afetados
+    years:
+    - 1991
+    - 2025
+    note: 'Counts per event, not additive across events as persons: summed over the 76,190 events this column is 295,022,756,
+      more than Brazil''s population, because the same people are in every event that affects them.'
+  grupo_de_desastre:
+    role: disaster.group
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Grupo de desastre" (disaster.group): the disaster event reported by a municipality: the disaster
+      register'
+    name: Grupo de desastre
+    years:
+    - 1991
+    - 2025
+    note: Climatológico, hidrológico, meteorológico, outros ... (the file).
+  Protocolo_S2iD:
+    role: disaster.protocol
+    kind: identifier
+    model: link_only
+    name: Protocolo
+    years:
+    - 1991
+    - 2025
+    note: State, type, municipality, COBRADE code and date; 76,190 distinct values in 76,190 rows (the event's key).
+  Status:
+    role: disaster.status
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Status" (disaster.status): state of the process: registered or federally recognised: record keeping'
+    name: Status
+    years:
+    - 1991
+    - 2025
+    note: Registro (40,582 of 76,190 events) or Reconhecido (35,608) in the file read; 'referência para situação atual do
+      processo' (dictionary).

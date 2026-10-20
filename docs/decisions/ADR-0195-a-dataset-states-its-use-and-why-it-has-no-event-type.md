@@ -1,0 +1,15 @@
+# ADR-0195: a dataset states what it is for, and why it has no event type
+
+**Date:** 2026-10-19. **Status:** accepted. **Origin:** the desktop application lists every catalog dataset and must say what PegaSUS can do with each; 88 of the ontology's 170 datasets have no event type, and nothing said whether that was by design or by omission.
+
+**Context.** `count_events` counts a dataset's rows as events only where `event_types:` declares them. A dataset without one is silent about why: SIM-DOEXT, DOINF and DOMAT are subsets of SIM-DO (counting them as events too counts the deaths twice), CNES is a register of facilities, SISAGUA a monthly measurement of water, IBGE a denominator, and SINASC-DNR a set of births nobody has declared yet. A reader could not tell the first kinds from the last.
+
+**Decision.**
+- `curation/datasets/*.yml` and `curation/intake.yml` (the sources the intake mechanism reads, through `curation_docs`) take two keys beside `what_one_row_is`: `use`, one of `semantics.event_types.USES` (`context`, `denominator`, `support`, `reference`, `not_an_event_source`; `event_source` is derived from the dataset's event types and never declared), and `why_no_event_type`, the reason with its evidence (a measured count, a document, an identifier relation).
+- `load_event_types` validates them: a `use` outside the set, an empty reason, a dataset with event types that declares a reason, and a dataset without event types that declares one of the two keys and not the other all raise. `dataset_facts` (and `info`, `pegasus-data facts`) return `use` and `why_no_event_type`; `undeclared_uses()` lists the datasets that have no event type and no `use`, tooling excluded. It is a list for a reviewer to close, not a load error, so a branch that adds a dataset does not stop the others from loading.
+- `not_an_event_source` says the rows are records of health events that are not counted, and the reason says whether that is by design (a subset or a second table of a counted source: SIM-DOEXT/DOINF/DOMAT, SIH-RJ/ER, SIH-BASE_AIH1, the 2001-2007 APAC blocks other than AC) or "Not declared yet" (SIM-DOR/DORIG, SINASC-DNR/DNRIG, SIH-MT, SIA-AC: an era or a layout nobody has read against the event rule).
+- Declared on 64 datasets: 17 `support` (13 CNES, SIH-CH, SIH-CM, SIA-UD/UO), 6 `denominator` (IBGE POP/POPS/POPT/PROJUF/IDOSO, ANS-ICB), 1 `reference` (REGIAO-MUNICIPIO), 21 `context` (PNI, DADOS_ABERTOS, PCE, the IBGE census tables, INEP, S2ID, SIES, BNAFAR, SNGPC, the six SISAGUA tables), 19 `not_an_event_source`. The datasets of SRAG, FA, SINAN-ESPO/NTRA, SISCAN and SISPRENATAL are other branches' and stay listed.
+
+**Not done.** The values do not say how a context dataset joins a study (that is `place`/`period` in `intake.yml` and the axes of `declared.yml`); a dataset has one `use`, so a register that is also a denominator takes the one it is read for first.
+
+**What would overturn it.** A dataset that is read for two purposes at once, which would make `use` a list.

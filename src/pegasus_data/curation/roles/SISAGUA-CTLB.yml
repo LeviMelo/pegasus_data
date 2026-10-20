@@ -1,0 +1,255 @@
+# SISAGUA CTLB: Control (the supplier's monthly report), basic parameters: one row per supply, point, month, parameter and measure, 2014-2026 (one file a year).
+# Columns as the intake lands them (curation/intake.yml, source sisagua_control_basic; the 22 headers of the file read through the
+# shared SISAGUA dictionary's aliases). Meaning from the system's own data dictionary: dict_controle_basicos.pdf
+# (https://arquivosdadosabertos.saude.gov.br/dados/sisagua/dicionarios/; copy in registries/sisagua/dictionaries), checked against the header and first rows of the published file.
+dataset: SISAGUA-CTLB
+record: monitoring_report
+columns:
+  CAMPO:
+    role: monitoring.measure
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Campo" (monitoring.measure): what VALOR states for the parameter: number of samples analysed,
+      95th percentile, number of results above or below a limit: the control''s monitoring'
+    name: Campo
+    years:
+    - 2014
+    - 2026
+    note: Types of monitoring 1 to 24 in the PDF dictionary (número de amostras analisadas, percentil 95, número de dados
+      > 1.0 uT ...). The limits are the control's own bins.
+  CO_MUNICIPIO_IBGE:
+    role: monitoring.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE" (monitoring.municipality): geographic location of the collection municipality in
+      the surveillance or control register'
+    name: Código IBGE
+    years:
+    - 2014
+    - 2026
+    note: 'IBGE code of the municipality where the sample was collected, 6 digits (dictionary). The Distrito Federal is split
+      into its Regiões Administrativas with codes 530001-5300xx made up in the IBGE format (Brasília 530010): the dictionary
+      says so, and they are not IBGE municipalities.'
+  NO_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_name
+    kind: text
+    model: excluded
+    name: Nome do escritório regional/local
+    years:
+    - 2014
+    - 2026
+    note: The institution's deconcentrated unit; empty for Local institutions (dictionary).
+  NO_ETA:
+    role: supply.treatment_plant_name
+    kind: text
+    model: excluded
+    name: Nome da ETA/UTA
+    years:
+    - 2014
+    - 2026
+    note: Water treatment plant or unit where the sample was taken; empty when it was taken elsewhere (dictionary).
+  NO_INSTITUICAO:
+    role: institution.name
+    kind: text
+    model: excluded
+    name: Nome da Instituição
+    years:
+    - 2014
+    - 2026
+  NO_MUNICIPIO:
+    role: monitoring.municipality_name
+    kind: text
+    model: excluded
+    name: Município
+    years:
+    - 2014
+    - 2026
+    note: Name of the municipality of CO_MUNICIPIO_IBGE; the code is the place.
+  NO_REGIAO:
+    role: monitoring.macro_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Região Geográfica" (monitoring.macro_region): geographic location of the collection municipality
+      in the surveillance or control register'
+    name: Região Geográfica
+    years:
+    - 2014
+    - 2026
+    note: Name of the macro-region (SUDESTE, NORDESTE ...) of the collection municipality.
+  NO_REGIONAL:
+    role: monitoring.health_regional
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Regional de Saúde" (monitoring.health_regional): geographic location of the collection municipality
+      in the surveillance or control register'
+    name: Regional de Saúde
+    years:
+    - 2014
+    - 2026
+    note: 'Free text kept by the SISAGUA managers of each state (dictionary: ''mantida pelos gestores do Sisagua em cada UF'');
+      not IBGE''s nor the Ministry''s health region table.'
+  NO_SOLUCAO_ABASTECIMENTO:
+    role: supply.name
+    kind: text
+    model: excluded
+    name: Nome da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+  NU_ANO:
+    role: monitoring.year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano" (monitoring.year): year of the collection: the period the record belongs to'
+    name: Ano
+    years:
+    - 2014
+    - 2026
+  NU_CNPJ_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_cnpj
+    kind: institution
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ do escritório regional/local" (institution.office_cnpj): the supplier institution responsible
+      for the supply: the supplier register'
+    name: CNPJ do escritório regional/local
+    years:
+    - 2014
+    - 2026
+  NU_CNPJ_INSTITUICAO:
+    role: institution.cnpj
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ da Instituição" (institution.cnpj): the supplier institution responsible for the supply:
+      the supplier register'
+    name: CNPJ da Instituição
+    years:
+    - 2014
+    - 2026
+    note: CNPJ of the headquarters when the institution is regional (dictionary); filed as a number with a trailing .0, which
+      the intake drops.
+  NU_MES:
+    role: monitoring.month
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Mês" (monitoring.month): month of the collection: the period the record belongs to'
+    name: Mês
+    years:
+    - 2014
+    - 2026
+  NU_SOLUCAO_ABASTECIMENTO:
+    role: supply.code
+    kind: identifier
+    model: link_only
+    name: Código Forma de abastecimento
+    years:
+    - 2014
+    - 2026
+    note: 'Generated by SISAGUA when the supply is registered (dictionary): S or C, the 6-digit municipality and a sequence.'
+  PARAMETRO:
+    role: monitoring.parameter
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Parâmetro" (monitoring.parameter): parameter of the monthly control (turbidity, colour, pH, fluoride,
+      free chlorine, chlorine dioxide, chloramine, total coliforms, E. coli, heterotrophic bacteria): the control''s monitoring'
+    name: Parâmetro
+    years:
+    - 2014
+    - 2026
+  SG_INSTITUICAO:
+    role: institution.abbreviation
+    kind: text
+    model: excluded
+    name: Sigla da Instituição
+    years:
+    - 2014
+    - 2026
+  SG_UF:
+    role: monitoring.state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"UF" (monitoring.state): geographic location of the collection municipality in the surveillance
+      or control register'
+    name: UF
+    years:
+    - 2014
+    - 2026
+  TP_ABASTECIMENTO:
+    role: supply.type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Forma de Abastecimento" (supply.type): attribute of the water supply (system or alternative
+      solution) the sample belongs to: the supply register'
+    name: Tipo da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+    note: SAA sistema de abastecimento de água, SAC solução alternativa coletiva, SAI solução alternativa individual (dictionary).
+  TP_ABRANGENCIA:
+    role: institution.scope
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Instituição" (institution.scope): the supplier institution responsible for the supply:
+      the supplier register'
+    name: Tipo da Instituição
+    years:
+    - 2014
+    - 2026
+    note: Local (one municipality) or Regional (more than one) (dictionary).
+  TP_FILTRACAO:
+    role: supply.filtration_type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de Filtração" (supply.filtration_type): attribute of the water supply (system or alternative
+      solution) the sample belongs to: the supply register'
+    name: Tipo de Filtração
+    years:
+    - 2014
+    - 2026
+    note: 1 sem filtração, 2 filtração lenta, 3 filtração rápida, 4 filtração em membranas (the CTLB dictionary's domain).
+  TP_PONTO_COLETA:
+    role: monitoring.point
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Ponto de Monitoramento" (monitoring.point): point of the supply where the samples were monitored
+      (post-filtration, treatment outlet, consumption point, distribution system, capture point): the control''s monitoring
+      point'
+    name: Ponto de Monitoramento
+    years:
+    - 2014
+    - 2026
+    note: The PDF dictionary codes the point 1 to 6 (pós-filtração ou pré-desinfecção, saída do tratamento para água canalizada,
+      ponto de consumo, sistema de distribuição, saída do tratamento, ponto de captação); the files hold the names.
+  VALOR:
+    missing: []
+    role: monitoring.value
+    kind: number
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Valor" (monitoring.value): value of the parameter-measure pair for the month: a count, a percentile
+      or a mean, as CAMPO says: the control''s monitoring'
+    unit_unknown: 'the unit depends on CAMPO: a count of analyses or of results beyond a limit, or a percentile or mean in
+      the parameter''s own unit'
+    name: Valor
+    years:
+    - 2014
+    - 2026
+    note: Only the counts may be summed (a percentile or a mean is never added); the numeric tokens of the file are read with
+      the decimal comma.
