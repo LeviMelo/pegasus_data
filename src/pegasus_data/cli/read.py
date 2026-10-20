@@ -416,7 +416,7 @@ def facts_cmd(
     if as_json:
         _emit(facts, True)
         return
-    for key in ("what_one_row_is", "unit_of_analysis", "known_biases"):
+    for key in ("what_one_row_is", "unit_of_analysis", "known_biases", "use", "why_no_event_type"):
         if facts[key]:
             console.print(f"[bold]{key}[/bold]: {facts[key]}")
     for gotcha in facts["gotchas"]:

@@ -189,7 +189,11 @@ class TestCoverageIsCompleteWhereItCanBe:
             d for d, s in DECLARED.items()
             if s.grain.analysable and not (s.geography_bindings() and s.time_bindings())
         )
-        assert missing == ["IBGE.PROJUF", "PCE.PCE"], missing
+        # the reasons are in curation/datasets/declared.yml: PROJUF is by state, SIH.CM is a register of maintainers
+        # with a month and no place, and the ten blocks of the 2001-2007 APAC archives have no layout (ADR-0077)
+        # and none of the AP_* columns of SIA's header block
+        apac_2001 = [f"SIA.{b}" for b in ("AC", "CO", "EX", "OP", "PC", "PF", "PQ", "PR", "UD", "UO")]
+        assert missing == sorted(["IBGE.PROJUF", "PCE.PCE", "SIH.CM", *apac_2001]), missing
 
     def test_the_things_that_are_not_datasets_have_no_axes(self) -> None:
         """TABWIN is a Windows application, not a dataset."""

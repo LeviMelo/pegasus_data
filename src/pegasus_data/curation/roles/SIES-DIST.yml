@@ -1,0 +1,107 @@
+# SIES: immunobiologicals requested by and distributed to the state health secretariats by month, 2018-2026 (intake source sies).
+# Meaning from the SIES data dictionary (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/dicionario-de-dados-do-sies-ok.pdf); its 8 fields are the 8 columns landed.
+dataset: SIES-DIST
+record: distribution
+columns:
+  ANO:
+    role: distribution.year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano solicitado e distribuído" (distribution.year): year requested and distributed: the period
+      the record belongs to'
+    name: Ano solicitado e distribuído
+    years:
+    - 2018
+    - 2026
+  IBGE:
+    role: distribution.seat_municipality
+    kind: place
+    model: mark
+    place_of: record
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE do município" (distribution.seat_municipality): request or distribution of immunobiologicals
+      from the national programme to a state health secretariat: the distribution register'
+    name: Código IBGE do município
+    years:
+    - 2018
+    - 2026
+    note: 'The dictionary says the municipality that requested or received; the file holds one code per secretariat (27 values
+      for 27 secretariats): its seat.'
+  MES:
+    role: distribution.month
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Mês solicitado e distribuído" (distribution.month): month requested and distributed: the period
+      the record belongs to'
+    name: Mês solicitado e distribuído
+    years:
+    - 2018
+    - 2026
+  ORIGEM:
+    role: distribution.kind
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Solicitação e distribuição de imunobiológicos e insumos" (distribution.kind): request or distribution
+      of immunobiologicals from the national programme to a state health secretariat: the distribution register'
+    name: Solicitação e distribuição de imunobiológicos e insumos
+    years:
+    - 2018
+    - 2026
+    note: Solicitado (requested) or Distribuido (distributed); a quantity is never both.
+  QTDE:
+    missing: []
+    role: distribution.quantity
+    kind: number
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Quantitativo solicitado e distribuído" (distribution.quantity): request or distribution of immunobiologicals
+      from the national programme to a state health secretariat: the distribution register'
+    unit: count
+    unit_of: doses and supply units of the row's TX_INSUMO
+    unit_evidence: 'SIES data dictionary (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/dicionario-de-dados-do-sies-ok.pdf):
+      QTDE ''Quantitativo solicitado e distribuído de Imunobiológicos e insumos'''
+    name: Quantitativo solicitado e distribuído
+    years:
+    - 2018
+    - 2026
+    note: The dictionary types every column VARCHAR; the intake reads it as a number.
+  TX_AREA:
+    role: distribution.area
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Imunobiológicos e insumos" (distribution.area): request or distribution of immunobiologicals from
+      the national programme to a state health secretariat: the distribution register'
+    name: Imunobiológicos e insumos
+    years:
+    - 2018
+    - 2026
+    note: Vacinas, soros, imunoglobulinas and insumos (dictionary).
+  TX_INSUMO:
+    role: distribution.supply
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de imunobiológicos e insumos" (distribution.supply): request or distribution of immunobiologicals
+      from the national programme to a state health secretariat: the distribution register'
+    name: Tipo de imunobiológicos e insumos
+    years:
+    - 2018
+    - 2026
+  TX_SIGLA:
+    role: distribution.secretariat
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Secretária Estadual de Saúde / UF" (distribution.secretariat): request or distribution of immunobiologicals
+      from the national programme to a state health secretariat: the distribution register'
+    name: Secretária Estadual de Saúde / UF
+    years:
+    - 2018
+    - 2026
+    note: The state health secretariat (and its state) that requested or received the supplies (dictionary). The unit of the
+      dataset is the secretariat, not a municipality.

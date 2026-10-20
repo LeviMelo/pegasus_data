@@ -155,7 +155,8 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
         variable_files.append({"system": system, "source": "layout_doc", "source_ref": reference, "variables": variables})
         dataset_files.append({"datasets": {f"{system}_{series}": {
             "system": system, "series": series, "what_one_row_is": spec.get("one_row") or spec.get("what"),
-            "unit_of_analysis": spec.get("unit_of_analysis"), "gotchas": spec.get("gotchas") or [],
+            "unit_of_analysis": spec.get("unit_of_analysis"), "known_biases": spec.get("known_biases"),
+            "gotchas": spec.get("gotchas") or [], "use": spec.get("use"), "why_no_event_type": spec.get("why_no_event_type"),
             "source": "web", "source_ref": reference, "asserted_by": "pegasus_data"}}})
     return variable_files, dataset_files
 
