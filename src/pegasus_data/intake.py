@@ -62,6 +62,10 @@ PIECE_PAGES = 50
 WIDE = 100
 #: Declared types that get a typed column beside the raw one.
 TYPED = ("date", "number", "integer", "year", "result")
+#: A declared type that rewrites the column in place and keeps the value as filed beside it (`<NAME>__RAW`): ``int_code``, a
+#: code filed as a float's text ('5.0' or '5.'; SRAG's CLASSI_FIN is '5.0' in the 2019 and 2020 files and '5' in the others), read as '5'.
+#: A condition on it (`where`) reads the rewritten code.
+REWRITTEN = ("int_code",)
 
 
 def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -149,8 +153,12 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
             body: dict[str, Any] = {"description": str((decl or {}).get("role") or column)}
             if (decl or {}).get("codes"):
                 body["codes"] = decl["codes"]
+            if (decl or {}).get("derived"):
+                body["derived"] = decl["derived"]       # a column made from this one (SRAG's IDADE_anos from the age and its unit)
             if (decl or {}).get("type") in TYPED:
                 body["notes"] = f"typed as {decl['type']}; the value as filed is {column.upper()}__RAW"
+            elif (decl or {}).get("type") in REWRITTEN:
+                body["notes"] = f"a code filed as a float's text is read as its integer ('5.0' as '5'); the value as filed is {column.upper()}__RAW"
             variables[column.upper()] = body
         variable_files.append({"system": system, "source": "layout_doc", "source_ref": reference, "variables": variables})
         dataset_files.append({"datasets": {f"{system}_{series}": {
@@ -414,6 +422,10 @@ def _typed(expr: str, decl: dict[str, Any]) -> str | None:
         return f"try_cast(replace({expr}, ',', '.') AS DOUBLE)" if decl.get("decimal") == "," else f"try_cast({expr} AS DOUBLE)"
     if kind in ("integer", "year"):
         return f"CAST(try_cast({expr} AS DOUBLE) AS BIGINT)"
+    if kind == "int_code":
+        # a code the source files as a float's text ('5.0', '5.', or '6.0000000000' from a decimal(38,10) column): the integer's digits.
+        # The value as filed stays in `<NAME>__RAW`; a code with any other decimal part (or any text) is left as it is
+        return f"regexp_replace({expr}, '^([0-9]+)\\.0*$', '\\1')"
     if kind == "result":
         # a measurement as filed: a number only where it is one unambiguously (digits, a decimal comma); "1.544,00" and
         # the like (a dot of no fixed meaning) stay unparsed, never guessed; the flag says what the text is (`_flag`)

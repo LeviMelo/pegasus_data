@@ -866,19 +866,56 @@ datasets:
     gotchas:
       - A row is a notification, not a confirmed case. Confirmation is frequently post-mortem, so the outcome settles long after the notification date.
   SINAN_ESPO:
-    # animal epizootics, not notified people: SINAN's shared notification event does not hold
-    event_types: []
+    # animal epizootics, not notified people: SINAN's shared person notification does not hold beside it
+    shared_event_types: false
+    event_types:
+      - name: epizootic
+        kind: epizootic
+        grain: one notified sporotrichosis epizootic in cats or dogs (a Sinan Net notification with a serial number)
+        classifiers:
+          - {column: ESPECIE, role: primary}
+          - {column: TP_ZN_OCO, role: alternative}
+          - {column: TP_AMB_OCO, role: alternative}
+        persons: false
+        evidence: >-
+          The form's dictionary (Dicionario_de_dados_Epizootias_Esporotricose.pdf) lists the Sinan Net epizootics base: ID_NOTIFICACAO
+          is the "número seriado atribuído às notificações em ordem sequencial" and the counts of sick and dead cats and dogs are
+          "se informado na notificação", so they are marks, not weights. It has no classification column, so no status rule narrows
+          the notifications. The serial is gapless: 32,492 distinct values in 32,492 rows of the ten files (2013-2022), so no
+          consolidation is needed. Rows equal on every fact but the serial and the entry date number 9,071 (27.9%); the file holds
+          no animal, owner or address, so a re-entry cannot be told from a second animal and none is dropped.
+        source_notes:
+          source: "Dicionario de dados, agravo Esporotricose (epizootia), base de dados Epizootias do Sinan Net (CGZV/DEDT/SVSA/MS; sources/pdfs/tabsinan__Dicionario_de_dados_Epizootias_Esporotricose.pdf)"
+          valid_from: 2013
+          valid_to: 2022
+          limitations:
+            - The counts of sick and dead cats and dogs (G_D, G_M, C_D, C_M) are optional on the notification; all four are blank in 1,262 rows.
+            - The municipality is the one that notified (ID_MUNICIP); the municipality where the epizootic occurred is not in the files.
+    # its place is the notifying municipality and its onset DT_INI_EPI, not the shared ID_MN_RESI and DT_SIN_PRI, which ESPO lacks
+    semantic_axes:
+      default_geography: notification
+      geography:
+        notification: {fields: [ID_MUNICIP], code_system: ibge_municipality}
+      default_time: onset
+      time:
+        onset: {fields: [DT_INI_EPI], encoding: date}
+        notification: {fields: [DT_NOTIFIC], encoding: date}
     system: SINAN
     series: ESPO
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.ESPO
-    what_one_row_is: one notified sporotrichosis epizootic (cats, dogs)
-    unit_of_analysis: notification
+    what_one_row_is: one notified sporotrichosis epizootic in cats or dogs
+    unit_of_analysis: notification of an epizootic
+    known_biases: >
+      Only the epizootics someone noticed and notified appear, so the series follows where veterinary and health services look and
+      where notification was set up, not where the disease is: one state in 2013-2015, ten in 2022, and Rio de Janeiro holds 62% of
+      the 32,492 notifications. The counts of animals are optional on the form (blank in 1,262 rows).
     gotchas:
-      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
-        (0 of 10 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
-      - Notifiable only in some states and only recently, so a national series understates it and the understatement varies by state.
+      - A row is a notification of an epizootic, an event of animals, not a case in a person; there is no person, sex or age.
+      - These files carry no CLASSI_FIN column (0 of 10 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
+      - Notifiable only in some states and only recently (13 UFs in the files; one in 2013-2015, ten in 2022; Rio de Janeiro 62% of the rows), so a national series understates it and the understatement varies by state.
+      - Which animals a row stands for is not in the file (the counts of sick and dead animals are optional); 27.9% of the rows repeat another except for the serial and the entry date.
   SINAN_EXAN:
     system: SINAN
     series: EXAN
@@ -978,14 +1015,25 @@ datasets:
     event_types: []
     system: SINAN
     series: NTRA
+    use: denominator
+    why_no_event_type: >-
+      A row is a survey batch (school or household), not a person, and the positives it counts are the people SINAN-TRAC lists
+      one by one: in 2019 TRAC has 5,932 rows against NU_CASOPOS' 6,431, every one of TRAC's 1,112 batches (unit, notification
+      date, survey type) is in NTRA, and TRAC holds exactly NU_CASOPOS rows in 1,067 of those 1,112. Counting both counts each
+      case twice, and the batch has no sex or age. What only NTRA holds is NU_CASOEXA, the people examined (444,257 in 2019), the
+      denominator of a survey's positivity.
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: DIC_DADOS_Tracoma_v5.pdf (portalsinan), notification part
     what_one_row_is: one trachoma survey batch (school or household) with the numbers examined and positive
     unit_of_analysis: survey batch
+    known_biases: >
+      The batches are the surveys a programme chose to run (survey type 1: 2,008 of the 2,337 batches of 2019, with 1.35% of the
+      examined positive; type 2: 329 batches, 4.55%), so a positivity describes the people examined where and as the surveys were
+      run, not a population; and the same cases are listed again, one by one, in SINAN.TRAC.
     gotchas:
-      - Sum NU_CASOPOS over batches for cases found, NU_CASOEXA for people examined; a row is not a case.
-      - The cases themselves are in SINAN.TRAC.
+      - NU_CASOEXA is the people examined and NU_CASOPOS those found positive; a row is not a case, and the positives are the cases SINAN.TRAC lists one by one, so never add the two.
+      - A zero is a result: the dictionary says the numbers must differ from zero, yet 1,118 of the 2,337 batches of 2019 have no positive and 4 have no one examined.
   SINAN_SDTA:
     system: SINAN
     series: SDTA

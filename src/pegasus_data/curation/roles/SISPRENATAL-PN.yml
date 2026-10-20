@@ -180,12 +180,15 @@ columns:
     - 2014
     note: A direct personal identifier, passed through unchanged.
   NU_GESTA:
-    role: pregnancy.number_of_pregnancies_gravidity
-    kind: number
-    model: mark
-    fact_domain: clinical
-    fact_domain_evidence: "\"Número de Gestações\" (pregnancy.number_of_pregnancies_gravidity): obstetric history, gestation or test result of the pregnancy: clinical"
+    role: pregnancy.serial_number
+    kind: identifier
+    model: link_only
     name: Número de Gestações
+    review: draft
+    note: 'Not a count of the woman''s pregnancies, as its name and an earlier declaration read it: it reaches 3,929 (Amapá 2013), 122,739
+      (Amapá 2014) and 84,061 (Roraima 2013), is distinct for 2,803 of the 3,377 rows of Amapá 2013 (the other rows are the same
+      pregnancy in other months) and repeats across states (67% of Roraima 2013''s values are also in Amapá 2012-2014). A serial of the
+      pregnancy''s record in the state''s system; no document names it. Never summed or averaged.'
     years:
     - 2012
     - 2014

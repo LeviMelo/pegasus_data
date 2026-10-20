@@ -4,7 +4,8 @@ A record is not always the event (DESIGN §3.3 of PegaSUS; handoff 2026-10-04
 §3): an SIH AIH is a billing document, a SINAN row a notification. Each
 dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
 
-* ``kind``: death, foetal death, birth, hospitalisation, notification, case;
+* ``kind``: death, foetal death, birth, hospitalisation, notification, case, epizootic (an event of animals: a
+  die-off or outbreak in a non-human species, whose row is not a person: ``persons: false``);
 * ``classifiers``: the code columns that partition the events, one
   ``primary`` and any ``alternative`` (different families of fields over the
   same events, never independent of each other); ``role`` is required. An alternative that
@@ -25,6 +26,9 @@ dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
   an entry or transfer date) are one record entered again; and rows the source itself flags as duplicates
   (``flag: {column, codes}``: SINAN's NDUPLIC_N 2, "não contar"; a form without the flag flags none). With its
   evidence; dropped before anything else. A file's ``shared: duplicates:`` holds for each of its event types;
+* ``present``: the columns a row must fill to be a record at all (FA-HUM's ``ID``: the file ends with an empty row). A row
+  blank in any of them is not an event, whatever its other columns hold; dropped before anything else, with the evidence
+  in the event's ``evidence``;
 * ``persons: false``: the row is a group, not a person (a foodborne outbreak): its events have no sex or age, and
   are exposed by the whole population of their place;
 * ``evidence``: where the rule comes from;
@@ -110,6 +114,8 @@ class EventType:
     grid_total: str | None = None
     grid_margin: str | None = None
     marks: tuple[str, ...] = ()
+    #: The columns a row must fill to be a record at all (a CSV's trailing empty row fills none); a row blank in any is no event
+    present: tuple[str, ...] = ()
     #: False when the row is a group (an outbreak), not a person: no sex or age, the whole population exposed
     persons: bool = True
     evidence: str | None = None
@@ -138,6 +144,7 @@ class EventType:
                       "sex": GRID_SEX, "age": GRID_AGE}
                      if self.grid else None),
             "marks": list(self.marks), "evidence": self.evidence, "note": self.note,
+            **({"present": list(self.present)} if self.present else {}),
             "source_notes": self.source_notes,
             "exposure": self.exposure,
             **({} if self.persons else {"persons": False}),
@@ -145,7 +152,7 @@ class EventType:
 
 
 KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case", "outbreak",
-                   "authorisation", "procedure"})
+                   "authorisation", "procedure", "epizootic"})
 
 
 @curated
@@ -198,7 +205,14 @@ def _declarations() -> dict[str, tuple[str, str, dict[str, Any]]]:
 
     for data in curation_docs()[1]:
         for key, body in data["datasets"].items():
-            out.setdefault(f"{_canonical_system(str(body['system']))}-{str(body['series']).upper()}", ("intake.yml", str(key), body))
+            code = f"{_canonical_system(str(body['system']))}-{str(body['series']).upper()}"
+            if code in out:
+                # an intake source whose event types sit in datasets/*.yml (FA-HUM, SRAG-NOTIF): the description is the intake's, the
+                # declared keys win
+                file, declared_key, declared = out[code]
+                out[code] = (file, declared_key, {**{k: v for k, v in body.items() if v not in (None, [])}, **declared})
+            else:
+                out[code] = ("intake.yml", str(key), body)
     return out
 
 
@@ -297,6 +311,7 @@ def _event(key: str, body: dict[str, Any], spec: dict[str, Any], where: str) -> 
         duplicates_flag=_duplicate_flag(spec.get("duplicates"), f"{where}: {key}.{name}"),
         weight=str(weight["column"]).upper() if weight.get("column") else None, grid=grid, bands=bands, grid_total=total, grid_margin=margin,
         marks=tuple(str(m).upper() for m in spec.get("marks") or ()), persons=bool(spec.get("persons", True)),
+        present=tuple(str(c).upper() for c in spec.get("present") or ()),
         evidence=spec.get("evidence") or status.get("evidence"), note=spec.get("note"),
         source_notes=_source_notes(spec.get("source_notes"), f"{where}: {key}.{name}"),
         exposure=_exposure(spec.get("exposure"), f"{where}: {key}.{name}"),
@@ -485,7 +500,8 @@ UNKEYED = b"pegasus.unkeyed"
 def events_of(table: pa.Table, event: EventType, *, flag_absent_ok: bool = False) -> pa.Table:
     """The rows of ``table`` that are events of this type, one per event.
 
-    Duplicate entries first (a declared ``duplicates`` rule: rows equal on every column but entry metadata are one
+    A row that fills none of the record's ``present`` columns is no record and goes first (the empty row a CSV ends with).
+    Duplicate entries next (a declared ``duplicates`` rule: rows equal on every column but entry metadata are one
     record, the first in file order kept; the table must then carry every column; the source's own flag drops the
     rows it marks, and its column must be in the table: ``flag_absent_ok`` is for the reader that found the form
     without it, `read_events`, never a forgotten projection), then status (which rows count), then consolidation: one
@@ -493,6 +509,15 @@ def events_of(table: pa.Table, event: EventType, *, flag_absent_ok: bool = False
     event to join and is kept as an event of its own; their number is the result's `UNKEYED` metadata. Exact string
     matching: a status code is matched at the width the dataset files it.
     """
+    if event.present:
+        missing = [c for c in event.present if c not in table.column_names]
+        if missing:
+            raise KeyError(f"{event.name}: the column(s) {missing} a record must fill are not in the table")
+        filled = pa.repeat(pa.scalar(True), table.num_rows)
+        for c in event.present:
+            text = pc.utf8_trim_whitespace(pc.cast(table.column(c), pa.string()))
+            filled = pc.and_(filled, pc.fill_null(pc.not_equal(text, ""), False))
+        table = table.filter(filled)
     if event.duplicates_flag:
         column, codes = event.duplicates_flag
         if column in table.column_names:
@@ -655,7 +680,7 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     else:
         from .._query_engine.executor import query
 
-        needed = {c for c in (*columns, rule.status_column, *rule.consolidation_key, rule.weight, rule.grid_total,
+        needed = {c for c in (*columns, rule.status_column, *rule.consolidation_key, *rule.present, rule.weight, rule.grid_total,
                               rule.grid_margin, *(c.column for c in rule.grid)) if c}
         select = None if rule.duplicates_except is not None else (sorted(needed) or None)
         if select is None or flag is None:
