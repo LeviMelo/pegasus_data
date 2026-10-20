@@ -1,8 +1,9 @@
-# SISCAN.PACNT — Patients
+# SISCAN *_PACNT — Patients
 # Pacientes
 #
-# The patient dimension published beside each exam dataset in the open-data
-# tree, joined to the exam records rather than repeated on them.
+# The patient view published beside each exam dataset in the open-data tree: one
+# row per patient and competence year with the worst exam's result (SISCAN Notas
+# Técnicas 1, 4, 9, 10, 14), not a dimension joined to the exams (datasets/siscan.yml).
 system: SISCAN
 asserted_by: pegasus_data
 

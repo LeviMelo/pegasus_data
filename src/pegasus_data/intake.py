@@ -746,10 +746,35 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
 PERIOD_DERIVATION = {"parts": 2}
 
 
+#: The keys of a column's declaration that change what is landed: how its typed value, raw and flag are read (`_typed`,
+#: `_flag`), the spellings its header is found by, whether it may be absent. Its role's words and its code table are read
+#: with the lake, so editing them lands nothing again (until 2026-10-19 the whole declaration was digested, and any
+#: curation edit to a source's columns downloaded the source again: SNGPC-IND's 94 months for a code table, OQ-90).
+LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "tokens", "aliases", "optional")
+
+
 def _fingerprint(spec: dict[str, Any], unit: dict[str, Any]) -> str:
+    """What a landed unit is a function of: the file or piece, the columns' `LANDED_KEYS`, the place, the period, the
+    origin, and the period derivation's version."""
     version = PERIOD_DERIVATION.get((spec.get("period") or {}).get("type"))
-    return _digest({k: spec.get(k) for k in ("columns", "place", "period", "origin")}, unit.get("url"), unit.get("key"),
+    columns = {c: {k: (d or {})[k] for k in LANDED_KEYS if (d or {}).get(k) is not None} for c, d in (spec.get("columns") or {}).items()}
+    return _digest({"columns": columns, **{k: spec.get(k) for k in ("place", "period", "origin")}}, unit.get("url"), unit.get("key"),
                    *([{"period_derivation": version}] if version else []))
+
+
+def _current(side: Path, known: dict[str, Any], spec: dict[str, Any], unit: dict[str, Any]) -> bool:
+    """Whether a unit's sidecar says it was landed as the declaration now lands it. A sidecar written before 2026-10-19 holds
+    the digest of the whole declaration: equal to it under the current declaration, it is current, and is rewritten with
+    `_fingerprint`; differing, the unit is landed again, as it was then."""
+    if known.get("fingerprint") == unit["fingerprint"]:
+        return True
+    version = PERIOD_DERIVATION.get((spec.get("period") or {}).get("type"))
+    whole = _digest({k: spec.get(k) for k in ("columns", "place", "period", "origin")}, unit.get("url"), unit.get("key"),
+                    *([{"period_derivation": version}] if version else []))
+    if known.get("fingerprint") != whole:
+        return False
+    side.write_text(json.dumps({**known, "fingerprint": unit["fingerprint"]}), encoding="utf8")
+    return True
 
 
 def _sidecar(source: str, root: Path | str | None, key: str) -> Path:
@@ -820,7 +845,7 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
     side = _sidecar(source, root, unit["key"])
     if side.is_file() and not refresh:
         known = json.loads(side.read_text(encoding="utf8"))
-        if known.get("fingerprint") == unit["fingerprint"]:
+        if _current(side, known, spec, unit):
             return {**known["stats"], "cached": True}
     origin = _origin(spec)
     raw = download(unit["url"], _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"]))
@@ -970,7 +995,7 @@ def _land_api(settings: Any, source: str, spec: dict[str, Any], refresh: bool) -
         side = _sidecar(source, settings.root, key)
         previous = json.loads(side.read_text(encoding="utf8")) if side.is_file() else None
         known = None if refresh else previous
-        if known and known["fingerprint"] == unit["fingerprint"] and (static or _is_complete(known, capacity)):
+        if known and _current(side, known, spec, unit) and (static or _is_complete(known, capacity)):
             stats, complete = known["stats"], _is_complete(known, capacity)
         else:
             rows, unstable, complete = read()

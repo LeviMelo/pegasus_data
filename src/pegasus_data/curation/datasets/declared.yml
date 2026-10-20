@@ -59,17 +59,6 @@ shared_by_system:
       time:
         competence: {fields: [AP_CMP], encoding: year_month}
         processing: {fields: [AP_MVM], encoding: year_month}
-  SISCAN:
-    semantic_axes:
-      default_geography: residence
-      geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
-        facility: {fields: [CO_MUN_UNIDADE_SAUDE], code_system: ibge_municipality}
-      default_time: competence
-      time:
-        # A YEAR, not a month: SISCAN's shared header carries only ANO_COMP.
-        # Declaring a month here would invent a precision the file lacks.
-        competence: {fields: [ANO_COMP], encoding: year}
   PNI:
     semantic_axes:
       default_geography: application
@@ -1227,68 +1216,6 @@ datasets:
     gotchas:
       - Rows are actions, not patients or home visits by a single professional.
 
-  # --------------------------------------------------------------- SISCAN
-  SISCAN.CC:
-    system: SISCAN
-    series: CC
-    asserted_by: pegasus_data
-    what_one_row_is: one cervical cytology exam and its result
-    unit_of_analysis: exam
-    known_biases: >
-      Screening data, so it describes who was screened rather than who has
-      disease. Women who never present are invisible, and they are the ones at
-      highest risk.
-    gotchas:
-      - One woman screened repeatedly is several rows; rows are exams, not people.
-      - An abnormal cytology is an indication for biopsy, not a diagnosis. SISCAN.HC carries the confirmation.
-      - Succeeded SISCOLO, so the series changes naming regime partway through.
-
-  SISCAN.HC:
-    system: SISCAN
-    series: HC
-    asserted_by: pegasus_data
-    what_one_row_is: one cervical biopsy and its histopathology result
-    unit_of_analysis: exam
-    known_biases: >
-      Only women referred after an abnormal screen reach here, so the population
-      is selected by the screening step and its abnormality rate is not a
-      population rate.
-    gotchas:
-      - The confirmatory counterpart to SISCAN.CC. Histopathology overrules cytology where they disagree.
-
-  SISCAN.MM:
-    system: SISCAN
-    series: MM
-    asserted_by: pegasus_data
-    what_one_row_is: one mammogram and its BI-RADS classification
-    unit_of_analysis: exam
-    known_biases: >
-      Screening and diagnostic mammograms are both here and mean different
-      things; mixing them distorts any positivity rate.
-    gotchas:
-      - BI-RADS is an ordered assessment category, not a diagnosis; categories 4 and 5 indicate biopsy.
-      - Succeeded SISMAMA, so naming changes partway through the series.
-
-  SISCAN.CM:
-    system: SISCAN
-    series: CM
-    asserted_by: pegasus_data
-    what_one_row_is: one breast cytology exam and its result
-    unit_of_analysis: exam
-    known_biases: Far less common than mammography; small counts are volatile.
-    gotchas:
-      - Distinct from SISCAN.HM, which is histopathology on tissue rather than cells.
-
-  SISCAN.HM:
-    system: SISCAN
-    series: HM
-    asserted_by: pegasus_data
-    what_one_row_is: one breast biopsy and its histopathology result
-    unit_of_analysis: exam
-    known_biases: Reached only after an abnormal mammogram, so the population is selected.
-    gotchas:
-      - The confirmatory step for SISCAN.MM, and the dataset that actually establishes a cancer diagnosis.
-
   # --------------------------------------------------------------- others
   CIHA.CIHA:
     event_types:
@@ -1920,24 +1847,6 @@ datasets:
         The same admissions as SIH.RD in another layout, not a supplementary file; never pooled with SIH.RD (twelve
         dimension tables: municipalities, establishments, procedures, ICD subcategories with CSAP groups).
       - Not part of the monthly series: the file has no competence in its name, its competence is the column DT_COMPET.
-
-  # ================================================================= SISCAN
-  SISCAN.PACNT:
-    system: SISCAN
-    series: PACNT
-    asserted_by: pegasus_data
-    source: manual
-    source_ref: identity declared in curation/ontology.yml as SISCAN.PACNT
-    what_one_row_is: one patient in the dimension published beside the exam datasets
-    unit_of_analysis: patient
-    known_biases: >
-      A dimension table, not activity. Everyone here appears because they had an
-      exam recorded in SISCAN, so this is the screened population and not the
-      eligible one.
-    gotchas:
-      - Counting rows counts patients on file, not exams. The exams are in the SISCAN exam datasets and join to this.
-      - Whether the patient identifier is stable across exports is NOT established here, so it must not be assumed to support longitudinal follow-up without being tested first.
-      - Published as national files. There is no per-state file, so a state filter matches nothing.
 
   # =========================================================== not datasets
   # These bind files that are not tables of rows. Leaving their unit blank made
