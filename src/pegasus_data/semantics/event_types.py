@@ -4,7 +4,9 @@ A record is not always the event (DESIGN §3.3 of PegaSUS; handoff 2026-10-04
 §3): an SIH AIH is a billing document, a SINAN row a notification. Each
 dataset in ``curation/datasets/*.yml`` declares, under ``event_types:``:
 
-* ``kind``: death, foetal death, birth, hospitalisation, notification, case;
+* ``kind``: death, foetal death, birth, hospitalisation, notification, case, ``exam`` (a screening or diagnostic exam and its
+  result: SISCAN's) and ``examinee`` (a person examined in a year, from a patient file that republishes the exams grouped by
+  person: never added to the exams);
 * ``classifiers``: the code columns that partition the events, one
   ``primary`` and any ``alternative`` (different families of fields over the
   same events, never independent of each other); ``role`` is required. An alternative that
@@ -145,7 +147,7 @@ class EventType:
 
 
 KINDS = frozenset({"death", "foetal_death", "birth", "hospitalisation", "notification", "case", "probable_case", "outbreak",
-                   "authorisation", "procedure"})
+                   "authorisation", "procedure", "exam", "examinee"})
 
 
 @curated

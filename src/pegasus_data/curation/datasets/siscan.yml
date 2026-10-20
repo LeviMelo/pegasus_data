@@ -1,0 +1,810 @@
+# SISCAN, the cancer-screening system: what one row IS in each of its 15 datasets, and the event each becomes.
+#
+# Two generations of files, with no column name in common (ontology.yml):
+#   * SISCOLO / SISMAMA, 2006-2015: one DBF per state of residence and month (CC, HC, CM, HM, MM). A row is a GROUP of
+#     exams that share every published attribute, and `QTDEXA` / `QUANTEXAME` is how many: the Ministry's own TabWin
+#     definitions (sources/siscan/*.def) declare it the increment "Quant. Exames" that TabNet sums.
+#   * SISCAN, 2013 onwards: one national CSV a year, in two views of the same exams that the Notas Técnicas
+#     (sources/docs) tabulate apart: the EXAMS by municipality of residence (`SISCAN_*`; Notas 3, 7, 12, and 5, 13 for the
+#     histopathology) and the PATIENTS (`*_PACNT`; Notas 1, 4, 9, 10, 14), each woman once a year with her worst result.
+#     The exam file is the exam event; the patient file is another event (a patient examined in a year) and is never
+#     added to it. The "por local de atendimento" view (Notas 2, 5, 8, 11, 13) is not published on the FTP.
+# Evidence: docs/evaluation/2026-10-19-siscan-event-types.md.
+
+datasets:
+
+  # =============================================================== SISCOLO / SISMAMA
+  SISCAN.CC:
+    system: SISCAN
+    series: CC
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of cervical cytology exams (Pap smears) with identical published attributes, QTDEXA of them
+        weight:
+          column: QTDEXA
+          evidence: >-
+            CColo4.def declares "IQuant. Exames,QTDEXA", an increment (a quantity TabNet sums). AC 2010-03 holds 5,675 rows and
+            5,781 exams (QTDEXA 1 on 5,581 rows, 2 on 82, 3 on 12), RN 2013-09 9,727 rows and 9,844. The counters count the
+            group's exams: SATISFACT + INSATSFAC + REJEITADA equals QTDEXA on every row of AC 2010-03. QUANTEXAME (2011-) is
+            the same number (equal on every row of AC 2014-06).
+        classifiers:
+          # no single result column exists in this layout: the adequacy partitions every exam, the result families follow
+          - {column: CO_ADEQ_MA, role: primary}
+          - {column: CO_RES_NOR, role: alternative}
+          - {column: CO_CEL_ESC, role: alternative}
+          - {column: CO_CEL_GLA, role: alternative}
+          - {column: CO_ATI_ESC, role: alternative}
+          - {column: CO_ATI_GLA, role: alternative}
+          - {column: CO_ATI_IND, role: alternative}
+          - {column: CO_NEO_MAL, role: alternative}
+        note: >-
+          Every row is an exam, rejected and unsatisfactory samples included (RN 2013-09: REJEITADA 1 on 5 of 9,727 rows,
+          CO_ADEQ_MA 0 on the same 5): no status rule. Filed by the woman's state (CO_PAC_UF is the file's state in every row
+          of the 22 SISCOLO and SISMAMA files read). From 2013 the same system's exams are also in SISCAN_CITO_COLO:
+          2013-2015 are never pooled across the two (see the gotchas).
+        source_notes:
+          source: >-
+            DATASUS, TabWin definition CColo4.def of TAB_SISCOLO4.zip (sources/siscan/CColo4_utf8.txt); the periods before
+            2013 are those of SISCOLO (SISCAN Nota Técnica 3, sources/docs/nota_tecnica_3_cito_colo_resid.pdf)
+          definition: >-
+            Quant. Exames (QTDEXA) is the number of exams a row accounts for; the Ministry declares it an increment, a
+            quantity it sums, as it does the satisfactory, rejected and per-finding counters beside it.
+          valid_from: 2006
+          valid_to: 2015
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/siscan/CColo4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of cervical cytology exams that share every published attribute (QTDEXA of them), filed by the woman's state of residence and the month of competence
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
+        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [DT_ID_COMP], encoding: year_month}
+    known_biases: >
+      Screening data: it describes who was screened, not who has disease, and women who never present are absent.
+      It covers the services that used SISCOLO, not every Pap smear of the SUS.
+    gotchas:
+      - A row is not an exam. Counting rows undercounts (RN 2013-09 9,727 rows, 9,844 exams); sum QTDEXA, which count_events does.
+      - The counters (ALTERADO, LBGRAU, SATISFACT ...) are numbers of exams in the group, not 0/1 flags.
+      - One woman screened repeatedly is several exams, and no row names her; there is no patient file in this generation.
+      - An abnormal cytology is an indication for biopsy, not a diagnosis; SISCAN.HC carries the confirmation.
+      - 2013-2015 are in SISCAN.SISCAN_CITO_COLO too, for the same states and months, and neither holds the other (RN 2013-09 - SISCOLO 9,844 exams, SISCAN 3,653 - 81 municipalities in both, 39 only in SISCAN, 32 only in SISCOLO). No exam key is shared, so the overlap cannot be removed; do not add the two.
+      - The SISCOLO4 and TAB_SISCAN kits code adequacy differently (here 1 unsatisfactory, 3 satisfactory; in TAB_SISCAN's ADEQMAT.CNV 3 is unsatisfactory); one kit's label is not the other's.
+
+  SISCAN.HC:
+    system: SISCAN
+    series: HC
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of cervical histopathology exams (biopsies, excisions) with identical published attributes, QTDEXA of them
+        weight:
+          column: QTDEXA
+          evidence: >-
+            HColo4.def declares "IQuant. Exames,QTDEXA", an increment. SP 2013-09 holds 2,277 rows and 2,320 exams (35 rows
+            with 2 to 4); the AC and RN samples are 1 on every row (82 and 46 rows).
+        classifiers:
+          - {column: CO_NEO_NIC, role: primary}
+          - {column: CO_NEO_ADE, role: alternative}
+          - {column: CO_BEN_ALT, role: alternative}
+        note: >-
+          CO_NEO_NIC is the squamous neoplastic result: in AC 2014-06 its codes 1, 2 and 3 are on 18, 6 and 26 rows, the
+          counts of the counters NICDLEVE, NICDMODE and NICDACENT. Every row is an exam: no status rule. Filed by the
+          woman's state. The confirmatory step after SISCAN.CC, a selected population.
+        source_notes:
+          source: >-
+            DATASUS, TabWin definition HColo4.def of TAB_SISCOLO4.zip (sources/siscan/HColo4_utf8.txt)
+          definition: >-
+            Quant. Exames (QTDEXA) is the number of exams a row accounts for, an increment the Ministry sums.
+          valid_from: 2006
+          valid_to: 2015
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/siscan/HColo4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of cervical histopathology exams that share every published attribute (QTDEXA of them), filed by the woman's state of residence and the month of competence
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
+        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [DT_ID_COMP], encoding: year_month}
+    known_biases: >
+      Only women referred after an abnormal screen reach here, so the population is selected by the screening step and
+      its abnormality rate is not a population rate.
+    gotchas:
+      - A row is a group of exams; sum QTDEXA (SP 2013-09 2,277 rows, 2,320 exams).
+      - The confirmatory counterpart to SISCAN.CC; histopathology overrules cytology where they disagree. No key joins a biopsy to its cytology.
+      - 2013-2015 are in SISCAN.SISCAN_HISTO_COLO too (see SISCAN.CC); do not add the two.
+
+  SISCAN.CM:
+    system: SISCAN
+    series: CM
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of breast cytology exams (aspiration, nipple discharge, cyst content) with identical published attributes, QUANTEXAME of them
+        weight:
+          column: QUANTEXAME
+          evidence: >-
+            CMAMA4.def declares "IQuant Exames,QUANTEXAME", an increment. BA 2013-09 holds 524 rows and 596 exams (59 rows
+            with 2 to 4), SP 2014-06 391 rows and 415 exams.
+        classifiers:
+          - {column: PRESULPAAF, role: primary}
+          - {column: CRESDERPAP, role: alternative}
+          - {column: CO_RES_ADE, role: alternative}
+        note: >-
+          PRESULPAAF is the aspiration puncture's result (PRESULPAAF.CNV: benign negative, indeterminate, suspicious,
+          positive for malignancy) and CRESDERPAP the result of a discharge or cyst content: a row has the one its material
+          calls for. Every row is an exam: no status rule. Filed by the patient's state.
+        source_notes:
+          source: >-
+            DATASUS, TabWin definition CMAMA4.def of TAB_SISMAMA.zip (sources/siscan/CMAMA4_utf8.txt)
+          definition: >-
+            Quant Exames (QUANTEXAME) is the number of exams a row accounts for, an increment the Ministry sums.
+          valid_from: 2009
+          valid_to: 2015
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/siscan/CMAMA4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of breast cytology exams that share every published attribute (QUANTEXAME of them), filed by the patient's state of residence and the month of competence
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
+        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [DT_ID_COMP], encoding: year_month}
+    known_biases: Far less common than mammography, and requested for a lump or discharge, so a diagnostic population; small counts are volatile.
+    gotchas:
+      - A row is a group of exams; sum QUANTEXAME (BA 2013-09 524 rows, 596 exams).
+      - Distinct from SISCAN.HM, which is histopathology on tissue rather than cells.
+      - 2013-2015 are in SISCAN.SISCAN_CITO_MAMA too; do not add the two.
+
+  SISCAN.HM:
+    system: SISCAN
+    series: HM
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of breast histopathology exams (biopsies, surgical specimens) with identical published attributes, QUANTEXAME of them
+        weight:
+          column: QUANTEXAME
+          evidence: >-
+            HMAMA4.def declares "IQuant Exames,QUANTEXAME", an increment. SP 2014-06 holds 1,329 rows and 1,558 exams (73 rows
+            with 2 to 12), PR 2013-09 290 rows and 291 exams.
+        classifiers:
+          - {column: C_NEO_MALI, role: primary}
+          - {column: CO_RES_ADE, role: alternative}
+        note: >-
+          C_NEO_MALI is the malignant lesion's type (CNEOMALIG.CNV: 12 types and 00). Every row is an exam: no status rule.
+          Filed by the patient's state.
+        source_notes:
+          source: >-
+            DATASUS, TabWin definition HMAMA4.def of TAB_SISMAMA.zip (sources/siscan/HMAMA4_utf8.txt)
+          definition: >-
+            Quant Exames (QUANTEXAME) is the number of exams a row accounts for, an increment the Ministry sums.
+          valid_from: 2009
+          valid_to: 2015
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/siscan/HMAMA4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of breast histopathology exams that share every published attribute (QUANTEXAME of them), filed by the patient's state of residence and the month of competence
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
+        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [DT_ID_COMP], encoding: year_month}
+    known_biases: Reached only after an abnormal mammogram or a clinical finding, so the population is selected.
+    gotchas:
+      - A row is a group of exams; sum QUANTEXAME (SP 2014-06 1,329 rows, 1,558 exams).
+      - The confirmatory step for SISCAN.MM, and the dataset that actually establishes a breast cancer diagnosis.
+      - C_NEO_MALI is 00 on 719 rows of SP 2014-06 and 000 on 52, and CNEOMALIG.CNV labels 00 "Informação inconsistente" although LESBENIGIN counts benign lesions on 962 rows; what 00 means for a benign exam is not settled, and 06 and 006 (227 and 61 rows) are one code in two widths, not merged.
+      - 2013-2015 are in SISCAN.SISCAN_HISTO_MAMA too; do not add the two.
+
+  SISCAN.MM:
+    system: SISCAN
+    series: MM
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of mammograms with identical published attributes, QUANTEXAME of them
+        weight:
+          column: QUANTEXAME
+          evidence: >-
+            MMAMA4.def declares "IQuant Exames,QUANTEXAME", an increment. AC 2014-06 holds 728 rows and 784 exams (30 rows
+            with 2 to 8).
+        classifiers:
+          - {column: CATBIRADS, role: primary}
+          - {column: CCONRECOM, role: alternative}
+        note: >-
+          CATBIRADS is the BI-RADS category stored as the category plus one (CATBIRADS.CNV: code 1 is category 0 ... code 7
+          category 6, 9 inconsistent). Screening and diagnostic mammograms are both here (INDICLINIC). Every row is an exam:
+          no status rule. Filed by the patient's state.
+        source_notes:
+          source: >-
+            DATASUS, TabWin definition MMAMA4.def of TAB_SISMAMA.zip (sources/siscan/MMAMA4_utf8.txt)
+          definition: >-
+            Quant Exames (QUANTEXAME) is the number of exams a row accounts for, an increment the Ministry sums.
+          valid_from: 2009
+          valid_to: 2015
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/siscan/MMAMA4_utf8.txt; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of mammograms that share every published attribute (QUANTEXAME of them), with their BI-RADS category, filed by the patient's state of residence and the month of competence
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
+        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [DT_ID_COMP], encoding: year_month}
+    known_biases: >
+      Screening and diagnostic mammograms are both here and mean different things; mixing them distorts any positivity
+      rate. Only the exams of services using SISMAMA.
+    gotchas:
+      - A row is a group of exams; sum QUANTEXAME (AC 2014-06 728 rows, 784 exams).
+      - BI-RADS is an ordered assessment category, not a diagnosis; categories 4 and 5 indicate biopsy.
+      - 2013-2015 are in SISCAN.SISCAN_MAMOGRAFIA too; do not add the two.
+
+  # =============================================================== SISCAN, 2013 onwards
+  SISCAN.SISCAN_CITO_COLO:
+    system: SISCAN
+    series: SISCAN_CITO_COLO
+    event_types:
+      - name: exam
+        kind: exam
+        grain: one cervical cytology (Pap) exam, filed by the woman's municipality of residence
+        classifiers:
+          - {column: CO_LAUDO_CITOPATOLOGICO, role: primary}
+          - {column: TP_AVALIACAO_AMOSTRA, role: alternative}
+          - {column: TP_ATIPIA_CELULAR_ESCAMOS, role: alternative}
+          - {column: TP_ATIPIA_CELULAR_GLANDUL, role: alternative}
+        evidence: >-
+          A row is one exam and the file has no quantity column. The TabNet kit's RJ files of 2013 (CCRJ1307-1312; QT_EXAME 1
+          on all 57 rows) equal the CSV's RJ residents month by month (1, 2, 11, 9, 22, 12). Rows identical on every published
+          column exist (5.7% of 134,887) and are separate exams: the kit, which adds the patient's CNS and the dates, holds
+          the same rows as the CSV where both can be compared (histopathology 1,210 = 1,210, 17 states). Every row is an exam,
+          rejected and unsatisfactory samples included (laudo 00: 1,141 = 56 rejected + 1,085 unsatisfactory by
+          TP_AVALIACAO_AMOSTRA), as Nota Técnica 3 counts them among the exams: no status rule.
+        note: >-
+          The exam. The patient file SISCAN_CITO_COLO_PACNT republishes these exams grouped by woman and year (one event per
+          woman, her worst result): another event, counted for women and never added to this one. CO_LAUDO_CITOPATOLOGICO is the
+          worst finding of the exam (13 categories); the NU_ counters beside it are 0/1 per exam.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 3, "Exames citopatológicos do colo do útero por município de
+            residência da paciente" (sources/docs/nota_tecnica_3_cito_colo_resid.pdf), pp. 1-4; Nota Técnica 1 for the
+            patient view
+          definition: >-
+            The tabulation is of exams ("quantitativo de exames") performed from 2013, by the patient's municipality of
+            residence as registered on the Cartão Nacional de Saúde. The competence year and month are those in which the
+            exam was released and billed by the service provider; the year of result is that in which it received its result.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams and women examined in the SUS, because services that do not use it are absent (Nota Técnica 3, p. 1).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica_3_cito_colo_resid.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: one cervical cytology (Pap) exam and its result, filed by the woman's municipality of residence and the month the exam was released and billed
+    unit_of_analysis: exam
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [CO_ANO_MES_LIBERACAO], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Screening data, so it describes who was screened rather than who has disease. SISCAN was implanted state by state, so
+      a rise in exams can be the system's spread: 2013 holds only its second half (competence 2013-06 on), and SISCOLO
+      still carries other services' exams in 2013-2015.
+    gotchas:
+      - A row is an exam, not a woman, and nothing in the file names her; women are SISCAN_CITO_COLO_PACNT.
+      - The unit, provider and their municipalities and states (CO_UNIDADE_SAUDE, CO_PREST_SERVICO, CO_MUN_UNIDADE_SAUDE ...) exist as columns but are empty in every year read (2013 whole; head and tail, about 16,000 rows each, of 2014, 2016, 2018, 2020, 2023, 2025), so the exam has a residence and no place of occurrence.
+      - NU_AMOSTRA_REJEITADA, NU_AMOSTRA_SATISFATORIA and NU_LIMITE_NORMALIDADE are 0 on every row read (2013, 2018); the adequacy is TP_AVALIACAO_AMOSTRA (2013 - 01 on 56 rows, 02 on 133,746, 03 on 1,085).
+      - CO_LAUDO_CITOPATOLOGICO follows TAB_SISCAN's laudo_citopatologico.cnv, 01 invasive squamous carcinoma to 13 negative; each code's rows carry exactly the matching NU_ counter (2013 - 08 on 1,129 rows = NU_LESAO_IE_BAIXO_GRAU 1,129). 00 is in no table and is a sample without a result (rejected or unsatisfactory). 2013 is 96% negative (129,774 of 134,887).
+      - Identical rows are separate exams; do not remove them as duplicates.
+      - The competence is the month of release and billing, not of collection. CO_IDADE_PACIENTE holds ages up to 213 (27 rows above 110 in 2013); there is no age band in this file.
+      - 2013-2015 overlap SISCAN.CC without containing it; do not add the two.
+
+  SISCAN.SISCAN_CITO_COLO_PACNT:
+    system: SISCAN
+    series: SISCAN_CITO_COLO_PACNT
+    event_types:
+      - name: examined_patient
+        kind: examinee
+        grain: one woman examined in a competence year, with the result of her exam of the year (CO_PACIENTE)
+        consolidation:
+          key: [CO_PACIENTE, CO_ANO_LIBERACAO]
+        classifiers:
+          - {column: CO_LAUDO_CITOPATOLOGICO, role: primary}
+          - {column: TP_AVALIACAO_AMOSTRA, role: alternative}
+        evidence: >-
+          Nota Técnica 1 tabulates women and not exams, a woman with several exams in the year counted with her worst
+          result. The 2013 file has 132,182 rows for 131,366 patients (804 with 2 to 4 rows in the year, 816 extra rows: the
+          file keeps them), so the key (patient, year) counts a woman once a year and keeps her first row in file order,
+          which is not always her worst.
+        note: >-
+          Not the exam: the exams of these women are SISCAN_CITO_COLO's events, the same exams, and the two are never added.
+          The file has no exam key, so a woman's row cannot be joined to her exams. A total over several years counts
+          women-years; the women of the span are the distinct CO_PACIENTE.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 1, "Pacientes - exames citopatológicos do colo do útero (mulheres
+            por município de residência)" (sources/docs/nota_tecnica_1_cito_colo_paciente.pdf), pp. 1-2
+          definition: >-
+            The tabulations are by women (patients) and not by exams performed; when a woman has more than one exam in the
+            year, the exam with the most serious result prevails; "laudo ignorado" refers to women whose cytology was
+            unsatisfactory or rejected.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              women examined in the SUS (Nota Técnica 1, p. 1).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica_1_cito_colo_paciente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a woman examined by cervical cytology in a competence year, with her worst result of the year (CO_PACIENTE); 0.6% of the women of 2013 have 2 to 4 rows
+    unit_of_analysis: patient
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [CO_ANO_MES_LIBERACAO], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Women who had an exam recorded in SISCAN, not the eligible population nor every woman examined in the SUS. Where a
+      woman has several rows in a year the first in file order is kept, so her result here is not always her worst.
+    gotchas:
+      - Not the exams of SISCAN_CITO_COLO. Never add the two; for exams count the exam file, for women this one.
+      - "CO_PACIENTE recurs across years: the ids found in both the 2013 and 2014 files of the three small patient files (cytology of the breast, histopathology of the cervix and of the breast) agree on municipality, race and sex in all 90 shared ids. A multi-year count is women-years."
+      - The unit, provider and their municipalities are empty (as in the exam file). The age is CO_IDADE_PACIENTE and IDADE, in years.
+      - The id has 8 digits here and in the two histopathology files, 15 in the breast cytology file and 3 to 8 in the mammography file; whether it is one woman across datasets is not established.
+
+  SISCAN.SISCAN_HISTO_COLO:
+    system: SISCAN
+    series: SISCAN_HISTO_COLO
+    event_types:
+      - name: exam
+        kind: exam
+        grain: one cervical histopathology exam (biopsy or excision), filed by the woman's municipality of residence
+        classifiers:
+          - {column: TP_LESAO_CARAT_NEOP_PRENEO, role: primary}
+          - {column: TP_LESAO_CARAT_NEOP_PREN_AD, role: alternative}
+          - {column: CO_RES_NEOPL_OUTRAS, role: alternative}
+          - {column: TP_AVALIACAO_AMOSTRA, role: alternative}
+        evidence: >-
+          A row is one exam, with no quantity column: the TabNet kit's HC files of 2013 hold 1,210 rows and the CSV 1,210,
+          equal in each of the 17 states. Rows identical on every published column exist (22 extra copies) and are separate
+          exams: the kit, which adds the patient's CNS and the dates, has 3 identical copies in the same 1,210. The squamous
+          result codes are exactly the counters (2014 - 01 on 4,951 rows = NU_NEOPLASICO_NIC_I 4,951, 02 = NIC II 2,653,
+          03 = NIC III 2,894, 04 micro-invasive 117, 05 invasive 660, 06 not assessable 109; glandular 01 = adenocarcinoma in
+          situ 52, 02 invasive 85), and TabNet's histo_colo.def names the same dimensions (Res_Neopl_Preneo_Escam,
+          Res_Neopl_Glandular, Res_Neopl_Outras). Every row is an exam: no status rule.
+        note: >-
+          A blank TP_LESAO_CARAT_NEOP_PRENEO (49% of 2014) is an exam with no squamous neoplastic or pre-neoplastic result
+          (NU_RES_EXAMES_NEO_PRENEO is 1 on exactly the 12,026 rows that have a neoplastic counter), not a missing value.
+          The exam; the patient file SISCAN_HISTO_COLO_PACNT is a woman a year, never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 5, "Exames histopatológicos do colo do útero" by the service's
+            municipality (sources/docs/nota_tecnica_5_histo_colo_atend.pdf), pp. 1-5; Nota Técnica 4 for the patient view
+          definition: >-
+            The tabulations are of exams ("quantitativo de exames") performed from 2013; the competence is the month in
+            which the exam was released and billed.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams and women examined in the SUS (Nota Técnica 5, p. 1).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica_5_histo_colo_atend.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: one cervical histopathology exam and its result, filed by the woman's municipality of residence and the month the exam was released and billed
+    unit_of_analysis: exam
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [CO_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Only women referred after an abnormal screen or a suggestive lesion reach here (TP_ENCAMINHAMENTO), so the population
+      is selected by the screening step and its abnormality rate is not a population rate.
+    gotchas:
+      - A row is an exam, not a woman; women are SISCAN_HISTO_COLO_PACNT, never added to this one.
+      - The confirmatory counterpart to SISCAN_CITO_COLO; histopathology overrules cytology where they disagree. No key joins a biopsy to its cytology.
+      - The result is in several columns (squamous, glandular, other); a blank squamous result is a non-neoplastic exam, not a gap.
+      - The file carries no unit, provider or age band; the exam has a residence and no place of occurrence.
+      - Identical rows are separate exams. 2013-2015 overlap SISCAN.HC without containing it; do not add the two.
+
+  SISCAN.SISCAN_HISTO_COLO_PACNT:
+    system: SISCAN
+    series: SISCAN_HISTO_COLO_PACNT
+    event_types:
+      - name: examined_patient
+        kind: examinee
+        grain: one woman with a cervical histopathology exam in a competence year, with her worst result of the year (CO_PACIENTE)
+        consolidation:
+          key: [CO_PACIENTE, NU_ANO_COMPETENCIA]
+        classifiers:
+          - {column: NU_LAUDO_HISTOP, role: primary}
+          - {column: TP_LESAO_CARAT_NEOP_PRENEO, role: alternative}
+        evidence: >-
+          Nota Técnica 4 tabulates women and not exams, the worst result prevailing, and lists nine laudo categories
+          (squamous carcinoma, invasive adenocarcinoma, adenocarcinoma in situ, NIC III, NIC II, NIC I, other neoplasm,
+          benign, unsatisfactory): NU_LAUDO_HISTOP has nine codes, 01-09 (labels not bound). 2014: 20,849 rows for 20,226
+          patients (623 second rows); the key counts a woman once a year, keeping the first row.
+        note: >-
+          Not the exam: SISCAN_HISTO_COLO holds the exams of these women, and the two are never added. A total over several
+          years counts women-years.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 4, "Pacientes - exames histopatológicos do colo do útero"
+            (sources/docs/nota_tecnica_4_histo_colo_paciente.pdf), pp. 1-2
+          definition: >-
+            The tabulations are by women (patients) and not by exams performed; when a woman has more than one exam in the
+            year, the exam with the most serious result prevails.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              women examined in the SUS (the notice of Nota Técnica 5, the exam view).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica_4_histo_colo_paciente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a woman with a cervical histopathology exam in a competence year, with her worst result of the year (CO_PACIENTE); 1.3% of the women of 2013 have 2 to 4 rows
+    unit_of_analysis: patient
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Referred women only, as the exam file, and only those recorded in SISCAN; a woman with several exams in a year can
+      appear on more than one row (3% of the 2014 rows are a second row).
+    gotchas:
+      - Not the exams of SISCAN_HISTO_COLO; never add the two.
+      - NU_LAUDO_HISTOP is a code (01-09), not a number; its labels are not bound.
+      - CO_PACIENTE recurs across years (52 of the 1,174 women of 2013 are in the 2014 file, all with the same municipality, race and sex), so a multi-year count is women-years.
+
+  SISCAN.SISCAN_CITO_MAMA:
+    system: SISCAN
+    series: SISCAN_CITO_MAMA
+    event_types:
+      - name: exam
+        kind: exam
+        grain: a group of breast cytology exams with identical published attributes, QT_EXAME of them, filed by the patient's municipality of residence
+        weight:
+          column: QT_EXAME
+          evidence: >-
+            Unlike the other SISCAN CSVs this one merges identical exams: no two rows are identical (0 of 604 in 2013) and
+            QT_EXAME is 1 on 564 rows, 2 on 24, 3 on 12, 4 on 3 and 6 on 1: 666 exams. The TabNet kit's CM files of 2013 (QT_EXAME
+            1 on each of their 716 rows) hold the same exams: equal to the CSV's sum in 13 of the 14 states of residence (AL 131
+            exams in 82 rows, SE 126, MS 195 ...); SP differs by 50 (kit 208, CSV 158), all in December.
+        classifiers:
+          - {column: TP_RESULTA_PUNCAO_ASPIRATIVA, role: primary}
+          - {column: TP_PADRAO_CITOPATOL_AMOST, role: alternative}
+          - {column: TP_ADEQUABILIDAD_MATERIAL, role: alternative}
+        note: >-
+          TP_RESULTA_PUNCAO_ASPIRATIVA is the aspiration puncture's result (PRESULPAAF.CNV) and TP_PADRAO_CITOPATOL_AMOST the
+          result of a discharge or cyst content: a row has the one its material calls for. The NU_ counters count the
+          group's exams with that result (1 on a single exam, up to QT_EXAME on a group). Every row is an exam: no status
+          rule. The patient file SISCAN_CITO_MAMA_PACNT is another event (a patient a year), never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 12, "Citopatológico de mama - exames por município de
+            residência do(a) paciente" (sources/docs/nota_tecnica12_cito_mama_residencia.pdf), pp. 1-3
+          definition: >-
+            The tabulations are by exams, for exams performed from 2013 by the patient's municipality of residence; the
+            competence is the month in which the exam was released and billed.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams and users examined in the SUS (Nota Técnica 12, p. 1).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica12_cito_mama_residencia.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a group of breast cytology exams that share every published attribute (QT_EXAME of them), filed by the patient's municipality of residence and the month the exam was released and billed
+    unit_of_analysis: exam group
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Requested for a lump or discharge, so a diagnostic population, and only the services using SISCAN; small counts are
+      volatile.
+    gotchas:
+      - A row is not an exam: sum QT_EXAME (2013 - 604 rows, 666 exams), which count_events does. The other SISCAN CSVs have no such column.
+      - The patient file SISCAN_CITO_MAMA_PACNT is a patient a year, never added to this one.
+      - Sex M appears (5 of 604 rows in 2013).
+      - 2013-2015 overlap SISCAN.CM without containing it; do not add the two.
+
+  SISCAN.SISCAN_CITO_MAMA_PACNT:
+    system: SISCAN
+    series: SISCAN_CITO_MAMA_PACNT
+    event_types:
+      - name: examined_patient
+        kind: examinee
+        grain: one patient with a breast cytology exam in a competence year, with the result of the year (CO_PACIENTE)
+        consolidation:
+          key: [CO_PACIENTE, NU_ANO_COMPETENCIA]
+        classifiers:
+          - {column: TP_LAUDO_CITOP, role: primary}
+          - {column: TP_ADEQUABILIDAD_MATERIAL, role: alternative}
+        evidence: >-
+          Nota Técnica 10 tabulates patients and lists six laudo categories (positive, suspicious, indeterminate, benign, no
+          change, unsatisfactory): TP_LAUDO_CITOP has six codes, 01-06, in the order of TAB_SISCAN's LAUDO_CITOP.CNV. 2013:
+          520 rows for 520 patients; 2014: 8,814 for 8,814.
+        note: >-
+          Not the exam: SISCAN_CITO_MAMA holds the exams (2013 - 666 for 520 patients), and the two are never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 10, "Citopatológico de mama - pacientes"
+            (sources/docs/nota_tecnica10_cito_mama_paciente.pdf), pp. 1-2
+          definition: >-
+            The tabulations are by patients; the laudo is positive for malignancy, suspicious, indeterminate, benign, no
+            change or unsatisfactory.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              users examined in the SUS (the notice of Nota Técnica 12, the exam view).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica10_cito_mama_paciente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a patient with a breast cytology exam in a competence year (CO_PACIENTE, a 15-digit number), with the result of the year
+    unit_of_analysis: patient
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+    known_biases: Patients recorded in SISCAN who had a diagnostic cytology, not a screened population.
+    gotchas:
+      - Not the exams of SISCAN_CITO_MAMA; never add the two.
+      - One row per patient and year in 2013 and 2014 (520 of 520, 8,814 of 8,814); CO_PACIENTE recurs across years (24 of the 520 patients of 2013 are in the 2014 file, all with the same municipality, race and sex).
+      - CO_FAIXA_ETARIA_PACIENTE holds a band code in the exam file ('03' to '16') and the age in years here ('016' to '087'); no result counters and no exam quantity.
+
+  SISCAN.SISCAN_HISTO_MAMA:
+    system: SISCAN
+    series: SISCAN_HISTO_MAMA
+    event_types:
+      - name: exam
+        kind: exam
+        grain: one breast histopathology exam (biopsy or surgical specimen), filed by the patient's municipality of residence
+        classifiers:
+          - {column: TP_LESAO, role: primary}
+          - {column: TP_LESAO_CARAT_NEOPL_MALI, role: alternative}
+          - {column: TP_ADEQUABILIDAD_MATERIAL, role: alternative}
+        evidence: >-
+          A row is one exam, with no quantity column: the TabNet kit's HM files of 2013 hold 444 rows and the CSV 444, equal in
+          each of the 15 states; 3 identical copies in both. TP_LESAO has the four classes of Nota Técnica 14's laudo (benign
+          lesion, indeterminate, suspicious, malignant neoplastic lesion) and blank for the unsatisfactory: its counts equal
+          the patient file's laudo class for class in reversed code order (2014 PACNT - TP_LESAO 01, 02, 03, 04 and blank on
+          6,852, 35, 40, 3,878 and 73 rows; TP_LAUDO_HISTOPATOLOGICO 04, 03, 02, 01 and 06 on the same). Every row is an
+          exam: no status rule.
+        note: >-
+          TP_LESAO and the patient file's TP_LAUDO_HISTOPATOLOGICO order the classes oppositely. A blank malignant subtype
+          (TP_LESAO_CARAT_NEOPL_MALI) is a non-malignant exam. The patient file SISCAN_HISTO_MAMA_PACNT is another event,
+          never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 13, "Exame histopatológico de mama" by the service's municipality
+            (sources/docs/nota_tecnica13_histo_mama_atend.pdf), pp. 1-5; Nota Técnica 14 for the patient view
+          definition: >-
+            The tabulations are of exams, by total or by result, performed from 2013; the competence is the month in which
+            the exam was released and billed.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams examined in the SUS (Nota Técnica 13, p. 1).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica13_histo_mama_atend.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: one breast histopathology exam and its result, filed by the patient's municipality of residence and the month the exam was released and billed
+    unit_of_analysis: exam
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Reached only after an abnormal mammogram or a clinical finding, so the population is selected and its malignancy
+      share is not a population rate.
+    gotchas:
+      - A row is an exam, not a patient; patients are SISCAN_HISTO_MAMA_PACNT, never added to this one.
+      - The confirmatory step for SISCAN_MAMOGRAFIA, and the dataset that establishes a breast cancer diagnosis; no key joins a biopsy to its mammogram.
+      - Identical rows are separate exams. 2013-2015 overlap SISCAN.HM without containing it; do not add the two.
+
+  SISCAN.SISCAN_HISTO_MAMA_PACNT:
+    system: SISCAN
+    series: SISCAN_HISTO_MAMA_PACNT
+    event_types:
+      - name: examined_patient
+        kind: examinee
+        grain: one patient with a breast histopathology exam in a competence year, with the result of the year (CO_PACIENTE)
+        consolidation:
+          key: [CO_PACIENTE, NU_ANO_COMPETENCIA]
+        classifiers:
+          - {column: TP_LAUDO_HISTOPATOLOGICO, role: primary}
+          - {column: TP_LESAO_CARAT_NEOPL_MALI, role: alternative}
+        evidence: >-
+          Nota Técnica 14 tabulates patients with the laudo benign lesion, indeterminate, suspicious, malignant neoplastic
+          lesion, and "não informado" for an unsatisfactory result: TP_LAUDO_HISTOPATOLOGICO has the codes 01-04 and 06, as
+          TAB_SISCAN's LAUDO_HISTOP.CNV. 2013: 420 rows for 420 patients, each equal to an exam row of SISCAN_HISTO_MAMA on
+          the 29 columns they share; 2014: 10,878 for 10,878.
+        note: >-
+          Not the exam: SISCAN_HISTO_MAMA holds the exams (2013 - 444 for 420 patients), and the two are never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 14, "Exame histopatológico de mama - pacientes"
+            (sources/docs/nota_tecnica14_histo_mama_paciente.pdf), pp. 1-3
+          definition: >-
+            The tabulations are by patients; the laudo is classified as benign, indeterminate, suspicious or malignant
+            neoplastic lesion, and "não informado" corresponds to unsatisfactory results.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams examined in the SUS (the notice of Nota Técnica 13, the exam view).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica14_histo_mama_paciente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a patient with a breast histopathology exam in a competence year (CO_PACIENTE), with the result of the year
+    unit_of_analysis: patient
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Referred patients only, as the exam file. In 2013 the file has 420 rows for 444 exams: by Nota Técnica 14's rule the
+      other 24 are a patient's further exams of the year.
+    gotchas:
+      - Not the exams of SISCAN_HISTO_MAMA; never add the two.
+      - One row per patient and year in 2013 and 2014 (420 of 420, 10,878 of 10,878); CO_PACIENTE recurs across years (14 of the 420 patients of 2013 are in the 2014 file, all with the same municipality, race and sex).
+      - TP_LAUDO_HISTOPATOLOGICO 06 ("não informado") is an unsatisfactory result, not a missing value.
+
+  SISCAN.SISCAN_MAMOGRAFIA:
+    system: SISCAN
+    series: SISCAN_MAMOGRAFIA
+    event_types:
+      - name: exam
+        kind: exam
+        grain: one mammogram, filed by the patient's municipality of residence
+        classifiers:
+          - {column: CO_BIRADS, role: primary}
+          - {column: CO_RECOMENDACAO, role: alternative}
+        evidence: >-
+          A row is one exam, with no quantity column: the TabNet kit's MM files hold 25 rows for 2013 (the extract has the
+          Federal District only; QT_EXAME 1 on all) and the CSV's DF residents are 25. Rows identical on every published
+          column exist (3.2% of 93,229) and are separate exams (see SISCAN_CITO_COLO). Every row is an exam: no status rule.
+        note: >-
+          CO_BIRADS is the BI-RADS category stored as the category plus one (2013 - 1 on 9,913 rows, 2 on 41,444, 3 on 38,803
+          ...; CBIRARDS.CNV: code 7 is category 6, 11 rows; 0, on 24 rows, is in no table found). Screening and diagnostic
+          mammograms are both here (CO_IND_CLINICA: 02 on 91,304 rows, 01 on 1,925). The patient file
+          SISCAN_MAMOGRAFIA_PACNT is another event, never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 7, "Mamografia (exames por município de residência)"
+            (sources/docs/nota_tecnica7_mamografia_residente.pdf), pp. 1-4; Nota Técnica 9 for the BI-RADS laudo
+          definition: >-
+            The tabulations are by the total of exams, by type of diagnostic mammogram or by result; the result follows the
+            BI-RADS classification (0 undefined, 1 negative, 2 benign, 3 probably benign, 4 suspicious, 5 highly suspicious,
+            6 already diagnosed with cancer, Nota Técnica 9); the competence is the month in which the exam was released
+            and billed.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              exams and users examined in the SUS (Nota Técnica 7, the notice on its first pages).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica7_mamografia_residente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: one mammogram and its BI-RADS category, filed by the patient's municipality of residence and the month the exam was released and billed
+    unit_of_analysis: exam
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: >
+      Screening and diagnostic mammograms are both here and mean different things; mixing them distorts any positivity
+      rate. Only the exams of services using SISCAN.
+    gotchas:
+      - A row is an exam, not a patient; patients are SISCAN_MAMOGRAFIA_PACNT, never added to this one.
+      - BI-RADS is an ordered assessment category, not a diagnosis; categories 4 and 5 indicate biopsy. The stored code is the category plus one.
+      - The unit, provider and their municipalities exist as columns but are empty in the years read (2013, 2018), so the exam has a residence and no place of occurrence. CO_IDADE_PACIENTE is in years (0 to 113 in 2013).
+      - Identical rows are separate exams. 2013-2015 overlap SISCAN.MM without containing it; do not add the two.
+
+  SISCAN.SISCAN_MAMOGRAFIA_PACNT:
+    system: SISCAN
+    series: SISCAN_MAMOGRAFIA_PACNT
+    event_types:
+      - name: examined_patient
+        kind: examinee
+        grain: one patient with a mammogram in a competence year, with the result of her worst exam of the year (CO_PACIENTE)
+        consolidation:
+          key: [CO_PACIENTE, NU_ANO_COMPETENCIA]
+        classifiers:
+          - {column: CO_LAUDO, role: primary}
+        evidence: >-
+          Nota Técnica 9 tabulates patients with the BI-RADS laudo of the worst exam of the year; CO_LAUDO has CO_BIRADS's codes
+          and shares (2013 - category-plus-one 2 on 44.4% of the patients against 44.5% of the exams, 3 on 41.6% and 41.6%, 1
+          on 10.7% and 10.6%). 2013: 91,992 rows for 91,992 patients, against 93,229 exams.
+        note: >-
+          Not the exam: SISCAN_MAMOGRAFIA holds the exams, and the two are never added.
+        source_notes:
+          source: >-
+            DATASUS/Ministério da Saúde, SISCAN Nota Técnica 9, "Mamografia - pacientes"
+            (sources/docs/nota_tecnica9_mamografia_paciente.pdf), pp. 1-2
+          definition: >-
+            The tabulations are by patients; the laudo follows BI-RADS and, when the patient has more than one exam in the
+            year, the exam with the most serious result prevails.
+          valid_from: 2013
+          limitations:
+            - >-
+              SISCAN was not yet fully implanted in all states and municipalities: the values may not correspond to all the
+              users examined in the SUS (the notice of Nota Técnica 7, the exam view).
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: sources/docs/nota_tecnica9_mamografia_paciente.pdf; docs/evaluation/2026-10-19-siscan-event-types.md
+    what_one_row_is: a patient with a mammogram in a competence year (CO_PACIENTE), with the BI-RADS category of her worst exam of the year
+    unit_of_analysis: patient
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+    known_biases: Patients recorded in SISCAN who had a mammogram, not the eligible population; screening and diagnostic mammograms are both here.
+    gotchas:
+      - Not the exams of SISCAN_MAMOGRAFIA; never add the two.
+      - One row per patient and year in 2013 (91,992 of 91,992). The stored BI-RADS code is the category plus one.
+      - CO_FAIXA_ETARIA_PACIENTE holds the age in years here ('050'), not a band; the exam file has CO_IDADE_PACIENTE. The id has 3 to 8 digits.
