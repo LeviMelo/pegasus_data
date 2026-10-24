@@ -165,7 +165,8 @@ happened. All of it is labelled with its source, and a value the source does
 not hold comes back as `not_recorded`, never as a guess.
 
 ```python
-from pegasus_data import (query, memberships, municipality_point, distance_km, mesh, load_field,
+from pegasus_data import (query, memberships, municipality_point, distance_km, mesh, load_field, grade_cells,
+                          tract_population, climate_daily,
                           load_population, race_reliability, age_standardised_rates)
 
 # Roll a code up a published hierarchy (curation/joins.yml): ICD-10 chapter,
@@ -180,7 +181,7 @@ admissions = query("SIH.RD", period="2022-01", geography="AL",
                    present="analysis")   # raw codes, which race_reliability reads
 
 memberships("280030").as_dict()      # health region, macroregion, comparable area, ...
-municipality_point("280030")         # (lon, lat): Census 2022 population centre, or kind="seat"
+municipality_point("280030")         # (lon, lat): the Grade Estatística population centre, or kind="seat"
 distance_km("355030", "330455")      # 339.5 km, population centre to population centre
 mesh("state")                        # IBGE polygons (GeoDataFrame: code, geometry), "municipality" too; fetched once
 concept_index(["B58", "P37.1"], ["toxoplasm"])  # SINAN agravos holding the codes (counted), SIGTAP procedures
@@ -200,6 +201,12 @@ can_record("SIA-AN", "AP_PRIPAL", codes)  # whether a dataset's column can hold 
 load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12); table.schema.metadata[b"pegasus.series"]
                                      # says what it is: producer, vintage, reference date, years, method, with the documents
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
+grade_cells(municipality="2704302", resolution=1000)  # IBGE's Grade Estatística 2022: people and households per cell and
+                                     # municipality, summed into IBGE's 1-500 km cells (`pegasus-data grade` builds it)
+tract_population(municipality="2704302")  # Census 2022 residents per tract by sex and age band; IBGE's suppressed `X` is null
+climate_daily(["tmax", "precipitation"], municipality="2704302", start="2024-01-01", weight="population")
+                                     # CPTEC's SAMeT and MERGE by municipality and day, where people live (or weight="area");
+                                     # as_of="2024-03-01" gives the values as published by then; climate_weekly sums epi weeks
 query("FA-HUM", period=2017)         # a source off the FTP (curation/intake.yml, intake.py): yellow-fever cases, records in the lake;
                                      # its context fields (load_field("yellow_fever_human_cases")) are derived from them;
                                      # S2iD disasters ("S2ID-EVENTOS"), the school census ("INEP-EDBASICA") and ANS beneficiaries
@@ -229,7 +236,8 @@ age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardise
 - **Fields** are municipal context: the IBGE aggregates API (GDP, value
   added; Census sanitation, literacy and population by race), BR-DWGD climate
   by municipality-month and S2iD disaster events, built
-  with `pegasus-data fields --name gdp --years 2010-2021`.
+  with `pegasus-data fields --name gdp --years 2010-2021`. Daily weather (CPTEC's MERGE and SAMeT, 2000 to the day
+  before yesterday, by population or area, every vintage kept) is read with `pegasus-data climate-update`, daily.
 - **SIDRA**, IBGE's whole aggregates catalog (9,336 tables), through one interface: `pegasus-data sidra search esgoto --level N6`,
   `sidra show 6805`, `sidra fetch 6805 -p 2022 -c 11558=all`, then `Sidra().labelled(6805)` for the facts with labels and
   IBGE's marks as a status. Series across censuses (`Sidra().series("population_age_sex")`) keep both claims where tables overlap (ADR-0142).

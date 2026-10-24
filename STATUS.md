@@ -2,7 +2,7 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-10-04; the declarations section 2026-10-08.
+`DECISIONS.md`. Last rewritten 2026-10-04; the declarations section 2026-10-08; the population and climate section 2026-10-24.
 
 ## Where the project is
 
@@ -16,8 +16,9 @@ continues on branch **`linkage`**: record linkage across systems, planned in
 
 Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_core_data`
 (`%APPDATA%\pegasus-data\config.toml`). The seven other homes were adopted: 16.9 GB of downloads and 2.85 GB of
-registries moved, and none holds a blob the one home lacks. The emptied folders remain on disk because their deletion
-was refused by the session's permission check; the author deletes them:
+registries moved, and none holds a blob the one home lacks. The adopted folders remain on disk, not empty (2026-10-24:
+`~/pegasus_linkage` 9.4 GB of blobs and lake, `~/pegasus_fresh` 0.5 GB): they hold copies the one home also has and
+products it recomputes. Their deletion was refused by the session's permission check; the author deletes them:
 * `pegasus_project/pegasus_data_home`;
 * `~/pegasus_fresh`, `~/pegasus_fresh2` and `~/pegasus_fresh3`;
 * `~/pegasus_linkage`;
@@ -39,6 +40,25 @@ was refused by the session's permission check; the author deletes them:
 * **Stored link runs are stale.** Every stored link run went stale on 2026-10-23, because the role-table key hashes the
   whole label pack, so a CIH label fix re-keyed every dataset. The key is being narrowed to what a role table reads, and
   then the runs must be re-made.
+## Population support and daily climate (2026-10-24, ADR-0202, ADR-0203; gaps found by nees-gt-ms)
+
+- **Where people are.** IBGE's Grade Estatística 2022 is served (`pegasus-data grade`, `grade_cells`): 14.1 million
+  cells of 200 m / 1 km with people and households, each with its municipalities; it equals IBGE's published totals. It is
+  the one population weight: the points pack's population centre, the population-distance graph and the climate weights
+  read it (the tract points and the internal 5 km grid are gone). Its municipal sums are not counts (>1% off the census in
+  1,024 municipalities).
+- **Tracts.** The Census 2022 tracts are served as published (`census_tracts`, `tract_population`: sex × eleven age bands,
+  `X` null); suppression leaves 0.65% of residents out of the bands (102 municipalities short by more than 5%).
+- **Care flows by bed-days** (ADR-0201, landed before this work): SIH E10-E14 2023, 138,316 admissions and 941,694
+  bed-days, every nees-gt-ms figure reproduced and read again apart.
+- **Daily climate.** CPTEC's MERGE (precipitation) and SAMeT (Tmax, Tmin, Tmed), 2000 to the day before yesterday, by
+  municipality, weighted by population and by area from the grade, every file kept by vintage (`climate_daily`,
+  `climate_weekly`, `pegasus-data climate-update`). SAMeT rewrites a day about 7 days later with ERA5: only a daily
+  `climate-update` keeps the provisional values a backtest needs (nothing schedules it yet). BR-DWGD stays the source of
+  the yearly fields; nothing is spliced.
+- **Not done.** Humidity: ERA5-Land(-T) through the Copernicus CDS needs the author's account (`~/.cdsapirc`); Saldanha's
+  ERA5-Land municipal means on Zenodo (dew point, 1950-2025, yearly releases, no account) would give history only.
+  Per-cell climate (beyond municipal means) is not stored: the raw grids are 63 GB and the disk had 27 GB free.
 
 ## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
 

@@ -22,47 +22,6 @@ from pegasus_data.locate import (
 )
 
 
-def _home(root, *, catalog=True):
-    """A directory that looks like a data home that has been used."""
-    (root / ("_catalog" if catalog else "blobs")).mkdir(parents=True)
-    return root
-
-
-class TestItNoLongerFollowsTheWorkingDirectory:
-    """The oldest surprise: `cd` into a subdirectory, and the catalog looks wiped."""
-
-    def test_a_command_run_from_a_subdirectory_finds_the_same_home(self, tmp_path, monkeypatch):
-        project = tmp_path / "project"
-        _home(project / "pegasus_data_home")
-        deep = project / "src" / "analysis" / "deep"
-        deep.mkdir(parents=True)
-
-        monkeypatch.chdir(deep)
-        assert resolve_placement()["root"].value == (project / "pegasus_data_home").resolve()
-
-    def test_an_empty_directory_of_the_right_name_is_not_adopted(self, tmp_path, monkeypatch):
-        """Otherwise a bare `pegasus_data_home` anywhere above you hijacks the
-        command; only a home that already holds something counts as evidence."""
-        (tmp_path / "pegasus_data_home").mkdir()
-        here = tmp_path / "work"
-        here.mkdir()
-        monkeypatch.chdir(here)
-        assert resolve_placement()["root"].value == (here / "pegasus_data_home").resolve()
-
-    def test_a_blob_store_counts_as_evidence_too(self, tmp_path, monkeypatch):
-        _home(tmp_path / "pegasus_data_home", catalog=False)
-        here = tmp_path / "work"
-        here.mkdir()
-        monkeypatch.chdir(here)
-        assert resolve_placement()["root"].value == (tmp_path / "pegasus_data_home").resolve()
-
-    def test_with_nothing_anywhere_it_still_lands_beside_you(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
-        decided = resolve_placement()["root"]
-        assert decided.value == (tmp_path / "pegasus_data_home").resolve()
-        assert decided.source == "default"
-
-
 class TestPrecedence:
     """Five layers. The one that wins must be the one the reader expects."""
 

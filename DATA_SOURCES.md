@@ -945,7 +945,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (1.7 MB in 2000, 2.2 MB in 2026; zlib NetCDF4, CF-1.6, CDO), 2000-01-01 on; variables `tmax`/`tmin`/`tmed` (°C) and `nobs`
   (stations per point), 1001 × 1381 points, −83 to −33° E, −56 to 13° N, 0.05°, land only (54.5% of the points have no value); the
   2000-2024 files are dated 2022-06-01 and later (regenerated). Its Read-me: while ERA5 is not out (about 5 days) a day is made from
-  24-hour observations and model forecasts, and regenerated when ERA5 arrives. Neither product has humidity.
+  24-hour observations and model forecasts, and regenerated when ERA5 arrives. The index's times are UTC (equal to `Last-Modified`):
+  in October 2026 a TMAX day appeared at 03:06 the next day and was rewritten at 03:06 seven days later (TMAX of 10-15 at 10-22,
+  TMIN at 17:04 of the same day and six days later), sometimes once more (TMAX of 10-01 at 10-14); MERGE's days were written once,
+  at 02:38 the next day. Neither product has humidity.
 
 ## 11. Garbage codes: the GBD levels as a declared classification (measured 2026-10-14; ADR-0182)
 
