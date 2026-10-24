@@ -920,7 +920,8 @@ columns:
     - 2008
     - 2026
   AQ_TRANTE:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing: ['0']
+    # declared from the records (2026-10-24): the layout prints S and N only; 0 is on 47 % of 13.9 M rows (2023-2025) and 28 % of them give a previous treatment's diagnosis and date, against 92 % of S and 0.3 % of N, so it is the question left unanswered (variables/siasus/aq.yml)
     role: authorisation.previous_treatment
     kind: category
     model: mark

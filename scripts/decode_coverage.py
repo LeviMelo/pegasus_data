@@ -54,11 +54,19 @@ def measure(catalog: Catalog, family_id: str, r: dict) -> dict:
     parquet = pq.ParquetFile(lake / r["relative_path"])
     entry["rows"] = parquet.metadata.num_rows
     names = [n for n in parquet.schema_arrow.names if n.upper() in coded]
+    # an age unit is read with its age ("67 anos": the unit digit and the age form one IDADEDET code), so a batch
+    # holding a unit column also holds the age column; the age itself is a number, not a coded column
+    units = {x["column"].upper() for x in roles if x.get("role") in ("patient.age_unit", "care.age_unit_code")}
+    age = next((n for x in roles if x.get("role") == "patient.age" for n in parquet.schema_arrow.names
+                if n.upper() == x["column"].upper()), None)
     for i in range(0, len(names), GROUP):
-        raw = parquet.read(columns=names[i:i + GROUP])
+        batch = names[i:i + GROUP]
+        if age and age not in batch and units & {n.upper() for n in batch}:
+            batch = [*batch, age]
+        raw = parquet.read(columns=batch)
         rendered, rep = render_table(raw, store=catalog.store, lake_root=lake, system=system, family_id=family_id,
                                      year=int(r["year"]), registries=catalog.settings.registries_dir)
-        for name in raw.column_names:
+        for name in (n for n in raw.column_names if n.upper() in coded):
             codes = [None if v is None or not str(v).strip() else str(v).strip() for v in raw.column(name).to_pylist()]
             filled = Counter(v for v in codes if v is not None)
             if not filled or name in rep.constant:
@@ -70,7 +78,8 @@ def measure(catalog: Catalog, family_id: str, r: dict) -> dict:
                 bare = Counter({code: n for (code, lab), n in pairs.items() if code is not None and lab is None})
                 entry["columns"].append({"column": name.upper(), "state": "labelled", "table": rep.codelist_used.get(name),
                                          "share": round(1 - sum(bare.values()) / sum(filled.values()), 4),
-                                         "bare": bare.most_common(8),
+                                         "bare": bare.most_common(8), "bare_cells": sum(bare.values()),
+                                         "filled_cells": sum(filled.values()),
                                          "top": [f"{c}={lab}" for (c, lab), _ in pairs.most_common(6) if c is not None]})
                 continue
             words = sum(n for v, n in filled.items() if WORD.search(v)) / sum(filled.values())
@@ -83,10 +92,14 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=None)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--only", default=None, help="comma-separated datasets (SIM-DO) or family ids to measure; default all")
     args = ap.parse_args()
     catalog = Catalog(root=args.root)
+    only = {x.strip().upper() for x in args.only.split(",")} if args.only else None
     out = []
     for family_id, r in sorted(family_sample(catalog).items()):
+        if only and family_id.upper() not in only and f"{r['system']}-{r['series']}".upper() not in only:
+            continue
         try:
             out.append(measure(catalog, family_id, r))
         except Exception as e:  # noqa: BLE001 - a family that cannot be read is listed with why, not skipped

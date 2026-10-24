@@ -284,8 +284,8 @@ columns:
     - 2007
     - 2026
   CLINC_CHIK:
-    missing: []
-    # proposed from DATASUS's labels (2019-2023): no value labelled as not recorded
+    missing: ['0']
+    # DATASUS's Clinic_chi.cnv (DengueNETON3.0.def, 2026-10-24): 0-9 is "Ign/Branco/Não se aplica"; the 0 is the zero-fill of Espírito Santo's export (87,275 cells, 100 % of them)
     role: case.chik_presentation
     kind: category
     model: mark

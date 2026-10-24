@@ -110,3 +110,14 @@ is keyed by its system (CLAUDE.md §6), ADR-0079, ADR-0080, ADR-0085.
 - **SIA `PA_SRV_C`.** It is already service + classification and is bound to
   `S_CLASSEN`: "SERVICO DE DIAGNOSTICO POR IMAGEM / TOMOGRAFIA COMPUTADORIZADA
   (121003)".
+
+**Amended 2026-10-24: the 2008 edition no longer ends the ICD-10 table.**
+- **Why.** The table stopped at the 2008 edition plus 30 codes, and the SIM files of 2025 file the WHO updates since:
+  A97.0 to A97.9 (dengue, 2,024 deaths in `CAUSABAS`), R65.x, K64.9, C86.0 and the rest of 197 codes were bare in SIM, SIH and
+  CIHA, because the whole category was missing and the subcategory fallback has nothing to fall back to.
+- **The table.** `build_icd10.py` now adds, for the codes the 2008 edition lacks, DATASUS's own CID-10 v2019 tables
+  (`CNVS_CID10_v2019.rar`, `SIM/CID10/TAB/` on the FTP, published 2025-10-13): 216 codes and 20 filler forms (197 codes new to the table, 19 that the kit labels had abbreviated). A code the 2008
+  edition has keeps its 2008 label: the v2019 files reword 2,360 of them ("Septicemia" to "Sepse", some cut at a column
+  width), which is not a new meaning. The four WHO emergency codes keep their own source and their 2020 date. The code
+  trees are rebuilt from the same table; a category beyond the 2008 groups (B98, G14, K64, O93) hangs from its chapter.
+- **Checked** against WHO's ICD-10 2019 browser for A97, K64, C86 and R65: the same codes and meanings.
