@@ -173,6 +173,8 @@ variables:
       '
     code_system: internal
     codelist: GESTAO
+    codes: {D: Dupla}
+    notes: "D is declared from the predecessor's kit (2026-10-24). CIHA's own GESTAO.CNV (TAB_CIHA.zip) lists 0, 1/M, 2/E and 3 to 9 and the layout (Layout_Arquivos_CIHA.pdf) prints no codes; the files of 2011-2025 hold D on 11 to 15 % of the rows of each year (4,448,466 of 30,617,998 in 2025). The CIH kit (TAB_CIH.zip, GESTAO.CNV) lists \"Dupla = D\" beside E and M, and CIH and CIHA hold the same hospitals' admissions of 2011-01 to 2011-04: of the 836 hospitals in both, the management code of each is the same in the two (358 M, 249 D, 229 E; none differs), so D is the code the CIH kit names Dupla."
   HOMONIMO:
     official_name: Homônimo (campo reservado, vazio na CIHA)
     translated_name: Homonymous-patient flag (reserved, blank in CIHA)

@@ -360,14 +360,12 @@ columns:
     - 2026
   DIAGSEC9:
     role: admission.secondary_diagnosis_9
-    kind: code_tree
+    kind: text
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Diagnóstico secundário 9\" (admission.secondary_diagnosis_9): diagnosis or cause code: the health event"
     name: Diagnóstico secundário 9
-    codelists:
-    - ICD10
-    - S_CID
+    note: 'Not a decodable code (2026-10-24): the DBF header declares DIAGSEC9 C(1) in the signatures that carry it (e2f7244ae5, d7f8d30a4f: 4,592 and 457 files), where DIAGSEC1 to DIAGSEC8 are C(4) and the layout (IT_SIHSUS_1603) prints char (4). Every value the column holds is one letter (916 of 12.35 M rows in the 2025 files, 1,007 in the 324 files of 2014-2024; S, K, J, R, N, Z ...), the first character of a ninth secondary diagnosis: a letter names an ICD-10 chapter or several (A and B, C and D), not a code, so it is left as filed.'
     years:
     - 2014
     - 2026

@@ -99,9 +99,9 @@
     "icd10": {
       "file": "icd10.parquet",
       "tier": "A",
-      "bytes": 235851,
-      "sha256": "27e2419d13c9b51d45496c45434516e2f613fee43401ed84340e4105e6b00c02",
-      "rows": 16308
+      "bytes": 241024,
+      "sha256": "988dc92b0c49657c724f079644ff91a69ce71b4e331bacc8aa800bb7a37a82f0",
+      "rows": 16525
     },
     "municipality_points": {
       "file": "municipality_points.parquet",
@@ -127,9 +127,9 @@
     "code_trees": {
       "file": "code_trees.parquet",
       "tier": "A",
-      "bytes": 478986,
-      "sha256": "d77317d60fedbbc6f9240f2ebff3beec106f02808489273c85b281c6f679fdb6",
-      "rows": 26359
+      "bytes": 483142,
+      "sha256": "3dca53ebb71b3cf2bbb1a7205e292d854f5ab4c33c2cbe20e908f660522efd63",
+      "rows": 26553
     },
     "municipality_areas": {
       "file": "municipality_areas.parquet",

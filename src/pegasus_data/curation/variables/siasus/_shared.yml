@@ -931,12 +931,14 @@ variables:
       '
     codelists:
     - UFNACIO
+    codes: {'10': BRASIL}
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
+    notes: "'10' is declared 2026-10-24, and only it. The kit's UFNACIO.CNV (TAB_SIA.zip) holds 328 three-digit codes (010 BRASIL) and none of two digits; the APAC files hold 28,257 two-character values in 8.3 M rows of AD 2023-2025 (18 establishments), 28,064 of them '10'. Widths are matched exactly, so '10' is not padded to '010': it is declared because the same patients carry both spellings: of the 10,811 patients with a '10' row, 1,304 also appear with a three-character nationality in other APACs, and 1,301 of them (99.8 %) with '010' (3 with another country). The other two-character values (27, 45, 22, 43, 24, 23, 35 ...) stay undecoded: they also read as Brazilian state codes (21 to 29, 35, 41 to 43), and the 7 patients with '27' also carry 010."
   AP_UNISOL:
     official_name: Codigo CNES do Estabelecimento Solicitante
     translated_name: Requesting establishment's CNES code
@@ -1244,11 +1246,13 @@ variables:
       '
     codelists:
     - MANT_IND
+    codes: {U: Individual}
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
       appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+    notes: "U is declared 2026-10-24. The kit's MANT_IND.CNV (TAB_SIA.zip) lists M Mantida and I Individual; the RAAS-PS files hold M and U, never I (SIA-PS 2012-2025, 411 partitions: U on 1,628,539 rows of 22 establishments, M on 157,459,243 rows of 3,053). The layout calls the field \"Estabelecimento Mantido / Individual\" and CNPJMNT \"CNPJ da Mantenedora do Estabelecimento ou zeros, caso não a tenha\": every row of U has CNPJMNT blank or zeros, and all but 21,587 rows of M (0.01 %, 14 establishments in 2015-2016) a maintainer's CNPJ, so U is the establishment with no maintainer, the layout's Individual."
   MOT_COB:
     official_name: Motivo de Saída/Permanência
     translated_name: Reason for discharge/continuation

@@ -118,12 +118,13 @@ def icd10() -> list[dict]:
                 parent = next((ch for ch, a, b in chap if _within(code, a, b)), None)
         else:
             parent = code[:3]
-        valid_from = 202001 if r.get("source") == "who_update" else None
+        valid_from = 202001 if r.get("source") == "who_update" or code in WHO_UPDATE_CATEGORIES else None
         rows.append({"code": code, "label": r["label"], "level": level, "parent": parent, "valid_from": valid_from})
     # WHO's 2020 updates added subcategories (U07.1, U07.2, U09.9) whose categories the 2008 Brazilian
     # tables never held; without them the subcategories name a parent that is not a node, and COVID-19
     # deaths fall outside every chapter. The categories are WHO's (ICD-10 2019 edition, 2020-2021
-    # updates), in the Portuguese the Ministry uses for their subcategories.
+    # updates), in the Portuguese the Ministry uses for their subcategories. (Since 2026-10-24 the canonical table
+    # carries DATASUS's v2019 categories U07, U09 and U10 itself; these still date them 2020-01.)
     present = {r["code"] for r in rows}
     for r in list(rows):
         cat = r["parent"]

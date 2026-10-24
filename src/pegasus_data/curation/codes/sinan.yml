@@ -5134,8 +5134,12 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Doenças auto-imunes)
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary (DIC_DADOS_ONLINE, rev. 21/10/2015) prints 1 Sim and 2 Não. SINAN-CHIK 2014-2019: the
+        9 is on one row, of Espírito Santo (2026-10-24)'
     CEFALEIA:
       codes:
         '1': Sim
@@ -5198,7 +5202,11 @@ series:
         '1': Laboratório
         '2': Clínico Epidemiológico
         '3': Em investigação
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; SINAN-CHIK 2014-2019: the 2 cells of 0 are on notifications
+        of Espírito Santo, whose export writes 0 where the form was not answered (see SINAN-DENG SOROTIPO);
+        the kit''s confirmation tables (CONFDESC, CONFDESCDENG2011) list ",9" as Ign/Branco and not 0,
+        and the role has declared 0 not recorded (2026-10-24)'
     DDD_HOSP:
       type: text
       width: 2
@@ -5284,7 +5292,10 @@ series:
         '3': óbito por outras causas
         '4': óbito em investigação
         '9': ignorado
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the field to evodeng.cnv, whose Ign/Branco is "0,9"; the dictionary prints 1 to 4 and 9. SINAN-CHIK
+        2014-2019: the one cell of 0 is on a notification of Espírito Santo (2026-10-24)'
     EXANTEMA:
       codes:
         '1': Sim
@@ -5504,7 +5515,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the result to Resultado.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 to 4. SINAN-CHIK
+        2014-2019: every cell of 0 (RES_CHIKS1 67, RES_CHIKS2 193, RESUL_PRNT 199, RESUL_PCR_ 5) is on
+        a notification of Espírito Santo, whose export writes 0 where the form was not answered (see SINAN-DENG
+        SOROTIPO) (2026-10-24)'
     RESUL_PRNT:
       type: text
       width: 1
@@ -5514,7 +5530,12 @@ series:
         '2': Não Reagente
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the result to Resultado.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 to 4. SINAN-CHIK
+        2014-2019: every cell of 0 (RES_CHIKS1 67, RES_CHIKS2 193, RESUL_PRNT 199, RESUL_PCR_ 5) is on
+        a notification of Espírito Santo, whose export writes 0 where the form was not answered (see SINAN-DENG
+        SOROTIPO) (2026-10-24)'
     RESUL_SORO:
       type: text
       width: 1
@@ -5544,7 +5565,12 @@ series:
         '2': Não Reagente
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the result to Resultado.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 to 4. SINAN-CHIK
+        2014-2019: every cell of 0 (RES_CHIKS1 67, RES_CHIKS2 193, RESUL_PRNT 199, RESUL_PCR_ 5) is on
+        a notification of Espírito Santo, whose export writes 0 where the form was not answered (see SINAN-DENG
+        SOROTIPO) (2026-10-24)'
     RES_CHIKS2:
       type: text
       width: 1
@@ -5554,7 +5580,12 @@ series:
         '2': Não Reagente
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'chikungunya__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), ChikNON.def binds
+        the result to Resultado.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 to 4. SINAN-CHIK
+        2014-2019: every cell of 0 (RES_CHIKS1 67, RES_CHIKS2 193, RESUL_PRNT 199, RESUL_PCR_ 5) is on
+        a notification of Espírito Santo, whose export writes 0 where the form was not answered (see SINAN-DENG
+        SOROTIPO) (2026-10-24)'
     SOROTIPO:
       type: text
       width: 1
@@ -6320,62 +6351,147 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Doença ácido-péptica)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_ABDOM:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_HEMAT:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Aumento hematócrito)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_HEPAT:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Hepatomegalia)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_HIPOT:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Hipotensão)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_LETAR:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Letargia ou irritabilidade)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_LIQ:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Acúmulo de líquidos)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_PLAQ:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Queda abrupta de plaquetas)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_SANG:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Sangramento de mucosa/outras hemorragias)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ALRM_VOM:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue com sinais de alarme (Vômitos persistentes)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     ARTRALGIA:
       codes:
         '1': Sim
@@ -6392,8 +6508,12 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Doenças auto-imunes)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     CEFALEIA:
       codes:
         '1': Sim
@@ -6410,7 +6530,17 @@ series:
         '11': Dengue com sinais de alarme
         '12': Dengue grave
         '13': Chikungunya
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '8': Inconclusivo
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Classdeng.cnv: 1 to 4 the classifications of the NET form, 5 Descartado, 8 Inconclusivo,
+        10 to 12, and Ign/Branco ",0-9"; the dictionary (DIC_DADOS_ONLINE, rev. 21/10/2015) prints 5 and
+        10 to 13. SINAN-DENG 2018-2024: the 8 (1,447,939 rows, 542,641 of them in 2024) is neither the
+        discarded nor the confirmed. Of those tested in 2020, the 5 (Descartado) are positive in 1.8 %
+        (NS1), 1.5 % (IgM) and 0.6 % (PCR), the 10 in 71 %, 92 % and 77 %, and the 8 in 44 %, 50 % and
+        14 %; the 8 is closed (99.9 % have DT_ENCERRA) and carries no confirmation criterion in 93 % of
+        2024 (against none of the 10 and the 5), and SINAN-LEPT shows the same profile for the same code.
+        The 0 (8,678 cells) is on notifications of Espírito Santo alone, as in the fields below (2026-10-24)'
     CLINIC_CHIK:
       codes:
         '1': Aguda
@@ -6456,7 +6586,11 @@ series:
         '1': Laboratório
         '2': Clínico Epidemiológico
         '3': Em investigação
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; SINAN-DENG 2018-2024: the 3,872 cells of 0 are all on
+        notifications of Espírito Santo, whose export writes 0 where the form was not answered (see SOROTIPO);
+        the kit''s CONFDESCDENG2011.CNV lists ",9" as Ign/Branco and not 0, and the role has declared
+        0 not recorded (2026-10-24)'
     DDD_HOSP:
       type: text
       width: 2
@@ -6466,8 +6600,12 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Diabetes)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     DOR_COSTAS:
       codes:
         '1': Sim
@@ -6542,7 +6680,11 @@ series:
         '3': óbito por outras causas
         '4': óbito em investigação
         '9': ignorado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to evodeng.cnv, whose Ign/Branco is "0,9"; the dictionary prints 1 to 4 and 9. SINAN-DENG
+        2018-2024: the 13,549 cells of 0 are all on notifications of Espírito Santo (see SOROTIPO); in
+        2024 none of its 2,206 has a death date, while all 70 of that state coded 2 or 3 have one (2026-10-24)'
     EXANTEMA:
       codes:
         '1': Sim
@@ -6559,104 +6701,253 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (AST/ALT >1 .000)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_CONSC:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Alteração da consciência)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_CONV:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (PA convergente)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_ENCH:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Tempo de enchimento capilar)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_EXTRE:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Extremidade frias)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_HEMAT:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Hematêmese)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_HIPOT:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Hipotensão arterial em fase tardia)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_INSUF:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Acúmulo de líquidos com insuficiência respiratória)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_MELEN:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Melena)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_METRO:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Metrorragia volumosa)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_MIOC:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Miocardite)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
+    GRAV_ORGAO:
+      source_ref: 'TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds this sign ("Grave: Outros órgãos")
+        to Sim_nao.cnv: 1 Sim, 2 Não and Ign/Branco ",0-9"; the Sinan Online dictionary (DIC_DADOS_ONLINE,
+        rev. 21/10/2015) does not list the field. SINAN-DENG 2018-2024: every cell of 0 (294,587) and
+        of 9 (81) is on a notification of Espírito Santo alone (see ALRM_HIPOT); the 9 is Ignorado, as
+        in every SINAN form that defines it (2026-10-24)'
+      codes:
+        '1': Sim
+        '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
     GRAV_PULSO:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Pulso débil ou indectável)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_SANG:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Sangramento do SNC)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     GRAV_TAQUI:
       codes:
         '1': Sim
         '2': Não
+        '0': Ign/Branco
+        '9': Ignorado
       label: Dengue grave (Taquicardia)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the sign to Sim_nao.cnv, whose Ign/Branco is ",0-9" (every digit the table does not list); the
+        dictionary prints 1 Sim and 2 Não. SINAN-DENG 2018-2024: every cell of 0 and of 9 is on a notification
+        of Espírito Santo alone (ALRM_HIPOT 288,121 cells of 0, GRAV_PULSO 294,578), the state whose export
+        writes 0 where the form was not answered (see SOROTIPO): in 2024 the 134,177 zeros of ALRM_HIPOT
+        are all on cases classified 10, which are not asked for warning signs, while that state''s cases
+        classified 11 answer 1, 2 or 9, and the 136,819 zeros of GRAV_PULSO include none on a case classified
+        12. The 9 is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     HEMATOLOG:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Doenças hematológicas)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     HEPATOPAT:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Hepatopatias)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     HIPERTENSA:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Hipertensão arterial)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     HISTOPA_N:
       type: text
       width: 1
@@ -6666,7 +6957,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     HOSPITAL:
       type: text
       width: 8
@@ -6680,7 +6976,10 @@ series:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1, 2 and 9. SINAN-DENG
+        2018-2024: the 7 cells of 0 are all on notifications of Espírito Santo (see SOROTIPO) (2026-10-24)'
     ID_AGRAVO:
       codes:
         '1': Dengue
@@ -6701,7 +7000,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     LACO:
       codes:
         '1': Sim
@@ -6741,8 +7045,12 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       label: Doenças pré- existentes (Doença renal crônica)
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sim_nao.cnv, whose Ign/Branco is ",0-9"; the dictionary prints 1 Sim and 2 Não. SINAN-DENG
+        2018-2024: the 9 (DIABETES 242 cells, RENAL 229) is on notifications of Espírito Santo alone (see
+        ALRM_HIPOT); it is Ignorado, as in every SINAN form that defines it (2026-10-24)'
     RESUL_NS1:
       type: text
       width: 1
@@ -6752,7 +7060,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     RESUL_PCR_:
       type: text
       width: 1
@@ -6762,7 +7075,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     RESUL_PRNT:
       type: text
       width: 1
@@ -6782,7 +7100,12 @@ series:
         '2': Não Reagente
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     RESUL_VI_N:
       type: text
       width: 1
@@ -6792,7 +7115,12 @@ series:
         '2': Negativo
         '3': Inconclusivo
         '4': Não realizado
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the result to Resultado.cnv (Resultado3.cnv for HISTOPA_N), whose Ign/Branco is ",0-9"; the dictionary
+        prints 1 to 4. SINAN-DENG 2018-2024: every cell of 0 (HISTOPA_N 283,568, IMUNOH_N 283,663, RESUL_SORO
+        1,827, RESUL_NS1 946, RESUL_VI_N 293, RESUL_PCR_ 456) is on a notification of Espírito Santo,
+        whose export writes 0 where the form was not answered (see SOROTIPO) (2026-10-24)'
     RES_CHIKS1:
       type: text
       width: 1
@@ -6822,7 +7150,13 @@ series:
         '2': DEN 2
         '3': DEN 3
         '4': DEN 4
-      source_ref: dengue__DIC_DADOS_ONLINE.pdf
+        '0': Ign/Branco
+      source_ref: 'dengue__DIC_DADOS_ONLINE.pdf; TAB_SINANONLINE kit (DATASUS), DengueNETON3.0.def binds
+        the field to Sorodeng.cnv: DENV 1 to 4, and Ign/Branco "0-9"; the dictionary prints 1 to 4. SINAN-DENG
+        2018-2024 (13,460,004 rows): all 286,068 cells of 0 (131,058 in 2024) are on notifications of
+        Espírito Santo (SG_UF_NOT 32), none from the other 26 UFs, the state whose export writes 0 where
+        the form was not answered: its rows carry 0 in the other fields below, and its cases classified
+        10 have 0 in every alarm sign while its cases classified 11 and 12 answer 1, 2 or 9 (2026-10-24)'
     TEL_HOSP:
       type: text
       width: 9
@@ -7796,8 +8130,8 @@ series:
         '3': Óbito por esquistossomose
         '4': Óbito por outras causas
         '9': Ignorado
-        '1': Cura
         '2': Não cura
+        '1': Cura
       source_ref: 'esquistossomose__DIC_DADOS_Esquistossomose_v5.pdf; DIC_DADOS_Esquistossomose_v5 prints
         "1 – Cura 2, Não Cura" without a separator, read as one code; the records use 2 (2021: 65 of 1,646),
         so 2 is Não cura (2026-10-08)'
@@ -14191,7 +14525,12 @@ series:
       codes:
         '1': Confirmado
         '2': Descartado
-      source_ref: leptospirose__DIC_DADOS_Leptospirose_v5.pdf
+        '8': Inconclusivo
+      source_ref: 'leptospirose__DIC_DADOS_Leptospirose_v5.pdf; TAB_SINANNET kit (DATASUS), LeptoNET.def
+        binds the field to Classifi.cnv: 1 Confirmado, 2 Descartado, 8 Inconclusivo, and Ign/Branco ",0-9";
+        DIC_DADOS_Leptospirose_v5 campo 61 prints 1 and 2. SINAN-LEPT 2015-2024: the 6,439 rows of 8 are
+        all closed (DT_ENCERRA filled), carry no confirmation criterion in 97 % (against 2 % of the 1
+        and the 2), a positive result in 16.5 % (confirmed 43 %, discarded 1 %) and no death (2026-10-24)'
     CLI_CARDIA:
       type: text
       width: 1
@@ -14530,7 +14869,11 @@ series:
         '2': Não Reagente
         '3': Não Realizada
         '9': Ignorado
-      source_ref: leptospirose__DIC_DADOS_Leptospirose_v5.pdf
+        '4': Ign/Branco
+      source_ref: 'leptospirose__DIC_DADOS_Leptospirose_v5.pdf; TAB_SINANNET kit (DATASUS), LeptoNET.def
+        binds the result to Reage.cnv: 1 Reagente, 2 Não reagente, 3 Não realizado, and Ign/Branco ",0-9"
+        (every digit it does not list, so also 4); DIC_DADOS_Leptospirose_v5 campo 50 prints 1, 2, 3 and
+        9. The file of 2024 holds 4 on 130 and 269 rows of the two results (2026-10-24)'
     LAB_MICR_2:
       type: text
       width: 1
@@ -14540,7 +14883,11 @@ series:
         '2': Não Reagente
         '3': Não Realizada
         '9': Ignorado
-      source_ref: leptospirose__DIC_DADOS_Leptospirose_v5.pdf
+        '4': Ign/Branco
+      source_ref: 'leptospirose__DIC_DADOS_Leptospirose_v5.pdf; TAB_SINANNET kit (DATASUS), LeptoNET.def
+        binds the result to Reage.cnv: 1 Reagente, 2 Não reagente, 3 Não realizado, and Ign/Branco ",0-9"
+        (every digit it does not list, so also 4); DIC_DADOS_Leptospirose_v5 campo 50 prints 1, 2, 3 and
+        9. The file of 2024 holds 4 on 130 and 269 rows of the two results (2026-10-24)'
     MICRO1_S1:
       type: text
       width: 5
@@ -14804,7 +15151,11 @@ series:
         '2': Piora
         '9': Ignorado
       source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf; numerals of the list lost in the dictionary's
-        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24)
+        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24);
+        DIC_DADOS_DRT_LERDORT_v5 campo 54 prints the outcome during the leave as "Melhora Piora 9- Ignorado"
+        with the numerals of the first two lost from its text layer; the Dermatoses and PAIR dictionaries
+        print the same list "1- melhora 2- piora 9- ignorado", and the LERD 2025 file holds 1, 2 and 9
+        (2026-10-24)
     FLOGISTICO:
       type: text
       width: 1
@@ -15201,8 +15552,10 @@ series:
         '1': Melhora
         '2': Piora
         '9': Ignorado
-      source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf; numerals of the list lost in the dictionary's
-        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24)
+      source_ref: 'drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf; numerals of the list lost in the dictionary''s
+        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24);
+        as LER: the same dictionary, the same list, the numerals lost; the LERD 2025 file holds 1, 2 and
+        9 (2026-10-24)'
     FLOGISTICO:
       type: text
       width: 1
@@ -18080,13 +18433,18 @@ series:
       width: 1
       label: Reflexos Bicipital D
       codes:
+        '4': Aumentado
+        '9': Ignorado
         '1': Diminuído
         '2': Ausente
         '3': Normal
-        '4': Aumentado
-        '9': Ignorado
-      source_ref: tabsinan__PFAN_DIC_DADOS.pdf; the dictionary's list for this field repeats its numbering;
-        read as its siblings' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24)
+      source_ref: 'tabsinan__PFAN_DIC_DADOS.pdf; the dictionary''s list for this field repeats its numbering;
+        read as its siblings'' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24);
+        DIC_DADOS_PFA prints the right biceps reflex (campo 48) "1- Diminuído 1. Ausente 2. Normal 3.
+        Aumentado 9- Ignorado", numbering that repeats 1 and loses 4; the left biceps and the two triceps
+        print 1 Diminuído, 2 Ausente, 3 Normal, 4 Aumentado, 9 Ignorado, and the PFAN 2023 file holds
+        the same five codes for the right biceps as for the triceps (1: 89, 2: 39, 3: 243, 4: 6, 9: 161
+        against 88, 37, 250, 6, 163; 2026-10-24)'
     CLI_BICE_N:
       type: text
       width: 1
@@ -18579,13 +18937,18 @@ series:
       label: Sensibilidade MIE
       codes:
         '1': Diminuída
-        '2': Ausente
-        '3': Normal
         '4': Parestesia
         '5': Prejudicado
         '9': Ignorado
-      source_ref: tabsinan__PFAN_DIC_DADOS.pdf; the dictionary's list for this field repeats its numbering;
-        read as its siblings' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24)
+        '2': Ausente
+        '3': Normal
+      source_ref: 'tabsinan__PFAN_DIC_DADOS.pdf; the dictionary''s list for this field repeats its numbering;
+        read as its siblings'' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24);
+        DIC_DADOS_PFA prints the sensibility of the left lower limb at the revisit (campo 80) "1- Diminuída
+        2- Ausente 1- Normal 2- Parestesia 3- Prejudicado 9- Ignorado", numbering that repeats 1 and 2;
+        the right lower limb and both upper limbs print 1 Diminuída, 2 Ausente, 3 Normal, 4 Parestesia,
+        5 Prejudicado, 9 Ignorado, and the PFAN 2023 file holds codes 1 to 5 and 9 for it as for the right
+        lower limb (3: 416 against 419, 4: 7 against 6, 5: 7 against 9; 2026-10-24)'
     EVOR_S_MSD:
       type: text
       width: 1

@@ -34,6 +34,15 @@ variables:
     # The files mostly omit the blank: SIA-PS SP 2023-01 holds AO 15,221 times and
     # A O 7 times (ADR-0106). The label pack refuses codes with an inner blank, so the
     # kit's own A O is written here too.
-    codes: {"AO": "Alcool e Outras Drogas", "A O": "Alcool e Outras Drogas"}
+    # 2026-10-24: the letters A, C and O are the layout's (Informe Técnico 2019-07, RAAS-PS seq 38, CHAR (3):
+    # "A - Álcool, C - Crack, O - Outros"), and the field is a list of them: the files of 2012-2025 (411
+    # partitions, 37 M filled rows) also write the substances in another order, which the kit's table, fixed
+    # in the order A C O, does not list. Each is labelled with the substances in the order written (OA 10,767
+    # rows, OCA 8,523, CAO 5,948, CA 3,529, OC 1,448, AOC 602). Left undecoded: a letter written twice (AOO
+    # 19,164, OOO, OO, OCO, COO, OOC, CC, CCC), which the layout does not define, and N, NNN, 0, 206.
+    codes: {"AO": "Alcool e Outras Drogas", "A O": "Alcool e Outras Drogas",
+            "OA": "Outras Drogas e Alcool", "CA": "Crack e Alcool", "OC": "Outras Drogas e Crack",
+            "CAO": "Crack, Alcool e Outras Drogas", "OCA": "Outras Drogas, Crack e Alcool",
+            "AOC": "Alcool, Outras Drogas e Crack"}
     codelists:
     - TP_DROGA

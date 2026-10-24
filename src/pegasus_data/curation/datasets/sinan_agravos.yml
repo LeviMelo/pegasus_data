@@ -24,7 +24,10 @@ shared:
     evidence: >-
       NDUPLIC_N, "Não Listar/Não Contar (Duplicidade)": 0 'Não identificado', 1 'Não é duplicidade (não listar)', 2
       'Duplicidade (não contar)' (SINAN's codelist). The published files are mostly reviewed already: 6 rows of
-      tuberculosis 2022 (of 103,382) and 9 of meningitis 2022 (of 20,063) carry 2, dengue 2019 none.
+      tuberculosis 2022 (of 103,382) and 9 of meningitis 2022 (of 20,063) carry 2, dengue 2019 none. Dengue holds none
+      in 2018-2024 either (13,460,004 rows): NDUPLIC_N is blank on 13,294,976, 1 on 19,277, 0 on 145,714 (the zero-fill of
+      Espírito Santo's rows, 8,726 in 2021 and 136,988 in 2024) and "/" on 37, never 2, so for SINAN-DENG this rule removes
+      nothing (measured 2026-10-24 on the held years; a consumer project's audit reported the same for 2010-2026).
   # what a row becomes when counted: a notification, in every agravo (the header above); an agravo declares its
   # own `case` or `probable_case` only from its own form's classification codes
   event_types:

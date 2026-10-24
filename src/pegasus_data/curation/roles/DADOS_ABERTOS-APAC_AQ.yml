@@ -954,6 +954,7 @@ columns:
     - 
     note: As in SIASUS-AQ (the same file republished).
   AQ_TRANTE:
+    missing: ['0']
     role: authorisation.previous_treatment
     kind: category
     model: mark

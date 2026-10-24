@@ -1571,6 +1571,8 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_ONLINE.pdf, campo 64 (Apresentação clínica Chikungunya)
+    codes: {'1': Aguda, '2': Crônica, '0': Ign/Branco/Não se aplica}
+    notes: "0 is declared 2026-10-24 from the kit: Clinic_chi.cnv (TAB_SINANONLINE, included 2016-04-07) lists 1 Aguda, 2 Crônica and \"Ign/Branco/Não se aplica\" for 0-9, and DengueNETON3.0.def binds it to this field. In SINAN-DENG 2018-2024 the 87,275 cells of 0 are all on notifications of Espírito Santo (2021 and 2024), whose export writes 0 where the form was not answered."
   CLI_ANEMIA:
     official_name: Anemia
     translated_name: Clinical sign — anemia

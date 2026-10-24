@@ -178,11 +178,16 @@ variables:
       '
     code_system: internal
     source: def
-    source_ref: ESTADIAMENTO.CNV
+    source_ref: 'ESTADIAMENTO.CNV (PAINEL_ONCOLOGIA.zip, Auxiliar) prints the stages as the digits 0 to 4 and
+      the label pack keeps only 5 Não se Aplica and 9 Ignorado; Dicionario_Painel_Oncologia.pdf (painel_oncologia/Doc)
+      seq 15 estadiam CHAR(1) prints "0 - 0, 1 - I, 2 - II, 3 - III, 4 - IV, 5 - Não se aplica, 9 - Ignorado"
+      (declared 2026-10-24: 147,184 cells of the 2025 file, 0 to 4, were left without a label)'
     reasoning: 'Bound to ESTADIAMENTO, whose values are 0 through 4 plus não se aplica
       and ignorado.
 
       '
+    codelist: ESTADIAMENTO
+    codes: {'0': Estádio 0, '1': Estádio I, '2': Estádio II, '3': Estádio III, '4': Estádio IV}
   IDADE:
     official_name: Idade
     translated_name: Age

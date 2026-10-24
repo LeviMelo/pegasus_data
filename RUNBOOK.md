@@ -38,7 +38,7 @@ $PY scripts/live.py --show <run-id>
 - Establishment, team and CNPJ names (the registry tables) are built, never fetched by a read (ADR-0176):
   `$PD registries build CNES [--refresh]` (SIH's names need CNES's kit, 127 MB, once; `SIASUS` for `INE_EQUIPE`).
   Without it a `load`/`query` leaves those labels null and says this command in one warning.
-- Decode coverage on records: `$PY scripts/decode_coverage.py --root HOME --out x.json` renders each lake family's latest partition and counts its coded columns (labelled, words as filed, bare). A dataset the root does not hold is measured on one small file
+- Decode coverage on records: `$PY scripts/decode_coverage.py --root HOME --out x.json` renders each lake family's latest partition whole, eight coded columns at a time (`--only SIM-DO,SIHSUS-RD` restricts it), and counts its coded columns (labelled, words as filed, bare, with the codes left bare and their cells). A dataset the root does not hold is measured on one small file
   landed into a scratch home, `$PD build --root HOME --family F --uf UF --years Y --limit 1` (a few hundred KB each; 111 datasets, 355 MB, 2026-10-24), and `$PD curate --root HOME` after a curation edit.
 - The live home is `~/pegasus_live/home` (override: `PEGASUS_LIVE_HOME`),
   deliberately outside the repository.
@@ -112,6 +112,7 @@ $PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,020203087
 | an aggregate artifact as an Excel workbook | `pegasus-data workbook sih_rd_municipality_month --out book.xlsx` | each sheet its own aggregation; stocks reduced by their declared rule |
 | proximity graphs | `python -c "from pegasus_data.proximity import build_proximity_graphs, build_regic; ..."` with the cached IBGE sources under `registries/ibge_points/` and `registries/regic/` | 75 s; contiguity, population distance, areas, then REGIC links and cities |
 | care-flow graph and its products | `pegasus-data graph SIH-RD --period 2022 --root <home> [--to establishment] [--by COMPLEX] [--measure admission.length_of_stay] [--derive profile\|catchments\|communities\|regions] [--resolution 4] [--against health_region_current] --out x.parquet` (`pip install pegasus-data[network]` for communities and regions) | national year: a few minutes after the files are cached; run `BR`, not a state (SIH files are by hospital state). `--measure ROLE` (repeatable; a role of `pegasus-data roles`, never a column) adds `<role>_n` and `<role>_sum` to each edge (ADR-0201); Acre 2023 in 14 s |
+| the canonical ICD-10 table | `python scripts/build_icd10.py [catalog]` | seconds; reads `sources/cid10csv_v2008.zip` and `sources/cnvs_cid10_v2019/` (`CNVS_CID10_v2019.rar` from `SIM/CID10/TAB/`, extracted), the catalog for the kit codes it carries, and refreshes its manifest entry; then `build_code_structures.py` (ADR-0087) |
 | code trees, concept lists and ICD-10 attributes | `python scripts/build_code_structures.py` | after the ICD-10, SIGTAP, CBO and CNAE tables and the label pack; then `build_resources.py` registers the files |
 | the canonical CNAE 2.0 table | `python scripts/build_cnae.py` | seconds; IBGE API responses cached in `sources/ibge_cnae/` (ADR-0087) |
 | the label pack | `labelpack` (`--carry-from <old pack>` when the default, the shipped pack, is not the last good one) | after `semantics`; keeps windows the catalog lacks (ADR-0095) |

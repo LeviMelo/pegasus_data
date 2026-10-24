@@ -245,3 +245,5 @@ variables:
     code_system: internal
     codelists:
     - TRA_ANTE
+    codes: {'0': Não informado}
+    notes: "0 is declared 2026-10-24. The layout (Informe Técnico 2019-07, AQ_TRANTE CHAR (1)) prints \"S = Sim; N = Não\" and the kit's TRA_ANTE.CNV S, N and blank (\"Não foi informado\"), but the chemotherapy APAC files of 2023-2025 (81 partitions, 14 M rows) hold 0 on 6,562,619 rows, 47 %, in all three years and all APAC types, and 157 of the 338 establishments write it on every row. It is no answer: 28 % of its rows give the first previous treatment's diagnosis and date (AQ_CIDINI1, AQ_DTINI1), against 92 % of the S and 0.3 % of the N, so it is neither a No nor a Yes (0 hides both) but the question left unanswered."
