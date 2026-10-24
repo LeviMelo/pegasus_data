@@ -392,7 +392,13 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     con = duckdb.connect(":memory:")
     work = Path(settings.work_dir) / "duckdb"
     work.mkdir(parents=True, exist_ok=True)
-    con.execute("SET memory_limit='2GB'")
+    # a decode slot's share of the machine (`decode.admission`: total RAM over the slots), not a fixed 2 GB: SRAG's ~190
+    # columns of text ran out of memory re-landing a year under 2 GB (the parquet writer's buffers do not spill, 2026-10-24)
+    import psutil
+
+    from .decode.admission import slot_count
+
+    con.execute(f"SET memory_limit='{max(2, psutil.virtual_memory().total // slot_count() // 2**30)}GB'")
     con.execute("SET threads=4")
     con.execute("SET preserve_insertion_order=false")
     con.execute(f"SET temp_directory='{work.as_posix()}'")

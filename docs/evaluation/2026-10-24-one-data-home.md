@@ -58,6 +58,21 @@ SINAN `PRELIM` and Dados Abertos dengue. That is 23,392 files in 6 s, with 119 n
   * SIH-RD 2015 and 2020–2026: 2,455 held, 29 never fetched.
   * SINAN dengue: 16 held, 1 republished, 10 never fetched.
 
+## Population series in the one home
+
+PegaSUS had read its population series from the repository home (`PEGASUS_POPULATION_ROOT`). They were rebuilt in the
+one home with `pegasus-data population`, at a cost of 168 IBGE files and 257 MB fetched in 8 min. Their blobs had been
+pruned from the repository home after its lake was built, so they were held nowhere.
+
+The rebuilt series match the old ones exactly (`load_population`, by municipality and year):
+
+| series and year | rows | population |
+|---|---|---|
+| POPSVS 2010 | 902,340 | 194,749,329 |
+| POPSVS 2022 | 902,340 | 210,862,983 |
+| POPTCU 2015 | 5,570 | 204,482,459 |
+| POP 2005 | 367,224 | 184,184,074 |
+
 **Not done here.** Deleting the stray folders was refused by the session's permission check and is left to the author
 (STATUS). The other project's own copies of records (`data/raw`, 225 MB; its DuckDB, 908 MB) belong to that project
 and were not touched.
