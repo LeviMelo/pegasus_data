@@ -850,7 +850,8 @@ def _file_relation(path: Path, origin: dict[str, Any], unit: dict[str, Any]) -> 
             f"encoding='{encoding}', null_padding=true{', parallel=false' if csv.get('multiline') else ''})"), extracted
 
 
-def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], refresh: bool) -> dict[str, Any]:
+def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], refresh: bool,
+               fetch: bool = True) -> dict[str, Any]:
     root = settings.root
     unit["fingerprint"] = _fingerprint(spec, unit)
     side = _sidecar(source, root, unit["key"])
@@ -858,6 +859,14 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         known = json.loads(side.read_text(encoding="utf8"))
         if _current(side, known, spec, unit):
             return {**known["stats"], "cached": True}
+    if not refresh:
+        # a unit the declaration now reads differently, whose records are in the lake with every value as filed: derived
+        # again from them, nothing downloaded (SNGPC's 94 months and SISAGUA's control files after the month fix, 2026-10-24)
+        held = _held_records(settings, spec, unit)
+        if held is not None:
+            return _reland(settings, source, spec, unit, side, held)
+    if not fetch:
+        return {"not_held": True, "url": unit["url"]}
     origin = _origin(spec)
     raw = download(unit["url"], _cache(source, root, "raw", _safe(unit["key"]) + "." + unit["extension"]))
     extracted = None
@@ -908,6 +917,62 @@ def _land_unit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str,
         for path in (extracted, None if origin.get("keep") else raw):
             if path is not None and path.is_file():
                 path.unlink()
+    side.parent.mkdir(parents=True, exist_ok=True)
+    side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
+    return stats
+
+
+def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> tuple[list[str], str, int, list[str]] | None:
+    """The unit's records in the lake, when they can stand for its file: every part read from the unit's own path on one
+    day, holding every declared column's value as filed (the column itself, or its `__RAW` beside a typed or rewritten
+    one). Returns (parts, read day, rows, the columns as filed), else None: a unit landed from another file, before a column
+    was declared, or never landed is read from the source."""
+    import duckdb
+
+    system, series = str(spec["system"]), str(spec["series"])
+    parts = sorted(str(f) for f in Path(settings.lake_dir).glob(
+        f"*/{_safe(system.upper())}_{_safe(series.upper())}_*/schema_signature=*/uf=*/year=*/part-{_safe(unit['key'])}-*.parquet"))
+    if not parts:
+        return None
+    con = duckdb.connect(":memory:")
+    try:
+        con.execute("SET memory_limit='1GB'")
+        relation = f"read_parquet({parts!r}, hive_partitioning=false, union_by_name=true)"
+        names = [r[0] for r in con.execute(f"DESCRIBE SELECT * FROM {relation}").fetchall()]
+        if "_SOURCE_PATH" not in names or "_READ_ON" not in names:
+            return None
+        found = con.execute(f"SELECT DISTINCT _SOURCE_PATH, _READ_ON FROM {relation}").fetchall()
+        if len(found) != 1 or found[0][0] != unit["path"]:
+            return None
+        rows = con.execute(f"SELECT count(*) FROM {relation}").fetchone()[0]
+    finally:
+        con.close()
+    filed = [n for n in names if not n.startswith("_") and not n.endswith(("__RAW", "__FLAG"))]
+    declared = [c.upper() for c, d in (spec.get("columns") or {}).items() if not (d or {}).get("optional")]
+    if any(c not in filed for c in declared):
+        return None
+    return parts, str(found[0][1]), int(rows), [f"{n}__RAW" if f"{n}__RAW" in names else n for n in filed]
+
+
+def _reland(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], side: Path,
+            held: tuple[list[str], str, int, list[str]]) -> dict[str, Any]:
+    """Land a unit again from its own records (`_held_records`): their values as filed, under their own names, through the
+    declaration as it stands, replacing the unit's parts (`_land`) only when every record came back."""
+    parts, read_on, rows, columns = held
+    con = _duck(settings, spec)
+    copy = Path(settings.work_dir) / "intake" / f"reland-{_safe(source)}-{_safe(unit['key'])}.parquet"
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        # copied out first: the swap removes the parts this read would otherwise still hold open
+        select = ", ".join(f"{_ident(c)} AS {_ident(c.removesuffix('__RAW'))}" for c in columns)
+        con.execute(f"COPY (SELECT {select} FROM read_parquet({parts!r}, hive_partitioning=false, union_by_name=true)) "
+                    f"TO '{copy.as_posix()}' (FORMAT parquet)")
+        stats = _land(settings, source, spec, unit, con, f"read_parquet('{copy.as_posix()}')", read_on, sidecar=side,
+                      expect_rows=rows)
+    finally:
+        con.close()
+        copy.unlink(missing_ok=True)
+    stats["relanded_from_lake"] = True
     side.parent.mkdir(parents=True, exist_ok=True)
     side.write_text(json.dumps({"fingerprint": unit["fingerprint"], "stats": stats}), encoding="utf8")
     return stats
@@ -1178,9 +1243,12 @@ def _write_field(spec: dict[str, Any], settings: Any, name: str, fs: dict[str, A
     return {"rows": n, "total": sum(by_year.values()), "by_year": dict(sorted(by_year.items()))}
 
 
-def build_source(settings: Any, source: str, names: list[str] | None = None, years: list[int] | None = None, refresh: bool = False) -> dict[str, Any]:
+def build_source(settings: Any, source: str, names: list[str] | None = None, years: list[int] | None = None, refresh: bool = False,
+                 fetch: bool = True) -> dict[str, Any]:
     """Land a declared source's records in the lake and derive its fields from them. Returns, per field, its rows, total and
-    totals by year, and under ``units`` what each file or API unit held and what was left out of the fields and why."""
+    totals by year, and under ``units`` what each file or API unit held and what was left out of the fields and why.
+    ``fetch=False`` downloads nothing: units whose records the lake holds are derived again where the declaration changed,
+    the others are reported ``not_held``."""
     spec = declared_sources()[source]
     fields = [f for f in spec.get("fields") or {} if not names or f in names]
     report: dict[str, Any] = {"units": {}}
@@ -1190,7 +1258,7 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         absent: dict[str, SourceAbsent] = {}
         for unit in _units(spec, years):
             try:
-                report["units"][unit["key"]] = _land_unit(settings, source, spec, unit, refresh)
+                report["units"][unit["key"]] = _land_unit(settings, source, spec, unit, refresh, fetch)
             except SourceAbsent as exc:            # a month not yet published: a recorded gap, not the end of the build
                 absent[unit["key"]] = exc
                 report["units"][unit["key"]] = {"absent": exc.status, "url": exc.url}
