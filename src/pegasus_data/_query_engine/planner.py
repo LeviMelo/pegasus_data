@@ -65,7 +65,7 @@ def plan(
     with shared_catalog(resolved) as catalog:
         capabilities = _coverage(
             resolved, catalog, system, series, years=spec.period.years if spec.period else (),
-            geography=spec.geography,
+            geography=spec.geography, period=spec.period,
         )
     resolution = capabilities.resolution
     has_uf_axis = capabilities.physical_uf
@@ -77,9 +77,7 @@ def plan(
     if spec.period and spec.period.precision == "month":
         resolutions = dict(capabilities.year_resolutions)
         for year in years:
-            lo = spec.period.start % 100 if year == spec.period.start // 100 else 1
-            hi = spec.period.end % 100 if year == spec.period.end // 100 else 12
-            pushed = tuple(range(lo, hi + 1)) if resolutions.get(year) == "month" else ()
+            pushed = spec.period.months_in(year) if resolutions.get(year) == "month" else ()
             year_months.append((year, pushed))
         months = tuple(sorted({month for _year, values in year_months for month in values}))
         annual_enclosure = resolution in {"year", "mixed"} or any(
@@ -97,6 +95,13 @@ def plan(
                     f"requested {spec.period}; source supports annual resolution only"
                 )
             adaptations.append(adaptation)
+    for year, absent in capabilities.unpublished:
+        # a month the source files nothing for: the files of the others are read, and nothing comes back for it (before
+        # monthly intake units there was nothing to say, the year was read whole and the empty month hidden in it)
+        adaptations.append(Adaptation(
+            "publication", ", ".join(f"{year}-{month:02d}" for month in absent), "none",
+            "the source files no publication for these months; the table holds nothing for them",
+        ))
     physical_uf = spec.geography.ufs if spec.geography and has_uf_axis else ()
     if capabilities.national_ufs:
         physical_uf = capabilities.national_ufs
@@ -176,6 +181,7 @@ def plan(
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
             tuple(year_months), estimate[0], estimate[1], capabilities.year_geography, capabilities.lake_partitions,
+            capabilities.lake_competence,
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

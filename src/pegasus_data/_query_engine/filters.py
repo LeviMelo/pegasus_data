@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 import pyarrow as pa
@@ -37,14 +37,19 @@ def _per_path(paths: pa.ChunkedArray | pa.Array, values: dict[str, Any], default
     return pc.fill_null(taken, pa.scalar(default, kind))
 
 
-def _with_competence(table: pa.Table, source_report: Any) -> pa.Table:
+def _with_competence(table: pa.Table, source_report: Any, stored_by_source: Mapping[str, int] | None = None) -> pa.Table:
+    """The table with the competence, year and resolution of its records' sources, for what does not store them.
+
+    ``source_report.source_facts`` (a fetch) say them per source; ``stored_by_source`` (the plan's ``lake_competence``) gives
+    the competence of the lake files built from one publication of a month, which the records of an intake unit do not carry.
+    """
     if "_source_path" not in table.column_names:
         return table
     facts = getattr(source_report, "source_facts", {}) or {}
     resolutions = getattr(source_report, "source_resolutions", {}) or {}
     paths = table["_source_path"]
     if "_competencia" not in table.column_names:
-        competence = {path: fact[2] for path, fact in facts.items()}
+        competence = {**(stored_by_source or {}), **{path: fact[2] for path, fact in facts.items()}}
         table = table.append_column("_competencia", _per_path(paths, competence, None, pa.int32()))
     if "year" not in table.column_names:
         year = {path: fact[1] for path, fact in facts.items()}

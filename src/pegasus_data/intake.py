@@ -10,7 +10,8 @@ does everything else, so a source adds no code:
   integer, year), the typed value under that name and the raw one beside it as ``<NAME>__RAW``. The conversion is streamed
   by DuckDB (``read_csv(..., all_varchar=true)`` into zstd Parquet; a zip member is extracted to a temporary file, never
   held in memory) and the file is deleted after it. The dataset is registered in the catalog as a family with one
-  publication per file and year, the ontology folds in its system and series, and the curation loader folds in its column
+  publication per file and year (a file filed by month, a ``months:`` pattern, is the publication of its month), the
+  ontology folds in its system and series, and the curation loader folds in its column
   documentation (``semantics.curation``), so ``query("FA-HUM")`` and ``info()`` serve it like any FTP dataset. Where a source
   is itself an aggregate (a DEMAS endpoint that serves counts) the aggregate is the record.
 * **Fields second.** The context fields (``fields:`` of the declaration) are sums and counts by place and period *derived
@@ -51,10 +52,11 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+from .persist.lake import SLICE
 from .textenc import fold
 from .transport import SourceAbsent, download, get_json
 
-__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "land_snapshot", "read_slice", "rows_of", "url"]
+__all__ = ["api_rows", "build_source", "check_source", "declared_sources", "land_snapshot", "read_slice", "register_periods", "rows_of", "url"]
 
 #: Pages of an API read landed together as one unit.
 PIECE_PAGES = 50
@@ -642,17 +644,66 @@ def _commit(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, An
     return parts
 
 
+def _dated(unit: dict[str, Any], year: int) -> tuple[str, str, int]:
+    """``(date_code, date_format, normalized_date)`` of the publication of ``unit`` for the records of ``year``: the unit's
+    own month (``YYYYMM``) when it is filed by month (a ``months`` pattern, `_units`) and ``year`` is the year of that
+    month; else the year (``YYYY``, normalised ``year * 100``).
+
+    A publication is dated by the period its file is filed for, which is what the planner selects by (its resolution, the
+    part files a month's query opens), never read back from the records' own month column. Records of a monthly unit dated
+    in another year are a publication of that year, at year resolution, so a month's query does not serve them."""
+    month = int(unit.get("month") or 0)
+    if month and month // 100 == year:
+        return str(month), "YYYYMM", month
+    return str(year), "YYYY", year * 100
+
+
+def register_periods(settings: Any, source: str | None = None, *, dry_run: bool = False) -> dict[str, Any]:
+    """Date the catalog's publications of the declared file sources by their units' periods (`_dated`), landing nothing.
+
+    A unit is dated when it is registered (`_register`); the units registered before a month was one of its facts are dated
+    here, from the declaration, and the lake is not touched: one UPDATE of ``file_facts`` per publication whose date differs.
+    Idempotent, and it goes both ways (a source declared by months again by years is dated by year again). ``dry_run`` counts.
+    Returns, per source, the publications read and the ones dated differently."""
+    from .catalog.store import CatalogStore
+
+    out: dict[str, Any] = {}
+    store = CatalogStore(settings.catalog_path)
+    try:
+        with store.write() as conn:
+            for name, spec in declared_sources().items():
+                if (source and name != source) or _origin(spec)["kind"] != "files":
+                    continue
+                read, changed = 0, 0
+                for unit in _units(spec, None):
+                    prefix = f"{unit['path']}{SLICE}"
+                    for path, year, date in conn.execute("SELECT path, year, normalized_date FROM file_facts WHERE grammar='intake' "
+                                                         "AND path >= ? AND path < ?", (prefix, prefix + "\x7f")).fetchall():
+                        read += 1
+                        code, form, dated = _dated(unit, int(year))
+                        if dated != date:
+                            changed += 1
+                            if not dry_run:
+                                conn.execute("UPDATE file_facts SET date_code=?, date_format=?, normalized_date=? WHERE path=?",
+                                             (code, form, dated, path))
+                out[name] = {"publications": read, "dated": changed}
+    finally:
+        store.close()
+    return out
+
+
 def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any], key: str, family: str, signature: str,
               names: list[str], parts: list[Path], lake_root: Path) -> None:
     """Catalog rows that make the lake records a dataset ``query`` plans over: the family, one publication (file facts) per
-    unit and record year, and the lake partitions that cover it. Replaces the unit: its partitions and publications in every
-    family of (system, series) go first, a family left with no partition is dropped, and the dataset's family list is recomputed."""
+    unit and record year, dated by the unit's period (`_dated`), and the lake partitions that cover it. Replaces
+    the unit: its partitions and publications in every family of (system, series) go first, a family left with no partition
+    is dropped, and the dataset's family list is recomputed."""
     from .catalog.store import CatalogStore, utcnow
 
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
     now = utcnow()
     mine = re.compile(rf"^part-{re.escape(key)}-\d+\.parquet$")
-    prefix = f"{unit['path']}#year="
+    prefix = f"{unit['path']}{SLICE}"
     by_year: dict[int, list[Path]] = {}
     for part in parts:
         by_year.setdefault(int(part.parent.name.split("=")[1]), []).append(part)
@@ -683,10 +734,10 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
                                  "listing_method, change_signal, first_seen, last_seen, gone_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,NULL)",
                                  (path, path, unit["path"].rsplit("/", 1)[0], path.rsplit("/", 1)[-1],
                                   unit.get("extension", ""), int(unit.get("size") or 0), unit.get("modified"), "intake", "size", now, now))
+                    code, form, dated = _dated(unit, year)
                     conn.execute("INSERT OR REPLACE INTO file_facts (path, system, series_prefix, geo_code, date_code, date_format, "
                                  "normalized_date, year, grammar, container_format, role, logical_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                                 (path, system, series, "BR", str(year), "YYYY", year * 100, year, "intake",
-                                  unit.get("extension", ""), "data", path))
+                                 (path, system, series, "BR", code, form, dated, year, "intake", unit.get("extension", ""), "data", path))
                     conn.execute("INSERT OR REPLACE INTO family_files (family_id, path, member) VALUES (?,?,?)", (family, path, ""))
                 for part in files:
                     conn.execute(
@@ -734,7 +785,12 @@ def _span(text: Any) -> list[int]:
 
 
 def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]]:
-    """The pieces a files origin is read in: each file (with the year it stands for, when the declaration states one)."""
+    """The pieces a files origin is read in: each file (with the year it stands for, when the declaration states one).
+
+    A pattern declared by ``months`` files its units by month: a unit carries its ``month`` (YYYYMM), the period of the
+    publication it is (`_register`). A pattern declared by ``years``, and a listed file, are filed by year or not dated: no
+    ``month``, whatever month column their records hold.
+    """
     origin = _origin(spec)
     out: list[dict[str, Any]] = []
     for entry in origin.get("files") or []:
@@ -750,7 +806,8 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
             for combination in itertools.product(*across.values()):
                 axes = dict(zip(across, map(str, combination), strict=True))
                 out.append({"key": "-".join([str(period), *axes.values()]),
-                            "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}", **axes), "year": year})
+                            "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}", **axes), "year": year,
+                            "month": None if origin.get("years") else period})
     for unit in out:
         unit["path"] = unit["url"]
         unit["extension"] = unit.get("extension") or Path(urlsplit(unit["url"]).path).suffix.lstrip(".").lower()

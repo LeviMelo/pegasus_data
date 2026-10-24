@@ -278,7 +278,7 @@ def query(
                 report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
                 partitions=retrieval.lake_partitions, condition=prepared, _condition_state=True,
             )
-            tables.append(_with_competence(local_table, local_report))
+            tables.append(_with_competence(local_table, local_report, dict(retrieval.lake_competence)))
             source_reports.append(local_report)
         finally:
             cat.close()
