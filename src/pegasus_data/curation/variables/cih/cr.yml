@@ -116,7 +116,14 @@ variables:
       Óbito com...").
 
       '
-    notes: "Do not read COBRANCA as a charge amount or fee code because of its name - it is a discharge-reason classification. The successor CIHA01 layout (2011+) renamed this same concept CO_MOTIVO_SAIDA, which is a clearer name for the same information. Decoded 2026-10-23 for the 2011 files (the kit's window now covers the months DATASUS filed in its folder). Codes 61 and 62 (1,606 and 71 of the first 20,000 rows of the 2011 file) are in no CIH table, and nothing in the CIH layout (FQA CIH 180610.doc, field 15 \"Motivo da cobrança\", no list) says CIH shares SIH's Motivo de saída/permanência, which lists them: they stay undecoded, visibly."
+    codes:
+      '61': Alta da mãe/puérpera e do recém-nascido
+      '62': Alta da mãe/puérpera e permanência recém-nascido
+      '63': Alta da mãe/puérpera e óbito do recém-nascido
+      '64': Alta da mãe/puérpera com óbito fetal
+      '66': Óbito da mãe/puérpera e alta do recém-nascido
+      '67': Óbito da mãe/puérpera e permanência recém-nascido
+    notes: "Do not read COBRANCA as a charge amount or fee code because of its name - it is a discharge-reason classification. The successor CIHA01 layout (2011+) renamed this same concept CO_MOTIVO_SAIDA, which is a clearer name for the same information. Decoded 2026-10-23 for the 2011 files (the kit's window now covers the months DATASUS filed in its folder). Codes 61 to 67 are in no CIH table (the kit's SAIDAPERM.CNV stops at 51) and are declared above from the successor kit, 2026-10-24: the CIHA kit (TAB_CIHA.zip, CIHA.def line \"Motivo Saída/Permanência, COBRANCA\") lists them in SAIDAPERM.CNV and folds the CIH codes 17 and 13 into 61 and 62 (raw values \"61,17\" and \"62,13\"); SIH's kit does the same. Checked on the CIH files: 17 ends and 61 begins at competence 2010-10, 13 and 62 likewise; the 86,647 rows of 61 are 100 % female, 98.7 % with an obstetric main diagnosis (O, Z37-Z39), median age 29, and 63, 64, 66 and 67 the same; of the 128,012 admissions of 2011-01 to 2011-04 found in both CIH and CIHA (matched on hospital, birth date, sex, discharge date, diagnosis, residence and procedure) 16,346 of the 16,375 filed 61 in CIH carry 61 in CIHA, 797 of 885 the 62. Code 65 is not observed in CIH and is not declared."
   COD_IDADE:
     official_name: Unidade de idade
     translated_name: Age unit code
@@ -282,19 +289,31 @@ variables:
   FONTE:
     official_name: Fonte da remuneração
     translated_name: Payment/funding-source code
-    description: 'A 2-digit code naming which channel remunerates the admission, positioned
-      right after CNES and before the patient''s name. Distinct from COBRANCA (why the stay
-      ended) and from any money amount, which this field never carries.
+    description: 'A code naming which channel remunerates the admission (private health plan,
+      the patient, a public plan, a state or municipal fund, DPVAT...), written in the 2 characters
+      of its CHAR (02) field with one digit used, positioned right after CNES and before the
+      patient''s name. Distinct from COBRANCA (why the stay ended).
 
       '
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "FQA CIH 180610.doc" (Ficha de Qualificação de Arquivo Disseminável), field 27 "FONTE
-      ... CHAR (02) ... Fonte da remuneração".
+      ... CHAR (02) ... Fonte da remuneração"; codes: ftp://ftp.datasus.gov.br/dissemin/publicos/CIHA/201101_/Auxiliar/TAB_CIHA.zip
+      -> "CIHA.def" line "Fonte da Remuneração, FONTE" and "CNV/FONTE.cnv" (the successor system''s
+      table, confirmed on the admissions filed in both systems, see notes).
 
       '
-    notes: "No code-list values for this field are listed in CIH's own dictionary or catalogued as observed data (CIH is profiled from headers, not per-file value counts), so only the field's purpose is asserted here. The tabulation (CIH [2008-2010].DEF, \"Fonte da Remuneração\") names CNV\\FONTE.CNV, which TAB_CIH.zip does not contain; the successor CIHA's CO_FONTE_REMUNERACAO has a 2-digit table, and the CIH column holds one-digit codes (1 to 9 in the 2011 file), so no table is applied: a code is never padded to meet another width. Undecoded (open question 3)."
+    codes:
+      '1': CONVENIO PLANO PRIVADO
+      '2': PARTICULAR PESSOA FISICA
+      '3': GRATUITO
+      '4': FINANCIADO/SES
+      '5': FINANCIADO/SMS
+      '6': CONVENIO PLANO PUBLICO
+      '8': DPVAT
+      '9': PARTICULAR PESSOA JURIDICA
+    notes: "CIH's own kit has no table for it: its DEF (CIH [2008-2010].DEF) does not tabulate the field. The table is the successor CIHA's: CIHA.def (TAB_CIHA.zip) tabulates \"Fonte da Remuneração\", FONTE, with CNV/FONTE.cnv (01 CONVENIO PLANO PRIVADO ... 09 PARTICULAR PESSOA JURIDICA; 00 and 10 to 13 are later additions), and the labels above are its words. The CIH file stores the code left-justified in the 2 characters of the CHAR (02) field (raw bytes \"1 \", checked on CRAC0901), so the value read is \"1\", and the codes are declared as filed, not padded. Checked: the CIH files hold exactly the codes 1 to 6, 8 and 9 (no 7, as in CIHA's table); of the 128,012 admissions of 2011-01 to 2011-04 found in both CIH and CIHA (matched on hospital, birth date, sex, discharge date, diagnosis, residence and procedure) 123,934 (96.8 %) carry the same code in both, \"1\" against \"01\", \"2\" against \"02\" and so on (100,953 of them 1 and 01). Declared 2026-10-24; this entry had left it undecoded because the DEF reference it cited belongs to the CIHA kit."
   GESTAO:
     official_name: Tipo de gestão
     translated_name: Management tier of the hospital

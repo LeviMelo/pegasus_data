@@ -420,7 +420,10 @@ sources:
       quantidade_estoque: {role: quantity in stock, type: number}
       numero_lote: {role: lot, type: code}
       data_validade: {role: expiry, type: date, take: 10}
-      tipo_produto: {role: product type, type: label}
+      # tipo_produto: TP_PRODUTO of the dictionary "Posição de Estoque" (ckan.saude.gov.br/bnafar/estoque/Dicionario_de_dados_Posicao_estoque.pdf, same dataset, same 15 attributes in
+      # the same order, same description "Sigla do Tipo do produto em estoque"): B Componente Básico (Anexos I e IV da RENAME), E Componente Especializado (Anexo III),
+      # S Componente Estratégico (Anexos II e IV), O produtos financiados somente com recursos próprios do ente.
+      tipo_produto: {role: product type, type: code, codes: {"B": "Componente Básico da Assistência Farmacêutica (Anexos I e IV da RENAME)", "E": "Componente Especializado da Assistência Farmacêutica (Anexo III da RENAME)", "S": "Componente Estratégico da Assistência Farmacêutica (Anexos II e IV da RENAME)", "O": "Financiado somente com recursos próprios do ente"}}
       sigla_programa_saude: {role: health programme (NI = not informed), type: code}
       sigla_sistema_origem: {role: system the report came from, type: code}
 
@@ -718,7 +721,10 @@ sources:
       DT_EVOLUCA: {role: "Date of discharge or death (dictionary: Data da alta ou óbito)", type: date, take: 10, format: "%Y-%m-%d"}
       DT_ENCERRA: {role: "Date the case was closed (dictionary: Data do Encerramento)", type: date, take: 10, format: "%Y-%m-%d"}
       DT_DIGITA: {role: "Date the record was entered in the system (not changed by later edits) (dictionary: Data da digitação)", type: date, take: 10, format: "%Y-%m-%d"}
-      HISTO_VGM: {role: "Travel history flag of the earlier forms (dictionary: Histórico de viagem)"}
+      # HISTO_VGM: campo 27 of the SIVEP-Gripe dictionary of 31/03/2020 (saude.sp.gov.br copy, dicionario_de_dados-srag_hospitalizado_31_03_2020.pdf): "Paciente tem
+      # histórico de viagem internacional até 14 dias antes do início dos sintomas?" 1-Sim 2-Não 9-Ignorado. The files also hold 0 (3,744,410 of 4,666,910 rows, every row
+      # from 2021-04), in no document: it stays undecoded, visibly (open question 3).
+      HISTO_VGM: {role: "Travel history flag of the earlier forms (dictionary of 2020: Paciente tem histórico de viagem internacional até 14 dias antes do início dos sintomas?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
       PAIS_VGM: {role: "Country of the trip, free text of the earlier forms (dictionary: (histórico de viagem) país)"}
       CO_PS_VGM: {role: "Code of the country of the trip of the earlier forms (dictionary: (histórico de viagem) código do país)"}
       LO_PS_VGM: {role: "Place of the trip, free text of the earlier forms (dictionary: (histórico de viagem) local)"}
@@ -754,9 +760,12 @@ sources:
       TP_SOR: {role: "Type of the serological test (dictionary: Tipo de Sorologia para SARS-Cov-2)", codes: {"1": "Teste rápido", "2": "Elisa", "3": "Quimiluminescência", "4": "Outro, qual"}}
       OUT_SOR: {role: "The other serological test, free text (dictionary: Tipo de Sorologia para SARS-Cov-2/Outro, qual?)"}
       DT_RES: {role: "Date of the serological result (dictionary: Data do Resultado (sorologia))", type: date, take: 10, format: "%Y-%m-%d"}
-      RES_IGG: {role: "Result of the IgG serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgG)"}
-      RES_IGM: {role: "Result of the IgM serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgM)"}
-      RES_IGA: {role: "Result of the IgA serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgA)"}
+      # RES_IGG/IGM/IGA: campo 76 of the notification form (ficha de registro individual de SRAG hospitalizado, SVS, 31/07/2026: "Resultado do Teste Sorológico para
+      # SARS-CoV-2: IgG IgM IgA, 1-Positivo 2-Negativo 3-Inconclusivo 4-Não realizado 5-Aguarda resultado 9-Ignorado") and campo 73 of the SIVEP-Gripe dictionary
+      # (prefeitura.sp.gov.br copy, Dicionario_de_dados_SRAG.pdf: the same six categories, RES_IGG/RES_IGM/RES_IGA); the 2019-2025 dictionary prints the fields without them.
+      RES_IGG: {role: "Result of the IgG serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgG)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      RES_IGM: {role: "Result of the IgM serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgM)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      RES_IGA: {role: "Result of the IgA serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgA)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
       POV_CT: {role: "The patient belongs to a traditional people or community (dictionary: É membro de povo ou comunidade tradicional?)", codes: {"1": "Sim", "2": "Não"}}
       TP_POV_CT: {role: "The traditional people or community, by name (dictionary: Se sim, qual?)"}
       TEM_CPF: {role: "The patient has a CPF (the number itself is not published) (dictionary: Tem CPF?)", codes: {"1": "Sim", "2": "Não"}}

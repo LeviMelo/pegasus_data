@@ -594,7 +594,12 @@ variables:
       80,069, with the patient outside the establishment municipality in 40,935 of them; AQ DF 2015, AR DF 2015,
       AQ AC 2019-2023, AR, AN, ATD, ACF, AD, AM, ABO AC likewise, no exception), so it is not the mismatch flag
       its name says, and its INVASAO label "Sim (houve invasao)" was wrong on half the rows (2026-10-05).
-      AP_UFDIF matches the state comparison exactly (AQ SP 2023-01, 80,069 of 80,069). Layout note follows. Value encoding is not consistent across APAC sub-layouts in the same document:
+      AP_UFDIF matches the state comparison exactly (AQ SP 2023-01, 80,069 of 80,069). Re-measured 2026-10-24 on every APAC family of the lake (AD, AM, AN, AQ, AR, ATD, 2009-2025,
+      about 127 M rows): "1" on all but 78 rows, and the patient''s municipality equals the establishment''s on 40 % (AM, AQ, AR) to 79 % (AD 2012) of those "1" rows; the 78
+      "0" rows are one establishment of Maranhão (AD 2012, CNES 5297680, 45 rows) and AR 2016 (33), all same-municipality; AP_UFDIF against the state comparison is exact in AR, AQ
+      and AD of 2023-2024. Documented, then contradicted: the Informe Técnico 2019-07 prints "0 = mesmo município; 1 = município diferente" and the kit''s INVASAO.CNV "1 Sim
+      (houve invasão), 0 Não houve invasão" (SIMNAO.CNV, S/N, for the medication and nephrology layouts); declaring either would label the same-municipality rows wrongly.
+      Layout note follows. Value encoding is not consistent across APAC sub-layouts in the same document:
       0/1 (same/different) in the Laudos Diversos (AD) layout, but N/S (nao/sim) in Nefrologia
       (AN), Quimioterapia (AQ), Radioterapia (AR) and other laudo types. Declared width also
       drifts between C(1) and C(2) across sub-layouts.
@@ -1275,7 +1280,7 @@ variables:
 
       '
   NACION_PAC:
-    notes: "Undecoded since 2026-10-23, visibly: the RAAS layout (ftp_siasus_docs/RAAS.xls, ras_nascpcnte, 3 characters) says \"Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96\", a 3-digit country table (UFNACIO: 010 Brasil), but the DBF column is CHAR (2) and holds 01 to 10 (PS and SAD files, 2014-2025). Widths are matched exactly, so \"01\" is not \"010\"; no document gives a 2-character table."
+    notes: "Undecoded since 2026-10-23, visibly: the RAAS layout (ftp_siasus_docs/RAAS.xls, ras_nascpcnte, 3 characters) says \"Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96\", a 3-digit country table (UFNACIO: 010 Brasil), and the kit's RAAS_Psicossocial.def binds NACION_PAC to CNV/UFNACIO.CNV (TAB_SIA.zip of 2026-10-15); but the DBF column is CHAR (2) (raw bytes \"01\", checked on PSAC1501) and holds 01 to 35 (PS and SAD files, 2012-2025; 01 on 99.8 % of the 17.3 M rows of PS 2024). Widths are matched exactly, so \"01\" is not \"010\"; no document gives a 2-character table, and no other SIA document (Informe Técnico 2019-07, the APAC and BPA manuals, the kit's other DEFs) describes this column. Evidence for the reading that the column holds the first two characters of the 3-digit code, which is not applied (it would truncate a code, and name a group of countries, not one): the table's codes start 01 to 35 and only 010 starts with 01; the 3-character AP_UFNACIO of the APAC files, cut to two characters, ranks its foreign nationalities like PS does (Spearman 0.62 over 19 codes, 2024)."
     official_name: Nacionalidade do paciente
     translated_name: Patient nationality
     description: DATASUS nationality code of the patient on the RAAS record.

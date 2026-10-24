@@ -906,7 +906,8 @@ columns:
     fact_domain_evidence: "\"Histórico de viagem\" (case.travel_history): place of infection, exposure, travel, risk or accident: exposure of the case"
     name: "Histórico de viagem"
     review: draft
-    note: "Not in the 2023 dictionary and no earlier one was found. The codes in the files are 0 (3744410 rows), 1 (1056), 2 (783417) and 9 (138027); none is declared. PAIS_VGM, CO_PS_VGM, LO_PS_VGM, DT_VGM and DT_RT_VGM are blank in the 2022 file."
+    missing: ['9']
+    note: "Not in the 2019-2025 dictionary; the SIVEP-Gripe dictionary of 31/03/2020 (campo 27, saude.sp.gov.br copy) prints 1-Sim 2-Não 9-Ignorado, declared in intake.yml (2026-10-24). The files also hold 0 (3,744,410 rows: every row from 2021-04 and a third of 2020), in no document: undecoded, visibly (open question 3). Checked: PAIS_VGM or CO_PS_VGM is filled on all 1,056 rows of code 1 and on 0.01 % of the others, as the dictionary enables the country only for 1-Sim."
   PAIS_VGM:
     role: case.travel_country_name
     kind: text
@@ -1173,7 +1174,8 @@ columns:
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgG\" (case.serology_igg): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgG"
     review: draft
-    note: "The dictionary names the field and no code table. The codes in the files are 1, 2, 3, 4, 5 and 9; none is declared (RES_AN's table has the same digits but is another field's)."
+    missing: ['9']
+    note: "The 2019-2025 dictionary prints the field without its categories; the notification form (campo 76, ficha SVS 31/07/2026) and the SIVEP-Gripe dictionary's campo 73 (prefeitura.sp.gov.br copy) print 1-Positivo 2-Negativo 3-Inconclusivo 4-Não realizado 5-Aguardando resultado 9-Ignorado, declared in intake.yml (2026-10-24). Checked, onsets 2020-2022: code 1 has a result date in 95.0 % and is classified covid-19 in 95.1 % of its 123,742 rows, code 2 a date in 94.6 % and covid-19 in 55.7 %, code 4 a date in 4.5 %."
   RES_IGM:
     role: case.serology_igm
     kind: category
@@ -1182,7 +1184,8 @@ columns:
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgM\" (case.serology_igm): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgM"
     review: draft
-    note: "As RES_IGG: no code table in the dictionary."
+    missing: ['9']
+    note: "As RES_IGG (campo 76 of the form; code 1 has a result date in 95.0 % and covid-19 in 96.9 %, code 4 a date in 3.4 %)."
   RES_IGA:
     role: case.serology_iga
     kind: category
@@ -1191,7 +1194,8 @@ columns:
     fact_domain_evidence: "\"Resultado do Teste Sorológico para SARS-CoV-2: IgA\" (case.serology_iga): laboratory result, titre, clinical measure, time to onset or exposure of the case: the health event"
     name: "Resultado do Teste Sorológico para SARS-CoV-2: IgA"
     review: draft
-    note: "As RES_IGG: no code table in the dictionary."
+    missing: ['9']
+    note: "As RES_IGG (campo 76 of the form; code 1 has a result date in 93.1 % and covid-19 in 95.4 %, code 4 a date in 34.0 %)."
   POV_CT:
     role: patient.traditional_community_member
     kind: category
@@ -1470,7 +1474,7 @@ columns:
     fact_domain_evidence: "\"Possível caso de reinfecção por covid-19?\" (case.reinfection_possible_flag): fact about the health event or the person's health"
     name: "Possível caso de reinfecção por covid-19?"
     review: draft
-    note: "Not in the 2023 dictionary under this name (it lists VG_REINF, which the files leave blank). Only the code 2 occurs (1269819 rows of 4666910); the dictionary's table for VG_REINF is not carried over to another name."
+    note: "Not in the 2023 dictionary under this name (it lists VG_REINF, which the files leave blank). Only the code 2 occurs (1269819 rows of 4666910); the dictionary's table for VG_REINF is not carried over to another name. Searched again 2026-10-24 without finding a document that names REINF: the 2019-2025 dictionary and its copies (saude.sp.gov.br 2020 and 2023, goias.gov.br, prefeitura.sp.gov.br) and the 2026 form; the portals (opendatasus, dadosabertos.saude.gov.br) reset the connection, the Internet Archive answered 503 and the host of the 2020-07-27 dictionary refused the connection. The data: REINF is 2 on 4 to 5 % of the rows notified in 2021, 18 % in 2022-12, 95 % in 2023-02 and all of them from 2023-03 (blank otherwise), the months of the form update (10/02/2023, per the Paraíba state note NT 01/2023 as a web search summarised it; the note itself is behind a captcha), which reads as the default answer 2-Não to the reinfection question, but no document says REINF is that field."
   IDADE_anos:
     role: patient.age_years
     kind: number

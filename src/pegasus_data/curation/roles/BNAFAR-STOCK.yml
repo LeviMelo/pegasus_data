@@ -123,7 +123,8 @@ columns:
     fact_domain_evidence: '"Sigla do tipo do produto em estoque" (stock.product_type): position of the stock of a medicine
       at an establishment: the stock register'
     name: Sigla do tipo do produto em estoque
-    note: S, B and O in 11,220 rows read (6,319, 4,811 and 90); the swagger names the filter but does not expand the sigla.
+    note: 'S, B and O in 11,220 rows read (6,319, 4,811 and 90). Declared in intake.yml (2026-10-24) from the dictionary "Posição de Estoque" (TP_PRODUTO: B Componente Básico,
+      E Especializado, S Estratégico, O recursos próprios do ente); the 7 rows that stock a diagnostic reagent, in no RENAME annex, are all O.'
   uf:
     role: stock.state
     kind: text
