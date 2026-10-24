@@ -88,8 +88,10 @@ WORKERS = 4
 MISSING = -9.99e8
 #: How far a weight on a cell with no value may be read at the nearest cell with one (km)
 NEAREST_KM = 10.0
-#: eccodes loads its definitions on first use and fails ("no definitions found") when two threads do it at once
-_ECCODES = threading.Lock()
+#: Neither decoder is thread-safe: eccodes loads its definitions on first use and fails ("no definitions found") when two
+#: threads do it at once, and netCDF4 (HDF5) loses a dataset opened in memory ("Not a valid ID"); files are fetched in
+#: parallel and decoded one at a time
+_DECODE = threading.Lock()
 
 __all__ = ["PRODUCTS", "daily", "day_grid", "grid", "listing", "read_file", "update", "weekly"]
 
@@ -140,7 +142,7 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
             raise ValueError(f"{product.product}: {len(messages)} GRIB messages, expected PREC and NEST")
         fields = []
         for raw in messages:
-            with _ECCODES:      # the whole decoding: a handle is not to be read while another thread loads definitions
+            with _DECODE:
                 handle = eccodes.codes_new_from_message(raw)
                 try:
                     ni, nj = eccodes.codes_get(handle, "Ni"), eccodes.codes_get(handle, "Nj")
@@ -159,7 +161,7 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
         return fields[0], np.nan_to_num(fields[1], nan=0.0), np.round(lon, 4), np.round(lat, 4)
     import netCDF4
 
-    with netCDF4.Dataset("in-memory.nc", memory=body) as data:
+    with _DECODE, netCDF4.Dataset("in-memory.nc", memory=body) as data:
         data.set_auto_mask(True)
         value = np.ma.filled(data.variables[product.field][0].astype("float64"), np.nan)
         stations = np.ma.filled(data.variables["nobs"][0].astype("float64"), 0.0)
