@@ -6,10 +6,14 @@ Three things were missing, and all three show up as "where did my data go?":
 
 **It followed the working directory.** ``default_root()`` was
 ``Path.cwd() / "pegasus_data_home"``, so running a command from a subdirectory
-of your own project silently used a *different*, empty root. The catalog looked
-wiped and the blobs looked lost; they were fine, one level up. Resolution now
-walks up from the working directory for a data home that already exists, and
-only falls back to creating one beside you.
+of your own project silently used a *different*, empty root. A walk up to the
+nearest existing home (2026-09) only narrowed this. Every project that named no
+root still grew its own home, and each one downloaded again what another
+already held. On 2026-10-24 one machine had eight homes: 11.6 GB fetched into
+the repository's home on 23/10 alone, most of it already in the per-user home.
+The built-in default is now ONE per-user data directory, whatever the working
+directory (:func:`default_data_home`). A project that wants a home of its own
+says so in its config file.
 
 **It could not be written down.** An environment variable lives in one shell.
 A config file — project-local or per-user — is how you say "the lake lives on
@@ -263,29 +267,22 @@ def write_config_file(path: Path, values: dict[str, object]) -> Path:
 # ---------------------------------------------------------------- resolution
 
 
-def _existing_data_home(start: Path | None = None) -> Path | None:
-    """A data home at or above ``start`` that has actually been used.
+def default_data_home() -> Resolved:
+    """Where data goes when nothing said otherwise: the per-user data directory, never the working directory.
 
-    Only a directory carrying a catalog or a blob store counts. An empty
-    directory that happens to be named `pegasus_data_home` is not evidence of
-    anything, and hijacking a command with it would be worse than the problem
-    this solves.
+    The place each platform keeps a user's large, machine-local application data
+    (not the roaming profile on Windows): ``%LOCALAPPDATA%/pegasus-data``,
+    ``~/Library/Application Support/pegasus-data``,
+    ``$XDG_DATA_HOME/pegasus-data`` (``~/.local/share``).
     """
-    here = Path(start or Path.cwd()).resolve()
-    for directory in (here, *here.parents):
-        candidate = directory / "pegasus_data_home"
-        if (candidate / "_catalog").is_dir() or (candidate / "blobs").is_dir():
-            return candidate
-    return None
-
-
-def default_data_home(start: Path | None = None) -> Resolved:
-    """Where data goes when nothing said otherwise."""
-    found = _existing_data_home(start)
-    if found is not None:
-        return Resolved("root", found, "default", "an existing data home at or above the working directory")
-    here = Path(start or Path.cwd()).resolve()
-    return Resolved("root", here / "pegasus_data_home", "default", "beside the working directory")
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local")
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        xdg = os.environ.get("XDG_DATA_HOME")
+        base = Path(xdg).expanduser() if xdg else Path.home() / ".local" / "share"
+    return Resolved("root", base / "pegasus-data", "default", "the per-user data directory")
 
 
 def resolve_placement(
@@ -332,7 +329,7 @@ def resolve_placement(
             )
             continue
         if key == "root":
-            out[key] = default_data_home(start)
+            out[key] = default_data_home()
         else:
             # Derived from the root unless separately placed. Left as None here
             # so Settings decides the layout; this module only decides WHERE.

@@ -12,7 +12,7 @@ Pairs are formed on (establishment, professional) where each month has exactly
 one occupation; the professional's identifier is used only to form the pair and
 never leaves this script. The output is code -> code counts.
 
-    PEGASUS_DATA_HOME=~/pegasus_fresh python scripts/measure_cbo_conversion.py AC PE BA RJ MG
+    python scripts/measure_cbo_conversion.py AC PE BA RJ MG
 """
 
 from __future__ import annotations

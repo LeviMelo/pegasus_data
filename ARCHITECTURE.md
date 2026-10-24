@@ -143,7 +143,9 @@ artifacts, capabilities, population, geography memberships and (behind
 ## 3. Persistent objects
 
 **The data home** (`config.py`, `locate.py`: five layers decide it, and an explicit root carries its blobs, lake, work and
-catalog with it, ADR-0175; `pegasus-data where` says which won):
+catalog with it, ADR-0175; `pegasus-data where` says which won). It is one home per user: with nothing set, the
+per-user data directory, never the working directory. `adopt.py` moves another home's downloads and registries into
+it (ADR-0200):
 
 ```text
 <home>/_catalog/catalog.sqlite   the catalog (catalog/schema.sql, catalog/store.py)
@@ -407,7 +409,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `pipeline.py`: `Pipeline`, the build stages.
 - `build.py`: the stages that write data (lake, population, the DEMAS OpenAPI document); `build_lake(dataset, years, root=)` builds one dataset's lake for a caller that is not the command line.
 - `progress.py`: deadlines and heartbeat.
-- `config.py`, `locate.py`: settings and where the data home is.
+- `config.py`, `locate.py`: settings and where the data home is; `adopt.py`: another home's downloads moved into it.
 - `textenc.py`: codepage detection; `fold`, the one folding of names compared (accents, case, hyphen and apostrophe between words).
 - `_lazy.py`: a module imported on its first use (`pyarrow.dataset`, which loads pandas, kept off every command's start).
 - `verify.py`: runnable regression assertions (`pegasus-data verify`).

@@ -8,7 +8,7 @@ table names individually and that fall inside a range whose label is a
 residual word (ignorado, outros, não se aplica, não informado, demais, sem
 informação). Each is a code that reads as decoded and is not.
 
-    PEGASUS_DATA_HOME=~/pegasus_fresh python scripts/catchall_audit.py [out.json]
+    python scripts/catchall_audit.py [out.json]
 """
 
 from __future__ import annotations

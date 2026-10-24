@@ -953,7 +953,7 @@ class CatalogStore:
 
     def latest_blob_for(self, source_path: str) -> str | None:
         row = self.query(
-            "SELECT sha256 FROM fetches WHERE source_path=? ORDER BY id DESC LIMIT 1", (source_path,)
+            "SELECT sha256 FROM fetches WHERE source_path=? ORDER BY fetched_at DESC, id DESC LIMIT 1", (source_path,)
         )
         return row[0]["sha256"] if row else None
 

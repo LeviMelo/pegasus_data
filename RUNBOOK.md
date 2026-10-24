@@ -26,9 +26,9 @@ $PY scripts/check_docs.py
 ```bash
 $PY scripts/live.py --list
 $PY scripts/live.py sih_rd sim_do           # named scenarios
-PEGASUS_DATA_HOME=~/pegasus_live/home $PY scripts/sweep_undecoded.py   # undecoded values, 16 datasets
+$PY scripts/sweep_undecoded.py               # undecoded values, 16 datasets
 $PY scripts/def_evidence.py data/probes/live/sweep_undecoded.json          # which .CNV the .DEF offers each
-PEGASUS_DATA_HOME=~/pegasus_fresh $PY scripts/measure_cbo_conversion.py AC PE BA RJ MG   # CNES's own CBO 94 -> 2002 conversion, measured
+$PY scripts/measure_cbo_conversion.py AC PE BA RJ MG   # CNES's own CBO 94 -> 2002 conversion, measured
 $PY scripts/build_bridges.py                     # every classification bridge -> resources/bridges.parquet
 $PY scripts/registry_fields.py                   # register-like fields (CNES, INE, CNPJ, CPF/CNS, IBGE, CBO) and their bindings
 $PY scripts/live.py --all --fresh           # everything, on an emptied home
@@ -51,9 +51,17 @@ $PD where                                    # which layer decided each path
 $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
 ```
 
-- Any command run inside this repository adopts `pegasus_data_home/`
-  (3.5 GB, gitignored), because the default adopts a data home at or above
-  the working directory.
+- One home per user (ADR-0200). The per-user config file names it (here
+  `C:/Users/Galaxy/pegasus_core_data`). With nothing set it is the per-user
+  data directory (`%LOCALAPPDATA%/pegasus-data`), never the working directory.
+  PegaSUS resolves the same root, and `PEGASUS_DATA_HOME` is the one name.
+- `$PD adopt <other-home>` shows what another home holds that this one lacks.
+  `--apply` moves its downloads, with their fetch history and each digest
+  checked, and its registry files absent here. Its lake and semantic tables
+  are recomputed here, not moved. Then crawl the adopted directories
+  (`$PD crawl --prefix <dir>`) and delete the other folder.
+- The repo's `pegasus_data_home/_catalog/` is the label pack's build catalog,
+  read by path by the maintainer scripts. It is not a data home.
 - To act as a fresh user, set `PEGASUS_DATA_HOME` to an empty directory
   outside the repository.
 - Decoding is admitted machine-wide (`decode/admission.py`): `PEGASUS_DECODE_SLOTS`

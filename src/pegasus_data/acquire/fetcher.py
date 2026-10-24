@@ -19,6 +19,7 @@ from datetime import UTC
 
 from ..catalog.store import CatalogStore
 from ..discovery.ftp_client import FtpClient
+from ..discovery.listing import same_instant
 from ..progress import (
     DEFAULT_HEARTBEAT,
     DEFAULT_STALL_TIMEOUT,
@@ -228,7 +229,7 @@ class Fetcher:
               FROM fetches f
               JOIN files fi ON fi.path = f.source_path
              WHERE f.source_path = ?
-             ORDER BY f.id DESC LIMIT 1
+             ORDER BY f.fetched_at DESC, f.id DESC LIMIT 1
             """,
             (path,),
         )
@@ -277,7 +278,7 @@ class Fetcher:
             if (
                 then_mtime is not None
                 and listed_mtime is not None
-                and str(then_mtime) != str(listed_mtime)
+                and not same_instant(str(then_mtime), str(listed_mtime))  # the server's two clocks
             ):
                 return None
             if then_mtime is None and listed_mtime is not None:

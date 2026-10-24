@@ -53,10 +53,14 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
 ```
 
 - **Encoding.** Set `PYTHONUTF8=1`: labels are Portuguese.
-- **Data homes.** The repo's own `pegasus_data_home/` (55 GB on 2026-10-11, 35 of it downloads; once "3.5 GB"; gitignored) is
-  adopted automatically by any command run inside the repo. Live checks run
-  against a **fresh** home instead (`scripts/live.py` does this), because the
-  local one hides every fresh-install defect.
+- **One data home** (ADR-0200). Every process of this user, PegaSUS and other
+  projects included, uses `C:\Users\Galaxy\pegasus_core_data`, named once in
+  `%APPDATA%\pegasus-data\config.toml`. Nothing is derived from the working
+  directory. The repo's `pegasus_data_home/_catalog/` is only the label pack's
+  build catalog, read by path by the maintainer scripts. A stray home is
+  cleared with `pegasus-data adopt <home> --apply`, then deleted. Live checks
+  run against a **fresh** home instead (`scripts/live.py` does this), because
+  the one home hides every fresh-install defect.
 - **Long runs detach.** The Bash tool caps background work at ten minutes;
   start longer builds with PowerShell `Start-Process`, logging beside them.
 

@@ -27,6 +27,7 @@ from pathlib import PurePosixPath
 
 __all__ = [
     "ListingEntry",
+    "same_instant",
     "parse_list_lines",
     "parse_msdos_line",
     "parse_unix_line",
@@ -108,6 +109,26 @@ def join_path(directory: str, child: str) -> str:
     if child.startswith("/"):
         return normalize_path(child)
     return normalize_path(str(PurePosixPath(normalize_path(directory)) / child))
+
+
+#: The server answers in two clocks. LIST shows its wall clock and MDTM shows UTC, and the wall clock is UTC-3 for
+#: every date, the summer-time months before 2019 included. Measured on 2026-10-24 by comparing MDTM against LIST on
+#: 1,290 files in the catalogs and on 6 files live, a 2018-02 file among them. A LIST time is stored as filed:
+#: truncated to the minute and labelled +00:00. So one file reads 16:30 by LIST and 19:30:45 by MDTM, and a catalog
+#: holds both, because MDTM answers whenever LIST cannot (ADR-0122) and whenever the listing is stale.
+LIST_CLOCK_BEHIND_S = 3 * 3600
+
+
+def same_instant(a: str, b: str) -> bool:
+    """Do two recorded modification times name one instant? Either they are equal, or one is the other read through
+    the server's other clock: :data:`LIST_CLOCK_BEHIND_S` apart, to within LIST's truncation to the minute."""
+    if a == b:
+        return True
+    try:
+        apart = abs((datetime.fromisoformat(a) - datetime.fromisoformat(b)).total_seconds())
+    except ValueError:
+        return False
+    return apart == 0 or abs(apart - LIST_CLOCK_BEHIND_S) < 60
 
 
 def _iso(year: int, month: int, day: int, hour: int, minute: int) -> str | None:

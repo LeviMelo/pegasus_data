@@ -6,7 +6,7 @@ undecoded ("code (?)"). The output is the worklist for "every code
 translatable": each entry is a code no source has named yet, or a binding that
 is wrong. Run it against a FRESH home (CLAUDE.md §5):
 
-    PEGASUS_DATA_HOME=~/pegasus_live/home python scripts/sweep_undecoded.py [out.json]
+    python scripts/sweep_undecoded.py [out.json]
 """
 
 from __future__ import annotations

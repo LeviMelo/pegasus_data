@@ -12,6 +12,19 @@ fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
 
+## One data home (2026-10-24, ADR-0200)
+
+Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_core_data`
+(`%APPDATA%\pegasus-data\config.toml`). The seven other homes were adopted: 16.9 GB of downloads and 2.85 GB of
+registries moved, and none holds a blob the one home lacks. The emptied folders remain on disk because their deletion
+was refused by the session's permission check; the author deletes them:
+* `pegasus_project/pegasus_data_home`;
+* `~/pegasus_fresh`, `~/pegasus_fresh2` and `~/pegasus_fresh3`;
+* `~/pegasus_linkage`;
+* `~/pegasus_live`;
+* in the repo home, everything but `_catalog/`;
+* the temp homes.
+
 ## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
 
 Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels across schema generations).

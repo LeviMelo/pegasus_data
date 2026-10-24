@@ -28,6 +28,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   **IIS MS-DOS dialect** (`05-29-15  04:10PM  18550 acac0201.exe`, `<DIR>`
   for directories), which carries size and mtime for every entry. On a
   9,667-file slice, 9,667 carried both.
+- **Two clocks** (2026-10-24, ADR-0200). LIST's time is the server's wall
+  clock, truncated to the minute. MDTM's is UTC with seconds. The wall clock is
+  UTC−3 for every date, including the summer-time months before 2019 (files
+  dated 2018-02-05 read 09:45 by LIST and 12:45:17 by MDTM). Measured on 1,290
+  pairs in the catalogs and 6 files live.
 - `NLST` returns bare names with no type information: an extensionless
   directory (`Dados`, `uploads`) is indistinguishable from a file.
 - `FEAT` reports `LANG EN*`, `UTF8`, `AUTH TLS;TLS-C;SSL;TLS-P;`, `PBSZ`,

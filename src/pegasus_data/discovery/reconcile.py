@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
+from .listing import same_instant
 
 
 @dataclass(slots=True)
@@ -107,7 +108,7 @@ def classify(before: FileState | None, size: int | None, modified: str | None) -
         return "unresolved"
     if size is not None and before.size is not None and size != before.size:
         return "changed"
-    if modified is not None and before.modified is not None and modified != before.modified:
+    if modified is not None and before.modified is not None and not same_instant(modified, before.modified):
         return "changed"
     return "unchanged"
 

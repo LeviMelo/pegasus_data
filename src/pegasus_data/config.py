@@ -44,14 +44,8 @@ def default_root() -> Path:
 
     Resolved through :mod:`pegasus_data.locate`: an explicit argument, then
     ``PEGASUS_DATA_HOME``, then the nearest project config file, then the
-    per-user one, then a default that WALKS UP for a data home already in use.
-
-    That last part is the fix for the oldest surprise here. This used to be
-    ``Path.cwd() / "pegasus_data_home"`` flat, so running a command from a
-    subdirectory of your own project silently addressed a different, empty root:
-    the catalog looked wiped and the blobs looked lost, and both were fine one
-    level up. Nothing is moved — a home is only adopted when it already holds a
-    catalog or a blob store.
+    per-user one, then the per-user data directory: one home per user, never one
+    beside the working directory (`locate.default_data_home`).
     """
     from .locate import resolve_placement
 
