@@ -41,11 +41,13 @@ columns:
     - 2026
   ACF_FREMIT:
     role: authorisation.thrill
-    kind: category
+    kind: number
+    measure: false
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Frêmito\" (authorisation.thrill): fact about the health event or the person's health"
     name: Frêmito
+    note: "Graded 1 to 4: Layout interno do APAC (11/04/2014) APA_FREMIT \"Presença de frêmito no trajeto da FAV (1 a 4)\" and Informe Técnico SIASUS 2019-07 §3.4.7 SEQ 55; a scale whose ends the layout does not anchor, shown as recorded (ADR-0095), not a code table and not a quantity (ACF SP 2024: 1 to 4; 2026-10-24)."
     years:
     - 2014
     - 2026

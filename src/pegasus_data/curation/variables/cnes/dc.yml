@@ -13,10 +13,12 @@ variables:
       chain includes a water softener. This sits in the DC record''s dialysis-infrastructure
       block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
       specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 34
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 34 ABRANDAD CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   ARMAZ_FT:
     official_name: Numero de salas de armazenamento de fontes - (Radioterapia)
     translated_name: Radiotherapy sealed-source storage rooms
@@ -176,10 +178,12 @@ variables:
       chain includes a deionizer. This sits in the DC record''s dialysis-infrastructure
       block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
       specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 35
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 35 DEIONIZA CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   DIALISE:
     official_name: Indica a existencia de algum REQUISITO DE DIALISE para este CNES
     translated_name: Dialysis service requirements met
@@ -187,12 +191,14 @@ variables:
       set of declared dialysis-service requirements (water treatment, machines, responsible
       nephrologist, etc.) captured elsewhere on this same DC record. It is a derived
       compliance-style indicator rather than an independently observed fact.
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 39
     notes: Depends on the dialysis water-treatment flags, MAQ_PROP/MAQ_OUTR and CNS_NEFR
       reported on the same record; treat as a summary, not a primary observation.
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 39 DIALISE CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   EQBRALTA:
     official_name: Quantidade de Equipamentos de Braquiterapia Alta
     translated_name: Radiotherapy - high-dose-rate brachytherapy units
@@ -288,10 +294,12 @@ variables:
       chain includes a sand filter. This sits in the DC record''s dialysis-infrastructure
       block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
       specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 32
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 32 F_AREIA CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   F_CARVAO:
     official_name: Indica se faz tratamento de agua com filtro de carvao
     translated_name: Water treatment with carbon filter
@@ -299,10 +307,12 @@ variables:
       chain includes a carbon filter. This sits in the DC record''s dialysis-infrastructure
       block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
       specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 33
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 33 F_CARVAO CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   HEMOTERA:
     official_name: Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este
       CNES
@@ -311,13 +321,15 @@ variables:
       declared set of hemotherapy/blood-bank requirements (rooms, equipment, responsible
       physicians) captured elsewhere on this DC record. Derived summary, like DIALISE
       and QUIMRADI.
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 111
     notes: Depends on S_AFERES, the QT_* hemotherapy equipment counts and the hemotherapy
       responsible-physician CNS fields on the same record (plus some hemotherapy room
       fields outside this column range).
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 111 HEMOTERA CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   MAQ_OUTR:
     official_name: Quantidade de outras maquinas
     translated_name: Other dialysis machines
@@ -365,10 +377,12 @@ variables:
       chain includes a reverse-osmosis unit. This sits in the DC record''s dialysis-infrastructure
       block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
       specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 36
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 36 OSMOSE_R CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   OUT_TRAT:
     official_name: Indica se faz tratamento de agua com outros tipos de equipamento
     translated_name: Water treatment with other water-treatment equipment
@@ -376,10 +390,12 @@ variables:
       chain includes a other water-treatment equipment. This sits in the DC record''s
       dialysis-infrastructure block (alongside CNS_NEFR/DIALISE): it describes water
       pretreatment for hemodialysis specifically, not general building water treatment.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 37
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 37 OUT_TRAT CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   OV150500:
     official_name: Quantidade de Equipamentos de Ortovoltagem 150-500 KV
     translated_name: Radiotherapy - orthovoltage units, 150-500 kV
@@ -545,13 +561,15 @@ variables:
       declared set of requirements for chemotherapy/radiotherapy service (rooms, equipment,
       responsible physicians) captured elsewhere on this DC record. Like DIALISE, it
       is a derived summary rather than an independently observed fact.
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 73
     notes: Depends on the radiotherapy room/equipment counts and responsible-physician
       CNS fields on the same record (and on chemotherapy-room fields outside this column
       range); treat as a summary indicator.
+    reasoning: "The layout prints the two values: IT_CNES_1706.pdf §2.2 SEQ 73 QUIMRADI CHAR (1) \"1-Sim 0-Não\" (2026-10-24)."
   SALA_MOL:
     official_name: Numero de salas de salas de molde - (Radioterapia)
     translated_name: Radiotherapy mould-room facilities

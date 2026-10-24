@@ -2,8 +2,9 @@
 
 For every lake family, the first 20,000 records of its latest partition go through the renderer itself
 (`view.render_table`, what `query` applies). For each column whose role is coded (kind category or code_tree) it
-records whether the column was labelled, by which table, and the share of its cells that read "Label (code)" rather
-than "code (?)". A column left unlabelled is split by its values: words as filed ("SAÍDA DO TRATAMENTO") read as they
+records whether the column was labelled, by which table, and the share of its coded cells that got a label (the
+`<column>_label` beside the code, null where no table held the code) with the commonest code=label pairs, to be read.
+A column left unlabelled is split by its values: words as filed ("SAÍDA DO TRATAMENTO") read as they
 are; codes ("12", "M") are the gaps. Read-only: the lake's files, the catalog and the reference tables.
 
     python scripts/decode_coverage.py --root C:/Users/Galaxy/pegasus_core_data --out data/probes/decode_coverage/DATE.json
@@ -58,10 +59,22 @@ def measure(catalog: Catalog, family_id: str, r: dict) -> dict:
             entry["columns"].append({"column": col, "state": "empty or constant"})
             continue
         if name in rep.labelled:
-            texts = Counter(cells.to_pylist())
-            bare = sum(n for t, n in texts.items() if BARE.match(str(t)))
+            # the label sits in the column beside the code (`<name>_label`), null where no table held the code: the share
+            # of the code's cells that got one (this read the code column itself, where "(?)" never appears, and so
+            # reported 100 % for every column, 2026-10-23)
+            label_col = f"{name}_label"
+            if label_col in rendered.column_names:
+                pairs = Counter(zip(rendered.column(name).to_pylist(), rendered.column(label_col).to_pylist(), strict=True))
+                n_coded = sum(n for (code, _), n in pairs.items() if code is not None)
+                got = sum(n for (code, lab), n in pairs.items() if code is not None and lab is not None)
+                share = got / max(1, n_coded)
+                top = [f"{code}={lab}" for (code, lab), _ in pairs.most_common(6) if code is not None]
+            else:
+                texts = Counter(cells.to_pylist())
+                share = 1 - sum(n for t, n in texts.items() if BARE.match(str(t))) / len(cells)
+                top = []
             entry["columns"].append({"column": col, "state": "labelled", "table": rep.codelist_used.get(name),
-                                     "share": round(1 - bare / len(cells), 4)})
+                                     "share": round(share, 4), "top": top})
             continue
         values = Counter(str(v).strip() for v in raw.column(raw_names.get(col, name)).to_pylist()
                          if v is not None and str(v).strip())
@@ -91,8 +104,10 @@ def main() -> None:
             latest[e["dataset"]] = e
     states = Counter(c["state"] for e in latest.values() for c in e["columns"])
     filled = sum(n for s, n in states.items() if s != "empty or constant")
+    partial = sum(1 for e in latest.values() for c in e["columns"] if c["state"] == "labelled" and c.get("share", 1) < 0.95)
     print(f"{len(latest)} datasets, {len(out)} families ({sum(1 for e in out if e.get('error'))} unreadable); "
-          f"coded columns holding values {filled}: " + ", ".join(f"{s} {n}" for s, n in states.most_common()))
+          f"coded columns holding values {filled}: " + ", ".join(f"{s} {n}" for s, n in states.most_common())
+          + f"; labelled columns whose labels reach under 95 % of their codes: {partial}")
 
 
 if __name__ == "__main__":

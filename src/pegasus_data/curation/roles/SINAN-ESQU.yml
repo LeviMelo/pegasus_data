@@ -28,7 +28,10 @@ columns:
     missing: []
     # declared from DATASUS's own sources (2019-2021): the form's dictionary: 0='0(zero)', 1='1 (um) ou mais ovos'; the tabulation: no value labelled as not recorded
     role: case.stool_quantitative
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Schistosoma mansoni eggs counted in the Kato-Katz exam"
+    unit_evidence: "DIC_DADOS_Esquistossomose_v5 campo 34 \"Análise quantitativa – Kato-Katz\": the number of eggs; ADR-0198 had already found it a number (ESQU 2024 holds whole numbers; 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Análise quantitativa (Kato-Katz)\" (case.stool_quantitative): fact about the health event or the person's health"
@@ -467,11 +470,6 @@ columns:
     fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
-    - AB
-    - NHE
-    - NHENIVEL
-    - NHEUNIDADE
-    - NHE_NIVEL_MUN
     - UNIDANET
     - CADGERBR
     years:

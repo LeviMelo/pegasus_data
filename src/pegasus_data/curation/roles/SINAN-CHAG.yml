@@ -1193,11 +1193,6 @@ columns:
     fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
-    - AB
-    - NHE
-    - NHENIVEL
-    - NHEUNIDADE
-    - NHE_NIVEL_MUN
     - UNIDANET
     - CADGERBR
     years:
@@ -1765,11 +1760,13 @@ columns:
     missing: []
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='reagente', 2='não-reagente', 3='inconclusivo', 4='não realizado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['0', '10', '1160', '120', '1240', '1280', '1336', '140', '1433', '16', '160', '162', '17', '180', '20', '240', '256', '260', '2848', '30', '32', '320', '40', '5', '6', '60', '640', '80', '803', '9'], which the form does not define
     role: case.ifi_igg_titre_result_1
-    kind: category
+    kind: number
+    unit_unknown: "a titre, the reciprocal of a dilution (1:80 is written 80): none of the closed list of units"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado IFI/Sorologia — Título IgG, Amostra 1\" (case.ifi_igg_titre_result_1): fact about the health event or the person's health"
     name: "Resultado IFI/Sorologia — Título IgG, Amostra 1\n"
+    note: "Reciprocal IFI titre: DIC_DADOS_Chagas_v5 campo 50; the CHAG 2022 file holds 40, 80, 160, 320, 20 as its commonest values and 0 where none was recorded, numbers and not codes (the variable's entry measured 20 to 1280 on 5,194 notifications; 2026-10-24)."
     years:
     - 2007
     - 2025
@@ -1777,11 +1774,13 @@ columns:
     missing: []
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='reagente', 2='não-reagente', 3='inconclusivo', 4='não realizado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['0', '10', '1160', '1280', '1320', '160', '320', '40', '640', '80'], which the form does not define
     role: case.ifi_igg_titre_result_2
-    kind: category
+    kind: number
+    unit_unknown: "a titre, the reciprocal of a dilution (1:80 is written 80): none of the closed list of units"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado IFI/Sorologia — Título IgG, Amostra 2\" (case.ifi_igg_titre_result_2): fact about the health event or the person's health"
     name: "Resultado IFI/Sorologia — Título IgG, Amostra 2\n"
+    note: "Reciprocal IFI titre: DIC_DADOS_Chagas_v5 campo 50; the CHAG 2022 file holds 40, 80, 160, 320, 20 as its commonest values and 0 where none was recorded, numbers and not codes (the variable's entry measured 20 to 1280 on 5,194 notifications; 2026-10-24)."
     years:
     - 2007
     - 2025
@@ -1789,11 +1788,13 @@ columns:
     missing: []
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='reagente', 2='não-reagente', 3='inconclusivo', 4='não realizado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['0', '10', '1024', '1280', '140', '160', '1640', '180', '20', '256', '30', '320', '40', '6', '640', '80'], which the form does not define
     role: case.ifi_igm_titre_result_1
-    kind: category
+    kind: number
+    unit_unknown: "a titre, the reciprocal of a dilution (1:80 is written 80): none of the closed list of units"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado IFI/Sorologia — Título IgM, Amostra 1\" (case.ifi_igm_titre_result_1): fact about the health event or the person's health"
     name: "Resultado IFI/Sorologia — Título IgM, Amostra 1\n"
+    note: "Reciprocal IFI titre: DIC_DADOS_Chagas_v5 campo 50; the CHAG 2022 file holds 40, 80, 160, 320, 20 as its commonest values and 0 where none was recorded, numbers and not codes (the variable's entry measured 20 to 1280 on 5,194 notifications; 2026-10-24)."
     years:
     - 2007
     - 2025
@@ -1801,11 +1802,13 @@ columns:
     missing: []
     # declared from DATASUS's own sources (2020-2021): the form's dictionary: 1='reagente', 2='não-reagente', 3='inconclusivo', 4='não realizado'; the tabulation: no value labelled as not recorded; CONFLICT: the records use ['10', '140', '160', '180', '20', '30', '320', '40', '60', '640', '80'], which the form does not define
     role: case.ifi_igm_titre_result_2
-    kind: category
+    kind: number
+    unit_unknown: "a titre, the reciprocal of a dilution (1:80 is written 80): none of the closed list of units"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado IFI/Sorologia — Título IgM, Amostra 2\" (case.ifi_igm_titre_result_2): fact about the health event or the person's health"
     name: "Resultado IFI/Sorologia — Título IgM, Amostra 2\n"
+    note: "Reciprocal IFI titre: DIC_DADOS_Chagas_v5 campo 50; the CHAG 2022 file holds 40, 80, 160, 320, 20 as its commonest values and 0 where none was recorded, numbers and not codes (the variable's entry measured 20 to 1280 on 5,194 notifications; 2026-10-24)."
     years:
     - 2007
     - 2025

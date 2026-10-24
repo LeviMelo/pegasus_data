@@ -615,7 +615,10 @@ columns:
     - 2026
   ARMAZ_FT:
     role: establishment.radiotherapy_sealed_source_storage_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy sealed-source storage rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field ARMAZ_FT \"Numero de salas de armazenamento de fontes - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas de armazenamento de fontes - (Radioterapia)\" (establishment.radiotherapy_sealed_source_storage_rooms): attribute of the establishment register (structure, service, management)"
@@ -651,7 +654,10 @@ columns:
     - ATIV_ENS
   BLOCOPER:
     role: establishment.radiotherapy_custom_block_fabrication_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy custom-block fabrication rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field BLOCOPER \"Numero de salas de bloco personalizado - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas de bloco personalizado - (Radioterapia)\" (establishment.radiotherapy_custom_block_fabrication_rooms): attribute of the establishment register (structure, service, management)"
@@ -831,7 +837,10 @@ columns:
     note: YYYYMM of the monthly CNES snapshot.
   CONF_MAS:
     role: establishment.radiotherapy_mask_fabrication_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy mask-fabrication rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field CONF_MAS \"Numero de salas confeccao masc. - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas confeccao masc. - (Radioterapia)\" (establishment.radiotherapy_mask_fabrication_rooms): attribute of the establishment register (structure, service, management)"
@@ -921,7 +930,10 @@ columns:
     - 2026
   EQDOSCLI:
     role: establishment.radiotherapy_clinical_dosimeters
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - clinical dosimeters"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field EQDOSCLI \"Quantidade de dosimetro clinico\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de dosimetro clinico\" (establishment.radiotherapy_clinical_dosimeters): attribute of the establishment register (structure, service, management)"
@@ -931,7 +943,10 @@ columns:
     - 2026
   EQFONSEL:
     role: establishment.radiotherapy_sealed_radioactive_sources
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - sealed radioactive sources"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field EQFONSEL \"Quantidade de fontes seladas\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de fontes seladas\" (establishment.radiotherapy_sealed_radioactive_sources): attribute of the establishment register (structure, service, management)"
@@ -941,7 +956,10 @@ columns:
     - 2026
   EQSISPLN:
     role: establishment.radiotherapy_treatment_planning_computer_systems
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - treatment-planning computer systems"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field EQSISPLN \"Quantidade de sistema de Computacao para Planejamento\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de sistema de Computacao para Planejamento\" (establishment.radiotherapy_treatment_planning_computer_systems): attribute of the establishment register (structure, service, management)"
@@ -951,7 +969,10 @@ columns:
     - 2026
   EQ_MAREA:
     role: establishment.radiotherapy_area_radiation_monitors
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - area radiation monitors"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field EQ_MAREA \"Quantidade de Monitor de Area\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Monitor de Area\" (establishment.radiotherapy_area_radiation_monitors): attribute of the establishment register (structure, service, management)"
@@ -961,7 +982,10 @@ columns:
     - 2026
   EQ_MINDI:
     role: establishment.radiotherapy_personal_individual_dosimetry_monitors
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - personal (individual) dosimetry monitors"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field EQ_MINDI \"Quantidade de Monitor Individual\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Monitor Individual\" (establishment.radiotherapy_personal_individual_dosimetry_monitors): attribute of the establishment register (structure, service, management)"
@@ -1085,7 +1109,10 @@ columns:
     - 2026
   MAQ_OUTR:
     role: establishment.other_dialysis_machines
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Other dialysis machines"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field MAQ_OUTR \"Quantidade de outras maquinas\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de outras maquinas\" (establishment.other_dialysis_machines): attribute of the establishment register (structure, service, management)"
@@ -1095,7 +1122,10 @@ columns:
     - 2026
   MAQ_PROP:
     role: establishment.proportioning_dialysis_machines
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Proportioning dialysis machines"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field MAQ_PROP \"Quantidade de maquinas de proporcao\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de maquinas de proporcao\" (establishment.proportioning_dialysis_machines): attribute of the establishment register (structure, service, management)"
@@ -1190,7 +1220,10 @@ columns:
     - NIV_HIER
   ORTV1050:
     role: establishment.radiotherapy_orthovoltage_units_10_50_kv
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - orthovoltage units, 10-50 kV"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field ORTV1050 \"Quantidade de Equipamentos de Ortovoltagem 10-50 KV\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 10-50 KV\" (establishment.radiotherapy_orthovoltage_units_10_50_kv): attribute of the establishment register (structure, service, management)"
@@ -1200,7 +1233,10 @@ columns:
     - 2026
   ORV50150:
     role: establishment.radiotherapy_orthovoltage_units_50_150_kv
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - orthovoltage units, 50-150 kV"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field ORV50150 \"Quantidade de Equipamentos de Ortovoltagem 50-150 KV\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 50-150 KV\" (establishment.radiotherapy_orthovoltage_units_50_150_kv): attribute of the establishment register (structure, service, management)"
@@ -1230,7 +1266,10 @@ columns:
     - 2026
   OV150500:
     role: establishment.radiotherapy_orthovoltage_units_150_500_kv
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - orthovoltage units, 150-500 kV"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field OV150500 \"Quantidade de Equipamentos de Ortovoltagem 150-500 KV\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Equipamentos de Ortovoltagem 150-500 KV\" (establishment.radiotherapy_orthovoltage_units_150_500_kv): attribute of the establishment register (structure, service, management)"
@@ -1254,7 +1293,10 @@ columns:
     - TP_PFPJ
   PLANJ_RD:
     role: establishment.radiotherapy_treatment_planning_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy treatment-planning rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field PLANJ_RD \"Numero de salas de Planejamento - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas de Planejamento - (Radioterapia)\" (establishment.radiotherapy_treatment_planning_rooms): attribute of the establishment register (structure, service, management)"
@@ -1446,7 +1488,10 @@ columns:
     - RETENCAO
   SALA_MOL:
     role: establishment.radiotherapy_mould_room_facilities
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy mould-room facilities"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field SALA_MOL \"Numero de salas de salas de molde - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas de salas de molde - (Radioterapia)\" (establishment.radiotherapy_mould_room_facilities): attribute of the establishment register (structure, service, management)"
@@ -1456,7 +1501,10 @@ columns:
     - 2026
   SIMUL_RD:
     role: establishment.radiotherapy_simulation_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy simulation rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field SIMUL_RD \"Numero de salas simulacao - (Radioterapia)\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas simulacao - (Radioterapia)\" (establishment.radiotherapy_simulation_rooms): attribute of the establishment register (structure, service, management)"
@@ -1466,7 +1514,10 @@ columns:
     - 2026
   S_ACELL6:
     role: establishment.radiotherapy_linear_accelerators_up_to_6_mev
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy - linear accelerators up to 6 MeV"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_ACELL6 \"Quantidade de Acelerador Linear ate 6 MeV\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Acelerador Linear ate 6 MeV\" (establishment.radiotherapy_linear_accelerators_up_to_6_mev): attribute of the establishment register (structure, service, management)"
@@ -1476,7 +1527,10 @@ columns:
     - 2026
   S_AFERES:
     role: establishment.apheresis_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Apheresis rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_AFERES \"Numero de salas de aferese\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Numero de salas de aferese\" (establishment.apheresis_rooms): attribute of the establishment register (structure, service, management)"
@@ -1486,7 +1540,10 @@ columns:
     - 2026
   S_ALCOME:
     role: establishment.linear_accelerators_above_6_mev_with_electrons
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Linear accelerators above 6 MeV, with electrons"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_ALCOME \"Quantidade de acelerador linear maior 6 MeV com elétrons\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de acelerador linear maior 6 MeV com elétrons\" (establishment.linear_accelerators_above_6_mev_with_electrons): attribute of the establishment register (structure, service, management)"
@@ -1496,7 +1553,10 @@ columns:
     - 2026
   S_ALSEME:
     role: establishment.linear_accelerators_above_6_mev_without_electrons
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Linear accelerators above 6 MeV, without electrons"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_ALSEME \"Quantidade de Acelerador Linear maior 6 MeV sem elétrons\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Acelerador Linear maior 6 MeV sem elétrons\" (establishment.linear_accelerators_above_6_mev_without_electrons): attribute of the establishment register (structure, service, management)"
@@ -1506,7 +1566,10 @@ columns:
     - 2026
   S_ARMAZE:
     role: establishment.storage_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Storage rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_ARMAZE \"Número de salas de armazenagem\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de armazenagem\" (establishment.storage_rooms): attribute of the establishment register (structure, service, management)"
@@ -1516,7 +1579,10 @@ columns:
     - 2026
   S_BIOMOL:
     role: establishment.molecular_biology_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Molecular biology rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_BIOMOL \"Número de salas de biologia molecular\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de biologia molecular\" (establishment.molecular_biology_rooms): attribute of the establishment register (structure, service, management)"
@@ -1526,7 +1592,10 @@ columns:
     - 2026
   S_COLETA:
     role: establishment.collection_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Collection rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_COLETA \"Número de salas de coleta\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de coleta\" (establishment.collection_rooms): attribute of the establishment register (structure, service, management)"
@@ -1536,7 +1605,10 @@ columns:
     - 2026
   S_CONTRQ:
     role: establishment.quality_control_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Quality-control rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_CONTRQ \"Número de salas de controle de qualidade\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de controle de qualidade\" (establishment.quality_control_rooms): attribute of the establishment register (structure, service, management)"
@@ -1546,7 +1618,10 @@ columns:
     - 2026
   S_CPFLUX:
     role: establishment.laminar_flow_hoods
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Laminar-flow hoods"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_CPFLUX \"Salas/Equipamentos de Capela Fluxo Laminar\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Salas/Equipamentos de Capela Fluxo Laminar\" (establishment.laminar_flow_hoods): attribute of the establishment register (structure, service, management)"
@@ -1556,7 +1631,10 @@ columns:
     - 2026
   S_DISTRI:
     role: establishment.distribution_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Distribution rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_DISTRI \"Número de salas de distribuição\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de distribuição\" (establishment.distribution_rooms): attribute of the establishment register (structure, service, management)"
@@ -1566,7 +1644,10 @@ columns:
     - 2026
   S_DPAC:
     role: establishment.capd_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "CAPD rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_DPAC \"Quantidade de salas DPAC\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas DPAC\" (establishment.capd_rooms): attribute of the establishment register (structure, service, management)"
@@ -1576,7 +1657,10 @@ columns:
     - 2026
   S_DPI:
     role: establishment.intermittent_peritoneal_dialysis_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Intermittent peritoneal dialysis rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_DPI \"Quantidade de salas DPI\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas DPI\" (establishment.intermittent_peritoneal_dialysis_rooms): attribute of the establishment register (structure, service, management)"
@@ -1586,7 +1670,10 @@ columns:
     - 2026
   S_ESTOQU:
     role: establishment.stock_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Stock rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_ESTOQU \"Número de salas de estoque\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de estoque\" (establishment.stock_rooms): attribute of the establishment register (structure, service, management)"
@@ -1596,7 +1683,10 @@ columns:
     - 2026
   S_HBSAGN:
     role: establishment.dialysis_rooms_for_hbsag_negative_patients
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Dialysis rooms for HBsAg-negative patients"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_HBSAGN \"Quantidade de salas HBsAG-\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas HBsAG-\" (establishment.dialysis_rooms_for_hbsag_negative_patients): attribute of the establishment register (structure, service, management)"
@@ -1606,7 +1696,10 @@ columns:
     - 2026
   S_HBSAGP:
     role: establishment.dialysis_rooms_for_hbsag_positive_patients
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Dialysis rooms for HBsAg-positive patients"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_HBSAGP \"Quantidade de salas HBsAG+\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas HBsAG+\" (establishment.dialysis_rooms_for_hbsag_positive_patients): attribute of the establishment register (structure, service, management)"
@@ -1616,7 +1709,10 @@ columns:
     - 2026
   S_HEMOST:
     role: establishment.haemostasis_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Haemostasis rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_HEMOST \"Número de salas hemostasia\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas hemostasia\" (establishment.haemostasis_rooms): attribute of the establishment register (structure, service, management)"
@@ -1626,7 +1722,10 @@ columns:
     - 2026
   S_IMUNFE:
     role: establishment.immunophenotyping_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Immunophenotyping rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_IMUNFE \"Número de salas de imunofenotipágem\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de imunofenotipágem\" (establishment.immunophenotyping_rooms): attribute of the establishment register (structure, service, management)"
@@ -1636,7 +1735,10 @@ columns:
     - 2026
   S_IMUNOH:
     role: establishment.immunohaematology_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Immunohaematology rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_IMUNOH \"Número de salas de imunohematologia\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de imunohematologia\" (establishment.immunohaematology_rooms): attribute of the establishment register (structure, service, management)"
@@ -1646,7 +1748,10 @@ columns:
     - 2026
   S_PREEST:
     role: establishment.pre_stock_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Pre-stock rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_PREEST \"Número de salas de pré-estoque\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de pré-estoque\" (establishment.pre_stock_rooms): attribute of the establishment register (structure, service, management)"
@@ -1656,7 +1761,10 @@ columns:
     - 2026
   S_PREPAR:
     role: establishment.preparation_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Preparation rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_PREPAR \"Número de salas de preparo\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de preparo\" (establishment.preparation_rooms): attribute of the establishment register (structure, service, management)"
@@ -1666,7 +1774,10 @@ columns:
     - 2026
   S_PRETRA:
     role: establishment.pre_transfusion_testing_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Pre-transfusion testing rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_PRETRA \"Número de salas pré-transfusionais\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas pré-transfusionais\" (establishment.pre_transfusion_testing_rooms): attribute of the establishment register (structure, service, management)"
@@ -1676,7 +1787,10 @@ columns:
     - 2026
   S_PROCES:
     role: establishment.processing_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Processing rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_PROCES \"Número de salas de processamento\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de processamento\" (establishment.processing_rooms): attribute of the establishment register (structure, service, management)"
@@ -1686,7 +1800,10 @@ columns:
     - 2026
   S_QCDURA:
     role: establishment.short_duration_chemotherapy_rooms_equipment
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Short-duration chemotherapy rooms/equipment"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_QCDURA \"Salas/Equipamentos de Quimio Curta duração\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Salas/Equipamentos de Quimio Curta duração\" (establishment.short_duration_chemotherapy_rooms_equipment): attribute of the establishment register (structure, service, management)"
@@ -1696,7 +1813,10 @@ columns:
     - 2026
   S_QLDURA:
     role: establishment.long_duration_chemotherapy_rooms_equipment
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Long-duration chemotherapy rooms/equipment"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_QLDURA \"Salas/Equipamentos de Quimio de Longa Duração\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Salas/Equipamentos de Quimio de Longa Duração\" (establishment.long_duration_chemotherapy_rooms_equipment): attribute of the establishment register (structure, service, management)"
@@ -1706,7 +1826,10 @@ columns:
     - 2026
   S_REAGN:
     role: establishment.dialyser_reuse_rooms_hbsag_negative
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Dialyser-reuse rooms, HBsAg-negative"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_REAGN \"Quantidade de salas de reuso de HBsAG-\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas de reuso de HBsAG-\" (establishment.dialyser_reuse_rooms_hbsag_negative): attribute of the establishment register (structure, service, management)"
@@ -1716,7 +1839,10 @@ columns:
     - 2026
   S_REAGP:
     role: establishment.dialyser_reuse_rooms_hbsag_positive
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Dialyser-reuse rooms, HBsAg-positive"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_REAGP \"Quantidade de salas de reuso de HBsAG+\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de salas de reuso de HBsAG+\" (establishment.dialyser_reuse_rooms_hbsag_positive): attribute of the establishment register (structure, service, management)"
@@ -1726,7 +1852,10 @@ columns:
     - 2026
   S_RECEPC:
     role: establishment.reception_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Reception rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_RECEPC \"Número de salas de recepção\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de recepção\" (establishment.reception_rooms): attribute of the establishment register (structure, service, management)"
@@ -1736,7 +1865,10 @@ columns:
     - 2026
   S_REHCV:
     role: establishment.dialyser_reuse_rooms_hcv_positive
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Dialyser-reuse rooms, HCV-positive"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_REHCV \"Quantidade de Salas de reuso de HCV+\", typed NUMBER (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Salas de reuso de HCV+\" (establishment.dialyser_reuse_rooms_hcv_positive): attribute of the establishment register (structure, service, management)"
@@ -1746,7 +1878,10 @@ columns:
     - 2026
   S_SGDOAD:
     role: establishment.donor_follow_up_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Donor follow-up rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_SGDOAD \"Número de salas seguimento doador\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas seguimento doador\" (establishment.donor_follow_up_rooms): attribute of the establishment register (structure, service, management)"
@@ -1756,7 +1891,10 @@ columns:
     - 2026
   S_SIMULA:
     role: establishment.radiotherapy_simulators
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Radiotherapy simulators"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_SIMULA \"Quantidade de Simuladores\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Simuladores\" (establishment.radiotherapy_simulators): attribute of the establishment register (structure, service, management)"
@@ -1766,7 +1904,10 @@ columns:
     - 2026
   S_SOROLO:
     role: establishment.serology_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Serology rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_SOROLO \"Número de salas de sorologia\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de sorologia\" (establishment.serology_rooms): attribute of the establishment register (structure, service, management)"
@@ -1776,7 +1917,10 @@ columns:
     - 2026
   S_TRANSF:
     role: establishment.transfusion_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Transfusion rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_TRANSF \"Número de salas de transfusão\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de transfusão\" (establishment.transfusion_rooms): attribute of the establishment register (structure, service, management)"
@@ -1786,7 +1930,10 @@ columns:
     - 2026
   S_TRICLI:
     role: establishment.clinical_screening_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Clinical screening rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_TRICLI \"Número de salas de triagem clínica\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de triagem clínica\" (establishment.clinical_screening_rooms): attribute of the establishment register (structure, service, management)"
@@ -1796,7 +1943,10 @@ columns:
     - 2026
   S_TRIHMT:
     role: establishment.haematological_screening_rooms
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Haematological screening rooms"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field S_TRIHMT \"Número de salas de triagem hematológica\", typed NUMERIC (3); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Número de salas de triagem hematológica\" (establishment.haematological_screening_rooms): attribute of the establishment register (structure, service, management)"
@@ -1863,7 +2013,10 @@ columns:
     - TURNOSAT
   UN_COBAL:
     role: establishment.cobalt_units
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "Cobalt units"
+    unit_evidence: "IT_CNES_1706.pdf (CNES - Informe Técnico 2017-06) §2.2 Dados Complementares (DC*.dbf): field UN_COBAL \"Quantidade de Unidade de Cobalto\", typed NUMERIC (2); a count of rooms or equipment, not a code (the values of the CNES-DC SP 2026-01 file are whole numbers; measured 2026-10-24)"
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Quantidade de Unidade de Cobalto\" (establishment.cobalt_units): attribute of the establishment register (structure, service, management)"

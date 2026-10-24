@@ -79,7 +79,7 @@ columns:
     note: role from SINASC-DN
   CRITICA:
     role: birth.quality_control_code
-    kind: category
+    kind: text
     model: excluded
     fact_domain: administrative
     fact_domain_evidence: "\"Crítica\" (birth.quality_control_code): record type, internal flag or system field"
@@ -87,7 +87,7 @@ columns:
     years:
     - 1995
     - 1995
-    note: role from SINASC-DN
+    note: "role from SINASC-DN \"Dado para controle interno\" (Estrutura do SIM, pos. 44; the SINASC 1994-1995 layout alike): an internal control field whose values DATASUS never explains, kept as filed and not decoded (measured 2026-10-24)."
   CRS_MAE:
     role: mother.residence_health_region
     kind: place

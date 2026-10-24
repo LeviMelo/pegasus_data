@@ -603,11 +603,13 @@ variables:
 
       '
     code_system: internal
+    codes: {"S": "Sim", "N": "Não"}
     source: web
     source_ref: 'uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
       — Ficha de Acompanhamento da Gestante, campo 50 "Precisa de auxílio deslocamento", NÃO/SIM
 
       '
+    reasoning: "The SISPRENATAL kit's own simnao.CNV (TAB_SISPRENATAL.zip) writes S as Sim and N as Não, and the Ficha de Acompanhamento da Gestante prints these three questions with the options NÃO/SIM; the PN 2013 file holds S and N only (2026-10-24)."
   ST_GESTAC:
     official_name: Status da Gestação
     translated_name: Pregnancy case status
@@ -637,12 +639,14 @@ variables:
 
       '
     code_system: internal
+    codes: {"S": "Sim", "N": "Não"}
     source: web
     source_ref: 'uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
       — Ficha de Acompanhamento da Gestante, campo 56 Antecedentes Obstétricos, "Final da
       gestação anterior, < de 1 anos", NÃO/SIM
 
       '
+    reasoning: "The SISPRENATAL kit's own simnao.CNV (TAB_SISPRENATAL.zip) writes S as Sim and N as Não, and the Ficha de Acompanhamento da Gestante prints these three questions with the options NÃO/SIM; the PN 2013 file holds S and N only (2026-10-24)."
   ST_GRA_PLA:
     official_name: Gravidez Planejada
     translated_name: Planned-pregnancy flag
@@ -655,17 +659,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"S": "Sim", "N": "Não"}
     source: inferred
-    reasoning: 'ST_ prefix (status/situação flag, declared C(1,0)) + GRA (gravidez,
-      confirmed elsewhere in this same dictionary via CO_TPO_GRA''s "Tipo de Gravidez"
-      label) + PLA (planejada). Corroborated by general published documentation of
-      SISPRENATAL Web collecting a planned-pregnancy yes/no question. Reviewed
-      2026-09-28: no documentation found (searched the TAB_SISPRENATAL kit incl.
-      Gestantes.def, the SISPRENATAL nota técnica, the empty
-      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
-      web).'
     notes: 'The exact code values (S/N, or 1/2) are not confirmed for this specific field
       — only the subject and likely Sim/Não shape are grounded. Expect a validator warning
       that no codelist is bound to it in the catalog.
 
       '
+    reasoning: "The SISPRENATAL kit's own simnao.CNV (TAB_SISPRENATAL.zip) writes S as Sim and N as Não, and the Ficha de Acompanhamento da Gestante prints these three questions with the options NÃO/SIM; the PN 2013 file holds S and N only (2026-10-24)."

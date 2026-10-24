@@ -122,3 +122,58 @@ constant in its sample), and a third unreadable family (the old SNGPC-IND, whose
 
 **Searches that failed, with why** (not outages of the documents): opendatasus.saude.gov.br answers 302 to dadosabertos.saude.gov.br and both reset the connection, to `curl` with a browser User-Agent and to WebFetch, and the in-app browser's navigation was denied or failed; the Internet Archive answered 503; the host of the 2020-07-27 SIVEP-Gripe dictionary refused the connection; the Paraíba state note on the 2023 form is behind a captcha. The documents
 above were reached through the Portal's S3 bucket and state and municipal mirrors.
+
+## Datasets sampled from the server (branch `meta-sample`, 2026-10-24)
+
+**Regime.** The catalog lists 154 datasets (`pegasus_core.workspace.datasets()`); the maintainer lake holds the records of 41. Of the other 113, 111 were landed one file each into a scratch home (the seed catalog, the branch's curation loaded by
+`pegasus-data curate`; pegasus-core-fixes `896cfe3`) through the builder's own reader, `pegasus-data build --root HOME --family F --uf UF --years Y --limit 1`, the blob released after the decode. The file: the smallest first publication of 100 KB or more
+among a dataset's four latest years; the largest of the four when all are smaller; the smallest of any year when all four are over the cap (SISCAN's national CSVs: 2013, 2022 or 2025 instead of 1.6 GB years); never over 150 MB.
+Downloaded: 116 FTP fetches, 355 MB (the largest: SIHSUS-MT 1997 36 MB, SINAN-ANTR 35, SISCAN CITO_COLO_PACNT 2013 34, CITO_COLO 32, SINAN-VIOL 32), and a 0.3 MB TabWin kit read for one table.
+**Skipped for size:** SIHSUS-BASE_AIH1 (its smallest publication, 11,445 MB) and DADOS_ABERTOS-DOSES_RESIDENCIA (1,117 MB). Artifacts `data/probes/decode_coverage/2026-10-24-sampled-before.json` and `-after.json`.
+
+**Files landed.**
+- CNES (13): DCSP2601, EESP1701, EFSP2601, EPPI2301, EQAM2401, GMSP2401, HBMG2601, INSP2601, LTSP2601, PFRR2301, RCMG2601, SRAM2301, STTO2301. SIASUS (7): ABSP1701, ABOSP2601, ACAC0601, ACFSP2401, AMPMG2501, BIRR2401, PARR2401.
+  SIHSUS (5): CHBR2601, ERRJ2501, MTBR9701, RJGO2301, SPRR2601.
+- SIM (5): DOEXT26, DOINF26, DOMAT25, DORTO92, DORIG95. SINASC (2): DNRRR1995, DNRIG1995. SISPRENATAL: PNRO1301. PNI (2): CPNIAC16, DPNIDF19. PCE: PCEBR23. RESP: RESPBR23. ESUSNOTIFICA: DCCRBR23. DADOS_ABERTOS: Cobertura_Residencia (4.9 MB).
+  IBGE (9): ALF, ESCA, ESCB, IDOSO, RENDA (1991 census zips), POP24, POPSBR24, POPTBR22, PROJUF67.
+- SISCAN (15): CCTO1301, CMSP1201, HCSP1301, HMSP1401, MMBA1501 and the ten exports: CITO_COLO 2013 (32 MB), CITO_COLO_PACNT 2013, CITO_MAMA 2025, CITO_MAMA_PACNT 2025, HISTO_COLO 2022, HISTO_COLO_PACNT 2025, HISTO_MAMA 2022, HISTO_MAMA_PACNT 2022, MAMOGRAFIA 2013 (25 MB), MAMOGRAFIA_PACNT 2013.
+- SINAN (48 agravos, one national file each): ACBI, ACGR, AIDA, AIDC, ANIM, ANTR, BOTU, CANC, CHAG, COLE (2016: the 2021 file is 2 bytes), COQU, DCRJ, DERM, DIFT, ESPO, ESQU, EXAN, FMAC, FTIF, HANS, HANT, HEPA, HIVA, HIVC, HIVE, HIVG, IEXO,
+  LEIV, LER, LERD, LTAN, MALA, MENI, MENT, NTRA, PAIR, PEST, PFAN, PNEU, RAIV, ROTA, SIFA, SRC, TETA, TETN, TRAC, VARC, VIOL.
+
+**Counted** (the coded columns holding values, each family's latest partition, its first 20,000 records, as above):
+
+| state | before (head curation) | after |
+|---|---|---|
+| labelled | 3,002 | 3,056 |
+| words as filed | 50 | 50 |
+| codes left bare | 596 | 350 (220 distinct columns) |
+| empty or constant | 260 | 260 |
+| coded columns holding values | 3,648 | 3,456 |
+| labelled columns whose labels reach under 95 % of their codes | 78 | 71 |
+
+**The measure was wrong in one place.** `decode_coverage.py` took a labelled column's share from the code column, where "(?)" never appears, so it printed 100 % for every labelled column (the sections above say so). It now reads the `<column>_label`
+beside the code, null where no table held the code, and keeps the commonest `code=label` pairs in the artifact: that is how the partly labelled columns and the wrong labels below were found. The 78 are mostly codes the table does not list (0, 8, 9),
+visible as such. The 40 earlier datasets were not re-measured.
+
+**Of the 596 bare:** 55 column-datasets (33 columns) bound, 191 (186 columns) not codes, 350 (220 columns) still undecoded, with their searches in open question 3.
+- **Bound** (the document named in each entry): CNES's 1-Sim/0-Não flags (DC water-treatment, dialysis, chemotherapy and hemotherapy summaries, EQ IND_NSUS, SR AMB_SUS, HOSP_SUS and HOSP_NSUS: IT_CNES_1706 §2.2, §2.5, §2.6; AP01-07CV07: the wiki and the grid's siblings);
+  SINAN's ICD-10 columns (DIAG_ESP of the DRT forms, CIRC_LESAO of VIOL: the dictionaries' "CID 10"), UF_ING and UF_HOSPITA (UF_BR), TETN ESCOLMAE_N (ESCOLARNET, campo 41) and CS_OUTRAS, LER and LERD EVOL_AFAST (the numerals of "Melhora Piora 9- Ignorado" lost from the text layer; DERM and PAIR print 1, 2, 9);
+  SIASUS-AC APA_TIPAPA (APAC_JUL07 campo 008) and PA_FLQT (the letter of CODOCO's two-character keys: all five (PA_CODOCO, PA_FLQT) pairs of the PA RR 2024 file are keys of the table); SISPRENATAL's three S/N flags (the kit's simnao.CNV and the ficha); IBGE ESCOLARID (TabNet escadescr.htm).
+- **Not codes** (the kind corrected, evidence in each entry): CNES-DC's 51 room and equipment counts (NUMBER and NUMERIC in §2.2) and PORTARIA (free text); the SISCAN legacy files' 115 columns that the kits' DEFs list as `I` (incremento) lines, which the tabulator sums (CColo4, HColo4, CMAMA4, HMAMA4, MMAMA4.def);
+  SINAN ANTR DOSES, ESQU AN_QUANT and CHAG's titres; ESUSNOTIFICA's relatives and nifurtimox counts; SIASUS-ACF ACF_FREMIT (a 1-4 grade) and AMP's four laboratory values; PCE ID_LOC (a 12-character geocode); SIM and SINASC CRITICA ("dado para controle interno"); RESP CRITERIO (seven positional S/N flags).
+- **Undecoded:** SISCAN's ten exports (about 150 columns: no dictionary), the legacy files' columns no DEF names, CNES's regionalisation codes and one conflict (ESFERA_A), SIASUS AMP's codes, SIHSUS-MT, the 1979-95 SIM and SINASC fields, SINAN's leftovers, IBGE's census bands, SISPRENATAL's three.
+
+**Labels that did not say what their codes mean** (found by reading `code=label` pairs; fixed with the source named in the entry):
+- SINAN ID_UNIDADE (every agravo): bound to five tabulator selection lists beside the name tables. AB (50,625 CNES codes, all "Sim") and the NHE lists labelled 7,259 of the 8,318 labelled cells of ANTR 2025 "Sim", the others by the rank of a hospital epidemiology nucleus. Now UNIDANET and CADGERBR (the dictionary names the CNES table).
+- SINAN TP_AFAST (DRT forms): the unit of the leave (1 hora, 2 dias, 3 meses, 4 anos: PAIR and LER/DORT dictionaries) was labelled by EVOL_AFAST's Melhora/Piora list: DERM's 2 read "Piora".
+- ESUSNOTIFICA's 17 Sim/Não columns: "Sim" had no row (Sim_nao.cnv labels it; the pack lost it), so 30 % of AC_NOT's answers were labelled.
+- RESP CRITERIO: seven positional flags decoded token by token against a table with no S or N ("N (?) | N (?) | ...").
+- SINAN PFAN CLI_BICD_N and EVOR_S_MIE: the dictionary prints their lists with repeated numerals ("1- Diminuído 1. Ausente 2. Normal"), and the harvest kept them (code 1 labelled "Diminuído 1. Ausente"). The file holds the siblings' five codes
+  (BICD: 89, 39, 243, 6, 161 against the triceps' 88, 37, 250, 6, 163), so the siblings' scale is restored in `supplements.yml`.
+- Dictionary line wraps and a dropped capital in 36 SINAN labels ("Reagente/Reage nte" on ten hepatitis markers, "Creche/escol a", "Toxoplamas mose", "9: gnorado"), corrected.
+- Read and left: SISCAN MONEXT gives codes 1 and 2 one label (its CNV says `1-2`); PNI FXET's several codes per age (the CNV's); SIM-DOR's CAUSABAS reads the ICD-9 groups of the Basic Tabulation List (pre-1996, low priority); HIVE's CS_ESCOL_N holds 2-digit codes against a 1-digit table.
+
+**Findings.**
+- Landing needed no new mechanism: `build --family --uf --years --limit 1` lands one publication, `curate` and `decode_coverage.py` measure it; 111 datasets in about 20 minutes and 355 MB. One file could not be decoded (COLE 2021, 2 bytes; the 2016 file was used).
+- Roles generated from a layout's names had typed whole blocks of counts and flags as categories (CNES-DC 51, SISCAN 115): the kind was the defect, not a table.
+- A sibling's definition is not evidence for a file the document does not list: SIASUS AMP's ACEVAS, SEAPTO and SITTRA carry the dialysis homonyms' documented codes (1-3, 1-4) while the file holds 0/1, S/N/I and N/R. They stay undecoded.

@@ -3,7 +3,10 @@ record: exam
 columns:
   ADENCARCIN:
     role: exam.adenocarcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Adenocarcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 227: \"IAdenocarc.In Situ, ADENCARCIN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Adenocarcinoma\" (exam.adenocarcinoma): result of a test or finding on the person"
@@ -23,7 +26,10 @@ columns:
     - 2015
   AMOSREJALH:
     role: exam.rejected_causes_outside_the_laboratory
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Rejected, causes outside the laboratory"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 178: \"IRejeit.alheias lab, AMOSREJALH\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Amostra rejeitada por causas alheias ao laboratório\" (exam.rejected_causes_outside_the_laboratory): how care or investigation was carried out"
@@ -33,7 +39,10 @@ columns:
     - 2015
   AMOSREJAUS:
     role: exam.rejected_missing_or_wrong_identification
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Rejected, missing or wrong identification"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 176: \"IRejeit.erro ident., AMOSREJAUS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Amostra rejeitada por ausência ou erro na identificação da lâmina, frasco ou formulário\" (exam.rejected_missing_or_wrong_identification): how care or investigation was carried out"
@@ -43,7 +52,10 @@ columns:
     - 2015
   AMOSREJDAN:
     role: exam.rejected_slide_damaged_or_missing
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Rejected, slide damaged or missing"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 177: \"IRejeit.lâm.danif., AMOSREJDAN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Amostra rejeitada por lâmina danificada ou ausente\" (exam.rejected_slide_damaged_or_missing): how care or investigation was carried out"
@@ -53,7 +65,10 @@ columns:
     - 2015
   AMOSREJOUT:
     role: exam.rejected_other_reason
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Rejected, other reason"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 179: \"IRejeit.outras, AMOSREJOUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Amostra rejeitada por outras causas\" (exam.rejected_other_reason): how care or investigation was carried out"
@@ -73,7 +88,10 @@ columns:
     - 2015
   CARCINO:
     role: exam.invasive_squamous_carcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Invasive squamous carcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 226: \"ICarc.Epid.invasor, CARCINO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermóide invasor\" (exam.invasive_squamous_carcinoma): result of a test or finding on the person"
@@ -83,7 +101,10 @@ columns:
     - 2015
   CBEMATROF:
     role: exam.benign_change_atrophy_with_inflammation
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, atrophy with inflammation"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 199: \"IAlt.Ben.Atrofia, CBEMATROF\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Atrofia com inflamação\" (exam.benign_change_atrophy_with_inflammation): result of a test or finding on the person"
@@ -93,7 +114,10 @@ columns:
     - 2015
   CBEMINFLA:
     role: exam.benign_change_inflammation
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, inflammation"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 196: \"IAlt.Ben.Inflamação, CBEMINFLA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Inflamação\" (exam.benign_change_inflammation): result of a test or finding on the person"
@@ -103,7 +127,10 @@ columns:
     - 2015
   CBEMMETAS:
     role: exam.benign_change_immature_squamous_metaplasia
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, immature squamous metaplasia"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 197: \"IAlt.Ben.Metaplasia, CBEMMETAS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Metaplasia escamosa imatura\" (exam.benign_change_immature_squamous_metaplasia): result of a test or finding on the person"
@@ -113,7 +140,10 @@ columns:
     - 2015
   CBEMOUT:
     role: exam.benign_change_other
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, other"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 201: \"IAlt.Ben.Outros, CBEMOUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Outros\" (exam.benign_change_other): result of a test or finding on the person"
@@ -123,7 +153,10 @@ columns:
     - 2015
   CBEMRADI:
     role: exam.benign_change_radiation_effect
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, radiation effect"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 200: \"IAlt.Ben.Radiação, CBEMRADI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Radiação\" (exam.benign_change_radiation_effect): result of a test or finding on the person"
@@ -133,7 +166,10 @@ columns:
     - 2015
   CBEMREPAR:
     role: exam.benign_change_repair
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign change, repair"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 198: \"IAlt.Ben.Reparação, CBEMREPAR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Alterações celulares benignas reativas ou reparativas: Reparação\" (exam.benign_change_repair): result of a test or finding on the person"
@@ -169,7 +205,10 @@ columns:
     - 2015
   CMICACTI:
     role: exam.actinomyces_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Actinomyces seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 207: \"IMic.actinomyces sp, CMICACTI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Actinomyces sp\" (exam.actinomyces_seen): result of a test or finding on the person"
@@ -179,7 +218,10 @@ columns:
     - 2015
   CMICBACI:
     role: exam.other_bacilli_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Other bacilli seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 211: \"IMic.outros bacilos, CMICBACI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Outros bacilos\" (exam.other_bacilli_seen): result of a test or finding on the person"
@@ -189,7 +231,10 @@ columns:
     - 2015
   CMICCAND:
     role: exam.candida_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Candida seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 206: \"IMic.CANDIDA sp, CMICCAND\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Candida sp\" (exam.candida_seen): result of a test or finding on the person"
@@ -199,7 +244,10 @@ columns:
     - 2015
   CMICCHLA:
     role: exam.suggestive_of_chlamydia
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Suggestive of Chlamydia"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 205: \"IMic.sug.chlamydia, CMICCHLA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Sugestivo de Chlamydia sp\" (exam.suggestive_of_chlamydia): result of a test or finding on the person"
@@ -209,7 +257,10 @@ columns:
     - 2015
   CMICCOCO:
     role: exam.cocci_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Cocci seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 204: \"IMic.cocos, CMICCOCO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Cocos\" (exam.cocci_seen): result of a test or finding on the person"
@@ -219,7 +270,10 @@ columns:
     - 2015
   CMICGARD:
     role: exam.supracytoplasmic_bacilli_gardnerella_mobiluncus_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Supracytoplasmic bacilli (Gardnerella/Mobiluncus) seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 210: \"IMic.bacil supracit., CMICGARD\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Bacilos supracitoplasmáticos (sugestivos de Gardnerella/Mobiluncus)\" (exam.supracytoplasmic_bacilli_gardnerella_mobiluncus_seen): result of a test or finding on the person"
@@ -229,7 +283,10 @@ columns:
     - 2015
   CMICHERP:
     role: exam.herpes_cytopathic_effect_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Herpes cytopathic effect seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 209: \"IMic.vir gr.herpes, CMICHERP\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Efeito citopático compatível com vírus do grupo Herpes\" (exam.herpes_cytopathic_effect_seen): result of a test or finding on the person"
@@ -239,7 +296,10 @@ columns:
     - 2015
   CMICLACT:
     role: exam.lactobacilli_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Lactobacilli seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 203: \"IMic.lactobacillus, CMICLACT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Lactobacillus sp\" (exam.lactobacilli_seen): result of a test or finding on the person"
@@ -249,7 +309,10 @@ columns:
     - 2015
   CMICOUT:
     role: exam.other_organism_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Other organism seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 212: \"IMic.outros, CMICOUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Outros\" (exam.other_organism_seen): result of a test or finding on the person"
@@ -259,7 +322,10 @@ columns:
     - 2015
   CMICTRICO:
     role: exam.trichomonas_seen
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Trichomonas seen"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 208: \"IMic.trichomonas, CMICTRICO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microbiologia: Trichomonas vaginalis\" (exam.trichomonas_seen): result of a test or finding on the person"
@@ -435,7 +501,10 @@ columns:
     - 2015
   CO_EPI_MET:
     role: exam.metaplastic_epithelium_present
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Metaplastic epithelium present"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 192: \"IEpitelio metaplasia, CO_EPI_MET\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Epitélios representados na amostra: Metaplásico\" (exam.metaplastic_epithelium_present): result of a test or finding on the person"
@@ -459,7 +528,10 @@ columns:
     - FETARIA
   CO_INSA_AC:
     role: exam.unsatisfactory_acellular_hypocellular_material
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - acellular/hypocellular material"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 182: \"IInsatisf.Mat.Acelul, CO_INSA_AC\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.Mat.Acelul\" (exam.unsatisfactory_acellular_hypocellular_material): how care or investigation was carried out"
@@ -469,7 +541,10 @@ columns:
     - 2015
   CO_INSA_AR:
     role: exam.unsatisfactory_drying_artifact
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - drying artifact"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 185: \"IInsatisf.dessecam., CO_INSA_AR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.dessecam.\" (exam.unsatisfactory_drying_artifact): how care or investigation was carried out"
@@ -479,7 +554,10 @@ columns:
     - 2015
   CO_INSA_CO:
     role: exam.unsatisfactory_external_contaminants
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - external contaminants"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 186: \"IInsatisf.cont.ext., CO_INSA_CO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.cont.ext.\" (exam.unsatisfactory_external_contaminants): how care or investigation was carried out"
@@ -489,7 +567,10 @@ columns:
     - 2015
   CO_INSA_OU:
     role: exam.unsatisfactory_other_reason
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - other reason"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 188: \"IInsatisf.outras, CO_INSA_OU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.outras\" (exam.unsatisfactory_other_reason): how care or investigation was carried out"
@@ -499,7 +580,10 @@ columns:
     - 2015
   CO_INSA_PI:
     role: exam.unsatisfactory_pus_cells_present
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - pus cells present"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 184: \"IInsatisf.pres.pióc., CO_INSA_PI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.pres.pióc.\" (exam.unsatisfactory_pus_cells_present): how care or investigation was carried out"
@@ -509,7 +593,10 @@ columns:
     - 2015
   CO_INSA_SA:
     role: exam.unsatisfactory_blood_present
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - blood present"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 183: \"IInsatisf.pres.sang., CO_INSA_SA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.pres.sang.\" (exam.unsatisfactory_blood_present): how care or investigation was carried out"
@@ -519,7 +606,10 @@ columns:
     - 2015
   CO_INSA_SU:
     role: exam.unsatisfactory_cell_overlap
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Unsatisfactory - cell overlap"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 187: \"IInsatisf.superp.cel, CO_INSA_SU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Insatisf.superp.cel\" (exam.unsatisfactory_cell_overlap): how care or investigation was carried out"
@@ -767,7 +857,10 @@ columns:
     - 2015
   C_EPI_ESCA:
     role: exam.squamous_epithelium_present_in_sample
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Squamous epithelium present in sample"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 190: \"IEpitelio escamoso, C_EPI_ESCA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Epitelio escamoso representado na amostra\" (exam.squamous_epithelium_present_in_sample): result of a test or finding on the person"
@@ -777,7 +870,10 @@ columns:
     - 2015
   C_EPI_GLAN:
     role: exam.glandular_epithelium_present_in_sample
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Glandular epithelium present in sample"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 191: \"IEpitelio glandular, C_EPI_GLAN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Epitelio glandular representado na amostra\" (exam.glandular_epithelium_present_in_sample): result of a test or finding on the person"
@@ -787,7 +883,10 @@ columns:
     - 2015
   DENCARCINV:
     role: exam.invasive_squamous_carcinoma_flag_cytology
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Invasive squamous carcinoma flag (cytology)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 228: \"IAdenocarc.Invasor, DENCARCINV\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermoide invasor (citologia)\" (exam.invasive_squamous_carcinoma_flag_cytology): result of a test or finding on the person"
@@ -869,7 +968,10 @@ columns:
     - 2015
   LAGRAU:
     role: exam.high_grade_squamous_lesion_family_flag
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: High-grade squamous lesion family flag"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 224: \"ILes.IE Alto grau, LAGRAU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesao intraepitelial de alto grau (familia)\" (exam.high_grade_squamous_lesion_family_flag): result of a test or finding on the person"
@@ -889,7 +991,10 @@ columns:
     - 2015
   LBGRAU:
     role: exam.low_grade_squamous_intraepithelial_lesion_lsil_flag
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Low-grade squamous intraepithelial lesion (LSIL) flag"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 223: \"ILes.IE Baixo grau, LBGRAU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesao intraepitelial de baixo grau\" (exam.low_grade_squamous_intraepithelial_lesion_lsil_flag): result of a test or finding on the person"
@@ -899,7 +1004,10 @@ columns:
     - 2015
   LESALTGRA:
     role: exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion_asc
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical squamous cells, cannot exclude high-grade lesion (ASC-H)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 217: \"IEsc.Indet alto grau, LESALTGRA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células escamosas atípicas de significado indeterminado: não se pode afastar lesão de alto grau (ASC-H)\" (exam.atypical_squamous_cells_cannot_exclude_high_grade_lesion_asc): result of a test or finding on the person"
@@ -919,7 +1027,10 @@ columns:
     - 2015
   NALTGRA:
     role: exam.atypical_cells_of_undefined_origin_cannot_exclude_high_grade
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical cells of undefined origin, cannot exclude high-grade lesion"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 221: \"IOri.Indef alto grau, NALTGRA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células atípicas de origem indefinida: não se pode afastar lesão de alto grau\" (exam.atypical_cells_of_undefined_origin_cannot_exclude_high_grade): result of a test or finding on the person"
@@ -929,7 +1040,10 @@ columns:
     - 2015
   NLSALTGRA:
     role: exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical glandular cells, cannot exclude high-grade lesion"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 219: \"IGland.Ind.alto grau, NLSALTGRA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células glandulares atípicas de significado indeterminado: não se pode afastar lesão de alto grau\" (exam.atypical_glandular_cells_cannot_exclude_high_grade_lesion): result of a test or finding on the person"
@@ -939,7 +1053,10 @@ columns:
     - 2015
   OUTNEO:
     role: exam.other_malignant_neoplasm_flag_cytology_alternate_encoding
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Other malignant neoplasm flag (cytology, alternate encoding)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 229: \"IOutras Neoplasias, OUTNEO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Outras neoplasias malignas (citologia)\" (exam.other_malignant_neoplasm_flag_cytology_alternate_encoding): result of a test or finding on the person"
@@ -949,7 +1066,10 @@ columns:
     - 2015
   POSNAONEO:
     role: exam.atypical_squamous_cells_possibly_non_neoplastic_asc_us
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical squamous cells, possibly non-neoplastic (ASC-US)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 216: \"IEsc.Indet não neopl, POSNAONEO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células escamosas atípicas de significado indeterminado: possivelmente não neoplásicas (ASC-US)\" (exam.atypical_squamous_cells_possibly_non_neoplastic_asc_us): result of a test or finding on the person"
@@ -959,7 +1079,10 @@ columns:
     - 2015
   PSNAONPLA:
     role: exam.atypical_glandular_cells_possibly_non_neoplastic
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical glandular cells, possibly non-neoplastic"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 218: \"IGland.Indet não neo, PSNAONPLA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células glandulares atípicas de significado indeterminado: possivelmente não neoplásicas\" (exam.atypical_glandular_cells_possibly_non_neoplastic): result of a test or finding on the person"
@@ -969,7 +1092,10 @@ columns:
     - 2015
   PSNNPLA:
     role: exam.atypical_cells_of_undefined_origin_possibly_non_neoplastic
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Atypical cells of undefined origin, possibly non-neoplastic"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 220: \"IOri.Indef não neopl, PSNNPLA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células atípicas de origem indefinida: possivelmente não neoplásicas\" (exam.atypical_cells_of_undefined_origin_possibly_non_neoplastic): result of a test or finding on the person"
@@ -1038,7 +1164,10 @@ columns:
     - 2015
   REJEITADA:
     role: exam.rejected_sample_flag_cytology
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Rejected sample flag (cytology)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 174: \"IAmostra rejeitada, REJEITADA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Amostra rejeitada\" (exam.rejected_sample_flag_cytology): how care or investigation was carried out"
@@ -1058,7 +1187,10 @@ columns:
     - 2015
   RESNORM:
     role: exam.normal_benign_result_flag
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Normal/benign result flag"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), CColo4.def line 194: \"IDentro Normalidade, RESNORM\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado normal/benigno\" (exam.normal_benign_result_flag): result of a test or finding on the person"

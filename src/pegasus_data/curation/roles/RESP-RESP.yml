@@ -131,11 +131,12 @@ columns:
   CRITERIO:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.final_classification_criteria_multi_select
-    kind: category
+    kind: text
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Criterios para classificacao final do caso\" (notification.final_classification_criteria_multi_select): fact about the health event or the person's health"
     name: Criterios para classificacao final do caso
+    note: "Seven positional S/N flags (DIC_DADOS_RESP.pdf: laboratorial Zika, Dengue, Chikungunya, STORCH, outros, imagem, clínico-epidemiológico), read as filed, not decoded token by token (measured 2026-10-24)."
     years:
     - 2015
     - 2024

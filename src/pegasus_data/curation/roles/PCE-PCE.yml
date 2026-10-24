@@ -46,16 +46,13 @@ columns:
     - 2026
   ID_LOC:
     role: survey.locality
-    kind: category
-    model: mark
-    fact_domain: administrative
-    fact_domain_evidence: "\"Código da localidade (UF + município + localidade)\" (survey.locality): attribute of the establishment register (structure, service, management)"
+    kind: identifier
+    model: link_only
     name: Código da localidade (UF + município + localidade)
     years:
     - 1995
     - 2026
-    note: Twelve digits, state + municipality + locality (270040900006); no municipal table matches that width
-      and it is never cut to make one.
+    note: "Twelve digits, state + municipality + locality (270040900006); no municipal table matches that width and it is never cut to make one. \"Geocódigo composto de 12 caracteres que identifica a localidade\" (DIC_DADOS_SISPCE_PCE-DG.pdf): state, municipality and the SISLOC locality, an identifier of a place that no table of the package names, read as filed (measured 2026-10-24: 3,863 distinct values in the 2023 file)."
   ID_UF:
     role: survey.state
     kind: place

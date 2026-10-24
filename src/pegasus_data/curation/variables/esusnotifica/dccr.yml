@@ -15,11 +15,13 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     notes: 'Also used as a de-duplication tiebreaker by the technical area: where duplicate
       notifications exist, the one with AC_NOT filled is the one kept, so this column''s
       completeness is not independent of which rows survived into the published base.
 
       '
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   ADVERS_BNZ:
     official_name: Apresentou reações adversas ao BNZ? Sem reações
     translated_name: Benznidazole — no adverse reaction
@@ -244,6 +246,8 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   CARDIOPAT:
     official_name: Comorbidades - Cardiopatia de outra etiologia
     translated_name: Comorbidity — heart disease of other aetiology
@@ -253,9 +257,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - FORMA
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   CD_ANT_MUN:
     official_name: COD IBGE - Município da nova unidade
     translated_name: IBGE code, municipality of the new specialised unit
@@ -546,7 +552,9 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   DIAG_FAMIL:
     official_name: Nº de Familiares com história epidemiológica SEM diagnóstico prévio
       de doença de Chagas
@@ -753,7 +761,9 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   HIPERTEN:
     official_name: Comorbidades - Hipertensão
     translated_name: Comorbidity — hypertension
@@ -777,8 +787,10 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - TRAT_BNZ
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   HIST_EPID:
     official_name: Nº de Familiares (vivos) com história epidemiológica COM diagnóstico
       prévio e confirmado de doença de Chagas
@@ -806,12 +818,14 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - REATIVACAO
     notes: '"Sim"/"Nao" as text in C(3). The catalog binds SINAN''s numeric SIM_NAO
       codelist; those codes do not occur.
 
       '
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   HOSP_ESP:
     official_name: Está sendo acompanhado em Hospital/Serviço especializado?
     translated_name: Followed at a specialised hospital or service
@@ -821,8 +835,10 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - MO_SUSPEIT
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   ID_ESTRANG:
     official_name: Estrangeiro
     translated_name: Foreign national
@@ -938,9 +954,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - EIE_IGG
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   MN_RESI_TF:
     official_name: Novo Município de Residência
     translated_name: New municipality of residence
@@ -986,9 +1004,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - UF_NOV_AC
     - MUN_NOV_AC
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   MUN_ESP:
     official_name: Município Hospital/Serviço Especializado
     translated_name: Municipality of the specialised hospital or service
@@ -1043,9 +1063,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - REATIVACAO
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   NFX_AGEUSI:
     official_name: Apresentou reações adversas ao NFX? Ageusia
     translated_name: Nifurtimox — ageusia
@@ -1154,9 +1176,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - ANT_UF_ESP
     - ANT_MUN
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   NU_IDADE_N:
     official_name: Idade
     translated_name: Age (SINAN composite)
@@ -1215,7 +1239,9 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     notes: '"Sim"/"Nao" as text in C(3), not the bound SIM_NAO numeric codes.'
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   PCR:
     official_name: PCR detectável?
     translated_name: PCR detectable
@@ -1272,9 +1298,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - HIV
     - NEOPLASIA
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   RX_COLON:
     official_name: Exames complementares – RX cólon
     translated_name: Colon X-ray result
@@ -1384,9 +1412,11 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
     depends_on:
     - UF_RESI_TF
     - MN_RESI_TF
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   TRAT_BNZ:
     official_name: Prescrições atuais - Tratamento específico 1ª linha, Benznidazol
       (BNZ)
@@ -1397,6 +1427,8 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   TRAT_NFX:
     official_name: Prescrições atuais - Tratamento específico 2ª linha, Nifurtimox
       (NFX)
@@ -1406,6 +1438,8 @@ variables:
 
       '
     code_system: internal
+    codes: {"Sim": "Sim", "Nao": "Não"}
+    reasoning: "The answers are written as words. TAB_SINANNOTIFICA.zip (FTP ESUSNOTIFICA/AUXILIAR) Sim_nao.cnv: \"Sim\" is labelled Sim, \"Nao\" Não and blanks or digits Ign/Branco; the label pack held the Não row only, so every Sim stayed unlabelled (e.g. AC_NOT: 30 % of the answers labelled, DCCR 2023; 2026-10-24)."
   UF_HOSPESP:
     official_name: Estado Hospital/Serviço Especializado
     translated_name: State of the specialised hospital or service

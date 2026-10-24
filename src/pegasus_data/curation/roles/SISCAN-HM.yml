@@ -23,7 +23,10 @@ columns:
     - 2015
   CBENESDERO:
     role: exam.radial_sclerosing_lesion_flag
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Radial sclerosing lesion flag"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 13: \"IBenig L Esc Rad, CBENESDERO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Lesão esclerosante radial\" (exam.radial_sclerosing_lesion_flag): result of a test or finding on the person"
@@ -33,7 +36,10 @@ columns:
     - 2015
   CBENFIBROA:
     role: exam.benign_breast_lesion_fibroadenoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign breast lesion: Fibroadenoma"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 15: \"IBenig Fibroadenoma, CBENFIBROA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Fibroadenoma\" (exam.benign_breast_lesion_fibroadenoma): result of a test or finding on the person"
@@ -43,7 +49,10 @@ columns:
     - 2015
   CBENFIBROC:
     role: exam.benign_breast_lesion_condicao_fibrocistica
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign breast lesion: Condicao fibrocistica"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 14: \"IBenig Cond Fib, CBENFIBROC\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Condicao fibrocistica\" (exam.benign_breast_lesion_condicao_fibrocistica): result of a test or finding on the person"
@@ -53,7 +62,10 @@ columns:
     - 2015
   CBENFLORID:
     role: exam.benign_breast_lesion_papilomatose_florida_do_mamilo
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign breast lesion: Papilomatose florida do mamilo"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 18: \"IBenig Pap Florida Mam, CBENFLORID\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo\" (exam.benign_breast_lesion_papilomatose_florida_do_mamilo): result of a test or finding on the person"
@@ -83,7 +95,10 @@ columns:
     - 2015
   CBENLOBCAT:
     role: exam.benign_lobular_hyperplasia_with_atypia
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign, lobular hyperplasia with atypia"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 11: \"IL Benig H Lov c/at, CBENLOBCAT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Hiperplasia lobular com atipias\" (exam.benign_lobular_hyperplasia_with_atypia): result of a test or finding on the person"
@@ -93,7 +108,10 @@ columns:
     - 2015
   CBENMASTIT:
     role: exam.benign_mastitis
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign, mastitis"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 19: \"IBenig Mastite, CBENMASTIT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Mastite\" (exam.benign_mastitis): result of a test or finding on the person"
@@ -103,7 +121,10 @@ columns:
     - 2015
   CBENMULTI:
     role: exam.benign_multiple_papillomas
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign, multiple papillomas"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 17: \"IBenig Pap Múltiplo, CBENMULTI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Papiloma múltiplo\" (exam.benign_multiple_papillomas): result of a test or finding on the person"
@@ -113,7 +134,10 @@ columns:
     - 2015
   CBENOUTROS:
     role: exam.benign_other
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign, other"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 20: \"IBenig Outros, CBENOUTROS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Outros\" (exam.benign_other): result of a test or finding on the person"
@@ -123,7 +147,10 @@ columns:
     - 2015
   CBENSOLITA:
     role: exam.benign_solitary_papilloma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign, solitary papilloma"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 16: \"IBenig Pap Solitário, CBENSOLITA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Papiloma solitário\" (exam.benign_solitary_papilloma): result of a test or finding on the person"
@@ -558,7 +585,10 @@ columns:
     - 2015
   LESBENIGIN:
     role: exam.benign_lesion
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign lesion"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), HMAMA4.def line 8: \"ILes Benig, LESBENIGIN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão benigna\" (exam.benign_lesion): result of a test or finding on the person"

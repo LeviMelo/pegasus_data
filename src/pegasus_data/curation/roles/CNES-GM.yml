@@ -246,11 +246,12 @@ columns:
     - TP_PFPJ
   PORTARIA:
     role: establishment.ordinance_number_citation
-    kind: category
+    kind: text
     model: mark
     fact_domain: administrative
     fact_domain_evidence: "\"Portaria\" (establishment.ordinance_number_citation): attribute of the establishment register (structure, service, management)"
     name: Portaria
+    note: "The ordinance (portaria) that authorised the habilitation, written freely: 'GM 3123', 'GM-3123', '3123', 'CONVENIO 06/2021', '25000.009438/2017-31' are all in the files (CNES-GM SP 2024: 117 spellings in 144 rows, measured 2026-10-24); text as filed, not a code."
     years:
     - 2007
     - 2026
