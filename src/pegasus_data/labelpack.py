@@ -57,6 +57,7 @@ __all__ = [
     "LabelPackReport",
     "build_label_pack",
     "codelist_roles",
+    "packed_fingerprint",
     "read_packed",
     "PACK_NAME",
 ]
@@ -1019,7 +1020,7 @@ def clear_caches() -> None:
     # `_dataset` may have been monkeypatched to a bare callable; clear what
     # is clearable rather than requiring every stand-in to be an lru_cache.
     for fn in (_read_packed, _expand_runs, _vintage_runs, _scoped_windows, _scoped_rows,
-               _codelist_rows, _dataset):
+               _codelist_rows, _packed_fingerprint, _dataset):
         clear = getattr(fn, "cache_clear", None)
         if clear is not None:
             clear()
@@ -1065,6 +1066,48 @@ def _scoped_rows(codelist: str, system: str | None):
     mine = pc.or_(pc.equal(pc.utf8_upper(owner), system), pc.equal(owner, ""))
     scoped = hit.filter(mine)
     return scoped if scoped.num_rows else hit
+
+
+def packed_fingerprint(codelist: str, system: str | None) -> str:
+    """A digest of every row of one codelist that a read for ``system`` can be answered from, in every validity
+    window: the system's own rows and the shared ones (``system`` null), the rows :func:`_scoped_rows` offers
+    :func:`read_packed`, whatever year or month is asked. Rows of other systems are not in it (a read of them is a
+    borrow, which is refused unless a caller allows it), so a change to another system's copy of the codelist leaves
+    it as it was, and so does a change to any other codelist. ``"absent"`` for a codelist the pack holds no row of for
+    this system, which a later pack that holds one changes.
+
+    Content, not time: the rows are sorted, so a pack rebuilt with the same rows in another order is the same
+    fingerprint. Memoised by the pack file's size and time (the content digest of 3,445 codelists is not
+    recomputed per call; a replaced pack is a different memo entry)."""
+    path = _pack_path()
+    stat = path.stat() if path is not None else None
+    identity = (str(path), stat.st_size, stat.st_mtime_ns) if stat is not None else None
+    return _packed_fingerprint(codelist.upper(), (system or "").upper(), identity)
+
+
+@lru_cache(maxsize=4096)
+def _packed_fingerprint(codelist: str, system: str, identity: tuple[str, int, int] | None) -> str:
+    import hashlib
+    import json
+
+    import pyarrow.compute as pc
+
+    del identity                                   # the memo's key: which pack file this answer is about
+    hit = _codelist_rows(codelist)
+    if hit is None or not hit.num_rows:
+        return "absent"
+    rows = hit
+    if system:                                     # as `_scoped_rows`: no system asked reads every row
+        owner = pc.fill_null(hit.column("system"), "")
+        rows = hit.filter(pc.or_(pc.equal(pc.utf8_upper(owner), system), pc.equal(owner, "")))
+    if not rows.num_rows:
+        return "absent"
+    columns = [n for n in rows.schema.names if n != "codelist"]
+    rows = rows.select(columns).sort_by([(n, "ascending") for n in columns])
+    digest = hashlib.sha256(json.dumps(columns).encode())
+    digest.update(json.dumps(list(zip(*(rows.column(n).to_pylist() for n in columns), strict=True)),
+                             ensure_ascii=False, default=str).encode())
+    return digest.hexdigest()[:16]
 
 
 @lru_cache(maxsize=256)

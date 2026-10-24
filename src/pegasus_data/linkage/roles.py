@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -209,25 +210,78 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
 
 
 #: Bumped when `_normalise`, `_compute_roles_year` or the reading and labelling of the rows they use changes what a
-#: role table holds. A cached table's key is this, the dataset's own role block, the label files' content and that
-#: dataset-year's lake partition files: not the text of seven source files and every partition of every year, which
-#: made any commit to them, or one new month of another year, discard all 48 cached national tables (2026-10-14).
+#: role table holds. A cached table's key (`table_key`) is this, the dataset's own role definitions, the codelists
+#: its labelled columns can be labelled with and that dataset-year's lake partition files: not the text of seven source
+#: files and every partition of every year, which made any commit to them, or one new month of another year, discard
+#: all 48 cached national tables (2026-10-14), and not the shipped label pack as a whole, which made the re-windowing
+#: of CIH's labels (a dataset no link reads) discard every stored 2022 run (2026-10-23).
 ROLE_TABLE_VERSION = 1
-_LABEL_FILES = ("labels.parquet", "labels_crosswalk.parquet", "code_lists.parquet", "municipalities.parquet")
 
 
-@lru_cache(maxsize=16)
-def _content_digest(path: str, size: int, mtime_ns: int) -> str:
-    """A file's content hash (size and time only key the in-process memo). The label files were stamped by their
-    modification time, which a checkout, a clone or an install rewrites: a second worktree on the same data root found
-    none of the first's role tables or stored runs current and, building its own, deleted them (2026-10-14)."""
-    import hashlib
+def _labelled_columns(wanted: Iterable[Role]) -> set[str]:
+    """The columns a role table is rendered with labels for: those of the roles whose normalisation reads the label
+    (`_READS_LABELS`: a sex, a place, a facility, a category). Every other role is read as filed
+    (`_compute_roles_year`), so no label can reach it."""
+    return {c for role in wanted if role.type in _READS_LABELS for c in (role.column, *role.also)}
 
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()[:16]
+
+def label_tables(dataset: str, families: Sequence[str], settings: Any) -> frozenset[str] | None:
+    """The codelists the labelled columns of ``dataset``'s roles can be labelled with in these lake families
+    (`label_bindings.label_candidates`: the tables the renderer's ladder can return for them, upper case); None when
+    the data home has no catalog to say, and a reader then has to take the label pack whole. Memoised by the catalog
+    file's size and time and the curation's digest (a long-lived process sees a catalog written since only when SQLite
+    checkpoints it), so asking for every year of a run costs one answer."""
+    from ..semantics.epoch import curation_epoch
+
+    path = Path(settings.catalog_path)
+    try:
+        stat = path.stat()
+    except OSError:
+        return None
+    return _label_tables(dataset.upper(), tuple(families), str(path), (stat.st_size, stat.st_mtime_ns),
+                         curation_epoch()[1])
+
+
+@lru_cache(maxsize=256)
+def _label_tables(dataset: str, families: tuple[str, ...], catalog: str, identity: tuple[int, int],
+                  curation: str) -> frozenset[str] | None:
+    import sqlite3
+
+    from .._request import parse_dataset
+    from ..catalog.store import CatalogStore
+    from ..semantics.label_bindings import label_candidates
+
+    del identity, curation                        # the memo's key: which catalog and curation this answer is about
+    fields = sorted(_labelled_columns(dataset_roles(dataset).roles.values()))
+    if not fields:
+        return frozenset()
+    system, series = parse_dataset(dataset)
+    store = CatalogStore.shared(catalog)
+    try:
+        return label_candidates(store, system, series or "", families, fields)
+    except sqlite3.OperationalError as exc:       # a catalog older than the tables the ladder reads: none to name them
+        if "no such table" not in str(exc) and "no such column" not in str(exc):
+            raise                                 # a busy catalog is not "no catalog": a key must not depend on a lock
+        return None
+    finally:
+        store.close()
+
+
+def label_inputs(dataset: str, files: Sequence[Path], lake: Path, settings: Any) -> str:
+    """What the labels contribute to a role table's key: for each codelist its labelled columns can be labelled with
+    in the families of ``files`` (`label_tables`), the codelist's name and a digest of what it is read from for the
+    dataset's system (`persist.reference.reference_fingerprint`: the pack's rows of this system and the shared ones,
+    in every validity window, or the curated table, or the canonical file). The whole pack's digest when there is no
+    catalog to name the codelists."""
+    from .._request import parse_dataset
+    from ..persist.reference import reference_fingerprint, resource_digest
+
+    families = tuple(sorted({f.relative_to(lake).parts[0] for f in files}))
+    names = label_tables(dataset, families, settings)
+    if names is None:
+        return f"labels|whole pack|{resource_digest('labels.parquet')}|"
+    system = parse_dataset(dataset)[0]
+    return "".join(f"label|{name}|{reference_fingerprint(settings.lake_dir, name, system)}|" for name in sorted(names))
 
 
 def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[Path]]:
@@ -243,7 +297,32 @@ def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[
 
 def table_key(dataset: str, year: int, settings: Any) -> str | None:
     """Fingerprint of one dataset-year's role table, or None when no lake partition backs it. Also what a stored link
-    run records for the years it read (`store.fingerprint`): a run is current while its inputs' keys are."""
+    run records for the years it read (`store.fingerprint`): a run is current while its inputs' keys are.
+
+    A record's identity is a hash of its normalised fields, so whatever changes what the table holds makes every id
+    stored against it match nothing. Exactly that is in the key, and nothing a table is not computed from:
+
+    * ``ROLE_TABLE_VERSION``, the dataset, the year;
+    * the dataset's record kind and roles (every role: the table holds them all, and its columns follow their order);
+    * the lake partition files of the year (relative path, size, time);
+    * for the codelists the labelled columns can be labelled with (`label_inputs`): the rows they are read from, for
+      this dataset's system, in every window.
+
+    The labels once were the whole shipped pack (and three other resource files), so a change to any codelist of any
+    system, CIH's re-windowing on 2026-10-23 among them, made every role table and every stored run stale, each costing
+    8 to 12 minutes and up to 11 GB to make again. What a role table reads of them is the label of a sex, a place, a
+    facility or a category (`_labelled_columns`; the other roles are read as filed, a derived age from the raw
+    columns): 1 to 11 columns of a dataset, which name 2 (SIM-DOFET) to 22 codelists (SIM-DO) in a year, the sex and
+    municipality tables of the system and the curated tables of its form dictionary (docs/evaluation/
+    2026-10-24-link-keys-by-what-they-read.md). Of the four resource files once hashed, a build opens ``labels.parquet``
+    only; ``labels_crosswalk.parquet`` and ``code_lists.parquet`` are read by enrichments and code structures, which a
+    role table does not ask for, and ``municipalities.parquet`` is in the key when a labelled column is bound to UF_BR
+    or MUNIC_BR7. The dataset's ``setting`` (the municipality role whose state publishes a record) is not here: no table
+    holds it, and a stored run takes it into its fingerprint (`store._fingerprint_of`).
+
+    A role table is never built from a codelist this key does not name: `_check_labels_named` compares what the render
+    labelled the columns with against the names and refuses the build. A CNES registry is read from the data home, is
+    not shipped, and was never in the key; `persist.reference.reference_fingerprint` says why that is exact."""
     import hashlib
 
     try:
@@ -252,13 +331,10 @@ def table_key(dataset: str, year: int, settings: Any) -> str | None:
         return None
     if not files:
         return None
+    spec = dataset_roles(dataset)
     h = hashlib.sha256(f"{ROLE_TABLE_VERSION}|{dataset.upper()}|{year}|".encode())
-    h.update(repr(dataset_roles(dataset)).encode())
-    resources = Path(__file__).resolve().parent.parent / "resources"
-    for name in _LABEL_FILES:
-        path = resources / name
-        st = path.stat() if path.exists() else None
-        h.update(f"{name}|{_content_digest(str(path), st.st_size, st.st_mtime_ns) if st else ''}".encode())
+    h.update(repr((spec.record, spec.roles)).encode())
+    h.update(label_inputs(dataset, files, lake, settings).encode())
     for f in files:
         st = f.stat()
         h.update(f"{f.relative_to(lake)}|{st.st_size}|{st.st_mtime_ns}".encode())
@@ -525,11 +601,12 @@ def _compute_roles_year(spec: DatasetRoles, names: list[str], *, period: object,
     select = sorted(_carried(spec.dataset, {c for role in wanted for c in (role.column, *role.also)}, period,
                              query_kwargs))
     # labels only where a role reads them (`_normalise`: sex, places, facilities, label roles); a code read as filed
-    labelled = {c for role in wanted if role.type in _READS_LABELS for c in (role.column, *role.also)}
+    labelled = _labelled_columns(wanted)
     table, report = query(
         spec.dataset, period=period, geography=geography, select=select, present="analysis",
         provenance="all", return_report=True, render={c: "code" for c in select if c not in labelled}, **query_kwargs,
     )
+    _check_labels_named(spec.dataset, labelled, report, period, query_kwargs)
     table = table.combine_chunks() if table.num_rows else table
     columns: dict[str, pa.Array] = {
         "_blob_sha256": pc.cast(table.column("_blob_sha256"), pa.string()),
@@ -555,6 +632,66 @@ def _compute_roles_year(spec: DatasetRoles, names: list[str], *, period: object,
             b"absent_roles": ",".join(absent).encode(), b"role_gaps": json.dumps(gaps).encode()}
     complete = getattr(report, "source_strategy", "") == "lake"
     return out.replace_schema_metadata(meta), ("lake" if complete else "other")
+
+
+def _check_labels_named(dataset: str, labelled: set[str], report: Any, period: object,
+                        query_kwargs: dict[str, Any]) -> None:
+    """Refuse a role table labelled from a codelist its key does not name (`table_key`, `label_tables`).
+
+    The key names the codelists the renderer's ladder can return for the labelled columns, from the catalog and the
+    curation (`label_bindings.label_candidates`); the render says which it did return (``codelist_used``). Were a rung
+    of the ladder missing from the first, a table would be cached, and stored link runs left current, whose labels a
+    change to that codelist then alters: the silent stale state the key exists to prevent. This turns it into an error
+    at the first build, naming the column and the codelist, and no table is kept."""
+    from .._query_engine.model import _period
+    from ..config import load_settings
+
+    used = _codelists_used(report, labelled)
+    if not used:
+        return
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    try:
+        years = _period(period).years if period is not None else ()
+    except Exception:  # noqa: BLE001 - an unusual period is answered, and not cached
+        return
+    named: set[str] = set()
+    keyed = False                           # a year of the period has a key (a lake partition backs it)
+    for year in years:
+        try:
+            lake, files = partition_files(dataset, year, settings)
+        except Exception:  # noqa: BLE001 - an unknown dataset is reported by the query itself
+            continue
+        if files:
+            names = label_tables(dataset, tuple(sorted({f.relative_to(lake).parts[0] for f in files})), settings)
+            if names is None:
+                return                      # no catalog to name them: the whole pack is in the key
+            named |= names
+            keyed = True
+    outside = {column: sorted(tokens - named) for column, tokens in used.items() if keyed and tokens - named}
+    if outside:
+        raise RuntimeError(
+            f"{dataset}: labelled role columns were labelled from codelists the role table's key does not name: "
+            + "; ".join(f"{column} from {', '.join(tokens)}" for column, tokens in sorted(outside.items()))
+            + ". `label_bindings.label_candidates` lacks a source of names the labelling ladder (`decide`) draws on; "
+            "add it there, or a change to those codelists would leave stored link runs current.")
+
+
+def _codelists_used(report: Any, labelled: set[str]) -> dict[str, set[str]]:
+    """``column -> codelists (upper case)`` the render of a query labelled the ``labelled`` columns with. A column
+    named through another column of the row (``table.field via column``) uses no codelist of its own."""
+    wanted = {c.upper() for c in labelled}
+    sources = getattr(report, "source_report", None)
+    out: dict[str, set[str]] = {}
+    for source in sources if isinstance(sources, (list, tuple)) else [sources]:
+        used = getattr(source, "codelist_used", None) or getattr(getattr(source, "render", None), "codelist_used", None)
+        for column, text in (used or {}).items():
+            if str(column).upper() not in wanted:
+                continue
+            for token in re.split(r"[+,]", str(text)):
+                token = token.strip().upper()
+                if token and " VIA " not in token and not token.startswith("COLUMN "):
+                    out.setdefault(str(column).upper(), set()).add(token)
+    return out
 
 
 def absent_roles(table: pa.Table) -> list[str]:
@@ -603,5 +740,5 @@ def unusable_roles(table: pa.Table, names: list[str]) -> dict[str, str]:
     return out
 
 
-__all__ = ["DatasetRoles", "Role", "absent_roles", "dataset_roles", "load_roles", "role_gaps", "role_table",
-           "table_key", "unusable_roles", "why_unusable"]
+__all__ = ["DatasetRoles", "Role", "absent_roles", "dataset_roles", "label_inputs", "label_tables", "load_roles",
+           "role_gaps", "role_table", "table_key", "unusable_roles", "why_unusable"]
