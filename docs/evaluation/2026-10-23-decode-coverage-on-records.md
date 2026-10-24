@@ -79,3 +79,46 @@ measurement on the real root (artifact `2026-10-23-after-curate.json`) gives the
 left bare, 70 words as filed, 91 empty or constant, of 1,037 coded columns. Labels read against their documents: CIH-CR
 SEXO 3 Feminino, 1 Masculino (CIH layout); MORTE, GESTAO; SINAN-TUBE TRATAMENTO 3 Reingresso após Abandono; SIFG TPESQUEMA
 and TPESQPAR clean; SNGPC CO_CID10 by ICD-10; SRAG PAC_COCBO by CBO; CIH COBRANCA 61 visibly unlabelled.
+
+---
+
+## After the table search (branch `meta-tables`, 2026-10-24)
+
+**Regime.** The same script and sample, pegasus-core-fixes `896cfe3` plus the branch, its curation loaded into a copy of the real catalog (lake and registries
+read through junctions to the real root); artifact `data/probes/decode_coverage/2026-10-24-meta-tables.json` (run on the branch head, the commit that adds this section). Of the 18 bare columns, 6 changed state
+because of this branch; the only other difference to the run of the 23rd is SNGPC-IND, which another session landed again meanwhile (a new family: `TP_RECEITUARIO` now labelled, `CO_CID10`
+constant in its sample), and a third unreadable family (the old SNGPC-IND, whose files were replaced).
+
+| state | after the metadata pass | after the table search |
+|---|---|---|
+| labelled | 949 | 954 |
+| words as filed | 70 | 70 |
+| codes left bare | 18 | 11 |
+| empty or constant | 91 | 93 |
+
+**Found and declared** (documents the first pass had not reached; every code observed in the files is in them; labels read on the renderer's output):
+- **SRAG `RES_IGG`, `RES_IGM`, `RES_IGA`**: 1 Positivo, 2 Negativo, 3 Inconclusivo, 4 Não realizado, 5 Aguardando resultado, 9 Ignorado. The 2019-2025 dictionary prints the fields without
+  categories; the notification form (SVS, 31/07/2026, campo 76) and the SIVEP-Gripe dictionary's campo 73 (prefeitura.sp.gov.br copy) print them. Against the counts (onsets 2020-2022):
+  IgG `1` has a result date in 95.0 % and is classified covid-19 in 95.1 % of 123,742 rows, `2` a date in 94.6 % and covid-19 in 55.7 %, `4` a date in 4.5 %.
+- **SRAG `HISTO_VGM`**: 1 Sim, 2 Não, 9 Ignorado (dictionary of 31/03/2020, campo 27: international travel in the 14 days before onset); the country field is filled on all 1,056 rows of `1` and
+  0.01 % of the others. Code `0` (3,744,410 rows, every row from 2021-04) is in no document and stays bare; the column reads constant `0` in the latest partition, hence "constant" above.
+- **BNAFAR `TIPO_PRODUTO`**: B Componente Básico, E Especializado, S Estratégico, O recursos próprios do ente (dictionary "Posição de Estoque" on the Portal's S3 bucket, `bnafar/estoque/`;
+  same 15 attributes in the same order as the DEMAS endpoint). The 7 rows that stock a diagnostic reagent, in no RENAME annex, are all `O`. The first pass had searched the swagger, not the bucket.
+- **CIH-CR `FONTE`**: the table is the successor CIHA's (`FONTE.cnv` of TAB_CIHA.zip: 01 CONVENIO PLANO PRIVADO ... 09 PARTICULAR PESSOA JURIDICA). The first pass had read the DEF line from the wrong kit:
+  CIH's own DEF does not tabulate the field. The CIH file keeps the code left-justified in its CHAR (02) field (raw `1 `, read as `1`), declared as filed, not padded. Test of the rival reading (the
+  codes mean something else in CIH): CIH and CIHA both hold the admissions of 2011-01 to 2011-04; 128,012 are found in both (hospital, birth date, sex, discharge date, diagnosis, residence, procedure,
+  unique on each side), and 123,934 (96.8 %) carry the same source, `1` against `01`, `2` against `02`.
+- **CIH-CR `COBRANCA` 61 to 67**: CIHA's and SIH's `SAIDAPERM.CNV` list 61 to 67 and fold the CIH codes 17 and 13 into 61 and 62 (`61,17`, `62,13`). In the CIH files 17 ends and 61 begins at
+  competence 2010-10, 13 and 62 likewise; the 86,647 rows of `61` are 100 % female, 98.7 % with an obstetric main diagnosis, median age 29; of the matched admissions above, 16,346 of the 16,375 filed
+  `61` in CIH carry `61` in CIHA, 797 of 885 the `62`. Declared: 61, 62, 63, 64, 66, 67 (65 is not observed).
+
+**Still undecoded, with the new evidence** (open question 3 has the list):
+- SRAG `REINF`: no dictionary names it. Only `2` occurs; 4 to 5 % of the rows notified in 2021, 18 % in 2022-12, all rows from 2023-03 (the form update). Read as the default 2-Não, it is an inference.
+- SIA `NACION_PAC`: the kit's RAAS DEF binds it to the 3-digit `UFNACIO`; the DBF column is CHAR (2), raw `01`, values 01 to 35. Read as the first two characters of the 3-digit code it ranks like the APAC
+  files' `AP_UFNACIO` cut to two (Spearman 0.62 over 19 codes), but that truncates a code and names groups of countries.
+- SIA `AP_MNDIF`: documented twice (Informe Técnico 2019-07: `0 = mesmo município; 1 = município diferente`; `INVASAO.CNV`) and contradicted: `1` on all but 78 of 127 M rows of the APAC families, 40 to 79 %
+  of them with patient and establishment in one municipality, while `AP_UFDIF` obeys its documentation exactly (AR, AQ, AD 2023-2024). A label would be wrong on those rows.
+- SINAN `FLXRECEBI`: the dictionary gives it CS_FLXRET's domain (`tp_fluxo_retorno`), whose 0/1/2 table is about sending, and the files do not bear it out (`2` sits on CS_FLXRET `0` rows: 48,048 of 51,444, CHIK 2015).
+
+**Searches that failed, with why** (not outages of the documents): opendatasus.saude.gov.br answers 302 to dadosabertos.saude.gov.br and both reset the connection, to `curl` with a browser User-Agent and to WebFetch, and the in-app browser's navigation was denied or failed; the Internet Archive answered 503; the host of the 2020-07-27 SIVEP-Gripe dictionary refused the connection; the Paraíba state note on the 2023 form is behind a captcha. The documents
+above were reached through the Portal's S3 bucket and state and municipal mirrors.

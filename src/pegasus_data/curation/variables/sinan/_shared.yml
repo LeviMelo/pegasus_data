@@ -4510,7 +4510,7 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Sinais Flogísticos)
   FLXRECEBI:
-    notes: "The dictionary names no code for it (\"Identifica se o registro foi recebido pelo fluxo de retorno\", a system-set internal field); the files hold \"2\" and \"/N\" (CHIK 2019) or \"0\" (DENG 2024, every row of the first 20,000), none of them declared. Undecoded, visibly (open question 3)."
+    notes: "The dictionary names no code for it (\"Identifica se o registro foi recebido pelo fluxo de retorno\", a system-set internal field); the files hold \"2\" and \"/N\" (CHIK 2019) or \"0\" (DENG 2024, every row of the first 20,000), none of them declared. Undecoded, visibly (open question 3). 2026-10-24: the dictionary gives it the same domain as CS_FLXRET (tp_fluxo_retorno, varchar2(1)), whose table (0 Não habilitado, 1 habilitado para envio, 2 enviado) is printed only on CS_FLXRET and describes sending, not receiving, and the files do not bear it out as FLXRECEBI's table: \"2\" is on 48,048 of the 51,444 CHIK 2015 rows that hold it with CS_FLXRET \"0\" (not enabled), and DENG's \"0\" (8,726 rows of 2021, 136,988 of 2024) sits only with CS_FLXRET \"0\"; 98 % of DENG 2024 is blank."
     official_name: Recebida por Fluxo de Retorno
     translated_name: Received via return-flow
     description: 'Internal flag marking a record that arrived at this database through the
