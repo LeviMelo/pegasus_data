@@ -49,6 +49,7 @@ from .measures import (
     check_rollup,
     measure_from_declaration,
 )
+from .semantics.epoch import curated
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pyarrow as pa
@@ -60,6 +61,7 @@ __all__ = [
     "AggregateSpec",
     "aggregate",
     "build_aggregate",
+    "declared_measures",
     "load_specs",
     "spec_named",
 ]
@@ -332,6 +334,27 @@ def spec_named(name: str, root: Path | None = None) -> AggregateSpec:
             f"no aggregate spec named {name!r}; declared: {sorted(specs)}"
         )
     return specs[name]
+
+
+@curated
+def declared_measures() -> dict[tuple[str, str], tuple[Measure, ...]]:
+    """``(roles file's dataset, column) -> the measures the aggregate recipes declare over that column``.
+
+    The recipes are where the project says along which axes a column's quantity may be added (`additive_over`, and the
+    `time_reducer` of a stock); the roles layer states what the number is and in which unit, not how it combines.
+    A column read through several recipes is listed under each (`measures.measure_of_role` keeps what all of them allow)."""
+    from .semantics.column_roles import declared_key
+
+    out: dict[tuple[str, str], list[Measure]] = {}
+    for spec in load_specs().values():
+        try:
+            dataset = declared_key(spec.dataset)
+        except KeyError:
+            continue
+        for measure in spec.measures:
+            for column in measure.source_fields:
+                out.setdefault((dataset, column.upper()), []).append(measure)
+    return {key: tuple(found) for key, found in out.items()}
 
 
 # ------------------------------------------------------------------- report

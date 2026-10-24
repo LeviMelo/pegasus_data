@@ -2,7 +2,8 @@
 
 The input is the table :func:`pegasus_data.proximity.care_flows` returns: edges ``from``, ``to``,
 ``weight`` (events), ``vintage`` and ``share``, with any further column (a ``by`` classifier) a
-group of its own. Everything here is computed per vintage and group, from the edges alone.
+group of its own, except the state of a ``measure`` (``<role>_n``, ``<role>_sum``), which rides along on the edges and
+is neither a group nor read here. Everything here is computed per vintage and group, from the edges alone.
 
 * :func:`care_flow_profile`: per municipality, the events of its residents, the share treated at
   home (self-sufficiency), the events it treats, the share of those that come from elsewhere
@@ -29,9 +30,16 @@ import pyarrow as pa
 _FIXED = ("from", "to", "weight", "kind", "vintage", "share")
 
 
+def _group_columns(flows: pa.Table) -> list[str]:
+    """The columns of a flow table that are groups: a ``by`` classifier (a source column, never with a dot). Not the fixed
+    columns and not a measure's state, which ``care_flows(measure=)`` names ``<entity>.<property>_n`` and ``_sum`` after
+    the role (a role has a dot): a quantity summed on the edges, which no function here groups by."""
+    return [c for c in flows.column_names if c not in _FIXED and "." not in c]
+
+
 def _groups(flows: pa.Table) -> tuple[list[str], list[tuple[tuple, dict[tuple[str, str], int]]]]:
     """The group columns of a flow table and, per (vintage, group value), its ``(from, to) -> weight``."""
-    extra = [c for c in flows.column_names if c not in _FIXED]
+    extra = _group_columns(flows)
     columns = {c: flows.column(c).to_pylist() for c in ("vintage", "from", "to", "weight", *extra)}
     grouped: dict[tuple, dict[tuple[str, str], int]] = defaultdict(dict)
     for i in range(flows.num_rows):

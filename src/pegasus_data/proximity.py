@@ -19,7 +19,8 @@ Every graph is ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes:
   death, counted from the records as events of their declared type, per year,
   with ``share`` (the part of the origin's events going to ``to``); to the
   hospital's municipality or, with ``destination="establishment"``, to its
-  CNES. Computed on request, since it depends on what the lake holds. Its
+  CNES; with ``measure`` each edge also carries the count and sum of a quantity named by its role (length of stay).
+  Computed on request, since it depends on what the lake holds. Its
   derived products (self-sufficiency, catchments, flow communities, the
   comparison with official health regions) are in ``careflow.py``.
 
@@ -30,15 +31,21 @@ has no contiguity row and says so rather than inheriting a neighbour's.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from .measures import AXES, AggregationRefused, Measure, check_rollup, measure_of_role
 from .semantics.epoch import curated
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from .semantics.column_roles import ColumnRole
+    from .semantics.event_types import EventType
 
 PROXIMITY_PACK_NAME = "proximity.parquet"
 REGIC_PACK_NAME = "regic_cities.parquet"
@@ -306,9 +313,65 @@ def _overlap(a: tuple[int | None, int | None], b: tuple[int | None, int | None])
     return ((a[0] is None or b[1] is None or a[0] <= b[1]) and (b[0] is None or a[1] is None or b[0] <= a[1]))
 
 
+@dataclass(frozen=True, slots=True)
+class _FlowMeasure:
+    """A quantity summed along a care flow: its measure (``(n, sum)``, named by the role) and, per year, the column that
+    carries the role then (None: no column does)."""
+
+    measure: Measure
+    roles: dict[int, ColumnRole | None]
+
+
+def _flow_measures(dataset: str, wanted: Sequence[str], event: EventType, years: Sequence[int]) -> list[_FlowMeasure]:
+    """The roles ``wanted`` as the measures a flow can carry, or the reason it cannot: a role the dataset does not declare
+    in those years, a number that is no quantity or whose "not recorded" values are undeclared (`measure_of_role`), a
+    quantity the recipes declare not additive along an axis the flow sums over (`check_rollup`: time, geography,
+    dimensions), and an event whose row stands for several events."""
+    if not wanted:
+        return []
+    import difflib
+
+    from ._aggregate import declared_measures
+    from .conditions import role_column
+    from .semantics.column_roles import declared_columns, declared_key
+
+    if event.weight or event.grid:
+        raise AggregationRefused(
+            f"{dataset} {event.name}: a row stands for several events ({'weight ' + event.weight if event.weight else 'a grid'}) "
+            "and nothing declares whether a quantity on the row is each event's or the row's total; a sum over rows would be "
+            "one or the other. Sum it from the records (`query`), at the grain the quantity is declared in")
+    columns, key, recipes = declared_columns(dataset), declared_key(dataset), declared_measures()
+    out = []
+    for name in dict.fromkeys(wanted):
+        roles = {y: role_column(columns, name, y, f"{dataset} measure {name!r}:") for y in years}
+        carried = [r for r in roles.values() if r is not None]
+        if not carried:
+            quantities = sorted({c.role for c in columns if c.kind == "number" and c.measure})
+            named = [c.role for c in columns if c.column.upper() == name.upper()]
+            near = named or difflib.get_close_matches(name, quantities, n=5, cutoff=0.5)
+            raise ValueError(f"{dataset} declares no column with the role {name!r} in {years[0]}-{years[-1]}; a measure is "
+                             f"named by its role (<entity>.<property>), not its column"
+                             + (f"; closest: {', '.join(near)}" if near else f"; its quantities: {', '.join(quantities)}"))
+        declared = [m for column in sorted({r.column.upper() for r in carried}) for m in recipes.get((key, column), ())]
+        measures = [measure_of_role(r, declared) for r in carried]
+        if len({m.unit for m in measures}) > 1:
+            raise AggregationRefused(f"{dataset}: {name} is measured in {sorted({m.unit or 'no declared unit' for m in measures})} "
+                                     f"in different years ({[(r.column, r.unit) for r in carried]}): its sums are not one quantity")
+        for axis in AXES:
+            check_rollup(measures[0], axis)
+        out.append(_FlowMeasure(measures[0], roles))
+    return out
+
+
+def _held(recorded_n: pa.Array, summed: pa.Array, mask: pa.Array) -> dict[str, Any]:
+    """Of the events in ``mask``: how many hold a recorded value, and the sum of those values."""
+    return {"n": int(pc.sum(pc.filter(recorded_n, mask)).as_py() or 0),
+            "sum": float(pc.sum(pc.filter(summed, mask)).as_py() or 0.0)}
+
+
 def care_flows(dataset: str, *, period: object, geography: object = "BR", by: str | None = None,
                level: str | None = None, destination: str = "municipality", event: str | None = None,
-               **query_kwargs: Any) -> pa.Table:
+               measure: str | Sequence[str] | None = None, **query_kwargs: Any) -> pa.Table:
     """The care-flow graph: events moving from residence to where they happened, per year.
 
     One edge per (``from``, ``to``, ``vintage`` = the year [, ``by``]): ``weight`` is the events,
@@ -322,16 +385,32 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
     ``destination="establishment"`` ends the edges at the facility (SIH ``CNES``) instead of its
     municipality: the institution graph, whose ``to`` is the CNES code.
 
+    ``measure`` names a quantity of the event by its ROLE, one or several (``"admission.length_of_stay"``; the
+    column is whichever the roles declare for the year, ``roles(dataset)`` lists them). Each edge then carries its
+    accumulator state, never a mean: ``<role>_n``, the events of the edge whose value was recorded, and ``<role>_sum``,
+    the sum of those values in the role's ``unit`` (null when none was); the mean of any set of edges is the sum of
+    their ``_sum`` over the sum of their ``_n`` (``measures.Measure.formula``, in the metadata). A value is not recorded
+    when it is blank, no number, one of the role's declared ``missing`` codes or outside its declared ``domain``
+    (`conditions.measurement`): it is in neither column and is counted in the metadata. A currency is summed as billed
+    (nominal, the role's unit says so), not deflated. Refused with the reason: a role that is no quantity or declares
+    no "not recorded" values, a quantity whose recipes declare it not additive along time, geography or dimensions
+    (a stock: CNES beds), and an event type whose rows stand for several events (a ``weight`` or ``grid``).
+
     Every event is accounted for. The table's metadata carries the events counted (``events``),
     those whose origin or destination is blank (``unplaced``) and those whose municipality code is
     none of IBGE's (``unresolved``), with the codes per year in ``accounting``; the edges sum to
-    ``events - unplaced - unresolved``. ``geography`` selects publications (SIH files are by the
-    hospital's state), so a state gives the flows into its hospitals, not out of its residents.
+    ``events - unplaced - unresolved``. With ``measure`` it also carries ``measures``, per role: its state columns,
+    unit and formula, and over the events counted, ``n`` (recorded), ``missing`` (not recorded), ``outside_domain`` and
+    ``sum``, with the same counts and sums of the events left off the edges (``unplaced``, ``unresolved``), so that
+    the edges' ``_n`` and ``_sum`` add up to ``n``, ``sum`` less those; the years' own are in ``accounting``.
+    ``geography`` selects publications (SIH files are by the hospital's state), so a state gives the flows into its
+    hospitals, not out of its residents.
     """
     import json
 
     from ._aggregate import _tree_pushforward
     from ._query_engine.model import _period
+    from .conditions import measurement
     from .geography import municipalities
     from .semantics.event_types import UNKEYED, event_type, load_event_types, read_events
 
@@ -351,6 +430,7 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
     span = _period(period)
     if span is None:
         raise ValueError("care flows are counted per year: pass a period")
+    quantities = _flow_measures(key, [measure] if isinstance(measure, str) else list(measure or ()), counted_event, span.years)
     code7 = {c6: row["code7"] for c6, row in municipalities().items()}
     known7 = frozenset(code7.values())
 
@@ -376,7 +456,9 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
             if generation.establishment is None:
                 raise KeyError(f"{dataset} declares no establishment column for {year}")
             to_column = generation.establishment
-        part = read_events(dataset, counted_event, {origin, to_column, *([by] if by else [])},
+        carried = {q.measure.name: q.roles[year] for q in quantities}
+        part = read_events(dataset, counted_event,
+                           {origin, to_column, *([by] if by else []), *(r.column for r in carried.values() if r)},
                            period=str(year), geography=geography, **query_kwargs)
         weight = (part.column("__w") if "__w" in part.column_names
                   else pa.repeat(pa.scalar(1, pa.int64()), part.num_rows))
@@ -398,6 +480,28 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
                                     if UNKEYED in (part.schema.metadata or {}) else {})}
         events_total, unplaced_total, unresolved_total = (events_total + n_events, unplaced_total + n_unplaced,
                                                           unresolved_total + n_unresolved)
+        states: dict[str, Any] = {}
+        for q in quantities:
+            name, role = q.measure.name, carried[q.measure.name]
+            n_col, sum_col = q.measure.state_columns()
+            if role is None:           # no column carries the role this year: no event has a value, none is a zero
+                value, shown = pa.nulls(part.num_rows, pa.float64()), pa.nulls(part.num_rows, pa.string())
+                recorded = known = pa.repeat(pa.scalar(False), part.num_rows)
+            else:
+                value, recorded, known = measurement(role, part.column(role.column))
+                shown = trimmed(part.column(role.column))
+            summed = pc.if_else(known, value, pa.scalar(None, pa.float64()))
+            recorded_n = pc.cast(known, pa.int64())
+            absent = pc.invert(recorded)
+            accounting[str(year)].setdefault("measures", {})[name] = {
+                "column": role.column if role else None, "n": int(pc.sum(recorded_n).as_py() or 0),
+                "missing": int(pc.sum(absent).as_py() or 0),
+                "outside_domain": int(pc.sum(pc.and_(recorded, pc.invert(known))).as_py() or 0),
+                "sum": pc.sum(summed).as_py(), "unplaced": _held(recorded_n, summed, pc.invert(placed)),
+                "unresolved": _held(recorded_n, summed, unresolved),
+                "not_recorded_values": {("(blank)" if c["values"] is None else c["values"]): c["counts"] for c in sorted(
+                    pc.value_counts(pc.filter(shown, absent)).to_pylist(), key=lambda c: -c["counts"])[:10]}}
+            states[n_col], states[sum_col] = pc.filter(recorded_n, usable), pc.filter(summed, usable)
         parts = {"from": pc.filter(o, usable), "to": pc.filter(d, usable)}
         if by:
             values = pc.filter(pc.cast(part.column(by), pa.string()), usable)
@@ -410,8 +514,10 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
                 values = pc.take(pa.array(list(mapping.values()), pa.string()),
                                  pc.index_in(values, value_set=pa.array(list(mapping), pa.string())))
             parts[by] = values
-        counted = pa.table({**parts, "weight": pc.filter(weight, usable)}).group_by(list(parts)).aggregate(
-            [("weight", "sum")]).rename_columns([*parts, "weight"])
+        summed_columns = ["weight", *states]
+        counted = pa.table({**parts, "weight": pc.filter(weight, usable), **states}).group_by(list(parts)).aggregate(
+            [(c, "sum") for c in summed_columns]).select([*parts, *(f"{c}_sum" for c in summed_columns)]).rename_columns(
+            [*parts, *summed_columns])
         pieces.append(counted.append_column("vintage", pa.array([year] * counted.num_rows, pa.int32())))
         del part
     edges = pa.concat_tables(pieces, promote_options="default")
@@ -423,10 +529,34 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
                        'ORDER BY vintage, "from", weight DESC, "to"').to_arrow_table()
     kind = f"care_flow:{key}" + (":establishment" if destination == "establishment" else "")
     edges = edges.append_column("kind", pa.array([kind] * edges.num_rows, pa.string()))
-    edges = edges.select(["from", "to", "weight", "kind", "vintage", "share", *([by] if by else [])])
-    return edges.replace_schema_metadata({
+    edges = edges.select(["from", "to", "weight", "kind", "vintage", "share", *([by] if by else []),
+                          *(c for q in quantities for c in q.measure.state_columns())])
+    metadata = {
         b"events": str(events_total).encode(), b"unplaced": str(unplaced_total).encode(),
-        b"unresolved": str(unresolved_total).encode(), b"accounting": json.dumps(accounting, ensure_ascii=False).encode()})
+        b"unresolved": str(unresolved_total).encode(), b"accounting": json.dumps(accounting, ensure_ascii=False).encode()}
+    if quantities:
+        metadata[b"measures"] = json.dumps({q.measure.name: _measure_summary(q.measure, accounting) for q in quantities},
+                                           ensure_ascii=False).encode()
+    return edges.replace_schema_metadata(metadata)
+
+
+def _measure_summary(measure: Measure, accounting: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """What a flow table says of one measure, over its years: the state columns, unit and the formula of the mean, and the
+    events counted (``n`` recorded, ``missing`` and ``outside_domain`` not) and their ``sum``, with the same of the events no
+    edge holds (``unplaced``, ``unresolved``). The years' own are ``accounting[year]["measures"]``."""
+    from .semantics.column_roles import UNITS
+
+    years = [a["measures"][measure.name] for a in accounting.values()]
+
+    def add(field: str) -> Any:
+        return sum(y[field] for y in years)
+
+    return {"columns": list(measure.state_columns()), "unit": measure.unit or None,
+            **({"unit_meaning": UNITS[measure.unit]} if measure.unit in UNITS else {}), "formula": measure.formula(),
+            "n": add("n"), "missing": add("missing"), "outside_domain": add("outside_domain"),
+            "sum": (sum(y["sum"] for y in years if y["sum"] is not None) if any(y["sum"] is not None for y in years) else None),
+            **{k: {"n": sum(y[k]["n"] for y in years), "sum": sum(y[k]["sum"] for y in years)} for k in ("unplaced", "unresolved")},
+            "columns_by_year": {y: a["measures"][measure.name]["column"] for y, a in accounting.items()}}
 
 
 def _flow_key(dataset: str) -> str:

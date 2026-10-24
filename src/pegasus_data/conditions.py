@@ -32,6 +32,10 @@ ambiguous (two columns of one role in the same year) raises.
 
 Raw columns are tested in the lake's scan (the records not false are read), a derived one (an age) after the read; both
 before anything is rendered, so a label never takes the place of the code a clause tests.
+
+The two readings a clause rests on are functions of their own, shared with whatever else reads a role's column:
+`role_column` (the column that carries a role in a year) and `measurement` (a measure's text as a number, with what is
+recorded and what is a measurement). `proximity.care_flows(measure=)` sums with them (ADR-0201).
 """
 
 from __future__ import annotations
@@ -48,7 +52,7 @@ import pyarrow.dataset as ds
 
 from .semantics.column_roles import ColumnRole, declared_columns
 
-__all__ = ["CONDITION", "CONDITION_META", "Clause", "Condition", "condition_report", "prepare"]
+__all__ = ["CONDITION", "CONDITION_META", "Clause", "Condition", "condition_report", "measurement", "prepare", "role_column"]
 
 #: The column that carries a record's three-valued answer between the read and the result (True: satisfies, null:
 #: unknown; the records that do not satisfy are already out). Internal: it never reaches a caller of ``query``.
@@ -173,6 +177,18 @@ def _covers(column: ColumnRole, year: int | None) -> bool:
     return year is None or ((lo is None or lo <= year) and (hi is None or year <= hi))
 
 
+def role_column(columns: Sequence[ColumnRole], role: str, year: int | None, where: str) -> ColumnRole | None:
+    """The column of ``columns`` that carries ``role`` in ``year`` (None: any declared span), or None when no column does
+    (the role sits on another column in another layout). Two columns of one role in one year raise, ``where`` leading the
+    message: the role tables must name one column for it, or its years must not overlap."""
+    found = [c for c in _candidates(columns, role) if _covers(c, year)]
+    if len(found) > 1:
+        raise ValueError(f"{where} files the role in {[c.column for c in found]}"
+                         f"{f' in {year}' if year is not None else ''}: the role tables must name one column "
+                         "for it, or its years must not overlap")
+    return found[0] if found else None
+
+
 def _is_number(role: ColumnRole) -> bool:
     """A number compared as a number: a quantity (``measure``), not a coded or packed one (``age_coded``, a clock time)."""
     return role.kind == "number" and bool(role.measure)
@@ -240,15 +256,10 @@ class Condition:
         out: list[Bound | None] = []
         for i, clause in enumerate(self.clauses):
             where = f"condition[{i}] ({clause.role})"
-            found = [c for c in _candidates(self._columns, clause.role) if _covers(c, year)]
-            if len(found) > 1:
-                raise ValueError(f"{where}: {self.dataset} files the role in {[c.column for c in found]}"
-                                 f"{f' in {year}' if year is not None else ''}: the role tables must name one column "
-                                 "for it, or its years must not overlap")
-            if not found:
+            role = role_column(self._columns, clause.role, year, f"{where}: {self.dataset}")
+            if role is None:
                 out.append(None)
                 continue
-            role = found[0]
             out.append(Bound(clause, role, _is_number(role), role.derived, self._operand(clause, role, where)))
         return tuple(out)
 
@@ -327,31 +338,44 @@ def _trim(x: Any) -> Any:
     return pc.utf8_trim_whitespace(x.cast(pa.string()) if isinstance(x, ds.Expression) else pc.cast(x, pa.string()))
 
 
+def measurement(role: ColumnRole, x: Any) -> tuple[Any, Any, Any]:
+    """A measure's column ``x`` (an array, or a scan expression) read as the role declares: ``(value, recorded, known)``.
+
+    ``value`` is the number as float64 (a decimal comma accepted; 0 where the text is no number, which ``known`` excludes).
+    ``recorded`` is true where the text is a number that is none of the role's declared ``missing`` codes, as text or as a
+    number; blank, null, unparsable text and a missing code are not recorded. ``known`` is ``recorded`` and inside the
+    role's declared ``domain``: the values a measurement may be. Booleans, never null. The one reading of a measure's
+    "not recorded" and "not a measurement", for a condition (`_state`) and for a sum (`proximity.care_flows(measure=)`)."""
+    text = _trim(x)
+    syntax = pc.coalesce(pc.match_substring_regex(text, _NUMBER), _FALSE)
+    safe = pc.if_else(syntax, pc.replace_substring(text, ",", "."), pa.scalar("0"))
+    value = safe.cast(pa.float64()) if isinstance(safe, ds.Expression) else pc.cast(safe, pa.float64())
+    recorded = syntax
+    missing = tuple(role.missing or ())
+    if missing:
+        recorded = pc.and_kleene(recorded, pc.invert(pc.is_in(text, value_set=pa.array(missing, pa.string()))))
+        numbers = []
+        for code in missing:
+            try:
+                numbers.append(float(code.replace(",", ".")))
+            except ValueError:
+                pass
+        if numbers:
+            recorded = pc.and_kleene(recorded, pc.invert(pc.is_in(value, value_set=pa.array(numbers, pa.float64()))))
+    known = recorded
+    if role.domain is not None:
+        lo, hi = role.domain
+        known = pc.and_kleene(known, pc.and_kleene(pc.greater_equal(value, lo), pc.less_equal(value, hi)))
+    return value, recorded, known
+
+
 def _state(b: Bound, x: Any) -> Any:
     """The three-valued answer of one clause on ``x``: the raw column (an array, or a scan expression), or the derived
     number. The same arithmetic builds the scan's predicate and tests the records read."""
     if b.derived:
         value, known = x, pc.is_valid(x)
     elif b.numeric:
-        text = _trim(x)
-        syntax = pc.coalesce(pc.match_substring_regex(text, _NUMBER), _FALSE)
-        safe = pc.if_else(syntax, pc.replace_substring(text, ",", "."), pa.scalar("0"))
-        value = safe.cast(pa.float64()) if isinstance(safe, ds.Expression) else pc.cast(safe, pa.float64())
-        known = syntax
-        missing = tuple(b.role.missing or ())
-        if missing:
-            known = pc.and_kleene(known, pc.invert(pc.is_in(text, value_set=pa.array(missing, pa.string()))))
-            numbers = []
-            for code in missing:
-                try:
-                    numbers.append(float(code.replace(",", ".")))
-                except ValueError:
-                    pass
-            if numbers:
-                known = pc.and_kleene(known, pc.invert(pc.is_in(value, value_set=pa.array(numbers, pa.float64()))))
-        if b.role.domain is not None:
-            lo, hi = b.role.domain
-            known = pc.and_kleene(known, pc.and_kleene(pc.greater_equal(value, lo), pc.less_equal(value, hi)))
+        value, _recorded, known = measurement(b.role, x)
     else:
         value = text = _trim(x)
         known = pc.and_kleene(pc.invert(pc.coalesce(pc.equal(text, ""), _TRUE)),
