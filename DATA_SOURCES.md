@@ -827,6 +827,30 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `rl_procedimento_cid` has 82,103 procedure–code pairs; toxoplasma serology (0202030768 IgG, 0202030873 IgM,
   0202110150 heel-prick IgM) is tied to no code there and is found by its label.
 
+### 6.3a Census 2022 below the municipality: the Grade Estatística, tract aggregates, CNEFE (read 2026-10-24; ADR-0202)
+
+- **Grade Estatística 2022** (`geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/`, Notas
+  metodológicas 01/2025): 56 zipped shapefiles `grade_estatistica/grade_idNN.zip` (711 MB), also `grade_1km` to `grade_500km`;
+  14,127,809 cells (5,486,725 of 200 m in urban tracts, 8,641,084 of 1 km); Albers equal-area SIRGAS 2000 (−54°, −12°, −2°/−22°,
+  5,000,000 E, 10,000,000 N), the shapefiles in geographic SIRGAS 2000. Fields `ID_UNICO`, `nome_1KM` … `nome_500KM`,
+  `QUADRANTE`, `TOTAL` (people), `TOTAL_DOM` (occupied households, private and collective); no sex, age or municipality. The 1 km
+  name is the south-west corner in km (`1KME6300N8809`: 6,300,000-6,301,000 E, 8,809,000-8,810,000 N); the 200 m name is the west
+  edge and the **north** edge in hectometres (`200ME63250N88392`: N 8,839,000-8,839,200). People placed by CNEFE's coordinate levels
+  1-4 only: 203,002,064 of the census's 203,058,293 (levels 5 and 6, 56,229 people, left out), households 72,546,543 of 72,560,624.
+- **Agregados por Setores Censitários** (`ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/`,
+  dictionary of 2026-05-20): per tract CSVs by theme (basic, literacy, three household parts, colour or race, **demography**,
+  parentage, deaths, indigenous and quilombola), also by neighbourhood, district, subdistrict and municipality. **Sex × age per tract
+  exists**: the demography file (22 MB zip, 458,772 tracts) has `V01006` residents, `V01007`/`V01008` men/women, `V01009`-`V01019`
+  men and `V01020`-`V01030` women in 11 bands (0-4, 5-9, 10-14, 15-19, 20-24, 25-29, 30-39, 40-49, 50-59, 60-69, 70+), and
+  `V01031`-`V01041` both sexes. Disclosure: a suppressed cell is `X` (V01006 in 8,684 tracts, 1.9%; a single sex-band cell in 8-9%);
+  the unsuppressed residents sum to 202,561,627. The tract mesh with the basic attributes (`malha_com_atributos/.../BR_setores_CD2022.gpkg`,
+  1.5 GB, 472,780 rows: tracts in several pieces repeat their counts) is in `registries/ibge_points/tracts.gpkg`.
+- **CNEFE 2022** (`ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/`):
+  `Arquivos_CNEFE/CSV/UF/<uf>_<UF>.zip` (27 files, 4.1 GB; AL 28 MB, SP 1.0 GB) hold every address with `CEP`, `COD_SETOR`, face,
+  `LATITUDE`, `LONGITUDE`, `NV_GEO_COORD`, `COD_ESPECIE`; `Coordenadas_enderecos/UF/` the coordinates alone (municipality, species,
+  level; 0.6 GB); `Agregados_por_CEP/` counts per CEP (931,499 CEPs: addresses, private households by type, establishments by
+  kind) and **no coordinates**: placing a CEP needs the address files.
+
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
 
 - **The catalog.** `GET /agregados` (1.95 MB) lists 9,336 tables of 70 researches; `?nivel=N6` selects 4,448 and
@@ -906,6 +930,18 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   point, humidity, radiation, wind, insolation, evaporation). A station-year with 11 complete months of temperature: 397 municipalities
   at most (2010), 341 in 2023.
 - **Needs an account, so out:** ERA5 through the Copernicus CDS; Google Earth Engine's BR-DWGD and ERA5-Land assets.
+- **CPTEC/INPE's daily grids** (`https://ftp.cptec.inpe.br/modelos/tempo/`, an Apache index, browser UA, 1.6-2.3 MB/s a connection;
+  read 2026-10-24, ADR-0203). **MERGE** `MERGE/GPM/DAILY/<yyyy>/<mm>/MERGE_CPTEC_<yyyymmdd>.grib2` (about 0.43 MB, with a GrADS
+  `.ctl` and `.idx`), 1998-01-01 to the day before yesterday (2026-10-23 listed at 02:38 on the 24th); two GRIB2 messages, PREC
+  (eccodes names it `rdp`, the `.ctl` `PREC 0,1 0,15,5`, mm) and NEST (gauges per grid point; eccodes `prmsl`; 9999 where none);
+  1001 × 924 points, −120.05 to −20.05° E, −60.05 to 32.25° N, 0.1°, south to north; the day is the 24 h ending 12 UTC of its date
+  (Rozante et al. 2020: "between 12 GMT of the previous day and 12 GMT" of the day; `.ctl` `tdef 12Z`). The 2025 rebuild (Read-me of
+  2025-05-26) moved to IMERG V07B and the ONS gauges and regenerated 1998 on; the whole history is also one archive,
+  `MERGE_NEW_1998_2024.tar.gz` (3.8 GB). **SAMeT** `SAMeT/DAILY/{TMAX,TMIN,TMED}/<yyyy>/<mm>/SAMeT_CPTEC_<VAR>_<yyyymmdd>.nc`
+  (1.7 MB in 2000, 2.2 MB in 2026; zlib NetCDF4, CF-1.6, CDO), 2000-01-01 on; variables `tmax`/`tmin`/`tmed` (°C) and `nobs`
+  (stations per point), 1001 × 1381 points, −83 to −33° E, −56 to 13° N, 0.05°, land only (54.5% of the points have no value); the
+  2000-2024 files are dated 2022-06-01 and later (regenerated). Its Read-me: while ERA5 is not out (about 5 days) a day is made from
+  24-hour observations and model forecasts, and regenerated when ERA5 arrives. Neither product has humidity.
 
 ## 11. Garbage codes: the GBD levels as a declared classification (measured 2026-10-14; ADR-0182)
 

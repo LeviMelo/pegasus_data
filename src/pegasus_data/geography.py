@@ -63,6 +63,7 @@ __all__ = [
     "distance_km",
     "great_circle_km",
     "municipality_point",
+    "NoPointWarning",
     "classification_names",
     "municipality_fields",
     "Membership",
@@ -795,8 +796,9 @@ def iter_pack(pack_path: str | Path | None = None) -> Iterable[Mapping[str, str]
 # itself for 55 (EVALUATION 2026-10-03 "Municipality points"). The points pack
 # keeps three per municipality:
 # - the seat, IBGE's Localidades 2022 point for the municipal seat;
-# - the population centre, the population-weighted median of the Census 2022
-#   tracts' points (a median, so a far district cannot drag it into empty land);
+# - the population centre, the population-weighted median of the Grade
+#   Estatística 2022's cells (a median, so a far district cannot drag it into
+#   empty land; ADR-0202);
 # - the polygon centroid, kept only to measure against.
 
 POINTS_PACK_NAME = "municipality_points.parquet"
@@ -804,8 +806,6 @@ _SEAT_CATEGORIES = ("Sede Municipal", "Capital Estadual", "Capital Federal")
 POINT_SOURCES = {
     "localities.gpkg": ("https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/localidades/"
                         "Localidades_do_Brasil/2022/Localidades_Brasil_gpkg.zip"),
-    "tracts.gpkg": ("https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/"
-                    "malha_com_atributos/setores/gpkg/BR/BR_setores_CD2022.gpkg"),
 }
 
 #: IBGE's mesh levels (``intrarregiao``) by the name a caller uses
@@ -856,7 +856,8 @@ def mesh(level: str = "municipality", quality: str = "minima", root: str | Path 
 
 
 def point_sources(cache_dir: str | Path) -> dict[str, Path]:
-    """The two IBGE files the points pack is built from beside the mesh (`mesh_file`), downloaded once into ``cache_dir``."""
+    """The IBGE file the points pack is built from beside the mesh (`mesh_file`) and the grade (`sources.ibge_grade`), the
+    localities, downloaded once into ``cache_dir``."""
     import shutil
     import zipfile
 
@@ -883,41 +884,36 @@ def point_sources(cache_dir: str | Path) -> dict[str, Path]:
     return out
 
 
-def build_municipality_points(out_path: str | Path, *, localities: str | Path, tracts: str | Path,
-                              mesh: str | Path) -> dict[str, Any]:
-    """Write the points pack from IBGE's 2022 localities, Census 2022 tracts and municipal mesh."""
+def build_municipality_points(out_path: str | Path, *, localities: str | Path, mesh: str | Path,
+                              grade_root: str | Path | None = None) -> dict[str, Any]:
+    """Write the points pack from IBGE's 2022 localities, the Grade Estatística 2022 (in the data home ``grade_root``,
+    `sources.ibge_grade`) and the municipal mesh."""
     import geopandas as gpd
     import pandas as pd
+
+    from .sources.ibge_grade import ALBERS, population_points
 
     projected = "EPSG:5880"   # SIRGAS 2000 / Brazil Polyconic: metres
     loc = gpd.read_file(localities)
     seats = loc[loc["SCT_LOCALIDADE"].isin(_SEAT_CATEGORIES)][["CD_MUN", "geometry"]].drop_duplicates("CD_MUN")
     seats = seats.set_index(seats["CD_MUN"].astype(str))["geometry"]
-    tr = gpd.read_file(tracts, columns=["CD_SETOR", "CD_MUN", "v0001"])
-    # A tract in several pieces is several rows, each repeating its population
-    # (5,595 rows over 468,099 tracts; the sum ran 949 thousand over the
-    # census). One row per tract, its pieces merged.
-    tr = tr.dissolve(by="CD_SETOR", aggfunc="first").reset_index()
-    tr["people"] = pd.to_numeric(tr["v0001"], errors="coerce").fillna(0)
-    centre = tr.to_crs(projected).geometry.representative_point()
-    tr["x"], tr["y"] = centre.x, centre.y
-    tr = tr[tr["people"] > 0]
-    # The population-weighted MEDIAN of the tracts' points, coordinate by
-    # coordinate. A weighted mean is pulled by a far district into empty land:
-    # Altamira's landed 94 km from the town, drawn by Castelo de Sonhos about
-    # 900 km south.
+    # The people: the grade's 200 m / 1 km cells, placed by CNEFE 2022's household coordinates (ADR-0202). The
+    # population-weighted MEDIAN of the cells' centres, coordinate by coordinate in the grade's equal-area projection.
+    # A weighted mean is pulled by a far district into empty land: Altamira's landed 94 km from the town, drawn by
+    # Castelo de Sonhos about 900 km south.
     def _median(values: pd.Series, weights: pd.Series) -> float:
         order = values.argsort()
         v, w = values.iloc[order].to_numpy(), weights.iloc[order].to_numpy()
         return float(v[(w.cumsum() >= w.sum() / 2).argmax()])
 
-    grouped = tr.groupby(tr["CD_MUN"].astype(str))
+    tr = population_points(root=grade_root)
+    grouped = tr.groupby(tr["municipality7"].astype(str))
     weighted = pd.DataFrame({
-        "x": grouped.apply(lambda g: _median(g["x"], g["people"])),
-        "y": grouped.apply(lambda g: _median(g["y"], g["people"])),
-        "people": grouped["people"].sum()})
+        "x": grouped.apply(lambda g: _median(g["x"], g["population"])),
+        "y": grouped.apply(lambda g: _median(g["y"], g["population"])),
+        "people": grouped["population"].sum()})
     population = gpd.GeoSeries(gpd.points_from_xy(weighted["x"], weighted["y"]),
-                               index=weighted.index, crs=projected).to_crs("EPSG:4674")
+                               index=weighted.index, crs=ALBERS).to_crs("EPSG:4674")
     polygons = gpd.read_file(mesh)[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
     polygons = polygons.set_index(polygons["codarea"].astype(str))["geometry"]
     centroids = polygons.to_crs(projected).centroid.to_crs("EPSG:4674")
@@ -928,7 +924,7 @@ def build_municipality_points(out_path: str | Path, *, localities: str | Path, t
         points = gpd.GeoSeries(series.reindex(codes).values, crs="EPSG:4674")
         frame[f"{prefix}_lon"] = points.x.values
         frame[f"{prefix}_lat"] = points.y.values
-    frame["population_2022"] = weighted["people"].reindex(codes).values
+    frame["population_grade_2022"] = weighted["people"].reindex(codes).values
     pts = {k: gpd.GeoSeries(gpd.points_from_xy(frame[f"{k}_lon"], frame[f"{k}_lat"]), crs="EPSG:4674").to_crs(projected)
            for k in ("seat", "population", "centroid")}
     frame["km_seat_to_population"] = (pts["seat"].distance(pts["population"]) / 1000).round(2)
@@ -953,12 +949,31 @@ def _points() -> dict[str, dict[str, float]]:
     return {str(r["municipality"]): r for r in rows} | {str(r["municipality7"]): r for r in rows}
 
 
+class NoPointWarning(UserWarning):
+    """A municipality has no point of the kind asked for, and why (`municipality_point`)."""
+
+
 def municipality_point(code: str, kind: str = "population") -> tuple[float, float] | None:
-    """(lon, lat) of a municipality: ``population`` (Census 2022 centre), ``seat`` or ``centroid``."""
+    """(lon, lat) of a municipality: ``population`` (the Grade Estatística 2022 centre), ``seat`` or ``centroid``.
+
+    None, with a `NoPointWarning` saying why, for a code with no such point: a municipality created after IBGE's 2022
+    mesh has no polygon and no people placed in it (5101837 Boa Esperança do Norte), a district with no municipal seat in
+    IBGE's localities has no seat (2605459 Fernando de Noronha), and an unknown code has nothing."""
+    import warnings
+
     if kind not in ("population", "seat", "centroid"):
         raise ValueError("kind is population, seat or centroid")
-    row = _points().get(str(code).strip())
-    if not row or row.get(f"{kind}_lon") is None:
+    key = str(code).strip()
+    row = _points().get(key)
+    if not row:
+        warnings.warn(f"{key}: not a municipality of the points pack", NoPointWarning, stacklevel=2)
+        return None
+    if row.get(f"{kind}_lon") is None:
+        why = ("IBGE's 2022 municipal mesh has no polygon for it (created after the mesh), so no centroid and no people "
+               "placed in it" if row.get("centroid_lon") is None else
+               "IBGE's 2022 localities name no municipal seat for it" if kind == "seat" else
+               "the Grade Estatística 2022 places no people in it")
+        warnings.warn(f"{key}: no {kind} point: {why}", NoPointWarning, stacklevel=2)
         return None
     return float(row[f"{kind}_lon"]), float(row[f"{kind}_lat"])
 

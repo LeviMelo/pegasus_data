@@ -5,10 +5,10 @@ Every graph is ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes:
 * ``contiguity``: municipalities that share a border, weighted by its length
   in km, from IBGE's 2022 municipal mesh (maximum quality). Lake and sea
   shores are not borders. Built once, shipped (``proximity.parquet``).
-* ``population_distance``: the population-weighted mean distance in km
-  between the people of two municipalities, from Census 2022 tracts
-  aggregated to a 5 km grid, for each municipality's 30 nearest and its
-  neighbours. Shipped.
+* ``population_distance``: the population-weighted mean great-circle distance
+  in km between the people of two municipalities, from IBGE's Grade
+  Estatística 2022 summed into its 5 km cells (ADR-0202), for each
+  municipality's 30 nearest and its neighbours. Shipped.
 * ``regic_network``, ``regic_health_basic``, ``regic_health_high``: IBGE's
   REGIC 2018 links between cities (a municipality, or the core municipality
   standing for a population arrangement): the urban-network links
@@ -65,8 +65,9 @@ def _polygonal(geometry: Any) -> Any:
     return shapely.union_all(parts) if parts else None
 
 
-def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, tracts: str | Path) -> dict[str, Any]:
-    """Write ``proximity.parquet`` (contiguity, population distance) and the areas table."""
+def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, grade_root: str | Path | None = None) -> dict[str, Any]:
+    """Write ``proximity.parquet`` (contiguity, population distance) and the areas table; the people are the Grade
+    Estatística 2022's in the data home ``grade_root`` (`sources.ibge_grade`)."""
     import geopandas as gpd
     import numpy as np
     import pandas as pd
@@ -103,37 +104,39 @@ def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, tracts: str
     contiguity = pd.concat([contiguity, contiguity.rename(columns={"from": "to", "to": "from"})])
     contiguity["kind"], contiguity["vintage"] = "contiguity", 2022
 
-    # Population on a 5 km grid per municipality, from the Census 2022 tracts.
-    tr = gpd.read_file(tracts, columns=["CD_SETOR", "CD_MUN", "v0001"])
-    tr = tr.dissolve(by="CD_SETOR", aggfunc="first").reset_index()
-    tr["people"] = pd.to_numeric(tr["v0001"], errors="coerce").fillna(0)
-    tr = tr[tr["people"] > 0]
-    point = tr.to_crs(_PROJECTED).geometry.representative_point()
-    grid = pd.DataFrame({"code": tr["CD_MUN"].astype(str).values,
-                         "gx": (point.x // _GRID_M).astype(int).values, "gy": (point.y // _GRID_M).astype(int).values,
-                         "x": point.x.values, "y": point.y.values, "people": tr["people"].values})
-    grid["wx"], grid["wy"] = grid["x"] * grid["people"], grid["y"] * grid["people"]
-    cells = grid.groupby(["code", "gx", "gy"], as_index=False)[["people", "wx", "wy"]].sum()
-    cells["x"], cells["y"] = cells["wx"] / cells["people"], cells["wy"] / cells["people"]
-    by_code = {c: g[["x", "y", "people"]].to_numpy() for c, g in cells.groupby("code")}
+    # Where each municipality's people are: the Grade Estatística 2022's people (CNEFE's household coordinates) summed
+    # into the grade's own 5 km cells, each part of a cell inside a municipality at the population-weighted centre of
+    # its 200 m / 1 km cells (ADR-0202). Distances are great circles between those centres.
+    from .geography import great_circle_km
+    from .sources.ibge_grade import population_points
+
+    cells = population_points(_GRID_M, root=grade_root)
+    by_code = {c: g[["lon", "lat", "population"]].to_numpy() for c, g in cells.groupby("municipality7")}
     centre = {c: (v[:, 0] @ v[:, 2] / v[:, 2].sum(), v[:, 1] @ v[:, 2] / v[:, 2].sum()) for c, v in by_code.items()}
     codes = sorted(centre)
-    xy = np.array([centre[c] for c in codes])
-    _, nearest = cKDTree(xy).query(xy, k=min(_NEAREST + 1, len(codes)))
+    lonlat = np.radians(np.array([centre[c] for c in codes]))
+    # nearest neighbours on the unit sphere (a chord is monotone in the great-circle distance)
+    xyz = np.column_stack([np.cos(lonlat[:, 1]) * np.cos(lonlat[:, 0]), np.cos(lonlat[:, 1]) * np.sin(lonlat[:, 0]),
+                           np.sin(lonlat[:, 1])])
+    _, nearest = cKDTree(xyz).query(xyz, k=min(_NEAREST + 1, len(codes)))
     pairs = {(codes[i], codes[j]) for i, row in enumerate(nearest) for j in row if i != j}
     pairs |= {(a, b) for a, b in zip(contiguity["from"], contiguity["to"], strict=True)
               if a in by_code and b in by_code}
     rows = []
     for a, b in sorted(pairs):
         pa_, pb_ = by_code[a], by_code[b]
-        d = np.hypot(pa_[:, None, 0] - pb_[None, :, 0], pa_[:, None, 1] - pb_[None, :, 1])
+        d = great_circle_km(pa_[:, None, 0], pa_[:, None, 1], pb_[None, :, 0], pb_[None, :, 1])
         w = pa_[:, None, 2] * pb_[None, :, 2]
-        rows.append((a, b, round(float((d * w).sum() / w.sum()) / 1000, 3)))
+        rows.append((a, b, round(float((d * w).sum() / w.sum()), 3)))
     distance = pd.DataFrame(rows, columns=["from", "to", "weight"])
     distance["kind"], distance["vintage"] = "population_distance", 2022
 
     edges = pd.concat([contiguity, distance], ignore_index=True)
     edges["from"], edges["to"] = edges["from"].astype(str), edges["to"].astype(str)
+    # REGIC's links are written into the same pack by `build_regic`: kept, as it keeps these
+    if (out / PROXIMITY_PACK_NAME).is_file():
+        existing = pq.read_table(out / PROXIMITY_PACK_NAME).to_pandas()
+        edges = pd.concat([edges, existing[existing["kind"].str.startswith("regic_")]], ignore_index=True)
     pq.write_table(pa.Table.from_pandas(edges[["from", "to", "weight", "kind", "vintage"]], preserve_index=False).replace_schema_metadata(None),
                    out / PROXIMITY_PACK_NAME, compression="zstd")
     pq.write_table(pa.Table.from_pandas(areas, preserve_index=False).replace_schema_metadata(None), out / AREAS_PACK_NAME, compression="zstd")

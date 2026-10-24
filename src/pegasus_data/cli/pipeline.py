@@ -51,12 +51,51 @@ def geography(
             ipea_cache=settings.root / "registries" / "ipea_amc",
         )
         from ..geography import POINTS_PACK_NAME, build_municipality_points, mesh_file, point_sources
+        from ..proximity import build_proximity_graphs
 
         sources = point_sources(settings.root / "registries" / "ibge_points")
+        maxima = mesh_file("municipality", "maxima", settings.root)
         result["points"] = build_municipality_points(
-            target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"],
-            tracts=sources["tracts.gpkg"], mesh=mesh_file("municipality", "maxima", settings.root))
+            target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"], mesh=maxima, grade_root=settings.root)
+        result["proximity"] = build_proximity_graphs(target.parent, mesh=maxima, grade_root=settings.root)
     _emit(result, as_json, "geography")
+
+
+@app.command(rich_help_panel="PIPELINE")
+def grade(
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Build IBGE's Grade Estatística 2022 (people and households on 200 m / 1 km cells) with each cell's municipalities,
+    into registries/ibge_grade/ (ADR-0202). Checked against the totals IBGE publishes for it."""
+    from ..sources import ibge_grade
+
+    settings = _writer(root)
+    with console.status("building the Grade Estatística…") as status:
+        result = ibge_grade.build(settings.root, log=lambda m: status.update(m))
+    _emit(result, as_json, "grade")
+
+
+@app.command(name="climate-update", rich_help_panel="PIPELINE")
+def climate_update(
+    variable: Annotated[list[str] | None, typer.Option("--variable", help="precipitation, tmax, tmin or tmed (repeat); default all")] = None,
+    start: Annotated[str | None, typer.Option("--start", help="First day, YYYY-MM-DD (default 2000-01-01)")] = None,
+    end: Annotated[str | None, typer.Option("--end", help="Last day, YYYY-MM-DD (default today)")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Read CPTEC's daily MERGE precipitation and SAMeT temperatures into municipal means by population and by area,
+    keeping every vintage (ADR-0203): files not yet held, or listed with another time than the one held, are read. Run it
+    daily to keep SAMeT's provisional days."""
+    import datetime as dt
+
+    from ..sources import cptec
+
+    settings = _writer(root)
+    with console.status("reading CPTEC…") as status:
+        result = cptec.update(settings, variable or None, start=dt.date.fromisoformat(start) if start else None,
+                              end=dt.date.fromisoformat(end) if end else None, log=lambda m: status.update(m))
+    _emit(result, as_json, "climate-update")
 
 
 @app.command(rich_help_panel="PIPELINE")

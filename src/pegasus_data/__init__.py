@@ -38,6 +38,9 @@ _EXPORTS: dict[str, str] = {
     "levels": ".api",
     "load_population": ".api",
     "load_field": ".fields",
+    "climate_daily": ".sources.cptec",
+    "climate_weekly": ".sources.cptec",
+    "grade_cells": ".sources.ibge_grade",
     "field_rate": ".fields",
     "Sidra": ".sidra",
     "price_index": ".sidra.prices",
@@ -213,6 +216,8 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .semantics.event_types import count_events, event_types, field_overlap
     from .sidra import Sidra
     from .sidra.prices import price_index
+    from .sources.cptec import climate_daily, climate_weekly
+    from .sources.ibge_grade import grade_cells
 
 
 def __getattr__(name: str) -> Any:

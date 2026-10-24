@@ -391,6 +391,67 @@ def graph_cmd(
            "first": table.slice(0, 5).to_pylist()}, False, f"graph {kind}")
 
 
+@app.command(name="climate", rich_help_panel="EXTRACT")
+def climate_cmd(
+    variable: Annotated[list[str] | None, typer.Option("--variable", help="precipitation, tmax, tmin or tmed (repeat); default all")] = None,
+    start: Annotated[str | None, typer.Option("--start", help="First day, YYYY-MM-DD")] = None,
+    end: Annotated[str | None, typer.Option("--end", help="Last day, YYYY-MM-DD")] = None,
+    municipality: Annotated[list[str] | None, typer.Option("--municipality", help="IBGE code, 6 or 7 digits (repeat)")] = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="IBGE state code, 2 digits (repeat)")] = None,
+    weight: Annotated[str, typer.Option("--weight", help="population (where people live) or area")] = "population",
+    as_of: Annotated[str | None, typer.Option("--as-of", help="The values as published on or before this date or instant (UTC)")] = None,
+    weekly: Annotated[bool, typer.Option("--weekly", help="Sums and day counts by epidemiological week")] = False,
+    out: Annotated[Path | None, typer.Option("--out", help="Write .csv or .parquet")] = None,
+    root: RootOpt = None,
+) -> None:
+    """Daily municipal weather from CPTEC's MERGE and SAMeT (ADR-0203), by population or by area, by day or epidemiological week."""
+    from ..sources import cptec
+
+    names = variable or list(cptec.PRODUCTS)
+    reader = cptec.weekly if weekly else cptec.daily
+    table = reader(names, start=start, end=end, municipality=municipality, uf=uf, weight=weight, as_of=as_of,
+                   settings=_settings(root))
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    _emit({"rows": table.num_rows, "first": table.slice(0, 5).to_pylist()}, False, "climate")
+
+
+@app.command(name="grade-cells", rich_help_panel="EXTRACT")
+def grade_cells_cmd(
+    municipality: Annotated[list[str] | None, typer.Option("--municipality", help="IBGE code, 6 or 7 digits (repeat)")] = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="IBGE state code, 2 digits (repeat)")] = None,
+    resolution: Annotated[int | None, typer.Option("--resolution", help="Sum into the grade's coarser cells: 1000, 5000, 10000, 50000, 100000 or 500000 m")] = None,
+    populated: Annotated[bool, typer.Option("--populated", help="Only cells with people")] = False,
+    out: Annotated[Path | None, typer.Option("--out", help="Write .csv, .parquet or .gpkg (with the squares)")] = None,
+    root: RootOpt = None,
+) -> None:
+    """IBGE's Grade Estatística 2022: people and households per cell and municipality (ADR-0202)."""
+    from ..sources import ibge_grade
+
+    table = ibge_grade.cells(municipality=municipality, uf=uf, resolution=resolution, populated=populated,
+                             root=_settings(root).root)
+    if out is not None:
+        if out.suffix == ".gpkg":
+            ibge_grade.geometry(table).to_file(out, driver="GPKG")
+        else:
+            import pyarrow.csv as pacsv
+            import pyarrow.parquet as pq
+
+            (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    import pyarrow.compute as pc
+
+    _emit({"rows": table.num_rows, "population": round(pc.sum(table.column("population")).as_py() or 0),
+           "households": round(pc.sum(table.column("households")).as_py() or 0), "first": table.slice(0, 3).to_pylist()},
+          False, "grade-cells")
+
+
 @app.command(name="info", rich_help_panel="UNDERSTAND")
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,
