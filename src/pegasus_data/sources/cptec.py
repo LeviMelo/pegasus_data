@@ -317,7 +317,18 @@ def update(settings: Any, variables: Iterable[str] | None = None, *, start: dt.d
 
 def _update(settings: Any, product: Product, start: dt.date, end: dt.date, run: str,
             log: Callable[[str], None] | None) -> dict[str, Any]:
-    """`update` for one variable."""
+    """`update` for one variable, holding the variable's lock: a second process updating it waits, then reads the
+    manifest the first one left and skips what it read (two processes never add the same vintage twice)."""
+    from filelock import FileLock
+
+    folder = _store(settings) / product.variable
+    folder.mkdir(parents=True, exist_ok=True)
+    with FileLock(str(folder / ".update.lock")):
+        return _update_locked(settings, product, start, end, run, log)
+
+
+def _update_locked(settings: Any, product: Product, start: dt.date, end: dt.date, run: str,
+                   log: Callable[[str], None] | None) -> dict[str, Any]:
     import numpy as np
     import pyarrow as pa
 
