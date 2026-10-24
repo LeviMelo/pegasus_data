@@ -1066,6 +1066,15 @@ def _select_files(
             )
 
     if wanted_columns and report.families:
+        # a derived column (a curated recipe: ID_MN_RESI_municipio) is made after decoding, from columns the schema
+        # holds: it is no field of any schema, and counting it absent warned that it was null when it was not;
+        from .normalize.engine import PROVENANCE_COLUMNS
+        from .semantics.curation import derived_inputs, load_variable_docs
+
+        # so is a provenance column (``_source_path``): the decoder writes it beside the fields
+        wanted_columns = (wanted_columns - set(derived_inputs(load_variable_docs(catalog, report.system)))
+                          - {c.upper() for c in PROVENANCE_COLUMNS})
+    if wanted_columns and report.families:
         # ONE query for every selected generation, not one per family. The
         # authority is `schema_presence` — the fields the generation's schema
         # actually declares. `plan.fields` is the LEDGER's documented fields,

@@ -55,6 +55,7 @@ products it recomputes. Their deletion was refused by the session's permission c
   them, but 70% sit on a CEP spread over 2 km and 21% on their municipality's only CEP: the patient CEP places most
   admissions in the municipality, not finer.
 - **Universe or sample** (ADR-0206): every SIDRA read says what its numbers rest on (`basis`); 99 tables declared from IBGE's notes (read in a browser: the notes are behind a bot check), 4,103 sample by their CV variables, 5,160 unknown until declared (1,306 of them the Census's).
+- **SINAN read from its DBCs** (ADR-0207): dengue 2020 and 32 other SINAN partitions had been built from Dados Abertos exports (2020's with 538,654 discards); now from `FINAIS/*.dbc`. A lake read's report names its files; `ID_MN_RESI_municipio` gives the residence as a municipality or null.
 - **Care flows by bed-days** (ADR-0201, landed before this work): SIH E10-E14 2023, 138,316 admissions and 941,694
   bed-days, every nees-gt-ms figure reproduced and read again apart.
 - **Daily climate.** CPTEC's MERGE (precipitation) and SAMeT (Tmax, Tmin, Tmed), 2000 to the day before yesterday, by

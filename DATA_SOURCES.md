@@ -1054,6 +1054,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **SINAN-ESPO** is the Sinan Net epizootics base (serial `ID_NOTIFICACAO`, gapless 1 to 32,492 for 2013-2022; no classification column). **SINAN-NTRA** holds survey batches whose positives SINAN-TRAC lists one by one.
 - **SISPRENATAL-PN** rows are pregnancy-months with cumulative consultation counts; `NU_GESTA` is a record serial that reaches 122,739, not a gravidity.
 
+## SINAN residence codes and representations (measured 2026-10-24; ADR-0207)
+
+- `ID_MN_RESI` (SINAN-DENG 2010-2026) writes Federal District residents with region codes as well as 530010: 5300xx (530020-530180, as SIH did before 2018) and SINAN's 5399xx (539901-539934), 22,958 rows, 13,585 of them in 2024; DATASUS's TabWin tables AGLBR and BR_CAPITAL map 530000-539999 to Brasília. `XX0000` is the state with its municipality unknown (BR_DIVADM: "Município ignorado - UF").
+- The Dados Abertos export of a SINAN year is not its `FINAIS` DBC: DENG 2020's CSV holds 1,495,117 rows with 538,654 discarded notifications (`CLASSI_FIN 5`) and no `DT_DIGITA`; the DBC 975,842, none discarded; LEPT 2015-2024's exports hold 412 rows more than the DBCs, TOXG 46 fewer.
+
 ## SINAN birth dates after the LGPD (measured 2026-09-28)
 
 - **Every SINAN file on the server is dated 2021-11 or later**, including data

@@ -257,7 +257,8 @@ def _municipality_remaps() -> dict[tuple[str, str], str]:
             continue
         for doc in parse_variable_file(path, data):
             for recipe in doc.derived:
-                if recipe.get("remap") and [str(f).upper() for f in recipe.get("from") or ()] == [doc.field_name]:
+                if ((recipe.get("remap") is not None or recipe.get("ranges"))
+                        and [str(f).upper() for f in recipe.get("from") or ()] == [doc.field_name]):
                     out[(doc.system, doc.field_name)] = str(recipe["name"])
     return out
 

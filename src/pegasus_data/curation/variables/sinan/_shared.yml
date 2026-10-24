@@ -5066,6 +5066,20 @@ variables:
       varchar2(6) | Código do município de residência do caso notificado | ID_MN_RESI"
 
       '
+    derived:
+    - name: ID_MN_RESI_municipio
+      from: [ID_MN_RESI]
+      remap: {}
+      ranges:
+      - {from: "530000", to: "539999", code: "530010"}
+      municipalities_only: true
+      rule: The municipality of residence as one of IBGE's municipalities. The Federal District has one
+        municipality, Brasília (530010); SINAN writes its residents with region codes too (5300xx, 5399xx,
+        530000), which DATASUS's own tables AGLBR and BR_CAPITAL map, the whole range 530000-539999, to
+        Brasília, and this column does the same. A code no IBGE municipality holds is null here, never
+        guessed (a state with its municipality unknown, XX0000, which BR_DIVADM reads "Município ignorado";
+        a code of no municipality), and said in the report. ID_MN_RESI itself is never changed. Measured on
+        SINAN-DENG 2010-2026 (docs/evaluation/2026-10-24-dengue-issues.md).
   ID_MUNICIP:
     official_name: Município de Notificação
     translated_name: Municipality of notification

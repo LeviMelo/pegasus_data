@@ -1302,13 +1302,37 @@ def _render_table(
 
 def _remapped(codes: object, recipe: Mapping[str, Any], *, year: int | None, competencia: int | None,
               report: RenderReport) -> pa.Array:
-    """``codes`` through the recipe's ``remap`` where its ``valid`` window (YYYYMM) holds.
+    """``codes`` through the recipe's ``remap`` (exact codes) and ``ranges`` (a declared range of codes to one code) where
+    its ``valid`` window (YYYYMM) holds; with ``municipalities_only`` a code that ends as no IBGE municipality is null and
+    said in the report.
 
     The window is judged by the file's competence; a year alone decides only when the whole
     year is inside or outside it. Where it cannot be settled the code stays as written and
     the report says so: an unremapped code is visibly the source's own, a guess is not.
     """
-    table = {str(k): str(v) for k, v in dict(recipe["remap"]).items()}
+    table = {str(k): str(v) for k, v in dict(recipe["remap"] or {}).items()}
+    # a declared range of codes that all stand for one (SINAN writes the Federal District's 53xxxx region codes where
+    # Brasília, its one municipality, is 530010; DATASUS's own AGLBR and BR_CAPITAL tables map 530000-539999 to it)
+    ranges = [(str(r["from"]), str(r["to"]), str(r["code"])) for r in recipe.get("ranges") or ()]
+    only = None
+    if recipe.get("municipalities_only"):
+        from .geography import municipalities
+
+        only = set(municipalities())
+
+    def mapped(value: Any) -> str | None:
+        code = str(value).strip()
+        if not code:
+            return None
+        out = table.get(code)
+        if out is None:
+            out = next((target for lo_, hi_, target in ranges if len(code) == len(lo_) and lo_ <= code <= hi_), code)
+        if only is not None and out not in only:
+            unplaced[code] = unplaced.get(code, 0) + 1
+            return None
+        return out
+
+    unplaced: dict[str, int] = {}
     window = recipe.get("valid") or {}
     lo, hi = int(window.get("from") or 0), int(window.get("to") or 999912)
     applies = None
@@ -1322,7 +1346,13 @@ def _remapped(codes: object, recipe: Mapping[str, Any], *, year: int | None, com
             f"{recipe.get('name')}: the window {lo}-{hi} cuts the year read, so the codes stand as written")
     if not applies:
         return _per_distinct(codes, lambda v: str(v).strip() or None)
-    return _per_distinct(codes, lambda v: table.get(str(v).strip(), str(v).strip()) or None)
+    out = _per_distinct(codes, mapped)
+    if unplaced:
+        # a code no municipality list holds (a state with its municipality unknown, ``350000``) is null here, never
+        # guessed; the raw column keeps it
+        report.warnings.append(f"{recipe.get('name')}: {len(unplaced)} distinct codes are no IBGE municipality and are null "
+                               f"(first {sorted(unplaced)[:5]}); the raw column keeps them")
+    return out
 
 
 def _apply_derived(
@@ -1396,7 +1426,7 @@ def _apply_derived(
                 rendered = rendered.append_column(column_name, parse_date_array(codes_in, order=order))
                 report.derived_added.append(column_name)
                 continue
-            if recipe.get("remap"):
+            if recipe.get("remap") is not None or recipe.get("ranges"):
                 # A code the source wrote for a thing the canonical list names otherwise,
                 # inside a declared window (SIH-RD before 2018 writes the Federal District's
                 # administrative regions where Brasília is 530010). The raw column is untouched;
