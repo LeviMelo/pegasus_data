@@ -331,6 +331,8 @@ def graph_cmd(
     by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC or COMPLEX")] = None,
     level: Annotated[str | None, typer.Option("--level", help="Care flows: the classifier's tree level, e.g. chapter")] = None,
     to: Annotated[str, typer.Option("--to", help="Care flows: end at the 'municipality' or at the 'establishment' (CNES)")] = "municipality",
+    measure: Annotated[list[str] | None, typer.Option("--measure", help="Care flows: a quantity of the event by its role, "
+                       "e.g. admission.length_of_stay; each edge carries its count and sum (repeat for several)")] = None,
     derive: Annotated[str | None, typer.Option("--derive", help="Care flows: profile (self-sufficiency), catchments (dominant flow), "
                                                                 "communities (Leiden) or regions (communities against health regions)")] = None,
     resolution: Annotated[float, typer.Option("--resolution", help="Communities: Leiden resolution (larger = more communities)")] = 1.0,
@@ -339,13 +341,17 @@ def graph_cmd(
     root: RootOpt = None,
 ) -> None:
     """A proximity graph between municipalities, as an edge list (from, to, weight, kind, vintage)."""
+    from ..measures import AggregationRefused
     from ..proximity import care_flows, flows, graph_kinds, proximity_graph
 
     if kind.lower() not in graph_kinds() and kind.upper().replace(".", "-") in flows():
         if period is None:
             raise typer.BadParameter("care flows need --period")
-        table = care_flows(kind, period=period, geography=geo, by=by, level=level, destination=to,
-                           settings=_settings(root))
+        try:
+            table = care_flows(kind, period=period, geography=geo, by=by, level=level, destination=to,
+                               measure=measure or None, settings=_settings(root))
+        except (AggregationRefused, ValueError) as refused:
+            raise typer.BadParameter(str(refused)) from refused
         if derive:
             from .. import careflow
 
@@ -377,6 +383,9 @@ def graph_cmd(
         meta = {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()}
         if "events" in meta:
             console.print(f"events {int(meta['events']):,}; unplaced {meta['unplaced']}; unresolved {meta['unresolved']}")
+        for role, m in json.loads(meta.get("measures", "{}")).items():
+            console.print(f"{role} ({m['unit'] or 'no declared unit'}): {m['n']:,} events with a value, {m['missing']:,} not recorded, "
+                          f"{m['outside_domain']:,} outside the domain; sum {m['sum']}; columns {', '.join(m['columns'])}")
         return
     _emit({"rows": table.num_rows, "metadata": {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()},
            "first": table.slice(0, 5).to_pylist()}, False, f"graph {kind}")

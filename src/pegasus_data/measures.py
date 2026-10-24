@@ -39,6 +39,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
+    from .semantics.column_roles import ColumnRole
     from .semantics.curation import Grain
 
 __all__ = [
@@ -60,6 +61,7 @@ __all__ = [
     "lift",
     "merge",
     "measure_from_declaration",
+    "measure_of_role",
 ]
 
 #: The axes a cell can be rolled up along. Additivity is declared per axis
@@ -420,6 +422,38 @@ def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
         time_reducer=str(reducer) if reducer else None,
         multi_valued=bool(body.get("multi_valued", False)),
     )
+
+
+def measure_of_role(role: ColumnRole, declared: Sequence[Measure] = ()) -> Measure:
+    """The ``(n, sum)`` measure of a quantity a record carries, from its column role (``curation/roles``).
+
+    The roles layer says what the number IS: a quantity (``measure``), in a ``unit``, with the codes that mean "not
+    recorded" (``missing``). It says nothing of how the number combines; that is the recipes' ``additive_over`` and
+    ``time_reducer`` (`_aggregate.declared_measures`), passed as ``declared``: the measure keeps the axes every one of them
+    allows. With none declared the number is a quantity of ONE record (a stay's days, an admission's value, a birth's
+    weight) and a record is in one cell of any grouping, so it adds along every axis; only a recipe that declares a stock
+    (CNES beds: rooms in a quarter are not rooms x 3) takes an axis away, and `check_rollup` then refuses it with the reason.
+
+    The state is the mean's, ``(n, sum)``: the columns ``<role>_n`` and ``<role>_sum`` (`Measure.state_columns`), never the
+    finished mean, which `Measure.formula` derives. Refuses a number that is not a quantity (a coded or packed value, whose
+    sums mean nothing, ADR-0154) and a quantity whose "not recorded" values are undeclared, which a sum could not tell from a
+    filler (a column the query derives, an age in years, declares none)."""
+    if role.kind != "number" or not role.measure:
+        what = "a number whose values are codes or packed units" if role.kind == "number" else f"a {role.kind}"
+        raise AggregationRefused(f"{role.role} ({role.column}) is not a quantity: it is {what}, and the sum of codes "
+                                 "means nothing. Name a role the roles table declares as a measure.")
+    if role.missing is None and not role.derived:
+        why = f" ({role.missing_unknown})" if role.missing_unknown else ""
+        raise AggregationRefused(f"{role.role} ({role.column}) does not declare which of its values mean 'not recorded'{why}; "
+                                 "a sum cannot tell a measurement from a filler without it")
+    additive = frozenset(AXES)
+    reducers: set[str] = set()
+    for measure in declared:
+        additive &= measure.additive_over
+        if measure.time_reducer:
+            reducers.add(measure.time_reducer)
+    return Measure(name=role.role, kind=MEAN, source_fields=(role.column,), unit=role.unit or "", additive_over=additive,
+                   time_reducer=next(iter(reducers)) if len(reducers) == 1 else None, label=role.name or "")
 
 
 # ---------------------------------------------------------------- operations
