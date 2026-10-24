@@ -1,11 +1,17 @@
 """How far the coded columns decode on real records, as a reader meets them.
 
-For every lake family, the first 20,000 records of its latest partition go through the renderer itself
-(`view.render_table`, what `query` applies). For each column whose role is coded (kind category or code_tree) it
-records whether the column was labelled, by which table, and the share of its coded cells that got a label (the
-`<column>_label` beside the code, null where no table held the code) with the commonest code=label pairs, to be read.
-A column left unlabelled is split by its values: words as filed ("SAÍDA DO TRATAMENTO") read as they
-are; codes ("12", "M") are the gaps. Read-only: the lake's files, the catalog and the reference tables.
+For every lake family, the WHOLE latest partition's coded columns (role kind category or code_tree) go through the
+renderer itself (`view.render_table`, what `query` applies), eight columns at a time. The renderer's table choice weighs
+the rows it is given, so all of them are given, and a code that appears late in a file is counted. The first 20,000
+records had stood for the file until 2026-10-24, and missed SINAN-DENG 2024's `CLASSI_FIN` 8 (542,641 rows) and
+`SOROTIPO` 0 (131,058). For each column it records:
+* whether the column was labelled, and by which table;
+* the share of its coded cells that got a label (the `<column>_label` beside the code, null where no table held the
+  code);
+* the commonest code=label pairs, to be read, and the codes left bare with their counts.
+
+A column left unlabelled is split by its values: words as filed ("SAÍDA DO TRATAMENTO") read as they are; codes ("12",
+"M") are the gaps. Read-only: the lake's files, the catalog and the reference tables.
 
     python scripts/decode_coverage.py --root C:/Users/Galaxy/pegasus_core_data --out data/probes/decode_coverage/DATE.json
 """
@@ -16,27 +22,26 @@ import re
 from collections import Counter
 from pathlib import Path
 
-import pyarrow as pa
-import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 import pegasus_data as pg
 from pegasus_data.api import Catalog
 from pegasus_data.view import render_table
 
-SAMPLE = 20_000
-BARE = re.compile(r"^(.*) \(\?\)$")
+GROUP = 8
 WORD = re.compile(r"[A-Za-zÀ-ÿ]{3,}")
 
 
 def family_sample(catalog: Catalog) -> dict[str, dict]:
-    """Each lake family's latest partition (its largest of that year)."""
+    """Each lake family's latest partition on disk (its largest of that year)."""
+    lake = Path(catalog.settings.lake_dir)
     rows = catalog.store.query(
         "SELECT f.family_id, f.system, f.series, p.relative_path, p.year FROM families f "
         "JOIN lake_partitions p ON p.family_id = f.family_id ORDER BY f.family_id, p.year DESC, p.row_count DESC")
     latest: dict[str, dict] = {}
     for r in rows:
-        latest.setdefault(r["family_id"], dict(r))
+        if (lake / r["relative_path"]).is_file():
+            latest.setdefault(r["family_id"], dict(r))
     return latest
 
 
@@ -46,41 +51,31 @@ def measure(catalog: Catalog, family_id: str, r: dict) -> dict:
     entry = {"family": family_id, "dataset": f"{system}-{series}", "year": r["year"], "columns": []}
     roles = pg.roles(entry["dataset"], period=int(r["year"]))
     coded = {x["column"].upper() for x in roles if x.get("kind") in ("category", "code_tree")}
-    raw = pa.Table.from_batches([next(pq.ParquetFile(lake / r["relative_path"]).iter_batches(batch_size=SAMPLE))])
-    rendered, rep = render_table(raw, store=catalog.store, lake_root=lake, system=system, family_id=family_id,
-                                 year=int(r["year"]), registries=catalog.settings.registries_dir)
-    raw_names = {n.upper(): n for n in raw.column_names}
-    for name in rendered.column_names:
-        col = name.upper()
-        if col not in coded:
-            continue
-        cells = pc.drop_null(rendered.column(name))
-        if len(cells) == 0 or name in rep.constant:
-            entry["columns"].append({"column": col, "state": "empty or constant"})
-            continue
-        if name in rep.labelled:
-            # the label sits in the column beside the code (`<name>_label`), null where no table held the code: the share
-            # of the code's cells that got one (this read the code column itself, where "(?)" never appears, and so
-            # reported 100 % for every column, 2026-10-23)
+    parquet = pq.ParquetFile(lake / r["relative_path"])
+    entry["rows"] = parquet.metadata.num_rows
+    names = [n for n in parquet.schema_arrow.names if n.upper() in coded]
+    for i in range(0, len(names), GROUP):
+        raw = parquet.read(columns=names[i:i + GROUP])
+        rendered, rep = render_table(raw, store=catalog.store, lake_root=lake, system=system, family_id=family_id,
+                                     year=int(r["year"]), registries=catalog.settings.registries_dir)
+        for name in raw.column_names:
+            codes = [None if v is None or not str(v).strip() else str(v).strip() for v in raw.column(name).to_pylist()]
+            filled = Counter(v for v in codes if v is not None)
+            if not filled or name in rep.constant:
+                entry["columns"].append({"column": name.upper(), "state": "empty or constant"})
+                continue
             label_col = f"{name}_label"
-            if label_col in rendered.column_names:
-                pairs = Counter(zip(rendered.column(name).to_pylist(), rendered.column(label_col).to_pylist(), strict=True))
-                n_coded = sum(n for (code, _), n in pairs.items() if code is not None)
-                got = sum(n for (code, lab), n in pairs.items() if code is not None and lab is not None)
-                share = got / max(1, n_coded)
-                top = [f"{code}={lab}" for (code, lab), _ in pairs.most_common(6) if code is not None]
-            else:
-                texts = Counter(cells.to_pylist())
-                share = 1 - sum(n for t, n in texts.items() if BARE.match(str(t))) / len(cells)
-                top = []
-            entry["columns"].append({"column": col, "state": "labelled", "table": rep.codelist_used.get(name),
-                                     "share": round(share, 4), "top": top})
-            continue
-        values = Counter(str(v).strip() for v in raw.column(raw_names.get(col, name)).to_pylist()
-                         if v is not None and str(v).strip())
-        words = sum(n for v, n in values.items() if WORD.search(v)) / max(1, sum(values.values()))
-        entry["columns"].append({"column": col, "state": "words as filed" if words > 0.8 else "codes left bare",
-                                 "distinct": len(values), "top": [v for v, _ in values.most_common(5)]})
+            if name in rep.labelled and label_col in rendered.column_names:
+                pairs = Counter(zip(codes, rendered.column(label_col).to_pylist(), strict=True))
+                bare = Counter({code: n for (code, lab), n in pairs.items() if code is not None and lab is None})
+                entry["columns"].append({"column": name.upper(), "state": "labelled", "table": rep.codelist_used.get(name),
+                                         "share": round(1 - sum(bare.values()) / sum(filled.values()), 4),
+                                         "bare": bare.most_common(8),
+                                         "top": [f"{c}={lab}" for (c, lab), _ in pairs.most_common(6) if c is not None]})
+                continue
+            words = sum(n for v, n in filled.items() if WORD.search(v)) / sum(filled.values())
+            entry["columns"].append({"column": name.upper(), "state": "words as filed" if words > 0.8 else "codes left bare",
+                                     "distinct": len(filled), "top": [v for v, _ in filled.most_common(5)]})
     return entry
 
 
