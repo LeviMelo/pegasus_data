@@ -1,4 +1,4 @@
-# ADR-0206: a role table's key names the codelists its labelled columns can be labelled with, and a build is refused any other
+# ADR-0202: a role table's key names the codelists its labelled columns can be labelled with, and a build is refused any other
 
 **Date:** 2026-10-24. **Status:** accepted. Builds on ADR-0167 (a run is served while its fingerprint is current) and
 ADR-0186 (the key reads content).
