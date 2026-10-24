@@ -39,6 +39,15 @@ names the column(s) that state that month (``competence``), and, when the layout
 years, the first month in the unit (``unit_from``); a nominal amount is deflated with that month's price index, never
 the year's.
 
+A column the dataset does not file, because another dataset files it on the same record, is **reached through a key**
+(``through``, ADR-0199): ``through: {key: AIH, dataset: SIH-RD}`` says "this column is the column of the same name of
+SIH-RD, on the row that shares this record's ``AIH`` key" (``curation/joins.yml`` names each side's column and, where the
+source repeats a key, its principal row). SIH-SP files the procedure lines of an admission with the patient's municipality
+but no sex or age; its ``SEXO`` and ``IDADE_anos`` are SIH-RD's, so a count of SP's procedures by sex and age exists.
+The column keeps the source's name and must state the same role and kind there (a sex is a sex); it is read only when
+selected by name, from the source for the same period and geography, never filling a record's gap with a guess:
+`semantics.through` reads it and reports the records whose key found no row.
+
 The linkage roles of ``curation/roles.yml`` name some of these columns for
 comparison; each must agree with the column's declared role (one mechanism,
 two uses).
@@ -103,7 +112,7 @@ PLACE_OF = {
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
-                  "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other"})
+                  "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other", "through"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -122,6 +131,15 @@ _ROLE = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
 #: statement, whatever the form (SINAN-HANS's diagnosis week was modelled as a measurement until 2026-10-08).
 NOT_MEASURES = frozenset({"age_coded", "time"})
 _CALENDAR = re.compile(r"(^|_)(week|year)$")
+
+
+@dataclass(frozen=True, slots=True)
+class Through:
+    """Where a column the dataset does not file is read from: the column of the same name of ``dataset`` (as the role
+    files spell it: ``SIH-RD``), on the row that shares this record's ``key`` (a key of ``curation/joins.yml``)."""
+
+    key: str
+    dataset: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,6 +202,8 @@ class ColumnRole:
     #: fatality finds no code to count and must say so, never match a label).
     fatal: tuple[str, ...] | None = None
     fatal_other: tuple[str, ...] | None = None
+    #: For a column another dataset files on the same record (SIH-SP's sex and age, SIH-RD's): where it is read from
+    through: Through | None = None
 
     @property
     def entity(self) -> str:
@@ -213,6 +233,7 @@ class ColumnRole:
                 **({"unit_from": self.unit_from} if self.unit_from else {}),
                 **({"competence": list(self.competence)} if self.competence else {}),
                 **({"place_of": self.place_of} if self.place_of else {}),
+                **({"through": {"key": self.through.key, "dataset": self.through.dataset}} if self.through else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
                    if self.instruments else {})}
 
@@ -245,6 +266,7 @@ def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
         out[dataset] = tuple(rows)
     _agree_with_linkage(out)
     _competence_declared(out)
+    _through_declared(out)
     return out
 
 
@@ -296,6 +318,17 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       "record names (a registry office, a managing authority) is a mark")
     elif place_of is not None:
         raise bad("`place_of` is declared for places only")
+    through = None
+    if "through" in spec:
+        raw = spec["through"]
+        if not isinstance(raw, dict) or set(raw) != {"key", "dataset"} or not all(
+                isinstance(raw[k], str) and raw[k].strip() for k in raw):
+            raise bad("`through` is {key: <a key of joins.yml>, dataset: <the dataset that files the column>}")
+        if model in ("link_only", "excluded"):
+            raise bad("a column reached through a key is a field a study reads, not a link key or a set-aside column")
+        if spec.get("derived"):
+            raise bad("a derived column is made from this dataset's own columns; it is not reached through a key")
+        through = Through(raw["key"].strip().upper(), raw["dataset"].strip().upper().replace(".", "-"))
     also = tuple(str(a) for a in spec.get("also") or ())
     for extra in also:
         if not _ROLE.match(extra):
@@ -398,7 +431,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       " ".join(str(spec["unit_evidence"]).split()) if unit is not None else None,
                       " ".join(str(unit_unknown).split()) if unit_unknown is not None else None,
                       int(unit_from) if unit_from is not None else None, competence,
-                      str(place_of) if place_of is not None else None, fatal, fatal_other)
+                      str(place_of) if place_of is not None else None, fatal, fatal_other, through)
 
 
 def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
@@ -409,6 +442,42 @@ def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
             for month in c.competence:
                 if kinds.get(month.upper()) != "date":
                     raise ValueError(f"roles/{dataset}.yml: {c.column} names {month} as its competence, which is not a declared date column")
+
+
+def _through_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
+    """Every column reached through a key is the same column of a dataset that files it: that dataset declares it with
+    the same role and kind (a sex is a sex) and files it itself (no chain of keys), and the key of ``joins.yml`` has
+    this dataset and that one as members, so the columns that join are declared once, there."""
+    from ..ontology import Ontology
+
+    keys = Ontology.load().keys
+    for dataset, columns in declared.items():
+        for c in columns:
+            if c.through is None:
+                continue
+            where = f"roles/{dataset}.yml: {c.column}"
+            try:
+                source = _declared_key_in(declared, c.through.dataset)
+            except KeyError:
+                raise ValueError(f"{where}: reached through {c.through.dataset}, which declares no column roles") from None
+            theirs = next((s for s in declared[source] if s.column == c.column), None)
+            if theirs is None:
+                raise ValueError(f"{where}: {source} declares no column of that name to read it from")
+            lo, hi = c.years
+            if (lo is not None and theirs.years[0] is not None and lo < theirs.years[0]) or (
+                    hi is not None and theirs.years[1] is not None and hi > theirs.years[1]):
+                raise ValueError(f"{where}: is declared for {list(c.years)} but {source} files it for {list(theirs.years)}")
+            if theirs.through is not None:
+                raise ValueError(f"{where}: {source}'s {c.column} is itself reached through a key; name the dataset that files it")
+            if (theirs.role, theirs.kind) != (c.role, c.kind):
+                raise ValueError(f"{where}: is {c.role} ({c.kind}) but {source}'s is {theirs.role} ({theirs.kind}): "
+                                 "one column states one property")
+            key = keys.get(c.through.key)
+            if key is None:
+                raise ValueError(f"{where}: curation/joins.yml declares no key {c.through.key}")
+            for name in (dataset, source):
+                if key.member_for(name) is None:
+                    raise ValueError(f"{where}: {name} is not a member of the {key.name} key of curation/joins.yml")
 
 
 def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
@@ -477,9 +546,13 @@ def roles(dataset: str, period: object = None) -> list[dict[str, Any]]:
 def declared_key(dataset: str) -> str:
     """The key of ``dataset`` in the role files (``SIM-DO``, ``SIH-RD`` for ``SIHSUS-RD``, ``SINAN-*`` for every
     SINAN agravo's notification block); ``KeyError`` when no role file covers it."""
+    return _declared_key_in(load_column_roles(), dataset)
+
+
+def _declared_key_in(declared: dict[str, tuple[ColumnRole, ...]], dataset: str) -> str:
+    """`declared_key` over the role files already read (the loader checks them before it returns them)."""
     from .._request import parse_dataset
 
-    declared = load_column_roles()
     key = dataset.upper().replace(".", "-")
     if key not in declared:
         system, series = parse_dataset(dataset)

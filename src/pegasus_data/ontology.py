@@ -359,6 +359,7 @@ def _load_joins(root: Path) -> tuple[dict[str, JoinKey], list[UnestablishedJoin]
                 column=str(m.get("column", "")).upper(),
                 rows_per_key=str(m.get("rows_per_key", "unmeasured")),
                 note=_clean(m.get("note")),
+                principal=_principal(m.get("principal"), name, str(m.get("dataset"))),
             )
             for m in (body.get("members") or ())
             if m and m.get("dataset")
@@ -382,6 +383,18 @@ def _load_joins(root: Path) -> tuple[dict[str, JoinKey], list[UnestablishedJoin]
     return keys, unestablished
 
 
+def _principal(spec: Any, key: object, dataset: str) -> tuple[str, tuple[str, ...]] | None:
+    """A member's ``principal: {column, codes}``: which of its rows stands for a key that repeats (None: none declared)."""
+    if spec is None:
+        return None
+    codes = spec.get("codes") if isinstance(spec, dict) else None
+    column = str(spec.get("column") or "").strip().upper() if isinstance(spec, dict) else ""
+    if not column or not isinstance(codes, (list, tuple)) or not codes or any(not isinstance(c, str) for c in codes):
+        raise ValueError(f"joins.yml: key {key}, member {dataset}: `principal` is {{column: <column>, codes: [<code>, ...]}}, "
+                         "the codes strings as filed")
+    return column, tuple(codes)
+
+
 @dataclass(slots=True)
 class KeyMember:
     """One dataset's participation in a join key."""
@@ -390,6 +403,10 @@ class KeyMember:
     column: str
     rows_per_key: str = "unmeasured"
     note: str | None = None
+    #: Where the member has several rows per key, the column and codes that mark the row that stands for the key (RD's
+    #: IDENT 1, the principal AIH of an admission that long-stay parts repeat); a reader that takes the key's row as one
+    #: takes the first row carrying one of them, else the first row in file order. None: none declared.
+    principal: tuple[str, tuple[str, ...]] | None = None
 
 
 @dataclass(slots=True)
@@ -417,6 +434,21 @@ class JoinKey:
             if member.dataset == dataset:
                 return member.column
         return None
+
+    def member_for(self, dataset: str) -> KeyMember | None:
+        """The member that is ``dataset``, however it is spelt (``SIH.SP``, ``SIH-SP``, ``SIHSUS-SP``): the declared
+        spelling, else the one dataset `parse_dataset` makes of both. For a reader of a loaded ontology; `column_for`
+        stays exact, as the loading itself uses it."""
+        for member in self.members:
+            if member.dataset == dataset:
+                return member
+        from ._request import parse_dataset
+
+        try:
+            wanted = parse_dataset(dataset)
+            return next((m for m in self.members if parse_dataset(m.dataset) == wanted), None)
+        except Exception:  # noqa: BLE001 - a spelling no dataset has: the key has no such member
+            return None
 
     def fans_out(self) -> list[str]:
         """Datasets with many rows per key — the ones that inflate a count."""
