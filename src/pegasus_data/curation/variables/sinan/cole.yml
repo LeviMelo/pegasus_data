@@ -252,10 +252,12 @@ variables:
       was hospitalized, distinct from the state of residence or of probable infection.
 
       '
-    code_system: none
+    code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
       campo 47 (UF de internação)
+    reasoning: "A state of the Brazilian federation: the dictionary's own UF field (campo 54 of Botulismo v5 / campo 47 of Cólera v5, \"UF de ...\"), and the same notification form's UF_HOSP and SG_UF are bound to UF_BR, whose IBGE two-digit codes these values are (BOTU 2025: 35, 31, 29, 53, 26; 2026-10-24)."
   VINCULO:
     official_name: Vínculo epidemiológico sugerido
     translated_name: Suggested epidemiological link

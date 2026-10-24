@@ -275,9 +275,11 @@ variables:
       one-off procedure needing no renewal (3=Única).
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Inicial", "2": "Continuidade", "3": "Única"}
     source: layout_doc
     source_ref: APAC_JUL07.doc, campo 008 (apa_tipapac)
+    reasoning: "APAC_JUL07.doc campo 008 (apa_tipapac): 1 Inicial, 2 Continuidade, 3 Única, the table of the later APAC files' AP_TPAPAC (TP_APAC), which the 2006 file's values (1, 3, 2) match (2026-10-24)."
   APA_TIPATE:
     official_name: Tipo de atendimento
     translated_name: Type of care

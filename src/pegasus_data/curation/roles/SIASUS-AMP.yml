@@ -13,11 +13,14 @@ columns:
     - 2026
   AMP_ALBUMI:
     role: authorisation.serum_albumin
-    kind: category
+    kind: number
+    missing_unknown: "the AMP file's own \"not recorded\" fills are not measured here (one file, 2025); the dialysis homonym's are ('0000', '0', '9999', ...; ATD, 2026-10-14)"
+    unit_unknown: "no document of the AMP file gives the unit of serum albumin; the dialysis homonym is no more explicit for PTH and Kt/V (Informe_Tecnico_SIASUS_2019_07.pdf)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Albumina\" (authorisation.serum_albumin): fact about the health event or the person's health"
     name: Albumina
+    note: "A laboratory value, not a code: the field is \"serum albumin\" in the dialysis block of the APAC layout (Layout interno do APAC 11/04/2014 APA_ALBUMI; ATD_ALBUMI in Informe Técnico SIASUS 2019-07 §3.4.8), and the AMP 2025 file holds decimal and zero-padded numbers ('4.0', '0000', '0001', '45'; 74 distinct values), which no code table is (measured 2026-10-24)."
     years:
     - 2016
     - 2026
@@ -114,11 +117,14 @@ columns:
     - 2026
   AMP_KTVSEM:
     role: authorisation.weekly_kt_v
-    kind: category
+    kind: number
+    missing_unknown: "the AMP file's own \"not recorded\" fills are not measured here (one file, 2025); the dialysis homonym's are ('0000', '0', '9999', ...; ATD, 2026-10-14)"
+    unit_unknown: "no document of the AMP file gives the unit of weekly Kt/V; the dialysis homonym is no more explicit for PTH and Kt/V (Informe_Tecnico_SIASUS_2019_07.pdf)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Kt/V Semanal\" (authorisation.weekly_kt_v): fact about the health event or the person's health"
     name: Kt/V Semanal
+    note: "A laboratory value, not a code: the field is \"weekly Kt/V\" in the dialysis block of the APAC layout (Layout interno do APAC 11/04/2014 APA_KTVSEM; ATD_KTVSEM in Informe Técnico SIASUS 2019-07 §3.4.8), and the AMP 2025 file holds the digits 0 to 9 (10 distinct values, none a code the layout lists), a figure whose scale no document gives (measured 2026-10-24)."
     years:
     - 2016
     - 2026
@@ -134,11 +140,14 @@ columns:
     - 2026
   AMP_PTH:
     role: authorisation.parathyroid_hormone
-    kind: category
+    kind: number
+    missing_unknown: "the AMP file's own \"not recorded\" fills are not measured here (one file, 2025); the dialysis homonym's are ('0000', '0', '9999', ...; ATD, 2026-10-14)"
+    unit_unknown: "no document of the AMP file gives the unit of parathyroid hormone; the dialysis homonym is no more explicit for PTH and Kt/V (Informe_Tecnico_SIASUS_2019_07.pdf)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PTH\" (authorisation.parathyroid_hormone): fact about the health event or the person's health"
     name: PTH
+    note: "A laboratory value, not a code: the field is \"parathyroid hormone\" in the dialysis block of the APAC layout (Layout interno do APAC 11/04/2014 APA_PTH; ATD_PTH in Informe Técnico SIASUS 2019-07 §3.4.8), and the AMP 2025 file holds decimal and zero-padded numbers ('4.0', '0000', '0001', '45'; 281 distinct values), which no code table is (measured 2026-10-24)."
     years:
     - 2016
     - 2026
@@ -185,11 +194,14 @@ columns:
     note: Empty in every file read; kind from its variable note.
   AMP_TRU:
     role: authorisation.urea_reduction_rate
-    kind: category
+    kind: number
+    missing_unknown: "the AMP file's own \"not recorded\" fills are not measured here (one file, 2025); the dialysis homonym's are ('0000', '0', '9999', ...; ATD, 2026-10-14)"
+    unit_unknown: "no document of the AMP file gives the unit of urea reduction ratio; the dialysis homonym is no more explicit for PTH and Kt/V (Informe_Tecnico_SIASUS_2019_07.pdf)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"TRU\" (authorisation.urea_reduction_rate): fact about the health event or the person's health"
     name: TRU
+    note: "A laboratory value, not a code: the field is \"urea reduction ratio\" in the dialysis block of the APAC layout (Layout interno do APAC 11/04/2014 APA_TRU; ATD_TRU in Informe Técnico SIASUS 2019-07 §3.4.8), and the AMP 2025 file holds decimal and zero-padded numbers ('4.0', '0000', '0001', '45'; 126 distinct values), which no code table is (measured 2026-10-24)."
     years:
     - 2016
     - 2026

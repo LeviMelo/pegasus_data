@@ -23,12 +23,14 @@ variables:
     translated_name: Equipment not available to SUS
     description: 'Flag for equipment not available to SUS (1=Sim, 0=Não). Recorded as
       its own flag beside IND_SUS rather than derived from it.'
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
       (local: sources/IT_CNES_1706.txt), §2.5 Equipamentos (EQ*.dbf) SEQ 26 ''Indicador
       de EQUIPAMENTO NÃO DISPONÍVEL para o SUS, onde: 1 = SIM 0 = NÃO'''
+    reasoning: "The layout prints the values: IT_CNES_1706.pdf §2.5 SEQ 26 IND_NSUS \"1 = SIM 0 = NÃO\"; in the CNES-EQ AM 2024 file it is the exact complement of IND_SUS (4,329 rows 1 and 7,754 rows 0, against IND_SUS 0 and 1) (2026-10-24)."
   IND_SUS:
     official_name: Equipamento disponível ao SUS
     translated_name: Equipment available to SUS

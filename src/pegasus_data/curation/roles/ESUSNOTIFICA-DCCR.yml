@@ -381,9 +381,12 @@ columns:
     - BR_MUNICIPALFA
     note: As across SINAN forms (21 of 22).
   CONF_FAMIL:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_confirmed_after_active_case_finding
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "relatives confirmed after the active search"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf: \"Nº de Familiares ...\", a number of people; the DCCR 2023 values are the digits 0 to 9 or the words \"Sem informacao\", which is not recorded, not a count (measured 2026-10-24)"
+    missing: ["Sem informacao"]
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de Familiares confirmados para doença de Chagas, após busca ativa\" (notification.relatives_confirmed_after_active_case_finding): fact about the health event or the person's health"
@@ -459,9 +462,12 @@ columns:
     - 2023
     - 2025
   DIAG_FAMIL:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_identified_without_a_prior_diagnosis
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "relatives with no previous diagnosis"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf: \"Nº de Familiares ...\", a number of people; the DCCR 2023 values are the digits 0 to 9 or the words \"Sem informacao\", which is not recorded, not a count (measured 2026-10-24)"
+    missing: ["Sem informacao"]
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de Familiares com história epidemiológica SEM diagnóstico prévio de doença de Chagas\" (notification.relatives_identified_without_a_prior_diagnosis): fact about the health event or the person's health"
@@ -567,9 +573,12 @@ columns:
     - 2023
     - 2025
   EXAM_FAMIL:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.relatives_tested_after_active_case_finding
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "relatives tested after the active search"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf: \"Nº de Familiares ...\", a number of people; the DCCR 2023 values are the digits 0 to 9 or the words \"Sem informacao\", which is not recorded, not a count (measured 2026-10-24)"
+    missing: ["Sem informacao"]
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de Familiares com realização de exames para doença de Chagas, após busca ativa\" (notification.relatives_tested_after_active_case_finding): fact about the health event or the person's health"
@@ -638,9 +647,12 @@ columns:
     - 2023
     - 2025
   HIST_EPID:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.living_relatives_already_diagnosed_with_chagas
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "living relatives with a previous confirmed Chagas diagnosis"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf: \"Nº de Familiares ...\", a number of people; the DCCR 2023 values are the digits 0 to 9 or the words \"Sem informacao\", which is not recorded, not a count (measured 2026-10-24)"
+    missing: ["Sem informacao"]
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de Familiares (vivos) com história epidemiológica COM diagnóstico prévio e confirmado de doença de Chagas\" (notification.living_relatives_already_diagnosed_with_chagas): fact about the health event or the person's health"
@@ -867,7 +879,9 @@ columns:
   NFX_DIAS:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.nifurtimox_treatment_days
-    kind: category
+    kind: number
+    unit: "days"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf \"Nifurtimox (NFX) - Nº dias de tratamento\": a number of days (DCCR 2023: 60, 48, 70; 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Nifurtimox (NFX) - Nº dias de tratamento\" (notification.nifurtimox_treatment_days): how care or investigation was carried out"
@@ -945,7 +959,10 @@ columns:
   NFX_TOT_CP:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.nifurtimox_tablets_prescribed
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "nifurtimox tablets in the prescription"
+    unit_evidence: "Dicionario_de_Dados_Doenca_de_Chagas_Cronica.pdf \"Nifurtimox (NFX) - Total de comprimidos\": a number of tablets (DCCR 2023: 210, 360, 144; 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Nifurtimox (NFX) - Total de comprimidos\" (notification.nifurtimox_tablets_prescribed): how care or investigation was carried out"

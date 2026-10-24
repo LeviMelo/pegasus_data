@@ -1082,7 +1082,9 @@ variables:
       MUN_ING for the municipality of ingestion.
 
       '
-    code_system: none
+    code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 54 (UF de ingestão do alimento suspeito)
+    reasoning: "A state of the Brazilian federation: the dictionary's own UF field (campo 54 of Botulismo v5 / campo 47 of Cólera v5, \"UF de ...\"), and the same notification form's UF_HOSP and SG_UF are bound to UF_BR, whose IBGE two-digit codes these values are (BOTU 2025: 35, 31, 29, 53, 26; 2026-10-24)."

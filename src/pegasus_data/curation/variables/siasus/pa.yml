@@ -468,10 +468,12 @@ variables:
       No codelist is bound in this catalog build.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"K": "APROVADO TOTALMENTE", "R": "TETO FINANCEIRO", "S": "TETO FINANCEIRO CMP ATUAL", "L": "ULTRAPASSOU TETO FISICO", "M": "ULTRAPAS.TETO FINANCEIRO", "T": "TETO FINANCEIRO CMP ATUAL", "N": "ULTRAPASSOU TETO FISICO", "P": "PROCEDIMENTO SEM ORCAMENTO", "Q": "PROCEDIMENTO SEM VALOR UNITARIO", "O": "ULTRAPASSOU TETO FINANCEIRO"}
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    reasoning: "The CODOCO table of the SIA tabulation is keyed by two characters, PA_CODOCO and the flag letter (1K, 1R, 1S, 2L, 3M, 3T, 4N, 4P, 4Q, 5O, plus 11), each label ending with its letter in brackets (\"APROVADO TOTALMENTE (K)\"); the letters are unique, and the 21,341 rows of the PA RR 2024 file hold five (PA_CODOCO, PA_FLQT) pairs, 1K, 1S, 1R, 5O and 3M, every one a key of the table. The label is the table's own text, without the bracketed letter (2026-10-24)."
   PA_FNTORC:
     official_name: Fonte de Recursos
     translated_name: Funding source code

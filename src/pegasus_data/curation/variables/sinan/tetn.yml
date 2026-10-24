@@ -184,11 +184,13 @@ variables:
       9 unknown); they are named in NO_OUTRAS.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
       campo 50 (Medidas adotadas – outras)
+    reasoning: "DIC_DADOS_Tetano_NeoNatal_v5 campo 50 (Medidas adotadas - outras): 1 sim, 2 não, 9 ignorado, the scale of the form's other measures (2026-10-24)."
   CS_OUTROS:
     official_name: Outro sinal
     translated_name: Other sign, neonatal tetanus
@@ -323,11 +325,13 @@ variables:
       through completed higher education, plus not applicable).
 
       '
-    code_system: none
+    code_system: internal
+    codelist: ESCOLARNET
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
       campo 41 (Escolaridade da mãe)
+    reasoning: "DIC_DADOS_Tetano_NeoNatal_v5 campo 41 prints the SINAN NET scale \"0-Analfabeto 1- 1º a 4º série incompleta do EF ... 8- Educação superior completa 9- Ignorado 10 – Não se aplica\", the scale of ESCOLARNET (the text layer misreads the label of 3 as \"5º a 6º\"; the table has 5ª a 8ª, as every other SINAN dictionary) (2026-10-24)."
   NO_ATENOUT:
     official_name: Parto atendido por – se outro, especificar
     translated_name: Birth attended by other (specify)

@@ -368,7 +368,7 @@ series:
       codes:
         '1': Empregado registrado com carteira assinada
         '2': Empregado não registrado
-        '3': Autônomo/cont a própria
+        '3': Autônomo/conta própria
         '4': Servidor público estatuário
         '5': Servidor público celetista
         '6': Aposentado
@@ -1093,7 +1093,7 @@ series:
         '31': Hetero/Droga
         '32': Hetero/Hemofílico
         '33': Hetero/Transfusão
-        '34': Hetero/Droga/Hem ofílico
+        '34': Hetero/Droga/Hemofílico
       source_ref: aids-adulto__DIC_DADOS_Aids_adulto_v5.pdf
     ANT_SALMO:
       type: text
@@ -1604,7 +1604,7 @@ series:
       codes:
         '1': Sim
         '2': Não
-        '9': gnorado
+        '9': Ignorado
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
     CLI_CDC_CR:
       type: text
@@ -1622,7 +1622,7 @@ series:
       codes:
         '1': Sim
         '2': Não
-        '9': gnorado
+        '9': Ignorado
       source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
     CLI_CDC_GE:
       type: text
@@ -2794,7 +2794,7 @@ series:
         '3': Quiróptera (morcego)
         '4': Primata (macaco)
         '5': Raposa
-        '6': Herbívoro doméstico(especific ar)
+        '6': Herbívoro doméstico(especificar)
         '7': Outra
       source_ref: atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.pdf
     ANT_ARRANH:
@@ -2980,7 +2980,7 @@ series:
         '2': Negativo para raiva (laboratório)
         '3': Positivo para raiva (clínica)
         '4': Positivo para raiva (laboratório)
-        '5': Morto/sacrificado/s em diagnóstico
+        '5': Morto/sacrificado/sem diagnóstico
         '9': Ignorado
       source_ref: atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.pdf
     HERBIV_DES:
@@ -4532,7 +4532,7 @@ series:
       codes:
         '1': transfusional
         '2': vetorial
-        '3': transplacentá ria
+        '3': transplacentária
         '4': acidental
         '5': oral
         '6': outra
@@ -7944,7 +7944,7 @@ series:
         '1': Domicílio
         '2': Vizinhança
         '3': Trabalho
-        '4': Creche/escol a
+        '4': Creche/escola
         '5': Posto de saúde/hospital
         '6': Outro Estado /Município
         '7': Sem história de contato
@@ -9360,7 +9360,7 @@ series:
         '3': Trabalho
         '4': Creche/escola
         '5': Posto de saúde/hospital
-        '6': Outro Estado/Municí pio
+        '6': Outro Estado/Município
         '7': Outros
         '8': Sem história de contato
         '9': Ignorado
@@ -10341,7 +10341,7 @@ series:
       label: Forma clínica
       codes:
         '1': Prodrômica ou inespecífica
-        '2': Síndrome cardiopulmon ar por hantavirus
+        '2': Síndrome cardiopulmonar por hantavirus
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     CON_LOCAL2:
       type: text
@@ -10532,9 +10532,9 @@ series:
       label: Resultado B Leucócitos
       codes:
         '1': Normais
-        '2': Aumenta dos COM desvio a esquerda
-        '3': Diminuídos (Leucope nia)
-        '4': Aumenta dos SEM desvio à esquerda
+        '2': Aumentados COM desvio a esquerda
+        '3': Diminuídos (Leucopenia)
+        '4': Aumentados SEM desvio à esquerda
         '5': Não realizado
         '9': Ignorado
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
@@ -10802,8 +10802,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: HBeAg'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10812,8 +10812,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: HBsAg'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10832,8 +10832,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos/ virológicos: Anti-HAV IgM'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10842,8 +10842,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HBc IgM'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10852,8 +10852,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HBe'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10862,8 +10862,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HBs'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10872,8 +10872,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HCV'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10882,8 +10882,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HDV total'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Negativ oNão reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -10902,8 +10902,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HEV-IgM'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -11102,8 +11102,8 @@ series:
       width: 1
       label: 'Resultado s sorológicos / Virológicos: Anti-HBc total'
       codes:
-        '1': Reagente/Reage nte
-        '2': Não reagente/Não reagente
+        '1': Reagente
+        '2': Não reagente
         '3': Inconclusivo
         '4': Não realizado
       source_ref: hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
@@ -14799,7 +14799,12 @@ series:
       type: text
       width: 1
       label: Com afastamento do trabalho
-      source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf
+      codes:
+        '1': Melhora
+        '2': Piora
+        '9': Ignorado
+      source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf; numerals of the list lost in the dictionary's
+        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24)
     FLOGISTICO:
       type: text
       width: 1
@@ -15192,7 +15197,12 @@ series:
       type: text
       width: 1
       label: Com afastamento do trabalho
-      source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf
+      codes:
+        '1': Melhora
+        '2': Piora
+        '9': Ignorado
+      source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf; numerals of the list lost in the dictionary's
+        text layer, restored from the sibling DRT dictionaries (curation/codes/supplements.yml, 2026-10-24)
     FLOGISTICO:
       type: text
       width: 1
@@ -18070,11 +18080,13 @@ series:
       width: 1
       label: Reflexos Bicipital D
       codes:
-        '1': Diminuído 1. Ausente
-        '2': Normal
-        '3': Aumentado
+        '1': Diminuído
+        '2': Ausente
+        '3': Normal
+        '4': Aumentado
         '9': Ignorado
-      source_ref: tabsinan__PFAN_DIC_DADOS.pdf
+      source_ref: tabsinan__PFAN_DIC_DADOS.pdf; the dictionary's list for this field repeats its numbering;
+        read as its siblings' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24)
     CLI_BICE_N:
       type: text
       width: 1
@@ -18567,10 +18579,13 @@ series:
       label: Sensibilidade MIE
       codes:
         '1': Diminuída
-        '2': Ausente 1- Normal 2- Parestesia
-        '3': Prejudicado
+        '2': Ausente
+        '3': Normal
+        '4': Parestesia
+        '5': Prejudicado
         '9': Ignorado
-      source_ref: tabsinan__PFAN_DIC_DADOS.pdf
+      source_ref: tabsinan__PFAN_DIC_DADOS.pdf; the dictionary's list for this field repeats its numbering;
+        read as its siblings' scale, tested on the PFAN 2023 file (curation/codes/supplements.yml, 2026-10-24)
     EVOR_S_MSD:
       type: text
       width: 1
@@ -20158,7 +20173,7 @@ series:
         '8': Casos dispersos no bairro
         '9': Casos dispersos pelo município
         '10': Casos dispersos em mais de um município
-        '11': Outros(espe cificar)
+        '11': Outros(especificar)
       source_ref: tabsinan__SDTA_DIC_DADOS.pdf
     CS_TRANS:
       type: text
@@ -21187,8 +21202,8 @@ series:
       width: 1
       label: Diagnóstico de descarte
       codes:
-        '1': Toxoplamas mose
-        '2': Citomegaloví rus
+        '1': Toxoplasmose
+        '2': Citomegalovírus
         '3': Sífilis congênita
         '4': Outras
       source_ref: DIC_DADOS_SRC_v5.pdf

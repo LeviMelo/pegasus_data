@@ -22,6 +22,14 @@ SINAN:
       source_ref: 'DIC_DADOS_Esquistossomose_v5 prints "1 – Cura 2, Não Cura" without a separator, read as one code; the records use 2 (2021: 65 of 1,646), so 2 is Não cura (2026-10-08)'
       drop: ['1']
       codes: {'1': Cura, '2': Não cura}
+  LER:
+    EVOL_AFAST:
+      source_ref: 'DIC_DADOS_DRT_LERDORT_v5 campo 54 prints the outcome during the leave as "Melhora Piora 9- Ignorado" with the numerals of the first two lost from its text layer; the Dermatoses and PAIR dictionaries print the same list "1- melhora 2- piora 9- ignorado", and the LERD 2025 file holds 1, 2 and 9 (2026-10-24)'
+      codes: {'1': Melhora, '2': Piora, '9': Ignorado}
+  LERD:
+    EVOL_AFAST:
+      source_ref: 'as LER: the same dictionary, the same list, the numerals lost; the LERD 2025 file holds 1, 2 and 9 (2026-10-24)'
+      codes: {'1': Melhora, '2': Piora, '9': Ignorado}
   MENI:
     ANT_TRAUMA:
       source_ref: 'DIC_DADOS_Meningite_v5 prints "1. Sim / 3. Não / 9.Ignorado" for tp_doenca_pre_traumatismo; the files hold 1, 2 and 9 and never 3 (2010: 2 on 23,627 of 27,721 recorded; 2015, 2021 alike), and the tabulation labels 2 Não and 3 Ign/Branco. The dictionary''s 3 is kept as printed; 2 is the No the records use (2026-10-08)'
@@ -32,6 +40,14 @@ SINAN:
         The field''s siblings in the same table print 9 Ignorado'
       drop: ['9']
       codes: {'9': Ignorado}
+    CLI_BICD_N:
+      source_ref: 'DIC_DADOS_PFA prints the right biceps reflex (campo 48) "1- Diminuído 1. Ausente 2. Normal 3. Aumentado 9- Ignorado", numbering that repeats 1 and loses 4; the left biceps and the two triceps print 1 Diminuído, 2 Ausente, 3 Normal, 4 Aumentado, 9 Ignorado, and the PFAN 2023 file holds the same five codes for the right biceps as for the triceps (1: 89, 2: 39, 3: 243, 4: 6, 9: 161 against 88, 37, 250, 6, 163; 2026-10-24)'
+      drop: ['1', '2', '3']
+      codes: {'1': Diminuído, '2': Ausente, '3': Normal, '4': Aumentado}
+    EVOR_S_MIE:
+      source_ref: 'DIC_DADOS_PFA prints the sensibility of the left lower limb at the revisit (campo 80) "1- Diminuída 2- Ausente 1- Normal 2- Parestesia 3- Prejudicado 9- Ignorado", numbering that repeats 1 and 2; the right lower limb and both upper limbs print 1 Diminuída, 2 Ausente, 3 Normal, 4 Parestesia, 5 Prejudicado, 9 Ignorado, and the PFAN 2023 file holds codes 1 to 5 and 9 for it as for the right lower limb (3: 416 against 419, 4: 7 against 6, 5: 7 against 9; 2026-10-24)'
+      drop: ['2', '3']
+      codes: {'2': Ausente, '3': Normal, '4': Parestesia, '5': Prejudicado}
   SDTA:
     ST_INCUB_M:
       source_ref: 'SDTA_FICHA.pdf (Ficha de Investigação Surto - DTA, SVS 08/06/2006), campo 34 "Período de Incubação Mínimo (em horas ou dias)": "1 - Horas, 2 - Dias"; the Surto DTA v5 dictionary prints the field varchar(1) without its codes (2026-10-23)'

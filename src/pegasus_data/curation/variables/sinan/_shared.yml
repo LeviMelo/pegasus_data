@@ -3512,18 +3512,14 @@ variables:
     description: 'ICD-10 code of the specific diagnosis of the work-related disease.
 
       '
-    codelist: AGRAVONOTS
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – DRT LER/DORT — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf,
       campo 52 (Diagnóstico específico – CID 10); Dicionário de Dados SINAN NET v5.0 – DRT
       Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
       campo 48
-    notes: 'Not found named in either dictionary fetched for this batch — the exact value
-      domain (whether it is a raw CID-10 code or a SINAN-specific sub-agravo code) is not
-      confirmed.
-
-      '
+    notes: "The values are ICD-10 codes (the field is \"Diagnóstico específico (CID 10)\" in the LER/DORT and Câncer dictionaries; 4-character codes without the dot and 3-character categories in the files: J628, B42, L570, M75). Some are written with a trailing dot (M75., C44.): those do not match ICD-10's widths and stay undecoded, visibly. The AGRAVONOTS list bound before is the tabulator's list of notifiable conditions, not an ICD list (no table in the lake)."
   DIARREIA:
     official_name: Diarreia
     translated_name: Clinical sign — diarrhea
@@ -5205,11 +5201,6 @@ variables:
       '
     code_system: external
     codelists:
-    - AB
-    - NHE
-    - NHENIVEL
-    - NHEUNIDADE
-    - NHE_NIVEL_MUN
     - UNIDANET
     - CADGERBR
     source: layout_doc
@@ -5219,6 +5210,7 @@ variables:
       Nacional de Estabelecimento de Saúde (CNES) | Campo Obrigatório | ID_UNIDADE"
 
       '
+    reasoning: "The dictionary ([DIC-NOTIF-IND] campo 6) names one table, the CNES's \"Códigos e nomes\". AB (50,625 CNES codes, every label \"Sim\") and NHE, NHENIVEL, NHEUNIDADE, NHE_NIVEL_MUN (the units of the hospital epidemiology nuclei, labelled by their rank) are selection lists of the SINAN tabulator, not names: bound here they labelled a notifying unit \"Sim\" (ANTR 2025, first 20,000 records: 7,259 of the 8,318 cells that got a label) or by the rank of a nucleus (read on records, 2026-10-24). UNIDANET (35,056 unit names) and CADGERBR (the CNES registry) are the name tables."
   IMUNOH_N:
     official_name: Imunohistoquímica (resultado)
     translated_name: Immunohistochemistry result
@@ -7138,6 +7130,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "hora", "2": "dias", "3": "meses", "4": "anos"}
     source: layout_doc
     source_ref: http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf
       — campo 53.3, unit codes 1-hora/2-dias/3-meses/4-anos, DBF=TP_AFAST
@@ -7147,6 +7140,7 @@ variables:
       EVOL_AFAST, not to this one.
 
       '
+    reasoning: "Unit of NU_AFAST: DIC_DADOS_DRT_PAIR_v5 campo 54 prints \"1. (hora) 2. (dias) 3. (meses) 4. (anos)\" (DIC_DADOS_DRT_LERDORT_v5 campo 53.3 alike); the Dermatoses dictionary prints the same four as H, D, M, A and the DERM 2026 file holds 2, 3 and 4 (92, 21 and 2 rows). The tabulator's MELHORA list (Melhora/Piora) belongs to EVOL_AFAST; bound here it labelled 2 \"Piora\" (read on records, 2026-10-24)."
   TP_NOT:
     official_name: Tipo de Notificação
     translated_name: Notification type

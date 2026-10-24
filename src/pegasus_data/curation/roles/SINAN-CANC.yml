@@ -481,11 +481,6 @@ columns:
     fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
-    - AB
-    - NHE
-    - NHENIVEL
-    - NHEUNIDADE
-    - NHE_NIVEL_MUN
     - UNIDANET
     - CADGERBR
     years:

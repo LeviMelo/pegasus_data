@@ -87,7 +87,8 @@ variables:
       insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
       (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
@@ -95,6 +96,7 @@ variables:
       Internação/Ambulatorial per CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
       (local: sources/IT_CNES_1706.txt), §2.1 SEQ 157-168'
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP02CV01:
     official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
     translated_name: Outpatient care (atendimento ambulatorial) offered under the SUS public
@@ -172,7 +174,8 @@ variables:
       insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
       (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
@@ -180,6 +183,7 @@ variables:
       Internação/Ambulatorial per CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
       (local: sources/IT_CNES_1706.txt), §2.1 SEQ 157-168'
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP03CV01:
     official_name: Atendimento prestado SADT/Convenio SUS
     translated_name: Diagnostic/therapy support services (SADT) offered under the SUS public
@@ -257,13 +261,15 @@ variables:
       to SUS nor any insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado (convênio
       07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento Prestado categories
       1-Internação to 7-Regulação)
 
       '
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP04CV01:
     official_name: Atendimento prestado URGENCIA/Convenio SUS
     translated_name: Emergency/urgent care (urgencia) offered under the SUS public system
@@ -340,13 +346,15 @@ variables:
       or any insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado (convênio
       07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento Prestado categories
       1-Internação to 7-Regulação)
 
       '
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP05CV01:
     official_name: Atendimento prestado OUTROS/Convenio SUS
     translated_name: Other care (outros) offered under the SUS public system
@@ -419,13 +427,15 @@ variables:
       any SUS or insurance billing. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado (convênio
       07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (05-Outros restricted to Farmácia/Cooperativa
       establishments)
 
       '
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP06CV01:
     official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
     translated_name: Health surveillance (vigilancia em saude) offered under the SUS public
@@ -503,13 +513,15 @@ variables:
       to SUS or any insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado (convênio
       07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento Prestado categories
       1-Internação to 7-Regulação)
 
       '
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   AP07CV01:
     official_name: Atendimento prestado REGULACAO/Convenio SUS
     translated_name: Regulation/referral management (regulacao) offered under the SUS public
@@ -587,13 +599,15 @@ variables:
       charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: web
     source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado (convênio
       07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (07-Regulação restricted to establishments
       with regulação de vagas)
 
       '
+    reasoning: "The grid's other six payer columns are printed \"1-Sim 0-Não\" (IT_CNES_1706.pdf §2.2 SEQ 112 ff.; §2.1 SEQ 157-168) and the wiki and ficha 02 item 5.10 define this one as the same presence mark for convênio 07 Gratuidade (2026-10-24)."
   ATEND_PR:
     official_name: Atendimento prestado
     translated_name: '"Any service provided" flag'

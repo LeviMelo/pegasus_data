@@ -324,7 +324,10 @@ columns:
   DOSES:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: notification.doses_legacy
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "anti-rabies vaccine doses received in the previous post-exposure treatment"
+    unit_evidence: "anti_rabico_v5_instr.pdf campo 39 \"Número de doses de vacina anti-rábica\" (the count of doses a patient already had); the ANTR 2025 values are whole numbers, 0 to 99 (887,054 rows; measured 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Número de doses de vacina anti-rábica recebidas no tratamento anterior\" (notification.doses_legacy): fact about the health event or the person's health"
@@ -694,11 +697,6 @@ columns:
     fact_domain_evidence: "\"Unidade de Saúde Notificadora\" (notification.facility): notifying unit, or the record's own system timestamp: facility register and record keeping"
     name: Unidade de Saúde Notificadora
     codelists:
-    - AB
-    - NHE
-    - NHENIVEL
-    - NHEUNIDADE
-    - NHE_NIVEL_MUN
     - UNIDANET
     - CADGERBR
     years:

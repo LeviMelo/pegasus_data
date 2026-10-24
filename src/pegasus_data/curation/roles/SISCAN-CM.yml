@@ -290,7 +290,10 @@ columns:
     - 2011
   DELESMALIG:
     role: exam.nipple_discharge_cystic_result_consistent_with_papillary_les
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge/cystic result — consistent with papillary lesion"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 26: \"IDesc Les Papilar, DELESMALIG\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Consistente com lesão papilar\" (exam.nipple_discharge_cystic_result_consistent_with_papillary_les): result of a test or finding on the person"
@@ -300,7 +303,10 @@ columns:
     - 2015
   DEMALIINDT:
     role: exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge finding: Padrao citopatologico de malignidade indeterminada"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 24: \"IDesc Malig Indet, DEMALIINDT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descarga papilar - Padrao citopatologico de malignidade indeterminada\" (exam.nipple_discharge_finding_padrao_citopatologico_de_malignidad): result of a test or finding on the person"
@@ -310,7 +316,10 @@ columns:
     - 2015
   DEMATACELU:
     role: exam.nipple_discharge_finding_material_acelular
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge finding: Material acelular"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 22: \"IDesc Mat Acelular, DEMATACELU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descarga papilar - Material acelular\" (exam.nipple_discharge_finding_material_acelular): result of a test or finding on the person"
@@ -320,7 +329,10 @@ columns:
     - 2015
   DENEGMALIG:
     role: exam.nipple_discharge_finding_negativo_para_malignidade
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge finding: Negativo para malignidade"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 23: \"IDesc Neg Malig, DENEGMALIG\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descarga papilar - Negativo para malignidade\" (exam.nipple_discharge_finding_negativo_para_malignidade): result of a test or finding on the person"
@@ -330,7 +342,10 @@ columns:
     - 2015
   DEPOSMALIG:
     role: exam.nipple_discharge_finding_positivo_para_malignidade
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge finding: Positivo para malignidade"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 25: \"IDesc Pos Malig, DEPOSMALIG\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descarga papilar - Positivo para malignidade\" (exam.nipple_discharge_finding_positivo_para_malignidade): result of a test or finding on the person"
@@ -340,7 +355,10 @@ columns:
     - 2015
   DEPROCINFL:
     role: exam.nipple_discharge_finding_consistente_com_processo_inflamator
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nipple-discharge finding: Consistente com processo inflamatorio"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 27: \"IDesc Proc Infl, DEPROCINFL\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descarga papilar - Consistente com processo inflamatorio\" (exam.nipple_discharge_finding_consistente_com_processo_inflamator): result of a test or finding on the person"
@@ -402,7 +420,10 @@ columns:
     - 2015
   PBENABSUBA:
     role: exam.benign_paaf_finding_abscesso_subareolar_recorrente
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Abscesso subareolar recorrente"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 8: \"IPAAF B Abs Subare, PBENABSUBA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Abscesso subareolar recorrente\" (exam.benign_paaf_finding_abscesso_subareolar_recorrente): result of a test or finding on the person"
@@ -412,7 +433,10 @@ columns:
     - 2015
   PBENCONDFI:
     role: exam.benign_paaf_finding_condicao_fibrocistica_mamaria
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Condicao fibrocistica mamaria"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 11: \"IPAAF B Con Fib Mam, PBENCONDFI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Condicao fibrocistica mamaria\" (exam.benign_paaf_finding_condicao_fibrocistica_mamaria): result of a test or finding on the person"
@@ -422,7 +446,10 @@ columns:
     - 2015
   PBENFIBROA:
     role: exam.benign_paaf_finding_fibroadenoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Fibroadenoma"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 9: \"IPAAF B Fibroad, PBENFIBROA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Fibroadenoma\" (exam.benign_paaf_finding_fibroadenoma): result of a test or finding on the person"
@@ -432,7 +459,10 @@ columns:
     - 2015
   PBENLESEPI:
     role: exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Lesao epitelial benigna proliferativa sem atipias"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 12: \"IPAAF B L E P  s/at, PBENLESEPI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Lesao epitelial benigna proliferativa sem atipias\" (exam.benign_paaf_finding_lesao_epitelial_benigna_proliferativa_se): result of a test or finding on the person"
@@ -442,7 +472,10 @@ columns:
     - 2015
   PBENMASTIT:
     role: exam.benign_paaf_finding_mastite
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Mastite"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 7: \"IPAAF B Mastite, PBENMASTIT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Mastite\" (exam.benign_paaf_finding_mastite): result of a test or finding on the person"
@@ -452,7 +485,10 @@ columns:
     - 2015
   PBENNECGOR:
     role: exam.benign_paaf_finding_necrose_gordurosa
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Necrose gordurosa"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 10: \"IPAAF B Necr Gord, PBENNECGOR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Necrose gordurosa\" (exam.benign_paaf_finding_necrose_gordurosa): result of a test or finding on the person"
@@ -462,7 +498,10 @@ columns:
     - 2015
   PBENOUTRAS:
     role: exam.benign_paaf_finding_outros_exclusivamente_benignos
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign PAAF finding: Outros (exclusivamente benignos)"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 13: \"IPAAF B Outras, PBENOUTRAS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF benigno - Outros (exclusivamente benignos)\" (exam.benign_paaf_finding_outros_exclusivamente_benignos): result of a test or finding on the person"
@@ -472,7 +511,10 @@ columns:
     - 2015
   PMALINOUTR:
     role: exam.indeterminate_malignancy_paaf_finding_outros
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Indeterminate-malignancy PAAF finding: Outros"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 16: \"IPAAF M Ind Outros, PMALINOUTR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF malignidade indeterminada - Outros\" (exam.indeterminate_malignancy_paaf_finding_outros): result of a test or finding on the person"
@@ -482,7 +524,10 @@ columns:
     - 2015
   PMALINTUMF:
     role: exam.indeterminate_malignancy_paaf_finding_tumor_filoide
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Indeterminate-malignancy PAAF finding: Tumor filoide"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 15: \"IPAAF M Ind Tumpf, PMALINTUMF\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF malignidade indeterminada - Tumor filoide\" (exam.indeterminate_malignancy_paaf_finding_tumor_filoide): result of a test or finding on the person"
@@ -492,7 +537,10 @@ columns:
     - 2015
   PMALINTUMP:
     role: exam.indeterminate_malignancy_paaf_finding_tumor_papilar
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Indeterminate-malignancy PAAF finding: Tumor papilar"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 14: \"IPAAF M Ind Tumpa, PMALINTUMP\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF malignidade indeterminada - Tumor papilar\" (exam.indeterminate_malignancy_paaf_finding_tumor_papilar): result of a test or finding on the person"
@@ -502,7 +550,10 @@ columns:
     - 2015
   PPOSMACDUC:
     role: exam.malignant_paaf_finding_carcinoma_ductal
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Malignant PAAF finding: Carcinoma ductal"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 19: \"IPAAF P M Carc Duc, PPOSMACDUC\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF positivo malignidade - Carcinoma ductal\" (exam.malignant_paaf_finding_carcinoma_ductal): result of a test or finding on the person"
@@ -512,7 +563,10 @@ columns:
     - 2015
   PPOSMACLOB:
     role: exam.malignant_paaf_finding_carcinoma_lobular
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Malignant PAAF finding: Carcinoma lobular"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 20: \"IPAAF P M Carc Lob, PPOSMACLOB\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF positivo malignidade - Carcinoma lobular\" (exam.malignant_paaf_finding_carcinoma_lobular): result of a test or finding on the person"
@@ -522,7 +576,10 @@ columns:
     - 2015
   PPOSMACOUT:
     role: exam.malignant_paaf_finding_outros_exclusivamente_malignos
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Malignant PAAF finding: Outros (exclusivamente malignos)"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 21: \"IPAAF P M Outros, PPOSMACOUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF positivo malignidade - Outros (exclusivamente malignos)\" (exam.malignant_paaf_finding_outros_exclusivamente_malignos): result of a test or finding on the person"
@@ -570,7 +627,10 @@ columns:
     - PRESULPAAF
   PSUSLEJPCA:
     role: exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Suspicious PAAF finding: proliferative epithelial lesion with atypia"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 17: \"IPAAF S M L E P  c/at, PSUSLEJPCA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF suspeito malignidade - lesao epitelial proliferativa com atipias\" (exam.suspicious_paaf_finding_proliferative_epithelial_lesion_with): result of a test or finding on the person"
@@ -580,7 +640,10 @@ columns:
     - 2015
   PSUSOUTROS:
     role: exam.suspicious_paaf_finding_other
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Suspicious PAAF finding: other"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), CMAMA4.def line 18: \"IPAAF S M Outros, PSUSOUTROS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"PAAF suspeito malignidade - outros\" (exam.suspicious_paaf_finding_other): result of a test or finding on the person"

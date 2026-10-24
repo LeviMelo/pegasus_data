@@ -154,14 +154,10 @@ variables:
       E.g. "SNNSNNN" means criteria 1 and 4 applied.
 
       '
-    code_system: internal
-    codelists:
-    - CRITERIO
+    code_system: none
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
-    multi_valued: true
-    token_rule:
-      width: 1
+    reasoning: "Seven positional flags, not seven codes: DIC_DADOS_RESP.pdf \"CRITERIO Caractere (7) ... Preenchido com S ou N, sem espaços ... 1º caractere: Laboratorial (Zika); 2º: Dengue; 3º: Chikungunya; 4º: STORCH; ...\". Decoded token by token against a table with no S or N it read \"N (?) | N (?) | ...\" (RESP 2023, 2026-10-24); it is shown as filed."
   DEF_AUDIT:
     official_name: Deficiencia auditiva entre as alteracoes congenitas detectadas
     translated_name: Hearing deficiency flag

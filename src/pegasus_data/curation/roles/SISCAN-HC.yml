@@ -3,7 +3,10 @@ record: exam
 columns:
   ADENCARCIN:
     role: exam.adenocarcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Adenocarcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 180: \"IAdenocarc.invasor, ADENCARCIN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Adenocarcinoma\" (exam.adenocarcinoma): result of a test or finding on the person"
@@ -14,7 +17,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   ADENOINSUT:
     role: exam.referring_cytology_adenocarcinoma_in_situ
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: adenocarcinoma in situ"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 179: \"IAdenocarc.in situ, ADENOINSUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Adenocarcinoma \"in situ\" (citopatológico de encaminhamento)\" (exam.referring_cytology_adenocarcinoma_in_situ): result of a test or finding on the person"
@@ -35,7 +41,10 @@ columns:
     - 2015
   CBENALTER:
     role: exam.benign_hpv_compatible_cyto_architectural_changes
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign: HPV-compatible cyto-architectural changes"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 190: \"IBen.alt.cit.com.HPV, CBENALTER\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral (HPV)\" (exam.benign_hpv_compatible_cyto_architectural_changes): result of a test or finding on the person"
@@ -46,7 +55,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CBENCERVI:
     role: exam.benign_chronic_non_specific_cervicitis
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign: chronic non-specific cervicitis"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 189: \"IBen.Cervic.cron.esp, CBENCERVI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesões de caráter benigno: Cervicite crônica inespecífica\" (exam.benign_chronic_non_specific_cervicitis): result of a test or finding on the person"
@@ -154,7 +166,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CITINDALGR:
     role: exam.referring_cytology_undefined_origin_atypia_cannot_exclude_hi
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: undefined-origin atypia, cannot exclude high grade"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 174: \"IOri.Indet alto grau, CITINDALGR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células atípicas de origem indefinida: não se pode afastar lesão de alto grau (citopatológico de encaminhamento)\" (exam.referring_cytology_undefined_origin_atypia_cannot_exclude_hi): result of a test or finding on the person"
@@ -165,7 +180,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CIT_OUTNEO:
     role: exam.referring_cytology_other_malignant_neoplasm
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: other malignant neoplasm"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 181: \"IOutras Neoplasias, CIT_OUTNEO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Outras neoplasias malignas (citopatológico de encaminhamento)\" (exam.referring_cytology_other_malignant_neoplasm): result of a test or finding on the person"
@@ -266,7 +284,10 @@ columns:
     - 2015
   CO_BEN_MET:
     role: exam.benign_finding_metaplasia
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign finding, metaplasia"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 187: \"IBen.Metaplasia esc, CO_BEN_MET\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesão de caráter benigno: Metaplasia escamosa\" (exam.benign_finding_metaplasia): result of a test or finding on the person"
@@ -277,7 +298,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CO_BEN_POL:
     role: exam.benign_endocervical_polyp
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Benign: endocervical polyp"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 188: \"IBen.Pólipo Endocerv, CO_BEN_POL\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesões de caráter benigno: Pólipo Endocervical\" (exam.benign_endocervical_polyp): result of a test or finding on the person"
@@ -346,7 +370,10 @@ columns:
     - 2015
   CO_COLP_BI:
     role: exam.procedure_cold_knife_biopsy
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Procedure: cold-knife biopsy"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 182: \"IProc.Biópsia a frio, CO_COLP_BI\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Procedimento: Biópsia a frio\" (exam.procedure_cold_knife_biopsy): how care or investigation was carried out"
@@ -357,7 +384,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CO_COLP_CU:
     role: exam.procedure_curettage
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Procedure: curettage"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 183: \"IProc.Curetagem, CO_COLP_CU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Procedimento: Curetagem\" (exam.procedure_curettage): how care or investigation was carried out"
@@ -368,7 +398,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CO_COLP_EX:
     role: exam.procedure_extended_leep_caf_excision
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Procedure: extended LEEP (CAF) excision"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 184: \"IProc.CAF alarg, CO_COLP_EX\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Procedimento: CAF alargada\" (exam.procedure_extended_leep_caf_excision): how care or investigation was carried out"
@@ -388,7 +421,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   CO_COLP_RE:
     role: exam.procedure_leep_caf_excision_including_the_canal
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Procedure: LEEP (CAF) excision including the canal"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 185: \"IProc.CAF ret Canal, CO_COLP_RE\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Procedimento: CAF com retirada do canal\" (exam.procedure_leep_caf_excision_including_the_canal): how care or investigation was carried out"
@@ -875,7 +911,10 @@ columns:
     - INTTEMPOEXAME
   DS_NEO_OUT:
     role: exam.other_malignant_neoplasm_free_text_description
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Other malignant neoplasm, free-text description"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 202: \"INeoOut.neopl.malig, DS_NEO_OUT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Descricao de outras neoplasias malignas (histopatologia)\" (exam.other_malignant_neoplasm_free_text_description): result of a test or finding on the person"
@@ -926,7 +965,10 @@ columns:
     - 2015
   ESCAMOSA:
     role: exam.squamous_atypia_undetermined_favor_non_neoplastic
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Squamous atypia, undetermined, favor non-neoplastic"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 169: \"IEsc.Indet não neop, ESCAMOSA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Esc.Indet não neop\" (exam.squamous_atypia_undetermined_favor_non_neoplastic): result of a test or finding on the person"
@@ -937,7 +979,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   ESCCARINVA:
     role: exam.referring_cytology_invasive_squamous_carcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: invasive squamous carcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 178: \"ICarc.Epid.Invasor, ESCCARINVA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermóide invasor (citopatológico de encaminhamento)\" (exam.referring_cytology_invasive_squamous_carcinoma): result of a test or finding on the person"
@@ -948,7 +993,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   ESCIEMCINV:
     role: exam.high_grade_squamous_lesion_cannot_exclude_microinvasion
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: High-grade squamous lesion, cannot exclude microinvasion"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 177: \"ILes.IEAG mic.inv, ESCIEMCINV\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Les.IEAG mic.inv\" (exam.high_grade_squamous_lesion_cannot_exclude_microinvasion): result of a test or finding on the person"
@@ -959,7 +1007,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   ESCINALT:
     role: exam.high_grade_squamous_intraepithelial_lesion
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: High-grade squamous intraepithelial lesion"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 176: \"ILes.IE Alto Grau, ESCINALT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Les.IE Alto Grau\" (exam.high_grade_squamous_intraepithelial_lesion): result of a test or finding on the person"
@@ -970,7 +1021,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   ESCLIPBX:
     role: exam.low_grade_squamous_intraepithelial_lesion_biopsy
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Low-grade squamous intraepithelial lesion (biopsy)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 175: \"ILes.IE Baixo Grau, ESCLIPBX\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Les.IE Baixo Grau\" (exam.low_grade_squamous_intraepithelial_lesion_biopsy): result of a test or finding on the person"
@@ -981,7 +1035,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   GNALTGRAU:
     role: exam.glandular_atypia_undetermined_favor_high_grade
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Glandular atypia, undetermined, favor high-grade"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 172: \"IGla.Indet alto grau, GNALTGRAU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Gla.Indet alto grau\" (exam.glandular_atypia_undetermined_favor_high_grade): result of a test or finding on the person"
@@ -992,7 +1049,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   GPNNEOP:
     role: exam.referring_cytology_atypical_glandular_cells_possibly_non_neo
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: atypical glandular cells, possibly non-neoplastic"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 171: \"IGla.Indet não neop, GPNNEOP\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células glandulares atípicas: possivelmente não neoplásicas (citopatológico de encaminhamento)\" (exam.referring_cytology_atypical_glandular_cells_possibly_non_neo): result of a test or finding on the person"
@@ -1003,7 +1063,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   INDPNAONEO:
     role: exam.referring_cytology_undefined_origin_atypia_possibly_non_neop
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: undefined-origin atypia, possibly non-neoplastic"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 173: \"IOri.Indet não neop, INDPNAONEO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células atípicas de origem indefinida: possivelmente não neoplásicas (citopatológico de encaminhamento)\" (exam.referring_cytology_undefined_origin_atypia_possibly_non_neop): result of a test or finding on the person"
@@ -1014,7 +1077,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NEOINSUTU:
     role: exam.adenocarcinoma_in_situ_flag
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Adenocarcinoma in situ flag"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 199: \"INeoAdeno.in situ, NEOINSUTU\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ\" (exam.adenocarcinoma_in_situ_flag): result of a test or finding on the person"
@@ -1025,7 +1091,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NEOMUCINO:
     role: exam.mucinous_adenocarcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Mucinous adenocarcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 200: \"INeoAdeno.mucinoso, NEOMUCINO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Adenocarcinoma mucinoso\" (exam.mucinous_adenocarcinoma): result of a test or finding on the person"
@@ -1036,7 +1105,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NEOVILOGL:
     role: exam.villoglandular_adenocarcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Villoglandular adenocarcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 201: \"INeoAdeno.Vilogland, NEOVILOGL\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Adenocarcinoma viloglandular\" (exam.villoglandular_adenocarcinoma): result of a test or finding on the person"
@@ -1047,7 +1119,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICCARCMIN:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_microin
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: carcinoma epidermoide microinvasivo"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 194: \"INeoCar.epi.microinv, NICCARCMIN\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermoide microinvasivo\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_microin): result of a test or finding on the person"
@@ -1058,7 +1133,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICDACENT:
     role: exam.displasia_acentuada_carcinoma_in_situ_histopathology_microsc
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: NIC III (displasia acentuada/carcinoma in situ)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 193: \"INeo.NIC III, NICDACENT\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"NIC III / displasia acentuada / carcinoma in situ\" (exam.displasia_acentuada_carcinoma_in_situ_histopathology_microsc): result of a test or finding on the person"
@@ -1069,7 +1147,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICDLEVE:
     role: exam.displasia_leve_histopathology_microscopy_flag_nic_i_displasi
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: NIC I (displasia leve)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 191: \"INeo.NIC I, NICDLEVE\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"NIC I / displasia leve\" (exam.displasia_leve_histopathology_microscopy_flag_nic_i_displasi): result of a test or finding on the person"
@@ -1080,7 +1161,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICDMODE:
     role: exam.displasia_moderada_histopathology_microscopy_flag_nic_ii_dis
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: NIC II (displasia moderada)"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 192: \"INeo.NIC II, NICDMODE\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"NIC II / displasia moderada\" (exam.displasia_moderada_histopathology_microscopy_flag_nic_ii_dis): result of a test or finding on the person"
@@ -1091,7 +1175,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICEPIINVA:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_invasiv
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: carcinoma epidermoide invasivo"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 195: \"INeoCar.epi.invas, NICEPIINVA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermoide invasivo\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_invasiv): result of a test or finding on the person"
@@ -1102,7 +1189,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICIMPAVAL:
     role: exam.histopathology_microscopy_flag_carcinoma_epidermoide_impossi
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Histopathology microscopy flag: carcinoma epidermoide, impossivel avaliar invasao"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 196: \"INeoCar.epi.imp., NICIMPAVAL\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermoide, impossivel avaliar invasao\" (exam.histopathology_microscopy_flag_carcinoma_epidermoide_impossi): result of a test or finding on the person"
@@ -1113,7 +1203,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICNAOCERA:
     role: exam.non_keratinising_squamous_carcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Non-keratinising squamous carcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 198: \"INeoCar.epi.n.cerat, NICNAOCERA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermóide não ceratinizante\" (exam.non_keratinising_squamous_carcinoma): result of a test or finding on the person"
@@ -1124,7 +1217,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   NICVERRUCO:
     role: exam.verrucous_carcinoma
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Verrucous carcinoma"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 197: \"INeoCar.verrugosso, NICVERRUCO\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Carcinoma epidermóide verrucoso\" (exam.verrucous_carcinoma): result of a test or finding on the person"
@@ -1235,7 +1331,10 @@ columns:
     note: Empty in every file read; kind from its variable note.
   PNEOPLA:
     role: exam.referring_cytology_asc_h
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Referring cytology: ASC-H"
+    unit_evidence: "TAB_SISCOLO4.zip (/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip), HColo4.def line 170: \"IEsc.Indet alto grau, PNEOPLA\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Células escamosas atípicas: não se pode afastar lesão de alto grau (ASC-H) (citopatológico de encaminhamento)\" (exam.referring_cytology_asc_h): result of a test or finding on the person"

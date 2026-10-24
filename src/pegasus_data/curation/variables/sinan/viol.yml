@@ -172,11 +172,13 @@ variables:
       of the injury, e.g. assault by a given means or intentional self-harm.
 
       '
-    code_system: none
+    code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
       — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
       campo 68 (Circunstância da lesão); also VIVA dictionary campo 67
+    reasoning: "DIC_DADOS_NET_Violencias_v5.pdf campo 68 \"Circunstância da lesão\": the CID-10 external-cause code (Chapter XX, V01-Y98); the files hold Y09, Y06.1, X78, Y04. A code written with a dot (Y06.1) does not match ICD-10's widths and stays undecoded, visibly (2026-10-24)."
   CONS_ABORT:
     official_name: Aborto
     translated_name: Abortion followed

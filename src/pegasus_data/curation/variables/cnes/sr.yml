@@ -25,7 +25,8 @@ variables:
       and the two are not exclusive — most establishments do both.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
@@ -33,6 +34,7 @@ variables:
       AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
       Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
       those four flags, published as a separate field)'
+    reasoning: "One of the four flags of AMB_HOSP: IT_CNES_1706.pdf §2.6 SEQ 25 \"1 – Sim 0 – Não\"; the sibling AMB_NSUS is bound the same way (AMB_HOSP.CNV) (2026-10-24)."
   CARACTER:
     official_name: Caracterização do serviço
     translated_name: Service arrangement
@@ -103,7 +105,8 @@ variables:
       for the mixed hospitals that are most of Brazilian capacity.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
@@ -111,6 +114,7 @@ variables:
       AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
       Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
       those four flags, published as a separate field)'
+    reasoning: "One of the four flags of AMB_HOSP: IT_CNES_1706.pdf §2.6 SEQ 25 \"1 – Sim 0 – Não\"; the sibling AMB_NSUS is bound the same way (AMB_HOSP.CNV) (2026-10-24)."
   HOSP_SUS:
     official_name: Atendimento hospitalar SUS
     translated_name: Hospital care for SUS
@@ -119,7 +123,8 @@ variables:
       come from.
 
       '
-    code_system: none
+    code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
@@ -127,6 +132,7 @@ variables:
       AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
       Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
       those four flags, published as a separate field)'
+    reasoning: "One of the four flags of AMB_HOSP: IT_CNES_1706.pdf §2.6 SEQ 25 \"1 – Sim 0 – Não\"; the sibling AMB_NSUS is bound the same way (AMB_HOSP.CNV) (2026-10-24)."
   SERV_ESP:
     official_name: Serviço especializado
     translated_name: Specialised service

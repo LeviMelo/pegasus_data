@@ -195,7 +195,10 @@ columns:
     - 2015
   CIRURGANTD:
     role: exam.previous_surgery_right_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Previous surgery, right breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 7: \"IFez Cir Anter Mam Dir, CIRURGANTD\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Fez cirurgia anterior, mama direita\" (exam.previous_surgery_right_breast): result of a test or finding on the person"
@@ -205,7 +208,10 @@ columns:
     - 2015
   CIRURGANTE:
     role: exam.previous_surgery_left_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Previous surgery, left breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 8: \"IFez Cir Anter Mam Esq, CIRURGANTE\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Fez cirurgia anterior, mama esquerda\" (exam.previous_surgery_left_breast): result of a test or finding on the person"
@@ -611,7 +617,10 @@ columns:
     - 2015
   MICRODIR:
     role: exam.microcalcifications_right_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Microcalcifications, right breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 13: \"IMicrocal Mam Dir, MICRODIR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microcalcificações, mama direita\" (exam.microcalcifications_right_breast): result of a test or finding on the person"
@@ -621,7 +630,10 @@ columns:
     - 2015
   MICROESQ:
     role: exam.microcalcifications_left_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Microcalcifications, left breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 14: \"IMicrocal Mam Esq, MICROESQ\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Microcalcificações, mama esquerda\" (exam.microcalcifications_left_breast): result of a test or finding on the person"
@@ -641,7 +653,10 @@ columns:
     - 2015
   NODULODIR:
     role: exam.nodule_right_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nodule, right breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 11: \"INod Mama Dir, NODULODIR\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nódulo, mama direita\" (exam.nodule_right_breast): result of a test or finding on the person"
@@ -651,7 +666,10 @@ columns:
     - 2015
   NODULOESQ:
     role: exam.nodule_left_breast
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Nodule, left breast"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 12: \"INod Mama Esq, NODULOESQ\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nódulo, mama esquerda\" (exam.nodule_left_breast): result of a test or finding on the person"
@@ -733,7 +751,10 @@ columns:
     - 2015
   SEMACHADOS:
     role: exam.without_findings
-    kind: category
+    kind: number
+    unit: "count"
+    unit_of: "exams: Without findings"
+    unit_evidence: "TAB_SISMAMA.zip (/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip), MMAMA4.def line 10: \"ISem Achados, SEMACHADOS\": an I (incremento) line, a measure the tabulator sums, so an additive count of exams and not a code (read 2026-10-24)"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Sem Achados\" (exam.without_findings): result of a test or finding on the person"

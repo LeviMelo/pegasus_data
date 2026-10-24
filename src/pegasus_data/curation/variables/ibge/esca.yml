@@ -13,5 +13,8 @@ variables:
       IGNO=undetermined.
 
       '
+    code_system: internal
+    codes: {"0000": "Menos de 1 ano de estudo", "0103": "1 a 3 anos de estudo", "0407": "4 a 7 anos de estudo", "0899": "8 anos ou mais de estudo", "ALFA": "Alfabetização de adultos", "IGNO": "Indeterminado"}
     source: web
     source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/escadescr.htm
+    reasoning: "tabnet.datasus.gov.br/cgi/ibge/censo/escadescr.htm names the six bands: 0000 less than 1 year, 0103 1 to 3, 0407 4 to 7, 0899 8 or more, ALFA adult literacy programme, IGNO undetermined; the ESCA and ESCB 1991 files hold exactly 0000, 0103, 0407, 0899 and IGNO (2026-10-24)."
