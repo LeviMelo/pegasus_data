@@ -936,10 +936,18 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
     import duckdb
 
     system, series = str(spec["system"]), str(spec["series"])
-    parts = sorted(str(f) for f in Path(settings.lake_dir).glob(
+    found_parts = list(Path(settings.lake_dir).glob(
         f"*/{_safe(system.upper())}_{_safe(series.upper())}_*/schema_signature=*/uf=*/year=*/part-{_safe(unit['key'])}-*.parquet"))
-    if not parts:
+    if not found_parts:
         return None
+    # A landing keeps a unit in one family (`_land` removes its parts from the others), so parts in two families are a
+    # stale copy: only the family written last stands for the unit. Reading both landed FA-HUM's 2,912 records twice
+    # (2026-10-24).
+    by_family: dict[Path, list[Path]] = {}
+    for f in found_parts:
+        by_family.setdefault(f.parents[3], []).append(f)
+    newest = max(by_family, key=lambda fam: max(p.stat().st_mtime for p in by_family[fam]))
+    parts = sorted(str(f) for f in by_family[newest])
     con = duckdb.connect(":memory:")
     try:
         con.execute("SET memory_limit='1GB'")
