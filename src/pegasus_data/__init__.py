@@ -98,6 +98,7 @@ _EXPORTS: dict[str, str] = {
     "AggregateReport": "._aggregate",
     "memberships": ".geography",
     "municipality_point": ".geography",
+    "cep_points": ".sources.ibge_cnefe",
     "mesh": ".geography",
     "concept_index": ".concepts",
     "condition_codes": ".concepts",
@@ -213,6 +214,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .semantics.event_types import count_events, event_types, field_overlap
     from .sidra import Sidra
     from .sidra.prices import price_index
+    from .sources.ibge_cnefe import cep_points
 
 
 def __getattr__(name: str) -> Any:
