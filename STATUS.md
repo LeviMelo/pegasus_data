@@ -25,6 +25,21 @@ was refused by the session's permission check; the author deletes them:
 * in the repo home, everything but `_catalog/`;
 * the temp homes.
 
+## Reads and labels (2026-10-24)
+
+* **Month reads.** A monthly intake unit is a publication of its month, so a one-month SNGPC query opens one file
+  (4,543,907 rows in 3.9 s, formerly the year's 58.6 M). The real catalog is dated with `pegasus-data intake-periods`.
+* **Large results.** Rendering works at any size, building labels in pieces under 1 GiB.
+* **SIH-SP.** Its sex and age are read through the AIH from SIH-RD (ADR-0199).
+* **Care flows.** Edges carry a role-named quantity's `(n, sum)` (ADR-0201).
+* **Decode coverage** is measured over whole partitions (`scripts/decode_coverage.py`). On the 41 held datasets, 954
+  coded columns are labelled and 29 are bare, but 66 labelled columns leave codes bare: ICD-10's 2016 dengue codes
+  A97.x, SINAN-DENG's `0`s, SIH `FONTE_ORC` `00`, CIHA `GESTAO` `D`. A curation pass on these is under way.
+  The 111 unheld datasets were sampled one file each: 33 columns bound, 186 re-kinded and wrong labels corrected.
+* **Stored link runs are stale.** Every stored link run went stale on 2026-10-23, because the role-table key hashes the
+  whole label pack, so a CIH label fix re-keyed every dataset. The key is being narrowed to what a role table reads, and
+  then the runs must be re-made.
+
 ## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
 
 Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels across schema generations).
