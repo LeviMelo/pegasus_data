@@ -103,6 +103,7 @@ _EXPORTS: dict[str, str] = {
     "AggregateReport": "._aggregate",
     "memberships": ".geography",
     "municipality_point": ".geography",
+    "cep_points": ".sources.ibge_cnefe",
     "mesh": ".geography",
     "concept_index": ".concepts",
     "condition_codes": ".concepts",
@@ -219,6 +220,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .sidra import Sidra
     from .sidra.prices import price_index
     from .sources.cptec import climate_daily, climate_weekly
+    from .sources.ibge_cnefe import cep_points
     from .sources.ibge_grade import grade_cells
     from .sources.ibge_tracts import census_tracts, tract_population
 

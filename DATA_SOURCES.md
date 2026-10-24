@@ -849,11 +849,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   municipal count by sex and age is SIDRA's, not this file's. The basic file is Windows-1252 and writes "." for "not
   applicable" (the lagoons 4300001/4300002 have `CD_MUN` "."); the demography file is ASCII. The tract mesh with the basic attributes (`malha_com_atributos/.../BR_setores_CD2022.gpkg`,
   1.5 GB, 472,780 rows: tracts in several pieces repeat their counts) is in `registries/ibge_points/tracts.gpkg`.
-- **CNEFE 2022** (`ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/`):
-  `Arquivos_CNEFE/CSV/UF/<uf>_<UF>.zip` (27 files, 4.1 GB; AL 28 MB, SP 1.0 GB) hold every address with `CEP`, `COD_SETOR`, face,
-  `LATITUDE`, `LONGITUDE`, `NV_GEO_COORD`, `COD_ESPECIE`; `Coordenadas_enderecos/UF/` the coordinates alone (municipality, species,
-  level; 0.6 GB); `Agregados_por_CEP/` counts per CEP (931,499 CEPs: addresses, private households by type, establishments by
-  kind) and **no coordinates**: placing a CEP needs the address files.
+- **CNEFE 2022**: §6.5 (files, columns, levels; the CEP aggregate holds counts and no coordinates).
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
 
@@ -887,6 +883,35 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   are what SIDRA's query service (`apisidra.ibge.gov.br`) returns for January 2014, December 2020 and December 2025, and SIDRA's table page shows September 2026 ("7.695,82", of "Mês [1/562]"). Values before the real are on the base's scale (1.1e-8 in
   1980): a ratio of two months is the inflation between them. The values are `.` decimals with 13 digits; SIH and SIA amounts are nominal, so
   an amount of competence month m is in reais of month r when multiplied by index(r) / index(m) (`price_index(reference=...)`).
+
+### 6.5 CNEFE 2022, the Census's georeferenced addresses (measured 2026-10-24; ADR-0205; docs/evaluation/2026-10-24-cnefe-cep.md)
+
+- **Files** under `ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/`:
+  `Arquivos_CNEFE/CSV/UF/<code>_<UF>.zip` (27 files, 3,922,077,434 bytes: RR 4.5 MB, AL 29.2 MB, MG 537 MB, SP 1,082 MB; Last-Modified 2024-05-20,
+  RO 2024-06-12), the same by municipality in `Arquivos_CNEFE/CSV/Municipio/`, `Arquivos_CNEFE/GeoJSON/`, the dictionary
+  `Arquivos_CNEFE/CSV/Dicionario_CNEFE_Censo_2022.xls`, and `Agregados_por_CEP/` (a zip and its dictionary). The release folder also holds
+  `Coordenadas_enderecos/` and `Trajetos_dos_Recenseadores/` (not read). A UF zip is one CSV: `;`, UTF-8, CRLF, no quote character, 34
+  columns, the last header cut (`COD_TIPO_ESPECI`; the dictionary says `COD_TIPO_ESPECIE`; 22 of 22 zips read). Alagoas: 1,626,565 records,
+  263,756,151 bytes, 29 MB zipped. The country: 111,102,875 records (every zip's lines equal its landed rows), 18.2 GB of CSV, 3.45 GB as zstd Parquet.
+- **A record is an address species.** `COD_UNICO_ENDERECO` repeats on one record per species at the address (a dwelling and a shop under it): in
+  Alagoas 62,917 addresses have two records, 1,003 three, 3 four; 106,814,877 addresses in 111,102,875 records nationally. Every record of an
+  address carries the same CEP, municipality, tract, coordinate and level (0 exceptions in 27 UFs). `CEP` is eight digits on every record and
+  never empty; `COD_SETOR` is 16 characters (15 digits and a letter, `270470805000105P`). `NUM_ENDERECO` 0 with `DSC_MODIFICADOR` `SN` is "sem
+  número" (358,933 records in Alagoas); its largest value there is 1,153,287,964.
+- **Dictionary codes** (`NV_GEO_COORD`, the coordinate's level): 1 original Census coordinate, 2 modified (apartments at one number), 3
+  estimated (none or invalid originally), 4 block face, 5 locality, 6 census tract. Addresses by level, nationally: 99,670,725, 6,050,088,
+  740,088, 330,498, 9,094, 14,384; no coordinate is empty. `COD_ESPECIE`: 1 private household, 2 collective household, 3 agricultural
+  establishment, 4 educational, 5 health, 6 other purpose, 7 building under construction or renovation, 8 religious. `COD_TIPO_ESPECIE` (101
+  house, 102 house in a village or condominium, 103 apartment, 104 other) is filed on species 1 and 2 only, and every collective household is 104.
+- **IBGE's aggregate by CEP** (`Agregados_por_CEP_CNEFE_Censo_2022.zip`, 38.7 MB CSV, 931,499 CEPs, 14 count columns, **no coordinate**): `TOT_END`
+  is the distinct `COD_UNICO_ENDERECO` of the CEP, not the records (equal in 931,499 of 931,499 CEPs; the records in 640,355);
+  `TOT_DP`, `TOT_DC`, `TOT_EAGRO`, `TOT_EENSINO`, `TOT_ESAUDE`, `TOT_EOF`, `TOT_ECR`, `TOT_ERELIG` are the records of species 1, 2, 3, 4, 5, 6, 7, 8;
+  `TOT_TIPO_101` to `_104` the dwellings (species 1 and 2) of each type. `TOT_DOM_COND` has no counterpart among the record's columns and is not
+  compared. The CNEFE holds the same 931,499 CEPs; 398 of them span two to four municipalities and 6 span two UFs.
+- **What a CEP is** (CNEFE, nationally): 5,570 municipalities, 1,694 of them with one CEP (8.0% of the addresses); the p90 distance of a CEP's
+  addresses from their median is under 300 m for 754,707 CEPs, 300 m to 1 km for 123,418, 1 to 2 km for 16,845 and over 2 km for 36,968, which hold
+  46.8 of the 106.8 million addresses. São Paulo's 01001-000 (Praça da Sé) holds 6,973 addresses, all in the city, half within 17.8 km of
+  their median; the Congresso Nacional's 70160-900 is in neither the CNEFE nor the aggregate.
 
 ## 7. CNES
 

@@ -144,6 +144,32 @@ def intake_periods(
 
 
 @app.command(rich_help_panel="PIPELINE")
+def cnefe(
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="Only these UFs (abbreviation or IBGE code); default all 27")] = None,
+    force: Annotated[bool, typer.Option("--force", help="Download and land again what is already landed")] = False,
+    keep_raw: Annotated[bool | None, typer.Option("--keep-raw/--delete-raw", help="Keep or delete each UF's zip once its records are "
+                                                  "landed and counted (default: delete only when the free disk is short)")] = None,
+    check: Annotated[bool, typer.Option("--check/--no-check", help="Compare with IBGE's own aggregate by CEP at the end")] = True,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Land IBGE's CNEFE 2022 (the Census's georeferenced addresses) and derive the per-CEP table that `cep-points` reads.
+
+    Downloads the per-UF zips (3.9 GB in all), lands every record under lake/cnefe_2022/uf=<UF>/, counts the rows against the
+    file's own lines, derives lake/cnefe_2022_cep/ (the addresses, private households, median position, spread, coordinate
+    levels and census tracts of each CEP and municipality) and checks the counts against IBGE's aggregate by CEP.
+    Idempotent: a landed UF is skipped.
+    """
+    from ..sources.ibge_cnefe import build_cnefe
+
+    result = build_cnefe(uf, _writer(root), keep_raw=keep_raw, force=force, check=check, log=lambda text: console.print(text, markup=False, highlight=False))
+    _emit({**result, "ufs": {k: {"records": v["rows"], "cep_rows": v["ceps"]["rows"], "skipped": v.get("skipped", False)}
+                             for k, v in result["ufs"].items()}}, as_json, "cnefe")
+    if result["failed"]:
+        raise typer.Exit(code=1)
+
+
+@app.command(rich_help_panel="PIPELINE")
 def extract(
     dataset: Annotated[str, typer.Argument(help="e.g. SIASUS-PA")],
     years: Annotated[str, typer.Option("--years", help="e.g. 2010-2025")],

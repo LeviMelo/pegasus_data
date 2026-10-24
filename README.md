@@ -165,7 +165,7 @@ happened. All of it is labelled with its source, and a value the source does
 not hold comes back as `not_recorded`, never as a guess.
 
 ```python
-from pegasus_data import (query, memberships, municipality_point, distance_km, mesh, load_field, grade_cells,
+from pegasus_data import (query, memberships, municipality_point, distance_km, cep_points, mesh, load_field, grade_cells,
                           tract_population, climate_daily,
                           load_population, race_reliability, age_standardised_rates)
 
@@ -183,6 +183,9 @@ admissions = query("SIH.RD", period="2022-01", geography="AL",
 memberships("280030").as_dict()      # health region, macroregion, comparable area, ...
 municipality_point("280030")         # (lon, lat): the Grade Estatística population centre, or kind="seat"
 distance_km("355030", "330455")      # 339.5 km, population centre to population centre
+cep_points(uf="AL", municipality="270430")  # IBGE's CNEFE 2022: where each CEP lies inside its municipality (one row per CEP and
+                                     # municipality): the median position of its addresses, the distance within which half and nine tenths
+                                     # lie, address and household counts, census tracts; `pegasus-data cnefe` builds it, `cep-points` reads it
 mesh("state")                        # IBGE polygons (GeoDataFrame: code, geometry), "municipality" too; fetched once
 concept_index(["B58", "P37.1"], ["toxoplasm"])  # SINAN agravos holding the codes (counted), SIGTAP procedures
                                      # compatible with them, ICD-10 and SIGTAP labels matching the terms

@@ -532,6 +532,168 @@ def s_sp_strata() -> dict[str, Any]:
     return out
 
 
+def s_cnefe_cep() -> dict[str, Any]:
+    """CNEFE 2022 places the patient's CEP (ADR-0205): SIH-RD of one state-year (override: PEGASUS_CNEFE_PERIOD, PEGASUS_CNEFE_GEO;
+    default 2023, AL) against the per-CEP table. Builds the UF's CNEFE if the home has none, checks it against IBGE's aggregate
+    by CEP, then counts: the AIH rows whose CEP is in the CNEFE, whether the CEP's municipality is MUNIC_RES, the AIHs on a
+    CEP that is its municipality's only one (which places nobody inside it), and how far a found CEP's addresses spread."""
+    import numpy as np
+    import pandas as pd
+
+    from pegasus_data import cep_points, load_settings, query
+    from pegasus_data.geography import distance_km, great_circle_km, mesh
+    from pegasus_data.sources import ibge_cnefe
+
+    period, geo = int(os.environ.get("PEGASUS_CNEFE_PERIOD", "2023")), os.environ.get("PEGASUS_CNEFE_GEO", "AL")
+    out: dict[str, Any] = {"period": period, "geography": geo}
+    if geo not in ibge_cnefe.built_ufs():
+        t = time.perf_counter()
+        built = ibge_cnefe.build_cnefe([geo], keep_raw=True)
+        out["built_here"] = {"seconds": round(time.perf_counter() - t, 1), "failed": built["failed"], "records": built["records"]}
+    out["manifest"] = {k: v for k, v in ibge_cnefe.manifest()["ufs"][geo].items() if k not in ("nulls",)}
+    out["aggregate_check"] = ibge_cnefe.check_against_aggregate(None, [geo])
+
+    ceps = cep_points(uf=geo, tracts=False).to_pandas()
+    sih = query("SIH-RD", period=period, geography=geo, select=["CEP", "MUNIC_RES", "N_AIH", "IDENT"], present="codes").to_pandas()
+    out["sih"] = {"rows": len(sih), "n_aih": int(sih.N_AIH.nunique()), "ident": sih.IDENT.value_counts().to_dict(),
+                  "cep_filled": round(float(sih.CEP.notna().mean()), 6), "cep_widths": sih.CEP.str.len().value_counts().to_dict(),
+                  "distinct_ceps": int(sih.CEP.nunique())}
+
+    # the CEP's municipalities (six digits, as MUNIC_RES): a CEP spanning municipalities is all of them, never one chosen. The CEPs
+    # are looked up in every UF built (a patient can live in another state)
+    out["ufs_built"] = len(ibge_cnefe.built_ufs())
+    looked_up = cep_points(cep=sorted(sih.CEP.dropna().unique()), tracts=False).to_pandas()
+    where = looked_up.groupby("cep").municipality.agg(lambda m: tuple(sorted(m)))
+    sih = sih.assign(cnefe_municipalities=sih.CEP.map(where))
+    found = sih.cnefe_municipalities.notna()
+    agrees = pd.Series([m in ms if ms is not None and ms == ms else False for m, ms in zip(sih.MUNIC_RES, sih.cnefe_municipalities, strict=True)],
+                       index=sih.index)
+    resident = sih.MUNIC_RES.str[:2] == ibge_cnefe.UF_FILES[geo]
+    out["found"] = {"rows_in_cnefe": int(found.sum()), "share": round(float(found.mean()), 5),
+                    "distinct_ceps_in_cnefe": int(sih.CEP[found].nunique()), "of_distinct": int(sih.CEP.nunique()),
+                    "residents_of_the_state": int(resident.sum()),
+                    "share_of_residents": round(float(found[resident].mean()), 5),
+                    "share_of_non_residents": round(float(found[~resident].mean()), 5) if (~resident).any() else None}
+    kind = np.where(~found, "cep not in the CNEFE", np.where(agrees, "municipality agrees", "municipality differs"))
+    out["municipality"] = {k: int(v) for k, v in pd.Series(kind).value_counts().items()}
+    seen = sih[found & resident]
+    out["municipality_of_residents_found"] = {
+        "rows": len(seen), "agree": int(agrees[seen.index].sum()), "share": round(float(agrees[seen.index].mean()), 5),
+        "agree_with_a_cep_of_several_municipalities": int((agrees[seen.index] & (seen.cnefe_municipalities.str.len() > 1)).sum())}
+
+    # a test that could not fail says nothing: the same count with the municipalities shuffled among the found rows
+    rng = np.random.default_rng(0)
+    shuffled = rng.permutation(seen.MUNIC_RES.to_numpy())
+    out["placebo_agreement"] = {"shuffled_municipalities_agree": int(sum(m in ms for m, ms in zip(shuffled, seen.cnefe_municipalities, strict=True))),
+                                "of": len(seen)}
+
+    # the rows of residents whose CEP the CNEFE does not hold: what they are (the suffix is the last three digits)
+    lost = sih[~found & resident]
+    band = lambda c: np.where(c.str[5:] == "000", "000", np.where(c.str[5:] >= "900", "900-999", "001-899"))  # noqa: E731
+    out["not_found_residents"] = {
+        "rows": len(lost), "distinct_ceps": int(lost.CEP.nunique()),
+        "suffix_bands_not_found": {k: int(v) for k, v in pd.Series(band(lost.CEP)).value_counts().items()},
+        "suffix_bands_found": {k: int(v) for k, v in pd.Series(band(seen.CEP)).value_counts().items()},
+        "top_municipalities": {k: int(v) for k, v in lost.MUNIC_RES.value_counts().head(5).items()},
+        "top_ceps": {k: int(v) for k, v in lost.CEP.value_counts().head(5).items()}}
+
+    # where they differ: the CEP's own municipality against the patient's, and how far apart the two are
+    differs = sih[found & ~agrees]
+    pairs = differs.assign(cnefe=differs.cnefe_municipalities.map(lambda ms: ms[0] if len(ms) == 1 else "+".join(ms))
+                           ).groupby(["MUNIC_RES", "cnefe"]).size().sort_values(ascending=False)
+    km = [distance_km(a, b) for (a, b) in pairs.index if "+" not in b]
+    km = np.array([k for k in km if k is not None])
+    out["differs"] = {"rows": len(differs), "pairs": len(pairs), "top": {f"{a}->{b}": int(n) for (a, b), n in pairs.head(8).items()},
+                      "km_between_municipalities_median": round(float(np.median(km)), 1) if len(km) else None,
+                      "share_of_rows_within_50km": round(float(np.average(km <= 50, weights=[pairs[(a, b)] for (a, b) in pairs.index if "+" not in b
+                                                                                               and distance_km(a, b) is not None])), 3) if len(km) else None,
+                      "other_state": int((differs.MUNIC_RES.str[:2] != ibge_cnefe.UF_FILES[geo]).sum())}
+
+    # the CEPs of one big city and of the small ones
+    by_city = sih[resident].groupby("MUNIC_RES").CEP.agg(aihs="size", distinct_ceps="nunique")
+    capital = by_city.sort_values("aihs", ascending=False).index[0]
+    own = by_city.drop(index=capital)
+    out["capital"] = {"municipality": capital, **by_city.loc[capital].astype(int).to_dict(),
+                      "cnefe_ceps_of_it": int(ceps[ceps.municipality == capital].cep.nunique())}
+    every_city = sih.groupby("MUNIC_RES").CEP.nunique().drop(index=capital)          # whoever the AIH names, patients from other states too
+    out["every_municipality_but_the_capital"] = {"count": len(every_city), "distinct_ceps_median": float(every_city.median()),
+                                                 "with_one_cep": int((every_city == 1).sum())}
+    out["other_municipalities"] = {"count (residents of the state)": len(own), "distinct_ceps_median": float(own.distinct_ceps.median()),
+                                   "with_one_cep": int((own.distinct_ceps == 1).sum()), "aihs_with_one_cep": int(own[own.distinct_ceps == 1].aihs.sum())}
+
+    # a CEP that is its municipality's only one places nobody inside it; the dispersion of the others, by AIHs
+    keyed = sih[found].merge(looked_up.rename(columns={"cep": "CEP"}), on="CEP", how="left")
+    keyed = keyed[keyed.municipality == keyed.MUNIC_RES]                     # the row of the CEP in the patient's own municipality
+    keyed = keyed.assign(only=keyed.municipality_ceps == 1, suffix_000=keyed.CEP.str.endswith("000"))
+    out["general_cep"] = {"aihs_on_the_only_cep_of_the_municipality": int(keyed.only.sum()),
+                          "share_of_all_rows": round(float(keyed.only.sum() / len(sih)), 5),
+                          "aihs_on_a_cep_ending_000": int(keyed.suffix_000.sum()),
+                          "of_which_the_municipalitys_only": int((keyed.only & keyed.suffix_000).sum()),
+                          "of_which_not_the_only": int((~keyed.only & keyed.suffix_000).sum()),
+                          "only_cep_municipalities": int(ceps[ceps.municipality_ceps == 1].municipality.nunique())}
+    counts = keyed.CEP.value_counts().head(5)
+    spread = pd.cut(keyed.radius_p90_m, [-1, 300, 1000, 2000, np.inf], labels=["<=300 m", "300 m-1 km", "1-2 km", ">2 km"])
+    out["spread_of_the_patients_cep"] = {
+        "rows": len(keyed), "p90_radius_m_quantiles_of_rows": {f"{int(q * 100)}": round(float(keyed.radius_p90_m.quantile(q)), 1)
+                                                               for q in (0.1, 0.25, 0.5, 0.75, 0.9)},
+        "rows_by_p90_radius": {str(k): int(v) for k, v in spread.value_counts().sort_index().items()},
+        "of_which_the_municipalitys_only_cep": {str(k): int(v) for k, v in spread[keyed.only].value_counts().sort_index().items()},
+        "rows_on_a_cep_of_one_address": int((keyed.n_addresses == 1).sum()),
+        "top_ceps": [{"cep": cep, "municipality": r.municipality, "aihs": int(counts[cep]), "addresses": int(r.n_addresses),
+                      "p90_radius_m": round(float(r.radius_p90_m), 1), "municipality_ceps": int(r.municipality_ceps)}
+                     for cep, r in keyed.drop_duplicates("CEP").set_index("CEP").loc[counts.index].iterrows()]}
+
+    # the CEPs' medians against the municipal mesh (full resolution): is each inside its own municipality?
+    import geopandas as gpd
+
+    polygons = mesh("municipality", "maxima")
+    polygons = polygons[polygons.code.str[:2] == ibge_cnefe.UF_FILES[geo]]
+    points = gpd.GeoDataFrame(ceps[["cep", "municipality7"]], geometry=gpd.points_from_xy(ceps.lon, ceps.lat), crs="EPSG:4674")
+    joined = gpd.sjoin(points, polygons, how="left", predicate="within")
+    inside = joined.code == joined.municipality7
+    out["median_inside_own_municipality"] = {"cep_rows": len(points), "inside": int(inside.sum()), "share": round(float(inside.mean()), 5),
+                                             "in_another_municipality": int((joined.code.notna() & ~inside).sum()),
+                                             "in_no_polygon": int(joined.code.isna().sum())}
+    import pyarrow.parquet as pq
+
+    records = pq.read_table(load_settings().lake_dir / "cnefe_2022" / f"uf={geo}",
+                            columns=["COD_UNICO_ENDERECO", "COD_MUNICIPIO", "LATITUDE", "LONGITUDE"]).to_pandas().drop_duplicates()
+    where_at = gpd.sjoin(gpd.GeoDataFrame(records, geometry=gpd.points_from_xy(records.LONGITUDE, records.LATITUDE), crs="EPSG:4674"),
+                         polygons, how="left", predicate="within")
+    where_at = where_at[~where_at.index.duplicated()]
+    own_polygon = where_at.code == where_at.COD_MUNICIPIO
+    out["addresses_inside_own_municipality"] = {"addresses": len(where_at), "inside": int(own_polygon.sum()), "share": round(float(own_polygon.mean()), 5),
+                                                "in_another_municipality": int((where_at.code.notna() & ~own_polygon).sum()),
+                                                "in_no_polygon": int(where_at.code.isna().sum())}
+
+    # the whole country, when every UF is built: the CEPs that span, the municipalities with one CEP, the coordinate levels, and the
+    # CEPs of places whose coordinates are known (MASP, Av. Paulista 1578, 01310-200; the Maracanã, 20271-150; the Palácio do Planalto,
+    # 70150-900), against São Paulo's 01001-000 (Praça da Sé), a CEP that is not a place: its addresses lie all over the city
+    if out["ufs_built"] == len(ibge_cnefe.UF_FILES):
+        every = cep_points(tracts=False).to_pandas()
+        span = every.groupby("cep").agg(municipalities=("municipality7", "nunique"), ufs=("uf", "nunique"))
+        municipalities = every.groupby("municipality7").agg(ceps=("cep", "nunique"), addresses=("n_addresses", "sum"))
+        levels = every[[f"n_coord_level_{k}" for k in ibge_cnefe.LEVELS]].sum()
+        out["national"] = {
+            "cep_rows": len(every), "ceps": len(span), "ceps_in_more_than_one_municipality": int((span.municipalities > 1).sum()),
+            "most_municipalities_of_one_cep": int(span.municipalities.max()), "ceps_in_more_than_one_uf": int((span.ufs > 1).sum()),
+            "municipalities": len(municipalities), "municipalities_with_one_cep": int((municipalities.ceps == 1).sum()),
+            "addresses_in_them": int(municipalities[municipalities.ceps == 1].addresses.sum()), "addresses": int(municipalities.addresses.sum()),
+            "address_levels": {k: int(levels[f"n_coord_level_{k}"]) for k in ibge_cnefe.LEVELS},
+            "cep_rows_by_p90_radius": {str(k): int(v) for k, v in every.groupby(pd.cut(every.radius_p90_m, [-1, 300, 1000, 2000, np.inf],
+                labels=["<=300 m", "300 m-1 km", "1-2 km", ">2 km"]), observed=False).size().items()},
+            "addresses_by_p90_radius": {str(k): int(v) for k, v in every.groupby(pd.cut(every.radius_p90_m, [-1, 300, 1000, 2000, np.inf],
+                labels=["<=300 m", "300 m-1 km", "1-2 km", ">2 km"]), observed=False).n_addresses.sum().items()},
+            "landmarks_m_from_the_known_place": {
+                cep: ({"addresses": int(r.n_addresses), "radius_p50_m": round(float(r.radius_p50_m)),
+                       "metres": round(float(great_circle_km(r.lon, r.lat, lon, lat) * 1000))} if len(found_row) else "not in the CNEFE")
+                for cep, (lat, lon) in {"01310200": (-23.56135, -46.65590), "20271150": (-22.91222, -43.23028),
+                                        "70150900": (-15.79975, -47.86078), "70160900": (-15.79974, -47.86437),
+                                        "01001000": (-23.55052, -46.63331)}.items()
+                for found_row in [every[every.cep == cep]] for r in [found_row.iloc[0] if len(found_row) else None]}}
+    return out
+
+
 SCENARIOS = {
     "metadata": s_metadata,
     "sih_rd": s_sih_rd,
@@ -551,6 +713,7 @@ SCENARIOS = {
     "timeline": s_timeline,
     "sweep": s_sweep,
     "sp_strata": s_sp_strata,
+    "cnefe_cep": s_cnefe_cep,
 }
 
 

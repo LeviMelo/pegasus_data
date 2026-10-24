@@ -321,6 +321,46 @@ def price_index_cmd(
     _emit(table.slice(max(0, table.num_rows - 12)).to_pylist(), as_json, f"price index ({table.num_rows} {grain}s; the last 12)")
 
 
+@app.command(name="cep-points", rich_help_panel="SOURCES")
+def cep_points_cmd(
+    municipality: Annotated[list[str] | None, typer.Option("--municipality", "-m", help="Municipality code, six digits (DATASUS) or seven (IBGE); repeat for several")] = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="State (AL or 27); repeat for several")] = None,
+    cep: Annotated[list[str] | None, typer.Option("--cep", help="Eight-digit CEP, exact; repeat for several")] = None,
+    tracts: Annotated[bool, typer.Option("--tracts/--no-tracts", help="Keep each CEP's census tracts (parquet output only)")] = False,
+    limit: Annotated[int, typer.Option("--limit", help="Rows shown (the whole table goes to --out)")] = 20,
+    out: Annotated[Path | None, typer.Option("--out", help="Write the table as .csv or .parquet")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Where each CEP lies, from the Census's CNEFE 2022: one row per CEP and municipality (built by `pegasus-data cnefe`).
+
+    The median position of the CEP's addresses, the distance from it within which half and nine tenths of them lie, their
+    count (IBGE's TOT_END), private households, coordinate levels and census tracts. A CEP that is the only one of its
+    municipality (`municipality_ceps` 1) places nobody inside it.
+    """
+    from ..sources.ibge_cnefe import CnefeNotBuilt, cep_points
+
+    if tracts and out is not None and out.suffix != ".parquet":
+        raise typer.BadParameter("tracts are a list per CEP: write a .parquet", param_hint="--tracts")
+    try:
+        table = cep_points(municipality=municipality, uf=uf, cep=cep, tracts=tracts, settings=_settings(root))
+    except (CnefeNotBuilt, LookupError, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    shown = ["cep", "municipality7", "n_addresses", "lat", "lon", "radius_p50_m", "radius_p90_m", "municipality_ceps"]
+    rows = table.select(shown).slice(0, limit).to_pylist()
+    for row in rows:
+        row.update({k: round(row[k], 1) for k in ("radius_p50_m", "radius_p90_m") if row[k] is not None})
+    _emit(rows, as_json, f"{table.num_rows:,} CEP rows (the first {len(rows)})")
+
+
 @app.command(name="graph", rich_help_panel="UNDERSTAND")
 def graph_cmd(
     kind: Annotated[str, typer.Argument(help="contiguity, population_distance, regic_network, regic_health_basic, "

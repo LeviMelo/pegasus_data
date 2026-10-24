@@ -41,7 +41,7 @@ products it recomputes. Their deletion was refused by the session's permission c
   whole label pack, so a CIH label fix re-keyed every dataset. The key is being narrowed to what a role table reads, and
   then the runs must be re-made.
 
-## Population support and daily climate (2026-10-24, ADR-0203, ADR-0204; gaps found by nees-gt-ms)
+## Population support and daily climate (2026-10-24, ADR-0203 to ADR-0205; gaps found by nees-gt-ms)
 
 - **Where people are.** IBGE's Grade Estatística 2022 is served (`pegasus-data grade`, `grade_cells`): 14.1 million
   cells of 200 m / 1 km with people and households, each with its municipalities; it equals IBGE's published totals. It is
@@ -50,6 +50,10 @@ products it recomputes. Their deletion was refused by the session's permission c
   1,024 municipalities).
 - **Tracts.** The Census 2022 tracts are served as published (`census_tracts`, `tract_population`: sex × eleven age bands,
   `X` null); suppression leaves 0.65% of residents out of the bands (102 municipalities short by more than 5%).
+- **Where a CEP lies** (ADR-0205): CNEFE 2022 landed whole (111.1 million records, 931,499 CEPs equal IBGE's aggregate) and
+  `cep_points` per CEP and municipality. SIH-RD Alagoas 2023: 95.4% of AIHs' CEPs found, the municipality agrees on all of
+  them, but 70% sit on a CEP spread over 2 km and 21% on their municipality's only CEP: the patient CEP places most
+  admissions in the municipality, not finer.
 - **Care flows by bed-days** (ADR-0201, landed before this work): SIH E10-E14 2023, 138,316 admissions and 941,694
   bed-days, every nees-gt-ms figure reproduced and read again apart.
 - **Daily climate.** CPTEC's MERGE (precipitation) and SAMeT (Tmax, Tmin, Tmed), 2000 to the day before yesterday, by
