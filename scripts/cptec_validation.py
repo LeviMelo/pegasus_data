@@ -74,19 +74,17 @@ def against_brdwgd(root: Path, settings, names=("tmax", "tmin", "precipitation")
 
 def _station_days(root: Path, year: int):  # type: ignore[no-untyped-def]
     """Each automatic station's day under three windows (UTC day, local day, the 24 h ending 12 UTC): Tmax, Tmin and the
-    mean of the 24 hourly readings (all 24 present), and the precipitation total (all 24 present)."""
+    mean of the hourly readings, the precipitation total, and the hours behind each."""
     import duckdb
 
     con = duckdb.connect()
     path = (root / "registries" / "inmet" / "inmet_autoh_db.parquet").as_posix()
+    con.execute(f"""CREATE TABLE h AS SELECT CAST(station_id AS VARCHAR) AS station_id, datetime, temp_db, p FROM read_parquet('{path}')
+        WHERE datetime >= TIMESTAMP '{year - 1}-12-31' AND datetime < TIMESTAMP '{year + 1}-01-02'""")
     windows = {"utc_day": "datetime", "local_day": "datetime - INTERVAL 3 HOUR", "ends_12utc": "datetime + INTERVAL 12 HOUR"}
-    parts = []
-    for name, shifted in windows.items():
-        parts.append(f"""SELECT CAST(station_id AS VARCHAR) AS station_id, '{name}' AS window, CAST({shifted} AS DATE) AS date,
-                count(temp_db) AS t_hours, max(temp_db) AS tmax, min(temp_db) AS tmin, avg(temp_db) AS tmed,
-                count(p) AS p_hours, sum(p) AS precipitation
-            FROM read_parquet('{path}') WHERE datetime >= TIMESTAMP '{year - 1}-12-30' AND datetime < TIMESTAMP '{year + 1}-01-02'
-            GROUP BY ALL""")
+    parts = [f"""SELECT station_id, '{name}' AS window, CAST({shifted} AS DATE) AS date, count(temp_db) AS t_hours,
+                max(temp_db) AS tmax, min(temp_db) AS tmin, avg(temp_db) AS tmed, count(p) AS p_hours, sum(p) AS precipitation
+             FROM h GROUP BY ALL""" for name, shifted in windows.items()]
     return con.execute("SELECT * FROM (" + " UNION ALL ".join(parts) + f") WHERE year(date) = {year}").to_arrow_table()
 
 
@@ -134,6 +132,12 @@ def against_stations_and_store(root: Path, settings, year: int, variables=VARIAB
                     worst[weight] = max(worst[weight], float(np.nanmax(np.abs(mine.to_numpy() - day.to_numpy()))))
         consistency[variable] = {"files": len(files), "max_abs_difference": worst}
     grid = pa.Table.from_pandas(pd.concat(samples, ignore_index=True), preserve_index=False)
+    import pyarrow.parquet as pq
+
+    cache = Path("data/probes/climate") / f"cptec_station_samples_{year}.parquet"
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(grid, cache)
+    (cache.with_suffix(".consistency.json")).write_text(json.dumps(consistency, default=str), encoding="utf-8")
     station = _station_days(root, year)
     con = duckdb.connect()
     con.register("g", grid)

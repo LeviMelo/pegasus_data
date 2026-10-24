@@ -973,7 +973,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   24-hour observations and model forecasts, and regenerated when ERA5 arrives. The index's times are UTC (equal to `Last-Modified`):
   in October 2026 a TMAX day appeared at 03:06 the next day and was rewritten at 03:06 seven days later (TMAX of 10-15 at 10-22,
   TMIN at 17:04 of the same day and six days later), sometimes once more (TMAX of 10-01 at 10-14); MERGE's days were written once,
-  at 02:38 the next day. Neither product has humidity.
+  at 02:38 the next day. Neither product has humidity. Measured (ADR-0204, evaluation 2026-10-24-cptec-daily-climate): MERGE's day fits
+  the 24 h ending 12 UTC and SAMeT's the UTC calendar day (INMET's hours, 2023); MERGE holds 0.83 of INMET's automatic gauges'
+  totals (0.64 in cells with no merged gauge) and 0.845 of BR-DWGD's in every month; SAMeT's Tmax is BR-DWGD's +0.06 °C (RMSE 0.75).
 
 ## 11. Garbage codes: the GBD levels as a declared classification (measured 2026-10-14; ADR-0182)
 

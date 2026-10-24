@@ -60,7 +60,9 @@ products it recomputes. Their deletion was refused by the session's permission c
   municipality, weighted by population and by area from the grade, every file kept by vintage (`climate_daily`,
   `climate_weekly`, `pegasus-data climate-update`). SAMeT rewrites a day about 7 days later with ERA5: only a daily
   `climate-update` keeps the provisional values a backtest needs (nothing schedules it yet). BR-DWGD stays the source of
-  the yearly fields; nothing is spliced.
+  the yearly fields; nothing is spliced. Held: every day 2000-01-01 to 2026-10-23 (2.4 GB). SAMeT agrees with BR-DWGD
+  (Tmax +0.06 °C, RMSE 0.75; a drift of about 0.6 °C between them over 2000-2023); MERGE is about 15% drier than the
+  gauges (0.83 of INMET's totals, 0.64 where no gauge is merged), stated, not rescaled.
 - **Not done.** Humidity: ERA5-Land(-T) through the Copernicus CDS needs the author's account (`~/.cdsapirc`); Saldanha's
   ERA5-Land municipal means on Zenodo (dew point, 1950-2025, yearly releases, no account) would give history only.
   Per-cell climate is not stored (the raw grids are 63 GB; the disk had 17-27 GB free): `cptec.day_grid` reads one day's
