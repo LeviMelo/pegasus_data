@@ -55,7 +55,7 @@ from .lookups import (
     _single_lookup,
 )
 from .persist.reference import read_reference_table
-from .semantics.curation import VariableDoc, load_variable_docs
+from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
 
 RenderMode = Literal["code", "label", "both"]
 
@@ -863,6 +863,7 @@ def _render_table(
     report = RenderReport()
     collected = collected if collected is not None else {"borrowed": set(), "fallback": set()}
     docs = load_variable_docs(store, system)
+    series = _family_series(store, family_id or "")
     # the bindings are the catalog's, the same for every group of a family: read once per catalog state
     bindings = store.memo(("bindings", system, family_id or ""), lambda: _bindings(store, system, family_id))
     overrides = {k.upper(): v for k, v in (render or {}).items()}
@@ -1006,9 +1007,12 @@ def _render_table(
         # The value a table is keyed by. Usually the column itself; for a code
         # that only means something with another column (CNES CLASS_SR, keyed
         # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).
-        if doc is not None and getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None):
+        if doc is not None and (
+            (getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None))
+            or (series and form_types_a_date(system, series, name))
+        ):
             # The curation says this column is not coded (a date, a count, an
-            # identifier). A kit .DEF may still bind it to a table (DT_SAIDA to
+            # identifier), or the family's own form dictionary types it a date. A kit .DEF may still bind it to a table (DT_SAIDA to
             # ANOMES), and weighing that table against its values warned "no
             # bound table decodes the column" on every SIH and SIM query
             # (2026-09-30). The curation's word is the stronger evidence.

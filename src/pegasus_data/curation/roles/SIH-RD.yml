@@ -978,8 +978,10 @@ columns:
     - 2026
   RUBRICA:
     role: admission.budget_line
-    kind: category
-    model: mark
+    kind: number
+    measure: false
+    note: "Filed zero: IT_SIHSUS_1603.pdf (section 2, SEQ 47) lists RUBRICA numeric(5) as \"Zerado\", and the first 20,000 rows of the 2010, 2012, 2013 and 2025 files hold only 0 (measured 2026-10-23). A number with no content, set aside, not a code."
+    model: excluded
     fact_domain: administrative
     fact_domain_evidence: "\"Rubrica\" (admission.budget_line): budget line (rubrica): financing"
     name: Rubrica

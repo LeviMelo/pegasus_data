@@ -448,15 +448,15 @@ columns:
     note: As in SIASUS-ABO (the same file republished).
   AP_CODEMI:
     role: authorisation.issuer
-    kind: category
-    model: mark
+    kind: institution
+    model: institution
     fact_domain: administrative
     fact_domain_evidence: "\"Codigo do Orgao emissor\" (authorisation.issuer): billing, financing, management or contractual attribute"
     name: Codigo do Orgao emissor
     years:
     - 
     - 
-    note: As in SIASUS-ABO (the same file republished).
+    note: "As in SIASUS-ABO (the same file republished). The issuing body of the authorisation: \"Código do Órgão emissor\", CHAR (10) (Informe Técnico SIASUS 2019-07, section 3.4). An organisation's identifier (M355030001, E350000027 in the files), whose structure no document gives and no table of the package names, so it is read as filed, not decoded."
   AP_CODUNI:
     role: authorisation.facility
     kind: institution

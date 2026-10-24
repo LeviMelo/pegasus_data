@@ -274,6 +274,8 @@ first:
    municipality) are excluded, and the best identity table must decode at
    least half the values.
 
+Before the ladder, a column the curation calls not coded (`code_system: none`) or whose family's own form dictionary types a date is left as filed (ADR-0198); a kit's validity window is its name's, widened to the data filed under its folder (`dictionary.settle_folder_windows`).
+
 A code no table decodes stays raw and is reported. The presentation then shows
 it as `9 (?)` (ADR-0084). `pegasus-data meaning` measures, for every field of
 every family, whether it is described and whether its codes decode (ADR-0085).

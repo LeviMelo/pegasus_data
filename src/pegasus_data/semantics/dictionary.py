@@ -329,6 +329,48 @@ def settle_era_windows(catalog: CatalogStore) -> dict[str, int]:
     return settled
 
 
+def settle_folder_windows(catalog: CatalogStore) -> dict[str, int]:
+    """Widen a kit whose window is its folder's name to the months of the data filed under that folder.
+
+    A bare-named kit in a dated folder (``/CIH/200801_201012/Auxiliar/TAB_CIH.zip``) takes the folder's window
+    (``tabkit.kit_validity``), but DATASUS files data under a folder past the end of its name: the 869 data files under
+    CIH's ``200801_201012`` run to 201104 (``CRSP1101`` to ``CRSP1104``), so the kit's SEXO, GESTAO, SAIDAPERM and IDADEDET
+    decoded none of 2011 (SIM-style window mismatch, ``labelpack.select_windows``: no window covers 2011). The kit sits
+    beside the data it describes, so its window is the folder's name widened to the first and last month of those data
+    (``file_facts.normalized_date`` of the role-data files). A kit named for its window (``TAB_SIH_199201-199712``) is
+    not touched. Recomputed from the whole dictionary each run, like :func:`settle_era_windows`.
+    """
+    from .tabkit import kit_folder, kit_validity
+
+    widened = {"kits": 0, "rows": 0}
+    for row in catalog.query("SELECT kit_path FROM tab_kits"):
+        kit = str(row["kit_path"])
+        folder = kit_folder(kit)
+        valid_from, valid_to = kit_validity(kit)
+        if folder is None or not valid_from or not valid_to:
+            continue
+        # LIKE would read the folder's `_` and `%` as wildcards: a range comparison is exact
+        span = catalog.query(
+            "SELECT MIN(normalized_date) AS lo, MAX(normalized_date) AS hi FROM file_facts WHERE role = 'data'"
+            " AND path >= ? AND path < ? AND normalized_date BETWEEN 190001 AND 210012 AND normalized_date % 100 BETWEEN 1 AND 12",
+            (folder, folder + "\U0010ffff"),
+        )[0]
+        if span["lo"] is None:
+            continue
+        window = (min(valid_from, str(span["lo"])), max(valid_to, str(span["hi"])))
+        if window == (valid_from, valid_to):
+            continue
+        prefix = f"{kit}!"
+        cursor = catalog.execute(
+            "UPDATE dictionary SET valid_from = ?, valid_to = ? WHERE source_ref >= ? AND source_ref < ?"
+            " AND valid_from IS ? AND valid_to IS ?",
+            (*window, prefix, prefix + "\U0010ffff", valid_from, valid_to),
+        )
+        widened["kits"] += 1
+        widened["rows"] += cursor.rowcount or 0
+    return widened
+
+
 def _is_era_kit(kit_path: str) -> bool:
     from .tabkit import _KIT_ERAS
 

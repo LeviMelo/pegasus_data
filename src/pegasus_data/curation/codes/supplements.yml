@@ -32,6 +32,21 @@ SINAN:
         The field''s siblings in the same table print 9 Ignorado'
       drop: ['9']
       codes: {'9': Ignorado}
+  SDTA:
+    ST_INCUB_M:
+      source_ref: 'SDTA_FICHA.pdf (Ficha de Investigação Surto - DTA, SVS 08/06/2006), campo 34 "Período de Incubação Mínimo (em horas ou dias)": "1 - Horas, 2 - Dias"; the Surto DTA v5 dictionary prints the field varchar(1) without its codes (2026-10-23)'
+      codes: {'1': Horas, '2': Dias}
+    MAX_ST_INC:
+      source_ref: 'SDTA_FICHA.pdf (Ficha de Investigação Surto - DTA, SVS 08/06/2006), campo 35 "Período de Incubação Máximo (em horas ou dias)": "1 - Horas, 2 - Dias"; the Surto DTA v5 dictionary prints the field varchar(1) without its codes (2026-10-23)'
+      codes: {'1': Horas, '2': Dias}
+    ST_INC_ME:
+      source_ref: 'SDTA_FICHA.pdf (Ficha de Investigação Surto - DTA, SVS 08/06/2006), campo 36 "Mediana do Período de Incubação (em horas ou dias)": "1 - Horas, 2 - Dias"; the Surto DTA v5 dictionary prints the field varchar(1) without its codes (2026-10-23)'
+      codes: {'1': Horas, '2': Dias}
+    TP_LOCAL:
+      source_ref: 'DIC_DADOS_Surto_DTA_v5.pdf and SDTA_FICHA.pdf, campo 38 "Local de Ingestão" (tp_local_preparacao, varchar 2), the same table as campo 37 (TP_PRO_PRE); the dictionary names no DBF column for campo 38, so TP_LOCAL is bound to it by elimination (variables/sinan/sdta.yml, 2026-10-23)'
+      codes: {'01': Ambulantes, '02': Comemorações, '03': Creche /Escola, '04': Hospital /Unidade de Saúde, '05': Indústria,
+              '06': Lanchonete /Confeitaria /Padaria, '07': Produção /Agropecuária, '08': Refeitório, '09': Residência,
+              '10': Restaurante, '11': Outros Especificar, '99': Ignorado}
   SIFC:
     HEPATO:
       source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_hepato (SINAN-W name HEPATO): "1 sim 2. não 3. não se aplica 9. ignorado"'
@@ -39,6 +54,20 @@ SINAN:
     CLI_OUTRO:
       source_ref: 'DIC_DADOS_Sifilis_Congenita_v5, st_sinal_sintoma_outro (SINAN-W name CLI_OUTRO): "1 sim 2. não 3. não se aplica 9. ignorado"'
       codes: {'1': Sim, '2': Não, '3': Não se aplica, '9': Ignorado}
+  SIFG:
+    TPESQUEMA:
+      source_ref: 'DIC_DADOS_Gestante_Sifilis_v5 campo 41 prints "1 - Penicilina G benzatina 2.400.000UI; 2 - ... 4.800.000UI; 3 - ... 7.200.000UI; 4 - Outro esquema; 5 - Não realizado; 9 - Ignorado" (SIFIGEN_FICHA.pdf alike); the text extraction ran the labels of codes 1-4 together ("400.000UI 2 - Penicilina G benzatina", "800.000UI") and invented a code 7 from "7.200..000UI" (2026-10-23)'
+      drop: ['1', '2', '3', '4', '7']
+      codes: {'1': Penicilina G benzatina 2.400.000UI, '2': Penicilina G benzatina 4.800.000UI, '3': Penicilina G benzatina 7.200.000UI, '4': Outro esquema}
+    TPESQPAR:
+      source_ref: 'DIC_DADOS_Gestante_Sifilis_v5 campo 43 prints the same list as campo 41 ("1 - penicilina g benzatina 2.400.000ui ... 4 - outro esquema; 5 - não realizado; 9 - ignorado"; SIFIGEN_FICHA.pdf alike); the text extraction mixed up the labels of codes 1-4 and invented a code 7 (2026-10-23)'
+      drop: ['1', '2', '3', '4', '7']
+      codes: {'1': Penicilina G benzatina 2.400.000UI, '2': Penicilina G benzatina 4.800.000UI, '3': Penicilina G benzatina 7.200.000UI, '4': Outro esquema}
+    TPMOTPARC:
+      source_ref: 'DIC_DADOS_Gestante_Sifilis_v5 campo 44 "Motivo para o não tratamento do Parceiro" (tp_motivo, varchar2(1)) and SIFIGEN_FICHA.pdf campo 44, which the text extraction did not read (2026-10-23)'
+      codes: {'1': Parceiro não teve mais contato com a gestante, '2': Parceiro não foi comunicado/convocado à US para tratamento,
+              '3': 'Parceiro foi comunicado/convocado à US para tratamento, mas não compareceu',
+              '4': Parceiro foi comunicado/convocado à US mas recusou o tratamento, '5': Parceiro com sorologia não reagente, '6': Outro motivo}
   VIOL:
     CS_ESCOL_N:
       source_ref: 'The violence dictionary''s text reads "43 Analfabeto" where every other SINAN NET dictionary and form prints the same scale with "0-Analfabeto" (aids_crianca, antirrabico, dermatoses, lerdort, mental, pfa)'

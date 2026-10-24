@@ -156,6 +156,14 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
             body: dict[str, Any] = {"description": str((decl or {}).get("role") or column)}
             if (decl or {}).get("codes"):
                 body["codes"] = decl["codes"]
+            if (decl or {}).get("codelist"):
+                # a standard or a DATASUS table the package ships (ICD10, CBO2002): the column's code system is external
+                body["codelist"] = decl["codelist"]
+                body["code_system"] = "external"
+            if (decl or {}).get("label_from"):
+                # the record names its own code in a sibling column (ADR-0090): no table to choose
+                body["label_from"] = decl["label_from"]
+                body["code_system"] = "internal"
             if (decl or {}).get("derived"):
                 body["derived"] = decl["derived"]       # a column made from this one (SRAG's IDADE_anos from the age and its unit)
             if (decl or {}).get("type") in TYPED:

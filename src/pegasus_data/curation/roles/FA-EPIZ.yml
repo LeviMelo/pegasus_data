@@ -78,9 +78,9 @@ columns:
     note: "The lake's year partition."
   MONITORAMENTO_OCOR:
     role: epizootic.monitoring_period
-    kind: category
+    kind: text
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Período de monitoramento de ocorrência do evento\" (epizootic.monitoring_period): animal cases, deaths or onset of the epizootic: the health event"
     name: "Período de monitoramento de ocorrência do evento"
-    note: "July to June, as FA-HUM's. The dictionary names it MONITORAMENTO_OCO; the file's header is MONITORAMENTO_OCOR."
+    note: "July to June, as FA-HUM's. The dictionary names it MONITORAMENTO_OCO; the file's header is MONITORAMENTO_OCOR. A period label read as filed, not a code a table decodes ('2025/2026' in the 2026 files, measured 2026-10-23)."

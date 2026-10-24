@@ -4510,6 +4510,7 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Sinais Flogísticos)
   FLXRECEBI:
+    notes: "The dictionary names no code for it (\"Identifica se o registro foi recebido pelo fluxo de retorno\", a system-set internal field); the files hold \"2\" and \"/N\" (CHIK 2019) or \"0\" (DENG 2024, every row of the first 20,000), none of them declared. Undecoded, visibly (open question 3)."
     official_name: Recebida por Fluxo de Retorno
     translated_name: Received via return-flow
     description: 'Internal flag marking a record that arrived at this database through the
@@ -5268,6 +5269,8 @@ variables:
       the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
       dictionary, TAB_SINANNET .DEF files and the web).'
   IN_VINCULA:
+    codes: {"0": "Não vinculado", "1": Vinculado}
+    notes: "The two codes are the dictionary's own (\"0 ou branco - Não Vinculado; 1 - Vinculado\"). A blank is no value: it stays empty, not \"Não vinculado\" (missing is not zero). The same notification dictionary describes the column for every form that carries it, so the table is the system's (TUBE 2023: 8,907 rows 1, 2,092 rows 0, 98,920 blank)."
     official_name: Vinculação
     translated_name: Linked-record flag
     description: 'Whether this notification was linked (vinculada) to a hanseníase or tuberculose
@@ -7207,9 +7210,10 @@ variables:
       hearing loss, pneumoconioses — because field block 31-60 is reused verbatim across them,
       even though the cited document is titled for LER/DORT.
   TRATAMENTO:
+    notes: "Coded on tuberculosis (TUBE: tp_entrada, 1 Caso Novo to 6 Pós-óbito, the form dictionary's table in codes/sinan.yml, which decodes it) and a date on visceral leishmaniasis; a doc is one per system and column, so the column is declared coded and the renderer leaves a column alone that its own form dictionary types a date (LEIV: dt_inicio_tratamento, `semantics.curation.form_types_a_date`)."
     official_name: Data do início do tratamento
     translated_name: Treatment start date
-    code_system: none
+    code_system: internal
     description: 'Form-dependent field: on visceral leishmaniasis the date the patient began
       treatment (on or after the notification date); on tuberculosis it is NOT a date but the
       type of entry (1 new case, 2 relapse, 3 re-entry after abandonment, 4 unknown, 5 transfer,

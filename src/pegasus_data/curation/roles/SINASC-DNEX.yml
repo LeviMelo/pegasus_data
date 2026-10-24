@@ -895,7 +895,7 @@ columns:
     note: role from SINASC-DN
   VERSAOSIST:
     role: birth.system_version
-    kind: category
+    kind: text
     model: excluded
     fact_domain: administrative
     fact_domain_evidence: "\"Versão do sistema\" (birth.system_version): record type, internal flag or system field"
@@ -903,4 +903,4 @@ columns:
     years:
     - 2014
     - 2026
-    note: role from SINASC-DN
+    note: "role from SINASC-DN A software version as filed ('3.2.01'), not a code: no table could name it. The SINASC dictionary prints VERSAOSIST as 'Caracter 7, Números; .' (Versão do sistema, campo interno do sistema); the files hold dotted version strings (measured 2026-10-23)."

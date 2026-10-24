@@ -1275,6 +1275,7 @@ variables:
 
       '
   NACION_PAC:
+    notes: "Undecoded since 2026-10-23, visibly: the RAAS layout (ftp_siasus_docs/RAAS.xls, ras_nascpcnte, 3 characters) says \"Código da Nacionalidade de acordo com a Tabela do Anexo VIII da PT/MS/SAS 205/96\", a 3-digit country table (UFNACIO: 010 Brasil), but the DBF column is CHAR (2) and holds 01 to 10 (PS and SAD files, 2014-2025). Widths are matched exactly, so \"01\" is not \"010\"; no document gives a 2-character table."
     official_name: Nacionalidade do paciente
     translated_name: Patient nationality
     description: DATASUS nationality code of the patient on the RAAS record.

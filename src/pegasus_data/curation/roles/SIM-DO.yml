@@ -1201,7 +1201,8 @@ columns:
     - 2010
   VERSAOSCB:
     role: death.cause_selector_version
-    kind: category
+    kind: text
+    note: "A software version as filed ('4.3'), not a code: no table could name it. The SIM dictionary prints VERSAOSCB as 'Caracter 7' (Versão do seletor de causa básica); the files hold dotted version strings (measured 2026-10-23)."
     model: excluded
     fact_domain: administrative
     fact_domain_evidence: "\"Versão do seletor de causa básica\" (death.cause_selector_version): record type, internal flag or system field"
@@ -1211,7 +1212,8 @@ columns:
     - 2026
   VERSAOSIST:
     role: death.system_version
-    kind: category
+    kind: text
+    note: "A software version as filed ('3.2.30'), not a code: no table could name it. The SIM dictionary prints VERSAOSIST as 'Caracter 7, Números; .' (Versão do sistema); the files hold dotted version strings (measured 2026-10-23)."
     model: excluded
     fact_domain: administrative
     fact_domain_evidence: "\"Versão do sistema\" (death.system_version): record type, internal flag or system field"

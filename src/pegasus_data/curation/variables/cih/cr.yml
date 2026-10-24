@@ -116,11 +116,7 @@ variables:
       Óbito com...").
 
       '
-    notes: 'Do not read COBRANCA as a charge amount or fee code because of its name - it is
-      a discharge-reason classification. The successor CIHA01 layout (2011+) renamed this
-      same concept CO_MOTIVO_SAIDA, which is a clearer name for the same information.
-
-      '
+    notes: "Do not read COBRANCA as a charge amount or fee code because of its name - it is a discharge-reason classification. The successor CIHA01 layout (2011+) renamed this same concept CO_MOTIVO_SAIDA, which is a clearer name for the same information. Decoded 2026-10-23 for the 2011 files (the kit's window now covers the months DATASUS filed in its folder). Codes 61 and 62 (1,606 and 71 of the first 20,000 rows of the 2011 file) are in no CIH table, and nothing in the CIH layout (FQA CIH 180610.doc, field 15 \"Motivo da cobrança\", no list) says CIH shares SIH's Motivo de saída/permanência, which lists them: they stay undecoded, visibly."
   COD_IDADE:
     official_name: Unidade de idade
     translated_name: Age unit code
@@ -298,11 +294,7 @@ variables:
       ... CHAR (02) ... Fonte da remuneração".
 
       '
-    notes: 'No code-list values for this field are listed in CIH''s own dictionary or catalogued
-      as observed data (CIH is profiled from headers, not per-file value counts), so only
-      the field''s purpose is asserted here.
-
-      '
+    notes: "No code-list values for this field are listed in CIH's own dictionary or catalogued as observed data (CIH is profiled from headers, not per-file value counts), so only the field's purpose is asserted here. The tabulation (CIH [2008-2010].DEF, \"Fonte da Remuneração\") names CNV\\FONTE.CNV, which TAB_CIH.zip does not contain; the successor CIHA's CO_FONTE_REMUNERACAO has a 2-digit table, and the CIH column holds one-digit codes (1 to 9 in the 2011 file), so no table is applied: a code is never padded to meet another width. Undecoded (open question 3)."
   GESTAO:
     official_name: Tipo de gestão
     translated_name: Management tier of the hospital
@@ -315,16 +307,8 @@ variables:
     codelists:
     - GESTAO
     source: def
-    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
-      -> "CIH [2008-2010].DEF", line "XGestão ,GESTAO ,1 ,GESTAO.CNV"; codes read directly
-      from "GESTAO.CNV" (1 Estadual, 2 Municipal, 3 Dupla, 4 Não definida).
-
-      '
-    notes: 'A same-named GESTAO field exists in many other DATASUS systems (e.g. SIH/AIH)
-      with a different raw-code scheme (0/1/2, not 1/2/3/4) - do not carry another system''s
-      code/label pairing over onto this one; this description is grounded in CIH''s own GESTAO.CNV.
-
-      '
+    source_ref: "ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip -> \"CIH [2008-2010].DEF\", line \"XGestão ,GESTAO ,1 ,GESTAO.CNV\"; codes read directly from \"GESTAO.CNV\", whose first column numbers the categories and whose raw values stand on the right: Estadual = 2 or E, Municipal = 1 or M, Dupla = D, Não definida = 3 to 9. (This entry had read the first column as the codes; corrected 2026-10-23.)"
+    notes: "The layout (FQA CIH 180610.doc, field 17) prints 0 gestão estadual, 1 gestão plena municipal, 2 gestão plena estadual; the files of 2008-2011 hold M, E and D (2011 file: M 13,489, E 5,790, D 721 of the first 20,000 rows), which GESTAO.CNV decodes. Both claims are kept: code 0 of the layout is in no table and stays undecoded. A same-named GESTAO field exists in other DATASUS systems (e.g. SIH/AIH) with its own codes: do not carry another system's code/label pairing over onto this one; this description is grounded in CIH's own GESTAO.CNV."
   HOMONIMO:
     official_name: Indicador de homônimo
     translated_name: Homonymous-patient flag
@@ -507,12 +491,7 @@ variables:
       from "NATUREZA.CNV" (01 Administração direta da saúde ... 13 Sindicato).
 
       '
-    notes: 'Two vintages of the code table are bound (NATUREZA and NATUREZC, the latter with
-      a different, larger set of 2-digit codes such as 10 Próprio, 60 Municipal) - check which
-      applies to a given record''s competência before assuming a code is unlabelled. Do not
-      confuse with a same-named SIH/AIH field, whose own code table again numbers differently.
-
-      '
+    notes: "Two vintages of the code table are bound (NATUREZA and NATUREZC, the latter with a different, larger set of 2-digit codes such as 10 Próprio, 60 Municipal) - check which applies to a given record's competência before assuming a code is unlabelled. Do not confuse with a same-named SIH/AIH field, whose own code table again numbers differently. The layout names field 16 \"Natureza da relação do hospital com o SUS\" (FQA CIH 180610.doc) and prints no list; the labels are NATUREZA.CNV's, the tabulation's own decode of the column, whose categories are legal forms. The two descriptions are kept side by side, unresolved."
   PROC_REA:
     official_name: Procedimento realizado
     translated_name: Procedure performed
