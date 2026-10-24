@@ -119,30 +119,43 @@ def _render_values(
     labels: pa.ChunkedArray | pa.Array,
     p: Presentation,
     shown: Mapping[str, str] | None = None,
-) -> pa.Array:
+) -> pa.ChunkedArray:
     """``shown`` replaces the code printed beside a label (a municipality's
-    6-digit code by its 7-digit IBGE code); the label lookup already happened."""
+    6-digit code by its 7-digit IBGE code); the label lookup already happened.
+
+    A ``string`` ChunkedArray at any size (`lookups.expand`): the cells of 58.6 million rows are more than the 2 GiB of
+    characters one array holds."""
     # Formatted once per distinct (code, label), in Arrow up to that point: a
     # year of a 38-column file is 1.4 million cells and a few thousand
-    # distinct pairs (ADR-0097). \x01 stands for null; neither byte occurs in
-    # a code or a label.
+    # distinct pairs (ADR-0097). A pair is told apart as two integers, the
+    # position of its code among the distinct codes and of its label among
+    # the distinct labels, with one more position than there are values for a
+    # null: no row's code and label are ever joined into a string, which for
+    # SNGPC-IND 2014 (58.6 million rows) was 2.4 GB of characters made only to
+    # be counted.
     import pyarrow.compute as pc
 
-    codes_s = pc.fill_null(pc.cast(codes, pa.string()), "\x01")
-    labels_s = pc.fill_null(pc.cast(labels, pa.string()), "\x01")
-    pairs = pc.binary_join_element_wise(codes_s, labels_s, "\x00")
-    if isinstance(pairs, pa.ChunkedArray):
-        pairs = pairs.combine_chunks()
-    encoded = pc.dictionary_encode(pairs)
+    from .lookups import dictionary_of, expand
+
+    code_values, code_at = dictionary_of(pc.cast(codes, pa.string()))
+    label_values, label_at = dictionary_of(pc.cast(labels, pa.string()))
+    no_code, no_label = len(code_values), len(label_values)
+    width = no_label + 1
+    pair_at = pc.add(
+        pc.multiply(pc.cast(pc.fill_null(code_at, no_code), pa.int64()), width),
+        pc.cast(pc.fill_null(label_at, no_label), pa.int64()),
+    )
+    pairs, indices = dictionary_of(pair_at)
+    distinct_codes, distinct_labels = code_values.to_pylist(), label_values.to_pylist()
     shown_values: list[str | None] = []
-    for pair in encoded.dictionary.to_pylist():
-        code, _, label = pair.partition("\x00")
-        code_v = None if code == "\x01" else code
-        label_v = None if label == "\x01" else label
+    for pair in pairs.to_pylist():
+        code_at_pair, label_at_pair = divmod(pair, width)
+        code_v = None if code_at_pair == no_code else distinct_codes[code_at_pair]
+        label_v = None if label_at_pair == no_label else distinct_labels[label_at_pair]
         if shown and code_v is not None:
             code_v = shown.get(code_v, code_v)
         shown_values.append(_render_value(code_v, label_v, p))
-    return pc.take(pa.array(shown_values, type=pa.string()), encoded.indices)
+    return expand(pa.array(shown_values, type=pa.string()), indices)
 
 
 def _render_value(code: object, label: object, p: Presentation) -> str | None:

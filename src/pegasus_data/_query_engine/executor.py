@@ -280,6 +280,7 @@ def query(
             )
             tables.append(_with_competence(local_table, local_report))
             source_reports.append(local_report)
+            del local_table      # the list holds the table from here: a name left bound keeps its columns to the end
         finally:
             cat.close()
     fetch_years: tuple[int, ...] | tuple[None, ...] = retrieval.fetch_years
@@ -323,6 +324,7 @@ def query(
             )
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
+            del fetched_table
             if not fetched_report.is_complete:
                 gaps = sum(len(v) for v in fetched_report.excluded.values())
                 message = (
@@ -334,6 +336,9 @@ def query(
     if not tables:
         raise FileNotFoundError("the retrieval plan found neither complete local coverage nor fetchable years")
     table = tables[0] if len(tables) == 1 else pa.concat_tables(tables, promote_options="default")
+    # `table` is the one holder from here: the reading's own table, with every column the answer will drop (SNGPC-IND
+    # 2014's `_source_path` is 5.4 of its 6 GB), was kept to the end of the query by this list
+    tables.clear()
     table = _with_source_resolution(table, retrieval.year_resolutions)
     source_report: Any = source_reports[0] if len(source_reports) == 1 else source_reports
     report.source_report = source_report
