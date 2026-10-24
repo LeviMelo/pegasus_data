@@ -527,6 +527,7 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `sidra/planner.py`: a `Selection` checked against the registry and cut into requests under the measured limits (values, ID-list text, URL length).
 - `sidra/store.py`: the long fact store: one Parquet part per request under `<lake>/sidra/facts/`, with IBGE's markers as `status` and provenance in each part's footer.
 - `sidra/session.py`: `Sidra`, the registry, the client and the store behind one object: `describe`, `selection`, `plan`, `fetch`, `slice`, `labelled`.
+- `sidra/notes.py`: what a table's numbers rest on, `basis` (universe, sample, mixed by period, unknown): IBGE's note declared in `curation/sidra/notes.yml` (the notes are behind a bot check the client does not pass), else the table's precision variables, else unknown; read by `describe`, `labelled` and `build_series` (ADR-0206).
 - `sidra/series.py`: series stitched across tables and vintages (`curation/sidra/series.yml`, `axes.yml`): canonical axes, both claims kept where sources overlap, checks against each table's own totals, a declared `comparability` and `gaps` (`--report`), and `series_values`, the one door by which a series becomes a context field (census series 2000/2010/2022: sanitation, literacy, race, urban population, income bands).
 - `sidra/lineage.py`: roll-ups to IPEA's minimum comparable areas across municipal creations; non-counts refused.
 - `sidra/population.py`: the Census as the population series `CENSO`, a projection of the stitched series `population_age_sex`.

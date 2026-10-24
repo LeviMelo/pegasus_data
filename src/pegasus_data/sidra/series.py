@@ -19,6 +19,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from .notes import basis
 from .session import Sidra
 
 __all__ = ["axis_map", "build_series", "check_axes", "declared_series", "fetch_series", "series_report", "series_values", "validate_series"]
@@ -135,8 +136,9 @@ def _sum_over(table: pa.Table, keys: list[str]) -> pa.Table:
 
 
 def build_series(sidra: Sidra, name: str, only: list[str] | None = None) -> pa.Table:
-    """The series as one long table: locality, level, period, canonical axes, measure (numerator or denominator,
-    where a series has both), value, status, unit, source, role, priority, selected. Built from stored facts only."""
+    """The series as one long table: locality, level, period, canonical axes, basis (universe or sample, from the source
+    table's note: `sidra.notes`), measure (numerator or denominator, where a series has both), value, status, unit, source,
+    role, priority, selected. Built from stored facts only."""
     sources = _sources(name, only)
     parts: list[pa.Table] = []
     axes_all = sorted({a for s in sources for a in (s.get("dims") or {})})
@@ -155,6 +157,9 @@ def build_series(sidra: Sidra, name: str, only: list[str] | None = None) -> pa.T
                 cols[axis] = pa.nulls(facts.num_rows, pa.string())
         n = facts.num_rows
         unit = next((v["unit"] for v in sidra.registry.variables(table) if v["id"] == variable), None)
+        stated = basis(table, sidra.registry)            # universe or sample, by period where the source's note says so
+        per_period = stated["by_period"] or {}
+        cols["basis"] = pa.array([per_period.get(str(p), stated["basis"]) for p in facts.column("period").to_pylist()], pa.string())
         cols.update(measure=pa.array([source.get("measure", "value")] * n, pa.string()), value=facts.column("value"), status=facts.column("status"),
                     unit=pa.array([unit] * n, pa.string()), source=pa.array([source["id"]] * n, pa.string()),
                     table=pa.array([table] * n, pa.int32()), variable=pa.array([variable] * n, pa.int32()),

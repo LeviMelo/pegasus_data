@@ -1,0 +1,494 @@
+# What each SIDRA table's numbers rest on, from IBGE's own note (sidra/notes.py, ADR-0206).
+# IBGE's notes are at https://apisidra.ibge.gov.br/desctabapi.aspx?c=<table>, behind a Cloudflare check the library does
+# not pass: they were read in a browser on `read`; `updated` is the table's own "Última atualização". `evidence` is IBGE's
+# passage, verbatim (its numbering dropped); `basis` universe or sample, or `by_period` where the note gives each census its
+# own. A table that publishes CVs or confidence intervals needs no entry: it is a sample estimate by its variables.
+
+tables:
+  21:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Produto Interno Bruto dos Municípios is not the Census's universe or sample"
+    read: 2026-10-24
+  136:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  197:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  200:
+    by_period:
+      1970: sample
+      1980: sample
+      1991: universe
+      2000: sample
+      2010: sample
+    evidence: "Para o ano de 1991, dados do Universo. Para os demais anos, dados da Amostra"
+    updated: 2017-10-11
+    read: 2026-10-24
+  202:
+    by_period:
+      1970: sample
+      1980: sample
+      1991: universe
+      2000: universe
+      2010: universe
+    evidence: "Para os anos de 1970 e 1980: 1 - Dados da Amostra. Para os anos de 1991, 2000 e 2010: [...] 6 - Dados do Universo"
+    updated: 2019-02-01
+    read: 2026-10-24
+  206:
+    by_period:
+      1970: sample
+      1980: sample
+      1991: universe
+      2000: sample
+      2010: sample
+    evidence: "Para 1970 e 1980: 1 - Os dados são do amostra. Para 1991: 1 - Os dados são do universo. Para 2000: 1 - Os dados são dos primeiros resultados da amostra. Para 2010: 1 - Os dados são da amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  354:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  367:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  368:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  616:
+    by_period:
+      1991: sample
+      2000: sample
+      2010: sample
+    evidence: "Para 1991: Os dados são da Amostra. Para 2000: Os dados são dos Primeiros Resultados da Amostra. Para 2010: Os dados são da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  704:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  1238:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  1241:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  1242:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  1365:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  1436:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2016-10-26
+    read: 2026-10-24
+  1437:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2020-02-27
+    read: 2026-10-24
+  1439:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2016-10-26
+    read: 2026-10-24
+  1495:
+    basis: sample
+    evidence: "Dados dos Resultados Gerais da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  1552:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2020-10-29
+    read: 2026-10-24
+  1554:
+    basis: sample
+    evidence: "Dados dos Resultados Gerais da Amostra"
+    updated: 2020-04-27
+    read: 2026-10-24
+  1685:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Cadastro Central de Empresas is not the Census's universe or sample"
+    read: 2026-10-24
+  1699:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2019-02-01
+    read: 2026-10-24
+  2035:
+    basis: sample
+    evidence: "Os dados são dos Primeiros resultados da amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2065:
+    basis: sample
+    evidence: "Dados dos Resultados Gerais da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2093:
+    basis: sample
+    evidence: "Os dados são da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2111:
+    basis: sample
+    evidence: "Os dados são da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2426:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2573:
+    basis: sample
+    evidence: "Dados da amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  2609:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  2683:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Estatísticas do Registro Civil is not the Census's universe or sample"
+    read: 2026-10-24
+  2987:
+    basis: sample
+    evidence: "Dados da amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3154:
+    basis: universe
+    evidence: "Os dados são dos Resultados Preliminares do Universo"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3155:
+    basis: universe
+    evidence: "Os dados são dos Resultados Preliminares do Universo"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3156:
+    basis: universe
+    evidence: "Os dados são dos Resultados Preliminares do Universo"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3218:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2019-05-02
+    read: 2026-10-24
+  3425:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3426:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3547:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2020-04-27
+    read: 2026-10-24
+  3563:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2020-04-16
+    read: 2026-10-24
+  3571:
+    basis: sample
+    evidence: "Os dados são da Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3572:
+    basis: sample
+    evidence: "Dados da  Amostra"
+    updated: 2020-04-27
+    read: 2026-10-24
+  3578:
+    basis: sample
+    evidence: "Dados da Amostra"
+    updated: 2020-04-16
+    read: 2026-10-24
+  3579:
+    basis: sample
+    evidence: "Dados da  Amostra"
+    updated: 2016-10-26
+    read: 2026-10-24
+  3606:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Fundações Privadas e Associações Sem Fins Lucrativos is not the Census's universe or sample"
+    read: 2026-10-24
+  3612:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Fundações Privadas e Associações Sem Fins Lucrativos is not the Census's universe or sample"
+    read: 2026-10-24
+  4714:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2026-05-07
+    read: 2026-10-24
+  5938:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Produto Interno Bruto dos Municípios is not the Census's universe or sample"
+    read: 2026-10-24
+  6326:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6450:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Cadastro Central de Empresas is not the Census's universe or sample"
+    read: 2026-10-24
+  6579:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Estimativas de População is not the Census's universe or sample"
+    read: 2026-10-24
+  6803:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6804:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6805:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6806:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6892:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-02-23
+    read: 2026-10-24
+  6916:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Fundações Privadas e Associações Sem Fins Lucrativos is not the Census's universe or sample"
+    read: 2026-10-24
+  6917:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Fundações Privadas e Associações Sem Fins Lucrativos is not the Census's universe or sample"
+    read: 2026-10-24
+  7460:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  7461:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  7483:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  7500:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Pesquisa Nacional de Saneamento Básico is not the Census's universe or sample"
+    read: 2026-10-24
+  8176:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-03
+    read: 2026-10-24
+  9509:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Cadastro Central de Empresas is not the Census's universe or sample"
+    read: 2026-10-24
+  9514:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2023-12-22
+    read: 2026-10-24
+  9515:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-03-21
+    read: 2026-10-24
+  9517:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  9528:
+    basis: unknown
+    why: "IBGE's note (read 2026-10-24) states no basis; Cadastro Central de Empresas is not the Census's universe or sample"
+    read: 2026-10-24
+  9543:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-17
+    read: 2026-10-24
+  9578:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-14
+    read: 2026-10-24
+  9605:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-01-29
+    read: 2026-10-24
+  9606:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-01-29
+    read: 2026-10-24
+  9718:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2023-12-22
+    read: 2026-10-24
+  9723:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-14
+    read: 2026-10-24
+  9764:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-03
+    read: 2026-10-24
+  9765:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-05-03
+    read: 2026-10-24
+  9860:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-11-08
+    read: 2026-10-24
+  9923:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-12-02
+    read: 2026-10-24
+  9931:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-25
+    read: 2026-10-24
+  9933:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-25
+    read: 2026-10-24
+  9935:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-25
+    read: 2026-10-24
+  9936:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-25
+    read: 2026-10-24
+  9952:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2024-12-19
+    read: 2026-10-24
+  10061:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10062:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10075:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10076:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10077:
+    basis: sample
+    evidence: "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10089:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2026-06-08
+    read: 2026-10-24
+  10141:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10142:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10211:
+    basis: universe
+    evidence: "Dados do Universo"
+    updated: 2025-07-11
+    read: 2026-10-24
+  10280:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10289:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10292:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10295:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10296:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10300:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24
+  10381:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-24

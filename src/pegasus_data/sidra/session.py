@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -63,8 +64,13 @@ class Sidra:
         return tab
 
     def describe(self, table: int) -> dict[str, Any]:
+        """The table's registry row, what its numbers rest on (``basis``: universe, sample, mixed by period or unknown,
+        with IBGE's passage; `sidra.notes`), its variables and classifications."""
+        from .notes import basis
+
         tab = self.ensure(table)
-        return {**tab, "variables": self.registry.variables(table), "classifications": self.registry.classifications(table)}
+        return {**tab, "basis": basis(table, self.registry), "variables": self.registry.variables(table),
+                "classifications": self.registry.classifications(table)}
 
     def periods(self, table: int) -> list[str]:
         self.ensure(table)
@@ -239,8 +245,10 @@ class Sidra:
         return facts
 
     def labelled(self, table: int, **filters: Any) -> pa.Table:
-        """The stored facts with the registry's words joined on: ``variable_name``, ``unit``, ``kind``, and for
-        each classification ``c<id>_label`` and ``c<id>_total`` (is this IBGE's Total of that classification).
+        """The stored facts with the registry's words joined on: ``variable_name``, ``unit``, ``kind``, ``basis`` (universe
+        or sample, per period where it changes; unknown where IBGE's note was not read or says nothing) with the table's
+        `sidra.notes.basis` in the schema metadata (``pegasus.basis``), and for each classification ``c<id>_label`` and
+        ``c<id>_total`` (is this IBGE's Total of that classification).
         Labels are joined here and never stored in the lake."""
         import pyarrow.compute as pc
 
@@ -250,7 +258,16 @@ class Sidra:
                 raise LookupError(f"table {table}: {position.null_count} facts carry a code the registry does not know")
             return pc.take(values, position)
 
+        from .notes import basis
+
         facts = self.facts(table, **filters)
+        # what each fact rests on, by its period where the table's note gives each census its own; never assumed a count
+        stated = basis(table, self.registry)
+        periods = facts.column("period").to_pylist()
+        per_period = stated["by_period"] or {}
+        facts = facts.append_column("basis", pa.array([per_period.get(str(p), stated["basis"]) for p in periods], pa.string()))
+        facts = facts.replace_schema_metadata({**(facts.schema.metadata or {}),
+                                               b"pegasus.basis": json.dumps(stated, ensure_ascii=False).encode("utf-8")})
         variables = self.registry.variables(table)
         ids = [v["id"] for v in variables]
         for source, name in (("name", "variable_name"), ("unit", "unit"), ("kind", "kind")):

@@ -853,6 +853,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 
 ### 6.4 SIDRA, the aggregates API v3 (measured 2026-10-05 through `sidra/`)
 
+- **Table notes** (2026-10-24, ADR-0206): not in `/metadados`. `apisidra.ibge.gov.br/desctabapi.aspx?c=<t>` and `sidra.ibge.gov.br/Ajax/JSon/Tabela/1/<t>` (`Notas`) answer 403 with Cloudflare's "Just a moment..." to httpx (any headers, any TLS context) and to curl's own agent; a browser gets 200. The note is where a table says "Dados do Universo", "Dados da Amostra" or "Dados dos Resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares" (Census 2022), sometimes per census year (200, 202, 206).
+
 - **The catalog.** `GET /agregados` (1.95 MB) lists 9,336 tables of 70 researches; `?nivel=N6` selects 4,448 and
   `?nivel=N3` 6,269. A table's `/metadados` gives its variables with units, its classifications with every category
   (`nivel` 0 is the Total), its frequency, first and last period and territorial levels (median 5 KB, 0.7 s).

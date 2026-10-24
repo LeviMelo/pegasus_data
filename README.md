@@ -243,7 +243,7 @@ age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardise
   before yesterday, by population or area, every vintage kept) is read with `pegasus-data climate-update`, daily.
 - **SIDRA**, IBGE's whole aggregates catalog (9,336 tables), through one interface: `pegasus-data sidra search esgoto --level N6`,
   `sidra show 6805`, `sidra fetch 6805 -p 2022 -c 11558=all`, then `Sidra().labelled(6805)` for the facts with labels and
-  IBGE's marks as a status. Series across censuses (`Sidra().series("population_age_sex")`) keep both claims where tables overlap (ADR-0142).
+  IBGE's marks as a status. `Sidra().describe(t)["basis"]` (and a `basis` column in `labelled`) says whether a table is the Census universe or a sample estimate, from IBGE's note or the table's CV variables (ADR-0206). Series across censuses (`Sidra().series("population_age_sex")`) keep both claims where tables overlap (ADR-0142).
 - **Quality flags** say which values not to take at face value. SIH race
   code 04 is a default or a swapped code in some hospitals (ADR-0128).
 
