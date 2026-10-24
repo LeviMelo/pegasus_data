@@ -7,7 +7,7 @@ Every graph is ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes:
   shores are not borders. Built once, shipped (``proximity.parquet``).
 * ``population_distance``: the population-weighted mean great-circle distance
   in km between the people of two municipalities, from IBGE's Grade
-  Estatística 2022 summed into its 5 km cells (ADR-0202), for each
+  Estatística 2022 summed into its 5 km cells (ADR-0203), for each
   municipality's 30 nearest and its neighbours. Shipped.
 * ``regic_network``, ``regic_health_basic``, ``regic_health_high``: IBGE's
   REGIC 2018 links between cities (a municipality, or the core municipality
@@ -106,7 +106,7 @@ def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, grade_root:
 
     # Where each municipality's people are: the Grade Estatística 2022's people (CNEFE's household coordinates) summed
     # into the grade's own 5 km cells, each part of a cell inside a municipality at the population-weighted centre of
-    # its 200 m / 1 km cells (ADR-0202). Distances are great circles between those centres.
+    # its 200 m / 1 km cells (ADR-0203). Distances are great circles between those centres.
     from .geography import great_circle_km
     from .sources.ibge_grade import population_points
 

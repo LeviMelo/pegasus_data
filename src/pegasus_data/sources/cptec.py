@@ -1,5 +1,5 @@
 """CPTEC/INPE's daily gridded weather, MERGE and SAMeT, as municipal means by area and by population, kept by vintage
-(ADR-0203).
+(ADR-0204).
 
 **The products** (``https://ftp.cptec.inpe.br/modelos/tempo/``, read 2026-10-24):
 

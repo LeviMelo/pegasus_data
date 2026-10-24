@@ -1,4 +1,4 @@
-"""The Census 2022 by tract: who lives in each census tract, by sex and age, as IBGE publishes it (ADR-0202).
+"""The Census 2022 by tract: who lives in each census tract, by sex and age, as IBGE publishes it (ADR-0203).
 
 **The product** (IBGE, *Agregados por Setores Censitários*, ``SOURCE``; dictionary of 2026-05-20): one CSV per theme
 for Brazil's 472,780 tracts. Two are read:

@@ -798,7 +798,7 @@ def iter_pack(pack_path: str | Path | None = None) -> Iterable[Mapping[str, str]
 # - the seat, IBGE's Localidades 2022 point for the municipal seat;
 # - the population centre, the population-weighted median of the Grade
 #   Estatística 2022's cells (a median, so a far district cannot drag it into
-#   empty land; ADR-0202);
+#   empty land; ADR-0203);
 # - the polygon centroid, kept only to measure against.
 
 POINTS_PACK_NAME = "municipality_points.parquet"
@@ -897,7 +897,7 @@ def build_municipality_points(out_path: str | Path, *, localities: str | Path, m
     loc = gpd.read_file(localities)
     seats = loc[loc["SCT_LOCALIDADE"].isin(_SEAT_CATEGORIES)][["CD_MUN", "geometry"]].drop_duplicates("CD_MUN")
     seats = seats.set_index(seats["CD_MUN"].astype(str))["geometry"]
-    # The people: the grade's 200 m / 1 km cells, placed by CNEFE 2022's household coordinates (ADR-0202). The
+    # The people: the grade's 200 m / 1 km cells, placed by CNEFE 2022's household coordinates (ADR-0203). The
     # population-weighted MEDIAN of the cells' centres, coordinate by coordinate in the grade's equal-area projection.
     # A weighted mean is pulled by a far district into empty land: Altamira's landed 94 km from the town, drawn by
     # Castelo de Sonhos about 900 km south.

@@ -37,7 +37,7 @@ def geography(
     identity), TabNet's current territorial tables (health macroregion, the
     current health regions) and IPEA's comparable areas. Maintainer step; the result ships as
     ``resources/geography.parquet``, with the points pack and the proximity graphs rebuilt from the Grade Estatística
-    (`pegasus-data grade` first; ADR-0202).
+    (`pegasus-data grade` first; ADR-0203).
     """
     from importlib.resources import files
 
@@ -68,7 +68,7 @@ def grade(
     as_json: JsonOpt = False,
 ) -> None:
     """Build IBGE's Grade Estatística 2022 (people and households on 200 m / 1 km cells) with each cell's municipalities,
-    into registries/ibge_grade/ (ADR-0202). Checked against the totals IBGE publishes for it."""
+    into registries/ibge_grade/ (ADR-0203). Checked against the totals IBGE publishes for it."""
     from ..sources import ibge_grade
 
     settings = _writer(root)
@@ -83,7 +83,7 @@ def tracts(
     as_json: JsonOpt = False,
 ) -> None:
     """Read IBGE's Census 2022 tract tables (identity and counts; residents by sex and age band, a suppressed count null)
-    into registries/ibge_tracts/, and measure what suppression leaves out (ADR-0202)."""
+    into registries/ibge_tracts/, and measure what suppression leaves out (ADR-0203)."""
     from ..sources import ibge_tracts
 
     settings = _writer(root)
@@ -101,7 +101,7 @@ def climate_update(
     as_json: JsonOpt = False,
 ) -> None:
     """Read CPTEC's daily MERGE precipitation and SAMeT temperatures into municipal means by population and by area,
-    keeping every vintage (ADR-0203): files not yet held, or listed with another time than the one held, are read. Run it
+    keeping every vintage (ADR-0204): files not yet held, or listed with another time than the one held, are read. Run it
     daily to keep SAMeT's provisional days."""
     import datetime as dt
 

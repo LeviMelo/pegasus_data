@@ -41,6 +41,7 @@ products it recomputes. Their deletion was refused by the session's permission c
   whole label pack, so a CIH label fix re-keyed every dataset. The key is being narrowed to what a role table reads, and
   then the runs must be re-made.
 ## Population support and daily climate (2026-10-24, ADR-0202, ADR-0203; gaps found by nees-gt-ms)
+## Population support and daily climate (2026-10-24, ADR-0203, ADR-0204; gaps found by nees-gt-ms)
 
 - **Where people are.** IBGE's Grade Estatística 2022 is served (`pegasus-data grade`, `grade_cells`): 14.1 million
   cells of 200 m / 1 km with people and households, each with its municipalities; it equals IBGE's published totals. It is

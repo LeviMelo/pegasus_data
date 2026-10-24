@@ -1,4 +1,4 @@
-"""IBGE's Grade Estatística 2022: where Brazil's people live, on a regular equal-area grid (ADR-0202).
+"""IBGE's Grade Estatística 2022: where Brazil's people live, on a regular equal-area grid (ADR-0203).
 
 **The product** (IBGE, Notas metodológicas 01/2025, Grade Estatística; ``SOURCE`` below): 14,127,809 square cells in
 the Albers equal-area projection on SIRGAS 2000 (central meridian −54°, origin −12°, standard parallels −2° and −22°,

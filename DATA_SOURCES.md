@@ -827,7 +827,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `rl_procedimento_cid` has 82,103 procedure–code pairs; toxoplasma serology (0202030768 IgG, 0202030873 IgM,
   0202110150 heel-prick IgM) is tied to no code there and is found by its label.
 
-### 6.3a Census 2022 below the municipality: the Grade Estatística, tract aggregates, CNEFE (read 2026-10-24; ADR-0202)
+### 6.3a Census 2022 below the municipality: the Grade Estatística, tract aggregates, CNEFE (read 2026-10-24; ADR-0203)
 
 - **Grade Estatística 2022** (`geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/`, Notas
   metodológicas 01/2025): 56 zipped shapefiles `grade_estatistica/grade_idNN.zip` (711 MB), also `grade_1km` to `grade_500km`;
@@ -935,7 +935,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   at most (2010), 341 in 2023.
 - **Needs an account, so out:** ERA5 through the Copernicus CDS; Google Earth Engine's BR-DWGD and ERA5-Land assets.
 - **CPTEC/INPE's daily grids** (`https://ftp.cptec.inpe.br/modelos/tempo/`, an Apache index, browser UA, 1.6-2.3 MB/s a connection;
-  read 2026-10-24, ADR-0203). **MERGE** `MERGE/GPM/DAILY/<yyyy>/<mm>/MERGE_CPTEC_<yyyymmdd>.grib2` (about 0.43 MB, with a GrADS
+  read 2026-10-24, ADR-0204). **MERGE** `MERGE/GPM/DAILY/<yyyy>/<mm>/MERGE_CPTEC_<yyyymmdd>.grib2` (about 0.43 MB, with a GrADS
   `.ctl` and `.idx`), 1998-01-01 to the day before yesterday (2026-10-23 listed at 02:38 on the 24th); two GRIB2 messages, PREC
   (eccodes names it `rdp`, the `.ctl` `PREC 0,1 0,15,5`, mm) and NEST (gauges per grid point; eccodes `prmsl`; 9999 where none);
   1001 × 924 points, −120.05 to −20.05° E, −60.05 to 32.25° N, 0.1°, south to north; the day is the 24 h ending 12 UTC of its date

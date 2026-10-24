@@ -1,4 +1,4 @@
-"""Validate CPTEC's daily MERGE and SAMeT municipal series (ADR-0203) against BR-DWGD and INMET's stations.
+"""Validate CPTEC's daily MERGE and SAMeT municipal series (ADR-0204) against BR-DWGD and INMET's stations.
 
 Three checks, each written to ``--out`` (JSON):
 
@@ -41,27 +41,27 @@ def _stats(con, value: str, reference: str, table: str, where: str = "TRUE", gro
     return dict(zip(fields, rows[0], strict=True))
 
 
-def against_brdwgd(root: Path, settings) -> dict:  # type: ignore[no-untyped-def]
+def against_brdwgd(root: Path, settings, names=("tmax", "tmin", "precipitation")) -> dict:  # type: ignore[no-untyped-def]
     import duckdb
 
     from pegasus_data.sources import brdwgd, cptec
 
     months, release = brdwgd.municipality_months(root / "registries" / "brdwgd")
-    daily = cptec.daily(("precipitation", "tmax", "tmin"), start="2000-01-01", end="2024-02-29", weight="area", settings=settings)
+    daily = cptec.daily(list(names), start="2000-01-01", end="2024-02-29", weight="area", settings=settings)
     con = duckdb.connect()
     con.register("bm", months)
     con.register("d", daily)
-    con.execute("""CREATE TABLE c AS SELECT municipality7, year(date) AS year, month(date) AS month, count(*) AS days,
-            avg(tmax) AS tmax, avg(tmin) AS tmin, sum(precipitation) AS precipitation, count(tmax) AS t_days, count(precipitation) AS p_days
-        FROM d GROUP BY ALL""")
-    con.execute("""CREATE TABLE j AS SELECT c.*, b.tmax_sum / b.days AS b_tmax, b.tmin_sum / b.days AS b_tmin,
-            b.precipitation_mm_sum AS b_precipitation
+    mean = {"tmax": "avg", "tmin": "avg", "precipitation": "sum"}
+    aggregates = ", ".join(f"{mean[n]}({n}) AS {n}, count({n}) AS {n}_days" for n in names)
+    con.execute(f"CREATE TABLE c AS SELECT municipality7, year(date) AS year, month(date) AS month, {aggregates} FROM d GROUP BY ALL")
+    reference = {"tmax": "b.tmax_sum / b.days", "tmin": "b.tmin_sum / b.days", "precipitation": "b.precipitation_mm_sum"}
+    complete = " AND ".join(f"c.{n}_days = b.days" for n in names)
+    con.execute(f"""CREATE TABLE j AS SELECT c.*, {', '.join(f'{reference[n]} AS b_{n}' for n in names)}
         FROM c JOIN bm b USING (municipality7, year, month)
-        WHERE b.days = date_diff('day', make_date(year, month, 1), make_date(year, month, 1) + INTERVAL 1 MONTH)
-          AND c.t_days = b.days AND c.p_days = b.days""")
+        WHERE b.days = date_diff('day', make_date(year, month, 1), make_date(year, month, 1) + INTERVAL 1 MONTH) AND {complete}""")
     out: dict = {"brdwgd_release": {k: release[k] for k in ("record", "version", "published")},
                  "municipality_months": con.execute("SELECT count(*), count(DISTINCT municipality7) FROM j").fetchone()}
-    for name in ("tmax", "tmin", "precipitation"):
+    for name in names:
         value, reference = name, f"b_{name}"
         out[name] = {"pooled": _stats(con, value, reference, "j"),
                      "by_region": _stats(con, value, reference, "j", group="substr(municipality7, 1, 1)"),
@@ -90,7 +90,7 @@ def _station_days(root: Path, year: int):  # type: ignore[no-untyped-def]
     return con.execute("SELECT * FROM (" + " UNION ALL ".join(parts) + f") WHERE year(date) = {year}").to_arrow_table()
 
 
-def against_stations_and_store(root: Path, settings, year: int) -> dict:  # type: ignore[no-untyped-def]
+def against_stations_and_store(root: Path, settings, year: int, variables=VARIABLES) -> dict:  # type: ignore[no-untyped-def]
     import duckdb
     import numpy as np
     import pandas as pd
@@ -102,9 +102,9 @@ def against_stations_and_store(root: Path, settings, year: int) -> dict:  # type
     catalog = pd.read_csv(root / "registries" / "inmet" / "inmet_autoh_catalog.csv", sep=";")
     lon_s, lat_s = catalog["station_x"].to_numpy(float), catalog["station_y"].to_numpy(float)
     samples, consistency = [], {}
-    stored = cptec.daily(VARIABLES, start=f"{year}-01-01", end=f"{year}-12-31", weight="area", settings=settings).to_pandas()
-    stored_pop = cptec.daily(VARIABLES, start=f"{year}-01-01", end=f"{year}-12-31", weight="population", settings=settings).to_pandas()
-    for variable in VARIABLES:
+    stored = cptec.daily(variables, start=f"{year}-01-01", end=f"{year}-12-31", weight="area", settings=settings).to_pandas()
+    stored_pop = cptec.daily(variables, start=f"{year}-01-01", end=f"{year}-12-31", weight="population", settings=settings).to_pandas()
+    for variable in variables:
         product = cptec.PRODUCTS[variable]
         files = [f for m in range(1, 13) for f in cptec.listing(product, year, m)]
         state: dict = {}
@@ -113,8 +113,12 @@ def against_stations_and_store(root: Path, settings, year: int) -> dict:  # type
         def read(entry, product=product):  # type: ignore[no-untyped-def]
             return entry, cptec.read_file(product, request(entry["url"], interval=cptec.INTERVAL, timeout=300).content)
 
+        stored_by_day = {w: {d: g.set_index("municipality7")[variable] for d, g in f.groupby("date")}
+                         for w, f in (("area", stored), ("population", stored_pop))}
         with ThreadPoolExecutor(max_workers=cptec.WORKERS) as pool:
-            for entry, (value, stations, lon, lat) in pool.map(read, files):
+            for n, (entry, (value, stations, lon, lat)) in enumerate(pool.map(read, files)):
+                if n % 30 == 0:
+                    print(variable, entry["date"], flush=True)
                 if "weights" not in state:
                     state["weights"] = cptec.grid(settings, lon, lat)
                     j = np.floor((lon_s - (lon[0] - (lon[1] - lon[0]) / 2)) / (lon[1] - lon[0])).astype(int)
@@ -124,8 +128,8 @@ def against_stations_and_store(root: Path, settings, year: int) -> dict:  # type
                 samples.append(pd.DataFrame({"station_id": catalog["station_id"], "date": entry["date"], "variable": variable,
                                              "grid": value[i, j], "grid_stations": stations[i, j]}))
                 reduced = state["weights"].reduce(value, stations)
-                for weight, frame in (("area", stored), ("population", stored_pop)):
-                    day = frame[frame["date"] == pd.Timestamp(entry["date"]).date()].set_index("municipality7")[variable]
+                for weight in ("area", "population"):
+                    day = stored_by_day[weight][entry["date"]]
                     mine = pd.Series(reduced[f"value_{weight}"], index=state["weights"].municipalities).reindex(day.index)
                     worst[weight] = max(worst[weight], float(np.nanmax(np.abs(mine.to_numpy() - day.to_numpy()))))
         consistency[variable] = {"files": len(files), "max_abs_difference": worst}
@@ -135,7 +139,7 @@ def against_stations_and_store(root: Path, settings, year: int) -> dict:  # type
     con.register("g", grid)
     con.register("s", station)
     out: dict = {"store_against_its_files": consistency, "windows": {}}
-    for variable in VARIABLES:
+    for variable in variables:
         hours = "p_hours" if variable == "precipitation" else "t_hours"
         out["windows"][variable] = {}
         for window in ("utc_day", "local_day", "ends_12utc"):
@@ -154,12 +158,14 @@ def main() -> None:
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--year", type=int, default=2023)
     parser.add_argument("--skip-files", action="store_true", help="only the BR-DWGD comparison (no download)")
+    parser.add_argument("--variables", default="tmax,tmin,precipitation", help="the BR-DWGD comparison's variables")
+    parser.add_argument("--station-variables", default=",".join(VARIABLES), help="the station and store checks' variables")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     settings = load_settings(root=args.root)
-    result = {"run": dt.datetime.now(dt.UTC).isoformat(), "brdwgd": against_brdwgd(args.root, settings)}
+    result = {"run": dt.datetime.now(dt.UTC).isoformat(), "brdwgd": against_brdwgd(args.root, settings, tuple(args.variables.split(",")))}
     if not args.skip_files:
-        result["stations"] = against_stations_and_store(args.root, settings, args.year)
+        result["stations"] = against_stations_and_store(args.root, settings, args.year, tuple(args.station_variables.split(",")))
     text = json.dumps(result, indent=1, default=str)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

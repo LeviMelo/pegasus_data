@@ -1,4 +1,4 @@
-# ADR-0202: IBGE's Grade Estatística 2022 is where people are, and every population weight is read from it
+# ADR-0203: IBGE's Grade Estatística 2022 is where people are, and every population weight is read from it
 
 2026-10-24. Status: active. Replaces the tract-derived 5 km grid of `proximity.build_proximity_graphs` and the tract points
 of `geography.build_municipality_points`.
@@ -27,7 +27,7 @@ household's CNEFE coordinate (levels 1-4; 56,229 people at levels 5-6 left out).
    in); a cell outside every polygon with people in it goes to the nearest municipality, marked `placed = nearest`.
 3. **One weight for everything that weighs by people:** the points pack's population centre is the weighted median of
    the grade's cells, the population distance graph uses the grade's 5 km cells at the population-weighted centre of their
-   native cells (great-circle distances), and the climate products weigh grid cells by the grade (ADR-0203). The area
+   native cells (great-circle distances), and the climate products weigh grid cells by the grade (ADR-0204). The area
    weight of the climate products is the grade's too (cell area × share), so both weights come from one table.
 4. **The grade places people; the census counts them.** A municipality's sum over the grade is where its residents'
    coordinates fall, not the census count of its tracts; a count per municipality is still read from the census.

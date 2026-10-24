@@ -404,7 +404,7 @@ def climate_cmd(
     out: Annotated[Path | None, typer.Option("--out", help="Write .csv or .parquet")] = None,
     root: RootOpt = None,
 ) -> None:
-    """Daily municipal weather from CPTEC's MERGE and SAMeT (ADR-0203), by population or by area, by day or epidemiological week."""
+    """Daily municipal weather from CPTEC's MERGE and SAMeT (ADR-0204), by population or by area, by day or epidemiological week."""
     from ..sources import cptec
 
     names = variable or list(cptec.PRODUCTS)
@@ -430,7 +430,7 @@ def grade_cells_cmd(
     out: Annotated[Path | None, typer.Option("--out", help="Write .csv, .parquet or .gpkg (with the squares)")] = None,
     root: RootOpt = None,
 ) -> None:
-    """IBGE's Grade Estatística 2022: people and households per cell and municipality (ADR-0202)."""
+    """IBGE's Grade Estatística 2022: people and households per cell and municipality (ADR-0203)."""
     from ..sources import ibge_grade
 
     table = ibge_grade.cells(municipality=municipality, uf=uf, resolution=resolution, populated=populated,
