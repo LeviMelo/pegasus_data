@@ -278,7 +278,15 @@ def query(
                 report=True, catalog=cat, _preserve_internal=True, rows=rows, _leave_out=leave_out,
                 partitions=retrieval.lake_partitions, condition=prepared, _condition_state=True,
             )
-            tables.append(_with_competence(local_table, local_report, dict(retrieval.lake_competence)))
+            # the lake's report says where its rows came from as a fetch's does: the source files of the partitions read
+            competence = dict(retrieval.lake_competence)
+            if hasattr(local_report, "source_facts"):
+                local_report.origin = "lake"
+                for partition in retrieval.lake_partitions:
+                    for source in sorted(partition.sources):
+                        local_report.source_facts.setdefault(
+                            source, (partition.family_id, int(partition.year), competence.get(source)))
+            tables.append(_with_competence(local_table, local_report, competence))
             source_reports.append(local_report)
             del local_table      # the list holds the table from here: a name left bound keeps its columns to the end
         finally:

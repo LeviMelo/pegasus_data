@@ -112,6 +112,9 @@ class FetchReport:
     #: source path -> explicit publication precision. This keeps an annual
     #: enclosure distinct from a monthly source whose competence is missing.
     source_resolutions: dict[str, str] = field(default_factory=dict)
+    #: ``"fetch"``: the rows came from the published files (a lake read's report says ``"lake"``, with the same
+    #: ``source_facts``)
+    origin: str = "fetch"
     #: source path -> the file's state (``AC``). A code that means something
     #: only within its state (SIA's pre-2008 UPS establishment codes) is keyed
     #: with it (``key: ["@UF", …]``, ADR-0103).

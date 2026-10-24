@@ -256,15 +256,22 @@ def _exports_behind_native(
     the /SIHSUS/XML/ exports of 2013-2014, not like the 113-field .dbc, and
     counting it native made SIH-RD 2014 refuse as a conflict (2026-10-04).
 
-    That is a guess from the family's membership. When an export of this publication has been read and refused for
+    That is a guess from the family's membership, and about DBF only: a ``.dbc`` is never an export copy (none lies
+    under ``Dados_Abertos``); SINAN-DENG's families hold the Dados Abertos CSVs, and counting its DBCs as exports chose
+    ``DENGBR20.csv.zip`` (with 538,654 discarded notifications and no ``DT_DIGITA``) over ``FINAIS/DENGBR20.dbc``. When an
+    export of this publication has been read and refused for
     its columns (``family_layout_is_native``), the family's layout is known to be the native files', and the guess
     no longer applies: SINAN's families are the DBC's schema with the Dados Abertos exports hung on it, and
     CHIK 2016's CSV carries 38 of the DBC's 122 columns (ADR-0190).
     """
 
     def is_export(row: Mapping[str, Any]) -> bool:
-        return (_representation_kind(row) not in NATIVE_KINDS
-                or (not family_layout_is_native and str(row.get("family_id") or "") in export_families))
+        kind = _representation_kind(row)
+        if kind not in NATIVE_KINDS:
+            return True
+        # the guess is about uncompressed DBF copies (SIH's /SIHSUS/DBF/): a DBC is DATASUS's own compressed file,
+        # never an export (no .dbc lies under Dados_Abertos), and taking SINAN's for exports read DENG 2020 from its CSV
+        return kind != "dbc" and not family_layout_is_native and str(row.get("family_id") or "") in export_families
 
     natives = [row for row in candidates if not is_export(row)]
     if not any(str(row.get("path") or "") not in unreachable for row in natives):

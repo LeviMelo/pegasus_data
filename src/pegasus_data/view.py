@@ -153,9 +153,16 @@ class RenderReport:
     warnings: list[str] = field(default_factory=list)
     tokens_unmatched: dict[str, int] = field(default_factory=dict)
     structural_absence: dict[str, list[str]] = field(default_factory=dict)
+    #: Where the rows came from, as a fetch says it (`retrieve.FetchReport.source_facts`): source file -> (family, year,
+    #: competence YYYYMM or None), filled by ``query`` from the lake partitions it read, so one interface serves both
+    #: paths. ``origin`` is ``"lake"`` there (a `FetchReport` says ``"fetch"``).
+    source_facts: dict[str, tuple[str | None, int | None, int | None]] = field(default_factory=dict)
+    origin: str = ""
 
     def as_dict(self) -> dict[str, object]:
         return {
+            "origin": self.origin,
+            "source_facts": {k: list(v) for k, v in self.source_facts.items()},
             "labelled": self.labelled,
             "unlabelled": self.unlabelled,
             "constant": self.constant,
