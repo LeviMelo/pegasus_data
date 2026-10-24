@@ -206,6 +206,11 @@ class Condition:
 
     def _operand(self, clause: Clause, role: ColumnRole, where: str) -> tuple[float, ...] | tuple[str, ...]:
         """The clause's operand for ``role``, checked against what the role is."""
+        if role.through is not None:
+            raise ValueError(f"{where}: {role.role} ({role.column}) is not filed by {self.dataset}: it is read through the "
+                             f"{role.through.key} key from {role.through.dataset}, after the records are selected, so a "
+                             f"condition cannot test it (`semantics.through`); condition on {role.through.dataset}, or "
+                             "select the column and filter the table")
         raw = clause.value if isinstance(clause.value, tuple) else (clause.value,)
         if _is_number(role):
             if not all(isinstance(v, float) for v in raw):

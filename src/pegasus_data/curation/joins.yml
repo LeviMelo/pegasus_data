@@ -35,6 +35,10 @@ keys:
       - dataset: SIH.RD
         column: N_AIH
         rows_per_key: many
+        # The row that stands for the AIH when another dataset reads RD's columns through this key (`through:` in
+        # curation/roles/SIHSUS-SP.yml, ADR-0199): the principal AIH, IDENT 1, else the first row in file order. The
+        # repeats are long-stay parts of one admission (the measurement below), so one patient's sex and age.
+        principal: {column: IDENT, codes: ["1"]}
         measured: >
           measured 2026-09-30 (OQ-20): nearly one row per AIH, and every repeat is explained by the AIH type (IDENT, ADR-0108). SP 2023-01: 210,225 rows on 210,161 AIHs; the 56 repeated AIHs all carry a long-stay part (IDENT 5) and one admission date: types (1, 5) 39, (5, 5) 9, (1, 5, 5) 8. AC 2023, the whole year: 20 AIHs repeat, 53 extra rows (0.09%), all a principal plus long-stay parts ((1, 5, 5, 5) 14), each within one monthly file. RD 2023 carries types 1 and 5 only (no 3, "continuação"). Count admissions as distinct N_AIH, not rows.
         note: the admission itself, one row per AIH

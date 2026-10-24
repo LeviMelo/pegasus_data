@@ -194,7 +194,8 @@ datasets:
           - {column: SP_PROCREA, role: alternative, structure: SIGTAP}
           - {column: SP_CIDPRI, role: alternative, structure: ICD10}
         note: >-
-          SP records no sex or age: the patient's are in SIH.RD, on the same AIH (SP_NAIH = N_AIH). The tabulation
+          SP records no sex or age: the patient's are in SIH.RD, on the same AIH (SP_NAIH = N_AIH), and SP's roles read
+          them from there when `SEXO` and `IDADE_anos` are selected by name (`through`, ADR-0199). The tabulation
           names SP_ATOPROF "Procedimentos Secundários" and SP_PROCREA "Procedimento Principal" (the admission's).
     asserted_by: pegasus_data
     what_one_row_is: one professional act billed inside an admission, NOT one admission

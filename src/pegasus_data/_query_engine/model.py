@@ -31,6 +31,10 @@ class PartialSourceWarning(UserWarning):
     """Some selected source files did not contribute; the table is short."""
 
 
+class ThroughKeyWarning(UserWarning):
+    """Some rows have no row in the dataset a selected column is read through (ADR-0199): the column is null for them."""
+
+
 @dataclass(frozen=True, slots=True)
 class Period:
     start: int
@@ -189,6 +193,10 @@ class QueryReport:
     #: Under a ``condition``: its clauses and how many records satisfied it (``satisfied``) and how many it could not
     #: decide (``unknown``), after the period (`conditions.settle`); None without one.
     condition: dict[str, Any] | None = None
+    #: Under selected columns read through a key (SIH-SP's sex and age, `semantics.through`): per key and source dataset,
+    #: the rows, how many found a source row and how many did not, the keys, and the source's rows and repeated keys;
+    #: None without one.
+    through: dict[str, dict[str, Any]] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         if isinstance(self.source_report, (list, tuple)):
@@ -214,6 +222,7 @@ class QueryReport:
             "warnings": self.warnings,
             "source_report": source_report,
             **({"condition": self.condition} if self.condition else {}),
+            **({"through": self.through} if self.through else {}),
         }
 
 

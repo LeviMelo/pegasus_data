@@ -14,6 +14,22 @@ columns:
     - 2025
     - 2026
     note: role from SIH-RD
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    through: {key: AIH, dataset: SIH-RD}
+    unit: years
+    unit_evidence: "SP files no age: SIH-RD's, made by the query from its age and unit (ADR-0070, `_age.py`), on the row of the same AIH (curation/joins.yml AIH, ADR-0199)"
+    fact_domain: person
+    fact_domain_evidence: "\"IDADE_anos\" (patient.age_years): attribute of the patient (age, birth, residence, occupation, employer)"
+    note: >-
+      Not filed by SP: the age of the admission's patient in SIH-RD, read through the AIH key when selected by name;
+      a line whose AIH is not in the same period's RD has none.
+    name: Idade em anos
+    years:
+    - 2008
+    - 2026
   IN_TP_VAL:
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (1='valor sh', 2='valor sp', 3='valor do complemento federal - sh', 4='valor do complemento federal - sp'): a code table, not a catch-all; no value labelled as not recorded
@@ -58,6 +74,22 @@ columns:
     - 2026
     codelists:
     - S_CLASSEN
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    through: {key: AIH, dataset: SIH-RD}
+    fact_domain: person
+    fact_domain_evidence: "\"Sexo do paciente\" (patient.sex): attribute of the person (sex)"
+    note: >-
+      Not filed by SP: the sex of the admission's patient in SIH-RD, read through the AIH key when selected by name;
+      a line whose AIH is not in the same period's RD has none.
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 2008
+    - 2026
   SP_AA:
     role: admission.processing_year
     kind: date

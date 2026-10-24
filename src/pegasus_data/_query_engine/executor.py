@@ -15,6 +15,9 @@ import pyarrow as pa
 from ..conditions import CONDITION
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
+from ..semantics.through import attach as attach_through
+from ..semantics.through import describe as describe_through
+from ..semantics.through import split as split_through
 from .coverage import shared_catalog
 from .filters import _filter_source_period, _with_competence, _with_source_resolution
 from .model import (
@@ -23,6 +26,7 @@ from .model import (
     QueryReport,
     QuerySpec,
     StructuralSchemaWarning,
+    ThroughKeyWarning,
     TimeResolutionWarning,
 )
 from .planner import plan
@@ -124,8 +128,11 @@ def query(
     # canonical form (codes + labels), and the presentation is applied last.
     presentation = resolve_presentation(present, default=resolved_settings.presentation)  # type: ignore[arg-type]
     labels = not presentation.codes_only
+    # columns the dataset does not file but reads through a key (SIH-SP's sex and age, SIH-RD's: ADR-0199) are not asked of
+    # its own files; they are attached to what these answer, from the source's files for the same period and geography
+    own_select, through_roles = split_through(dataset, select)
     query_plan = plan(
-        dataset, period=period, geography=geography, select=select, labels=labels,
+        dataset, period=period, geography=geography, select=own_select, labels=labels,
         dimensions=dimensions, enrich=enrich, provenance=provenance,
         resource_policy=resource_policy, time_policy=time_policy,
         allow_unbounded=allow_unbounded,
@@ -409,6 +416,20 @@ def query(
         report.structural_absence, sort_keys=True
     ).encode()
     table = table.replace_schema_metadata(metadata)
+    if through_roles:
+        def read_through(source: str, columns: list[str]) -> pa.Table:
+            # the publications the request names, in the canonical form this table is in; the presentation is applied once, last
+            return query(source, period=period, geography=geography, select=columns,
+                         present="codes" if presentation.codes_only else "analysis", resource_policy=resource_policy,
+                         time_policy=time_policy, allow_unbounded=allow_unbounded, max_download=max_download,
+                         allow_partial=allow_partial, root=root, settings=settings, as_of=as_of, render=render)
+
+        table, report.through = attach_through(table, dataset, through_roles, select or (), read_through)
+        for entry in report.through.values():
+            message = describe_through(entry, query_plan.spec.dataset)
+            if message:                       # rows with no row to read the column from: said, never silently null
+                report.warnings.append(message)
+                warnings.warn(message, ThroughKeyWarning, stacklevel=2)
     state = None
     if _keep_unknown and CONDITION in table.column_names:
         state = table.column(CONDITION)             # row for row, set aside while the presentation reshapes the columns

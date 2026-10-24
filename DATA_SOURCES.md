@@ -259,7 +259,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   admissions as distinct `N_AIH`.
 - **SIH-SP and SIH-RD hold the same AIHs, competence by competence.** 2023-01:
   AC 4,164 = 4,164, SP 210,161 = 210,161, each set equal to the other
-  (these two state-months checked; 2026-09-30).
+  (these two state-months checked; 2026-09-30). Every SP AIH is in the same month's RD in nine more reads of Acre and
+  Roraima, 2008 to 2025 (AC 2008-06, 2010-06, 2013-06, 2016-06, 2019-01, 2023-02, 2023-01 to 03; RR 2023-01,
+  2025-06; 2026-10-24, ADR-0199). On the matched AIH SP's residence, principal diagnosis, admission date and facility
+  equal RD's in every AIH of AC 2008-06, 2013-06 and 2023-01 and RR 2025-06.
 
 - **SINAN publishes each disease-year in exactly one of `DADOS/FINAIS` and
   `DADOS/PRELIM`** (catalog, 2026-09-30):

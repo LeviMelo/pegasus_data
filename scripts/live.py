@@ -449,6 +449,89 @@ def s_timeline() -> dict[str, Any]:
     return {"notable": len(births), "events": kinds, "not_viable": one["not_viable"]}
 
 
+def s_sp_strata() -> dict[str, Any]:
+    """SIH-SP's sex and age, read through the AIH from SIH-RD (ADR-0199), on Acre 2023-01 (override: PEGASUS_SP_PERIOD,
+    PEGASUS_SP_GEO): SP's rows in and out, the SP AIHs RD holds, the SP columns RD repeats (municipality, diagnosis,
+    admission date, facility) read against the matched RD row, a known drop of RD's AIHs, and the sex and age counts."""
+    import pandas as pd
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    from pegasus_data import count_events, query
+    from pegasus_data.semantics.through import attach, split
+
+    period, geo = os.environ.get("PEGASUS_SP_PERIOD", "2023-01"), os.environ.get("PEGASUS_SP_GEO", "AC")
+    where = {"period": period, "geography": geo}
+    own = ["SP_NAIH", "SP_M_PAC", "SP_QT_PROC", "SP_CIDPRI", "SP_DTINTER", "SP_CNES", "SP_U_AIH"]
+    out: dict[str, Any] = {"period": period, "geography": geo}
+
+    before = query("SIHSUS-SP", select=own, present="codes", **where)
+    after, report = query("SIHSUS-SP", select=[*own, "SEXO", "IDADE_anos"], present="analysis", return_report=True, **where)
+    link = report.through["AIH:SIH-RD"]
+    out["rows"] = {"sp_before": before.num_rows, "sp_after": after.num_rows, "equal": before.num_rows == after.num_rows,
+                   "same_order": after.select(own).equals(before.select(own))}
+    out["through"] = link
+    out["labelled"] = {c: round(1 - after.column(c).null_count / after.num_rows, 4)
+                       for c in ("SEXO", "SEXO_label", "IDADE_anos") if c in after.column_names}
+    out["sex_codes"] = {f"{c} {lb}": n for (c, lb), n in
+                        Counter(zip(after["SEXO"].to_pylist(), after["SEXO_label"].to_pylist(), strict=True)).items()}
+
+    # the match is of one admission, not of a coincidence of numbers: the columns SP and RD both file must agree on it
+    rd = query("SIHSUS-RD", select=["N_AIH", "IDENT", "MUNIC_RES", "DIAG_PRINC", "DT_INTER", "CNES", "SEXO", "IDADE_anos"],
+               present="codes", **where).to_pandas()
+    sp = before.to_pandas()
+    admissions = rd[rd.IDENT == "1"]
+    agree = sp.drop_duplicates("SP_NAIH").merge(admissions, left_on="SP_NAIH", right_on="N_AIH", how="left")
+    out["agreement_on_the_matched_admission"] = {
+        "sp_aihs": len(agree), "with_rd_admission": int(agree.N_AIH.notna().sum()), "rd_admissions_unique": bool(admissions.N_AIH.is_unique),
+        **{label: round(float((agree[a].astype(str).str.strip() == agree[b].astype(str).str.strip())[agree.N_AIH.notna()].mean()), 6)
+           for label, a, b in (("residence", "SP_M_PAC", "MUNIC_RES"), ("principal_diagnosis", "SP_CIDPRI", "DIAG_PRINC"),
+                               ("admission_date", "SP_DTINTER", "DT_INTER"), ("facility", "SP_CNES", "CNES"))}}
+    repeated = rd[rd.N_AIH.duplicated(keep=False)]
+    out["rd_repeated_aihs"] = {"rows": len(repeated), "aihs": int(repeated.N_AIH.nunique()),
+                               "types": {"+".join(k): n for k, n in Counter(map(tuple, repeated.groupby("N_AIH").IDENT.apply(sorted))).items()},
+                               "disagree_on_sex_or_age": int((repeated.groupby("N_AIH")[["SEXO", "IDADE_anos"]].nunique(dropna=False) > 1)
+                                                            .any(axis=1).sum())}
+
+    # a known answer for the unmatched: remove RD's rows of 50 AIHs from what SP reads through, and SP's rows of exactly
+    # those AIHs (counted from SP alone) must come out null and be reported, and every other row must keep its value
+    cut = set(sp.SP_NAIH.drop_duplicates().head(50))
+    asked_select = [*own, "SEXO", "IDADE_anos"]
+    narrowed, asked = split("SIHSUS-SP", asked_select)
+    rd_cut = query("SIHSUS-RD", select=["N_AIH", "IDENT", "SEXO", "IDADE_anos"], present="analysis", **where)
+    rd_cut = rd_cut.filter(pc.invert(pc.is_in(rd_cut["N_AIH"], value_set=pa.array(sorted(cut)))))
+    base = query("SIHSUS-SP", select=narrowed, present="analysis", **where)
+    cut_table, cut_report = attach(base, "SIHSUS-SP", asked, asked_select, lambda source, columns: rd_cut)
+    entry = cut_report["AIH:SIH-RD"]
+    nulls = cut_table["SEXO"].null_count
+    out["known_drop"] = {"aihs_removed_from_rd": len(cut), "sp_rows_of_them": int(sp.SP_NAIH.isin(cut).sum()),
+                         "unmatched_reported": entry["unmatched"], "keys_unmatched_reported": entry["keys_unmatched"],
+                         "null_sex_rows": nulls, "rows_kept": cut_table.num_rows == before.num_rows,
+                         "others_equal_the_full_read": bool(
+                             cut_table.filter(pc.invert(pc.is_in(cut_table["SP_NAIH"], value_set=pa.array(sorted(cut)))))["IDADE_anos"].equals(
+                                 after.filter(pc.invert(pc.is_in(after["SP_NAIH"], value_set=pa.array(sorted(cut)))))["IDADE_anos"]))}
+
+    # the same through the event reader, the way PegaSUS counts: events are SP_QT_PROC, whatever the join does
+    by = ["SP_M_PAC", "IDADE_anos", "SEXO"]
+    events = count_events("SIHSUS-SP", "procedure", period=period, geography=geo, by=by)
+    out["events"] = {"counted": int(pc.sum(events["events"]).as_py()), "sum_of_sp_qt_proc": int(pd.to_numeric(sp.SP_QT_PROC).sum()),
+                     "cells": events.num_rows}
+
+    # sex and age of SP's procedures beside RD's admissions, ten-year bands
+    sex = {"1": "male", "3": "female"}
+    band = lambda age: min(int(age // 10) * 10, 80)  # noqa: E731
+    procs = after.to_pandas().assign(sex=lambda d: d.SEXO.map(sex), band=lambda d: d.IDADE_anos.map(band), n=lambda d: pd.to_numeric(d.SP_QT_PROC))
+    admits = admissions.assign(sex=lambda d: d.SEXO.map(sex), band=lambda d: d.IDADE_anos.map(band))
+    table = pd.DataFrame({
+        "sp_procedures": procs.groupby(["sex", "band"]).n.sum(), "sp_aihs": procs.drop_duplicates("SP_NAIH").groupby(["sex", "band"]).size(),
+        "rd_admissions": admits.groupby(["sex", "band"]).size()}).fillna(0).astype(int)
+    table["procedures_per_admission"] = (table.sp_procedures / table.rd_admissions).round(2)
+    out["sex_age"] = {f"{s} {b}": row for (s, b), row in table.to_dict("index").items()}
+    out["share_female"] = {"sp_procedures": round(float(procs[procs.sex == "female"].n.sum() / procs.n.sum()), 4),
+                           "rd_admissions": round(float((admits.sex == "female").mean()), 4)}
+    return out
+
+
 SCENARIOS = {
     "metadata": s_metadata,
     "sih_rd": s_sih_rd,
@@ -467,6 +550,7 @@ SCENARIOS = {
     "linkage": s_linkage,
     "timeline": s_timeline,
     "sweep": s_sweep,
+    "sp_strata": s_sp_strata,
 }
 
 

@@ -686,10 +686,20 @@ def read_events(dataset: str, event: EventType, columns: Iterable[str] = (), *, 
     `conditions.condition_report`'s ``unknown``, beside ``satisfied``. ``_keep_unknown`` (`count_events`') leaves them in, each
     event's answer in ``conditions.CONDITION``."""
     from ..conditions import prepare as prepare_condition
+    from .through import through_columns
 
+    columns = list(columns)
     flag = event.duplicates_flag[0] if event.duplicates_flag else None
     rule = event if consolidate else dataclasses.replace(event, consolidation_key=())
     cond = prepare_condition(dataset, condition)
+    # columns the dataset reads through a key (SIH-SP's sex and age: `semantics.through`) come with `query`'s selection;
+    # neither a table already read nor a whole-row comparison selects them, and a missing one must not read as a column of nulls
+    asked_through = sorted(c for c in {str(c) for c in columns} if c.upper() in through_columns(dataset))
+    if asked_through and records is not None and not all(c in records.column_names for c in asked_through):
+        raise ValueError(f"{dataset}: {asked_through} are read through a key from another dataset, and the records given do not hold them")
+    if asked_through and records is None and rule.duplicates_except is not None:
+        raise ValueError(f"{dataset}: {asked_through} are read through a key from another dataset, which a duplicates rule "
+                         "that reads whole rows cannot select")
     if cond is not None:
         query_kwargs = {**query_kwargs, "condition": cond, "_keep_unknown": True}
     if records is not None:
@@ -825,8 +835,10 @@ def count_events(
 
 def _with_meta(out: pa.Table, events: pa.Table, keys: set[bytes]) -> pa.Table:
     """``out`` with the metadata ``keys`` of ``events`` added to its own."""
+    from .through import THROUGH_META
+
     meta = events.schema.metadata or {}
-    carried = {k: meta[k] for k in keys if k in meta}
+    carried = {k: meta[k] for k in (*keys, THROUGH_META) if k in meta}     # what was read through a key stays reported
     return out.replace_schema_metadata({**(out.schema.metadata or {}), **carried}) if carried else out
 
 
