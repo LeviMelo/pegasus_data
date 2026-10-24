@@ -53,6 +53,10 @@ from .lookups import (
     _merged_lookup,
     _per_distinct,
     _single_lookup,
+    contiguous,
+    dictionary_of,
+    expand,
+    joined,
 )
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
@@ -383,9 +387,10 @@ def _strip_code(label: str, code: str) -> str:
 
 
 def _render_multi_valued(
-    column: pa.Array, rule: Mapping[str, Any], lookup: Mapping[str, str]
-) -> tuple[pa.Array, pa.Array, pa.Array]:
-    """Label every token, keep the order, and never drop one: (labels, the codes of each cell, the misses per cell).
+    column: pa.Array | pa.ChunkedArray, rule: Mapping[str, Any], lookup: Mapping[str, str]
+) -> tuple[pa.ChunkedArray, pa.ChunkedArray, pa.ChunkedArray]:
+    """Label every token, keep the order, and never drop one: (labels, the codes of each cell, the misses per cell),
+    each a ChunkedArray built in pieces (`lookups.expand`), so a column of any size is rendered.
 
     A token with no match passes through as its raw code. Dropping it would make
     a shorter causal chain than the physician wrote, and nulling the whole cell
@@ -394,9 +399,8 @@ def _render_multi_valued(
     lists (583,191 cells, 1,658 distinct) was most of a labelled query (2026-10-11).
     """
     # a null cell is an entry of its own (no label, no codes, no miss), so every row has an index to take
-    encoded = pc.dictionary_encode(column.combine_chunks() if isinstance(column, pa.ChunkedArray) else column,
-                                   null_encoding="encode")
-    distinct = encoded.dictionary.to_pylist()
+    cells, idx = dictionary_of(column, null_encoding="encode")
+    distinct = cells.to_pylist()
     rendered: list[str | None] = []
     code_lists: list[list[str]] = []
     unmatched: list[int] = []
@@ -420,9 +424,11 @@ def _render_multi_valued(
         rendered.append(TOKEN_JOIN.join(pieces) if pieces else None)
         code_lists.append(tokens)
         unmatched.append(misses)
-    idx = encoded.indices
-    return (pa.array(rendered, type=pa.string()).take(idx), pa.array(code_lists, type=pa.list_(pa.string())).take(idx),
-            pa.array(unmatched, type=pa.int32()).take(idx))
+    # the tokens of a cell are pieces of it, so a cell's own bytes bound its list of codes
+    widest_cell = max((len(str(c).encode()) for c in distinct if c is not None), default=0)
+    return (expand(pa.array(rendered, type=pa.string()), idx),
+            expand(pa.array(code_lists, type=pa.list_(pa.string())), idx, widest=widest_cell),
+            expand(pa.array(unmatched, type=pa.int32()), idx))
 
 
 def resolve_profile(
@@ -481,26 +487,28 @@ def _key_columns(table: pa.Table, key: Sequence[str]) -> tuple[list[tuple[str, i
     return parts, [name for name, _ in parts if name not in table.schema.names]
 
 
-def compose_key(table: pa.Table, key: Sequence[str]) -> pa.Array | None:
+def compose_key(table: pa.Table, key: Sequence[str]) -> pa.ChunkedArray | None:
     """The concatenated key the codelist is indexed by, or None if a part is missing.
 
     The one place a composite key is built: rendering and the bindings compiler
     both call it, so a column is measured exactly as it is looked up (ADR-0088).
+    A ChunkedArray, joined in pieces (`lookups.joined`): the key of a large table is longer than any part of it.
     """
     parts, missing = _key_columns(table, key)
     if not parts or missing:
         return None
     arrays = []
     for name, width in parts:
-        values = pc.cast(table.column(name).combine_chunks(), pa.string())
+        values = pc.cast(table.column(name), pa.string())
         if width:
             values = pc.utf8_lpad(pc.utf8_trim_whitespace(values), width, "0")
         arrays.append(values)
-    joined = pc.binary_join_element_wise(*arrays, "")
-    return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
+    return joined(arrays, "")
 
 
-def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array | None:
+def _lookup_key(
+    table: pa.Table, doc: object, column: pa.Array | pa.ChunkedArray,
+) -> pa.Array | pa.ChunkedArray | None:
     """The column's own values, or the concatenation its curated ``key:`` names; None when the key names a column the
     table lacks. Falling back to the column alone matched it against a different key of the same codelist (CLASS_SR
     against S_CLASSEN's SERV_ESP + CLASS_SR): the column is left undecoded and the report says why."""
@@ -510,8 +518,9 @@ def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array | No
 
 def _label_via(
     lake: Path, system: str, keys: object, via: Mapping[str, str], registries: Path | None = None,
-) -> pa.Array | None:
-    """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094)."""
+) -> pa.ChunkedArray | None:
+    """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094), a ChunkedArray built in pieces
+    (`lookups.expand`): the registry's names for every row of a large table are more than one array holds."""
     try:
         table = read_reference_table(lake, str(via["table"]), system=system, registries=registries)
     except (FileNotFoundError, KeyError):
@@ -523,7 +532,7 @@ def _label_via(
     # dict of it per month group cost 25 s of a year's query (2026-09-29).
     wanted = pc.utf8_trim_whitespace(pc.cast(pa.chunked_array([keys]) if isinstance(keys, pa.Array) else keys, pa.string()))
     at = pc.index_in(wanted, value_set=pc.cast(table.column("code"), pa.string()))
-    return pc.take(pc.cast(table.column(field_name), pa.string()), at).combine_chunks()
+    return expand(pc.cast(table.column(field_name), pa.string()), at)
 
 
 #: A recipe's short names for bridges, and the classification each lands in.
@@ -817,6 +826,13 @@ def render_table(
     :class:`LabelUnavailable` instead of a warning. Either way the field is named
     — what never happens is unlabelled data coming back silently from a request
     for labels.
+
+    **Size.** No column is flattened into one array, and a column built row by row (a label for every row) is built in
+    pieces (`lookups.expand`, `lookups.PIECE_BYTES`), so a table of any length renders: Arrow's ``string`` addresses
+    2 GiB of characters per array, and the labels of 58.6 million rows (SNGPC-IND 2014's ``TP_RECEITUARIO``) are 2.3 GB.
+    Types do not depend on the size: ``X`` and ``X_label`` are ``string`` in a result of ten rows and of ten billion;
+    only the number of chunks of a column grows. The labels are decided once over the value counts of all the rows
+    given (`_select_codelists`), then applied to every piece, so they do not depend on how the column was cut.
     """
     from .persist.reference import collecting
 
@@ -889,7 +905,7 @@ def _render_table(
         and all(mode == "code" for mode in overrides.values())
     )
 
-    columns: list[pa.Array] = []
+    columns: list[pa.Array | pa.ChunkedArray] = []
     names: list[str] = []
     lookups: dict[tuple, Mapping[str, str]] = {}
 
@@ -950,13 +966,15 @@ def _render_table(
             if not keep:
                 report.companions_dropped.append(name)
                 continue
-            columns.append(table.column(name).combine_chunks())
+            columns.append(table.column(name))
             names.append(name)
             continue
 
-        # only a column that is rendered or kept is made contiguous: a dropped label or companion was combined first,
-        # a copy of a column nobody reads
-        column = table.column(name).combine_chunks()
+        # A column is read as the ChunkedArray it is, never flattened into one array: past 2 GiB of characters a
+        # `string` cannot be one (`lookups.PIECE_BYTES`), and a column that passes through unchanged (a 58.6-million-row
+        # SNGPC-IND year's `_source_path` is 5.4 GB) is not copied for being kept. The table is assembled below with
+        # each column that fits one array made one (`contiguous`), as every column always was.
+        column = table.column(name)
 
         if codes_only or overrides.get(name.upper()) == "code":
             # a column asked for as filed: no codelist chosen for it (a role table reads labels of five of its
@@ -969,7 +987,7 @@ def _render_table(
         sibling = getattr(doc, "label_from", None) if doc is not None else None
         if sibling and sibling in table.schema.names:
             # The record names its own code (ADR-0090): no table to choose.
-            named = pc.utf8_trim(table.column(sibling).combine_chunks().cast(pa.string()), characters=" ")
+            named = pc.utf8_trim(table.column(sibling).cast(pa.string()), characters=" ")
             named = pc.if_else(pc.equal(named, ""), pa.scalar(None, pa.string()), named)
             columns.append(column)
             names.append(name)
@@ -1248,7 +1266,7 @@ def _render_table(
                 final_columns.append(pa.nulls(len(col), type=pa.string()))
                 final_names.append(label_name)
         columns, names = final_columns, final_names
-    rendered_table = pa.Table.from_arrays(columns, names=names)
+    rendered_table = pa.Table.from_arrays([contiguous(c) for c in columns], names=names)
 
     # A derived column the caller names is built under every profile. The codes
     # profile turned derived columns off, so `select=["PROC_REA_grupo"]` with

@@ -185,7 +185,7 @@ def split_by_source(
 
     column = table.column("_source_path")
     keys: dict[tuple[str | None, int | None, int | None], list[str]] = {}
-    for path in pc.unique(column.combine_chunks()).to_pylist():
+    for path in pc.unique(column).to_pylist():     # the chunks as they are: a year of paths is more than one array holds
         facts = source_facts.get(str(path), (None, fallback_year, None))
         keys.setdefault(tuple(facts), []).append(str(path))  # type: ignore[arg-type]
     if len(keys) <= 1:
@@ -222,6 +222,10 @@ def render_groups(
     another does not have — a label column exists only where that generation's
     field does — and refusing to combine them would turn a correct per-vintage
     rendering into a failure.
+
+    The combine appends chunks (`pa.concat_tables`) and never flattens a column, and every rendered column keeps its
+    type whatever its size (``X`` and ``X_label`` are ``string``; see `view.render_table`), so the groups' columns
+    concatenate at any total length: a column of more than 2 GiB of characters is several chunks.
     """
     from .view import RenderReport, render_table
 

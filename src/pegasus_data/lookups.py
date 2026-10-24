@@ -607,7 +607,84 @@ PATH_CODELISTS: dict[str, int] = {"VINCULO": 2, "S_CLASSEN": 3}
 HIERARCHICAL_CODELISTS = frozenset({"ICD10", "SIGTAP"})
 
 
-def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
+#: Arrow's ``string`` (and ``binary``, and the child of a list of strings) addresses its characters with 32-bit
+#: offsets: one array holds at most 2 GiB of them, and a kernel that would build more raises ("Take operation
+#: overflowed binary array capacity", "offset overflow while concatenating arrays"). Nothing here builds past this:
+#: a column is a ChunkedArray (its total is not limited, only each chunk), is never flattened into one array, and a
+#: column built row by row (a label for every row) is built in pieces of at most this many characters. Half of the
+#: limit, so that a piece is far from it and a few of them in flight are far from the memory they would need.
+PIECE_BYTES = 1 << 30
+
+
+def contiguous(column: pa.Array | pa.ChunkedArray) -> pa.Array | pa.ChunkedArray:
+    """A column as one array while it fits one (under ``PIECE_BYTES``), else as the chunks it has: a result of ordinary
+    size keeps the layout it always had, one array a column, and a large one is neither flattened nor copied."""
+    if isinstance(column, pa.ChunkedArray) and column.num_chunks > 1 and column.nbytes <= PIECE_BYTES:
+        return column.combine_chunks()
+    return column
+
+
+def dictionary_of(column: pa.Array | pa.ChunkedArray, *, null_encoding: str = "mask") -> tuple[pa.Array, pa.Array]:
+    """``(distinct values, the index of each row's)`` of a column, in Arrow.
+
+    A ChunkedArray is encoded as a whole (one dictionary for every chunk, which is how its distinct values are counted
+    once) and only the indices are made contiguous: they are fixed-width, so no column can be too large for them. The
+    distinct values are what a column's meaning is decided on and are few; the rows are only taken back to them.
+    """
+    encoded = pc.dictionary_encode(column, null_encoding=null_encoding)
+    if isinstance(encoded, pa.ChunkedArray):
+        encoded = encoded.combine_chunks()
+    return encoded.dictionary, encoded.indices
+
+
+def _widest(values: pa.Array) -> int:
+    """The most bytes one element of ``values`` adds to an array taken from it: its longest string, 0 for a
+    fixed-width type (no offsets to overflow), and for any other variable-width type the whole of ``values`` (an
+    element is at most that)."""
+    kind = values.type
+    if pa.types.is_string(kind) or pa.types.is_large_string(kind) or pa.types.is_binary(kind) \
+            or pa.types.is_large_binary(kind):
+        return int(pc.max(pc.binary_length(values)).as_py() or 0)
+    if pa.types.is_list(kind) or pa.types.is_large_list(kind) or pa.types.is_map(kind) or pa.types.is_struct(kind):
+        return int(values.nbytes)
+    return 0
+
+
+def expand(
+    values: pa.Array | pa.ChunkedArray, indices: pa.Array | pa.ChunkedArray, *, widest: int | None = None,
+) -> pa.ChunkedArray:
+    """``values`` at ``indices`` for every row (a null index gives a null): a few distinct values taken back to a column
+    of rows, as a ChunkedArray of pieces no larger than ``PIECE_BYTES``.
+
+    ``values.take(indices)`` is one array, and a label of 40 characters for 58.6 million rows (SNGPC-IND 2014) is 2.3 GB
+    of characters in it: "Take operation overflowed binary array capacity". The rows are cut so that even if every one
+    of them took the longest value the piece stays under the limit; a result that fits is one piece, as it was one
+    array. ``widest``: the bytes of the longest element, when ``values`` is a type whose elements cannot be measured
+    here (a list of strings).
+    """
+    flat_values = values.combine_chunks() if isinstance(values, pa.ChunkedArray) else values
+    rows = indices.combine_chunks() if isinstance(indices, pa.ChunkedArray) else indices
+    longest = _widest(flat_values) if widest is None else widest
+    step = max(1, PIECE_BYTES // longest) if longest else max(len(rows), 1)
+    pieces = [flat_values.take(rows.slice(start, step)) for start in range(0, len(rows), step)]
+    return pa.chunked_array(pieces or [flat_values.slice(0, 0)], type=flat_values.type)
+
+
+def joined(columns: list[pa.ChunkedArray], separator: str = "") -> pa.ChunkedArray:
+    """The text columns of one table joined row by row (``binary_join_element_wise``), in pieces of rows whose joined
+    text cannot reach ``PIECE_BYTES`` (the join of three columns each under the limit can be over it)."""
+    longest = len(separator) * (len(columns) - 1) + sum(
+        int(pc.max(pc.binary_length(c)).as_py() or 0) for c in columns)
+    rows = len(columns[0])
+    step = max(1, PIECE_BYTES // longest) if longest else max(rows, 1)
+    chunks: list[pa.Array] = []
+    for start in range(0, rows, step):
+        piece = pc.binary_join_element_wise(*[c.slice(start, step) for c in columns], separator)
+        chunks.extend(piece.chunks if isinstance(piece, pa.ChunkedArray) else [piece])
+    return pa.chunked_array(chunks or [pa.array([], pa.string())], type=pa.string())
+
+
+def _labels_for(column: pa.Array | pa.ChunkedArray, lookup: Mapping[str, str]) -> pa.ChunkedArray:
     """Exact width or no match (§6.2).
 
     Whitespace is stripped and nothing else. No padding, no truncation, no
@@ -616,43 +693,46 @@ def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     prefix, and 452 tables on this tree mix both classifications in one file. An
     exact string comparison enforces this by construction, and
     :func:`_check_width` is what stops a future "helpful" pad from undoing it.
+
+    The labels are a ``string`` ChunkedArray (`expand`): one chunk while they fit one array, several past 2 GiB of
+    characters, never an error. The code is looked up once per distinct value over the whole column, so what a code is
+    labelled does not depend on how the column was cut.
     """
     # Resolved once per DISTINCT code, not once per row. A million-row
     # categorical field with six distinct values was doing a million Python
     # dictionary lookups to answer six questions; dictionary-encoding it turns
     # that into six lookups and an index remap that stays inside Arrow.
     if not len(column):
-        return pa.array([], type=pa.string())
+        return pa.chunked_array([pa.array([], type=pa.string())])
     try:
-        encoded = pc.dictionary_encode(column)
+        distinct, indices = dictionary_of(column)
     except (pa.ArrowInvalid, pa.ArrowNotImplementedError):  # pragma: no cover
-        values = column.to_pylist()
-        return pa.array(
-            [None if v is None else lookup.get(str(v).strip()) for v in values],
-            type=pa.string(),
-        )
-    if isinstance(encoded, pa.ChunkedArray):
-        encoded = encoded.combine_chunks()
-    uniques = encoded.dictionary.to_pylist()
+        chunks = column.chunks if isinstance(column, pa.ChunkedArray) else [column]
+        return pa.chunked_array([
+            pa.array([None if v is None else lookup.get(str(v).strip()) for v in chunk.to_pylist()], type=pa.string())
+            for chunk in chunks
+        ], type=pa.string())
     mapped = pa.array(
-        [None if u is None else lookup.get(str(u).strip()) for u in uniques],
+        [None if u is None else lookup.get(str(u).strip()) for u in distinct.to_pylist()],
         type=pa.string(),
     )
     # take() carries the nulls through: a null index yields a null label.
-    return pc.take(mapped, encoded.indices)
+    return expand(mapped, indices)
 
 
-def _per_distinct(codes: object, fn: Callable[[Any], str | None]) -> pa.Array:
+def _per_distinct(codes: object, fn: Callable[[Any], str | None]) -> pa.Array | pa.ChunkedArray:
     """``fn`` of every value, computed once per distinct value and expanded by
     index; a null stays null. A file is a million cells and a few dozen
     distinct codes: the row loops this replaced were most of a role table's
-    build (CIHA PR 2022, 1.4M rows: 35 of 40 s in rendering, 2026-10-03)."""
+    build (CIHA PR 2022, 1.4M rows: 35 of 40 s in rendering, 2026-10-03).
+
+    An Arrow column comes back as a ``string`` ChunkedArray (`expand`), whatever its size; an iterable of Python values,
+    as an array."""
     if not isinstance(codes, (pa.Array, pa.ChunkedArray)):
         return pa.array([None if v is None else fn(v) for v in codes], type=pa.string())  # type: ignore[attr-defined]
-    column = codes.combine_chunks() if isinstance(codes, pa.ChunkedArray) else codes
-    encoded = pc.dictionary_encode(column)
-    mapped = pa.array([None if u is None else fn(u) for u in encoded.dictionary.to_pylist()], type=pa.string())
-    return mapped.take(encoded.indices)
+    distinct, indices = dictionary_of(codes)
+    mapped = pa.array([None if u is None else fn(u) for u in distinct.to_pylist()], type=pa.string())
+    return expand(mapped, indices)
 
 
 def _distinct(column: object) -> list:
