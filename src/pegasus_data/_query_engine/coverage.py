@@ -11,8 +11,8 @@ from typing import Any
 
 from ..catalog.store import CatalogStore
 from ..config import Settings
-from ..persist.lake import Lake, LakePartition, listed_partitions
-from .model import Geography
+from ..persist.lake import Lake, LakePartition, listed_partitions, record_source
+from .model import Geography, Period
 
 
 @contextmanager
@@ -46,6 +46,11 @@ class _Coverage:
     #: The files the ``lake_years`` are read from: the catalog's listed partitions, one reading of each year (the
     #: national file or the states', never both), every one on disk. What the plan hands to ``load``.
     lake_partitions: tuple[LakePartition, ...] = ()
+    #: ``record source -> YYYYMM`` for the ``lake_partitions`` built from one publication of a month (`sole_competence`): the
+    #: competence of records that do not store it.
+    lake_competence: tuple[tuple[str, int], ...] = ()
+    #: Lake years published by month, with the months asked that no publication is filed for: ``(year, (month, ...))``.
+    unpublished: tuple[tuple[int, tuple[int, ...]], ...] = ()
 
 
 #: A geography code that is not a state: a national file, or a publication with no state axis.
@@ -76,6 +81,61 @@ def one_reading(parts: Iterable[LakePartition]) -> list[LakePartition]:
     for part in parts:
         by_year.setdefault(part.year, []).append(part)
     return [part for items in by_year.values() for part in national_or_states(items, lambda p: p.uf)]
+
+
+def _filed(publications: Iterable[dict[str, Any]]) -> dict[tuple[str, str], int]:
+    """``(family, source id) -> normalized_date`` of each publication: how a lake partition's ``sources`` are dated."""
+    out: dict[tuple[str, str], int] = {}
+    for row in publications:
+        family, path, member = str(row.get("family_id") or ""), str(row.get("path") or ""), str(row.get("member") or "")
+        out[(family, f"{path}!{member}" if member else path)] = int(row.get("normalized_date") or 0)
+    return out
+
+
+def in_months(
+    parts: Iterable[LakePartition], publications: Iterable[dict[str, Any]], months: Sequence[int],
+) -> list[LakePartition]:
+    """The ``parts`` that can hold a record of the publications filed for ``months``; a part built only from
+    publications of other months is not read.
+
+    A publication is dated by its file (``file_facts.normalized_date``), and a lake partition says which publications it
+    was built from (``sources``). An intake source (ADR-0162) lands one part file per monthly unit inside the year's
+    partition, so a month's query opens that month's file and not the year's twelve; a DATASUS partition holds a year of
+    months, lists them all as sources and stays whenever one of them is asked. A part is kept unless it has sources and
+    every one of them is a publication of a known month outside ``months``: a source the catalog does not know, or an
+    annual one (month 0), keeps it, so a doubt reads more, never fewer records. The records of a kept part are still
+    filtered by their own competence when they carry it (`filters._filter_source_period`).
+    """
+    filed = _filed(publications)
+    wanted = set(months)
+    kept = []
+    for part in parts:
+        dates = [filed.get((part.family_id, source)) for source in part.sources]
+        if dates and all(date is not None and date % 100 not in (0, *wanted) for date in dates):
+            continue
+        kept.append(part)
+    return kept
+
+
+def sole_competence(parts: Iterable[LakePartition], publications: Iterable[dict[str, Any]]) -> dict[str, int]:
+    """``record source -> YYYYMM`` for the parts built from ONE publication of a month: every record of such a part has
+    that publication's competence, whether or not the part stored it (an intake part does not, `filters._with_competence`).
+
+    A part built from several publications (a DATASUS state-year) cannot say which a record came from and carries the
+    competence itself. A source that two parts date differently (the records of one monthly file dated in another year are
+    a publication of that year, at year resolution) is left out: its records have no competence, and a month's query
+    refuses them rather than guess."""
+    singles = [part for part in parts if len(part.sources) == 1]
+    if not singles:
+        return {}
+    filed = _filed(publications)
+    found: dict[str, int | None] = {}
+    for part in singles:
+        (source,) = part.sources
+        date = filed.get((part.family_id, source), 0)
+        key = record_source(source)
+        found[key] = date if date % 100 and found.get(key, date) == date else None
+    return {key: date for key, date in found.items() if date}
 
 
 def compile_capability_payload() -> dict[str, Any]:
@@ -261,12 +321,15 @@ def _has_publications(store: CatalogStore, family_ids: Sequence[str]) -> bool:
 
 def _catalog_coverage(
     store: CatalogStore, settings: Settings, system: str, series: str | None, years: tuple[int, ...],
-    ufs_asked: tuple[str, ...],
+    ufs_asked: tuple[str, ...], period: Period | None = None,
 ) -> _Coverage:
     """The part of the coverage the catalog decides, with the lake files each lake year rests on.
 
     Pure in the catalog state, so remembered until it changes; whether those files are still on disk is not a
-    catalog fact and is checked by :func:`_coverage` on every call.
+    catalog fact and is checked by :func:`_coverage` on every call. A ``period`` given in months narrows the files of
+    a year to those built from the publications of its months (:func:`in_months`), and names the months of a monthly
+    year that no publication is filed for (``unpublished``); when none of the months asked is filed in any year there is
+    nothing to read, and :class:`NothingPublished` says so, where the year was read whole and came back empty.
     """
     from ..representations import choose_representations
     from .readplan import resolve_family
@@ -316,6 +379,10 @@ def _catalog_coverage(
     resolutions: list[tuple[int, str]] = []
     year_geography: list[tuple[int, tuple[str, ...]]] = []
     lake_partitions: list[LakePartition] = []
+    published_rows: list[dict[str, Any]] = []
+    unpublished: list[tuple[int, tuple[int, ...]]] = []
+    published: dict[int, tuple[int, ...]] = {}
+    nothing_filed: set[int] = set()
     any_partition = bool(parts)
     for year in requested_years:
         candidates = [row for row in relevant if int(row.get("year") or 0) == year]
@@ -347,7 +414,33 @@ def _catalog_coverage(
             complete = bool(year_parts) or (not has_publications and any_partition)
         (lake_years if complete else fetch_years).append(year)
         if complete:
-            lake_partitions.extend(year_parts)
+            asked_months = period.months_in(year) if period is not None else ()
+            read = in_months(year_parts, candidates, asked_months) if asked_months else year_parts
+            if asked_months and resolution == "month":
+                filed = {int(row.get("normalized_date") or 0) % 100 for row in candidates}
+                if absent := tuple(month for month in asked_months if month not in filed):
+                    unpublished.append((year, absent))
+                    published[year] = tuple(sorted(filed))
+                    if not read:
+                        nothing_filed.add(year)
+                elif not read:
+                    read = year_parts           # every month is filed and no file was found for it: read more, never fewer
+            lake_partitions.extend(read)
+            published_rows.extend(candidates)
+
+    if nothing_filed:
+        # a year none of whose months asked is filed has nothing to read (its table would be empty and read as "no
+        # records in those months"): the plan says so (`unpublished`), and when no year is left to read, the request fails
+        lake_years = [year for year in lake_years if year not in nothing_filed]
+        if not lake_years and not fetch_years:
+            from .._request import NothingPublished
+
+            said = "; ".join(
+                f"{', '.join(f'{year}-{month:02d}' for month in absent)} (filed in {year}: "
+                f"{', '.join(f'{month:02d}' for month in published[year] if month) or 'none by month'})"
+                for year, absent in unpublished
+            )
+            raise NothingPublished(f"{system}-{series or ''} files no publication for {said}")
 
     unique_resolutions = {value for _, value in resolutions if value != "unknown"}
     overall = next(iter(unique_resolutions)) if len(unique_resolutions) == 1 else (
@@ -358,6 +451,8 @@ def _catalog_coverage(
         overall, physical_uf, strategy,
         tuple(lake_years), tuple(fetch_years), tuple(resolutions), national_ufs, tuple(year_geography),
         lake_partitions=tuple(lake_partitions),
+        lake_competence=tuple(sorted(sole_competence(lake_partitions, published_rows).items())),
+        unpublished=tuple(unpublished),
     )
     return coverage
 
@@ -370,6 +465,7 @@ def _coverage(
     *,
     years: Sequence[int],
     geography: Geography | None,
+    period: Period | None = None,
 ) -> _Coverage:
     """Resolve source-publication capabilities and exact local coverage.
 
@@ -378,9 +474,10 @@ def _coverage(
     its two renames) is not lake-complete: it falls back to the source, and the plan says so.
     """
     ufs_asked = tuple(geography.ufs) if geography else ()
+    months = period if period is not None and period.precision == "month" else None
     coverage = store.memo(
-        ("coverage", system, series, tuple(years), ufs_asked),
-        lambda: _catalog_coverage(store, settings, system, series, tuple(years), ufs_asked),
+        ("coverage", system, series, tuple(years), ufs_asked, months),
+        lambda: _catalog_coverage(store, settings, system, series, tuple(years), ufs_asked, months),
     )
     lake_dir = Path(settings.lake_dir)
     gone = tuple(sorted({p.year for p in coverage.lake_partitions if not (lake_dir / p.relative_path).is_file()}))

@@ -52,6 +52,16 @@ class WrittenPartition:
     byte_size: int
 
 
+#: An intake unit (ADR-0162) is a publication per record year: the unit's file, this mark and the year. Its records name the
+#: file they were read from (``_SOURCE_PATH``), not the slice of it.
+SLICE = "#year="
+
+
+def record_source(publication: str) -> str:
+    """The source a record of ``publication`` names as its own: the file, without the slice of it that is the publication."""
+    return publication.partition(SLICE)[0]
+
+
 @dataclass(frozen=True, slots=True)
 class LakePartition:
     """One partition file the catalog lists (a row of ``lake_partitions``)."""

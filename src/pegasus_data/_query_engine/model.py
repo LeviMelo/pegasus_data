@@ -45,6 +45,13 @@ class Period:
     def years(self) -> tuple[int, ...]:
         return tuple(range(self.start // 100, self.end // 100 + 1))
 
+    def months_in(self, year: int) -> tuple[int, ...]:
+        """The months of ``year`` the period covers: the stretch of a month-precision period that falls in it, every
+        month for a whole year of it (and for a period given in years)."""
+        lo = self.start % 100 if year == self.start // 100 else 1
+        hi = self.end % 100 if year == self.end // 100 else 12
+        return tuple(range(lo, hi + 1))
+
     def __str__(self) -> str:
         def show(value: int) -> str:
             return f"{value // 100:04d}-{value % 100:02d}" if self.precision == "month" else str(value // 100)
@@ -120,6 +127,9 @@ class RetrievalPlan:
     #: The lake files the ``lake_years`` are read from: one reading of each year, all on disk when planned. ``load``
     #: opens exactly these.
     lake_partitions: tuple[LakePartition, ...] = ()
+    #: ``(record source, YYYYMM)`` of the lake files built from one publication of a month: the competence of their records,
+    #: which they do not store (an intake unit's, `coverage.sole_competence`).
+    lake_competence: tuple[tuple[str, int], ...] = ()
 
     def geography_for(self, year: int | None) -> tuple[str, ...]:
         """The states' files (``BR``: the national one) a year is read from; empty: every file of the year."""

@@ -11,7 +11,10 @@
 #                       `across: {name: [values]}` for further axes of the pattern, one file per combination (ANS: one per state);
 #                       format csv|parquet, csv {sep, encoding (latin1|utf8|mixed|a codec), member: the CSV of a zip that holds more
 #                       than one, `{year}` allowed, multiline: true when a quoted field holds line breaks, so the records are counted
-#                       by a second parser and not by lines}); `keep: true` keeps the raw file (default: reduced, then deleted)
+#                       by a second parser and not by lines}); `keep: true` keeps the raw file (default: reduced, then deleted).
+#                       `months` files the units by month, and each is the publication of its month: a query for one month opens
+#                       that month's part file. `years` and listed files are filed by year, whatever month column their records
+#                       hold (`period` below dates the records, never the publication)
 #   origin.static       (api) `true` when the table cannot grow (a closed series, a code list): a piece that ended short of its
 #                       size is then final. Left out, such a piece is *incomplete* and read again on every run, because the
 #                       endpoint may have grown (the safe default: the cost is a request). Toggling it changes every unit's

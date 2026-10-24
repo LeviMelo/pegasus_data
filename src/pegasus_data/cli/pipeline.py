@@ -74,6 +74,20 @@ def fields(
     _emit(result, as_json, "fields")
 
 
+@app.command(name="intake-periods", rich_help_panel="MAINTENANCE")
+def intake_periods(
+    source: Annotated[str | None, typer.Option("--source", help="One declared source (curation/intake.yml); default every file source")] = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Count the publications that would be dated differently; change nothing")] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Date the catalog's publications of the declared file sources by their units' periods (a source declared by
+    `months` files one publication per month), landing nothing: for units registered before a month was one of their facts."""
+    from ..intake import register_periods
+
+    _emit(register_periods(_writer(root), source, dry_run=dry_run), as_json, "intake-periods")
+
+
 @app.command(rich_help_panel="PIPELINE")
 def extract(
     dataset: Annotated[str, typer.Argument(help="e.g. SIASUS-PA")],
