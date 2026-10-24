@@ -91,7 +91,7 @@ NEAREST_KM = 10.0
 #: eccodes loads its definitions on first use and fails ("no definitions found") when two threads do it at once
 _ECCODES = threading.Lock()
 
-__all__ = ["PRODUCTS", "daily", "grid", "listing", "read_file", "update", "weekly"]
+__all__ = ["PRODUCTS", "daily", "day_grid", "grid", "listing", "read_file", "update", "weekly"]
 
 
 def _store(settings: Any) -> Path:
@@ -168,6 +168,25 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
     if lat[0] > lat[-1]:
         value, stations, lat = value[::-1], stations[::-1], lat[::-1]
     return value, stations, np.round(lon, 4), np.round(lat, 4)
+
+
+def day_grid(variable: str, day: Any) -> dict[str, Any]:
+    """One day of a product as its grid, read from CPTEC now and not kept: ``value`` (lat × lon, NaN where none),
+    ``stations``, ``lon`` and ``lat`` (cell centres, ascending), ``published`` (the file's ``Last-Modified``) and ``file``.
+    For a reading finer than a municipality (a grade cell, a tract): sample ``value`` at the cell that holds a point; the
+    store keeps municipal means only (the grids are 63 GB)."""
+    from ..transport import request
+
+    product = PRODUCTS[variable]
+    day = dt.date.fromisoformat(str(day)[:10])
+    entry = next((f for f in listing(product, day.year, day.month) if f["date"] == day), None)
+    if entry is None:
+        raise FileNotFoundError(f"{product.product} has no {variable} file for {day} on the server")
+    response = request(entry["url"], interval=INTERVAL, timeout=300)
+    value, stations, lon, lat = read_file(product, response.content)
+    published = response.headers.get("Last-Modified")
+    return {"value": value, "stations": stations, "lon": lon, "lat": lat, "file": entry["file"],
+            "published": parsedate_to_datetime(published).astimezone(dt.UTC) if published else None}
 
 
 class _Weights:

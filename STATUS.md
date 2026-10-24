@@ -58,7 +58,8 @@ products it recomputes. Their deletion was refused by the session's permission c
   the yearly fields; nothing is spliced.
 - **Not done.** Humidity: ERA5-Land(-T) through the Copernicus CDS needs the author's account (`~/.cdsapirc`); Saldanha's
   ERA5-Land municipal means on Zenodo (dew point, 1950-2025, yearly releases, no account) would give history only.
-  Per-cell climate (beyond municipal means) is not stored: the raw grids are 63 GB and the disk had 27 GB free.
+  Per-cell climate is not stored (the raw grids are 63 GB; the disk had 17-27 GB free): `cptec.day_grid` reads one day's
+  grid on demand, to be sampled at the grade's cells.
 
 ## Declarations and labels (branch `pegasus-core-fixes`, 2026-10-08)
 
