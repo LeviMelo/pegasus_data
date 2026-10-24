@@ -36,7 +36,8 @@ def geography(
     rest of the health-service geography), IBGE's Localidades API (territorial
     identity), TabNet's current territorial tables (health macroregion, the
     current health regions) and IPEA's comparable areas. Maintainer step; the result ships as
-    ``resources/geography.parquet``.
+    ``resources/geography.parquet``, with the points pack and the proximity graphs rebuilt from the Grade Estatística
+    (`pegasus-data grade` first; ADR-0202).
     """
     from importlib.resources import files
 
@@ -74,6 +75,21 @@ def grade(
     with console.status("building the Grade Estatística…") as status:
         result = ibge_grade.build(settings.root, log=lambda m: status.update(m))
     _emit(result, as_json, "grade")
+
+
+@app.command(rich_help_panel="PIPELINE")
+def tracts(
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Read IBGE's Census 2022 tract tables (identity and counts; residents by sex and age band, a suppressed count null)
+    into registries/ibge_tracts/, and measure what suppression leaves out (ADR-0202)."""
+    from ..sources import ibge_tracts
+
+    settings = _writer(root)
+    with console.status("reading the tract tables…"):
+        result = ibge_tracts.build(settings.root)
+    _emit(result, as_json, "tracts")
 
 
 @app.command(name="climate-update", rich_help_panel="PIPELINE")

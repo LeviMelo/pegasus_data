@@ -842,8 +842,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   parentage, deaths, indigenous and quilombola), also by neighbourhood, district, subdistrict and municipality. **Sex × age per tract
   exists**: the demography file (22 MB zip, 458,772 tracts) has `V01006` residents, `V01007`/`V01008` men/women, `V01009`-`V01019`
   men and `V01020`-`V01030` women in 11 bands (0-4, 5-9, 10-14, 15-19, 20-24, 25-29, 30-39, 40-49, 50-59, 60-69, 70+), and
-  `V01031`-`V01041` both sexes. Disclosure: a suppressed cell is `X` (V01006 in 8,684 tracts, 1.9%; a single sex-band cell in 8-9%);
-  the unsuppressed residents sum to 202,561,627. The tract mesh with the basic attributes (`malha_com_atributos/.../BR_setores_CD2022.gpkg`,
+  `V01031`-`V01041` both sexes. Disclosure: a suppressed cell is `X` (V01006 in 8,684 tracts, 1.9%; 721,091 of the 10,092,984
+  sex-band cells, 7.1%); the published sex-band cells hold 201,752,886 people of the 203,080,756 residents that the basic file's
+  `v0001` counts (never suppressed). **The municipal file of the theme is the sum of the same published cells** (201,752,886,
+  equal cell by cell): it falls short as the tracts do (5,472 municipalities, 102 by more than 5%, the worst by 65%); a whole
+  municipal count by sex and age is SIDRA's, not this file's. The basic file is Windows-1252 and writes "." for "not
+  applicable" (the lagoons 4300001/4300002 have `CD_MUN` "."); the demography file is ASCII. The tract mesh with the basic attributes (`malha_com_atributos/.../BR_setores_CD2022.gpkg`,
   1.5 GB, 472,780 rows: tracts in several pieces repeat their counts) is in `registries/ibge_points/tracts.gpkg`.
 - **CNEFE 2022** (`ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/`):
   `Arquivos_CNEFE/CSV/UF/<uf>_<UF>.zip` (27 files, 4.1 GB; AL 28 MB, SP 1.0 GB) hold every address with `CEP`, `COD_SETOR`, face,

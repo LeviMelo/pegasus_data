@@ -41,3 +41,12 @@ misspelt role (nearest roles), a packed age and a category (not quantities), a q
 under their recipes' `additive_over: [geography, dimensions]` are refused over time ("a stock ... Use
 time_reducer='mean'") once a role is given `missing=()`, which their roles do not declare (CNES-ST has no flow).
 Of the 364 quantities in the 87 flow datasets, 116 declare `missing` and 248 do not.
+
+**National check, bed-days of diabetes (2026-10-24, nees-gt-ms).** `care_flows("SIH-RD", period=2023, geography="BR",
+by="DIAG_PRINC", level="category", measure="admission.length_of_stay")`, 34 s from the lake (`pegasus_core_data`, branch
+`claude/nees-gaps-dc2b18` at 6091c06): 13,215,246 events, none unplaced or unresolved, every one with a `DIAS_PERM`. Codes
+E10-E14: 138,316 admissions and 941,694 bed-days (mean 6.81); Alagoas residents 1,072 (17 treated outside the state, 8,525
+bed-days); Maceió's residents 269 of 275 at home (2,338 bed-days there); DF residents 1,672, 1,663 into Brasília. A
+`query` of the same records read apart (`IDENT` 1: 138,316 rows, `DIAS_PERM` 941,694; the 43 `IDENT` 5 continuation AIHs,
+1,077 days, are outside the event as declared) gives the same numbers; the admission counts equal the ones nees-gt-ms
+had verified independently.

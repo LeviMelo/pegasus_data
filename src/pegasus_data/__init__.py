@@ -41,6 +41,8 @@ _EXPORTS: dict[str, str] = {
     "climate_daily": ".sources.cptec",
     "climate_weekly": ".sources.cptec",
     "grade_cells": ".sources.ibge_grade",
+    "tract_population": ".sources.ibge_tracts",
+    "census_tracts": ".sources.ibge_tracts",
     "field_rate": ".fields",
     "Sidra": ".sidra",
     "price_index": ".sidra.prices",
@@ -218,6 +220,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .sidra.prices import price_index
     from .sources.cptec import climate_daily, climate_weekly
     from .sources.ibge_grade import grade_cells
+    from .sources.ibge_tracts import census_tracts, tract_population
 
 
 def __getattr__(name: str) -> Any:

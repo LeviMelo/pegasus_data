@@ -27,7 +27,10 @@ import time
 
 import psutil
 
-ROOT = os.environ.get("PEGASUS_DATA_ROOT", "C:/Users/Galaxy/pegasus_core_data")
+from pegasus_data.config import load_settings
+
+#: The one data home (ADR-0200: PEGASUS_DATA_HOME or the user's config), never a path of this machine
+ROOT = str(load_settings().root)
 
 CHILD = r'''
 import sys, time, warnings, json
