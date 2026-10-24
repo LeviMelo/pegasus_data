@@ -660,3 +660,54 @@ def field_decision(
         candidates=list(bindings.get(field_name.upper()) or []), counts=counts, load=load or (lambda codelist: None),
         store=store, persist=False,
     )
+
+
+def label_candidates(
+    store: CatalogStore, system: str, series: str, family_ids: Sequence[str], field_names: Iterable[str],
+) -> frozenset[str]:
+    """Every codelist that labelling ``field_names`` in these families can be done with: the tables :func:`decide` can
+    return for them, whatever values the columns hold. For a reader whose output depends on a few columns' labels and
+    has to know which tables those are before it reads a record (`linkage.roles.table_key`): a table outside this set
+    cannot have labelled them.
+
+    Each source of a name :func:`decide` draws on is a source here, and a rung added there is added here (a role table
+    refuses to be built from a codelist this does not name, `linkage.roles._check_labels_named`):
+
+    * the field's curated doc (``codelist``, ``codelists``, a ``label_via`` table) and the form's own dictionary
+      (`harvested_codelist`): always;
+    * when the curation does not decide (no ``codes``, no ``codelist`` that is not per-form): the reviewed
+      adjudications (``LABEL_OF`` relations), and either the measured decisions stored for these families, if every
+      family has one, or the pool :func:`weigh` would weigh (``view._bindings``: the tables the catalog binds to the
+      field, in each family).
+
+    The names are upper case. A field a family does not carry adds the tables bound to it all the same."""
+    from ..view import _bindings
+    from .curation import harvested_codelist, load_variable_docs
+    from .relations import RelationType, relations_for
+
+    docs = load_variable_docs(store, system)
+    families = list(dict.fromkeys(f for f in family_ids if f))
+    pools = [_bindings(store, system, family) for family in families] or [_bindings(store, system, None)]
+    out: set[str] = set()
+    for field_name in dict.fromkeys(str(f).upper() for f in field_names):
+        doc = docs.get(field_name)
+        if doc is not None:
+            out.update(str(c) for c in (doc.codelist, *doc.codelists) if c)
+            via = getattr(doc, "label_via", None)
+            if via and via.get("table"):
+                out.add(str(via["table"]))
+        harvested = harvested_codelist(system, series, field_name) if series else None
+        if harvested:
+            out.add(harvested)
+        if doc is not None and (doc.codes or (doc.codelist and not doc.per_form)):
+            continue                                  # the curation decides: no adjudication, nothing is weighed
+        out.update(item.artifact for item in relations_for(
+            system, f"{system}.{series}", field_name, relation_type=RelationType.LABEL_OF, catalog=store))
+        stored_here = [stored(store, system, family, field_name) for family in families]
+        if families and all(found is not None for found in stored_here):
+            for found in stored_here:
+                out.update(found.codelists)           # type: ignore[union-attr]
+        else:
+            for pool in pools:
+                out.update(pool.get(field_name, ()))
+    return frozenset(name.upper() for name in out)

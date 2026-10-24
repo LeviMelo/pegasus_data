@@ -69,6 +69,8 @@ __all__ = [
     "note_fallback",
     "note_pack_fallback",
     "read_reference_table",
+    "reference_fingerprint",
+    "resource_digest",
     "write_reference_tables",
     "systems_with_tables",
 ]
@@ -651,6 +653,82 @@ def _read_reference_table(
     elif year is not None:
         span = (year * 100 + 1, year * 100 + 12)
     return _in_answering_windows(table, table_id, span, str(competencia if competencia is not None else year))
+
+
+def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | None = None) -> str:
+    """A digest of what :func:`read_reference_table` can answer ``table_id`` from for ``system`` in any vintage: the
+    source it is read from and that source's content, so that a reader whose output depends on a few codelists can name
+    exactly those (`linkage.roles.table_key`) instead of the whole label pack.
+
+    It follows ``_read_reference_table``'s own order of sources, and a source added there is added here:
+
+    * the canonical tables of the package (UF_BR, MUNIC_BR7, CIR_BR, the ``CLASSIFICATIONS``): the file's content;
+    * a curated table written in the curation (``CURATED.<SYSTEM>...``): its codes, labels and windows;
+    * the lake's warehouse table, when one is materialised: its files' names, sizes and times;
+    * else the shipped label pack: the rows of this system and the shared ones (`labelpack.packed_fingerprint`), and
+      those of the system it inherits from (`curation.INHERITS`).
+
+    A registry (CADGER*: establishment names) is also read from the data home's ``registries`` directory, and its
+    content is NOT in the digest: it is a cache built from the server's kit, not a shipped table, and it was not in the
+    key of a role table before this either. A role reads a registry's labels only to ask whether one says "ignorado",
+    and none of the 692,005 labels of CADGERBR does (2026-10-24); the digest says only that the table is a registry."""
+    import hashlib
+    import json
+
+    from ..labelpack import packed_fingerprint
+    from ..registry import is_registry
+    from ..semantics.curation import INHERITS, inline_codelist, inline_windows
+
+    name = table_id.upper()
+    if name in ("UF_BR", "MUNIC_BR7"):
+        return "resource:" + resource_digest("municipalities.parquet")
+    if name == "CIR_BR":
+        return "resource:" + resource_digest("geography.parquet")
+    if name == SIA_UPS_TABLE:
+        parts = [reference_fingerprint(lake_root, f"{head}{uf}{tail}", "SIASUS")
+                 for uf in _UF_CODES for head, tail in (("UPS-N", ""), ("CNESN", ""), ("CNESN", "1"), ("CNESN", "2"),
+                                                        ("CNESN", "3"))]
+        return "sia-ups:" + hashlib.sha256("|".join(parts).encode()).hexdigest()[:16]
+    canonical = CLASSIFICATIONS.get(name)
+    if canonical is not None:
+        return "resource:" + resource_digest(canonical)
+    held = ["registry"] if is_registry(name) else []
+    inline = inline_codelist(name)
+    if inline is not None:
+        body = json.dumps([sorted(inline.items()), sorted(inline_windows(name).items())], ensure_ascii=False)
+        return "|".join([*held, "inline:" + hashlib.sha256(body.encode()).hexdigest()[:16]])
+    base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
+    if base.exists():
+        listing = sorted((p.relative_to(base).as_posix(), p.stat().st_size, p.stat().st_mtime_ns)
+                         for p in base.rglob("*") if p.is_file())
+        return "|".join([*held, "lake:" + hashlib.sha256(json.dumps(listing).encode()).hexdigest()[:16]])
+    owners = [system, *INHERITS.get(system.upper(), ())] if system else [None]
+    return "|".join([*held, "pack:" + ",".join(packed_fingerprint(name, owner) for owner in owners)])
+
+
+@functools.lru_cache(maxsize=16)
+def _resource_digest_at(path: str, size: int, mtime_ns: int) -> str:
+    """The content hash of a file the package ships (size and time only key the in-process memo). Content, not time:
+    a checkout, a clone or an install rewrites modification times, and a second worktree on the same data root found
+    none of the first's role tables or stored runs current and, building its own, deleted them (2026-10-14)."""
+    import hashlib
+
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+def resource_digest(name: str) -> str:
+    """The content hash of one file of ``pegasus_data/resources``, ``"absent"`` when this build does not ship it."""
+    from importlib.resources import files as _files
+
+    path = Path(str(_files("pegasus_data.resources") / name))
+    if not path.exists():
+        return "absent"
+    st = path.stat()
+    return _resource_digest_at(str(path), st.st_size, st.st_mtime_ns)
 
 
 def _window_overlaps(window: tuple[str, str], span: tuple[int, int]) -> bool:

@@ -76,12 +76,16 @@ def links_dir(settings: Any) -> Path:
 
 def _fingerprint_of(settings: Any, spec: str, period: str, seen: frozenset[str] = frozenset()) -> str:
     from .engine import load_links, raw_links
-    from .roles import table_key
+    from .roles import load_roles, table_key
 
     sides = load_links()[spec]
     years = sorted({int(t) for t in re.findall(r"\d{4}", period)})
     h = hashlib.sha256(f"{LINKAGE_VERSION}|{spec}|".encode())
+    declared = load_roles()
     for side in (sides.left, sides.right):
+        # the municipality role whose state publishes a record scores its error channels (engine); no role table holds it
+        roles_of_side = declared.get(side.dataset.upper())
+        h.update(f"{side.dataset}|setting={roles_of_side.setting if roles_of_side else None}|".encode())
         for year in range(years[0], years[-1] + 1) if years else ():
             h.update(f"{side.dataset}|{year}|{table_key(side.dataset, year, settings)}|".encode())
     # a link that takes a role from another stored link (`inherit`) is as current as that link
@@ -95,12 +99,14 @@ def _fingerprint_of(settings: Any, spec: str, period: str, seen: frozenset[str] 
 
 
 def fingerprint(settings: Any, key: RunKey) -> str:
-    """What a run depends on besides its spec: the engine's own version (``LINKAGE_VERSION``) and the role tables of
-    the years it read, by their keys (`roles.table_key`: the datasets' role blocks, the labels and the lake partition
-    files of each year). A run is served only while its fingerprint is the current one. The record identity is a hash
-    of the normalised fields, so a normalisation fix, a republished preliminary file or a changed role makes every
-    stored id match nothing, and the runs built on them (linked shares, entities, inherited roles) read zero without
-    an error (2026-10-10, again 2026-10-14)."""
+    """What a run depends on besides its spec: the engine's own version (``LINKAGE_VERSION``), each side's ``setting``
+    and the role tables of the years it read, by their keys (`roles.table_key`: the datasets' roles, the codelists
+    their labelled columns are labelled with, and the lake partition files of each year; not the label pack as a
+    whole). A run is served only while its fingerprint is the current one. The record identity is a hash of the
+    normalised fields, so a normalisation fix, a republished preliminary file or a changed role makes every stored id
+    match nothing, and the runs built on them (linked shares, entities, inherited roles) read zero without an error
+    (2026-10-10, again 2026-10-14). The label pack as a whole was in it until 2026-10-24, and the re-windowing of one
+    system's labels (CIH, which no link reads) made every stored 2022 run stale."""
     return _fingerprint_of(settings, key.spec, key.period)
 
 
