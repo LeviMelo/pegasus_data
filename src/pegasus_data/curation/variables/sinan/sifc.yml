@@ -18,17 +18,13 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Sífilis Congênita v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       campo 39 (Diagnóstico de sífilis materna)
   ANT_IDADE:
+    notes: "FXID10MAENET (ten-year maternal age bands) is a TabNet tabulation axis built from this number, not the code the column carries (2023 file: a whole number in 24,694 of 25,291 rows, the rest \"***\")."
     official_name: Idade da mãe
     translated_name: Mother's age
-    description: 'The mother''s age, banded. Congenital syphilis concentrates in young
-      mothers with poor antenatal access, so this is a marker of the failure rather
-      than of biology.
-
-      '
-    code_system: internal
-    source: def
-    source_ref: FXID10MAENET.CNV
-    reasoning: Bound to FXID10MAENET, whose labels are ten-year maternal age bands.
+    description: "The mother's age in years at notification, typed as filed (number(3), \"Permite digitação\"), not banded. Congenital syphilis concentrates in young mothers with poor antenatal access, so this is a marker of the failure rather than of biology."
+    code_system: none
+    source: layout_doc
+    source_ref: "Dicionário de Dados SINAN NET v5.0 – Sífilis Congênita, campo 31 Idade da mãe (nu_idade_mae, number(3): \"Idade da mãe, por ocasião da notificação do caso. Permite digitação\", DBF ANT_IDADE); the notification form prints it \"31 Idade da mãe | Anos\" (SIFICN_FICHA.pdf)"
   ANT_MUNI_C:
     official_name: Município do nascimento/aborto/natimorto
     translated_name: Municipality of birth/abortion/stillbirth

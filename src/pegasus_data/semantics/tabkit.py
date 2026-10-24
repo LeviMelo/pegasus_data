@@ -192,6 +192,21 @@ _KIT_ERAS: dict[str, tuple[str, str]] = {
 }
 
 
+def kit_folder(kit_path: str) -> str | None:
+    """The directory whose name gives a kit its window, when the window comes from the folder and not from the kit's own
+    file name (``/CIH/200801_201012/Auxiliar/TAB_CIH.zip`` -> ``/CIH/200801_201012/``); None for a kit named for its window
+    (``TAB_SIH_199201-199712.zip``) or without one. The data DATASUS filed under that folder are what the kit describes
+    (`dictionary.settle_folder_windows`)."""
+    path = str(kit_path)
+    if _KIT_PERIOD.search(PurePosixPath(path).name):
+        return None
+    match = _KIT_PERIOD.search(path)
+    if match is None:
+        return None
+    end = path.find("/", match.end())
+    return path[: end + 1] if end >= 0 else None
+
+
 def kit_validity(kit_path: str) -> tuple[str | None, str | None]:
     """The period a kit's mappings apply to, read from its filename.
 

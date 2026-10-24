@@ -67,6 +67,7 @@ from .semantics.dictionary import (
     persist_entries,
     persist_rules,
     settle_era_windows,
+    settle_folder_windows,
     supersede_source,
 )
 from .semantics.ledger import build_ledger, persist_ledger
@@ -448,6 +449,8 @@ class Pipeline:
         # current source shares its name (ADR-0152).
         era = settle_era_windows(self.catalog)
         counts["era_rows_bounded"], counts["era_rows_released"] = era["bounded"], era["released"]
+        # A kit dated by its folder covers the data filed under that folder, whatever the folder's name says.
+        counts["folder_kits_widened"] = settle_folder_windows(self.catalog)["kits"]
 
         counts["loose_cnv_parsed"] = loose_cnvs
         counts["loose_def_parsed"] = loose_defs

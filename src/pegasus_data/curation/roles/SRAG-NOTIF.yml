@@ -112,13 +112,13 @@ columns:
     note: "Measured against DT_NASC and DT_SIN_PRI (2022 file, 560372 rows with both dates) - unit 1 is 1.0 day per unit, unit 2 is 30.2 days per unit, unit 3 is 365 to 368 days per unit."
   COD_IDADE:
     role: patient.age_code
-    kind: category
-    model: mark
+    kind: text
+    model: excluded
     fact_domain: person
     fact_domain_evidence: "\"Código da idade\" (patient.age_code): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "Código da idade"
     review: draft
-    note: "Not in the dictionary. Measured: equals TP_IDADE followed by NU_IDADE_N in three digits in 560576 of 560577 rows of the 2022 file (the one other holds -9)."
+    note: "Not in the dictionary. Measured: equals TP_IDADE followed by NU_IDADE_N in three digits in 560576 of 560577 rows of the 2022 file (the one other holds -9). Not a code table: the unit digit and the age of the two documented columns, so the age is read from TP_IDADE and NU_IDADE_N (IDADE_anos); set aside, as filed."
   CS_GESTANT:
     missing: ['9']
     # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='1º Trimestre', 2='2º Trimestre', 3='3º Trimestre', 4='Idade Gestacional Ignorada', 5='Não', 6='Não se aplica', 9='Ignorado'
@@ -954,11 +954,12 @@ columns:
   PAC_COCBO:
     role: patient.occupation
     kind: code_tree
+    codelists: [CBO2002]
     model: dimension
     fact_domain: person
     fact_domain_evidence: "\"Ocupação\" (patient.occupation): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "Ocupação"
-    note: "The code 'XXX' (1563 rows of the 2022 file) is filed with the description NAO INFORMADO."
+    note: "The code 'XXX' (1563 rows of the 2022 file) is filed with the description NAO INFORMADO. The dictionary prints PAC_COCBO as Varchar2(6), \"Tabela com código da Ocupação da Classificação Brasileira de Ocupações (CBO)\" (dicionario-de-dados-2019-a-2025.pdf, campo 20)."
   PAC_DSCBO:
     role: patient.occupation_text
     kind: text

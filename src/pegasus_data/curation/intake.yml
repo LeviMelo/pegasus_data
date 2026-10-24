@@ -24,7 +24,9 @@
 #   columns             the columns used, as the source's own dictionary names them: `role` (the dictionary's words), `type`
 #                       (roles.yml's vocabulary: municipality, code, label, date, number...; `int_code` reads a code filed as a
 #                       float's text, '5.0' or '6.0000000000', as '5', the value as filed kept in <NAME>__RAW), `codes` (its code
-#                       list, raw value -> meaning, when the dictionary gives one), `decimal` for a number written with a comma,
+#                       list, raw value -> meaning, when the dictionary gives one), `codelist` (a table the package ships, ICD10
+#                       or CBO2002, when the dictionary names a standard instead of listing codes), `label_from` (a sibling column
+#                       of the same record that names the code, ADR-0090), `decimal` for a number written with a comma,
 #                       `derived` (the curated recipe of a column made from this one, as variables/*.yml writes it)
 #   place               the key a context is served by: {column, type: municipality (IBGE code, 6 or 7 digits, as given) |
 #                       municipality_name (+ uf: the state column; exact fold match against IBGE's names) | code, as: name}
@@ -723,7 +725,7 @@ sources:
       DT_VGM: {role: "Date of the trip of the earlier forms (dictionary: (histórico de viagem) data)", type: date, take: 10, format: "%Y-%m-%d"}
       DT_RT_VGM: {role: "Date of the return from the trip of the earlier forms (dictionary: (histórico de viagem) data de retorno)", type: date, take: 10, format: "%Y-%m-%d"}
       PCR_SARS2: {role: "SARS-CoV-2 in the molecular test (dictionary: Agente etiológico RT-PCR: SARS-CoV-2)", type: int_code, codes: {"1": "Marcado pelo usuário"}}
-      PAC_COCBO: {role: "Occupation of the patient (CBO code) (dictionary: Ocupação)"}
+      PAC_COCBO: {role: "Occupation of the patient (CBO code) (dictionary: Ocupação)", codelist: CBO2002}
       PAC_DSCBO: {role: "Description of the occupation (dictionary: Ocupação (descrição))"}
       DOR_ABD: {role: "Abdominal pain (dictionary: Sinais e Sintomas/Dor abdominal)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
       FADIGA: {role: "Fatigue (dictionary: Sinais e Sintomas/Fadiga)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
@@ -1564,6 +1566,7 @@ sources:
       CO_CID10:
         role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
+        codelist: ICD10
       SG_SEXO:
         role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
@@ -1691,6 +1694,7 @@ sources:
       CO_CID10:
         role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
+        codelist: ICD10
       SG_SEXO:
         role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
@@ -1705,6 +1709,7 @@ sources:
       DS_DCB:
         role: the active principle's Denominação Comum Brasileira
         type: label
+        label_from: NO_PRINCIPIO_ATIVO
       NO_PRINCIPIO_ATIVO:
         role: name of the active principle
         type: label

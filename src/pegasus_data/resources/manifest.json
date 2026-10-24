@@ -36,9 +36,9 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 29493870,
+      "bytes": 29494075,
       "rows": 4219908,
-      "sha256": "22760a59e180ebb1d5dcf3d0426a209e80652672d8129ebc86b78a735e28b645"
+      "sha256": "44baa99d606e1976df90e82cc73bb81915b9c2088e1f77364afc49211106abf3"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",

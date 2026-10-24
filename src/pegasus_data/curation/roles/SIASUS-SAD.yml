@@ -126,8 +126,9 @@ columns:
     - TP_GEST_C
   CO_INE:
     role: care.national_care_team_identifier
-    kind: category
-    model: mark
+    kind: institution
+    note: "The team that gave the care, identified by its national code: the directory is the CNES team registry (curation/codelists.yml, registry role: held out of the pack, reached through CNES), so the column is an organisation's identifier, not a category. \"Código de Identificação Nacional de Equipes\", Informe Técnico SIASUS 2019-07."
+    model: institution
     fact_domain: administrative
     fact_domain_evidence: "\"Identificador Nacional de Equipe\" (care.national_care_team_identifier): billing, financing, management or contractual attribute"
     name: Identificador Nacional de Equipe
@@ -384,8 +385,9 @@ columns:
     - S_CLASSEN
   PA_EQUIPE:
     role: care.health_team_identifier
-    kind: category
-    model: mark
+    kind: institution
+    note: "\"Código da Equipe\", CHAR (12), RAAS only (Informe Técnico SIASUS 2019-07, SEQ 36): the team's code, an organisation's identifier whose directory is the CNES team registry; no table of the package names it, so it is read as filed."
+    model: institution
     fact_domain: administrative
     fact_domain_evidence: "\"Equipe\" (care.health_team_identifier): billing, financing, management or contractual attribute"
     name: Equipe
@@ -458,7 +460,10 @@ columns:
     - 2018
   PERMANEN:
     role: care.time_in_attendance
-    kind: category
+    kind: number
+    unit_unknown: "Informe_Tecnico_SIASUS_2019_07.pdf PERMANEN \"Permanência em Atendimento\", CHAR (4), no unit stated; whole numbers 1 to 31, 31, 30, 28 and 29 the commonest (first 40 partitions of each SAD family, 2026-10-23; the 2014 family also holds a few negatives and values to 120): a lead, not a unit"
+    missing_unknown: "no codelist or tabulation band of DATASUS bounds it"
+    note: "A quantity, not a code: the layout prints no table for it, as for PS's PERMANEN (SIASUS-PS), which is declared a number."
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Permanência em Atendimento\" (care.time_in_attendance): how care or investigation was carried out"

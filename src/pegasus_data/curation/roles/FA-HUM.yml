@@ -102,12 +102,12 @@ columns:
     note: "The lake's year partition (0 for the one row without it, the empty row)."
   MONITORAMENTO_IS:
     role: case.monitoring_period
-    kind: category
+    kind: text
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Período de monitoramento de início dos sintomas do indivíduo\" (case.monitoring_period): fact about the health event or the person's health"
     name: "Período de monitoramento de início dos sintomas do indivíduo"
-    note: "July to June, '2016/2017' for onsets from 1 July 2016 to 30 June 2017 (the dictionary's footnote, the Ministry's seasonal year since 2008). It agrees with ANO_IS and MES_IS in all but 3 of 2911 rows."
+    note: "July to June, '2016/2017' for onsets from 1 July 2016 to 30 June 2017 (the dictionary's footnote, the Ministry's seasonal year since 2008). It agrees with ANO_IS and MES_IS in all but 3 of 2911 rows. A period label read as filed, not a code a table decodes ('2025/2026' in the 2026 files, measured 2026-10-23)."
   OBITO:
     missing: ['IGN']
     # the dictionary gives no table; the file writes SIM, NÃO and IGN (88 rows), the words of the answer and DATASUS's abbreviation of Ignorado

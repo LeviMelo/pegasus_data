@@ -57,7 +57,7 @@ variables:
       4.8 or 7.2 million IU, another regimen, or not done.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Gestante com Sífilis — http://portalsinan.saude.gov.br/images/documentos/Agravos/Sifilis-Ges/DIC_DADOS_Gestante_Sifilis_v5.pdf,
       campo 43 (Esquema de tratamento prescrito ao parceiro)
@@ -90,7 +90,7 @@ variables:
       summoned but did not come, refused, non-reactive serology, or other.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Gestante com Sífilis — http://portalsinan.saude.gov.br/images/documentos/Agravos/Sifilis-Ges/DIC_DADOS_Gestante_Sifilis_v5.pdf,
       campo 44 (Motivo para o não tratamento do parceiro)
@@ -112,7 +112,7 @@ variables:
     description: 'Whether the partner was treated at the same time as the pregnant woman.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Gestante com Sífilis — http://portalsinan.saude.gov.br/images/documentos/Agravos/Sifilis-Ges/DIC_DADOS_Gestante_Sifilis_v5.pdf,
       campo 42 (Parceiro tratado concomitantemente à gestante)

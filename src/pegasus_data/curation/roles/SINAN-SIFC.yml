@@ -14,13 +14,15 @@ columns:
     - 2007
     - 2025
   ANT_IDADE:
-    missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
+    missing_unknown: "the dictionary names no value for not recorded; the files hold \"***\" in 2.4% of the 2023 rows and typing errors (0, 99, up to 999)"
     role: mother.age_years
-    kind: category
-    model: dimension
+    kind: number
+    unit: years
+    unit_evidence: "SIFICN_FICHA.pdf (notification form), \"31 Idade da mãe | Anos\"; Dicionário de Dados SINAN NET v5.0 Sífilis Congênita, campo 31 nu_idade_mae number(3) \"Permite digitação\""
+    model: mark
     fact_domain: person
     fact_domain_evidence: "\"Idade da mãe\" (mother.age_years): attribute of the person (age)"
-    note: Banded age of the mother (category), not a number.
+    note: "The mother's age in years as typed, not a band: the harvested dictionary types it a number. The files hold 10 to 50 in most years, with entry errors (0, 99, up to 999) and \"***\" in 2.4% of the 2023 rows (measured 2026-10-23). The earlier reading as a banded category rested on FXID10MAENET, a TabNet axis."
     name: Idade da mãe
     years:
     - 2007

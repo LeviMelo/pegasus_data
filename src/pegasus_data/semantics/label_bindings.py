@@ -639,7 +639,7 @@ def field_decision(
     (without it a decision that needs measuring finds no table, and one made by curation or stored needs none). Nothing
     is written: a report must not change what the next build decides."""
     from ..view import _bindings, _family_series
-    from .curation import load_variable_docs
+    from .curation import form_types_a_date, load_variable_docs
 
     doc = load_variable_docs(store, system).get(field_name.upper())
     if doc is not None:
@@ -652,6 +652,8 @@ def field_decision(
             return LabelBinding((str(via["table"]),), "curated", reason=f"named through {via['table']}.{via.get('field') or 'label'}")
         if getattr(doc, "code_system", None) == "none" and not getattr(doc, "codes", None):
             return LabelBinding((), "none", reason="not a coded column (curation: code_system none)")
+        if form_types_a_date(system, _family_series(store, family_id), field_name):
+            return LabelBinding((), "none", reason="not a coded column (the form's own dictionary types it a date)")
     bindings = store.memo(("bindings", system, family_id or ""), lambda: _bindings(store, system, family_id))
     return decide(
         system=system, family_id=family_id, series=_family_series(store, family_id), field_name=field_name, doc=doc,

@@ -711,7 +711,10 @@ columns:
   NU_A_NUM_1:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_food_samples_result_1
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "food samples positive for result 1 (the main finding)"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 51 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 1)\" (outbreak.positive_food_samples_result_1): fact about the health event or the person's health"
@@ -722,7 +725,10 @@ columns:
   NU_A_NUM_2:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_food_samples_result_2
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "food samples positive for result 2"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 53 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 2)\" (outbreak.positive_food_samples_result_2): fact about the health event or the person's health"
@@ -733,7 +739,10 @@ columns:
   NU_A_NUM_3:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_food_samples_result_3
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "food samples positive for result 3"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 55 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras de alimentos, resultado 3)\" (outbreak.positive_food_samples_result_3): fact about the health event or the person's health"
@@ -757,7 +766,10 @@ columns:
   NU_CLI_NUM:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_clinical_samples_result_1
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "clinical samples positive for result 1 (the main finding)"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 43 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 1)\" (outbreak.positive_clinical_samples_result_1): fact about the health event or the person's health"
@@ -948,7 +960,10 @@ columns:
   NU_NUM_2:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_clinical_samples_result_2
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "clinical samples positive for result 2"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 45 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 2)\" (outbreak.positive_clinical_samples_result_2): fact about the health event or the person's health"
@@ -959,7 +974,10 @@ columns:
   NU_NUM_3:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.positive_clinical_samples_result_3
-    kind: category
+    kind: number
+    unit: count
+    unit_of: "clinical samples positive for result 3"
+    unit_evidence: "DIC_DADOS_Surto_DTA_v5.pdf (SINAN NET Surto DTA, rev. fev/2012), campo 47 \"N° de Positivas\", numeric(4): \"Se negativo colocar 00\" (every non-blank value of the 2021-2024 files is a whole number, measured 2026-10-23); it is a count, not a code"
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Nº de positivas (amostras clínicas, resultado 3)\" (outbreak.positive_clinical_samples_result_3): fact about the health event or the person's health"
@@ -996,8 +1014,9 @@ columns:
   NU_RESU_3:
     missing_unknown: 'no form dictionary is harvested for it, and DATASUS''s tabulation alone does not declare (no value labelled as not recorded; 2023)'
     role: outbreak.clinical_sample_result_3_other_finding
-    kind: category
-    model: mark
+    kind: text
+    note: "DIC_DADOS_Surto_DTA_v5.pdf campo 46 \"Resultado 3 (Outro Achado)\", varchar(60): the name of the agent found, or \"negativo\". The files of 2022-2024 hold the digits 0 to 9 in all 189 non-blank rows (measured 2026-10-23), which is no agent name; read as filed and set aside, not decoded."
+    model: excluded
     fact_domain: clinical
     fact_domain_evidence: "\"Resultado 3 (outro achado) - amostras clínicas\" (outbreak.clinical_sample_result_3_other_finding): fact about the health event or the person's health"
     name: Resultado 3 (outro achado) - amostras clínicas

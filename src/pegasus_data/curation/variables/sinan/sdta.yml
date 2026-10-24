@@ -680,9 +680,9 @@ variables:
       outbreak investigation forms.
 
       '
-    code_system: none
+    code_system: internal
     source: inferred
-    reasoning: 'TP_ = tipo, LOCAL = local; SDTA outbreak-context field. Reviewed 2026-09-28: not named in the SINAN NET Surto DTA v5 dictionary (DIC_DADOS_Surto_DTA_v5.pdf); its campo 38 Local de ingestão (varchar 2, same 01-11/99 place codes as campo 37) has no DBF name listed and is the likely match.'
+    reasoning: "TP_ = tipo, LOCAL = local. The Surto DTA v5 dictionary (DIC_DADOS_Surto_DTA_v5.pdf) names no DBF column for campo 38 Local de ingestão (varchar 2) and names TP_PRO_PRE for campo 37; the notification form prints the same table for both (SDTA_FICHA.pdf, SVS 08/06/2006: 01 Ambulantes to 11 Outros especificar, 99 Ignorado). TP_LOCAL is the only other column holding that table (the 2009-2024 files hold 01 to 11 and 99, with two stray one-character codes, 0 and 8, in 2023) and is not a copy of TP_PRO_PRE (equal on 1,448 of the 1,905 rows of 2022 and 2024 where both are filled), so it is campo 38 by elimination. The code table is the same under either reading; only which venue it describes rests on the inference."
   TP_PRO_PRE:
     official_name: 'Local de produção/preparação'
     translated_name: 'Place of food production/preparation'

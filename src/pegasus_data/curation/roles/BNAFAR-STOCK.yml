@@ -7,13 +7,13 @@ record: stock
 columns:
   codigo_catmat:
     role: stock.item
-    kind: category
-    model: dimension
+    kind: identifier
+    model: link_only
     fact_domain: administrative
     fact_domain_evidence: '"Código CATMAT com unidade de fornecimento" (stock.item): position of the stock of a medicine at
       an establishment: the stock register'
     name: Código CATMAT com unidade de fornecimento
-    note: 'CATMAT item with its supply unit (BR0268954U0042: BR, the item, the unit); filtered whole.'
+    note: "CATMAT item with its supply unit (BR0268954U0042: BR, the item, the unit); filtered whole. A catalogue key, not a category: the item's entry in the CATMAT catalogue (Compras.gov.br, class 6505, the `catmat` intake) with its supply unit, read to join the stock to it; the product reads in descricao_produto."
   codigo_cnes:
     role: stock.facility
     kind: institution
