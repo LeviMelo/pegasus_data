@@ -20,8 +20,9 @@ remains the 1961-2024 source of the yearly fields (ADR-0178) and the reference t
 **Municipal means.** Each grid cell weighs in a municipality by the people of IBGE's Grade Estatística 2022 inside it
 (``population``) and by its area inside the municipality (``area``), both from the 200 m / 1 km cells of the grade
 (`ibge_grade.grid_weights`): the population-weighted mean is the weather where the people live, the area-weighted one
-the weather of the territory (what BR-DWGD's zonal means are). A grid cell with no value that day (sea, outside the
-domain) is left out of both sums and ``coverage`` says what share of the weight had a value. ``stations`` is the
+the weather of the territory (what BR-DWGD's zonal means are). Weight on a grid cell with no value that day (SAMeT's sea
+cells, where a coastal town's people can live) is read at the nearest cell with a value within 10 km, and ``coverage``
+says what share of the weight was read at its own cell. ``stations`` is the
 product's count of stations or gauges in the grid cells the municipality touches: where it is 0 the value is the
 satellite's or the reanalysis' alone.
 
@@ -42,6 +43,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import re
+import threading
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -84,6 +86,10 @@ DEFAULT_START = dt.date(2000, 1, 1)
 INTERVAL = 0.3
 WORKERS = 4
 MISSING = -9.99e8
+#: How far a weight on a cell with no value may be read at the nearest cell with one (km)
+NEAREST_KM = 10.0
+#: eccodes loads its definitions on first use and fails ("no definitions found") when two threads do it at once
+_ECCODES = threading.Lock()
 
 __all__ = ["PRODUCTS", "daily", "grid", "listing", "read_file", "update", "weekly"]
 
@@ -134,18 +140,19 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
             raise ValueError(f"{product.product}: {len(messages)} GRIB messages, expected PREC and NEST")
         fields = []
         for raw in messages:
-            handle = eccodes.codes_new_from_message(raw)
-            try:
-                ni, nj = eccodes.codes_get(handle, "Ni"), eccodes.codes_get(handle, "Nj")
-                lon0 = eccodes.codes_get(handle, "longitudeOfFirstGridPointInDegrees")
-                lat0 = eccodes.codes_get(handle, "latitudeOfFirstGridPointInDegrees")
-                step = eccodes.codes_get(handle, "iDirectionIncrementInDegrees")
-                if eccodes.codes_get(handle, "jScansPositively") != 1:
-                    raise ValueError(f"{product.product}: rows scan north to south")
-                missing = eccodes.codes_get(handle, "missingValue")
-                values = eccodes.codes_get_values(handle).reshape(nj, ni)
-            finally:
-                eccodes.codes_release(handle)
+            with _ECCODES:      # the whole decoding: a handle is not to be read while another thread loads definitions
+                handle = eccodes.codes_new_from_message(raw)
+                try:
+                    ni, nj = eccodes.codes_get(handle, "Ni"), eccodes.codes_get(handle, "Nj")
+                    lon0 = eccodes.codes_get(handle, "longitudeOfFirstGridPointInDegrees")
+                    lat0 = eccodes.codes_get(handle, "latitudeOfFirstGridPointInDegrees")
+                    step = eccodes.codes_get(handle, "iDirectionIncrementInDegrees")
+                    if eccodes.codes_get(handle, "jScansPositively") != 1:
+                        raise ValueError(f"{product.product}: rows scan north to south")
+                    missing = eccodes.codes_get(handle, "missingValue")
+                    values = eccodes.codes_get_values(handle).reshape(nj, ni)
+                finally:
+                    eccodes.codes_release(handle)
             fields.append(np.where(values == missing, np.nan, values))
         lon = (lon0 - 360 if lon0 > 180 else lon0) + step * np.arange(ni)
         lat = lat0 + step * np.arange(nj)
@@ -165,21 +172,60 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
 
 class _Weights:
     """A grid's municipal weights as sparse matrices (municipality × grid cell): population, area, and which cells a
-    municipality touches."""
+    municipality touches.
 
-    def __init__(self, table: Any, shape: tuple[int, int]) -> None:
+    A product's edge is not the coast: SAMeT has no value over the cells it counts as sea, and a coastal town's people can
+    sit in them (Fortaleza: half its people). Weight on a cell with no value is read at the nearest cell that has one,
+    within `NEAREST_KM`, so a coastal town reads the coast and not only its hinterland; weight with no such cell is lost.
+    ``coverage`` is the share of the weight read at its own cell; the rest was read at a neighbour or lost."""
+
+    def __init__(self, table: Any, lon: Any, lat: Any) -> None:
         import numpy as np
         from scipy import sparse
 
         codes = table.column("municipality7").to_numpy(zero_copy_only=False)
-        self.municipalities, row = np.unique(codes, return_inverse=True)
-        column = table.column("i").to_numpy() * shape[1] + table.column("j").to_numpy()
-        size = (len(self.municipalities), shape[0] * shape[1])
-        self.population = sparse.csr_matrix((table.column("population").to_numpy(), (row, column)), shape=size)
-        self.area = sparse.csr_matrix((table.column("area_km2").to_numpy(), (row, column)), shape=size)
-        self.touched = sparse.csr_matrix((np.ones(len(row)), (row, column)), shape=size)
-        self.population_total = np.asarray(self.population.sum(axis=1)).ravel()
-        self.area_total = np.asarray(self.area.sum(axis=1)).ravel()
+        self.municipalities, self.row = np.unique(codes, return_inverse=True)
+        self.lon, self.lat = np.asarray(lon), np.asarray(lat)
+        self.column = table.column("i").to_numpy() * len(lon) + table.column("j").to_numpy()
+        self.size = (len(self.municipalities), len(lat) * len(lon))
+        self.weights = {"population": table.column("population").to_numpy(), "area": table.column("area_km2").to_numpy()}
+        self.totals = {k: np.bincount(self.row, weights=v, minlength=self.size[0]) for k, v in self.weights.items()}
+        self.touched = sparse.csr_matrix((np.ones(len(self.row)), (self.row, self.column)), shape=self.size)
+        self._by_mask: dict[bytes, Any] = {}
+
+    def _matrices(self, held: Any) -> Any:
+        """For one pattern of cells with a value: per weight, the matrix that reads each weight at its own cell or at the
+        nearest cell with a value, and the matrix of the weight read at its own cell."""
+        import hashlib
+
+        import numpy as np
+        from scipy import sparse
+        from scipy.spatial import cKDTree
+
+        key = hashlib.sha1(np.packbits(held).tobytes()).digest()
+        if key in self._by_mask:
+            return self._by_mask[key]
+        own = held[self.column]
+        column = self.column.copy()
+        moved = ~own
+        if moved.any() and held.any():
+            def xy(cells: Any) -> Any:
+                i, j = np.divmod(cells, len(self.lon))
+                return np.column_stack([self.lon[j] * np.cos(np.radians(self.lat[i])), self.lat[i]])
+
+            valid = np.flatnonzero(held)
+            distance, nearest = cKDTree(xy(valid)).query(xy(self.column[moved]))
+            reach = distance * 111.2 <= NEAREST_KM
+            target = np.where(reach, valid[nearest], -1)
+            column[moved] = target
+        keep = column >= 0
+        built = {}
+        for name, values in self.weights.items():
+            read = sparse.csr_matrix((values[keep], (self.row[keep], column[keep])), shape=self.size)
+            at_own = np.bincount(self.row[own], weights=values[own], minlength=self.size[0])
+            built[name] = (read, at_own)
+        self._by_mask[key] = built
+        return built
 
     def reduce(self, value: Any, stations: Any) -> dict[str, Any]:
         import numpy as np
@@ -188,11 +234,12 @@ class _Weights:
         held = np.isfinite(flat)
         filled = np.where(held, flat, 0.0)
         out: dict[str, Any] = {}
-        for name, matrix, total in (("population", self.population, self.population_total), ("area", self.area, self.area_total)):
-            weight = matrix @ held.astype(float)
+        for name, (read, at_own) in self._matrices(held).items():
+            weight = read @ held.astype(float)
+            total = self.totals[name]
             with np.errstate(invalid="ignore", divide="ignore"):
-                out[f"value_{name}"] = np.where(weight > 0, (matrix @ filled) / weight, np.nan)
-                out[f"coverage_{name}"] = np.where(total > 0, weight / total, np.nan)
+                out[f"value_{name}"] = np.where(weight > 0, (read @ filled) / weight, np.nan)
+                out[f"coverage_{name}"] = np.where(total > 0, at_own / total, np.nan)
         out["stations"] = np.rint(self.touched @ stations.ravel()).astype(np.int32)
         return out
 
@@ -213,7 +260,7 @@ def grid(settings: Any, lon: Any, lat: Any) -> _Weights:
         table = ibge_grade.grid_weights(lon, lat, root=settings.root)
         path.parent.mkdir(parents=True, exist_ok=True)
         write_parquet_atomic(table, path, compression="zstd")
-    return _Weights(table, (len(lat), len(lon)))
+    return _Weights(table, lon, lat)
 
 
 def _manifest(settings: Any, variable: str) -> Any:
