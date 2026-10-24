@@ -19,6 +19,8 @@ death-verification service, a managing authority, a laboratory or partner servic
 may do with it: the residence of the person is a **stratum** (always a subject's place); a **where** is the one an
 event is placed at (always an event's place; a record's place is never one); every other place is a **mark** or a
 **dimension**, still typed by `place_of`. Flows between places (`proximity.flows`) read the pair (residence, where).
+A stratum that stands for another place because the file holds no residence names it, ``place_label`` ("probable place
+of infection": FA-HUM's cases are placed where they were infected), so a reader is never told it is where they live.
 
 Every column a study reads as a field (any kind, model not ``link_only`` or ``excluded``: categories, numbers, dates,
 codes, places, institutions) also states its ``fact_domain`` (what it is a fact about: person, clinical, process or
@@ -112,7 +114,8 @@ PLACE_OF = {
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
-                  "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other", "through"})
+                  "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other", "through",
+                  "place_label"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -204,6 +207,8 @@ class ColumnRole:
     fatal_other: tuple[str, ...] | None = None
     #: For a column another dataset files on the same record (SIH-SP's sex and age, SIH-RD's): where it is read from
     through: Through | None = None
+    #: For a stratum standing for a place that is not the subject's residence: that place, in words (`place_label`).
+    place_label: str | None = None
 
     @property
     def entity(self) -> str:
@@ -233,6 +238,7 @@ class ColumnRole:
                 **({"unit_from": self.unit_from} if self.unit_from else {}),
                 **({"competence": list(self.competence)} if self.competence else {}),
                 **({"place_of": self.place_of} if self.place_of else {}),
+                **({"place_label": self.place_label} if self.place_label else {}),
                 **({"through": {"key": self.through.key, "dataset": self.through.dataset}} if self.through else {}),
                 **({"instruments": list(self.instruments), "instruments_evidence": self.instruments_evidence}
                    if self.instruments else {})}
@@ -318,6 +324,9 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       "record names (a registry office, a managing authority) is a mark")
     elif place_of is not None:
         raise bad("`place_of` is declared for places only")
+    place_label = spec.get("place_label")
+    if place_label is not None and not (kind == "place" and model == "stratum"):
+        raise bad("`place_label` names the place a stratum stands for; it is declared on a place stratum only")
     through = None
     if "through" in spec:
         raw = spec["through"]
@@ -431,7 +440,8 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       " ".join(str(spec["unit_evidence"]).split()) if unit is not None else None,
                       " ".join(str(unit_unknown).split()) if unit_unknown is not None else None,
                       int(unit_from) if unit_from is not None else None, competence,
-                      str(place_of) if place_of is not None else None, fatal, fatal_other, through)
+                      str(place_of) if place_of is not None else None, fatal, fatal_other, through,
+                      place_label=" ".join(str(place_label).split()) if place_label else None)
 
 
 def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

@@ -40,6 +40,7 @@ columns:
     kind: place
     model: stratum
     place_of: subject
+    place_label: probable place of infection
     fact_domain: clinical
     fact_domain_evidence: "\"Código IBGE do município do local provável de infecção\" (case.infection_municipality): the probable place of infection (LPI), not residence: exposure of the case, standing as the case's residence stratum"
     name: "Código IBGE do município do local provável de infecção"
