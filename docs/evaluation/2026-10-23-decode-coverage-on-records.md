@@ -72,3 +72,10 @@ SIFG TPESQPAR `3` Penicilina G benzatina 7.200.000UI and `4` Outro esquema; TUBE
 - Two sources disagree and both are kept (cr.yml): the CIH layout prints GESTAO as `0 / 1 / 2` where the files and GESTAO.CNV hold `M / E / D` (and 1, 2), and names NATUREZA "natureza da
   relação do hospital com o SUS" where NATUREZA.CNV lists legal forms. The earlier GESTAO entry had read the CNV's category numbering as its codes ("1 Estadual, 2 Municipal"): wrong, corrected there.
 - A kit window read from a folder's name is a claim about the data in it: CIH's was four months short (ADR-0198).
+
+**On the real catalog (same day, after the merge).** The real catalog's curation lagged the YAML (5,129 variable docs
+against 5,419): `pegasus-data curate --root C:/Users/Galaxy/pegasus_core_data` (backup kept) loaded it, and the same
+measurement on the real root (artifact `2026-10-23-after-curate.json`) gives the branch's figures: 949 labelled, 18 codes
+left bare, 70 words as filed, 91 empty or constant, of 1,037 coded columns. Labels read against their documents: CIH-CR
+SEXO 3 Feminino, 1 Masculino (CIH layout); MORTE, GESTAO; SINAN-TUBE TRATAMENTO 3 Reingresso após Abandono; SIFG TPESQUEMA
+and TPESQPAR clean; SNGPC CO_CID10 by ICD-10; SRAG PAC_COCBO by CBO; CIH COBRANCA 61 visibly unlabelled.
