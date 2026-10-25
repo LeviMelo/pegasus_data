@@ -386,6 +386,26 @@ def _expand_ranges(ranges: list[tuple[str, str, str, str, str, str, str, tuple[s
     return placeholders
 
 
+def _arranjo_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int | str]]]:
+    """IBGE's population arrangements and urban concentrations (``source: IBGE/arranjos_populacionais_2ed``)."""
+    from .sources.ibge_arranjos import fetch, memberships
+
+    wanted = [name for name, body in classifications(root, authority="ibge").items()
+              if body.get("source") == "IBGE/arranjos_populacionais_2ed"]
+    if not wanted:
+        return [], {}
+    published = memberships(fetch(cache_dir))
+    rows: list[tuple[str, ...]] = []
+    report: dict[str, dict[str, int | str]] = {}
+    for name in wanted:
+        members = published[name]
+        rows.extend((code7[:6], name, "", member, label, "ibge:arranjos_populacionais_2ed", "", "", "ibge")
+                    for code7, member, label in members)
+        report[name] = {"municipalities": len(members), "members": len({m for _, m, _ in members}),
+                        "rows": len(members), "contested": 0, "authority": "ibge"}
+    return rows, report
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
@@ -394,6 +414,7 @@ def build_geography_pack(
     ibge: Any = None,
     tabnet_cache: str | Path | None = None,
     ipea_cache: str | Path | None = None,
+    arranjos_cache: str | Path | None = None,
 ) -> dict[str, Any]:
     """Compile the membership pack out of the shipped label pack.
 
@@ -486,6 +507,10 @@ def build_geography_pack(
         added, ipea_report = _ipea_rows(root, ipea_cache)
         rows.extend(added)
         report.update(ipea_report)
+    if arranjos_cache is not None:
+        added, arranjo_report = _arranjo_rows(root, arranjos_cache)
+        rows.extend(added)
+        report.update(arranjo_report)
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -878,6 +903,44 @@ def mesh(level: str = "municipality", quality: str = "minima", root: str | Path 
 
     frame = gpd.read_file(mesh_file(level, quality, root)).set_crs("EPSG:4674", allow_override=True)
     return frame.rename(columns={"codarea": "code"})[["code", "geometry"]]
+
+
+#: A point outside every polygon (a coastal station, a seaside runway) takes the nearest municipality within this distance
+COAST_TOLERANCE_M = 2000
+
+
+def place_points(lon: Any, lat: Any, *, mesh_path: str | Path | None = None, root: str | Path | None = None,
+                 tolerance_m: float = COAST_TOLERANCE_M) -> tuple[list[str | None], list[str | None]]:
+    """The municipality each point (SIRGAS 2000 degrees) lies in, by IBGE's full-resolution mesh: ``(code7, placed_by)``
+    per point, ``placed_by`` ``within`` or ``nearest within <tolerance> m`` (a point just off the coast), both None for a
+    point placed nowhere or without coordinates. The one placement of points in municipalities (stations, airports)."""
+    import geopandas as gpd
+    import pandas as pd
+
+    lon, lat = list(lon), list(lat)
+    frame = pd.DataFrame({"lon": pd.to_numeric(pd.Series(lon), errors="coerce"),
+                          "lat": pd.to_numeric(pd.Series(lat), errors="coerce")}).dropna()
+    points = gpd.GeoDataFrame(frame, geometry=gpd.points_from_xy(frame.lon, frame.lat), crs="EPSG:4674")
+    path = mesh_path or mesh_file("municipality", "maxima", root)
+    polygons = gpd.read_file(path)[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
+    placed = gpd.sjoin(points, polygons, how="left", predicate="within")
+    placed = placed[~placed.index.duplicated()]
+    code = placed["codarea"].copy()
+    how = code.where(code.isna(), "within")
+    missing = code.isna()
+    if missing.any():
+        # Distances in metres: SIRGAS 2000 / Brazil Polyconic.
+        near = gpd.sjoin_nearest(points[missing].to_crs("EPSG:5880"), polygons.to_crs("EPSG:5880"), how="left",
+                                 max_distance=tolerance_m)
+        near = near[~near.index.duplicated()]
+        code[missing] = near["codarea"]
+        how[missing & code.notna()] = f"nearest within {tolerance_m:g} m"
+    codes: list[str | None] = [None] * len(lon)
+    ways: list[str | None] = [None] * len(lon)
+    for i in code.index:
+        if pd.notna(code[i]):
+            codes[i], ways[i] = str(code[i]), str(how[i])
+    return codes, ways
 
 
 def point_sources(cache_dir: str | Path) -> dict[str, Path]:

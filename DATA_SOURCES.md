@@ -919,6 +919,13 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   46.8 of the 106.8 million addresses. São Paulo's 01001-000 (Praça da Sé) holds 6,973 addresses, all in the city, half within 17.8 km of
   their median; the Congresso Nacional's 70160-900 is in neither the CNEFE nor the aggregate.
 
+### 6.6 Mobility between municipalities (read 2026-10-25; ADR-0211)
+
+- **IBGE Ligações rodoviárias e hidroviárias 2016** (`geoftp.ibge.gov.br/organizacao_do_territorio/redes_e_fluxos_geograficos/ligacoes_rodoviarias_e_hidroviarias/base_de_dados/`, `xls/` and `ods/` identical; latin-1 `leiame.txt`; methodology only in the book liv100602.pdf): one row per pair, both directions summed; `VAR05` waterway, `VAR06` road, `VAR07` their sum; frequencies weighted by vehicle and period; 35 South American cities (codes 80xxxxx-92xxxxx) among the nodes; 320 "sem objeto" municipalities listed apart.
+- **ANAC Dados Estatísticos** (`sistemas.anac.gov.br/dadosabertos/`, an nginx index; works with a browser agent): one row per flight stage, company and month (a passenger on A-B-C counts twice); replaced about the 20th of each month, a dated first line, UTF-8 with BOM, `;`, 36 columns; `NATUREZA` DOMÉSTICA needs a Brazilian operator as well as both ends in Brazil. The aerodrome registers (cp1252, a dated first line) carry ICAO, municipality and decimal coordinates (`LATGEOPOINT`/`LONGEOPOINT`), no IBGE code; closed airports leave them (SBNT Natal-Augusto Severo, 21 M passengers before 2014), and ANAC reuses an ICAO code for another aerodrome (SNQY: Juazeiro do Norte in the statistics, an airfield of Ribeirão Preto now). gov.br answers HEAD with 403.
+- **IBGE Arranjos Populacionais, 2nd edition** (`geoftp.../divisao_regional/arranjos_populacionais/`): the composition with codes is only in the geodatabase (`base_de_dados_2ed/ArranjosPopulacionais_mbd_2ed.zip`, an 88 MB zip of a 240 MB Access .mdb, table `ComposicaoRecortes_01_PorMunicipio`, 2010's 5,567 municipalities, `<Null>` its blank); an arrangement's code is its core municipality's; `tab01.xlsx` names arrangements without codes.
+- **Census 2022 commuting** (SIDRA 10321, 10330-10333): preliminary sample results; each Total includes the persons whose place was "ignorado", and 10331-10333 leave out persons working in more than one municipality.
+
 ## 7. CNES
 
 - `CADGERBR` lists 687,789 establishments; its labels pack a CNPJ and a name

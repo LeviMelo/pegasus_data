@@ -364,9 +364,11 @@ def cep_points_cmd(
 @app.command(name="graph", rich_help_panel="UNDERSTAND")
 def graph_cmd(
     kind: Annotated[str, typer.Argument(help="contiguity, population_distance, regic_network, regic_health_basic, "
-                                             "regic_health_high, or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN, SINAN-DENG, ...: "
+                                             "regic_health_high, a mobility layer built by `mobility` (commute_work_2010, commute_study_2010, "
+                                             "road_links_2016, waterway_links_2016, air_passengers), or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN, SINAN-DENG, ...: "
                                              "one whose roles declare a residence and a place of the event)")],
-    period: Annotated[str | None, typer.Option("--period", help="Care flows: the years counted")] = None,
+    period: Annotated[str | None, typer.Option("--period", help="Care flows: the years counted; a mobility layer: the vintages "
+                       "kept (years, or YYYYMM for air_passengers; a range A-B)")] = None,
     geo: Annotated[str, typer.Option("--geo", help="Care flows: the publications read")] = "BR",
     by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC or COMPLEX")] = None,
     level: Annotated[str | None, typer.Option("--level", help="Care flows: the classifier's tree level, e.g. chapter")] = None,
@@ -384,7 +386,7 @@ def graph_cmd(
     from ..measures import AggregationRefused
     from ..proximity import care_flows, flows, graph_kinds, proximity_graph
 
-    if kind.lower() not in graph_kinds() and kind.upper().replace(".", "-") in flows():
+    if kind.lower() not in graph_kinds(root) and kind.upper().replace(".", "-") in flows():
         if period is None:
             raise typer.BadParameter("care flows need --period")
         try:
@@ -413,7 +415,11 @@ def graph_cmd(
             else:
                 raise typer.BadParameter("--derive is profile, catchments, communities or regions")
     else:
-        table = proximity_graph(kind)
+        vintage = None
+        if period:
+            first, _, last = period.partition("-")
+            vintage = list(range(int(first), int(last or first) + 1))
+        table = proximity_graph(kind, vintage=vintage, root=root)
     if out is not None:
         import pyarrow.csv as pacsv
         import pyarrow.parquet as pq

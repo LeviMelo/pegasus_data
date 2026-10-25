@@ -35,7 +35,7 @@ def geography(
     DATASUS's TabWin tables in the label pack (health regions per system and the
     rest of the health-service geography), IBGE's Localidades API (territorial
     identity), TabNet's current territorial tables (health macroregion, the
-    current health regions) and IPEA's comparable areas. Maintainer step; the result ships as
+    current health regions), IPEA's comparable areas and IBGE's population arrangements. Maintainer step; the result ships as
     ``resources/geography.parquet``, with the points pack and the proximity graphs rebuilt from the Grade Estatística
     (`pegasus-data grade` first; ADR-0203).
     """
@@ -49,7 +49,7 @@ def geography(
     with console.status("compiling geography…"):
         result = build_geography_pack(
             target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
-            ipea_cache=settings.root / "registries" / "ipea_amc",
+            ipea_cache=settings.root / "registries" / "ipea_amc", arranjos_cache=settings.root / "registries" / "ibge_arranjos",
         )
         from ..geography import POINTS_PACK_NAME, build_municipality_points, mesh_file, point_sources
         from ..proximity import build_proximity_graphs
@@ -90,6 +90,28 @@ def tracts(
     with console.status("reading the tract tables…"):
         result = ibge_tracts.build(settings.root)
     _emit(result, as_json, "tracts")
+
+
+@app.command(rich_help_panel="PIPELINE")
+def mobility(
+    layer: Annotated[list[str] | None, typer.Option("--layer", help="census_commuting, ibge_links or anac_air (repeat); default all")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Build the mobility layers between municipalities into registries/mobility/ (ADR-0211), read by `graph KIND`
+    and `proximity_graph(kind)`: Census 2010 commuting, IBGE coach and boat links 2016, ANAC air passengers by month."""
+    import importlib
+
+    from ..proximity import MOBILITY_LAYERS
+
+    settings = _writer(root)
+    modules = layer or sorted({module for module, _ in MOBILITY_LAYERS.values()})
+    result = {}
+    for module in modules:
+        with console.status(f"building {module}…") as status:
+            result[module] = importlib.import_module(f"pegasus_data.sources.{module}").build(
+                settings.root, log=lambda m: status.update(m))
+    _emit(result, as_json, "mobility")
 
 
 @app.command(name="climate-update", rich_help_panel="PIPELINE")

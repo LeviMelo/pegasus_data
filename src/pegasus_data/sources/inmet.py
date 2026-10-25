@@ -15,7 +15,7 @@ browser user agent, which is not an outage.
 
 **Placement.** A station is placed in the municipality whose IBGE boundary
 contains it: a geopandas spatial join over IBGE's full-resolution municipal
-mesh. A coastal station within ``COAST_TOLERANCE_M`` of the mesh takes the
+mesh (`geography.place_points`). A coastal station within ``COAST_TOLERANCE_M`` of the mesh takes the
 nearest municipality. INMET also registers a municipality in each station's
 WIGOS identifier (`0-76-0-<IBGE code>...`); it is kept beside the placement as
 `inmet_municipality7`.
@@ -41,13 +41,13 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ..geography import place_points
 from ..transport import download
 
 RECORD = "https://zenodo.org/api/records/14925215/files/{name}/content"
 INMET_STATIONS = "https://apitempo.inmet.gov.br/estacoes/{kind}"
 ISD_HISTORY = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"
 #: How far outside the mesh a coastal station may stand and still be placed.
-COAST_TOLERANCE_M = 2000
 #: (mirror catalog, mirror database, INMET API kind, network) for the two station networks.
 NETWORKS = (("inmet_autoh_catalog.csv", "inmet_autoh_db.parquet", "T", "automatic_hourly"),
             ("inmet_convd_catalog.csv", "inmet_convd_db.parquet", "M", "conventional_daily"))
@@ -55,7 +55,7 @@ _SOURCES = {"isd-history.csv": ISD_HISTORY,
             "inmet_stations_T.json": INMET_STATIONS.format(kind="T"),
             "inmet_stations_M.json": INMET_STATIONS.format(kind="M")}
 
-__all__ = ["COAST_TOLERANCE_M", "NETWORKS", "RECORD", "fetch", "monthly", "station_months", "stations"]
+__all__ = ["NETWORKS", "RECORD", "fetch", "monthly", "station_months", "stations"]
 
 
 def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
@@ -68,7 +68,6 @@ def stations(cache_dir: str | Path, mesh: str | Path) -> list[dict[str, Any]]:
     """Every station with readings, its position's source, and the municipality it stands in (``mesh``: IBGE's maxima
     municipal mesh, `geography.mesh_file`)."""
     import duckdb
-    import geopandas as gpd
     import pandas as pd
 
     frames = []
@@ -97,22 +96,10 @@ def stations(cache_dir: str | Path, mesh: str | Path) -> list[dict[str, Any]]:
                 "state": None, "inmet_municipality7": None, "coordinates_from": "NOAA ISD history"})], ignore_index=True)
         frames.append(frame[frame["station_id"].isin(seen)].assign(network=network))
     table = pd.concat(frames, ignore_index=True).dropna(subset=["lon", "lat"]).reset_index(drop=True)
-    points = gpd.GeoDataFrame(table, geometry=gpd.points_from_xy(table.lon, table.lat), crs="EPSG:4674")
-    mesh = gpd.read_file(mesh)[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
-    placed = gpd.sjoin(points, mesh, how="left", predicate="within").drop(columns="index_right")
-    placed = placed[~placed.index.duplicated()]
-    placed["placed_by"] = placed["codarea"].where(placed["codarea"].isna(), "within")
-    missing = placed["codarea"].isna()
-    if missing.any():
-        # Distances in metres: SIRGAS 2000 / Brazil Polyconic.
-        near = gpd.sjoin_nearest(points[missing].to_crs("EPSG:5880"), mesh.to_crs("EPSG:5880"),
-                                 how="left", max_distance=COAST_TOLERANCE_M)
-        near = near[~near.index.duplicated()]
-        placed.loc[missing, "codarea"] = near["codarea"]
-        placed.loc[missing & placed["codarea"].notna(), "placed_by"] = f"nearest within {COAST_TOLERANCE_M} m"
+    table["municipality7"], table["placed_by"] = place_points(table.lon, table.lat, mesh_path=mesh)
     keep = ["station_id", "station_name", "network", "state", "lon", "lat", "coordinates_from",
             "inmet_municipality7", "placed_by"]
-    out = placed.rename(columns={"codarea": "municipality7"})[keep + ["municipality7"]]
+    out = table[keep + ["municipality7"]]
     return [{k: (None if pd.isna(v) else v) for k, v in row.items()} for row in out.to_dict("records")]
 
 

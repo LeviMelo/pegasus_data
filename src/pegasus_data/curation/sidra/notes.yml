@@ -487,6 +487,31 @@ tables:
     evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
     updated: 2026-06-26
     read: 2026-10-24
+  10321:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-25
+  10330:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-25
+  10331:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-25
+  10332:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-25
+  10333:
+    basis: sample
+    evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"
+    updated: 2026-06-26
+    read: 2026-10-25
   10381:
     basis: sample
     evidence: "Dados dos resultados preliminares da amostra, estimados a partir de áreas de ponderação preliminares"

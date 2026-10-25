@@ -52,6 +52,7 @@ Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_
   `cep_points` per CEP and municipality. SIH-RD Alagoas 2023: 95.4% of AIHs' CEPs found, the municipality agrees on all of
   them, but 70% sit on a CEP spread over 2 km and 21% on their municipality's only CEP: the patient CEP places most
   admissions in the municipality, not finer.
+- **Mobility layers** (ADR-0211): commuting to work and to study (Census 2010), weekly coach and boat departures (IBGE 2016) and air passengers by month (ANAC, 2000 on) as graphs in `proximity_graph`, built by `pegasus-data mobility`; IBGE's population arrangements in the geography pack.
 - **Universe or sample** (ADR-0206): every SIDRA read says what its numbers rest on (`basis`); 99 tables declared from IBGE's notes (read in a browser: the notes are behind a bot check), 4,103 sample by their CV variables, 5,160 unknown until declared (1,306 of them the Census's).
 - **SINAN read from its DBCs** (ADR-0207): dengue 2020 and 32 other SINAN partitions had been built from Dados Abertos exports (2020's with 538,654 discards); now from `FINAIS/*.dbc`. A lake read's report names its files; `ID_MN_RESI_municipio` gives the residence as a municipality or null.
 - **Republished files** (ADR-0209): a lake partition built from a version DATASUS has since replaced is no longer served; SIH-RD 2025-09..12 (republished 16/10) rebuilt; a build records its files' layout so `families` cannot move them.

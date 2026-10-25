@@ -15,6 +15,9 @@ Every graph is ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes:
   (``vinculo``), and the links for low/medium and for high-complexity health
   care, weighted by their order (1 the strongest, 3 the weakest). Shipped.
   ``regic_cities()`` maps every municipality to its REGIC city and level.
+* mobility layers built in the data home (`MOBILITY_LAYERS`, ``pegasus-data mobility``, ADR-0211): daily commuting to
+  work and to study (Census 2010 sample, weighted), weekly coach and boat departures (IBGE Ligações 2016) and domestic
+  air passengers by month (ANAC), read by the same ``proximity_graph``.
 * ``care_flow`` (:func:`care_flows`): residence -> place of care, birth or
   death, counted from the records as events of their declared type, per year,
   with ``share`` (the part of the origin's events going to ``to``); to the
@@ -193,18 +196,56 @@ def _pack(name: str) -> pa.Table:
     return pq.read_table(Path(__file__).resolve().parent / "resources" / name)
 
 
-def graph_kinds() -> list[str]:
-    """The shipped graphs: ``contiguity``, ``population_distance`` and REGIC's links."""
-    return sorted(set(_pack(PROXIMITY_PACK_NAME).column("kind").to_pylist()))
+#: Graphs built in a data home rather than shipped (`MOBILITY_LAYERS`): ``<root>/registries/mobility/<kind>.parquet``,
+#: written by their source's ``build`` (`pegasus-data mobility`)
+MOBILITY_DIR = Path("registries") / "mobility"
+#: kind -> the module whose ``build`` writes it, and what it measures
+MOBILITY_LAYERS: dict[str, tuple[str, str]] = {
+    "commute_work_2010": ("census_commuting", "Census 2010 sample: persons (weighted) living in `from` who work in `to`"),
+    "commute_study_2010": ("census_commuting", "Census 2010 sample: persons (weighted) living in `from` who study in `to`"),
+    "road_links_2016": ("ibge_links", "IBGE Ligações rodoviárias 2016: weekly coach departures from `from` to `to`"),
+    "waterway_links_2016": ("ibge_links", "IBGE Ligações hidroviárias 2016: weekly boat departures from `from` to `to`"),
+    "air_passengers": ("anac_air", "ANAC: domestic air passengers from `from` to `to` in the month `vintage` (YYYYMM)"),
+}
 
 
-def proximity_graph(kind: str) -> pa.Table:
-    """A shipped graph as an edge list: ``contiguity`` or ``population_distance``."""
-    edges = _pack(PROXIMITY_PACK_NAME)
-    part = edges.filter(pc.equal(edges.column("kind"), kind))
-    if not part.num_rows:
-        raise KeyError(f"no proximity graph {kind!r}; shipped: {sorted(set(edges.column('kind').to_pylist()))}"
-                       "; care flows come from care_flows()")
+def _mobility_path(kind: str, root: str | Path | None = None) -> Path:
+    from .config import load_settings
+
+    return Path(root or load_settings().root) / MOBILITY_DIR / f"{kind}.parquet"
+
+
+def graph_kinds(root: str | Path | None = None) -> list[str]:
+    """The graphs: the shipped ones (``contiguity``, ``population_distance``, REGIC's links) and the mobility layers built
+    in the data home (`MOBILITY_LAYERS`; a layer not built is not listed)."""
+    shipped = set(_pack(PROXIMITY_PACK_NAME).column("kind").to_pylist())
+    built = {kind for kind in MOBILITY_LAYERS if _mobility_path(kind, root).is_file()}
+    return sorted(shipped | built)
+
+
+def proximity_graph(kind: str, *, vintage: int | Sequence[int] | None = None, root: str | Path | None = None) -> pa.Table:
+    """A graph as an edge list ``(from, to, weight, kind, vintage)`` with 7-digit IBGE codes: a shipped one
+    (``contiguity``, ``population_distance``, REGIC's) or a mobility layer built in the data home (`MOBILITY_LAYERS`,
+    ``pegasus-data mobility``), whose extra columns follow (``persons_sampled``, ``flights``...). ``vintage`` keeps those
+    vintages (a year, or YYYYMM for the monthly air layer)."""
+    if kind in MOBILITY_LAYERS:
+        import pyarrow.parquet as pq
+
+        path = _mobility_path(kind, root)
+        if not path.is_file():
+            module = MOBILITY_LAYERS[kind][0]
+            raise FileNotFoundError(f"the mobility layer {kind!r} is not built in this data home; run "
+                                    f"`pegasus-data mobility --layer {module}`")
+        part = pq.read_table(path)
+    else:
+        edges = _pack(PROXIMITY_PACK_NAME)
+        part = edges.filter(pc.equal(edges.column("kind"), kind))
+        if not part.num_rows:
+            raise KeyError(f"no proximity graph {kind!r}; shipped: {sorted(set(edges.column('kind').to_pylist()))}, "
+                           f"mobility layers: {sorted(MOBILITY_LAYERS)}; care flows come from care_flows()")
+    if vintage is not None:
+        wanted = [vintage] if isinstance(vintage, int) else list(vintage)
+        part = part.filter(pc.is_in(pc.cast(part.column("vintage"), pa.int64()), value_set=pa.array(wanted, pa.int64())))
     return part
 
 

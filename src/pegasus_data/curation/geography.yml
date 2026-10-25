@@ -155,6 +155,33 @@ ibge_classifications:
       identical to MICROBR: 558 groups against 558, none assigned differently.
     status: legacy
 
+  # IBGE's Arranjos Populacionais e Concentrações Urbanas do Brasil, 2nd edition (2016), from the Census 2010 commuting
+  # sample and urban contiguity; the composition per municipality is the geodatabase's ComposicaoRecortes_01_PorMunicipio
+  # (sources/ibge_arranjos.py). A member's code is its core municipality's code. ADR-0211.
+  population_arrangement:
+    source: IBGE/arranjos_populacionais_2ed
+    what: >
+      Arranjo populacional: two or more municipalities strongly integrated by
+      daily commuting to work or study, or by contiguous urban areas. 294
+      arrangements of 953 municipalities; the others belong to none.
+    status: legacy
+    verified: {municipalities: 953, members: 294, measured: 2026-10-25}
+
+  urban_concentration_medium:
+    source: IBGE/arranjos_populacionais_2ed
+    what: >
+      Média concentração urbana: an arrangement or isolated municipality of
+      100,000 to 750,000 inhabitants (2010).
+    status: legacy
+    verified: {municipalities: 386, members: 161, measured: 2026-10-25}
+
+  urban_concentration_large:
+    source: IBGE/arranjos_populacionais_2ed
+    what: >
+      Grande concentração urbana: above 750,000 inhabitants (2010).
+    status: legacy
+    verified: {municipalities: 256, members: 26, measured: 2026-10-25}
+
 # Classifications read from TabNet's CURRENT territorial tables
 # (http://tabnet.datasus.gov.br/cgi/territorio/<table>.cnv), the tables the
 # Ministry's own population tabulations classify by today
