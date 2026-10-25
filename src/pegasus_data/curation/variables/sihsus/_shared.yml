@@ -460,6 +460,11 @@ variables:
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 52'
+    notes: "On a continuation AIH (IDENT 5, a long stay billed in further AIHs) DIAS_PERM counts that AIH's segment
+      only, while DT_INTER repeats the original admission date: SIH-RD SP 2023, 55,876 IDENT 5 rows, DIAS_PERM equals
+      DT_SAIDA minus DT_INTER on 430 (median 30 days against 423 since admission; 33,706 admitted before 2023, one in
+      2011), where on the 2,618,262 IDENT 1 rows it equals it on every one (2026-10-25). A stay's days are the sum of
+      its AIHs' DIAS_PERM; DT_SAIDA minus DT_INTER on an IDENT 5 row is the whole stay so far, not that AIH's."
   DT_INTER:
     official_name: Data de internação
     translated_name: Admission date

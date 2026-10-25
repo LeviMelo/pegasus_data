@@ -1122,6 +1122,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     - `Dados_Abertos/SINAN` has no outbreak folder.
 - **"Não se aplica" is a category, not a missing value**, on several forms (SIFC `LABC_IGG` 4: 15,353 of 27,186 recorded in 2021). TabNet's labels call it "Ign/Branco".
 
+### CNES complementary beds in TabNet (measured 2026-10-25)
+
+TabNet's `leiutibr.def` (Leitos Complementares) classifies by `TPCO_LEITO` (type and code) through `Leitos_compl2.cnv`, which holds the COVID-19 beds the label pack's ESP_LEIT lacks: 351 UTI adulto II COVID-19, 352 UTI pediátrica II COVID-19, 396 Suporte Ventilatório Pulmonar COVID-19 (`CODLEITO` 51, 52, 96 of type 3). They are in the LT files of 2020-2021 (code 51: 19,859 existing beds in December 2020, 24,559 in 2021) and absent in December 2019, 2022 and 2023. LT is published monthly; 2026-09 appeared on 2026-10-15.
+
 ### The CNES establishment registry in the TabWin kit (measured 2026-09-29)
 
 - **What it is.** `TAB_CNES.zip` ships `DBF/CADGER<UF>.dbf`, one table per

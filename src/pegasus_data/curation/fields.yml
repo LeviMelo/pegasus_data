@@ -35,9 +35,10 @@ cnes:
     primary_care_unit: ['01', '02', '45']           # health post, health centre / basic unit (UBS), family-health unit
     specialised_clinic: ['04', '36']                # polyclinic, clinic / specialty centre
     # other = every other TP_UNID: isolated offices (22), diagnostic units (39), emergency, pharmacies, CAPS, mobile units, ...
-  icu_bed_codes: ['61', '62', '63', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '85', '86']
-  # ESP_LEIT: UTI adulto / infantil / neonatal (and their types I-III), burns ICU, coronary ICU. The intermediate
-  # units (64, 65, 92-95) and isolation beds (66) are not intensive care and are left out.
+  icu_bed_codes: ['51', '52', '61', '62', '63', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '85', '86']
+  # ESP_LEIT: UTI adulto / infantil / neonatal (and their types I-III), burns ICU, coronary ICU, and the COVID-19 adult
+  # and paediatric type II ICUs of 2020-2021 (51, 52; TabNet's Leitos_compl2.cnv). The intermediate units (64, 65,
+  # 92-95), isolation beds (66) and COVID-19 ventilatory support (96) are not intensive care and are left out.
   equipment:                           # TIPEQUIP + CODEQUIP (Equip_Tp.cnv: type 01, code 11 is '111')
     ct: ['111']                        # tomografo computadorizado
     mri: ['112']                       # ressonancia magnetica

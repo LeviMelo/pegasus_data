@@ -18,6 +18,13 @@ variables:
     source: def
     source_ref: ESP_LEIT.CNV
     reasoning: Bound to ESP_LEIT, the bed specialty codelist.
+    codes: {'51': UTI adulto II COVID-19, '52': UTI pediátrica II COVID-19, '96': Suporte ventilatório pulmonar COVID-19}
+    notes: "51, 52 and 96 are declared from DATASUS's TabNet (2026-10-25): leiutibr.def (Leitos Complementares) binds
+      TPCO_LEITO, the bed type and this code, to Leitos_compl2.cnv, which lists 351 UTI adulto II COVID-19, 352 UTI
+      pediátrica II COVID-19 and 396 Suporte Ventilatorio Pulmonar COVID-19 (type 3, complementary beds). ESP_LEIT.CNV of
+      the label pack predates them. They are in the LT files: code 51 held 19,859 existing beds in December 2020 and
+      24,559 (15,829 SUS) in December 2021 (nees-gt-ms beds audit). 51 and 52 are intensive care (cnes.icu_bed_codes);
+      96 is ventilatory support, not an ICU bed."
   QT_CONTR:
     official_name: Quantidade de leitos contratados
     translated_name: Contracted beds

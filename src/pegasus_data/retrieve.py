@@ -470,7 +470,8 @@ def fetch(
                 and not fetch_report.schema_mismatch
             )
             raise (PublishedEmpty if empty else NothingPublished)(
-                _nothing_message(fetch_report, want_ufs, want_years)
+                _nothing_message(fetch_report, want_ufs, want_years, want_months,
+                                 latest=_latest_published(pipeline.catalog, families, want_ufs))
             )
 
         # A SHORT answer is refused by default. Raising only on zero rows meant
@@ -1696,19 +1697,41 @@ def _month_of(normalized_date: Any) -> int | None:
     return month or None
 
 
-def _nothing_message(report: FetchReport, ufs: Sequence[str], years: Sequence[int]) -> str:
-    """Say which filter emptied the result, not merely that it is empty."""
+def _latest_published(catalog: CatalogStore, families: Sequence[Mapping[str, Any]], ufs: Sequence[str]) -> int | None:
+    """The latest publication date (YYYYMM, or YYYY00 for a yearly file) the catalog lists for these families and
+    states: what a refusal names, so "not yet published" is told apart from "never published"."""
+    ids = [str(f["family_id"]) for f in families]
+    if not ids:
+        return None
+    marks = ",".join("?" for _ in ids)
+    where_uf = f" AND fa.geo_code IN ({','.join('?' for _ in ufs)})" if ufs else ""
+    rows = catalog.query(
+        f"SELECT max(fa.normalized_date) AS latest FROM family_files ff JOIN file_facts fa ON fa.path = ff.path "
+        f"WHERE ff.family_id IN ({marks}){where_uf}", (*ids, *[str(u) for u in ufs or ()]))
+    latest = rows[0]["latest"] if rows else None
+    return int(latest) if latest is not None else None
+
+
+def _nothing_message(report: FetchReport, ufs: Sequence[str], years: Sequence[int], months: Sequence[int] = (),
+                     *, latest: int | None = None) -> str:
+    """Say which filter emptied the result, not merely that it is empty, and the latest publication the catalog lists."""
     filters = []
     if ufs:
         filters.append(f"uf={list(ufs)}")
     if years:
         filters.append(f"years={list(years)}")
+    if months:
+        filters.append(f"months={list(months)}")
     where = f" for {', '.join(filters)}" if filters else ""
     if report.files_matched == 0:
+        newest = ""
+        if latest is not None:
+            newest = (f"; the latest it lists is {latest // 100}-{latest % 100:02d}" if latest % 100
+                      else f"; the latest it lists is {latest // 100}")
         return (
             f"DATASUS publishes nothing{where} in {report.system}"
-            f"{'/' + report.series if report.series else ''}; "
-            f"{len(report.families)} families were searched"
+            f"{'/' + report.series if report.series else ''}{newest} (as of the last crawl: `pegasus-data crawl` "
+            f"lists what was published since)"
         )
     detail = []
     if report.undecoded:
