@@ -54,6 +54,7 @@ Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_
   admissions in the municipality, not finer.
 - **Universe or sample** (ADR-0206): every SIDRA read says what its numbers rest on (`basis`); 99 tables declared from IBGE's notes (read in a browser: the notes are behind a bot check), 4,103 sample by their CV variables, 5,160 unknown until declared (1,306 of them the Census's).
 - **SINAN read from its DBCs** (ADR-0207): dengue 2020 and 32 other SINAN partitions had been built from Dados Abertos exports (2020's with 538,654 discards); now from `FINAIS/*.dbc`. A lake read's report names its files; `ID_MN_RESI_municipio` gives the residence as a municipality or null.
+- **Republished files** (ADR-0209): a lake partition built from a version DATASUS has since replaced is no longer served; SIH-RD 2025-09..12 (republished 16/10) rebuilt; a build records its files' layout so `families` cannot move them.
 - **CNES beds** (2026-10-25): LT read to 2026-09 (a month not yet published names the latest one); the COVID-19 ICU codes 51 and 52 counted, ICU beds of 2020-2021 up by 20,538 and 25,237.
 - **Care flows by bed-days** (ADR-0201, landed before this work): SIH E10-E14 2023, 138,316 admissions and 941,694
   bed-days, every nees-gt-ms figure reproduced and read again apart.

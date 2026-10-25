@@ -453,6 +453,15 @@ class Builder:
             build_fingerprint=fingerprint,
         )
         if written:
+            # Each source was decoded with this family's schema: that is its layout, kept where no header census holds
+            # one. `families` places a file by its own signature, and with none recorded it fell back on its stratum's:
+            # SIH-RD Jan-Feb 2025 (113 fields) moved into the 2025 stratum's family and a rebuild refused them
+            # (2026-10-25).
+            self.catalog.executemany(
+                "INSERT INTO file_schemas (path, schema_signature, field_count, read_at, error) VALUES (?, ?, ?, ?, NULL) "
+                "ON CONFLICT(path) DO NOTHING",
+                [(str(path), str(family["schema_signature"]), int(dict(family).get("field_count") or 0), utcnow())
+                 for path in sorted(set(sources))])
             stats.partitions += 1
             stats.rows += written.row_count
             stats.bytes_written += written.byte_size
@@ -540,7 +549,7 @@ class Builder:
             params.extend(family_ids)
         where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
         families = self.catalog.query(
-            f"SELECT family_id, system, series, schema_signature FROM families{where}", params
+            f"SELECT family_id, system, series, schema_signature, field_count FROM families{where}", params
         )
 
         selected_units: set[tuple[str, str, str]] = set()
