@@ -301,6 +301,49 @@ def _source_identities(
     }
 
 
+def _republished_since_build(store: CatalogStore, parts: Sequence[LakePartition]) -> set[str]:
+    """The sources of ``parts`` the server now lists as another version than the one their partition was built from.
+
+    A partition is matched to its publications by path (`_source_identities`), so a file DATASUS republishes at the same
+    path (SIH-RD RDES2510-2512 on 2026-10-16, AIHs added) left the partition built on 2026-10-15 counted as covering it,
+    and a query read the old records. The version a build read is the latest fetch of the path made by the time the
+    partition was written; the server's version now is the catalog's listing. They differ when the size does, or the
+    time does other than as the server's two clocks (`listing.same_instant`). A source no fetch dates (a partition from
+    before fetch rows were kept) cannot be judged and is taken as built from the current version."""
+    from ..discovery.listing import same_instant
+
+    paths = sorted({p.relative_path for p in parts})
+    if not paths:
+        return set()
+    out: set[str] = set()
+    for start in range(0, len(paths), 400):
+        chunk = paths[start:start + 400]
+        marks = ",".join("?" for _ in chunk)
+        rows = store.query(
+            f"""
+            SELECT s.value AS path, fi.size AS listed_size, fi.modified AS listed_mtime,
+                   (SELECT f.remote_size FROM fetches f WHERE f.source_path = s.value AND f.fetched_at <= lp.written_at
+                     ORDER BY f.fetched_at DESC, f.id DESC LIMIT 1) AS built_size,
+                   (SELECT f.byte_size FROM fetches f WHERE f.source_path = s.value AND f.fetched_at <= lp.written_at
+                     ORDER BY f.fetched_at DESC, f.id DESC LIMIT 1) AS built_bytes,
+                   (SELECT f.remote_modified FROM fetches f WHERE f.source_path = s.value AND f.fetched_at <= lp.written_at
+                     ORDER BY f.fetched_at DESC, f.id DESC LIMIT 1) AS built_mtime
+              FROM lake_partitions lp, json_each(lp.source_paths) s
+              JOIN files fi ON fi.path = s.value
+             WHERE lp.relative_path IN ({marks}) AND fi.gone_at IS NULL
+            """,
+            tuple(chunk),
+        )
+        for row in rows:
+            size = row["built_size"] if row["built_size"] is not None else row["built_bytes"]
+            if size is None:
+                continue
+            listed = row["listed_size"]
+            if listed is not None and int(listed) != int(size) or row["built_mtime"] and row["listed_mtime"] and not same_instant(str(row["built_mtime"]), str(row["listed_mtime"])):
+                out.add(str(row["path"]))
+    return out
+
+
 def _has_publications(store: CatalogStore, family_ids: Sequence[str]) -> bool:
     """Does the catalog hold any publication of these families (an inventory-free fixture holds none)?"""
     if not family_ids:
@@ -406,7 +449,10 @@ def _catalog_coverage(
             year_parts = one_reading(year_parts)        # no reading decided from the publications: the lake's own
         if selected:
             expected = {_publication_identity(row) for row in selected}
-            covered = {(p.family_id, source) for p in year_parts for source in p.sources}
+            # a partition built from a version the server has since replaced covers nothing: the year is read from the
+            # current files (and the next build rewrites the partition)
+            stale = _republished_since_build(store, year_parts)
+            covered = {(p.family_id, source) for p in year_parts for source in p.sources if source not in stale}
             complete = expected <= _source_identities(selected, candidates, covered)
         else:
             # An inventory-free fixture/catalog cannot prove an expected
