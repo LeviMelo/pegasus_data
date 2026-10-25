@@ -60,4 +60,7 @@ It is 13.19 GB with 22,352,861 dictionary rows before and after, and `quick_chec
 * **The native DBC goldens** with `PEGASUS_GOLDEN_HOME` set to the one home: 5 passed. Without it, the 3 that need a
   real file skip. The run left no `pytest-of-*` folder.
 
-**Not done.** `prune` over the one home (13.64 GB) was not run: deleting downloads already built is the author's call.
+**Afterwards, at the author's word.**
+* `prune` released 4,274 files, 13.64 GB. It kept 8,772: snapshot versions, downloads never built, and kits.
+* `query("SIH.RD", period="2024", geography="AL", …, max_download=0)` then read 2,139 records from the lake in 12.6 s,
+  equal to the nees-gt-ms extract.

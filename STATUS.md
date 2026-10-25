@@ -21,8 +21,8 @@ Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_
 * **The build catalog.** The label build catalog moved into the home (`_label_build/`), and the repository holds no
   `pegasus_data_home/`.
 * **Downloads.** A build now releases the downloads its verified partitions hold.
-  * The 13.6 GB built before this are still kept, waiting for the author's `prune`.
-  * 17.4 GB of downloads were never built (SIA-PA and SIA-BI most of it).
+  * The 13.6 GB built before this were released with `prune` (4,274 files), and reads of them come from the lake.
+  * 17.4 GB of downloads were never built (SIA-PA and SIA-BI most of it) and are kept.
 
 ## Reads and labels (2026-10-24)
 
