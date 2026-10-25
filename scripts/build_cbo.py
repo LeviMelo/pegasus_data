@@ -30,10 +30,12 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from pegasus_data.config import label_build_catalog
+
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "sources" / "estrutura-cbo.zip"
 OUT = ROOT / "src" / "pegasus_data" / "resources" / "cbo2002.parquet"
-CATALOG = ROOT / "pegasus_data_home" / "_catalog" / "catalog.sqlite"
+CATALOG = label_build_catalog()
 LEVELS = {
     "CBO2002 - Grande Grupo.csv": "major group",
     "CBO2002 - SubGrupo Principal.csv": "principal subgroup",

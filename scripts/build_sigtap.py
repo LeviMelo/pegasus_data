@@ -26,9 +26,11 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from pegasus_data.config import label_build_catalog
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "src" / "pegasus_data" / "resources" / "sigtap.parquet"
-CATALOG = ROOT / "pegasus_data_home" / "_catalog" / "catalog.sqlite"
+CATALOG = label_build_catalog()
 LEVELS = {"TB_GRUPO": ("group", 2), "TB_SUBGR": ("subgroup", 4), "TB_FORMA": ("form", 6),
           "TB_SIGTAP": ("procedure", 10), "TB_SIGTAW": ("procedure", 10)}
 

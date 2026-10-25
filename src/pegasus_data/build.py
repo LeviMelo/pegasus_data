@@ -481,6 +481,7 @@ class Builder:
         emit_labels: bool = False,
         rebuild: bool = False,
         on_file: Callable[[str, str], None] | None = None,
+        release: bool | None = None,
     ) -> StageResult:
         """Decode and normalise into the lake.
 
@@ -488,6 +489,10 @@ class Builder:
         The default skips a partition whose sources and normalisation plan are
         unchanged and whose file is still on disk — the raw CAS already stops
         us re-downloading, and this stops us re-decoding.
+
+        ``release`` (default: unless ``Settings.keep_downloads``) then deletes the selected files' downloads that a
+        verified partition holds (`BlobStore.prune_verified`, ``released`` in the counts; snapshot versions stay): the
+        Parquet is what a home keeps, not the DBC beside it (ADR-0208). A rebuild fetches a released file again.
         """
         stats = BuildStats()
         # trees a killed build left half-written (their process gone) are removed before this one writes beside them
@@ -496,6 +501,8 @@ class Builder:
         prune_dead_staging(self.lake.root)
         run_id = uuid.uuid4().hex[:12]
         outcomes: list[tuple[object, ...]] = []
+        #: every file the build selected, partitions written or reused alike: what it may release at the end
+        selected_paths: list[str] = []
 
         def record_outcome(row: tuple[object, ...]) -> None:
             """One family's outcome, written as it finishes: a failure in a later family used to lose every earlier
@@ -620,6 +627,7 @@ class Builder:
                             if str(m["geo_code"] or "") == "BR" or m["year"] not in national_years]
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
+            selected_paths.extend(str(m["path"]) for m in selected)
             # The other representations this family holds of each selected publication: what is read, in the order
             # `choose_representations` ranks them, when the chosen one has columns that are not the family's (ADR-0190).
             publication_of = {
@@ -755,6 +763,10 @@ class Builder:
         counts = stats.as_dict()
         counts["run_id"] = run_id
         counts["families_with_no_rows"] = sum(1 for o in outcomes if o[8] is not None)
+        if (not self.settings.keep_downloads if release is None else release) and selected_paths:
+            # a representation refused for its columns holds no record of any partition: it is released with the rest
+            counts["released"] = self.pipeline.blobs.prune_verified(
+                Path(self.settings.lake_dir), paths=selected_paths, held=self.refused)
         return StageResult("build", counts=counts)
 
     # ------------------------------------------------------------- population
@@ -983,7 +995,7 @@ def _year_from_path(catalog: CatalogStore, path: str) -> int | None:
 
 
 def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, labels: bool = False,
-               release: bool = False) -> dict[str, Any]:
+               release: bool | None = None) -> dict[str, Any]:
     """The lake for one dataset's years (``pegasus-data build`` for a caller that is not the command line).
 
     A partition whose sources and normalisation plan are unchanged and whose Parquet is on disk is kept, so a second
@@ -991,26 +1003,16 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
     the footprint. Measured on 2026-10-09 in PegaSUS's data root: a national CIHA year decodes in 30-60 min from its
     324 DBC files and reads in 12 s from the lake (18.9 M records).
 
-    ``release`` then deletes the downloaded files of these years that verified partitions hold (`prune` for this
-    build alone; ``released`` in the counts): a build otherwise keeps every file beside its Parquet, so each
-    downloaded gigabyte cost disk twice, and a rebuild fetches them again."""
+    ``release`` is `Builder.build`'s: by default the downloaded files these partitions hold are deleted once verified
+    (``released`` in the counts), so a downloaded gigabyte does not cost disk twice; a rebuild fetches them again."""
     from ._request import parse_dataset
     from .config import load_settings
 
     system, series = parse_dataset(dataset)
     pipeline = Pipeline(load_settings(root=Path(root) if root else None))
     try:
-        builder = Builder(pipeline)
-        result = builder.build(systems=[system], series=[series] if series else None, years=list(years),
-                               emit_labels=labels)
-        counts = dict(result.counts)
-        if release:
-            from .extract import _files
-
-            paths = [f["path"] for f in _files(pipeline.settings, dataset, years)]
-            # a representation refused for its columns holds no record of any partition: it is released with the rest
-            counts["released"] = pipeline.blobs.prune_verified(
-                Path(pipeline.settings.lake_dir), paths=paths, held=builder.refused)
-        return counts
+        result = Builder(pipeline).build(systems=[system], series=[series] if series else None, years=list(years),
+                                         emit_labels=labels, release=release)
+        return dict(result.counts)
     finally:
         pipeline.close()

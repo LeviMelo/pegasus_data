@@ -17,13 +17,15 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from pegasus_data.config import label_build_catalog
+
 SYSTEM_OF = {"SIH": "SIHSUS", "SIM": "SIM", "SINASC": "SINASC", "CIHA": "CIHA", "CNES": "CNES",
              "SIASUS": "SIASUS", "SINAN": "SINAN"}
 
 
 def main() -> int:
     sweep = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    catalog = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("pegasus_data_home/_catalog/catalog.sqlite")
+    catalog = Path(sys.argv[2]) if len(sys.argv) > 2 else label_build_catalog()
     con = sqlite3.connect(f"file:{catalog}?mode=ro", uri=True, timeout=120)
     for entry in sweep:
         system = SYSTEM_OF.get(str(entry["dataset"]).split("-")[0], str(entry["dataset"]).split("-")[0])

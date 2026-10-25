@@ -23,11 +23,12 @@ from pathlib import Path
 
 import duckdb
 
+from pegasus_data.config import load_settings
 from pegasus_data.geography import _MEMBER, memberships
 from pegasus_data.semantics.cnv_parser import parse_cnv
 
 PACK = "src/pegasus_data/resources/geography.parquet"
-TABNET = "pegasus_data_home/registries/tabnet/br_regsaud.cnv"
+TABNET = str(load_settings().registries_dir / "tabnet" / "br_regsaud.cnv")
 OUT = Path("data/probes/geography/health_region_conflicts.json")
 
 

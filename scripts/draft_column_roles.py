@@ -36,6 +36,7 @@ from pathlib import Path
 
 import yaml
 
+from pegasus_data.config import label_build_catalog
 from pegasus_data.semantics.curation import harvested_field
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -304,7 +305,7 @@ def draft(dataset: str, conn: sqlite3.Connection) -> dict:
 
 
 def main() -> int:
-    conn = sqlite3.connect(ROOT / "pegasus_data_home" / "_catalog" / "catalog.sqlite")
+    conn = sqlite3.connect(label_build_catalog())
     OUT.mkdir(exist_ok=True)
     for dataset in sys.argv[1:] or _datasets(conn):
         body = draft(dataset, conn)

@@ -95,6 +95,9 @@ markers = [
   "slow: test takes more than a few seconds",
 ]
 filterwarnings = ["ignore::DeprecationWarning"]
+# test homes held 3.4 GB per run, three runs kept (2026-10-24): keep a failed run's only, and only the last (ADR-0208)
+tmp_path_retention_count = 1
+tmp_path_retention_policy = "failed"
 
 [tool.ruff]
 line-length = 110

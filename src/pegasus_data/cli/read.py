@@ -1079,6 +1079,14 @@ def build(
             "still on disk, is left alone.",
         ),
     ] = False,
+    keep_downloads: Annotated[
+        bool | None,
+        typer.Option(
+            "--keep-downloads/--release-downloads",
+            help="Keep each downloaded file beside the partitions built from it. By default (Settings.keep_downloads) "
+            "a file whose records a verified partition holds is deleted after the build; a rebuild fetches it again.",
+        ),
+    ] = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Normalise families into the partitioned Parquet lake."""
@@ -1095,6 +1103,7 @@ def build(
                 keep_raw=keep_raw,
                 emit_labels=labels,
                 rebuild=rebuild,
+                release=None if keep_downloads is None else not keep_downloads,
             )
         _emit(result.counts, as_json, "build")
         if result.counts.get("errors"):

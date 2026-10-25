@@ -53,14 +53,16 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
 ```
 
 - **Encoding.** Set `PYTHONUTF8=1`: labels are Portuguese.
-- **One data home** (ADR-0200). Every process of this user, PegaSUS and other
-  projects included, uses `C:\Users\Galaxy\pegasus_core_data`, named once in
-  `%APPDATA%\pegasus-data\config.toml`. Nothing is derived from the working
-  directory. The repo's `pegasus_data_home/_catalog/` is only the label pack's
-  build catalog, read by path by the maintainer scripts. A stray home is
-  cleared with `pegasus-data adopt <home> --apply`, then deleted. Live checks
-  run against a **fresh** home instead (`scripts/live.py` does this), because
-  the one home hides every fresh-install defect.
+- **One data home** (ADR-0200, ADR-0208). Every process of this user, PegaSUS
+  and other projects included, uses `C:\Users\Galaxy\pegasus_core_data`, named
+  once in `%APPDATA%\pegasus-data\config.toml`. Nothing is derived from the
+  working directory, and no folder outside it holds pegasus data: the label
+  pack's build catalog is `config.label_build_catalog()`, in the home. A build
+  keeps the Parquet and releases the downloads it holds. A stray home is
+  cleared with `pegasus-data adopt <home> --apply --remove`. A scratch home of
+  your own goes the same way when you are done with it. Live checks run
+  against a **fresh** home (`scripts/live.py` makes one per run and adopts it
+  after), because the one home hides every fresh-install defect.
 - **Long runs detach.** The Bash tool caps background work at ten minutes;
   start longer builds with PowerShell `Start-Process`, logging beside them.
 
@@ -222,8 +224,9 @@ Stored aggregates are sums and counts, never finished means.
   (the shipped label pack) are data, reviewed like code.
 - `scripts/` — maintainer and live-check scripts. (`tools/` was folded into
   the package on 2026-10-04: `pegasus-data workbook`, `pegasus-data query --out`.)
-- Gitignored and local: `pegasus_data_home/` (catalog, blob cache, lake),
-  `sources/` (2.5 GB of harvested DATASUS documentation), `data/probes/`.
+- Gitignored and local: `sources/` (2.5 GB of harvested DATASUS
+  documentation), `data/probes/`. No data home: the repository holds none
+  (ADR-0208).
 
 ---
 

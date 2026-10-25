@@ -60,12 +60,14 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
 - `$PD adopt <other-home>` shows what another home holds that this one lacks.
   `--apply` moves its downloads, with their fetch history and each digest
   checked, and its registry files absent here. Its lake and semantic tables
-  are recomputed here, not moved. Then crawl the adopted directories
-  (`$PD crawl --prefix <dir>`) and delete the other folder.
-- The repo's `pegasus_data_home/_catalog/` is the label pack's build catalog,
-  read by path by the maintainer scripts. It is not a data home.
+  are recomputed here, not moved. `--remove` then deletes the other folder
+  (links inside it removed as links). Crawl the adopted directories afterwards
+  (`$PD crawl --prefix <dir>`).
+- The label pack's build catalog is `<root>/_label_build/catalog.sqlite`
+  (`config.label_build_catalog()`), read by the maintainer scripts. It is not a
+  data home, and the repository holds none (ADR-0208).
 - To act as a fresh user, set `PEGASUS_DATA_HOME` to an empty directory
-  outside the repository.
+  outside the repository, and `adopt --apply --remove` it when done.
 - Decoding is admitted machine-wide (`decode/admission.py`): `PEGASUS_DECODE_SLOTS`
   (default 4 on 32 GB), `PEGASUS_MIN_FREE_GB` (default max(4, 15% of RAM)),
   `PEGASUS_ADMISSION_WAIT` (seconds, 1800). A decode that waits is queued, not hung.
@@ -101,12 +103,12 @@ $PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,020203087
 | families | `families` | |
 | label bindings | `bindings` | one decision per family and field (ADR-0072); ~2 h for the tree |
 | code tables | `reference` | `lake/reference/` |
-| the lake | `build`, or `build_lake(dataset, years, root=)` from Python (no labels by default; PegaSUS's `update` calls it for a plan's datasets) | a year with a national file (SIM, SINASC) is built from it alone unless `--uf` names states; a kept partition is not rewritten |
+| the lake | `build`, or `build_lake(dataset, years, root=)` from Python (no labels by default; PegaSUS's `update` calls it for a plan's datasets) | a year with a national file (SIM, SINASC) is built from it alone unless `--uf` names states; a kept partition is not rewritten; the downloads a verified partition holds are released after the build (`--keep-downloads` or `keep_downloads = true` keeps them; ADR-0208) |
 | rewrite modelled products with the current encoding | `reencode-modelled PRODUCT [VERSION ...]` | floats in BYTE_STREAM_SPLIT; each row group read back equal before the file is replaced |
-| free the downloaded files | `prune [--dry-run]` | deletes blobs whose every path is in a verified lake partition; refetched only for a rebuild. The DBC bytes cannot be regenerated from the lake. `build_lake(..., release=True)` does the same for one build's files |
+| free the downloaded files | `prune [--dry-run]` | deletes blobs whose every path is in a verified lake partition; refetched only for a rebuild. The DBC bytes cannot be regenerated from the lake. A build does the same for its own files; `prune` releases what was built before ADR-0208 |
 | population | `population` | IBGE series |
 | curation into the catalog | `curate` | 4 s |
-| the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |
+| the seed and the manifest | `python scripts/build_resources.py` (the label build catalog; another catalog as argument) | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |
 | re-read unchanged kits | `pegasus-data semantics --system X --force` | otherwise a kit is skipped when its blob and the parser are unchanged (OQ-24) |
 | describe large zipped DuckDB exports | `pegasus-data schemas --system DADOS_ABERTOS --whole-up-to-gb 8` | fetches each export whole into the blob store (FTP or mirror) to read its tables (OQ-54) |
 | an aggregate artifact as an Excel workbook | `pegasus-data workbook sih_rd_municipality_month --out book.xlsx` | each sheet its own aggregation; stocks reduced by their declared rule |

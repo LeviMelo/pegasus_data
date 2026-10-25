@@ -54,6 +54,13 @@ def default_root() -> Path:
     return resolved
 
 
+def label_build_catalog() -> Path:
+    """The label pack's build catalog: the dictionary, code tables and kits the maintainer scripts build the packaged
+    resources from (13 GB on 2026-10-24, held nowhere else). It lives in the one data home, beside that home's own
+    catalog and never as it, so no folder outside the home holds pegasus data (ADR-0208)."""
+    return default_root() / "_label_build" / "catalog.sqlite"
+
+
 @dataclass(slots=True)
 class Settings:
     """Everything the pipeline needs to know about placement and throughput."""
@@ -140,6 +147,10 @@ class Settings:
     decode_workers: int | None = None
 
     keep_raw: bool = False
+    #: A build releases each downloaded file once a verified partition holds its records (`BlobStore.prune_verified`;
+    #: snapshot versions are always kept), so the Parquet is what stays. True keeps every download beside its Parquet,
+    #: which held 13.6 GB twice on 2026-10-24 (ADR-0208). A rebuild fetches a released file again.
+    keep_downloads: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024
 

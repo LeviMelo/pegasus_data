@@ -9,6 +9,7 @@ third-party reader this replaced).
 
 from __future__ import annotations
 
+import os
 import pathlib
 
 import pytest
@@ -33,23 +34,24 @@ def _one_real_blob():
         from pegasus_data.config import load_settings
 
         # The suite's conftest points settings at an isolated tmp root; the
-        # goldens want the REPO's real lake, named explicitly.
-        root = pathlib.Path(__file__).resolve().parents[1] / "pegasus_data_home"
-        if not root.is_dir():
+        # goldens read a real home only when one is named (the repository no
+        # longer holds one, ADR-0208).
+        named = os.environ.get("PEGASUS_GOLDEN_HOME")
+        if not named or not pathlib.Path(named).is_dir():
             return None
-        settings = load_settings(root=root)
+        settings = load_settings(root=pathlib.Path(named))
         if not settings.catalog_path.is_file():
             return None
         catalog = CatalogStore(settings.catalog_path, read_only=True)
         try:
             rows = catalog.query(
-                "SELECT sha256 AS d FROM fetches WHERE source_path LIKE '%.dbc' LIMIT 1")
+                "SELECT DISTINCT sha256 AS d FROM fetches WHERE source_path LIKE '%.dbc' LIMIT 500")
         finally:
             catalog.close()
-        if not rows:
-            return None
-        path = BlobStore(settings.blobs_dir).path_for(rows[0]["d"])
-        return path.read_bytes() if path.is_file() else None
+        store = BlobStore(settings.blobs_dir)
+        # a build releases the files its partitions hold: the first DBC still held
+        path = next((p for p in (store.path_for(r["d"]) for r in rows) if p.is_file()), None)
+        return path.read_bytes() if path else None
     except Exception:  # noqa: BLE001 - absence of a lake is not a failure
         return None
 

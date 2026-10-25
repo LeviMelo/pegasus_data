@@ -10,7 +10,8 @@ manifest entry for everything in `resources/`.
 Run it on a catalog that is current: `crawl`, `inventory`, `schemas`,
 `families`, then `curate` (RUNBOOK §5).
 
-    python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite
+    python scripts/build_resources.py            # the label build catalog, in the data home (ADR-0208)
+    python scripts/build_resources.py CATALOG    # another catalog
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from pegasus_data.catalog.seed import SEED_NAME, export_seed  # noqa: E402
+from pegasus_data.config import label_build_catalog  # noqa: E402
 
 RESOURCES = ROOT / "src" / "pegasus_data" / "resources"
 
@@ -123,7 +125,7 @@ def register_packaged(entries: dict[str, dict[str, object]]) -> list[str]:
 def main() -> None:
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("catalog", type=Path)
+    parser.add_argument("catalog", type=Path, nargs="?", default=label_build_catalog())
     args = parser.parse_args()
     result = build(args.catalog)
     manifest = result["manifest"]

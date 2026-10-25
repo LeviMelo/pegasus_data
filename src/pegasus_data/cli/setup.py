@@ -182,17 +182,19 @@ def adopt_home(
     other: Annotated[Path, typer.Argument(help="Another data home (a folder holding _catalog/)")],
     root: RootOpt = None,
     apply: Annotated[bool, typer.Option("--apply", help="Move the files; without it, only the plan is shown")] = False,
+    remove: Annotated[bool, typer.Option("--remove", help="With --apply: delete the other home once adopted")] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Move another data home's downloads and registries into this one, so one machine keeps one home.
 
     Blobs this home lacks move with their fetch history (each digest checked first). Registry files absent here also
     move. The other home's lake and semantic tables are listed but not taken: this home recomputes them from the
-    downloads with the current code. Crawl the adopted prefixes afterwards, so the listing is as new as the fetches.
+    downloads with the current code. ``--remove`` then deletes the other home, so no copy outlives its adoption.
+    Crawl the adopted prefixes afterwards, so the listing is as new as the fetches.
     """
     from ..adopt import adopt
 
-    plan = adopt((_writer if apply else _settings)(root), other, apply=apply)
+    plan = adopt((_writer if apply else _settings)(root), other, apply=apply, remove=remove)
     _emit(plan.summary(), as_json, "adopt")
     if not apply and not as_json:
         console.print("[dim]Nothing was moved. Run again with --apply to move it.[/dim]")

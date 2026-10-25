@@ -16,15 +16,18 @@ downloads with the code of now, so no stale product is read as current. The plan
 present on both sides and the files that disagree (this home's copy is kept), so the other home can be deleted
 knowing what is lost.
 
-The plan is read-only; ``apply=True`` executes it. Crawl the adopted prefixes afterwards. A fetch newer than this
-home's listing is judged against that listing, and a stale listing calls it changed.
+The plan is read-only; ``apply=True`` executes it, and ``remove=True`` then deletes the other home, so no copy outlives
+its adoption: adopted homes left on disk held 13 GB of duplicates on 2026-10-24 (ADR-0208). Crawl the adopted prefixes
+afterwards. A fetch newer than this home's listing is judged against that listing, and a stale listing calls it changed.
 """
 
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import sqlite3
+import stat
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -50,6 +53,7 @@ class AdoptPlan:
     differ: list[str] = field(default_factory=list)
     derived: dict[str, int] = field(default_factory=dict)  # lake top directory -> bytes left to be recomputed here
     applied: bool = False
+    removed_bytes: int | None = None  # what deleting the adopted home freed; None while it is kept
 
     def summary(self) -> dict:
         return {"other": self.other, "blobs moved": len(self.blobs), "blob GB": round(self.blob_bytes / 1e9, 2),
@@ -58,7 +62,8 @@ class AdoptPlan:
                 "registry GB": round(self.registry_bytes / 1e9, 2), "registry files identical here": self.same,
                 "registry files differing (kept this home's)": self.differ,
                 "derived, left to recompute (GB)": {k: round(v / 1e9, 3) for k, v in self.derived.items()},
-                "applied": self.applied}
+                "applied": self.applied,
+                "removed (GB)": None if self.removed_bytes is None else round(self.removed_bytes / 1e9, 2)}
 
 
 def _digest(path: Path) -> str:
@@ -75,8 +80,43 @@ def _files(base: Path) -> dict[str, int]:
     return {p.relative_to(base).as_posix(): p.stat().st_size for p in base.rglob("*") if p.is_file()}
 
 
-def adopt(settings: Settings, other: str | Path, *, apply: bool = False) -> AdoptPlan:
-    """Plan (and with ``apply``, carry out) moving ``other``'s downloads and registries into the home of ``settings``."""
+def _remove_home(other: Path, here: Path) -> int:
+    """Delete an adopted home and return the bytes freed. A junction or symbolic link inside it is removed as a link,
+    never followed: a scratch home whose `lake/` links to this home's lake is common. A folder that is, holds or lies
+    inside this home is refused."""
+    if other == here or other in here.parents or here in other.parents:
+        raise ValueError(f"{other} and this home {here} overlap: not removed")
+    freed = 0
+
+    def gone(path: Path) -> None:
+        nonlocal freed
+        st = os.lstat(path)
+        if getattr(st, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT or stat.S_ISLNK(st.st_mode):
+            try:
+                os.rmdir(path)  # a junction or a directory link
+            except OSError:
+                os.unlink(path)
+            return
+        if not stat.S_ISDIR(st.st_mode):
+            freed += st.st_size
+            os.chmod(path, stat.S_IWRITE)
+            os.unlink(path)
+            return
+        with os.scandir(path) as entries:
+            children = [Path(e.path) for e in entries]
+        for child in children:
+            gone(child)
+        os.rmdir(path)
+
+    gone(other)
+    return freed
+
+
+def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove: bool = False) -> AdoptPlan:
+    """Plan (and with ``apply``, carry out) moving ``other``'s downloads and registries into the home of ``settings``;
+    with ``remove`` as well, delete ``other`` once nothing it acquired is left only there."""
+    if remove and not apply:
+        raise ValueError("remove deletes the other home after its adoption: it needs apply")
     other = Path(other).resolve()
     if other == Path(settings.root).resolve():
         raise ValueError(f"{other} is this home")
@@ -144,7 +184,11 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False) -> Adop
                     "INSERT INTO fetches (source_path, sha256, byte_size, fetched_at, serving_method, elapsed_ms, "
                     "remote_size, remote_modified) VALUES (?,?,?,?,?,?,?,?)", [tuple(f) for f in plan.fetch_rows])
             plan.applied = True
-        return plan
     finally:
         theirs.close()
         ours.close()
+    if remove:
+        if plan.blobs_corrupt:
+            raise ValueError(f"{len(plan.blobs_corrupt)} blobs of {other} fail their digest: that home is kept")
+        plan.removed_bytes = _remove_home(other, Path(settings.root).resolve())
+    return plan

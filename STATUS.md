@@ -12,19 +12,17 @@ fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
 
-## One data home (2026-10-24, ADR-0200)
+## One data home (2026-10-24, ADR-0200, ADR-0208)
 
 Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_core_data`
-(`%APPDATA%\pegasus-data\config.toml`). The seven other homes were adopted: 16.9 GB of downloads and 2.85 GB of
-registries moved, and none holds a blob the one home lacks. The adopted folders remain on disk, not empty (2026-10-24:
-`~/pegasus_linkage` 9.4 GB of blobs and lake, `~/pegasus_fresh` 0.5 GB): they hold copies the one home also has and
-products it recomputes. Their deletion was refused by the session's permission check; the author deletes them:
-* `pegasus_project/pegasus_data_home`;
-* `~/pegasus_fresh`, `~/pegasus_fresh2` and `~/pegasus_fresh3`;
-* `~/pegasus_linkage`;
-* `~/pegasus_live`;
-* in the repo home, everything but `_catalog/`;
-* the temp homes.
+(`%APPDATA%\pegasus-data\config.toml`), and it is the only folder holding pegasus data.
+* **No strays left.** The homes adopted under ADR-0200 and those made since are gone: 23 were adopted and removed
+  (15.4 GB), 6 without a catalog deleted. Nothing was held only there.
+* **The build catalog.** The label build catalog moved into the home (`_label_build/`), and the repository holds no
+  `pegasus_data_home/`.
+* **Downloads.** A build now releases the downloads its verified partitions hold.
+  * The 13.6 GB built before this are still kept, waiting for the author's `prune`.
+  * 17.4 GB of downloads were never built (SIA-PA and SIA-BI most of it).
 
 ## Reads and labels (2026-10-24)
 

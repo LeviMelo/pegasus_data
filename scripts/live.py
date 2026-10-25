@@ -2,16 +2,20 @@
 FTP server, on a fresh data home (CLAUDE.md §5).
 
 Each scenario runs in its own subprocess with a timeout, from a working
-directory outside the repository (so the repo's own `pegasus_data_home/` is
-never adopted), and writes one JSON record to
+directory outside the repository, and writes one JSON record to
 `data/probes/live/<run>/<scenario>.json`: seconds, rows, columns, how many of
 the coded columns came back labelled and how much of each, the warnings a
 user saw, and the error if there was one. A run's summary is
 `data/probes/live/<run>/summary.json`.
 
+The home is new and empty for each run, then adopted into the one data home and
+removed (`adopt --remove`, ADR-0208): what a run downloads is kept once, and no
+live home outlives its run. `--home` names a home kept across runs instead.
+
     python scripts/live.py --list
     python scripts/live.py sih_rd sim_do          # named scenarios
-    python scripts/live.py --all [--fresh]        # every scenario; --fresh empties the home first
+    python scripts/live.py --all                  # every scenario
+    python scripts/live.py --home H [--fresh]     # a kept home; --fresh empties it first
     python scripts/live.py --show <run>           # print a past run's summary
 
 The unit that binds is the user's: did the call work, how long did it take,
@@ -27,6 +31,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import traceback
 import warnings
@@ -36,7 +41,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBES = ROOT / "data" / "probes" / "live"
-DEFAULT_HOME = Path(os.environ.get("PEGASUS_LIVE_HOME", Path.home() / "pegasus_live" / "home"))
+#: A home kept across runs; unset, each run makes a new one and adopts it into the one data home after it.
+KEPT_HOME = os.environ.get("PEGASUS_LIVE_HOME")
 TIMEOUT = int(os.environ.get("PEGASUS_LIVE_TIMEOUT", "1800"))
 
 
@@ -754,8 +760,9 @@ def main() -> int:
     parser.add_argument("names", nargs="*")
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--list", action="store_true")
-    parser.add_argument("--fresh", action="store_true", help="empty the live data home first")
-    parser.add_argument("--home", type=Path, default=DEFAULT_HOME)
+    parser.add_argument("--fresh", action="store_true", help="empty the kept home first")
+    parser.add_argument("--home", type=Path, default=Path(KEPT_HOME) if KEPT_HOME else None,
+                        help="a home kept across runs (default: a new one per run, adopted and removed after it)")
     parser.add_argument("--run", help="run id (default: timestamp)")
     parser.add_argument("--show")
     parser.add_argument("--one", help=argparse.SUPPRESS)
@@ -777,7 +784,10 @@ def main() -> int:
     unknown = [n for n in names if n not in SCENARIOS]
     if not names or unknown:
         parser.error(f"name scenarios or --all; unknown: {unknown}; known: {list(SCENARIOS)}")
-    if args.fresh and args.home.exists():
+    temporary = args.home is None
+    if temporary:
+        args.home = Path(tempfile.mkdtemp(prefix="pegasus_live_")) / "home"
+    elif args.fresh and args.home.exists():
         shutil.rmtree(args.home)
     args.home.mkdir(parents=True, exist_ok=True)
     run_id = args.run or time.strftime("%Y%m%d-%H%M%S")
@@ -811,6 +821,14 @@ def main() -> int:
         summary["scenarios"][name] = line
         print(f"{name:12s} {'ok  ' if line['ok'] else 'FAIL'} {line['seconds']:>7}s rows={line['rows']} "
               f"labelled={line['labelled']} warnings={line['warnings']} {line['error'] or ''}"[:300], flush=True)
+    if temporary:
+        # what the run downloaded joins the one home, and the run's home goes (ADR-0208)
+        sys.path.insert(0, str(ROOT / "src"))
+        from pegasus_data.adopt import adopt
+        from pegasus_data.config import load_settings
+
+        summary["adopted"] = adopt(load_settings(), args.home, apply=True, remove=True).summary()
+        shutil.rmtree(args.home.parent, ignore_errors=True)
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     print(f"\nrecords: {out_dir}")
     return 0
