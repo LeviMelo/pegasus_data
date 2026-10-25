@@ -34,8 +34,9 @@ which series are capable of supporting a given stratification, and it does.
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
@@ -70,6 +71,10 @@ class PopulationSeries:
     #: The stratifications the producer publishes (the files may carry fewer).
     stratifications: tuple[str, ...]
     notes: str = ""
+    #: How the files code a single year of age when it is not a number (``age_codes`` in the YAML): ``pattern``, a regex
+    #: whose two groups are the first and last age of the code, ``open_from`` (the age that stands for "and over") and
+    #: ``source`` (the table that says so). Empty: the age is a number.
+    age_codes: dict[str, object] = field(default_factory=dict)
 
     def supports(self, by: Sequence[str]) -> tuple[bool, list[str]]:
         missing = [b for b in by if b not in self.stratifications]
@@ -88,7 +93,8 @@ def _declared() -> dict[str, PopulationSeries]:
         out[str(name)] = PopulationSeries(
             name=str(name), authority=str(d["authority"]), kind=str(d["kind"]),
             directory=str(source["ftp"]) if isinstance(source, dict) else "", builder=str(d.get("builder") or ""),
-            stratifications=tuple(str(a) for a in d["axes"]), notes=" ".join(str(d.get("notes") or "").split()))
+            stratifications=tuple(str(a) for a in d["axes"]), notes=" ".join(str(d.get("notes") or "").split()),
+            age_codes=dict(d.get("age_codes") or {}))
     # the names are directory names: two that differ only by case are one folder on a case-insensitive volume
     if len({n.casefold() for n in out}) != len(out):
         raise ValueError("population series names must differ by more than case: they are directory names")
@@ -253,6 +259,25 @@ def canonicalize(table: pa.Table) -> pa.Table:
             seen[n] = 0
             final.append(n)
     return table.rename_columns(final)
+
+
+def decode_age(table: pa.Table, codes: dict[str, object]) -> pa.Table:
+    """``age`` as a number from the series' declared ``age_codes``: a code whose first and last age are one age is that
+    age (``A0101`` -> 1; the open group ``A9090`` -> 90, "90 anos e mais"). A code spanning several ages, or one the
+    pattern does not match, raises: a band is not a single year, and nothing is guessed."""
+    if not codes or "age" not in table.schema.names:
+        return table
+    pattern = re.compile(str(codes["pattern"]))
+    decoded: list[int | None] = []
+    for raw in table.column("age").to_pylist():
+        if raw is None or not str(raw).strip():
+            decoded.append(None)
+            continue
+        found = pattern.fullmatch(str(raw).strip())
+        if not found or found.group(1) != found.group(2):
+            raise ValueError(f"age code {raw!r} is not a single age under {codes['pattern']!r} ({codes.get('source')})")
+        decoded.append(int(found.group(1)))
+    return table.set_column(table.schema.get_field_index("age"), "age", pa.array(decoded, pa.int64()))
 
 
 def coerce_numeric(table: pa.Table, columns: Sequence[str]) -> pa.Table:

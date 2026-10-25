@@ -842,7 +842,7 @@ class Builder:
                             )
                             tables = national
                         for table in tables:
-                            arrow = ibge.canonicalize(table.to_table())
+                            arrow = ibge.decode_age(ibge.canonicalize(table.to_table()), spec.age_codes)
                             arrow = ibge.coerce_numeric(
                                 arrow, ["year", "population", "age", "municipality"]
                             )

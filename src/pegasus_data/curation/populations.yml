@@ -60,9 +60,16 @@ series:
     authority: IBGE population projections
     source: {ftp: IBGE/projpop}
     axes: [uf, year, sex, age]
+    # IDADE is "A" + first age + last age (A0000 ... A8989); A9090 is "90 anos e mais" (TabNet's own table for these files,
+    # ibge/cnv/projpop2024uf.def -> IBGE/cnv/fxidadproj0.cnv: "91  90 anos e mais  A9090-A9999"), read 2026-10-25
+    age_codes:
+      pattern: 'A(\d{2})(\d{2})'
+      open_from: 90
+      source: TabNet IBGE/cnv/fxidadproj0.cnv (projpop2024uf.def)
     notes: >-
-      projections at UF level, files PROJUF00...PROJUF70 keyed by projection year 2000-2070; not municipal, so it complements
-      rather than replaces POPSVS
+      projections at UF level, files PROJUF00...PROJUF70 keyed by projection year 2000-2070 (IBGE's Projeções da População,
+      Revisão 2024); single years of age 0-89 and 90 standing for 90 and over; not municipal, so it complements rather than
+      replaces POPSVS
 
   # Named apart from CENSO: the two directories differed only by case, so on a case-insensitive volume the covariates and the SIDRA
   # census were one folder (the later write erased the earlier) and the covariates were offered as an age-standardisable denominator.
