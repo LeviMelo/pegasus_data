@@ -287,25 +287,50 @@ def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[s
     from .sources.tabnet import fetch_territorial
 
     rows: list[tuple[str, ...]] = []
-    report: dict[str, dict[str, int | str]] = {}
-    for name, body in classifications(root, authority="tabnet").items():
-        table_name = str(body["table"])
-        cnv = parse_cnv(fetch_territorial(table_name, cache_dir))
-        members: set[str] = set()
-        municipalities: set[str] = set()
-        for category in cnv.categories:
+    report: dict[str, dict[str, Any]] = {}
+
+    def memberships(table_name: str) -> dict[str, tuple[str, str]]:
+        out: dict[str, tuple[str, str]] = {}
+        for category in parse_cnv(fetch_territorial(table_name, cache_dir)).categories:
             if len(category.codes) != 1 or not re.fullmatch(r"\d{6}", category.codes[0]):
                 continue
             parsed = _MEMBER.match(category.label)
-            if not parsed:
-                continue
-            municipality = category.codes[0]
-            rows.append((municipality, name, "", parsed.group(1), parsed.group(2),
-                         f"tabnet:territorio/{table_name}.cnv", "", "", "tabnet"))
-            members.add(parsed.group(1))
-            municipalities.add(municipality)
-        report[name] = {"municipalities": len(municipalities), "members": len(members),
-                        "rows": len(municipalities), "contested": 0, "authority": "tabnet"}
+            if parsed:
+                out[category.codes[0]] = (parsed.group(1), parsed.group(2))
+        return out
+
+    for name, body in classifications(root, authority="tabnet").items():
+        table_name = str(body["table"])
+        national = memberships(table_name)
+        # TabNet's state forms (sih/cnv/nrro.def: "territorio\RO_macsaud.cnv") classify by the state's own table: it
+        # is the authority where it exists, and the national table is the check (it omits Alta Floresta D'Oeste,
+        # 110001, which RO_macsaud.cnv puts in 1101)
+        chosen: dict[str, tuple[str, str, str]] = {m: (*v, table_name) for m, v in national.items()}
+        added: list[str] = []
+        contested: list[dict[str, str]] = []
+        state_template = body.get("state_table")
+        if state_template:
+            from .config import UF_CODES
+
+            for uf in sorted(UF_CODES - {"BR"}):
+                state_name = str(state_template).format(uf=uf)
+                # a state table's labels are not decoded as the national one's (RO_regsaud reads "CafÚ" for Café): it
+                # decides membership, and a member keeps the national table's label where that table names it
+                national_label = dict(national.values())
+                for municipality, member in memberships(state_name).items():
+                    before = national.get(municipality)
+                    if before is not None and before[0] == member[0]:
+                        continue
+                    if before is None:
+                        added.append(municipality)
+                    else:
+                        contested.append({"municipality": municipality, state_name: member[0], table_name: before[0]})
+                    chosen[municipality] = (member[0], national_label.get(member[0], member[1]), state_name)
+        for municipality, (code, label, source) in sorted(chosen.items()):
+            rows.append((municipality, name, "", code, label, f"tabnet:territorio/{source}.cnv", "", "", "tabnet"))
+        report[name] = {"municipalities": len(chosen), "members": len({v[0] for v in chosen.values()}),
+                        "rows": len(chosen), "contested": len(contested), "authority": "tabnet",
+                        "added_by_state_tables": sorted(added), "state_and_national_differ": contested}
     return rows, report
 
 

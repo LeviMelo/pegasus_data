@@ -548,6 +548,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - The vendored source documents are 11,379 files including 2,563 `.CNV`
   (`sources/`, gitignored; ARCH §21).
 
+### 2.3a TabNet's state territorial tables (measured 2026-10-25; ADR-0210)
+
+TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud.cnv` (`sih/cnv/nrro.def`), not by `br_macsaud.cnv` and `br_regsaud.cnv`. The state tables place 110001 (macroregion 1101) and 110002 (region 11001), which the national ones leave in "Ignorado - RO", and agree with them on every other municipality. Their labels decode wrongly with the national table's encoding ("CafÚ").
+
 ### 2.4 Municipality and geography tables (2026-08-23, F §3k, §3n second)
 
 | table | rows | exact keys | notes |

@@ -164,6 +164,7 @@ tabnet_classifications:
 
   health_macroregion:
     table: br_macsaud
+    state_table: "{uf}_macsaud"
     what: >
       Macrorregião de Saúde, the tier above the health region, as the Ministry's
       TabNet assigns it today. Settles OQ-9: the kits' BR_MACSAUD copies name a
@@ -177,10 +178,13 @@ tabnet_classifications:
         5,569 of IBGE's 5,570 municipalities, plus 36 codes for the Federal
         District's administrative regions (5300xx), which DATASUS codes as
         municipalities. Alta Floresta D'Oeste (110001) is absent from TabNet's
-        table and stays without a macroregion rather than being given one.
+        national table; the state tables TabNet's state forms classify by
+        (sih/cnv/nrro.def: territorio\RO_macsaud.cnv) put it in 1101, and they
+        are read as the authority, the national table as the check (2026-10-25).
 
   health_region_current:
     table: br_regsaud
+    state_table: "{uf}_regsaud"
     what: >
       Região de Saúde (CIR) as TabNet assigns it today: one current
       regionalisation for system-neutral roll-ups. `health_region` keeps each
