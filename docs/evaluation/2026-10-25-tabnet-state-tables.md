@@ -15,7 +15,7 @@ reconcile); every other change the rebuild brings (a pack rebuilt for one reason
 * The national tables leave both in the state's "Ignorado" range; nees-gt-ms had found the same single difference for the
   macroregion by comparing the 27 state files with the national one municipality by municipality.
 * The state tables' labels read mis-decoded ("CafÚ" for Café, `RO_regsaud.cnv`); a first rebuild that took them replaced
-  national labels with those (Cafe, Vale do Guaporé) and was discarded. Labels now come from the national table.
+  national labels with them ("CafÚ", "Vale do GuaporÚ") and was discarded. Labels now come from the national table.
 * Every other difference of the rebuilt pack: 6,173 rows of the CIH system whose window ends 201104 instead of 201012,
   ADR-0198's widening of CIH's kit window, which the shipped pack had not been rebuilt with.
 
