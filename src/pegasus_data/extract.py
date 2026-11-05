@@ -47,20 +47,39 @@ def extract_dir(settings: Any, dataset: str, filters: dict[str, Sequence[str]]) 
 
 
 def _files(settings: Any, dataset: str, years: Sequence[int], ufs: Sequence[str] | None = None) -> list[dict[str, Any]]:
-    """The dataset's published data files of ``years`` (the catalog's file facts): path, state, year, period."""
+    """The dataset's published data files of ``years`` (the catalog's file facts): path, state, year, period; one
+    representation per publication, chosen as a query chooses it (`choose_representations`). Listing every copy made
+    the extract read a publication twice where DATASUS mirrors it, and fail where an older copy cannot be read:
+    SIA-PA Paraná 2024-08..2025-06 sits in ``/SIASUS/teste/`` (September 2025 trial copies) beside ``200801_/Dados``,
+    and the trial copies, never a query's choice, failed and kept 2024 and 2025 unheld (toxoplasmosis study,
+    2026-11-05)."""
     from ._request import parse_dataset
     from .catalog.store import CatalogStore
+    from .representations import choose_representations
 
     system, series = parse_dataset(dataset)
     store = CatalogStore(settings.catalog_path)
     try:
         marks = ",".join("?" for _ in years)
         rows = store.query(
-            f"""SELECT ff.path, ff.geo_code, ff.year, ff.normalized_date FROM file_facts ff JOIN files f ON f.path = ff.path
+            f"""SELECT ff.path, ff.geo_code, ff.year, ff.normalized_date, ff.logical_id, ff.container_format,
+                       f.size, fm.member, fm.family_id, fam.schema_signature
+                  FROM file_facts ff JOIN files f ON f.path = ff.path
+                  LEFT JOIN family_files fm ON fm.path = ff.path
+                  LEFT JOIN families fam ON fam.family_id = fm.family_id
                 WHERE ff.system = ? AND ff.series_prefix = ? AND ff.role = 'data' AND f.gone_at IS NULL
                 AND ff.year IN ({marks}) ORDER BY ff.year, ff.normalized_date, ff.geo_code""",
             [system, series or system, *map(int, years)])
-        return [dict(r) for r in rows if not ufs or r["geo_code"] in set(ufs)]
+        rows = [dict(r) for r in rows if not ufs or r["geo_code"] in set(ufs)]
+        chosen = {str(r["path"]) for r in choose_representations(store, rows, on_conflict="all").selected}
+        keep = ("path", "geo_code", "year", "normalized_date")
+        seen: set[str] = set()
+        out = []
+        for r in rows:
+            if r["path"] in chosen and r["path"] not in seen:
+                seen.add(r["path"])
+                out.append({k: r[k] for k in keep})
+        return out
     finally:
         store.close()
 

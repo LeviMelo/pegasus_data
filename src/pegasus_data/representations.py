@@ -91,6 +91,8 @@ def choose_representations(
                                                  if len(rows_) > 1 for row in rows_])
     unreachable = _unreachable_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
                                                if len(rows_) > 1 for row in rows_])
+    measured = _measured_signatures(catalog, [str(row.get("path") or "") for rows_ in groups.values()
+                                              if len(rows_) > 1 for row in rows_])
     selected: list[dict[str, Any]] = []
     dropped: list[str] = []
     conflicts: list[str] = []
@@ -166,10 +168,16 @@ def choose_representations(
         row_counts = {int(row["row_count"]) for row in candidates if row.get("row_count") is not None}
         if len(row_counts) > 1:
             contradictions.append(f"contradictory row counts {sorted(row_counts)}")
+        # Only a signature read from the file itself is a claim about its layout. A file the census never read carries
+        # its family's signature by inference (`family_files`), and two byte-identical mirrors cannot hold two layouts:
+        # SIH-RD 2014's /SIHSUS/MHJ_14_16/RDAL1401.dbc (963,086 bytes, never read) sits in the family of the
+        # 2013-2014 DBF/XML exports while its mirror /SIHSUS/200801_/Dados/RDAL1401.dbc (963,086 bytes, read: 113
+        # fields) is in the current family, and comparing the two signatures refused every SIH-RD 2014 month
+        # (toxoplasmosis study, 2026-11-05).
         signatures = {
-            str(row["schema_signature"])
+            measured[str(row.get("path") or "")]
             for row in candidates
-            if row.get("schema_signature")
+            if str(row.get("path") or "") in measured
         }
         if len(signatures) > 1:
             contradictions.append("contradictory schema signatures")
@@ -293,6 +301,25 @@ def _export_families(catalog: CatalogStore, family_ids: Sequence[str]) -> set[st
                 "OR lower(path) LIKE '%.csv.zip' OR lower(path) LIKE '%.json' OR lower(path) LIKE '%.json.zip')",
                 tuple(chunk))}
         except sqlite3.OperationalError as exc:      # a catalog without families has no export layouts
+            if not _lacks(exc):
+                raise
+            return out
+    return out
+
+
+def _measured_signatures(catalog: CatalogStore, paths: Sequence[str]) -> dict[str, str]:
+    """``{path: schema signature}`` for the ``paths`` whose header the census read without error (``file_schemas``)."""
+    out: dict[str, str] = {}
+    unique = sorted(set(paths))
+    for start in range(0, len(unique), 500):
+        chunk = unique[start:start + 500]
+        marks = ",".join("?" for _ in chunk)
+        try:
+            out |= {str(r["path"]): str(r["schema_signature"]) for r in catalog.query(
+                f"SELECT path, schema_signature FROM file_schemas WHERE path IN ({marks}) "
+                "AND schema_signature IS NOT NULL AND schema_signature <> '' AND (error IS NULL OR error = '')",
+                tuple(chunk))}
+        except sqlite3.OperationalError as exc:      # a catalog without a census has measured nothing
             if not _lacks(exc):
                 raise
             return out
