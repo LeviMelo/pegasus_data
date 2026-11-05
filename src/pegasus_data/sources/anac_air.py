@@ -120,6 +120,31 @@ def _remote(url: str) -> dict[str, str]:
     return {"last_modified": answer.headers.get("Last-Modified", ""), "content_length": size, "etag": answer.headers.get("ETag", "")}
 
 
+#: Windows of the held file compared with the server's to tell a new release from a re-stamped one (ANAC rewrites the
+#: statistics file with a new date line and a new Last-Modified on days the data does not change: 2026-10-25 and
+#: 2026-11-05 held the same 361,057,599 bytes after the first line)
+SAMPLES, SAMPLE_BYTES = 16, 1 << 16
+
+
+def _changed(url: str, path: Path) -> bool:
+    """Whether the server's file differs from ``path`` beyond its first line (the date): its size, or any of `SAMPLES`
+    ranged windows spread over the rest."""
+    size = path.stat().st_size
+    if str(size) != _remote(url)["content_length"]:
+        return True
+    with path.open("rb") as held:
+        first = len(held.readline())
+        for k in range(SAMPLES):
+            start = first + (size - first - SAMPLE_BYTES) * k // (SAMPLES - 1)
+            held.seek(start)
+            mine = held.read(SAMPLE_BYTES)
+            theirs = transport.request(url, headers={"Range": f"bytes={start}-{start + len(mine) - 1}",
+                                                      "Accept-Encoding": "identity"}).content
+            if theirs != mine:
+                return True
+    return False
+
+
 def _anuario(folder: Path) -> dict[str, dict[int, int]]:
     """Domestic paid passengers per year, from each Anuário edition's own table: `edition -> {year: passengers}`."""
     import openpyxl
@@ -152,6 +177,13 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     out.mkdir(parents=True, exist_ok=True)
     held_path = raw / "provenance.json"
     held: dict[str, Any] = json.loads(held_path.read_text(encoding="utf8")) if held_path.is_file() else {}
+    refreshed = False
+    if (raw / "Dados_Estatisticos.csv").is_file() and _changed(STATS_URL, raw / "Dados_Estatisticos.csv"):
+        say("ANAC has released new statistics: downloading them")
+        fresh = transport.download(STATS_URL, raw / "Dados_Estatisticos.csv.new")
+        fresh.replace(raw / "Dados_Estatisticos.csv")
+        held.pop("Dados_Estatisticos.csv", None)
+        refreshed = True
     for name, url in SOURCES.items():
         if name not in held or not (raw / name).is_file():
             meta = _remote(url)             # read before the bytes: what the server held when they were taken
@@ -160,8 +192,6 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
                 transport.download(url, raw / name)
             held[name] = {"url": url, **meta, "bytes": (raw / name).stat().st_size}
     held_path.write_text(json.dumps(held, indent=1, ensure_ascii=False), encoding="utf8")
-    now = _remote(STATS_URL)["last_modified"]
-    stale = {"Dados_Estatisticos.csv": now} if now != held["Dados_Estatisticos.csv"]["last_modified"] else {}
 
     ufs = _uf_sigla_by_name()
     registered = _register(raw / "AerodromosPrivados.csv", ufs)
@@ -261,7 +291,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     report = {
         "file": str(target), "rows": kept.num_rows, "source_rows": total_rows, "months": {"first": months[0], "last": months[1], "count": months[2]},
         "source": {n: {k: held[n][k] for k in ("last_modified", "content_length", "bytes")} for n in held},
-        "remote_changed_since_download": stale, "cells_neither_empty_nor_integer": int(bad),
+        "statistics_refreshed": refreshed, "cells_neither_empty_nor_integer": int(bad),
         "weight": "passengers_paid + passengers_free (people carried on the stage)",
         "domestic_by_year": domestic_geo, "domestic_by_nature": by_nature, "domestic_by_group": by_group, "international_by_year": international,
         "assigned_by_year": kept_year, "same_municipality": same, "unplaced_passengers": unplaced_pax,

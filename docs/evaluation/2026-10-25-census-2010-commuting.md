@@ -29,7 +29,7 @@ difference is SIDRA's rounding); totals 10,146,721 vs 10,146,718 and 4,301,914 v
 equals that figure except for the persons coded 8888888/9999999/no code: 3,634 work and 3,504 study municipalities still
 match within one person. Largest gaps: Brasilia 113,076 published vs 16,388 in the graph (work) and 51,117 vs 23,718
 (study), because 96,623 of its 113,076 work persons (and 27,398 of 51,117 study) carry the ignored code (the DF is one municipality, so these may be answers naming another administrative region, coded
-ignored; not confirmed against an IBGE note, OPEN_QUESTIONS 94); then Sao Paulo (182,352 vs 167,235), Rio,
+ignored; shown 2026-11-05 by their daily return, OQ 94 resolved); then Sao Paulo (182,352 vs 167,235), Rio,
 Guarulhos, all from the same cause.
 
 **Top work edges** (weighted persons): Guarulhos to Sao Paulo 103,196; Nova Iguacu to Rio 97,842; Duque de Caxias to Rio

@@ -59,10 +59,10 @@ Each evaluation below is dated 2026-10-25.
 - **`ibge-road-waterway-links`.** The figures reproduce the book's: 65,638 pairs; the top pair, Carpina-Paudalho, at
   2,855; the seven countries exactly. Road has 65,121 pairs and waterway 405.
 - **`anac-air-passengers`.** The domestic paid passengers agree with ANAC's Anuário within 0.04% in 2010-2022, except
-  2020 (−1.64%, open). Placement by coordinates leaves 3.13 M passengers of 1.871 billion unplaced, where the earlier
+  2020 (−1.64%: LATAM's November-December missing from the open file, OQ 95 resolved 2026-11-05). Placement by coordinates leaves 3.13 M passengers of 1.871 billion unplaced, where the earlier
   name match had left 25.1 M; Natal's departures run continuously across the 2014 airport move.
 - **`arranjos-and-census-2022-commuting`.** 294 arrangements of 953 municipalities; 161 medium and 26 large
   concentrations; the rest of the pack is identical.
 - **`census-2010-commuting`.** 128,937 work and 84,993 study edges. The persons answering "another municipality" agree
   with SIDRA 1615 and 1611 within one person in every municipality. The codes counted apart take 96,623 of Brasília's
-  113,076 out-commuting workers (OPEN_QUESTIONS 94).
+  113,076 out-commuting workers: commuting between the DF's administrative regions (OQ 94, resolved 2026-11-05).

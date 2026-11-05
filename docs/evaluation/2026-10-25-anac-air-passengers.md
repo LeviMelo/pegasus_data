@@ -72,10 +72,10 @@ edition Fig 3.1 and the 2022 edition Fig 3.7) against the file's `PASSAGEIROS_PA
 | 2022 (2022 ed.) | 82,228,992 | 82,257,882 | +28,890 | +0.035 |
 
 2010-2019 (2019 ed.) and 2013-2022 (2022 ed.) all within +-0.04% except 2019 against its own first edition (the Anuario revised it
-by 0.2% the next time) and 2020 (-1.64%, not explained: the file stands below the Anuario's 2022 edition by 742 thousand; unresolved).
+by 0.2% the next time) and 2020 (-1.64%: LATAM's November-December 2020 are missing from the open file, about 752 thousand; found 2026-11-05).
 
 **Facts for DATA_SOURCES.** `sistemas.anac.gov.br/dadosabertos/` is an nginx index (no auth, works with a browser UA); the series file is
-replaced about the 20th of each month; `Dados_Estatisticos.csv` is UTF-8 with BOM, a dated first line, `;`-separated, quoted, header
+rewritten with a new date line on days the data does not change (2026-11-05: the same bytes after the first line; corrected 2026-11-05, this note had said "replaced about the 20th of each month"); `Dados_Estatisticos.csv` is UTF-8 with BOM, a dated first line, `;`-separated, quoted, header
 in upper snake case, 36 columns; the aerodrome registers (`Aerodromos/Aerodromos Publicos/Lista de aerodromos publicos/AerodromosPublicos.csv`,
 `.../Aerodromos Privados/.../AerodromosPrivados.csv`) are cp1252, a dated first line, carry ICAO, CIAD, municipality and UF (full name in
 the public one, sigla in the private one) and "Municipio Servido", and no IBGE code; gov.br answers HEAD with 403 (GET works). The
