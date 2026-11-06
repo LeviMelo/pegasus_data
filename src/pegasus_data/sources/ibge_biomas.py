@@ -17,7 +17,11 @@ from ..transport import download
 URL = ("https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/documentos/"
        "Bioma_Predominante_por_Municipio_2024.csv")
 
-__all__ = ["URL", "fetch", "memberships"]
+#: IBGE's lagoon areas carry territorial codes but are not municipalities (Lagoa Mirim, Lagoa dos Patos); at six
+#: digits both would read as 430000
+NOT_MUNICIPALITIES = {"4300001", "4300002"}
+
+__all__ = ["NOT_MUNICIPALITIES", "URL", "fetch", "memberships"]
 
 
 def fetch(cache_dir: str | Path, *, timeout: float = 600.0) -> Path:
@@ -34,6 +38,6 @@ def memberships(path: str | Path) -> list[tuple[str, str, str]]:
     for r in rows:
         code = (r.get("Geocódigo") or "").strip()
         biome = (r.get("Bioma predominante") or "").strip()
-        if len(code) == 7 and code.isdigit() and biome:
+        if len(code) == 7 and code.isdigit() and biome and code not in NOT_MUNICIPALITIES:
             out.append((code, biome, biome))
     return out

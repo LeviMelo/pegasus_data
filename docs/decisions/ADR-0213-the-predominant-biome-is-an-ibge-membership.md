@@ -21,7 +21,9 @@ member code is its name. It is read like any membership: `memberships(code).as_d
 
 ## Evidence
 
-The rebuilt pack holds 5,572 municipalities in 6 biomes:
+IBGE's table also lists two lagoon areas with territorial codes, Lagoa Mirim (4300001) and Lagoa dos Patos (4300002).
+They are not municipalities, and at six digits both read as 430000, so they are left out (`NOT_MUNICIPALITIES`). The
+rebuilt pack holds 5,570 municipalities in 6 biomes:
 
 | biome | municipalities |
 |---|---:|
@@ -29,10 +31,10 @@ The rebuilt pack holds 5,572 municipalities in 6 biomes:
 | Caatinga | 1,095 |
 | Cerrado | 1,062 |
 | Amazônia | 503 |
-| Pampa | 162 |
+| Pampa | 160 |
 | Pantanal | 9 |
 
-Every other classification's row count is unchanged: 111,717 rows before, 117,289 after, and the only difference is
+Every other classification's row count is unchanged: 111,717 rows before, 117,287 after, and the only difference is
 `biome`. Spot checks: Maceió (270430) is Mata Atlântica and Santa Maria (431690) is Pampa.
 
 ## Consequences
