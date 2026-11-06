@@ -50,6 +50,7 @@ def geography(
         result = build_geography_pack(
             target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
             ipea_cache=settings.root / "registries" / "ipea_amc", arranjos_cache=settings.root / "registries" / "ibge_arranjos",
+            biomas_cache=settings.root / "registries" / "ibge_biomas",
         )
         from ..geography import POINTS_PACK_NAME, build_municipality_points, mesh_file, point_sources
         from ..proximity import build_proximity_graphs

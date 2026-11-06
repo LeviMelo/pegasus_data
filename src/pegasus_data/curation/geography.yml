@@ -155,6 +155,17 @@ ibge_classifications:
       identical to MICROBR: 558 groups against 558, none assigned differently.
     status: legacy
 
+  # IBGE's predominant biome per municipality (Biomas e Sistema Costeiro-Marinho do Brasil, 1:250,000; 2024 table,
+  # sources/ibge_biomas.py). The member code is the biome's name. ADR-0213.
+  biome:
+    source: IBGE/biomas_2024
+    what: >
+      Bioma predominante: the biome covering the largest share of the
+      municipality's area (Amazônia, Caatinga, Cerrado, Mata Atlântica, Pampa,
+      Pantanal). Many municipalities span two biomes; this is IBGE's
+      classification of each into one.
+    status: current
+
   # IBGE's Arranjos Populacionais e Concentrações Urbanas do Brasil, 2nd edition (2016), from the Census 2010 commuting
   # sample and urban contiguity; the composition per municipality is the geodatabase's ComposicaoRecortes_01_PorMunicipio
   # (sources/ibge_arranjos.py). A member's code is its core municipality's code. ADR-0211.

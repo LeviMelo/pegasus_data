@@ -406,6 +406,25 @@ def _arranjo_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[
     return rows, report
 
 
+def _biome_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int | str]]]:
+    """IBGE's predominant biome per municipality (``source: IBGE/biomas_2024``; sources/ibge_biomas.py, ADR-0213)."""
+    from .sources.ibge_biomas import fetch, memberships
+
+    wanted = [name for name, body in classifications(root, authority="ibge").items()
+              if body.get("source") == "IBGE/biomas_2024"]
+    if not wanted:
+        return [], {}
+    members = memberships(fetch(cache_dir))
+    rows: list[tuple[str, ...]] = []
+    report: dict[str, dict[str, int | str]] = {}
+    for name in wanted:
+        rows.extend((code7[:6], name, "", member, label, "ibge:biomas_2024", "", "", "ibge")
+                    for code7, member, label in members)
+        report[name] = {"municipalities": len(members), "members": len({m for _, m, _ in members}),
+                        "rows": len(members), "contested": 0, "authority": "ibge"}
+    return rows, report
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
@@ -415,6 +434,7 @@ def build_geography_pack(
     tabnet_cache: str | Path | None = None,
     ipea_cache: str | Path | None = None,
     arranjos_cache: str | Path | None = None,
+    biomas_cache: str | Path | None = None,
 ) -> dict[str, Any]:
     """Compile the membership pack out of the shipped label pack.
 
@@ -511,6 +531,10 @@ def build_geography_pack(
         added, arranjo_report = _arranjo_rows(root, arranjos_cache)
         rows.extend(added)
         report.update(arranjo_report)
+    if biomas_cache is not None:
+        added, biome_report = _biome_rows(root, biomas_cache)
+        rows.extend(added)
+        report.update(biome_report)
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)

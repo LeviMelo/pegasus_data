@@ -562,6 +562,7 @@ The general interface to IBGE's SIDRA (aggregates API v3), ADR-0142. Every reque
 - `sources/brdwgd.py`: BR-DWGD's daily municipal zonal means (Saldanha et al., Zenodo concept 7824919, latest version), read as byte ranges in parallel and reduced to month sums and day counts; the source of `climate_monthly` and the six climate fields (ADR-0178).
 - `sources/census_commuting.py`, `sources/ibge_links.py`, `sources/anac_air.py`: the mobility layers (ADR-0211), each a `build` that writes `<root>/registries/mobility/<kind>.parquet`, read by `proximity_graph`: Census 2010 sample commuting to work and to study (summed weights, from the microdata), IBGE's weekly coach and boat departures 2016, ANAC's passengers per flight stage by month (airports placed by coordinates, checked against each leg's named city).
 - `sources/ibge_arranjos.py`: IBGE's population arrangements and urban concentrations (2nd edition), read from its geodatabase into the geography pack.
+- `sources/ibge_biomas.py`: IBGE's predominant biome per municipality (2024 CSV), the geography pack's `biome` classification (ADR-0213).
 - `sources/ipea_amc.py`: minimum comparable areas from IPEA's geobr (Ehrl 2017),
   read from the GeoPackage's attributes alone, for the geography pack.
 
