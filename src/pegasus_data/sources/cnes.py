@@ -79,15 +79,12 @@ def _municipality(table: pa.Table, year: int) -> pa.Table:
     return table.drop_columns(["CODUFMUN"]).add_column(0, "municipality", code)
 
 
-def _cbo_group(cbo: pa.Array, spec: dict[str, Any]) -> pa.Array:
-    """The professional group of each CBO code ('' when it belongs to none of the declared groups)."""
-    out = pa.array([""] * len(cbo), pa.string())
-    for name, prefixes in spec["professional_groups"].items():
-        hit = pa.array([False] * len(cbo))
-        for prefix in prefixes:
-            hit = pc.or_(hit, pc.starts_with(cbo, prefix))
-        out = pc.if_else(hit, pa.scalar(name), out)
-    return out
+def _in_group(cbo: pa.Array, prefixes: list[str]) -> pa.Array:
+    """Whether each CBO code starts with one of a group's prefixes."""
+    hit = pa.array([False] * len(cbo))
+    for prefix in prefixes:
+        hit = pc.or_(hit, pc.starts_with(cbo, prefix))
+    return hit
 
 
 def _aggregate(dataset: str, table: pa.Table, year: int) -> pa.Table:
@@ -137,17 +134,18 @@ def _pf_base(table: pa.Table, year: int) -> tuple[pa.Table, pa.Table]:
 
 def _pf_groups(jobs: pa.Table, people: pa.Table) -> pa.Table:
     """The professional groups of the curation applied to `_pf_base`'s tables: (municipality, group, hours, hours_sus,
-    jobs, professionals); an occupation outside every group is left out, and a person is counted once in a group."""
-    spec = groups()
-    jobs = jobs.append_column("group", _cbo_group(jobs.column("cbo"), spec))
-    jobs = jobs.filter(pc.not_equal(jobs.column("group"), ""))
-    people = people.append_column("group", _cbo_group(people.column("cbo"), spec))
-    people = people.filter(pc.not_equal(people.column("group"), ""))
-    sums = jobs.group_by(["municipality", "group"]).aggregate([("hours", "sum"), ("hours_sus", "sum"), ("jobs", "sum")])
-    distinct = people.group_by(["municipality", "group", "cns"]).aggregate([]).group_by(["municipality", "group"]).aggregate([("cns", "count")])
-    joined = sums.join(distinct, ["municipality", "group"], join_type="left outer")
-    return joined.select(["municipality", "group", "hours_sum", "hours_sus_sum", "jobs_sum", "cns_count"]).rename_columns(
-        ["municipality", "group", "hours", "hours_sus", "jobs", "professionals"])
+    jobs, professionals). Groups may nest (ophthalmologists are physicians), so each group is selected on its own and an
+    occupation counts in every group it belongs to; within a group a person is counted once."""
+    parts = []
+    for name, prefixes in groups()["professional_groups"].items():
+        j = jobs.filter(_in_group(jobs.column("cbo"), prefixes))
+        p = people.filter(_in_group(people.column("cbo"), prefixes))
+        sums = j.group_by(["municipality"]).aggregate([("hours", "sum"), ("hours_sus", "sum"), ("jobs", "sum")])
+        distinct = p.group_by(["municipality", "cns"]).aggregate([]).group_by(["municipality"]).aggregate([("cns", "count")])
+        joined = sums.join(distinct, ["municipality"], join_type="left outer")
+        joined = joined.append_column("group", pa.array([name] * joined.num_rows, pa.string()))
+        parts.append(joined.select(["municipality", "group", "hours_sum", "hours_sus_sum", "jobs_sum", "cns_count"]))
+    return pa.concat_tables(parts).rename_columns(["municipality", "group", "hours", "hours_sus", "jobs", "professionals"])
 
 
 def _digest(dataset: str, year: int) -> str:
@@ -156,6 +154,7 @@ def _digest(dataset: str, year: int) -> str:
     depends = {"columns": _COLUMNS[dataset], "remap": _remap(year)}
     if dataset == "PF":
         depends["professional_groups"] = groups().get("professional_groups")
+        depends["grouping"] = "nested"     # groups may overlap (ADR-0215); aggregates of the exclusive rule are rebuilt
     return hashlib.sha1(json.dumps(depends, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
@@ -164,13 +163,14 @@ def state_table(dataset: str, uf: str, year: int, cache_dir: str | Path, *, keep
 
     The aggregate carries the digest of what it was built with (`_digest`) in its metadata; one built under other curation
     is not served. A PF aggregate is re-grouped from the (municipality, occupation) tables kept beside it; the other
-    datasets' small files are fetched again. An aggregate written before the digest existed is served as it is."""
+    datasets' small files are fetched again. An aggregate written before the digest existed is served as it is, except
+    PF's: its groups are curation, and one written under fewer groups would serve a new group as zero everywhere."""
     agg = Path(cache_dir) / "agg"
     cached = agg / f"{dataset}{uf}{year}.parquet"
     digest = _digest(dataset, year)
     if cached.is_file():
         held = (pq.read_metadata(cached).metadata or {}).get(b"curation_digest")
-        if held is None or held.decode() == digest:
+        if (held is None and dataset != "PF") or (held is not None and held.decode() == digest):
             return pq.read_table(cached).replace_schema_metadata(None)
         jobs_file, people_file = agg / f"{dataset}{uf}{year}.jobs.parquet", agg / f"{dataset}{uf}{year}.people.parquet"
         if dataset == "PF" and jobs_file.is_file() and people_file.is_file():
@@ -235,8 +235,8 @@ def values(spec: dict[str, Any], tables: dict[str, pa.Table]) -> dict[str, float
         t, column = t.filter(mask), "n"
     elif family == "beds":
         t = tables["LT"]
-        if spec["kind"] == "icu":
-            t = t.filter(_in(t.column("codleito"), g["icu_bed_codes"]))
+        if spec["kind"] in ("icu", "neonatal_icu"):
+            t = t.filter(_in(t.column("codleito"), g[f"{spec['kind']}_bed_codes"]))
         column = {"all": "qt_exist_sum", "sus": "qt_sus_sum", "nonsus": "qt_nsus_sum"}[spec["sector"]]
     elif family == "equipment":
         t = tables["EQ"]
