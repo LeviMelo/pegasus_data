@@ -357,6 +357,69 @@ dictionaries:
       aliases:
       - Providência do controle
 
+    FILTRACAO:
+      role: 'Existência de filtração na forma de abastecimento (cadastro população abastecida): Sim ou Não (dictionary,
+        dicionario_cadastro_populacao_abastecida.odt).'
+      aliases:
+      - Filtração
+    DESINFECCAO:
+      role: 'Existência de desinfecção na forma de abastecimento (cadastro população abastecida): Sim ou Não.'
+      aliases:
+      - Desinfecção
+    CAPTACAO_SUPERFICIAL:
+      role: Existência de ponto(s) de captação em manancial superficial na forma de abastecimento (Sim / Não).
+      aliases:
+      - Captação superficial
+    CAPTACAO_SUBTERRANEA:
+      role: Existência de ponto(s) de captação de água subterrânea na forma de abastecimento (Sim / Não).
+      aliases:
+      - Captação subterrânea
+    CAPTACAO_AGUA_CHUVA:
+      role: Existência de captação de água de chuva (Sim / Não); SAC only.
+      aliases:
+      - Captação de água de chuva
+    CARRO_PIPA:
+      role: Carro-pipa como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida).
+      aliases:
+      - Carro Pipa
+    CISTERNA:
+      role: Cisterna como tipo de suprimento e reservação (Sim / Não); not filled for SAA.
+      aliases:
+      - Cisterna
+    NU_VALOR_POPULACAO_ESTIMADA:
+      role: 'População estimada abastecida pela forma de abastecimento no município e ano. A SAC or SAI whose population also
+        receives SAA water is counted in both (POP_RECEBE_AGUA_SAA), so the supply forms of a municipality do not add up to
+        its population.'
+      aliases:
+      - População estimada
+      type: number
+    NU_VALOR_RURAL:
+      role: População rural abastecida (estimada) pela forma de abastecimento.
+      type: number
+    NU_VALOR_URBANA:
+      role: População urbana abastecida (estimada) pela forma de abastecimento.
+      type: number
+    POP_RECEBE_AGUA_SAA:
+      role: A população da SAC ou SAI também recebe água de SAA (S / N).
+    NU_PESSOAS_ABASTECIDAS:
+      role: Número estimado de pessoas abastecidas pelo carro-pipa no município (cadastro carro-pipa população).
+      aliases:
+      - Nº estimado de pessoas abastecidas
+      type: number
+    DT_TRANSPORTE_INICIO:
+      role: Data de início da autorização do transporte de água pelo carro-pipa.
+      type: date
+      take: 10
+      format: '%Y/%m/%d'
+    DT_TRANSPORTE_FIM:
+      role: Data de fim da autorização do transporte de água pelo carro-pipa.
+      type: date
+      take: 10
+      format: '%Y/%m/%d'
+    DS_TIPO_FINALIDADE:
+      role: 'Finalidade do carro-pipa: Operação carro-pipa (the federal programme), prestador de serviço, particular, saúde
+        indígena, outro.'
+
 sources:
 
   catmat:
@@ -1498,6 +1561,156 @@ sources:
         unit: samples
         what: Samples the suppliers list as outside the standard, by parameter.
 
+  sisagua_supply_population:
+    system: SISAGUA
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    series: CADP
+    official_name: Cadastro - população abastecida
+    translated_name: Register - population supplied
+    what: 'Cadastro: each supply form (SAA network system, SAC collective alternative, SAI individual alternative) registered
+      in a municipality in a year, with the estimated population it supplies, its intake (surface, ground, rain) and whether
+      it filters and disinfects (dicionario_cadastro_populacao_abastecida.odt).'
+    one_row: one supply form in one municipality and year
+    unit_of_analysis: supply form x municipality x year
+    use: context
+    why_no_event_type: >-
+      A register of the water supplies of a place and year and the population each serves: it describes where people's
+      water comes from and how it is treated, not events that happened to people.
+    known_biases: >-
+      Populations are the registrant's estimates; a SAC or SAI whose population also receives SAA water is counted in both,
+      so the forms of a municipality overlap. Individual solutions (SAI) are registered unevenly between municipalities, so
+      the SAI population measures the register as much as the wells. A year's register is updated during the following
+      year (2026 is partial).
+    gotchas:
+    - 'The file is Windows-1252: read as `encoding: mixed`, as the other SISAGUA files.'
+    - 'FILTRACAO and DESINFECCAO are Sim / Não; an empty value is not Não.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/dicionario_cadastro_populacao_abastecida.odt
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/cadastro_populacao_abastecida_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period: {type: year, column: NU_ANO, grain: year}
+    fields:
+      sisagua_supply_population:
+        label: "Population supplied, by supply form (SISAGUA register)"
+        measure:
+          sum: NU_VALOR_POPULACAO_ESTIMADA
+        by:
+        - TP_ABASTECIMENTO
+        unit: persons
+        what: Estimated population supplied by each form of supply (SAA, SAC, SAI) registered in the municipality and year.
+      sisagua_supply_population_filtered:
+        label: "Population supplied with filtration (SISAGUA register)"
+        measure:
+          sum: NU_VALOR_POPULACAO_ESTIMADA
+        by:
+        - TP_ABASTECIMENTO
+        where:
+          FILTRACAO:
+          - Sim
+        unit: persons
+        what: Estimated population supplied by forms that filter the water.
+      sisagua_supply_population_surface:
+        label: "Population supplied from surface intakes (SISAGUA register)"
+        measure:
+          sum: NU_VALOR_POPULACAO_ESTIMADA
+        by:
+        - TP_ABASTECIMENTO
+        where:
+          CAPTACAO_SUPERFICIAL:
+          - Sim
+        unit: persons
+        what: Estimated population supplied by forms with at least one surface intake.
+      sisagua_supply_population_surface_filtered:
+        label: "Population supplied from surface intakes with filtration (SISAGUA register)"
+        measure:
+          sum: NU_VALOR_POPULACAO_ESTIMADA
+        by:
+        - TP_ABASTECIMENTO
+        where:
+          CAPTACAO_SUPERFICIAL:
+          - Sim
+          FILTRACAO:
+          - Sim
+        unit: persons
+        what: Estimated population supplied by forms with a surface intake that filter the water.
+      sisagua_supply_population_disinfected:
+        label: "Population supplied with disinfection (SISAGUA register)"
+        measure:
+          sum: NU_VALOR_POPULACAO_ESTIMADA
+        by:
+        - TP_ABASTECIMENTO
+        where:
+          DESINFECCAO:
+          - Sim
+        unit: persons
+        what: Estimated population supplied by forms that disinfect the water.
+  sisagua_tanker_population:
+    system: SISAGUA
+    system_name:
+      official_name: Sistema de Informação de Vigilância da Qualidade da Água para Consumo Humano
+      translated_name: Drinking-water quality surveillance information system
+      authority: Ministério da Saúde / SVSA
+      what_it_is: The water-quality records of Brazil's drinking-water surveillance (by the health sector) and control (by the
+        suppliers), published as open files on the Portal de Dados Abertos.
+    series: CADT
+    official_name: Cadastro - carro-pipa, população abastecida
+    translated_name: Register - tanker trucks, population supplied
+    what: 'Cadastro: each tanker truck (carro-pipa) authorised to supply drinking water in a municipality, its authorisation
+      period, its purpose (Operação carro-pipa, service provider, private, indigenous health) and the estimated number of
+      people it supplies (dicionario_cadastro_carro_pipa_populacao.odt). Registered from 2023.'
+    one_row: one tanker truck in one municipality
+    unit_of_analysis: tanker truck x municipality
+    use: context
+    why_no_event_type: >-
+      A register of tanker trucks and the population each supplies: it describes a place's water supply, not events that
+      happened to people.
+    known_biases: >-
+      The register starts in 2023 and holds the trucks the health sector registered, not every delivery; several trucks
+      may supply the same people, so their populations overlap.
+    gotchas:
+    - 'The year is the year the authorisation starts (DT_TRANSPORTE_INICIO); one authorisation can span two years.'
+    citation: Portal de Dados Abertos do SUS, SISAGUA (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/)
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/dicionario_cadastro_carro_pipa_populacao.odt
+    dictionary_columns: sisagua
+    origin:
+      kind: files
+      format: csv
+      csv:
+        sep: ;
+        encoding: mixed
+      files:
+      - url: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/cadastro_carro_pipa_populacao_csv.zip
+    place:
+      column: CO_MUNICIPIO_IBGE
+      type: municipality
+    period: {type: date, column: DT_TRANSPORTE_INICIO, grain: year}
+    fields:
+      sisagua_tanker_trucks:
+        label: "Tanker trucks registered (SISAGUA register)"
+        measure: count
+        by:
+        - DS_TIPO_FINALIDADE
+        unit: trucks
+        what: 'Tanker trucks registered to supply drinking water in the municipality, by the year their authorisation starts
+          and the truck''s purpose. The register''s people supplied (NU_PESSOAS_ABASTECIDAS) is not summed into a field:
+          registrants often enter the whole municipality''s population on each truck (Fortaleza 2023, six trucks of
+          3,000,000 each; 23 of 1,608 entries above 100,000 hold 96% of the total), so the sum counts the same people many
+          times.'
   sngpc_industrialized:
     system: SNGPC
     series: IND

@@ -1049,9 +1049,10 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   (13 files, 40-145 MB, 1.30 GB; 118,949,333 rows, supplier x system x point x month x parameter x measure), `controle_mensal_demais_parametros_csv.zip`
   (147 MB; 3,857,900), `controle_mensal_amostras_fora_padrao_csv.zip` (45 MB; 867,963). `RESULTADO` is a decimal-comma number, `MENOR_LD`/`MENOR_LQ`
   or `PRESENTE`/`AUSENTE` (coliforms); `NU_MES` is `01`..`09` in the surveillance files and `1`..`12` in the control files; `CO_MUNICIPIO_IBGE` has 6 digits.
-- **Not landed**: cadastro população abastecida (`cadastro_populacao_abastecida_csv.zip`, 77 MB, 1,914,017 rows, 2014-2026, one per supply form x
-  municipality x year with `NU_VALOR_POPULACAO_ESTIMADA`, rural and urban; a SAC or SAI that also receives SAA water is counted in both), cadastro
-  tratamento de água (82 MB), pontos de captação (55 MB), carro-pipa (under 0.1 MB each), controle semestral (`controle_semestral_<year>_csv.zip`, 27-199 MB a year),
+- **Landed 2026-11-07 (ADR-0214)**: cadastro população abastecida (`cadastro_populacao_abastecida_csv.zip`, 77 MB, 1,918,496 rows, 2014-2026, one per supply form x
+  municipality x year with `NU_VALOR_POPULACAO_ESTIMADA`, rural and urban, filtration, disinfection, intakes; a SAC or SAI that also receives SAA water is counted in both) and
+  cadastro carro-pipa população (2,174 trucks from 2023; its people supplied repeat the municipality's population on each truck, so only trucks are counted).
+- **Not landed**: cadastro tratamento de água (82 MB), pontos de captação (55 MB), carro-pipa procedência (under 0.1 MB), controle semestral (`controle_semestral_<year>_csv.zip`, 27-199 MB a year),
   plano de amostragem (`controle_mensal_plano_amostragem_<year>_csv.zip`, 80-121 MB a year, CSV only from 2022), infraestrutura operacional (42 MB).
 - **Standard.** The out-of-standard shares use the limits read from Portaria GM/MS 888/2021 (Anexo XX of the Portaria de Consolidação 5/2017): E. coli absent in
   100 mL, turbidity at most 5 uT in the network, free chlorine at least 0.2 and at most 5 mg/L, fluoride at most 1.5 mg/L, apparent colour at most 15 uH,
