@@ -657,8 +657,10 @@ variables:
   DTNASC:
     official_name: Data de nascimento
     translated_name: Date of birth
+    description: Date of birth of the deceased, stored as DDMMAAAA text. In a fetal death the dates of death and birth are both filled.
     code_system: none
     source: layout_doc
+    source_ref: '[DICDO] Dicionário de dados do SIM, tabela DO (dicionario-de-dados-SIM-tabela-DO.pdf), campo 8 DTNASC'
     derived:
     - name: DTNASC_date
       from: [DTNASC]
@@ -1446,8 +1448,10 @@ variables:
   NECROPSIA:
     official_name: Necrópsia
     translated_name: Autopsy performed
+    description: Whether an autopsy was performed to confirm the diagnosis - 1 yes, 2 no, 9 unknown.
     code_system: internal
     source: layout_doc
+    source_ref: '[DICDO] Dicionário de dados do SIM, tabela DO (dicionario-de-dados-SIM-tabela-DO.pdf), campo 39 NECROPSIA'
   NUDIASINF:
     translated_name: Day-count field, 2014 investigation-outcome block
     description: 'A "número de dias" field DATASUS added in 2014 alongside NUDIASOBCO (death-to-investigation-conclusion
@@ -1864,8 +1868,10 @@ variables:
   SEXO:
     official_name: Sexo
     translated_name: Sex
+    description: Sex of the deceased (M or 1 male, F or 2 female, I, 0 or 9 unknown; unknown is used for mutilated bodies, advanced decomposition or undefined genitalia).
     code_system: internal
     source: layout_doc
+    source_ref: '[DICDO] Dicionário de dados do SIM, tabela DO (dicionario-de-dados-SIM-tabela-DO.pdf), campo 10 SEXO'
   STCODIFICA:
     official_name: Status de instalação codificadora
     translated_name: Coding installation status

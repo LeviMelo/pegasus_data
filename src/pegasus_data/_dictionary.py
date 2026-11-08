@@ -304,6 +304,8 @@ _PROVENANCE_NAMES = {
     "_ingested_at": "Ingestion timestamp",
     "_schema_signature": "Schema signature",
     "_record_key": "Record key",
+    "_competencia": "Competence (YYYYMM)",
+    "_source_resolution": "Date resolution of the source",
 }
 
 _PROVENANCE_PROSE = {
@@ -313,6 +315,8 @@ _PROVENANCE_PROSE = {
     "_ingested_at": "When this package decoded the file.",
     "_schema_signature": "Identifies which schema generation the row was decoded under.",
     "_record_key": "MD5 of the record's own fields: the same record has the same key in every publication that carries it.",
+    "_competencia": "The month (YYYYMM) of the publication the row came from, so a code table is joined by the window it was valid in.",
+    "_source_resolution": "How finely the source file dates its month: month, year (a year-only file) or unknown.",
 }
 
 

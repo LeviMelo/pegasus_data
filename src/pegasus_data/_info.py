@@ -567,7 +567,7 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
                     tuple(crawled_systems) * 2,
                 )
             }
-            described = len(cols & done)
+            described = len({c.upper() for c in cols} & {c.upper() for c in done})  # a lake file may spell columns lower case
 
     # What one row IS, if it has been curated: the shipped declaration, the one `dataset_facts` returns.
     facts = dataset_facts(node.code)

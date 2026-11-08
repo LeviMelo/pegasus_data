@@ -123,9 +123,11 @@ variables:
   CNES:
     official_name: Código CNES do estabelecimento
     translated_name: Establishment CNES code
+    description: CNES code (7 characters) of the hospital that billed the admission.
     code_system: external
     codelist: CADGERBR
     source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2 Layout dos arquivos RD*.dbf, SEQ 75'
   CNPJ_MANT:
     official_name: CNPJ da mantenedora
     translated_name: Maintaining body tax number
@@ -1023,9 +1025,11 @@ variables:
   SEXO:
     official_name: Sexo do paciente
     translated_name: Sex
+    description: Sex of the patient (1 character). The code table is SIHSUS's own, in notes.
     code_system: internal
     codelist: SEXO
     source: def
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2 Layout dos arquivos RD*.dbf, SEQ 11'
     notes: 'Bound to SIHSUS''s OWN SEXO table (2026-09-28): 0 Ignorado, 1 Masculino, 2-3 Feminino,
       4-9 Ignorado, identical in all four SIH vintages the kits ship (1992-97, 1998-2003,
       2003-07, current). Codelists are keyed by system (CLAUDE.md §6), so RESP''s table, which
