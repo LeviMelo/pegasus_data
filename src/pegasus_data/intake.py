@@ -164,7 +164,7 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
                 body["code_system"] = "external"
             if (decl or {}).get("label_from"):
                 # the record names its own code in a sibling column (ADR-0090): no table to choose
-                body["label_from"] = decl["label_from"]
+                body["label_from"] = str(decl["label_from"]).upper()   # columns land upper-cased: the sibling's name too
                 body["code_system"] = "internal"
             if (decl or {}).get("derived"):
                 body["derived"] = decl["derived"]       # a column made from this one (SRAG's IDADE_anos from the age and its unit)
@@ -811,7 +811,8 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
                 axes = dict(zip(across, map(str, combination), strict=True))
                 out.append({"key": "-".join([str(period), *axes.values()]),
                             "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}",
-                                                            month_pt=MONTHS_PT[period % 100 - 1], **axes), "year": year,
+                                                            month_pt="" if origin.get("years") else MONTHS_PT[period % 100 - 1],
+                                                            **axes), "year": year,
                             "month": None if origin.get("years") else period})
     for unit in out:
         unit["path"] = unit["url"]

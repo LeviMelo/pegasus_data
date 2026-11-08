@@ -2315,6 +2315,10 @@ sources:
       - "nu_idade_paciente holds -1, 120 and 220 (DATA_SOURCES, PNI); co_vacina_fabricante is mostly empty and does not pair with ds_nome."
       - "The code lists are the files' own descriptor columns beside each code (sg_imunobiologico for co_vacina, ds_tipo_dose for co_dose_vacina): read with label_from, never from a separate table."
     use: context
+    why_no_event_type: >
+      A dose is a vaccination of a person and could be an event type; none is declared yet because no roles type these columns
+      (curation/roles has no PNI-DOSES). Until a study needs vaccination as an exposure of persons, the doses are served as the
+      records and as the context field vaccine_doses_residence (place, month, vaccine, dose).
     citation: Portal de Dados Abertos do SUS, PNI/csv/vacinacao_<mês>_<ano>_csv.zip (SI-PNI / RNDS, Ministério da Saúde)
     dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/dbbni/Dicionario_tb_ria_rotina.pdf
     origin:

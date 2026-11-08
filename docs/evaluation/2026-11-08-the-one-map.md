@@ -77,3 +77,22 @@ visible only as a function name: "air passengers", "biome" and "POPSVS" occurred
   | `lake/demas` | 0 | empty |
 - **Counts in `info`.** `info <dataset>` and `info <system>` now read files, years, columns described and rows held from
   the map. SRAG.NOTIF shows 194/194 columns and 4,666,910 rows held, where the FTP-header count had shown none.
+
+**SI-PNI dose records declared, one month landed.** `pni_doses` (`PNI.DOSES`, curation/intake.yml) declares the Ministry's
+per-dose files: 56 columns from `dbbni/Dicionario_tb_ria_rotina.pdf` and the files' own headers.
+- **Size.** 81 monthly files and 200.1 GiB zipped for 2020-01 to 2026-09, from the bucket's HEAD answers. From the October
+  probe's ratios, about 1.47 billion rows and 128 GiB landed.
+- **On request.** A bare `pegasus-data fields` leaves it out, and a build must name its years.
+- **One month landed** (June 2020, the smallest, 800 MB zipped; 3b5a4d8 plus the fixes below):
+  - 5,464,711 rows, equal to the CSV's own line count, as 497 MB of Parquet;
+  - the field `vaccine_doses_residence`: 285,499 rows, 5,410,911 doses, which is the rows less 53,569 with no residence and
+    231 outside the IBGE universe;
+  - the labels read INF3 (the 2020 influenza campaign, 757,047 doses), SCR, HB, dT and VFA, with doses as 1ª Dose, 2ª Dose,
+    Única and Reforço.
+- **Found by reading the output:**
+  - `label_from` kept the sibling's lower-case name, so the labels did not render;
+  - the field's name met an undeclared orphan partition (2023, another layout), which `load_field` served beside the new
+    rows: 13,395,398 rows instead of 285,499. The orphan partition was removed;
+  - `{month_pt}` broke the year-filed patterns (SISAGUA). Fixed before any landing ran on it;
+  - the map now counts a Portal source's declared publications, which the catalog knew only once landed.
+- **`lake/records` stays undescribed.** It holds the October probe's 2023 records in an older layout, which nothing reads.

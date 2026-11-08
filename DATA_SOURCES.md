@@ -736,8 +736,11 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   pseudonymous person hash. The files hold 1–several million rows a month and about 215 GB zipped for 2020 to 2026-09.
   They are Latin-1 and `;`-separated. The code lists are the files' own descriptor columns beside each code
   (`sg_imunobiologico`/`co_vacina`, `ds_tipo_dose`/`co_dose_vacina`). `co_vacina_fabricante` is mostly empty and does
-  not pair with `ds_nome`. `nu_idade_paciente` holds -1, 120 and 220. Not landed (2026-10-10): the size is out of
-  proportion to the current work.
+  not pair with `ds_nome`. `nu_idade_paciente` holds -1, 120 and 220. **Size, measured (2026-11-08):** 81 monthly files,
+  200.1 GiB zipped for 2020-01 to 2026-09 (2021 alone 54.5 GiB), from the bucket's HEAD answers; five months of 2023 landed
+  in October gave 93.6 million rows and 8.2 GiB of Parquet for 12.8 GiB zipped, so the whole is about 1.47 billion rows and
+  128 GiB landed. The bucket rewrites published months (September 2026 on 2026-11-08); October and November 2026 answer
+  403. Declared as the on-request source `pni_doses` (`PNI.DOSES`, curation/intake.yml): built only by naming its years.
 
 ## 6. IBGE
 

@@ -918,6 +918,13 @@ def _write_core(
             slot["ymax"] = year if slot["ymax"] is None else max(slot["ymax"], year)
         if uf:
             slot["ufs"].add(uf)
+    # A Portal source's publications are its declaration's units (a pattern and its months, as the crawl lists FTP
+    # files): the catalog knows only the ones landed, so the declared ones count where they are more.
+    for code, (n, y0, y1) in _declared_publications(onto, wanted).items():
+        slot = totals.setdefault(code, {"files": 0, "ymin": None, "ymax": None, "ufs": set()})
+        if n > slot["files"]:
+            slot.update(files=n, ymin=y0 if slot["ymin"] is None else min(slot["ymin"], y0),
+                        ymax=y1 if slot["ymax"] is None else max(slot["ymax"], y1))
 
     # --- variables, and which datasets carry them -------------------------
     described = _described(store)
@@ -1131,7 +1138,7 @@ class _Held:
 
 def _internal(name: str) -> bool:
     """A column the lake adds (provenance, the raw value beside a typed one), not one the source publishes."""
-    return name.startswith("_") or name.endswith("__RAW")
+    return name.startswith("_") or name.endswith(("__RAW", "__FLAG"))
 
 
 def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _Held:
@@ -1207,6 +1214,21 @@ def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
         code = onto.bind(str(spec["system"]), str(spec["series"])).dataset
         if code and code in wanted:
             out.setdefault(code, set()).update(str(c).upper() for c in spec["columns"])
+    return out
+
+
+def _declared_publications(onto: Ontology, wanted: set[str]) -> dict[str, tuple[int, int, int]]:
+    """Per intake dataset with a files origin, the publications its declaration lists: (files, first year, last year)."""
+    from .intake import _units, declared_sources
+
+    out: dict[str, tuple[int, int, int]] = {}
+    for spec in declared_sources().values():
+        if not spec.get("system") or (spec.get("origin") or {}).get("kind") != "files":
+            continue
+        code = onto.bind(str(spec["system"]), str(spec["series"])).dataset
+        years = [int(u["year"]) for u in _units(spec, None) if u.get("year")]
+        if code and code in wanted and years:
+            out[code] = (len(_units(spec, None)), min(years), max(years))
     return out
 
 
