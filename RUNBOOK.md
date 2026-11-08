@@ -81,6 +81,7 @@ $PD query SIH.RD --period 2023-01 --geo AL,SE --out sih.csv     # = query(); --p
 $PD query SIH.RD --period 2020..2023 --geo AL --select DIAG_PRINC --out d.parquet
 $PD translate <file> --system SIHSUS                           # label files you already have
 $PD explore [SIH.RD]                                           # what exists, offline
+$PD info                                                       # EVERYTHING held and doable, one screenful per section (start here)
 $PD info SIH.RD                                                # what it is
 $PD facts SIH.RD                                               # what the curation documents of it, with sources
 $PD garbage-codes [GBD2017] --out garbage.csv                  # the GBD garbage codes with level and package (curation/garbage_codes.yml)

@@ -507,7 +507,8 @@ def info_cmd(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """What a system, dataset or variable IS — identity, evidence and coverage.
+    """What a system, dataset or variable IS — identity, evidence and coverage; with no target, everything this
+    install holds and can do (every dataset, context field, link, aggregate and operation, with the call for each).
 
     ``explore`` says what is out there to fetch and ``dictionary`` says what a
     column means. This says what a thing *is*, at any level of the ontology.
@@ -517,6 +518,9 @@ def info_cmd(
     answer = _info(target, field_name=field, root=root)
     if as_json:
         _emit(answer.as_dict(), True)
+        return
+    if answer.kind == "overview":
+        typer.echo(str(answer))  # plain: the map's overview is read whole, by people and agents, unwrapped
         return
     console.print(str(answer))
 

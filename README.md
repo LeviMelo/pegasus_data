@@ -59,10 +59,16 @@ with `PEGASUS_DATA_HOME`.
 
 ### What exists
 
+**Start here, whether you are a person or an agent:** `pegasus-data info` (or `print(info())`) prints everything this
+install holds and can do, in about 370 lines: every dataset with its columns, years on the server and rows held, every
+context field (climate, GDP, CNES supply, water, schooling…), every record link and aggregate, and the functions and
+commands by area, each with the call that gets it. Read it whole before concluding something is missing; then
+`search` for the column, role, SIDRA table or code.
+
 ```python
 from pegasus_data import info, explore, search
 
-info()                    # the twenty systems
+info()                    # everything held and doable (the map's overview)
 info("SIH.RD")            # one dataset: what one row is, coverage, schema generations, gotchas
 info("SIM.DO.IDADE")      # one variable: its meaning and where that meaning comes from (a layout, or "INFERRED … unverified")
 levels("SINAN-TOXG", "EVOLUCAO", ["1", "2", "9"])   # codes to labels, chosen as a query chooses them (pass every code the column holds)
@@ -79,7 +85,8 @@ publications("SIH.RD", range(2014, 2024), ufs="AL")   # which files it was read 
 dataset_facts("SIH.RD")   # what the curation documents of a dataset, with its sources: what a row is, its dates, the events, the notes
 garbage_codes()          # the ICD-10 codes of little use as an underlying cause, with their GBD level 1-4 and package (GBD2017 for França's list)
 price_index(reference="2025-12")   # IBGE's IPCA by month (or grain="year"): `factor` x a nominal amount = reais of December 2025
-search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …
+search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …, each hit with the call that gets it
+search("link deaths")     # anything: datasets, columns, fields, roles, events, links, aggregates, operations, SIDRA tables
 search("Parda", kind="code")            # which codes mean "Parda", in which tables
 ```
 

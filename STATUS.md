@@ -13,8 +13,9 @@ queryable column documented.
 
 - **The map.** `compendium()` and its home copy (`_compendium.current`) describe every dataset `query()` serves, each
   column's query-time codelists and fill, the 122 context fields, roles, events, links, aggregates, SIDRA's tables and
-  every function and command; `search()` reads it and returns the call for each hit. Left: `info`, `describe`, `explore`
-  and `availability` still read the catalog themselves (ARCHITECTURE §5); synonyms and the Portuguese/English gap.
+  every function and command; `search()` reads it and returns the call for each hit, and `info()` with no target prints
+  its whole overview (366 lines) for a reader or agent to take in at once. Left: `info`, `describe`, `explore` and
+  `availability` still read the catalog themselves (ARCHITECTURE §5).
 
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 

@@ -41,4 +41,12 @@ the verdicts are below. ADR-0216.
   - "voos" (the layer says air passengers);
   - "oftalmolog" (the field says ophthalmologists).
 
-  Synonyms and the language gap need retrieval by meaning.
+  **Tried and dropped: retrieval by meaning.** Qwen3-Embedding-0.6B over the 19,792 entries put the answer to each of
+  ten such questions in its first three, rainfall and "oftalmologistas" included. The cost was:
+  - torch and a 1.2 GB model;
+  - 8 minutes of GPU to embed the entries;
+  - 2 s to load the model for each search.
+
+  The readers are people and language-model agents, and they lack the list of what exists more than they lack a matcher.
+  So `info()` with no target prints that list whole instead (366 lines, 45 KB): 170 datasets, 122 fields, 16 links,
+  60 aggregates and the operations by area.

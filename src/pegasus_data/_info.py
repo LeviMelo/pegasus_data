@@ -269,6 +269,8 @@ class Info:
         return out
 
     def __repr__(self) -> str:  # pragma: no cover - presentation
+        if self.kind == "overview" and self.documentation.get("map"):
+            return str(self.documentation["map"])  # the whole map's overview (_compendium.overview)
         out = self._identity_lines()
         out += self._definition_lines()
         out += self._coverage_lines()
@@ -353,7 +355,7 @@ def info(
         if field_name:
             return _variable(store, onto, text, field_name)
         if not text:
-            return _overview(store, onto)
+            return _overview(store, onto, cfg)
 
         found = onto.resolve(text)
         if found is None:
@@ -380,7 +382,7 @@ def info(
 # ------------------------------------------------------------------ builders
 
 
-def _overview(store: _Store, onto: Ontology) -> Info:
+def _overview(store: _Store, onto: Ontology, settings: Settings) -> Info:
     rows = store.query(
         "SELECT system, series, SUM(file_count) AS files FROM strata "
         "WHERE system IS NOT NULL AND series IS NOT NULL GROUP BY 1, 2"
@@ -404,6 +406,8 @@ def _overview(store: _Store, onto: Ontology) -> Info:
             }
         )
     children.sort(key=lambda c: -int(c["files"] or 0))
+    from ._compendium import overview
+
     return Info(
         kind="overview",
         code="*",
@@ -417,6 +421,7 @@ def _overview(store: _Store, onto: Ontology) -> Info:
         },
         coverage={"files": sum(files_by_system.values())},
         children=children,
+        documentation={"map": overview(settings=settings)},
     )
 
 

@@ -44,6 +44,13 @@ The author's agents kept missing variables and data. Measured on the home (evalu
      catalog, the curation, a lake partition folder, a field, a link, the SIDRA registry or the module change. A rebuild
      takes about 20 s.
    - **`search()` reads `entries`,** and the label pack for codes. Every word of a query must begin a word of an entry.
+   - **`info()` with no target is the whole overview** (`_compendium.overview`), about 370 lines and 11k tokens:
+     - every dataset, with its columns, server years and rows held;
+     - every context field, link and aggregate;
+     - the operations by area.
+
+     A reader, or an agent, can take it in whole, so a thing named in other words or another language is still in
+     front of it. That is what word search alone misses (rainfall against `precipitation_mm`).
 3. **An open question is one a person must answer.**
    - **The width check is removed** (`persist.reference.flag_mixed_width_tables`).
    - **The prefix check asks only when the prior system's files are gone.** A reorganisation moves files. A prefix whose

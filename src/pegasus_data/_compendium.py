@@ -600,6 +600,67 @@ def current(*, settings: Settings | None = None, root: str | Path | None = None)
     return target
 
 
+def overview(*, settings: Settings | None = None, root: str | Path | None = None) -> str:
+    """Everything the install holds and can do, in one text a person or an agent can read whole (a few hundred
+    lines): every dataset with its years on the server and its rows held, every context field, link, aggregate and
+    operation, with the call that gets each. ``info()`` with no target prints it; ``search`` finds within it."""
+    path = current(settings=settings, root=root)
+    con = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        q = con.execute
+        built = (q("SELECT value FROM meta WHERE key = 'generated_at'").fetchone() or ["?"])[0]
+        out = [f"pegasus_data: what this install holds and can do (map of {built}).",
+               "  search <words> finds anything below, and every column, role, SIDRA table and code;",
+               "  info <dataset> / info <dataset>.<COLUMN> describes one. Rows held are in this install's lake.", ""]
+
+        datasets = q("SELECT d.code, d.translated_name, d.year_min, d.year_max, d.rows_held, d.year_min_held,"
+                     " d.year_max_held, d.columns_total, s.kind FROM datasets d LEFT JOIN systems s ON s.code = d.system"
+                     " ORDER BY d.system, d.code").fetchall()
+        data = [d for d in datasets if d[8] != "tooling"]
+        out.append(f"RECORD DATASETS ({len(data)}): query(\"<code>\", period=..., geography=...)")
+        for code, name, y0, y1, held, h0, h1, cols, _ in data:
+            server = f"{y0}-{y1}" if y0 else "-"
+            kept = f"held {held:,} rows {h0}-{h1}" if held else "none held"
+            out.append(f"  {code:<30} {str(name or '')[:46]:<46} {cols or 0:>4} cols  server {server:<9}  {kept}")
+
+        fields = q("SELECT name, label, source, years, years_held FROM fields ORDER BY source, name").fetchall()
+        out += ["", f"CONTEXT FIELDS ({len(fields)}), per municipality and year: load_field(\"<name>\")"]
+        for name, label, source, years, held in fields:
+            got = json.loads(held or "[]")
+            kept = f"held {got[0]}-{got[-1]}" if got else "none held"
+            out.append(f"  [{source or '?'}] {name:<44} {str(label or '')[:52]:<52} {years or ''}  {kept}")
+
+        links = q("SELECT name, left_dataset, right_dataset, runs_held, description FROM links ORDER BY name").fetchall()
+        out += ["", f"RECORD LINKS ({len(links)}): pegasus-data link <name>"]
+        for name, left, right, runs, what in links:
+            first = str(what or "").split(". ")[0][:80]
+            out.append(f"  {name:<40} {left} -> {right}  ({runs} runs held)  {first}")
+
+        aggs = q("SELECT id, built FROM aggregates ORDER BY id").fetchall()
+        out += ["", f"AGGREGATES ({len(aggs)}, * built): aggregate(\"<id>\")",
+                "  " + ", ".join(f"{a}{'*' if b else ''}" for a, b in aggs)]
+
+        n_roles, n_ds = q("SELECT COUNT(*), COUNT(DISTINCT dataset) FROM roles").fetchone()
+        n_events = q("SELECT COUNT(*) FROM events").fetchone()[0]
+        n_sidra = q("SELECT COUNT(*) FROM sidra_tables").fetchone()[0]
+        out += ["", f"ROLES: {n_roles:,} columns of {n_ds} datasets typed as entity.property: roles(\"<dataset>\");"
+                    f" EVENT TYPES: {n_events}: event_types(\"<dataset>\"), count_events(...)",
+                f"SIDRA (IBGE): {n_sidra:,} tables in the registry: pegasus-data sidra search <words>"]
+
+        out += ["", "OPERATIONS: Python functions (pegasus_data.<name>) and commands, by area"]
+        for area, names in q("SELECT area, GROUP_CONCAT(name, ', ') FROM (SELECT area, name FROM operations"
+                             " WHERE kind = 'function' ORDER BY name) GROUP BY area ORDER BY area").fetchall():
+            out.append(f"  {area}: {names}")
+        commands = [r[0].removeprefix("pegasus-data ") for r in
+                    q("SELECT name FROM operations WHERE kind = 'command' ORDER BY name").fetchall()]
+        out.append("  commands: pegasus-data " + ", ".join(commands))
+        n_open = q("SELECT COUNT(*) FROM open_questions").fetchone()[0]
+        out += ["", f"OPEN QUESTIONS in the catalog: {n_open} (the project's are in OPEN_QUESTIONS.md)."]
+        return "\n".join(out)
+    finally:
+        con.close()
+
+
 # ------------------------------------------------------------------ internals
 
 

@@ -11,8 +11,9 @@ that gets the thing (``query("SIH.RD", select=["RACA_COR"])``,
 Diacritics and case are folded on both sides: nobody types *óbito* reliably.
 Every word of the query must begin a word of the entry. Ranking is plain and
 stated: an exact name first, then every word in the name or title, then in the
-prose; shorter entries before longer. Codes rank exact labels before prefix and
-substring matches, then shorter labels.
+prose; shorter entries before longer. Codes take up to a quarter of the list
+(all of it with ``kind="code"``), exact labels before prefix and substring
+matches, then shorter labels.
 """
 
 from __future__ import annotations
@@ -81,8 +82,13 @@ def search(
             con.close()
         hits.sort(key=lambda h: h[0])
         out = [h for _, h in hits][:limit]
-    if kind in (None, "code") and len(out) < limit:
-        out.extend(_code_hits(needle, wanted_system, limit - len(out)))
+    if kind == "code":
+        return [{k: v for k, v in c.items() if k != "_rank"} for c in _code_hits(needle, wanted_system, limit)]
+    if kind is None:
+        # Codes share the list: up to a quarter of it, label matches that are exact or begin the label.
+        codes = [{k: v for k, v in c.items() if k != "_rank"}
+                 for c in _code_hits(needle, wanted_system, limit) if c["_rank"] < 2][: max(3, limit // 4)]
+        out = out[: max(0, limit - len(codes))] + codes
     return out
 
 
@@ -136,6 +142,7 @@ def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, ob
             "name": f"{codelist} = {lo}" + (f"..{hi}" if hi and hi != lo else ""),
             "context": label,
             "how": f'load_reference("{codelist}")',
+            "_rank": rank,
         }
-        for sys_, codelist, lo, hi, label, _ in rows
+        for sys_, codelist, lo, hi, label, rank in rows
     ]
