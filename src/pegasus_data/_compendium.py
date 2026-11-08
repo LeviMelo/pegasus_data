@@ -671,7 +671,7 @@ def _write_core(
             systems_for = [onto.datasets[code].system]
         per_dataset_cols[code] = cols
         for name in cols:
-            owner = next((s for s in systems_for if (s, name) in described), None)
+            owner = next((s for s in systems_for if (s, name.upper()) in described), None)
             col_system[(code, name)] = owner or systems_for[0]
 
     seen_vars: set[tuple[str, str]] = {
@@ -681,7 +681,7 @@ def _write_core(
     }
     var_rows = []
     for system, name in sorted(seen_vars):
-        doc = described.get((system, name), {})
+        doc = described.get((system, name.upper()), {})
         meta = field_meta.get((system, name), {})
         var_rows.append(
             (
@@ -744,7 +744,7 @@ def _write_core(
         t = totals.get(code, {})
         doc = docs.get(code, {})
         cols = per_dataset_cols.get(code, set())
-        n_desc = sum(1 for name in cols if (col_system[(code, name)], name) in described)
+        n_desc = sum(1 for name in cols if (col_system[(code, name)], name.upper()) in described)
         ds_rows.append(
             (
                 code, node.system, node.short_code,
@@ -816,14 +816,14 @@ def _described(store: _Store) -> dict[tuple[str, str], dict[str, Any]]:
         "SELECT system, field_name, official_name, translated_name, description,"
         " code_system, codelist, source, source_ref, reasoning FROM variable_docs"
     ):
-        out[(str(row["system"]), str(row["field_name"]))] = dict(row)
+        out[(str(row["system"]), str(row["field_name"]).upper())] = dict(row)
     for row in store.query(
         "SELECT system, field_name, description, source FROM field_documentation"
         " WHERE description IS NOT NULL AND TRIM(description) <> ''"
         " AND description NOT LIKE 'A column DATASUS tabulates%'"
         " AND description NOT LIKE 'A quantity DATASUS tabulates%'"
     ):
-        out.setdefault((str(row["system"]), str(row["field_name"])), dict(row))
+        out.setdefault((str(row["system"]), str(row["field_name"]).upper()), dict(row))
     return out
 
 
