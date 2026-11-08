@@ -754,6 +754,10 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   Populacionais por Município, Idade e Sexo 2000-2025", RIPSA/CGIAE) reads
   `IBGE/POPSVS`. Its 2022 equals the local POPSVS in all 27 states:
   210,862,983. OQ-12 is settled.
+- **Dados_Abertos republishes POPSVS** (2026-11-08). `Dados_Abertos/SINAN/Populacao_SVS/{csv,json,xml,parquet}/POPyy`
+  (POP00-POP25; columns `COD_MUN` 7 digits, `ANO`, `SEXO`, `IDADE`, `POP`) equals `IBGE/POPSVS`: POP22 against
+  POPSBR22, all 902,340 municipality × sex × age cells identical, 210,862,983 people. The prefix `POP` is shared with
+  IBGE's older `IBGE/POP/POPBRyy` (1980-2012), a different series.
 - **What POPSVS is** (2026-10-14; `curation/populations.yml`, returned with `load_population` as `pegasus.series`).
   - **Producer and vintage.** The Ministry of Health (SVSA/CGIAE/Coesv), by the method of RIPSA's municipal-estimates committee,
     with IBGE's maps. The files listed 2025-01-07 (2000-2024) are the 2024 edition, built on IBGE's *Projeções da População,

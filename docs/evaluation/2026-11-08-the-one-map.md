@@ -50,3 +50,6 @@ the verdicts are below. ADR-0216.
   The readers are people and language-model agents, and they lack the list of what exists more than they lack a matcher.
   So `info()` with no target prints that list whole instead (366 lines, 45 KB): 170 datasets, 122 fields, 16 links,
   60 aggregates and the operations by area.
+
+**Settled on the way.** Dados_Abertos' `Populacao_SVS/POP22` is POPSVS: all 902,340 municipality × sex × age cells equal
+`IBGE/POPSVS/POPSBR22` (210,862,983). Recorded in DATA_SOURCES §6.1.
