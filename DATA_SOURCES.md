@@ -383,9 +383,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `120000 → Acre - Gestão estadual` is the most common value (40,650 of 55,963
   rows) (2026-08-23, F §3k).
 - **Age encodings differ by system**: SIH has the unit in `COD_IDADE`; SIM and
-  SINAN pack it in the leading digit of `IDADE`/`NU_IDADE_N`. `COD_IDADE` has
-  six values (0–5) and no unit codelist was found (F §3d; `src/pegasus_data/_age.py`
-  docstring; OQ-7).
+  SINAN pack it in the leading digit of `IDADE`/`NU_IDADE_N`. `COD_IDADE` is the
+  unit of `IDADE`: 0 unknown, 2 days, 3 months, 4 years, 5 = 100 + `IDADE` years
+  (CEM/USP AIH dictionary, `sources/sih_batch/usp_dict.txt`; measured against
+  `NASC` and `DT_INTER` on SIH-RD 2023, 13.36M rows; `_age.UNITS`, ADR-0070).
+  *Corrected 2026-11-08: this line said no unit codelist was found.*
 - **CNES installation grid**: `QTINST07` and `QTINST08` are the male and
   unsegregated rest rooms of the emergency block, not consulting rooms and
   beds; beds are `QTLEITP1`–`QTLEITP3` (2026-08-30, F §3y).
@@ -744,8 +746,8 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   **Correction (2026-10-10):** the endpoint holds each lot's current position (no lot at two dates; 3,000 SP levothyroxine rows all of 2026-10), not a history: present stock by establishment, never a series.
 - On the DATASUS tree: POPSVS (municipal), POPTCU, POP, censo, and `projpop`
   (UF-level projections 2000–2070, which complement rather than supersede
-  POPSVS) (F §1 V7, V8). Which series backs the Ministry's published rates is
-  open (OQ-12).
+  POPSVS) (F §1 V7, V8). The Ministry's published rates divide by POPSVS
+  (below; *corrected 2026-11-08: this line still called it open*).
 
 - **The Ministry's tables divide by POPSVS** (2026-10-03). TabNet's
   population form (`ibge/cnv/popsvs2024br.def`, "Estudo de Estimativas

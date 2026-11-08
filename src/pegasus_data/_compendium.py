@@ -106,7 +106,13 @@ CREATE TABLE datasets (
   split_by         TEXT,              -- JSON array, e.g. ["uf","year","month"]
   split_by_uf      REAL,              -- fraction of files carrying each axis
   split_by_year    REAL,
-  split_by_month   REAL
+  split_by_month   REAL,
+  -- What this install HOLDS, which is not what the server publishes: rows in
+  -- the lake, read from the Parquet footers when the map was built.
+  query_as         TEXT,              -- the identifier query() takes
+  rows_held        INTEGER,
+  year_min_held    INTEGER,
+  year_max_held    INTEGER
 );
 CREATE INDEX ix_datasets_system ON datasets(system);
 
@@ -115,7 +121,8 @@ CREATE TABLE coverage (
   dataset TEXT REFERENCES datasets(code),
   year    INTEGER,
   uf      TEXT,
-  files   INTEGER,
+  files   INTEGER,                    -- files on the server
+  rows_held INTEGER,                  -- rows in the lake (NULL: none held)
   PRIMARY KEY (dataset, year, uf)
 );
 CREATE INDEX ix_coverage_year ON coverage(year);
@@ -155,6 +162,16 @@ CREATE TABLE dataset_variables (
   dataset TEXT REFERENCES datasets(code),
   system  TEXT,
   name    TEXT,
+  -- The codelist a query labels the column with, as decided and stored per
+  -- schema family (catalog.label_bindings): one JSON list, oldest family first.
+  -- `label_basis` is curated | measured | none, of the newest family.
+  codelists   TEXT,
+  label_basis TEXT,
+  label_share REAL,                   -- observed codes the newest decision decodes
+  -- Non-null share of the rows held, from the lake's Parquet statistics. NULL
+  -- when nothing is held: unmeasured, never zero.
+  filled      REAL,
+  rows_held   INTEGER,
   PRIMARY KEY (dataset, name)
 );
 CREATE INDEX ix_dsvar_name ON dataset_variables(system, name);
@@ -246,6 +263,102 @@ CREATE TABLE open_questions (
   blocking TEXT
 );
 
+-- Context fields: a property of a place and a period that is not a health
+-- event (GDP, rainfall, beds per specialty, water supplied), sums and counts
+-- stored per municipality and year (fields.py, intake.py).
+CREATE TABLE fields (
+  name        TEXT PRIMARY KEY,
+  label       TEXT,
+  what        TEXT,
+  unit        TEXT,
+  source      TEXT,                   -- sidra | intake | cnes | brdwgd | inmet | series
+  origin      TEXT,                   -- the SIDRA table, the intake source, the CNES measure
+  over        TEXT,                   -- the denominator a rate is taken over
+  by          TEXT,                   -- JSON: the breakdowns, if any
+  years       TEXT,                   -- as declared
+  years_held  TEXT,                   -- JSON list of years built in this install
+  verified    TEXT                    -- JSON: the check its total passed
+);
+
+-- What each column STATES, as a typed role, and what a row becomes.
+CREATE TABLE roles (
+  dataset    TEXT,
+  column_name TEXT,
+  role       TEXT,                    -- entity.property
+  entity     TEXT,
+  property   TEXT,
+  kind       TEXT,
+  model      TEXT,
+  first_year INTEGER,
+  last_year  INTEGER,
+  PRIMARY KEY (dataset, column_name, role)
+);
+CREATE INDEX ix_roles_role ON roles(role);
+CREATE TABLE events (
+  dataset     TEXT,
+  name        TEXT,
+  kind        TEXT,
+  grain       TEXT,
+  classifiers TEXT,                   -- JSON
+  PRIMARY KEY (dataset, name)
+);
+
+-- Record linkage across datasets (curation/links.yml), and the runs held.
+CREATE TABLE links (
+  name        TEXT PRIMARY KEY,
+  description TEXT,
+  left_dataset  TEXT,
+  right_dataset TEXT,
+  same_event  INTEGER,
+  runs_held   INTEGER                 -- stored runs in the lake (lake/links/<name>)
+);
+
+-- Declared aggregates (curation/aggregates) and whether this install built them.
+CREATE TABLE aggregates (
+  id      TEXT PRIMARY KEY,
+  dataset TEXT,
+  label   TEXT,
+  built   INTEGER
+);
+
+-- IBGE SIDRA's catalogue as the registry holds it (sidra scan).
+CREATE TABLE sidra_tables (
+  id           INTEGER PRIMARY KEY,
+  name         TEXT,
+  research     TEXT,
+  subject      TEXT,
+  frequency    TEXT,
+  first_period TEXT,
+  last_period  TEXT,
+  levels       TEXT,
+  variables    INTEGER,
+  curated      TEXT                   -- the author's compendium group, if any
+);
+
+-- What pegasus_data can DO: every public function and command.
+CREATE TABLE operations (
+  name    TEXT,
+  kind    TEXT,                       -- function | command
+  area    TEXT,
+  summary TEXT,
+  usage   TEXT,
+  PRIMARY KEY (kind, name)
+);
+
+-- One row per thing a reader can look up, with the call that gets it: the
+-- index search() reads. `folded` is name and prose without accents or case.
+CREATE TABLE entries (
+  kind    TEXT,                       -- dataset | variable | field | role | event | link | aggregate | operation | sidra
+  system  TEXT,
+  name    TEXT,
+  title   TEXT,
+  prose   TEXT,
+  how     TEXT,
+  folded_name TEXT,
+  folded  TEXT
+);
+CREATE INDEX ix_entries_kind ON entries(kind);
+
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
 
 CREATE VIEW dataset_columns AS
@@ -324,7 +437,7 @@ class CompendiumReport:
 
 
 def compendium(
-    out: str | Path,
+    out: str | Path | None = None,
     *,
     systems: Sequence[str] | None = None,
     codes: CodesOption = "none",
@@ -359,7 +472,7 @@ def compendium(
     onto = Ontology.load()
 
     codes_mode = _normalise_codes(codes)
-    target = Path(out)
+    target = Path(out) if out is not None else default_path(cfg)
     target.parent.mkdir(parents=True, exist_ok=True)
     # STAGED. Both of these unlinked the existing database and then built its
     # replacement in place, so a failure anywhere in the build left the user
@@ -398,7 +511,10 @@ def compendium(
 
         wanted = _wanted_datasets(onto, systems)
         binding = _bindings(store, onto, wanted)
-        _write_core(db, store, onto, wanted, binding, report, descriptions)
+        held = _held(store, onto, wanted, cfg.lake_dir)
+        _write_core(db, store, onto, wanted, binding, held, report, descriptions)
+        _write_holdings(db, store, onto, wanted, cfg, report)
+        _write_entries(db, report)
         if codes_mode != "none":
             _write_codes(db, store, wanted, binding, report, codes_mode, max_codes)
         if values:
@@ -406,6 +522,8 @@ def compendium(
         if files:
             _write_files(db, store, binding, report)
         _write_meta(db, store, report)
+        db.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('fingerprint', ?)",
+                   (fingerprint(cfg, report.options),))
         db.commit()
         db.executescript("ANALYZE; VACUUM;")
         installed = True
@@ -419,6 +537,67 @@ def compendium(
 
     report.megabytes = round(target.stat().st_size / 2**20, 2)
     return report
+
+
+def default_path(settings: Settings) -> Path:
+    """Where the home keeps its own map: beside the catalog it is built from."""
+    return settings.catalog_dir / "compendium.sqlite"
+
+
+def fingerprint(settings: Settings, options: dict[str, Any] | None = None) -> str:
+    """What the map was built from: the catalog, the curation, every lake partition folder, the context fields,
+    the links, the SIDRA registry, the options and this module. Any change makes a stored map stale."""
+    import hashlib
+
+    from .semantics.epoch import curation_epoch
+
+    digest = hashlib.blake2b(digest_size=16)
+
+    def stamp(path: Path) -> None:
+        try:
+            st = path.stat()
+        except OSError:
+            digest.update(f"{path}:absent".encode())
+            return
+        digest.update(f"{path.as_posix()}:{st.st_size}:{st.st_mtime_ns}".encode())
+
+    for path in (settings.catalog_path, Path(f"{settings.catalog_path}-wal"),
+                 settings.root / "registries" / "sidra" / "registry.sqlite", Path(__file__)):
+        stamp(path)
+    digest.update(curation_epoch()[1].encode())
+    lake = settings.lake_dir
+    if lake.is_dir():
+        for folder in sorted(lake.glob("*/*/schema_signature=*/uf=*/year=*")):
+            stamp(folder)
+        for folder in sorted([*lake.glob("fields/*/year=*"), *lake.glob("links/*")]):
+            stamp(folder)
+    digest.update(json.dumps(options or _DEFAULT_OPTIONS, sort_keys=True, default=str).encode())
+    return digest.hexdigest()
+
+
+#: The options of a default build, which is what :func:`current` keeps.
+_DEFAULT_OPTIONS = {"systems": "all", "codes": "none", "max_codes": 1000, "values": False, "files": False,
+                    "descriptions": True}
+
+
+def current(*, settings: Settings | None = None, root: str | Path | None = None) -> Path:
+    """The home's map, built if absent and rebuilt when anything it describes has changed (``search()`` and
+    ``info()`` read it; a rebuild takes about twenty seconds)."""
+    cfg = settings or load_settings(root=Path(root) if root else None)
+    target = default_path(cfg)
+    if target.is_file():
+        try:
+            con = sqlite3.connect(f"file:{target.as_posix()}?mode=ro", uri=True)
+            try:
+                stored = con.execute("SELECT value FROM meta WHERE key = 'fingerprint'").fetchone()
+            finally:
+                con.close()
+        except sqlite3.Error:
+            stored = None
+        if stored and stored[0] == fingerprint(cfg):
+            return target
+    compendium(target, settings=cfg)
+    return target
 
 
 # ------------------------------------------------------------------ internals
@@ -601,6 +780,7 @@ def _write_core(
     onto: Ontology,
     wanted: set[str],
     binding: _Binding,
+    held: _Held,
     report: CompendiumReport,
     descriptions: bool,
 ) -> None:
@@ -618,10 +798,11 @@ def _write_core(
         key = (code, year, uf)
         cover[key] = cover.get(key, 0) + int(row["n"] or 0)
     db.executemany(
-        "INSERT INTO coverage (dataset, year, uf, files) VALUES (?,?,?,?)",
-        [(d, y, u, n) for (d, y, u), n in sorted(cover.items())],
+        "INSERT INTO coverage (dataset, year, uf, files, rows_held) VALUES (?,?,?,?,?)",
+        [(d, y, u, cover.get((d, y, u), 0), held.cover.get((d, y, u)))
+         for (d, y, u) in sorted(set(cover) | set(held.cover))],
     )
-    report.rows["coverage"] = len(cover)
+    report.rows["coverage"] = len(set(cover) | set(held.cover))
 
     totals: dict[str, dict[str, Any]] = {}
     for (code, year, uf), n in cover.items():
@@ -649,23 +830,29 @@ def _write_core(
     # Republication is exactly what the ontology exists to resolve: SIA.AB is one
     # dataset with one set of columns however many trees carry it.
     per_dataset_cols: dict[str, set[str]] = {}
+    declared = _declared_columns(onto, wanted)
     #: (dataset, column) -> the system to attribute the column to. Variable docs
     #: are keyed by the crawled system, so the attribution has to be whichever
     #: one actually documents the column, with a deterministic fallback.
     col_system: dict[tuple[str, str], str] = {}
     for code in wanted:
         sigs = binding.signatures.get(code, set())
-        if not sigs:
+        # The columns the server's files declare, and the ones the lake holds:
+        # a dataset read from the Portal or an API has no FTP header to sample,
+        # and its columns are known only from the records landed.
+        cols = set(held.columns.get(code, {})) | declared.get(code, set())
+        if sigs:
+            marks = ",".join("?" for _ in sigs)
+            cols |= {
+                str(r["field_name"])
+                for r in store.query(
+                    f"SELECT DISTINCT field_name FROM schema_presence "
+                    f"WHERE schema_signature IN ({marks})",
+                    tuple(sigs),
+                )
+            }
+        if not cols:
             continue
-        marks = ",".join("?" for _ in sigs)
-        cols = {
-            str(r["field_name"])
-            for r in store.query(
-                f"SELECT DISTINCT field_name FROM schema_presence "
-                f"WHERE schema_signature IN ({marks})",
-                tuple(sigs),
-            )
-        }
         systems_for = sorted(binding.crawled_systems.get(code, set()))
         if not systems_for:
             systems_for = [onto.datasets[code].system]
@@ -702,13 +889,25 @@ def _write_core(
     )
     report.rows["variables"] = len(var_rows)
 
-    link_rows = [
-        (code, col_system[(code, name)], name)
-        for code, cols in per_dataset_cols.items()
-        for name in sorted(cols)
-    ]
+    labels = _label_bindings(store, onto, wanted)
+    link_rows = []
+    for code, cols in per_dataset_cols.items():
+        for name in sorted(cols):
+            decided = labels.get((code, name))
+            counted = held.columns.get(code, {}).get(name)
+            doc = described.get((col_system[(code, name)], name), {})
+            curated_list = [doc["codelist"]] if doc.get("codelist") else []
+            link_rows.append((
+                code, col_system[(code, name)], name,
+                json.dumps(decided["codelists"] if decided else curated_list) if (decided or curated_list) else None,
+                decided["basis"] if decided else ("curated" if curated_list else None),
+                decided["share"] if decided else None,
+                (round(counted[0] / counted[1], 4) if counted and counted[1] and counted[0] is not None else None),
+                counted[1] if counted else None,
+            ))
     db.executemany(
-        "INSERT OR REPLACE INTO dataset_variables (dataset, system, name) VALUES (?,?,?)",
+        "INSERT OR REPLACE INTO dataset_variables (dataset, system, name, codelists, label_basis,"
+        " label_share, filled, rows_held) VALUES (?,?,?,?,?,?,?,?)",
         link_rows,
     )
     # Count what landed, not what was offered. Reporting the length of the input
@@ -756,14 +955,16 @@ def _write_core(
                 len(t.get("ufs", ())), gens_per.get(code, 0),
                 len(cols), n_desc,
                 *_axis_columns(axes_by_code.get(code)),
+                code, held.rows.get(code), *held.span(code),
             )
         )
     db.executemany(
         "INSERT INTO datasets (code, system, short_code, official_name, translated_name,"
         " what_it_is, what_one_row_is, unit_of_analysis, known_biases, gotchas, status,"
         " confidence, files, year_min, year_max, ufs, generations, columns_total,"
-        " columns_described, split_by, split_by_uf, split_by_year, split_by_month)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " columns_described, split_by, split_by_uf, split_by_year, split_by_month,"
+        " query_as, rows_held, year_min_held, year_max_held)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         ds_rows,
     )
     report.rows["datasets"] = len(ds_rows)
@@ -803,6 +1004,321 @@ def _write_core(
         questions,
     )
     report.rows["open_questions"] = len(questions)
+
+
+# ------------------------------------------------------- what this install holds
+
+
+@dataclass
+class _Held:
+    """The lake, read from its Parquet footers: no record is read."""
+
+    #: (dataset, year, uf) -> rows held
+    cover: dict[tuple[str, int, str], int] = field(default_factory=dict)
+    #: dataset -> column -> [non-null rows (None when a file carries no statistics), rows]
+    columns: dict[str, dict[str, list[Any]]] = field(default_factory=dict)
+    rows: dict[str, int] = field(default_factory=dict)
+
+    def span(self, code: str) -> tuple[int | None, int | None]:
+        years = [y for (c, y, _), n in self.cover.items() if c == code and y and n]
+        return (min(years), max(years)) if years else (None, None)
+
+
+def _internal(name: str) -> bool:
+    """A column the lake adds (provenance, the raw value beside a typed one), not one the source publishes."""
+    return name.startswith("_") or name.endswith("__RAW")
+
+
+def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _Held:
+    from concurrent.futures import ThreadPoolExecutor
+
+    import pyarrow.parquet as pq
+
+    # The lake read by its own layout, <SYSTEM>/<SYSTEM>_<SERIES>_<hash>/schema_signature=…/uf=…/year=…/*.parquet:
+    # the catalog's lake_partitions lists only what the FTP build wrote, and the
+    # intake sources (SRAG, SISAGUA, SNGPC…) land beside it without a row there.
+    # The folder is not always the system's name (SNGPC lands under lake/sngpc), so the family's own name decides.
+    systems = sorted(onto.systems, key=len, reverse=True)
+    parts: list[tuple[str, int, str, Path]] = []
+    for system_dir in (p for p in lake_dir.iterdir() if p.is_dir()) if lake_dir.is_dir() else ():
+        for family in system_dir.iterdir():
+            head, _, digest = family.name.rpartition("_")
+            system = next((s for s in systems if head.startswith(f"{s}_")), None)
+            if not family.is_dir() or system is None or len(digest) != 10:
+                continue
+            code = onto.bind(system, head[len(system) + 1:]).dataset
+            if not code or code not in wanted:
+                continue
+            for path in family.glob("schema_signature=*/uf=*/year=*/*.parquet"):
+                uf = path.parent.parent.name.split("=", 1)[1]
+                year = path.parent.name.split("=", 1)[1]
+                parts.append((code, int(year) if year.isdigit() else 0, uf, path))
+
+    def footer(part: tuple[str, int, str, Path]) -> tuple[tuple[str, int, str, Path], Any]:
+        try:
+            return part, pq.read_metadata(part[3])
+        except (OSError, ValueError):  # a partition the catalog lists and the disk no longer has
+            return part, None
+
+    out = _Held()
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for (code, year, uf, _), meta in pool.map(footer, parts):
+            if meta is None:
+                continue
+            key = (code, year, uf)
+            out.cover[key] = out.cover.get(key, 0) + meta.num_rows
+            out.rows[code] = out.rows.get(code, 0) + meta.num_rows
+            nulls: dict[str, int | None] = {}
+            for g in range(meta.num_row_groups):
+                group = meta.row_group(g)
+                for c in range(group.num_columns):
+                    chunk = group.column(c)
+                    name = chunk.path_in_schema.split(".")[0]
+                    if _internal(name):
+                        continue
+                    stats = chunk.statistics
+                    seen = nulls.get(name, 0)
+                    known = seen is not None and stats is not None and stats.has_null_count
+                    nulls[name] = (seen + stats.null_count) if known else None
+            columns = out.columns.setdefault(code, {})
+            for name, n_null in nulls.items():
+                slot = columns.setdefault(name, [0, 0])
+                slot[0] = None if (slot[0] is None or n_null is None) else slot[0] + meta.num_rows - n_null
+                slot[1] += meta.num_rows
+    return out
+
+
+def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
+    """The columns an intake declaration lists (``curation/intake.yml``), as they land (upper-cased): known before a
+    single record is read, so a source not yet landed still says what it holds."""
+    from .intake import declared_sources
+
+    out: dict[str, set[str]] = {}
+    for spec in declared_sources().values():
+        if not spec.get("system") or not spec.get("series") or not isinstance(spec.get("columns"), dict):
+            continue
+        code = onto.bind(str(spec["system"]), str(spec["series"])).dataset
+        if code and code in wanted:
+            out.setdefault(code, set()).update(str(c).upper() for c in spec["columns"])
+    return out
+
+
+def _label_bindings(store: _Store, onto: Ontology, wanted: set[str]) -> dict[tuple[str, str], dict[str, Any]]:
+    """The codelists a query labels each column with, as stored per schema family, oldest family first."""
+    by_key: dict[tuple[str, str], list[tuple[str, list[str], str, Any]]] = {}
+    for r in store.query(
+        "SELECT f.system AS system, f.series AS series, COALESCE(f.time_max, '') AS t, b.field_name AS name,"
+        " b.codelists AS codelists, b.basis AS basis, b.share AS share"
+        " FROM label_bindings b JOIN families f ON f.family_id = b.family_id"
+    ):
+        code = onto.bind(str(r["system"]), str(r["series"])).dataset
+        if not code or code not in wanted:
+            continue
+        try:
+            lists = [str(x) for x in json.loads(r["codelists"] or "[]")]
+        except ValueError:
+            lists = []
+        by_key.setdefault((code, str(r["name"])), []).append((str(r["t"]), lists, str(r["basis"]), r["share"]))
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for key, decisions in by_key.items():
+        decisions.sort(key=lambda d: d[0])
+        ordered: list[str] = []
+        for _, lists, _, _ in decisions:
+            ordered.extend(x for x in lists if x not in ordered)
+        newest = decisions[-1]
+        out[key] = {"codelists": ordered, "basis": newest[2], "share": newest[3]}
+    return out
+
+
+def _write_holdings(
+    db: sqlite3.Connection, store: _Store, onto: Ontology, wanted: set[str], cfg: Settings, report: CompendiumReport,
+) -> None:
+    """Everything beyond the datasets' columns: context fields, roles and events, links, aggregates, SIDRA, and the
+    operations the package offers. Each is read through the loader the package itself uses, so the map says what a
+    call would find."""
+    _write_fields(db, cfg, report)
+    _write_roles(db, report)
+    _write_links(db, cfg, report)
+    _write_aggregates(db, cfg, report)
+    _write_sidra(db, cfg, report)
+    _write_operations(db, report)
+
+
+def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
+    from .fields import declared_fields
+
+    built = cfg.lake_dir / "fields"
+    rows = []
+    for name, spec in sorted(declared_fields().items()):
+        held_dir = built / name
+        years = sorted(
+            int(p.name.split("=", 1)[1]) for p in held_dir.glob("year=*") if p.name.split("=", 1)[1].isdigit()
+        ) if held_dir.is_dir() else []
+        source = str(spec.get("source") or ("series" if spec.get("series") else "sidra" if spec.get("table") else ""))
+        origin = spec.get("intake") or spec.get("table") or spec.get("measure") or spec.get("series")
+        rows.append((
+            name, spec.get("label"), str(spec.get("what") or "").strip() or None, spec.get("unit"), source or None,
+            None if origin is None else str(origin), spec.get("over"),
+            json.dumps(spec["by"]) if spec.get("by") else None,
+            None if spec.get("years") is None else str(spec["years"]),
+            json.dumps(years), json.dumps(spec["verified"], default=str) if spec.get("verified") else None,
+        ))
+    db.executemany("INSERT INTO fields VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
+    report.rows["fields"] = len(rows)
+
+
+def _write_roles(db: sqlite3.Connection, report: CompendiumReport) -> None:
+    from .config import curation_root
+    from .semantics.column_roles import roles
+    from .semantics.event_types import event_types
+
+    role_rows, event_rows = [], []
+    for path in sorted((curation_root() / "roles").glob("*.yml")):
+        name = path.stem
+        try:
+            declared = roles(name)
+        except Exception:  # noqa: BLE001 - a role file for a dataset this install does not resolve
+            continue
+        for r in declared:
+            role_rows.append((
+                name, r.get("column"), r.get("role"), r.get("entity"), r.get("property"), r.get("kind"),
+                r.get("model"), r.get("first_year"), r.get("last_year"),
+            ))
+        try:
+            events = event_types(name)
+        except Exception:  # noqa: BLE001 - roles without event types
+            events = []
+        for e in events:
+            event_rows.append((name, e.get("name"), e.get("kind"), e.get("grain"),
+                               json.dumps(e.get("classifiers") or [], default=str)))
+    db.executemany("INSERT OR REPLACE INTO roles VALUES (?,?,?,?,?,?,?,?,?)", role_rows)
+    db.executemany("INSERT OR REPLACE INTO events VALUES (?,?,?,?,?)", event_rows)
+    report.rows["roles"] = len(role_rows)
+    report.rows["events"] = len(event_rows)
+
+
+def _write_links(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
+    from .linkage.engine import load_links
+
+    rows = []
+    for name, spec in sorted(load_links().items()):
+        held_dir = cfg.lake_dir / "links" / name
+        runs = sum(1 for _ in held_dir.rglob("*.parquet")) if held_dir.is_dir() else 0
+        rows.append((name, (spec.description or "").strip() or None, spec.left.dataset, spec.right.dataset,
+                     1 if spec.same_event else 0, runs))
+    db.executemany("INSERT INTO links VALUES (?,?,?,?,?,?)", rows)
+    report.rows["links"] = len(rows)
+
+
+def _write_aggregates(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
+    from .capabilities import catalogue
+
+    rows = [(a["id"], a.get("dataset"), a.get("label"), 1 if a.get("built") else 0) for a in catalogue(settings=cfg)]
+    db.executemany("INSERT INTO aggregates VALUES (?,?,?,?)", rows)
+    report.rows["aggregates"] = len(rows)
+
+
+def _write_sidra(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
+    path = cfg.root / "registries" / "sidra" / "registry.sqlite"
+    if not path.is_file():
+        report.rows["sidra_tables"] = 0
+        return
+    src = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        rows = src.execute(
+            "SELECT t.id, t.name, t.research, t.subject, t.frequency, t.first_period, t.last_period, t.levels,"
+            " t.n_variables, c.grp FROM tab t LEFT JOIN compendium c ON c.tab = t.id"
+        ).fetchall()
+    finally:
+        src.close()
+    db.executemany("INSERT INTO sidra_tables VALUES (?,?,?,?,?,?,?,?,?,?)", rows)
+    report.rows["sidra_tables"] = len(rows)
+
+
+def _write_operations(db: sqlite3.Connection, report: CompendiumReport) -> None:
+    """The public functions and types (``__init__``'s exports) and every command, each with its first paragraph of
+    help: what the package can do, read from the code so it cannot drift from it."""
+    import inspect
+
+    import typer
+
+    import pegasus_data
+
+    from .cli import app
+
+    rows = []
+    for name in sorted(pegasus_data._EXPORTS):  # noqa: SLF001 - the export table is the public surface
+        obj = getattr(pegasus_data, name)
+        kind = "type" if inspect.isclass(obj) else "function"
+        doc = (inspect.getdoc(obj) or "").strip()
+        try:
+            usage = f"{name}{inspect.signature(obj)}" if kind == "function" else name
+        except (TypeError, ValueError):
+            usage = name
+        rows.append((name, kind, str(getattr(obj, "__module__", "")).rsplit(".", 1)[-1].lstrip("_"),
+                     doc.split("\n\n", 1)[0].replace("\n", " ") or None, usage))
+
+    def walk(group: Any, prefix: str) -> None:
+        for cname, cmd in sorted(group.commands.items()):
+            if getattr(cmd, "hidden", False):
+                continue
+            full = f"{prefix} {cname}"
+            if hasattr(cmd, "commands"):
+                walk(cmd, full)
+                continue
+            text = (cmd.help or "").strip()
+            rows.append((full, "command", getattr(cmd, "rich_help_panel", None) or prefix.split()[-1],
+                         text.split("\n\n", 1)[0].replace("\n", " ") or None, full))
+
+    walk(typer.main.get_command(app), "pegasus-data")
+    db.executemany("INSERT OR REPLACE INTO operations VALUES (?,?,?,?,?)", rows)
+    report.rows["operations"] = len(rows)
+
+
+def _write_entries(db: sqlite3.Connection, report: CompendiumReport) -> None:
+    """One searchable row per thing, with the call that gets it (``search()`` reads this table)."""
+    from .textenc import fold
+
+    out: list[tuple[Any, ...]] = []
+
+    def add(kind: str, system: Any, name: Any, title: Any, prose: Any, how: str) -> None:
+        name, title, prose = str(name or ""), str(title or ""), str(prose or "")
+        out.append((kind, system, name, title or None, prose or None, how,
+                    fold(f"{name} {title}"), fold(f"{name} {title} {prose}")))
+
+    for r in db.execute("SELECT code, system, official_name, translated_name, what_it_is, what_one_row_is,"
+                        " rows_held, year_min, year_max FROM datasets"):
+        span = f"{r[7]}-{r[8]} on the server" if r[7] else "no files on the server"
+        held = f", {r[6]:,} rows held" if r[6] else ", none held"
+        add("dataset", r[1], r[0], " — ".join(x for x in (r[2], r[3]) if x),
+            " ".join(x for x in (r[4], r[5]) if x) + f" [{span}{held}]",
+            f'query("{r[0]}", period=..., geography=...)')
+    for r in db.execute(
+        "SELECT v.system, v.name, v.official_name, v.translated_name, v.description,"
+        " GROUP_CONCAT(dv.dataset, ', ') FROM variables v"
+        " JOIN dataset_variables dv ON dv.system = v.system AND dv.name = v.name GROUP BY v.system, v.name"
+    ):
+        first = str(r[5] or "").split(", ")[0]
+        add("variable", r[0], r[1], " — ".join(x for x in (r[2], r[3]) if x),
+            f"{r[4] or ''} [in {r[5]}]", f'query("{first}", select=["{r[1]}"])')
+    for r in db.execute("SELECT name, label, what, unit, source, years FROM fields"):
+        add("field", r[4], r[0], r[1], f"{r[2] or ''} [{r[3] or ''}; {r[5] or ''}]", f'load_field("{r[0]}")')
+    for r in db.execute("SELECT role, GROUP_CONCAT(dataset || '.' || column_name, ', ') FROM roles GROUP BY role"):
+        first = str(r[1] or "").split(".")[0]
+        add("role", None, r[0], str(r[0]).replace(".", " ").replace("_", " "), f"[{r[1]}]", f'roles("{first}")')
+    for r in db.execute("SELECT dataset, name, kind, grain FROM events"):
+        add("event", None, f"{r[0]}:{r[1]}", r[2], r[3], f'count_events("{r[0]}", ...)')
+    for r in db.execute("SELECT name, description, left_dataset, right_dataset, runs_held FROM links"):
+        add("link", None, r[0], f"{r[2]} -> {r[3]}", f"{r[1] or ''} [{r[4]} runs held]", f"pegasus-data link {r[0]}")
+    for r in db.execute("SELECT id, dataset, label, built FROM aggregates"):
+        add("aggregate", None, r[0], r[2], f"[{r[1]}; {'built' if r[3] else 'not built'}]", f'aggregate("{r[0]}")')
+    for r in db.execute("SELECT name, kind, area, summary, usage FROM operations"):
+        add("operation", r[2], r[0], r[1], r[3], str(r[4]))
+    for r in db.execute("SELECT id, name, research, subject, first_period, last_period, levels FROM sidra_tables"):
+        add("sidra", "IBGE", r[0], r[1], f"{r[2] or ''} {r[3] or ''} [{r[4]}-{r[5]}; {r[6]}]",
+            f"pegasus-data sidra show {r[0]}")
+    db.executemany("INSERT INTO entries VALUES (?,?,?,?,?,?,?,?)", out)
+    report.rows["entries"] = len(out)
 
 
 def systems_scoped(wanted: set[str], onto: Ontology, system: str) -> bool:

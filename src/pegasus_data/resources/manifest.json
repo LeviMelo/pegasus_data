@@ -1,7 +1,7 @@
 {
   "resource_schema_version": 2,
-  "resource_content_version": "2026-10-09",
-  "built_at": "2026-10-09T01:40:06Z",
+  "resource_content_version": "2026-11-08",
+  "built_at": "2026-11-08T22:07:53Z",
   "source_build_id": "2026-10-09T01:13:46+00:00",
   "crawled_at": "2026-10-09T01:13:46+00:00",
   "counts": {
@@ -9,8 +9,8 @@
     "systems": 17,
     "families": 394,
     "columns": 4593,
-    "variables_described": 4759,
-    "bindings": 10790
+    "variables_described": 5129,
+    "bindings": 10899
   },
   "budgets": {
     "growth_ratio": 1.25,
@@ -22,9 +22,9 @@
     "geography": {
       "file": "geography.parquet",
       "tier": "A",
-      "bytes": 252262,
+      "bytes": 282538,
       "rows": 110120,
-      "sha256": "15aabc6d8547a32e86f525af307b85e6799731f1665b9a15a4657c6256236c32"
+      "sha256": "36d798a8ae3fc4954f73c1adaa19dbcb9433d2950d03919a0adb0c0fdc534eca"
     },
     "municipalities": {
       "file": "municipalities.parquet",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19869460,
-      "rows": 930626,
-      "sha256": "a170098e913355d88c46c2d5f1286c637fb9e2840b25d612704ed647864fbbb9"
+      "bytes": 19922253,
+      "rows": 931144,
+      "sha256": "a569251e26bba4fa453e74ae349f291761064f4b0ac2217e62ddbf853f35b5b0"
     },
     "banks": {
       "file": "banks.parquet",
@@ -106,8 +106,8 @@
     "municipality_points": {
       "file": "municipality_points.parquet",
       "tier": "A",
-      "bytes": 454678,
-      "sha256": "6c90e0fd6b35b2ad534547a483765b4ced6064d68792c52b6c5d19e0897dc096",
+      "bytes": 452671,
+      "sha256": "8a43aac39bc5242c8a9a82367dc2a3afb6c6c548cf955733fd44c6e3112c7f88",
       "rows": 5571
     },
     "sigtap": {
@@ -141,8 +141,8 @@
     "proximity": {
       "file": "proximity.parquet",
       "tier": "A",
-      "bytes": 1191243,
-      "sha256": "f55d6623da5077137ca8247922328d4d53c1a22570aecd87271f921d43cb066a",
+      "bytes": 1189969,
+      "sha256": "da01e6e32f90e1f0ff8af20c73dcdc90f723b5f13bd9c01b9b454039cb614af7",
       "rows": 218271
     },
     "regic_cities": {

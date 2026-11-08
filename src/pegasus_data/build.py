@@ -907,17 +907,14 @@ class Builder:
                 evidence=json.dumps(projpop),
             )
         if counts:
-            self.catalog.note_question(
+            self.catalog.resolve_question(
                 "V8.ministry_denominator",
-                area="denominators",
-                question="Which population series backs the Ministry's own published rates?",
-                verification_procedure=(
-                    "Reproduce one published TabNet rate (e.g. SIH hospitalisation rate for a "
-                    "given UF and year) from microdata under POPSVS and under POPTCU, and see "
-                    "which reproduces the published figure exactly. This module ingests both "
-                    "behind one interface precisely so the comparison is a one-line change."
+                resolution=(
+                    "The Ministry's tables divide by POPSVS: TabNet's population form (ibge/cnv/popsvs2024br.def) "
+                    "reads IBGE/POPSVS, and its 2022 equals the local POPSVS in 27 of 27 states (210,862,983). "
+                    "DATA_SOURCES.md, population, 2026-10-03."
                 ),
-                blocking="validation of any rate against a federal publication",
+                evidence=json.dumps(counts),
             )
 
     # ------------------------------------------------------------------ demas

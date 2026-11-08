@@ -77,6 +77,17 @@ def learn_prefix_systems(
     return sorted(out, key=lambda p: (-p.file_count, p.series_prefix))
 
 
+def _still_holds(catalog: CatalogStore, prefix: str, system: str) -> bool:
+    """Whether ``system`` still has current files under ``prefix``. A reorganisation moves files away; a prefix
+    whose established system keeps its files is shared, and the evidence against it is not a contradiction."""
+    held = catalog.scalar(
+        "SELECT COUNT(*) FROM file_facts ff JOIN files f ON f.path = ff.path"
+        " WHERE ff.series_prefix = ? AND ff.system = ? AND f.gone_at IS NULL",
+        (prefix, system),
+    )
+    return bool(held)
+
+
 def persist_prefix_systems(catalog: CatalogStore, learned: Sequence[PrefixSystem]) -> dict[str, int]:
     """Store the map. An established answer is **held**, not relearned.
 
@@ -104,6 +115,11 @@ def persist_prefix_systems(catalog: CatalogStore, learned: Sequence[PrefixSystem
             payload.append((p.series_prefix, p.system, p.file_count, p.agreement, utcnow()))
             continue
         prior_system, prior_count, prior_agreement = prior
+        if prior_system != p.system and _still_holds(catalog, p.series_prefix, prior_system):
+            # The prior system's files are all still there: the prefix is shared (a series republished in a
+            # second tree, a documentation table in two kits), not moved. Nothing to adjudicate; the path and the
+            # republication rule decide each file (verified on the 49 questions this raised, 2026-11-08).
+            continue
         if prior_system != p.system:
             contradictions += 1
             catalog.note_question(

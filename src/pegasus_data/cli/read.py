@@ -147,18 +147,20 @@ def aggregate_suggest(
 def search(
     query: Annotated[str, typer.Argument(help="Words to look for, e.g. 'raça' or 'Parda'")],
     kind: Annotated[
-        str | None, typer.Option("--kind", help="variable | dataset | code")
+        str | None,
+        typer.Option("--kind", help="dataset | variable | field | role | event | link | aggregate | operation | sidra | code"),
     ] = None,
     system: Annotated[str | None, typer.Option("--system", "-s", help="One system, e.g. SIHSUS")] = None,
     limit: Annotated[int, typer.Option("--limit", "-n")] = 25,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Search variable names, descriptions, datasets and every code label.
+    """Find anything pegasus_data holds or can do: datasets, columns, context fields, roles, events, links,
+    aggregates, functions and commands, SIDRA tables and code labels, each with the call that gets it.
 
-    "Which column is about race" and "which code means Parda" are the same
-    question to ask here. Accents are folded, so both spellings find it. Reads
-    the catalog and the shipped label pack; no dictionary build is needed.
+    "Which column is about race", "is there rainfall by municipality" and "which code means Parda" are the same
+    question to ask here. Every word must match; accents are folded. Reads the home's map (`compendium`), rebuilt
+    when what it describes has changed.
     """
     from .._search import search as _search
 
@@ -171,7 +173,7 @@ def search(
 
 @app.command(name="compendium", rich_help_panel="UNDERSTAND")
 def compendium_cmd(
-    out: Annotated[Path, typer.Option("--out", help="Where to write the .sqlite")] = Path("datasus.sqlite"),
+    out: Annotated[Path | None, typer.Option("--out", help="Where to write the .sqlite (default: the home's own map)")] = None,
     system: SystemsOpt = None,
     codes: Annotated[str, typer.Option("--codes", help="none | internal | bound | all")] = "none",
     max_codes: Annotated[int, typer.Option("--max-codes", help="Codelists larger than this count as external under --codes internal")] = 1000,
@@ -180,12 +182,12 @@ def compendium_cmd(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Write a portable map of DATASUS: what exists, down to the variable.
+    """Write the map of everything pegasus_data holds and can do, as one SQLite file.
 
-    The core answers what a researcher asks before downloading anything — which
-    systems, which datasets, which years and states, which columns and what they
-    mean. Code meanings and value frequencies are opt-in because they are what
-    makes such a file large.
+    Which systems and datasets exist, their years and states on the server and in the lake, every column with its
+    meaning, the codelist a query labels it with and how often it is filled; the context fields, roles, event types,
+    links, aggregates, SIDRA tables, and every function and command. Code meanings and value frequencies are opt-in
+    because they are what makes such a file large. Without --out it refreshes the home's own map, which `search` reads.
     """
     from .._compendium import compendium as _compendium
 

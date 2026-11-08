@@ -721,7 +721,6 @@ def reference(
     pipeline = _pipeline(root)
     try:
         from ..persist.reference import (
-            flag_mixed_width_tables,
             flag_unlabelled_codelists,
             register_reference_tables,
             write_reference_tables,
@@ -737,7 +736,6 @@ def reference(
                     "label column resolved to a blank field; recorded as open questions"
                 )
                 _emit(unlabelled[:8], False, "codelists with no usable labels")
-            mixed = flag_mixed_width_tables(pipeline.catalog, written)
         rows = [
             {
                 "table": t.table_id,
@@ -749,11 +747,6 @@ def reference(
             for t in sorted(written, key=lambda x: -x.rows)[:40]
         ]
         _emit(rows, as_json, f"{len(written)} reference tables")
-        if mixed:
-            console.print(
-                f"[yellow]{mixed}[/yellow] table(s) merge more than one code width — "
-                "recorded as open questions; join with code_width= to stay on one vintage"
-            )
     finally:
         pipeline.close()
 

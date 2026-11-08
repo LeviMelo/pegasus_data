@@ -97,12 +97,10 @@ class ReferenceTable:
     rows: int
     relative_path: str
     source_ref: str
+    # The widths a table holds. Several are common (a .CNV lists 3- and 4-character
+    # CID codes, a year and a range) and never a hazard: a label is joined on the
+    # code's exact string, so one width cannot take another's meaning (ADR-0216).
     code_widths: tuple[int, ...] = ()
-
-    @property
-    def mixed_widths(self) -> bool:
-        """Two code widths in one table means two classifications merged."""
-        return len(self.code_widths) > 1
 
     @property
     def window(self) -> str:
@@ -344,36 +342,6 @@ def stale_systems(catalog: CatalogStore, lake_root: str | Path, systems: Sequenc
     path = Path(lake_root) / "reference" / STAMPS
     stamps = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     return [s for s in (str(x).upper() for x in systems) if stamps.get(s) != dictionary_fingerprint(catalog, s)]
-
-
-def flag_mixed_width_tables(catalog: CatalogStore, tables: Sequence[ReferenceTable]) -> int:
-    """Record any reference table that merges two code widths.
-
-    Not a defect in the ingestion — it is what the kit ships — but a hazard the
-    consumer has to know about, because the two widths are different
-    classifications with overlapping numeric ranges.
-    """
-    flagged = 0
-    for t in tables:
-        if not t.mixed_widths:
-            continue
-        flagged += 1
-        catalog.note_question(
-            f"reference.mixed_code_widths:{t.table_id}",
-            area="semantics",
-            question=(
-                f"Reference table {t.table_id} ({t.window}) mixes code widths {list(t.code_widths)}, "
-                f"which means it merges more than one classification vintage in a single file. "
-                f"Joining on code alone can label data from one vintage with the other's meanings."
-            ),
-            verification_procedure=(
-                "Filter the reference table by `code_width` matching the width actually observed "
-                "in the column being decoded, and confirm against the record layout's declared "
-                "width for that field."
-            ),
-            blocking=f"safe decoding of fields bound to {t.table_id}",
-        )
-    return flagged
 
 
 # The bookkeeping lives in `decisions`, which imports neither this module nor

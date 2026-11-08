@@ -298,7 +298,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | decide a column's codelist | ~~read-time weighing per file, capped at 12~~; ~~the query-time gate~~ | **done** (ADR-0061, ADR-0072): curation, then one stored binding per family and field |
 | bootstrap a fresh catalog | ~~inside `fetch`, `_translate.py` separately, `tree.parquet` for `explore`, nothing for `info`~~ | **done** (ADR-0067): `Catalog.__init__` installs the seed |
 | export the semantic layer | ~~the bundle and the dictionary database~~ | **done** (ADR-0075): the seed and label pack ship; `compendium()` is the researcher's map; `persist/reference` the lake's tables |
-| describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
+| describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | **in part** (ADR-0216): `compendium` is the one map (`_compendium.current`, the home's copy) and `search` reads its index; `info`, `describe`, `explore` and `availability` still read the catalog themselves |
 | decide a file's system | `inventory/naming.py`, `inventory/systems.py`, `ontology.py` | **examined** (2026-10-04): not duplicates but three layers. `naming.system_from_path` is the path's evidence; `systems.resolve_system` decides (a trustworthy learned prefix wins, the path otherwise) and the inventory stores it in `file_facts.system`; `Ontology.bind` maps that system and series to a declared dataset. `pipeline` reads documentation files' system from the path alone; it equals the stored one for all 227 non-data files (repo home) |
 | convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0070): `_age.years_column` only, fractional years from measured units |
 | query capabilities | ~~two modules named `capabilities`~~ | **done** (2026-10-04): `capabilities.py` is what a client may do with an aggregate; `_query_engine/coverage.py` (and `publication_coverage.json`) is what DATASUS publishes |
@@ -403,7 +403,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_dictionary.py`: `DataDictionary`, the dictionary of a fetched table.
 - `_translate.py`: `translate()`, labels for a user's own files.
 - `_unknowns.py`: `gaps()`, `questions()`.
-- `_compendium.py`: `compendium()`, the map of DATASUS as a SQLite file.
+- `_compendium.py`: `compendium()`, the map of everything the package holds and can do, as a SQLite file; `current()` keeps the home's copy (`_catalog/compendium.sqlite`) fresh; `entries` is the index `search()` reads (ADR-0216).
 - `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
 - `_resources.py`: resource status, validation, `ensure`, `build`.
 - `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`; `packed_fingerprint` is the digest of the rows a system reads of one codelist, in every window (ADR-0202).

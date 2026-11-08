@@ -1,28 +1,30 @@
-"""``search()``: find a column, a dataset or a code by what it means.
+"""``search()``: find anything pegasus_data holds or can do, by what it means.
 
-"Which column is about race" and "which code means Parda" are the same shape
-of question, so one call answers both. It reads what every install has: the
-catalog's curated variable and dataset documentation (a fresh catalog is the
-seed, ADR-0067) and the shipped label pack's 3.65M code labels. It used to need
-``docs/dictionary.sqlite``, a 557 MB database that only a maintainer who had run
-``pegasus-data dictionary`` possessed, so on a fresh install it raised
-``FileNotFoundError`` (live run 2026-09-28).
+"Which column is about race", "is there rainfall by municipality", "can I link
+admissions to deaths" and "which code means Parda" are the same shape of
+question, so one call answers all of them. It reads the home's compendium
+(`_compendium.current`: the one map, rebuilt when what it describes has changed)
+and the shipped label pack's code labels. Every hit carries ``how``: the call
+that gets the thing (``query("SIH.RD", select=["RACA_COR"])``,
+``load_field("rainfall_monthly")``, ``pegasus-data link sih_deaths_to_sim``).
 
 Diacritics and case are folded on both sides: nobody types *óbito* reliably.
-Ranking is plain and stated: an exact name first, then a match in the name,
-then a match in the prose; codes rank exact labels before prefix and substring
-matches, then shorter labels.
+Every word of the query must begin a word of the entry. Ranking is plain and
+stated: an exact name first, then every word in the name or title, then in the
+prose; shorter entries before longer. Codes rank exact labels before prefix and
+substring matches, then shorter labels.
 """
 
 from __future__ import annotations
 
 import re
+import sqlite3
 from pathlib import Path
 
 from .config import Settings, load_settings
 from .textenc import fold, fold_sql
 
-KINDS = ("variable", "dataset", "code")
+KINDS = ("dataset", "variable", "field", "role", "event", "link", "aggregate", "operation", "sidra", "code")
 
 
 def search(
@@ -34,78 +36,68 @@ def search(
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> list[dict[str, object]]:
-    """Variables, datasets and codes whose names or meanings mention ``query``.
+    """Datasets, variables, context fields, roles, events, links, aggregates, operations, SIDRA tables and codes whose
+    names or meanings mention every word of ``query``.
 
-    Each hit is ``{"system", "kind", "name", "context"}``. ``kind`` narrows to
-    ``"variable"``, ``"dataset"`` or ``"code"``; ``system`` to one system
-    (``"SIHSUS"``).
+    Each hit is ``{"system", "kind", "name", "context", "how"}``. ``kind`` narrows to one of :data:`KINDS`;
+    ``system`` to one system (``"SIHSUS"``).
     """
     needle = fold(query).strip()
     if not needle:
         raise ValueError("search needs a non-empty query")
     if kind is not None and kind not in KINDS:
         raise ValueError(f"kind must be one of {KINDS}, got {kind!r}")
-    resolved = settings or load_settings(root=Path(root) if root else None)
+    words = needle.split()
     wanted_system = system.upper() if system else None
-    hits: list[tuple[tuple[int, int], dict[str, object]]] = []
+    out: list[dict[str, object]] = []
 
-    if kind in (None, "variable", "dataset"):
-        from .catalog.store import CatalogStore
+    if kind != "code":
+        from ._compendium import current
 
-        store = CatalogStore(resolved.catalog_path, read_only=True)
+        resolved = settings or load_settings(root=Path(root) if root else None)
+        path = current(settings=resolved)
+        con = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
         try:
-            if kind in (None, "variable"):
-                for r in store.query(
-                    "SELECT system, field_name, official_name, translated_name, description "
-                    "FROM variable_docs"
-                ):
-                    if wanted_system and str(r["system"]).upper() != wanted_system:
-                        continue
-                    names = f"{r['field_name']} {r['official_name'] or ''} {r['translated_name'] or ''}"
-                    rank = _rank(needle, str(r["field_name"]), names, str(r["description"] or ""))
-                    if rank is not None:
-                        hits.append((rank, {
-                            "system": r["system"], "kind": "variable", "name": r["field_name"],
-                            "context": " — ".join(
-                                x for x in (r["official_name"], r["translated_name"]) if x
-                            ) or str(r["description"] or "")[:160],
-                        }))
-            if kind in (None, "dataset"):
-                for r in store.query(
-                    "SELECT dataset_id, system, series, what_one_row_is, unit_of_analysis, gotchas "
-                    "FROM dataset_docs"
-                ):
-                    if wanted_system and str(r["system"]).upper() != wanted_system:
-                        continue
-                    prose = " ".join(str(r[c] or "") for c in ("what_one_row_is", "unit_of_analysis", "gotchas"))
-                    rank = _rank(needle, str(r["dataset_id"]), str(r["dataset_id"]), prose)
-                    if rank is not None:
-                        hits.append((rank, {
-                            "system": r["system"], "kind": "dataset", "name": r["dataset_id"],
-                            "context": str(r["what_one_row_is"] or "")[:160],
-                        }))
+            clause = " AND ".join("folded LIKE ?" for _ in words)
+            params: list[object] = [f"%{w}%" for w in words]
+            if kind:
+                clause += " AND kind = ?"
+                params.append(kind)
+            if wanted_system:
+                clause += " AND UPPER(COALESCE(system, '')) = ?"
+                params.append(wanted_system)
+            hits = []
+            for kind_, system_, name, title, prose, how, folded_name, folded in con.execute(
+                f"SELECT kind, system, name, title, prose, how, folded_name, folded FROM entries WHERE {clause}",
+                params,
+            ):
+                rank = _rank(words, needle, str(name), folded_name, folded)
+                if rank is not None:
+                    hits.append((rank, {
+                        "system": system_, "kind": kind_, "name": name,
+                        "context": str(title or prose or "")[:160], "how": how,
+                    }))
         finally:
-            store.close()
-
-    hits.sort(key=lambda h: h[0])
-    out = [h for _, h in hits][:limit]
+            con.close()
+        hits.sort(key=lambda h: h[0])
+        out = [h for _, h in hits][:limit]
     if kind in (None, "code") and len(out) < limit:
         out.extend(_code_hits(needle, wanted_system, limit - len(out)))
     return out
 
 
-def _starts_a_word(needle: str, text: str) -> bool:
-    """The match must begin a word: "raca" finds "raça/cor", not "duração"."""
-    return re.search(r"(?<![0-9A-Z])" + re.escape(needle), fold(text)) is not None
+def _begins(word: str, folded: str) -> bool:
+    """The word must begin a word: "raca" finds "raça/cor", not "duração"."""
+    return re.search(r"(?<![0-9A-Z])" + re.escape(word), folded) is not None
 
 
-def _rank(needle: str, exact: str, names: str, prose: str) -> tuple[int, int] | None:
-    if fold(exact) == needle:
-        return (0, len(exact))
-    if _starts_a_word(needle, names):
-        return (1, len(names))
-    if _starts_a_word(needle, prose):
-        return (2, len(prose))
+def _rank(words: list[str], needle: str, name: str, folded_name: str, folded: str) -> tuple[int, int] | None:
+    if fold(name) == needle:
+        return (0, len(name))
+    if all(_begins(w, folded_name) for w in words):
+        return (1, len(folded_name))
+    if all(_begins(w, folded) for w in words):
+        return (2, len(folded))
     return None
 
 
@@ -143,6 +135,7 @@ def _code_hits(needle: str, system: str | None, limit: int) -> list[dict[str, ob
             "kind": "code",
             "name": f"{codelist} = {lo}" + (f"..{hi}" if hi and hi != lo else ""),
             "context": label,
+            "how": f'load_reference("{codelist}")',
         }
         for sys_, codelist, lo, hi, label, _ in rows
     ]

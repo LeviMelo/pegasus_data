@@ -6,11 +6,15 @@ history is in git; measurements are in `EVALUATION.md` and decisions in
 
 ## Where the project is
 
-`redesign` (2026-09-28 to 09-30: meaning on the read path, every variable
-described and code translatable, ADR-0061 to ADR-0106) was live-verified and
-fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
-continues on branch **`linkage`**: record linkage across systems, planned in
-`docs/plans/linkage.md` (ADR-0107).
+One branch, **`master`** (2026-11-08): every branch and worktree was merged and removed; master is 603+ commits ahead of
+`origin/master` (nothing pushed). The work now converges on release: one map of what the package holds and can do
+(ADR-0216), the catalog's open questions reduced to what a person must answer (none open on 2026-11-08), and every
+queryable column documented.
+
+- **The map.** `compendium()` and its home copy (`_compendium.current`) describe every dataset `query()` serves, each
+  column's query-time codelists and fill, the 122 context fields, roles, events, links, aggregates, SIDRA's tables and
+  every function and command; `search()` reads it and returns the call for each hit. Left: `info`, `describe`, `explore`
+  and `availability` still read the catalog themselves (ARCHITECTURE §5); synonyms and the Portuguese/English gap.
 
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 
@@ -421,7 +425,7 @@ OQ-64), 1990s SIH V-codes.
   and `cli` into a package by help panel; the command tree is unchanged
   (61 commands, same parameters).
 
-## The PegaSUS handoff (2026-10-04, `2026-10-04-pegasus_data.md`)
+## The PegaSUS handoff (2026-10-04, `docs/history/2026-10-04-pegasus_data-handoff.md`)
 
 | § | state |
 |---|---|
