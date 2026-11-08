@@ -148,7 +148,7 @@ def search(
     query: Annotated[str, typer.Argument(help="Words to look for, e.g. 'raça' or 'Parda'")],
     kind: Annotated[
         str | None,
-        typer.Option("--kind", help="dataset | variable | field | role | event | link | aggregate | operation | sidra | code"),
+        typer.Option("--kind", help="dataset | variable | field | product | role | event | link | aggregate | operation | sidra | code"),
     ] = None,
     system: Annotated[str | None, typer.Option("--system", "-s", help="One system, e.g. SIHSUS")] = None,
     limit: Annotated[int, typer.Option("--limit", "-n")] = 25,

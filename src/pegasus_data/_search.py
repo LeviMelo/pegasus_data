@@ -25,7 +25,7 @@ from pathlib import Path
 from .config import Settings, load_settings
 from .textenc import fold, fold_sql
 
-KINDS = ("dataset", "variable", "field", "role", "event", "link", "aggregate", "operation", "sidra", "code")
+KINDS = ("dataset", "variable", "field", "product", "role", "event", "link", "aggregate", "operation", "sidra", "code")
 
 
 def search(

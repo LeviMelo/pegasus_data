@@ -1,0 +1,598 @@
+# What pegasus_data serves besides record datasets (query) and context fields (load_field): layers, reference
+# tables, geometries, indices and modelled products. Read by the map (_compendium); every store folder of the data home
+# must be claimed by a dataset, a field, a link, an intake source or a product here (the map lists the unclaimed).
+#
+# `stores` are paths relative to the data home (`resources/<file>` is a pack shipped in the wheel). `call` names a public
+# export of pegasus_data (its _EXPORTS) or a CLI command; a module-qualified call is a function with no top-level export.
+# Population series (curation/populations.yml, load_population) and geography memberships (curation/geography.yml,
+# memberships) are declared in those files and each stands here as one product.
+products:
+
+  # ------------------------------------------------------------------------------------------------- mobility
+  air_passengers:
+    label: "Air passengers between municipalities"
+    kind: mobility
+    source: "ANAC, Dados Estatísticos do Transporte Aéreo (Dados_Estatisticos.csv)"
+    what: >
+      Domestic passengers carried between two municipalities in a month, summed over companies and flight groups; `weight`
+      is paid plus free passengers, each kept apart, with the flights. A row is a flight stage, so a passenger on A-B-C is
+      counted on A-B and on B-C: the flow carried on each segment, not the traveller's origin and destination.
+    grain: "origin municipality × destination municipality × month (vintage YYYYMM)"
+    period: "2000-01 to 2026-09"
+    call: 'proximity_graph("air_passengers")'
+    stores: [registries/mobility/air_passengers.parquet, registries/anac]
+
+  commuting_work:
+    label: "Commuting to work between municipalities"
+    kind: mobility
+    source: "IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra (microdata)"
+    what: >
+      Weighted persons living in `from` who work in `to`, from the sample's V0660/V6604 answers; people working at home or in
+      their own municipality, abroad or in several places are not edges. A sample estimate: `persons_sampled` is the
+      unweighted count behind each edge.
+    grain: "residence municipality × work municipality (one census)"
+    period: "2010"
+    call: 'proximity_graph("commute_work_2010")'
+    stores: [registries/mobility/commute_work_2010.parquet, registries/census2010_microdata]
+
+  commuting_study:
+    label: "Commuting to study between municipalities"
+    kind: mobility
+    source: "IBGE, Censo Demográfico 2010, Resultados Gerais da Amostra (microdata)"
+    what: >
+      Weighted persons living in `from` who attend school or university in `to` (V0636 and its municipality), from the Census
+      2010 sample. A sample estimate, with `persons_sampled` beside the weighted count.
+    grain: "residence municipality × study municipality (one census)"
+    period: "2010"
+    call: 'proximity_graph("commute_study_2010")'
+    stores: [registries/mobility/commute_study_2010.parquet, registries/census2010_microdata]
+
+  road_links:
+    label: "Weekly coach departures between municipalities"
+    kind: mobility
+    source: "IBGE, Ligações Rodoviárias e Hidroviárias 2016 (Redes e Fluxos do Território)"
+    what: >
+      Weekly departures of coaches, vans and cars between two municipality seats, with the cheapest fare and the shortest
+      travel time of the pair. `weight` is capacity-weighted departures (bus 1, vans and cars 0.25; fortnightly services
+      halved), not a count of vehicles. The weekly road, waterway and total departures ride on every edge.
+    grain: "origin municipality × destination municipality (one survey)"
+    period: "2016"
+    call: 'proximity_graph("road_links_2016")'
+    stores: [registries/mobility/road_links_2016.parquet, registries/ibge_links]
+
+  waterway_links:
+    label: "Weekly boat departures between municipalities"
+    kind: mobility
+    source: "IBGE, Ligações Rodoviárias e Hidroviárias 2016 (Redes e Fluxos do Território)"
+    what: >
+      Weekly boat departures between two municipality seats (voadeira 0.25, lancha and catamarã 1, barco 1.5, navio 2 in the
+      weight), from the same survey and workbook as the coach links. 810 pairs.
+    grain: "origin municipality × destination municipality (one survey)"
+    period: "2016"
+    call: 'proximity_graph("waterway_links_2016")'
+    stores: [registries/mobility/waterway_links_2016.parquet, registries/ibge_links]
+
+  proximity_graphs:
+    label: "Contiguity, distance and REGIC graphs"
+    kind: mobility
+    source: "IBGE (municipal mesh 2022, Grade Estatística 2022, REGIC 2018), computed here"
+    what: >
+      Shipped municipality graphs as edge lists: `contiguity` (shared border, weight its length in km), `population_distance`
+      (population-weighted mean distance in km to each municipality's 30 nearest and its neighbours), and REGIC's links between
+      cities (`regic_network`, `regic_health_basic`, `regic_health_high`, weight the order of the link, 1 the strongest).
+    grain: "municipality × municipality"
+    period: "2022 mesh and grid; REGIC 2018"
+    call: 'proximity_graph("contiguity")'
+    stores: [resources/proximity.parquet]
+
+  # ------------------------------------------------------------------------------------------------- care
+  care_flows:
+    label: "Care flows between residence and facility"
+    kind: care
+    source: "Computed from the lake's records (SIH, SIA, SIM, SINASC...) by their declared residence and event place"
+    what: >
+      Events moving from the patient's municipality of residence to where the event happened (or to the CNES establishment),
+      counted as events of the dataset's declared type, with `share` the part of the origin's events going to each place.
+      Computed on request, so it depends on what the lake holds; a `by` classifier and a `measure` (length of stay) can ride along.
+    grain: "residence municipality × place of care × year (× classifier)"
+    period: "as the dataset's lake years"
+    call: 'care_flows("SIH-RD", period=2022)'
+    stores: []
+
+  care_flow_regions:
+    label: "Self-sufficiency, catchments and flow communities"
+    kind: care
+    source: "Computed from a care-flow graph; compared with the Ministry's health regions"
+    what: >
+      From a care-flow table: per municipality the share treated at home and the share of treated events that come from
+      elsewhere (`care_flow_profile`); nodal catchments by dominant flow (`care_flow_catchments`); Leiden communities of the
+      flow graph (`care_flow_communities`, resolution is a knob and must be reported); and their agreement with official health
+      regions (`compare_flow_regions`).
+    grain: "municipality (or region) × year"
+    period: "as the flow table's years"
+    call: "care_flow_profile(flows)"
+    stores: []
+
+  # ------------------------------------------------------------------------------------------------- geography
+  municipality_directory:
+    label: "Municipality codes, names and states"
+    kind: geography
+    source: "IBGE, Divisão Territorial; DATASUS six-digit and IBGE seven-digit codes"
+    what: >
+      The 5,571 municipalities with their six- and seven-digit code, name, state and macroregion; converts a DATASUS code to
+      IBGE's (`to_code7`).
+    grain: "municipality"
+    period: "current division (2022 mesh)"
+    call: "pegasus_data.geography.municipalities()"
+    stores: [resources/municipalities.parquet]
+
+  municipality_mesh:
+    label: "Municipal and state boundaries"
+    kind: geography
+    source: "IBGE, Malhas Territoriais (API v3 /malhas), SIRGAS 2000"
+    what: >
+      Polygons of Brazil's municipalities and states in today's division, as a GeoDataFrame (`code`, `geometry`, EPSG:4674),
+      in IBGE's quality levels from `minima` (maps) to `maxima` (full resolution, used to place points). Downloaded once.
+    grain: "municipality or state polygon"
+    period: "current division (2022 mesh)"
+    call: 'mesh("municipality", quality="minima")'
+    stores: [registries/ibge_mesh]
+
+  municipality_areas:
+    label: "Municipal areas"
+    kind: geography
+    source: "IBGE municipal mesh 2022, area computed in SIRGAS 2000 / Brazil Polyconic"
+    what: "Area in km² of each of 5,570 municipalities. A municipality created after the 2022 mesh has no row."
+    grain: "municipality"
+    period: "2022 mesh"
+    call: "municipality_areas()"
+    stores: [resources/municipality_areas.parquet]
+
+  municipality_points:
+    label: "Municipal points and distances"
+    kind: geography
+    source: "IBGE, Localidades 2022 (seat), Grade Estatística 2022 (population centre), municipal mesh (centroid)"
+    what: >
+      Three points per municipality (seat, population centre, area centroid; lon/lat) and the great-circle distance in km
+      between two municipalities. None, with a warning, for a municipality created after the 2022 mesh or a district with no seat.
+    grain: "municipality"
+    period: "2022"
+    call: "municipality_point(code)"
+    stores: [resources/municipality_points.parquet, registries/ibge_points]
+
+  geography_memberships:
+    label: "Supramunicipal geography memberships"
+    kind: geography
+    source: "DATASUS TabWin/TabNet codelists, IBGE (localidades, arranjos populacionais, biomas), IPEA (AMC); see curation/geography.yml"
+    what: >
+      Which health region, macroregion, IBGE region, population arrangement, urban concentration, biome or comparable area a
+      municipality belongs to, with validity windows. The members are declared in curation/geography.yml and compiled into the
+      shipped pack; a region is never inferred.
+    grain: "municipality × classification × validity window"
+    period: "per classification and window"
+    call: 'memberships("health_region")'
+    stores: [resources/geography.parquet, registries/tabnet, registries/ibge_arranjos, registries/ibge_biomas, registries/ipea_amc]
+
+  regic_cities:
+    label: "REGIC city of each municipality"
+    kind: geography
+    source: "IBGE, Regiões de Influência das Cidades (REGIC) 2018"
+    what: >
+      Each municipality mapped to its REGIC city (itself, or the core of its population arrangement) and the city's level of
+      centrality. The links between cities are the `regic_*` graphs of `proximity_graphs`.
+    grain: "municipality"
+    period: "2018"
+    call: "regic_cities()"
+    stores: [resources/regic_cities.parquet, registries/regic]
+
+  # ------------------------------------------------------------------------------------------------- places
+  statistical_grid:
+    label: "Statistical grid of residents"
+    kind: places
+    source: "IBGE, Grade Estatística 2022 (Notas metodológicas 01/2025), with municipalities assigned here"
+    what: >
+      Residents and occupied households of the Census 2022 on a regular equal-area grid (200 m in urban tracts, 1 km elsewhere),
+      each cell split among the municipalities it meets by area share; coarser grids sum the cells. No sex, age or race. Counts
+      are summed, never averaged.
+    grain: "grid cell × municipality"
+    period: "2022"
+    call: "grade_cells(uf=33)"
+    stores: [registries/ibge_grade]
+
+  census_tracts:
+    label: "Census tracts and their counts"
+    kind: places
+    source: "IBGE, Censo 2022, Agregados por Setores Censitários (dictionary of 2026-05-20)"
+    what: >
+      One row per Census 2022 tract: identity (15-digit code, urban or rural situation, area, district, neighbourhood,
+      regions) and the basic counts, residents first. A count IBGE suppressed is null, never zero. The tract polygons are in
+      the points folder.
+    grain: "census tract"
+    period: "2022"
+    call: "census_tracts(uf=33)"
+    stores: [registries/ibge_tracts, registries/ibge_points]
+
+  cep_points:
+    label: "Where each CEP lies"
+    kind: places
+    source: "IBGE, CNEFE 2022 (Cadastro Nacional de Endereços para Fins Estatísticos)"
+    what: >
+      One row per CEP and municipality: address counts by species, the median coordinate of its addresses and the radius
+      within which half and nine tenths lie. The 111 million CNEFE records are landed whole beside it, one folder per UF.
+    grain: "CEP × municipality"
+    period: "2022"
+    call: "cep_points(uf=33)"
+    stores: [lake/cnefe_2022_cep, lake/cnefe_2022, registries/ibge_cnefe]
+
+  # ------------------------------------------------------------------------------------------------- population
+  population_series:
+    label: "Population denominators and covariates"
+    kind: population
+    source: "IBGE via DATASUS (POPSVS, POPTCU, POP, projpop, census covariates) and SIDRA (CENSO); see curation/populations.yml"
+    what: >
+      Population by municipality (or UF for projections), year and, where the producer publishes them, sex and age; census
+      covariates are not denominators. The series, their authority and axes are declared in curation/populations.yml.
+    grain: "per series; see populations.yml"
+    period: "per series (POPSVS 2000-2025, projpop 2000-2070)"
+    call: 'load_population("POPSVS")'
+    stores: [lake/population]
+
+  tract_population:
+    label: "Tract residents by sex and age"
+    kind: population
+    source: "IBGE, Censo 2022, Agregados por Setores Censitários (demografia)"
+    what: >
+      Residents of each census tract by sex and age band (0-4 ... 70 or more), long. A count IBGE suppressed is null with
+      `suppressed` true, never zero; the people the bands leave out are measured against the tract's residents.
+    grain: "census tract × sex × age band"
+    period: "2022"
+    call: "tract_population(uf=33)"
+    stores: [registries/ibge_tracts/tract_population_2022.parquet]
+
+  # ------------------------------------------------------------------------------------------------- climate
+  climate_daily:
+    label: "Daily municipal weather"
+    kind: climate
+    source: "CPTEC/INPE, MERGE (precipitation) and SAMeT (air temperature), as municipal means"
+    what: >
+      Daily precipitation and maximum, minimum and mean temperature per municipality, as the mean over its area or weighted by
+      its population, with coverage and station counts, kept by vintage so a provisional day and its revision both exist.
+      `climate_weekly` sums days into epidemiological weeks (sums and day counts, never a stored mean).
+    grain: "municipality × day (× vintage)"
+    period: "2000-01 to 2026-09"
+    call: 'climate_daily(["precipitation", "tmax"], municipality=3304557)'
+    stores: [lake/climate_daily]
+
+  # ------------------------------------------------------------------------------------------------- codes
+  code_trees:
+    label: "Classification trees"
+    kind: codes
+    source: "DATASUS CID-10, SIGTAP Tabela Unificada, IBGE CBO 2002 and CNAE 2.0 (built by scripts/build_code_structures.py)"
+    what: >
+      ICD-10 (chapter to subcategory), SIGTAP (group to procedure), CBO 2002 and CNAE 2.0 as parent tables with code, label,
+      level and validity window; a model takes its hierarchy from `parent`.
+    grain: "code"
+    period: "current releases, with validity windows"
+    call: 'code_structure("ICD10")'
+    stores: [resources/code_trees.parquet]
+
+  code_lists:
+    label: "Ministry concept lists of codes"
+    kind: codes
+    source: "Ministério da Saúde (CID-BR-10, ICD-10 tabulation lists, avoidable causes, ICSAP, SIM's poorly useful codes)"
+    what: >
+      Named lists as membership tables (list, item, code): CID-BR-10, the tabulation lists 2 and 4, avoidable causes 0-4 and
+      5-74, ICSAP conditions and groups, SIM's typed "pouco úteis" codes.
+    grain: "list × item × code"
+    period: "as published"
+    call: 'code_structure("ICSAP-GROUPS")'
+    stores: [resources/code_lists.parquet]
+
+  code_attributes:
+    label: "ICD-10 code attributes"
+    kind: codes
+    source: "DATASUS CID-10 release V2008 (ds_descrcsv.htm); NCHS ICD-10 Part 11 Table G consistency edits"
+    what: >
+      Each ICD-10 code's dagger/asterisk role, sex restriction, cause-of-death fields (unlikely cause, underlying cause),
+      external-cause axes and the NCHS sex and age consistency edits, as the sources write them.
+    grain: "ICD-10 code"
+    period: "V2008 release"
+    call: "code_attributes()"
+    stores: [resources/code_attributes.parquet]
+
+  icd9_icd10_bridge:
+    label: "ICD-9 to ICD-10 comparability bridge"
+    kind: codes
+    source: "NCHS comparability study, US deaths of 1996 coded in both revisions"
+    what: >
+      For each ICD-9 code, the share of its deaths that fell in each ICD-10 category. The shares are the US study's, so the
+      bridge is for counts with that study's uncertainty, not a statement of what a code means.
+    grain: "ICD-9 code × ICD-10 category"
+    period: "1996 deaths"
+    call: 'code_bridge("ICD9-ICD10")'
+    stores: [resources/code_bridges.parquet]
+
+  code_conversions:
+    label: "Old-to-new code conversions"
+    kind: codes
+    source: "SIGTAP Tabela Unificada conversions; observed CNES Jul-Aug 2007 occupation conversion (CBO94 to CBO2002)"
+    what: >
+      Maps from a replaced classification to the one that replaced it (SIGTAP_H, SIGTAP_A to SIGTAP; CBO94 to CBO2002), with
+      a strength per candidate; a claim crosses only when it holds for 95% of the evidence.
+    grain: "old code × new code"
+    period: "SIGTAP and CBO94 eras"
+    call: "pegasus_data.view.bridged(codes, bridge)"
+    stores: [resources/bridges.parquet]
+
+  garbage_codes:
+    label: "ICD-10 garbage codes"
+    kind: codes
+    source: "Global Burden of Disease (GBD 2019) garbage-code supplements, curation/garbage_codes.yml"
+    what: >
+      Underlying causes that say little about the cause of death, as an ICD-10 code of the DATASUS release with its GBD level
+      (1 to 4) and package (the group it is redistributed with). One edition, as published.
+    grain: "ICD-10 code × edition"
+    period: "GBD 2019"
+    call: 'garbage_codes("GBD2019")'
+    stores: []
+
+  reference_tables:
+    label: "Standard classification tables"
+    kind: codes
+    source: "DATASUS (CID-10, SIGTAP), IBGE (CBO 2002, CNAE 2.0), and the bank and country code lists of DATASUS records"
+    what: >
+      One canonical code-to-label table each for ICD10, SIGTAP, CBO2002, CNAE20, BANCO_BR and NATURALIDADE (countries), shared
+      by every system that uses the classification; read at the vintage covering a year.
+    grain: "code"
+    period: "current releases"
+    call: 'load_reference("ICD10", year=2019)'
+    stores: [resources/icd10.parquet, resources/sigtap.parquet, resources/cbo2002.parquet, resources/cnae20.parquet, resources/banks.parquet, resources/countries.parquet]
+
+  label_pack:
+    label: "Code labels of every DATASUS codelist"
+    kind: codes
+    source: "DATASUS TabWin/TabNet .CNV and .DEF codelists, DBF lookups, SIGTAP, community transcriptions (per label's source)"
+    what: >
+      4.2 million code-range-to-label rows with code width and validity window, by system and codelist; joined by validity
+      window at query time and never frozen into the lake. An unmapped code stays undecoded.
+    grain: "system × codelist × code range × validity window"
+    period: "as each codelist's windows"
+    call: 'levels("SINAN-TOXG", "EVOLUCAO", ["1", "2", "9"]); translate(table, system="SIM")'
+    stores: [resources/labels.parquet]
+
+  cnes_cnpj_crosswalk:
+    label: "CNES to CNPJ crosswalk"
+    kind: codes
+    source: "DATASUS CADGER establishment registry, with CNPJ validation"
+    what: >
+      Identifier crosswalk from a CNES establishment code to its CNPJ, with source, confidence and validity window, used to
+      enrich a table; cardinality is checked and an ambiguity warns.
+    grain: "source code × target code × validity window"
+    period: "as the registry's windows"
+    call: 'query("SIH.RD", period=2023, geography="AL", enrich=[enrichment("CNPJ")])'
+    stores: [resources/labels_crosswalk.parquet]
+
+  # ------------------------------------------------------------------------------------------------- prices
+  price_index:
+    label: "Consumer price index (IPCA)"
+    kind: prices
+    source: "IBGE, SIDRA table 1737, variable 2266 (IPCA)"
+    what: >
+      Monthly index number (December 1993 = 100) or yearly mean, with a `factor` to express nominal reais in those of a
+      reference month; a year IBGE has not finished has a null index, never a mean of the months there are.
+    grain: "month or year"
+    period: "1993-12 to date"
+    call: 'price_index(reference="2025-12")'
+    stores: [lake/sidra, registries/sidra]
+
+  sidra_aggregates:
+    label: "IBGE SIDRA aggregates"
+    kind: index
+    source: "IBGE, SIDRA API (registry of tables and a long fact store)"
+    what: >
+      IBGE's aggregate tables as a registry, a request planner and a long fact store; a cell IBGE did not publish is a null
+      with its symbol. Population censuses (CENSO) and the price index are read from it.
+    grain: "table × variable × classification × locality × period"
+    period: "per table"
+    call: "Sidra()"
+    stores: [lake/sidra, registries/sidra]
+
+  # ------------------------------------------------------------------------------------------------- index
+  concept_index:
+    label: "Where a condition's codes are held"
+    kind: index
+    source: "Built from the roles of the lake's datasets, SIGTAP's compatibility tables and the declared treatments"
+    what: >
+      For ICD-10 codes (any level): the datasets whose records name them as condition with counts, the compatible SIGTAP
+      procedures, label matches, declared treatments and the specialised-component medicines authorised. A label match is the
+      weakest evidence and flagged.
+    grain: "ICD-10 code × dataset or procedure"
+    period: "latest lake year and latest SIGTAP export"
+    call: 'concept_index(["B58"])'
+    stores: [registries/concepts]
+
+  condition_codes:
+    label: "Condition codes of event-type records"
+    kind: index
+    source: "Counted from the lake's records where a role declares an event type on an ICD-10 codelist (SINAN ID_AGRAVO)"
+    what: >
+      Each event type's own condition codes in the latest lake year with their counts: the sources' map from event type to
+      ICD-10, never a curated one.
+    grain: "dataset × column × code"
+    period: "latest year held per dataset"
+    call: "condition_codes()"
+    stores: [registries/concepts]
+
+  procedure_compatibility:
+    label: "SIGTAP procedures allowed per ICD-10"
+    kind: index
+    source: "DATASUS SIGTAP Tabela Unificada, rl_procedimento_cid and rl_procedimento_registro"
+    what: >
+      Which procedures the Tabela Unificada allows under each ICD-10 code, with the procedure's name, and the instruments (BPA,
+      AIH, APAC, RAAS, e-SUS APS) each procedure may be recorded on; `can_record` says whether a dataset column can hold a procedure.
+    grain: "procedure × ICD-10 code (× instrument)"
+    period: "monthly export 2026-09"
+    call: "procedure_compatibility()"
+    stores: [registries/concepts]
+
+  medicines_dispensed:
+    label: "Specialised-component medicines authorised"
+    kind: index
+    source: "Ministério da Saúde, SIA APAC Medicamentos (AM), SIGTAP group 06"
+    what: >
+      The medicines authorised under an ICD-10 code: per SIGTAP medicine procedure, the APACs naming a held code as principal
+      diagnosis. APACs begun, not patients, doses or stock delivered; the basic component is BNAFAR's.
+    grain: "medicine procedure × ICD-10 code × year"
+    period: "latest year held (2025)"
+    call: 'dispensed(["B58"])'
+    stores: [registries/concepts]
+
+  declared_treatments:
+    label: "Declared treatments and capture populations"
+    kind: index
+    source: "Official documents cited in curation/treatments.yml and curation/captures.yml"
+    what: >
+      The medicines an official document gives for ICD-10 codes, read from the document and not from records; and the
+      capture populations (a list per system with its filter) that define who is a case.
+    grain: "ICD-10 code × treatment or population"
+    period: "per cited document"
+    call: 'treatments(["B58"])'
+    stores: []
+
+  role_tables:
+    label: "Records as normalised role columns"
+    kind: index
+    source: "Computed from a dataset's records through curation/roles"
+    what: >
+      One query's records as role-named columns with record identity, a role the scope lacks coming back null and named. National
+      whole-year tables are kept so a link does not relabel them.
+    grain: "record"
+    period: "as the dataset's years"
+    call: 'role_table("SIM-DO", period=2022, geography="BR")'
+    stores: [lake/roles]
+
+  extracted_records:
+    label: "Extracts of datasets larger than the disk"
+    kind: index
+    source: "A dataset's files read one by one and filtered (extract.py)"
+    what: >
+      The records of a dataset that a set of filters matched, kept so a dataset too large for the lake can be read as a
+      table. An extract holds only what its filters selected.
+    grain: "record"
+    period: "as the extract's filters"
+    call: 'extract_table("SIA-PA", "PA_CIDPRI", ["B58"], years=[2024])'
+    stores: [lake/extracts]
+
+  # ------------------------------------------------------------------------------------------------- register
+  establishment_registry:
+    label: "Health establishment and team registries"
+    kind: register
+    source: "DATASUS TabWin kits (TAB_CNES, TAB_SIA...): CADGER, HUF, INE_EQUIPE, CNPJ_BR tables"
+    what: >
+      Names of every health establishment (CADGER: 687,789 nationally), university hospitals (HUF), teams (INE_EQUIPE) and CNES to
+      CNPJ tables, built from the owning system's own kit. A read never downloads; a registry not built is not there. The
+      folder also holds the small CNES aggregates the context fields are read from.
+    grain: "establishment or team"
+    period: "the current kit"
+    call: "pegasus-data registries"
+    stores: [registries/CNES, registries/SIASUS]
+
+  # ------------------------------------------------------------------------------------------------- modelled
+  population_account:
+    label: "Population account by municipality, age, sex, race"
+    kind: modelled
+    source: "Estimated here from SIM, SINASC and the censuses (cohort-component account); IPEA AMC areas"
+    what: >
+      An estimate of the population, with 80% and 95% intervals, never in place of POPSVS. Version -6 holds every municipality
+      by single year of age, sex and race 1991-2030: 2000-2023 anchored at the censuses, 1991-1999 by comparable area (total
+      only) and 2024-2030 a forecast. Earlier versions are kept.
+    grain: "municipality × year × sex × age × race (version -2: place × five-year band)"
+    period: "1991-2030"
+    call: 'pegasus_data.modelled.read_modelled("population_account")'
+    stores: [lake/modelled/population_account]
+
+  population_without_private_coverage:
+    label: "Population without a private health plan"
+    kind: modelled
+    source: "Population account minus ANS medical-hospital plan links (December)"
+    what: >
+      Residents not insured by a private medical-hospital plan, by place, sex and age band, with intervals. Not SUS users:
+      plan holders use the SUS in part and a person without a plan may use private care. A lower bound on the uninsured, since
+      links are counted, not persons.
+    grain: "place × year × sex × five-year age band"
+    period: "2021-2023"
+    call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
+    stores: [lake/modelled/population_without_private_coverage]
+
+  race_confusion_infant:
+    label: "Race recording confusion, infant deaths"
+    kind: modelled
+    source: "Hierarchical multinomial model on linked SIM-SINASC pairs (link sim_infant_deaths_to_sinasc), fitted here"
+    what: >
+      P(race recorded on the death certificate | race declared at birth, state, age band at death), with 5%/95% posterior
+      bounds; the birth's race is the mother's declaration. Fitted on 2021 deaths, scored on 2022.
+    grain: "state × age band × declared race × recorded race"
+    period: "2021-2022"
+    call: 'pegasus_data.modelled.read_modelled("race_confusion_infant")'
+    stores: [lake/modelled/race_confusion_infant]
+
+  race_confusion_women:
+    label: "Race recording confusion, women's deaths"
+    kind: modelled
+    source: "The same model on linked SIM-SINASC mother pairs (link sim_women_deaths_to_sinasc_mothers), fitted here"
+    what: >
+      P(race recorded in SIM | race declared in SINASC) for women's deaths, by state and age band, with posterior bounds. Fitted
+      on deaths of 2015-2018, scored on 2019-2022.
+    grain: "state × age band × declared race × recorded race"
+    period: "2015-2022"
+    call: 'pegasus_data.modelled.read_modelled("race_confusion_women")'
+    stores: [lake/modelled/race_confusion_women]
+
+  race_reliability:
+    label: "Reliability flag of hospital race recording"
+    kind: modelled
+    source: "Rule applied to SIH-RD by hospital and month (quality.py)"
+    what: >
+      Adds `<race>_reliability` to an SIH table, judged per hospital-month: unreliable when code 04 is over half of admissions or
+      brown is under 1% while 04 is over 10%, suspect when 04 is 10-50%, too_few under the minimum, unplaced when no hospital or
+      month. Rows are kept, flagged.
+    grain: "hospital × month"
+    period: "as the SIH table's"
+    call: "race_reliability(table)"
+    stores: []
+
+  system_completeness:
+    label: "Death and birth registration completeness"
+    kind: modelled
+    source: "Ministério da Saúde/IBGE published ratio (IDB 2012, A.17 and A.18), extended by a logit model fitted here"
+    what: >
+      Share of events registered in SIM (deaths) and SINASC (births), by state of residence and year, with an interval. Published
+      to 2011 (the ratio is assumed 100% where no Busca Ativa survey was made), a model after; each row says its basis.
+    grain: "system × UF × year"
+    period: "2000-2023"
+    call: 'pegasus_data.modelled.read_modelled("system_completeness")'
+    stores: [lake/modelled/system_completeness, resources/published_coverage_idb2012.csv]
+
+  registration_completeness:
+    label: "Birth registration against the census"
+    kind: modelled
+    source: "Population account cohorts aged 0-4 and 5-9 at a census against the coverage-corrected census, by state"
+    what: >
+      Registered births over the census cohort born in the same years, by state and period, with an interval, net of the census
+      coverage assumed. A value above 1 means the census counted fewer children than were registered.
+    grain: "UF × system × five-year birth period"
+    period: "2000-2004 to 2017-2021"
+    call: 'pegasus_data.modelled.read_modelled("registration_completeness")'
+    stores: [lake/modelled/registration_completeness]
+
+# Folders of the data home not attributed to a dataset, field, link, intake source or product:
+#   registries/tse            perfil_eleitorado_2022.zip (TSE electorate profile 2022, one CSV per UF): the zip is held, but no
+#                             module, field or declaration reads it (STATUS 7: TSE needs a TSE-IBGE crosswalk); a product would
+#                             have no call.
+#   registries/pni            five months of 2023 of SI-PNI dose records aggregated (codes/, manifest.jsonl, dictionary PDFs):
+#                             a probe; nothing in src/ reads it, and DATA_SOURCES records the dose files as not landed.
+#   lake/records              PNI-DOSES, year=2023: the probe's doses by residence, with no reader or declaration.
+#   lake/demas                empty (the demas stage lands the API's endpoint description in the catalog, not here).
+#   registries/ibge_points/urb  (inside a claimed folder) IBGE's areas urbanizadas 2022: held, with no reader in src/.
+#   registries/sisagua        the shared dictionaries (PDFs) of the eight sisagua_* intake sources; its name is not a source key,
+#                             so the map lists it, though the sources declared in intake.yml read it.

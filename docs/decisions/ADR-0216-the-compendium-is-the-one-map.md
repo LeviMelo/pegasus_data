@@ -35,6 +35,14 @@ The author's agents kept missing variables and data. Measured on the home (evalu
    - **what the install holds:** rows per dataset, year and state, read by the lake's own layout, so intake data counts;
    - **the context fields** (`fields`), **roles and event types**, **links** with their stored runs, **aggregates** and
      **SIDRA's tables**;
+   - **products:** what is served by a function rather than `query()` or `load_field()`. These are the mobility layers,
+     geography and grids, address points, daily climate, code structures, the modelled tier, indices and registers.
+     - **Declared once** in `curation/products.yml`: what it is, the source, the grain, the period, the call and its stores.
+     - **Population series and geography memberships** are read as members from their own files (`populations.yml`,
+       `geography.yml`).
+   - **undescribed stores:** every folder of the home's `registries/` and `lake/` that no dataset, field, link, intake
+     source or product claims. A store is data someone may read. One that nothing describes cannot be reached through the
+     package, so the map lists it as a defect, not silence;
    - **operations:** every public function and command, with its help, read from `__init__` and the CLI.
 
    Each section is read through the loader the package itself uses, so the map says what a call would find.
@@ -65,5 +73,7 @@ The author's agents kept missing variables and data. Measured on the home (evalu
   run cannot settle by itself.
 - **The packaged seed** carried the 733 questions to every fresh install. It is rebuilt from the cleaned catalog
   (`scripts/build_resources.py`).
-- **Still separate.** `info`, `describe`, `explore` and `availability` keep their own readers of the catalog. Folding them
-  onto the map is the remainder of ARCHITECTURE §5's row.
+- **`info` reads its counts from the map:** files, years, columns described and rows held.
+  - **Before,** it counted columns from FTP headers alone and showed none for SRAG or SISAGUA.
+  - **Detail views, not second computations:** `explore` (the server's files and sizes, equal to the map's file counts),
+    `describe` (one column's codes) and `availability` (the function the map calls for field windows).

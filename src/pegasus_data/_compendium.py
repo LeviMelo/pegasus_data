@@ -335,6 +335,36 @@ CREATE TABLE sidra_tables (
   curated      TEXT                   -- the author's compendium group, if any
 );
 
+-- What the package serves besides datasets and fields (curation/products.yml): layers, geometries,
+-- reference tables, indices, modelled products; `held` of `stores` exist in this install.
+CREATE TABLE products (
+  id      TEXT PRIMARY KEY,
+  label   TEXT,
+  kind    TEXT,
+  source  TEXT,
+  what    TEXT,
+  grain   TEXT,
+  period  TEXT,
+  call    TEXT,
+  stores  TEXT,                       -- JSON: paths under the home (or resources/)
+  held    INTEGER,
+  stores_declared INTEGER
+);
+-- The members of the two product families declared in their own files: population series
+-- (populations.yml) and geography memberships (geography.yml).
+CREATE TABLE product_members (
+  product TEXT,
+  name    TEXT,
+  what    TEXT,
+  detail  TEXT,
+  call    TEXT
+);
+-- Store folders of the home that no dataset, field, link, intake source or product describes.
+CREATE TABLE unclaimed_stores (
+  path  TEXT PRIMARY KEY,
+  bytes INTEGER
+);
+
 -- What pegasus_data can DO: every public function and command.
 CREATE TABLE operations (
   name    TEXT,
@@ -348,7 +378,7 @@ CREATE TABLE operations (
 -- One row per thing a reader can look up, with the call that gets it: the
 -- index search() reads. `folded` is name and prose without accents or case.
 CREATE TABLE entries (
-  kind    TEXT,                       -- dataset | variable | field | role | event | link | aggregate | operation | sidra
+  kind    TEXT,                       -- dataset | variable | field | product | role | event | link | aggregate | operation | sidra
   system  TEXT,
   name    TEXT,
   title   TEXT,
@@ -629,6 +659,20 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
             got = json.loads(held or "[]")
             kept = f"held {got[0]}-{got[-1]}" if got else "none held"
             out.append(f"  [{source or '?'}] {name:<44} {str(label or '')[:52]:<52} {years or ''}  {kept}")
+
+        products = q("SELECT id, label, kind, source, period, call, held, stores_declared FROM products"
+                     " ORDER BY kind, id").fetchall()
+        out += ["", f"LAYERS, GEOMETRIES, REFERENCE TABLES AND MODELLED PRODUCTS ({len(products)}), by kind"]
+        for pid, label, kind, source, period, call, held, declared in products:
+            kept = "held" if declared and held == declared else (f"{held}/{declared} stores held" if declared else "")
+            out.append(f"  [{kind or '?'}] {pid:<34} {str(label or '')[:50]:<50} {period or '':<10} {call or ''}"
+                       f"  {kept}  ({str(source or '')[:60]})")
+        for product, names in q("SELECT product, GROUP_CONCAT(name, ', ') FROM product_members GROUP BY product").fetchall():
+            out.append(f"  {product} members: {names}")
+        unclaimed = q("SELECT path, bytes FROM unclaimed_stores ORDER BY bytes DESC").fetchall()
+        if unclaimed:
+            out += ["", f"UNDESCRIBED STORES ({len(unclaimed)}): data in the home that nothing above describes (a defect)"]
+            out += [f"  {path}  {bytes_ / 2**20:,.0f} MB" for path, bytes_ in unclaimed]
 
         links = q("SELECT name, left_dataset, right_dataset, runs_held, description FROM links ORDER BY name").fetchall()
         out += ["", f"RECORD LINKS ({len(links)}): pegasus-data link <name>"]
@@ -1099,7 +1143,9 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path) -> _H
     # the catalog's lake_partitions lists only what the FTP build wrote, and the
     # intake sources (SRAG, SISAGUA, SNGPC…) land beside it without a row there.
     # The folder is not always the system's name (SNGPC lands under lake/sngpc), so the family's own name decides.
-    systems = sorted(onto.systems, key=len, reverse=True)
+    # A family is named by the system as crawled (SIHSUS_RD_…), which the ontology knows as an alias of SIH.
+    systems = sorted({*onto.systems, *(a for n in onto.systems.values() for a in (n.crawled_as or ()))},
+                     key=len, reverse=True)
     parts: list[tuple[str, int, str, Path]] = []
     for system_dir in (p for p in lake_dir.iterdir() if p.is_dir()) if lake_dir.is_dir() else ():
         for family in system_dir.iterdir():
@@ -1198,11 +1244,79 @@ def _write_holdings(
     operations the package offers. Each is read through the loader the package itself uses, so the map says what a
     call would find."""
     _write_fields(db, cfg, report)
+    _write_products(db, cfg, report)
     _write_roles(db, report)
     _write_links(db, cfg, report)
     _write_aggregates(db, cfg, report)
     _write_sidra(db, cfg, report)
     _write_operations(db, report)
+
+
+def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
+    """What the package serves besides datasets and fields (``curation/products.yml``), with whether this install holds
+    each one's stores; the population series (``populations.yml``) and geography memberships (``geography.yml``) from
+    their own declarations; and every store folder of the home that nothing describes."""
+    from .config import curation_root
+    from .ontology import _read_yaml
+
+    base = curation_root()
+    declared = dict((_read_yaml(base / "products.yml") or {}).get("products") or {})
+    rows = []
+    claimed: set[str] = set()
+    for pid, spec in sorted(declared.items()):
+        stores = [str(s).strip("/") for s in (spec.get("stores") or [])]
+        claimed.update(stores)
+        held = [s for s in stores if (cfg.root / s).exists() or (Path(__file__).parent / s).exists()]
+        rows.append((pid, spec.get("label"), spec.get("kind"), spec.get("source"),
+                     str(spec.get("what") or "").strip() or None, spec.get("grain"),
+                     None if spec.get("period") is None else str(spec["period"]), spec.get("call"),
+                     json.dumps(stores), len(held), len(stores)))
+    db.executemany("INSERT INTO products VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
+    report.rows["products"] = len(rows)
+
+    members = []
+    for name, spec in sorted(((_read_yaml(base / "populations.yml") or {}).get("series") or {}).items()):
+        what = " ".join(str(spec.get(k) or "") for k in ("kind", "authority", "notes")).strip()
+        members.append(("population_series", name, what, spec.get("axes") and json.dumps(spec["axes"]),
+                        f'load_population(series="{name}")'))
+    geo = _read_yaml(base / "geography.yml") or {}
+    for section in ("classifications", "ibge_classifications", "tabnet_classifications", "ipea_classifications"):
+        for name, spec in sorted((geo.get(section) or {}).items()):
+            if isinstance(spec, dict):
+                members.append(("geography_memberships", name, str(spec.get("what") or "").strip()[:400] or None,
+                                spec.get("authority") or spec.get("source"), f'memberships("{name}")'))
+    db.executemany("INSERT INTO product_members VALUES (?,?,?,?,?)", members)
+    report.rows["product_members"] = len(members)
+
+    # Every store of the home is claimed by something that describes it; what is not is listed, a visible defect.
+    from .intake import declared_sources
+
+    sources = declared_sources()
+    claimed |= {f"registries/{name}" for name in sources}
+    # A family of intake sources (sisagua_*) keeps its shared documents under the family's name.
+    claimed |= {f"registries/{name.split('_', 1)[0]}" for name in sources if "_" in name}
+    claimed |= {"lake/fields", "lake/links", "lake/sidra", "registries/sidra"}
+    # A context field built from a source's raw files describes them (BR-DWGD, INMET, CNES under registries/<source>).
+    claimed |= {f"registries/{src}" for (src,) in db.execute("SELECT DISTINCT source FROM fields WHERE source IS NOT NULL")}
+    claimed = {c.lower() for c in claimed}  # a folder's case varies (registries/CNES, lake/sngpc)
+    unclaimed = []
+    for top in ("registries", "lake"):
+        folder = cfg.root / top
+        for path in sorted(folder.iterdir()) if folder.is_dir() else ():
+            rel = f"{top}/{path.name}"
+            if path.name.startswith("."):
+                continue  # the home's own working folders (.staging)
+            if top == "lake" and path.is_dir() and any(
+                    f.is_dir() and f.name.rpartition("_")[2].isalnum() and len(f.name.rpartition("_")[2]) == 10
+                    for f in path.iterdir()):
+                continue  # a system folder of record datasets, described by the ontology
+            low = rel.lower()
+            if any(c == low or c.startswith(low + "/") or low.startswith(c + "/") for c in claimed):
+                continue
+            size = sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) if path.is_dir() else path.stat().st_size
+            unclaimed.append((rel, size))
+    db.executemany("INSERT INTO unclaimed_stores VALUES (?,?)", unclaimed)
+    report.rows["unclaimed_stores"] = len(unclaimed)
 
 
 def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
@@ -1362,6 +1476,10 @@ def _write_entries(db: sqlite3.Connection, report: CompendiumReport) -> None:
         first = str(r[5] or "").split(", ")[0]
         add("variable", r[0], r[1], " — ".join(x for x in (r[2], r[3]) if x),
             f"{r[4] or ''} [in {r[5]}]", f'query("{first}", select=["{r[1]}"])')
+    for r in db.execute("SELECT id, label, kind, source, what, grain, period, call FROM products"):
+        add("product", r[2], r[0], r[1], f"{r[4] or ''} [{r[3] or ''}; {r[5] or ''}; {r[6] or ''}]", str(r[7] or ""))
+    for r in db.execute("SELECT product, name, what, detail, call FROM product_members"):
+        add("product", r[0], r[1], r[3], r[2], str(r[4]))
     for r in db.execute("SELECT name, label, what, unit, source, years FROM fields"):
         add("field", r[4], r[0], r[1], f"{r[2] or ''} [{r[3] or ''}; {r[5] or ''}]", f'load_field("{r[0]}")')
     for r in db.execute("SELECT role, GROUP_CONCAT(dataset || '.' || column_name, ', ') FROM roles GROUP BY role"):

@@ -14,8 +14,10 @@ queryable column documented.
 - **The map.** `compendium()` and its home copy (`_compendium.current`) describe every dataset `query()` serves, each
   column's query-time codelists and fill, the 122 context fields, roles, events, links, aggregates, SIDRA's tables and
   every function and command; `search()` reads it and returns the call for each hit, and `info()` with no target prints
-  its whole overview (366 lines) for a reader or agent to take in at once. Left: `info`, `describe`, `explore` and
-  `availability` still read the catalog themselves (ARCHITECTURE §5).
+  its whole overview (422 lines) for a reader or agent to take in at once, products included (`curation/products.yml`:
+  46 layers, geometries, reference tables, indices and modelled products). The map lists the home's undescribed stores:
+  `lake/records` (SI-PNI per-dose records 2023, 8.7 GB, an interrupted probe with no reader), `registries/tse` (no reader),
+  `registries/pni`, `lake/demas` (empty). SI-PNI per-dose records are the next source to integrate whole, or to drop.
 
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 

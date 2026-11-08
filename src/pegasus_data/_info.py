@@ -144,6 +144,11 @@ class Info:
             bits.append(f"{self.coverage['ufs']} UFs")
         if bits:
             out.append("  coverage: " + " \u00b7 ".join(bits))
+        if "rows_held" in self.coverage:
+            held = self.coverage.get("rows_held")
+            span = self.coverage.get("span_held")
+            out.append(f"  held in this install: {held:,} rows" + (f", {span}" if span else "") if held
+                       else "  held in this install: none (query() fetches what it needs)")
 
         # How the FILES are split, which is not the same as what the rows hold.
         axes = self.coverage.get("axes")
@@ -373,13 +378,27 @@ def info(
             )
         kind, node = found
         if kind == "system":
-            return _system(store, onto, node)
-        return _dataset(store, onto, node)
+            return _system(store, onto, node, cfg)
+        return _dataset(store, onto, node, cfg)
     finally:
         store.close()
 
 
 # ------------------------------------------------------------------ builders
+
+
+def _map_rows(settings: Settings, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
+    """Rows of the home's map (`_compendium.current`, rebuilt when stale)."""
+    import sqlite3
+
+    from ._compendium import current
+
+    con = sqlite3.connect(f"file:{current(settings=settings).as_posix()}?mode=ro", uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        return [dict(r) for r in con.execute(sql, params)]
+    finally:
+        con.close()
 
 
 def _overview(store: _Store, onto: Ontology, settings: Settings) -> Info:
@@ -425,46 +444,29 @@ def _overview(store: _Store, onto: Ontology, settings: Settings) -> Info:
     )
 
 
-def _system(store: _Store, onto: Ontology, node: SystemNode) -> Info:
+def _system(store: _Store, onto: Ontology, node: SystemNode, settings: Settings) -> Info:
     datasets = onto.datasets_of(node.code)
-    rows = store.query(
-        "SELECT system, series, SUM(file_count) AS files, MIN(year) AS y0, MAX(year) AS y1 "
-        "FROM strata WHERE system IS NOT NULL AND series IS NOT NULL GROUP BY 1, 2"
-    )
-    per_dataset: dict[str, dict[str, Any]] = {}
-    total = 0
-    y0 = y1 = None
-    for r in rows:
-        binding = onto.bind(str(r["system"]), str(r["series"]))
-        if binding.system != node.code or not binding.dataset:
-            continue
-        slot = per_dataset.setdefault(binding.dataset, {"files": 0, "y0": None, "y1": None})
-        slot["files"] += int(r["files"] or 0)
-        total += int(r["files"] or 0)
-        for key, val in (("y0", r["y0"]), ("y1", r["y1"])):
-            if val is None:
-                continue
-            cur = slot[key]
-            slot[key] = val if cur is None else (min(cur, val) if key == "y0" else max(cur, val))
-        if r["y0"] is not None:
-            y0 = r["y0"] if y0 is None else min(y0, r["y0"])
-        if r["y1"] is not None:
-            y1 = r["y1"] if y1 is None else max(y1, r["y1"])
-
+    # The counts come from the map (_compendium), computed once for every reader of them.
+    mapped = {r["code"]: r for r in _map_rows(
+        settings, "SELECT code, files, year_min, year_max, rows_held FROM datasets WHERE system = ?", (node.code,))}
     children = []
     for d in datasets:
-        got = per_dataset.get(d.code, {})
+        got = mapped.get(d.code, {})
         children.append(
             {
                 "code": d.code,
                 "official_name": d.official_name,
                 "translated_name": d.translated_name,
-                "files": got.get("files", 0),
-                "span": _span(got.get("y0"), got.get("y1")),
+                "files": got.get("files") or 0,
+                "span": _span(got.get("year_min"), got.get("year_max")),
+                "rows_held": got.get("rows_held") or 0,
                 "status": d.status,
             }
         )
     children.sort(key=lambda c: -int(c["files"] or 0))
+    total = sum(int(c["files"] or 0) for c in children)
+    years = [v for r in mapped.values() for v in (r.get("year_min"), r.get("year_max")) if v]
+    y0, y1 = (min(years), max(years)) if years else (None, None)
 
     notes = []
     if node.kind == "tooling":
@@ -484,13 +486,14 @@ def _system(store: _Store, onto: Ontology, node: SystemNode) -> Info:
             "status": node.status,
         },
         evidence={"crawled_as": list(node.crawled_as) or [node.code]},
-        coverage={"files": total, "span": _span(y0, y1), "datasets": len(datasets)},
+        coverage={"files": total, "span": _span(y0, y1), "datasets": len(datasets),
+                  "rows_held": sum(int(c["rows_held"] or 0) for c in children)},
         children=children,
         notes=notes,
     )
 
 
-def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
+def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Settings) -> Info:
     rows = store.query(
         "SELECT system, series, SUM(file_count) AS files, MIN(year) AS y0, MAX(year) AS y1 "
         "FROM strata WHERE system IS NOT NULL AND series IS NOT NULL GROUP BY 1, 2"
@@ -544,35 +547,15 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             )
     schemas = _generations(store, schemas)
 
-    # Documentation coverage, counted over the columns this dataset actually has.
-    described = total_cols = 0
-    if signatures:
-        marks = ",".join("?" for _ in signatures)
-        cols = {
-            str(r["field_name"])
-            for r in store.query(
-                f"SELECT DISTINCT field_name FROM schema_presence "
-                f"WHERE schema_signature IN ({marks})",
-                tuple(signatures),
-            )
-        }
-        total_cols = len(cols)
-        if cols and crawled_systems:
-            sys_marks = ",".join("?" for _ in crawled_systems)
-            done = {
-                str(r["field_name"])
-                for r in store.query(
-                    f"SELECT field_name FROM field_documentation "
-                    f"WHERE system IN ({sys_marks}) AND description IS NOT NULL "
-                    f"AND TRIM(description) <> '' "
-                    f"UNION "
-                    f"SELECT field_name FROM variable_docs "
-                    f"WHERE system IN ({sys_marks}) AND description IS NOT NULL "
-                    f"AND TRIM(description) <> ''",
-                    tuple(crawled_systems) * 2,
-                )
-            }
-            described = len({c.upper() for c in cols} & {c.upper() for c in done})  # a lake file may spell columns lower case
+    # Files, years and the columns described come from the map (_compendium), computed once for every reader: its
+    # columns include those only the lake or an intake declaration knows (SRAG, SISAGUA), which FTP headers miss.
+    mapped = next(iter(_map_rows(
+        settings, "SELECT files, year_min, year_max, columns_total, columns_described, rows_held, year_min_held,"
+                  " year_max_held FROM datasets WHERE code = ?", (node.code,))), {})
+    if mapped:
+        files, y0, y1 = int(mapped["files"] or 0), mapped["year_min"], mapped["year_max"]
+    total_cols = int(mapped.get("columns_total") or 0)
+    described = int(mapped.get("columns_described") or 0)
 
     # What one row IS, if it has been curated: the shipped declaration, the one `dataset_facts` returns.
     facts = dataset_facts(node.code)
@@ -619,6 +602,8 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             "files": files,
             "span": _span(y0, y1),
             "schema_generations": len(schemas),
+            "rows_held": mapped.get("rows_held") or 0,
+            "span_held": _span(mapped.get("year_min_held"), mapped.get("year_max_held")),
             "axes": axes.names if axes else [],
             "axes_detail": axes.as_dict() if axes else None,
         },
