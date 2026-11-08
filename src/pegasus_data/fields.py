@@ -108,9 +108,17 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     if chosen_brdwgd:
         report.update(_build_climate_brdwgd(settings, chosen_brdwgd, years))
     chosen_intake: dict[str, list[str]] = {}
+    from .intake import declared_sources
+
+    sources = declared_sources()
     for name, spec in declared.items():
-        if spec.get("source") == "intake" and (not names or name in names):
-            chosen_intake.setdefault(spec["intake"], []).append(name)
+        if spec.get("source") != "intake" or (names and name not in names):
+            continue
+        if not names and (sources.get(spec["intake"], {}).get("origin") or {}).get("on_request"):
+            # Too large to land whole (SI-PNI's doses): built only when named, with its years.
+            report[name] = {"skipped": f"source {spec['intake']} is declared on request: name the field and its years"}
+            continue
+        chosen_intake.setdefault(spec["intake"], []).append(name)
     if chosen_intake:
         from .intake import build_source
 

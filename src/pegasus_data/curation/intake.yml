@@ -15,6 +15,9 @@
 #                       `months` files the units by month, and each is the publication of its month: a query for one month opens
 #                       that month's part file. `years` and listed files are filed by year, whatever month column their records
 #                       hold (`period` below dates the records, never the publication)
+#   origin.on_request   `true` for a source too large to land whole (SI-PNI's doses, 200 GiB zipped): `pegasus-data fields`
+#                       with no names leaves its fields out, and a build of it must name its years. A pattern may name the
+#                       month as `{month}` (01-12) or `{month_pt}` (jan, fev, ..., dez: the Portal's spelling)
 #   origin.static       (api) `true` when the table cannot grow (a closed series, a code list): a piece that ended short of its
 #                       size is then final. Left out, such a piece is *incomplete* and read again on every run, because the
 #                       endpoint may have grown (the safe default: the cost is a request). Toggling it changes every unit's
@@ -2285,3 +2288,110 @@ sources:
           # its rows are margins, each summing to the total: read as one value per place, the total
           where: {margin: total}
           verified: {year: 2023, total: 47304632, municipalities: 5570, each_margin_sums_to_total: true, measured: 2026-10-04}
+
+  pni_doses:
+    system: PNI
+    series: DOSES
+    official_name: Doses aplicadas pelo Programa Nacional de Imunizações (SI-PNI / RNDS), microdados
+    translated_name: Vaccine doses applied (SI-PNI / RNDS), one record per dose
+    what: >
+      Every vaccine dose applied in Brazil and sent to the RNDS (the national health data network), 2020-01 on, one row per dose:
+      the vaccine, the dose, the date, the establishment that applied it and the person's sex, race/colour, age, municipality of
+      residence and a pseudonymous person code. Published by the Ministry as one zipped CSV per month on the Portal de Dados
+      Abertos; 200.1 GiB zipped for 2020-01 to 2026-09 (81 monthly files: 13.9 GiB for 2020, 54.5 for 2021, 37.0 for 2022, 23.7 for
+      2023, 24.3 for 2024, 25.4 for 2025, 21.2 for 2026 to September), about 1.47 billion rows and 128 GiB once landed
+      (five months of 2023 measured: 12.8 GiB zipped, 93.6 million rows, 8.2 GiB of Parquet, 2026-10-10).
+    one_row: "one vaccine dose applied to one person, as a document of the RNDS (co_documento), with its vaccine, dose, date and establishment"
+    unit_of_analysis: dose
+    known_biases: >
+      The RNDS receives what the vaccinating systems send (e-SUS APS, SI-PNI, state systems): a dose given but never
+      transmitted is absent, and the coverage of transmission grew over 2020-2021. A document can be replaced or altered
+      (co_troca_documento, st_documento): only `final` documents are doses. The Ministry rewrites the published months
+      (2023's files were last modified in August 2026; September 2026's on 2026-11-08), so a month landed is a version of it.
+      The person code is a pseudonymous hash: doses of one person link within the files, never to another system.
+    gotchas:
+      - "Too large to land whole on most machines (128 GiB of Parquet projected): it is declared on request, so `pegasus-data fields` with no names leaves it out, and a build names the years (pegasus-data fields vaccine_doses_residence --years 2023)."
+      - "Months not yet published answer HTTP 403 on the bucket (October and November 2026, read 2026-11-08), a recorded gap and not an absence."
+      - "nu_idade_paciente holds -1, 120 and 220 (DATA_SOURCES, PNI); co_vacina_fabricante is mostly empty and does not pair with ds_nome."
+      - "The code lists are the files' own descriptor columns beside each code (sg_imunobiologico for co_vacina, ds_tipo_dose for co_dose_vacina): read with label_from, never from a separate table."
+    use: context
+    citation: Portal de Dados Abertos do SUS, PNI/csv/vacinacao_<mês>_<ano>_csv.zip (SI-PNI / RNDS, Ministério da Saúde)
+    dictionary: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/dbbni/Dicionario_tb_ria_rotina.pdf
+    origin:
+      kind: files
+      format: csv
+      csv: {sep: ";", encoding: latin1}
+      pattern: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/PNI/csv/vacinacao_{month_pt}_{year}_csv.zip
+      months: 202001-202609
+      on_request: true
+    columns:
+      co_documento: {role: code of the document in the RNDS (every FHIR document entering the RNDS receives one), type: code}
+      co_paciente: {role: pseudonymous code of the patient assigned in the RNDS (a hash; a personal identifier kept as filed), type: code}
+      tp_sexo_paciente: {role: biological sex of the patient (F, M, I), type: code}
+      co_raca_cor_paciente: {role: code of the patient's race/colour, type: code, label_from: no_raca_cor_paciente}
+      no_raca_cor_paciente: {role: name of the patient's race/colour, type: label}
+      co_municipio_paciente: {role: IBGE code of the patient's municipality of residence (6 digits), type: municipality}
+      co_pais_paciente: {role: code of the patient's country of residence, type: code, label_from: no_pais_paciente}
+      no_municipio_paciente: {role: name of the patient's municipality of residence, type: label}
+      no_pais_paciente: {role: name of the patient's country of residence, type: label}
+      sg_uf_paciente: {role: abbreviation of the patient's state, type: code}
+      nu_cep_paciente: {role: first five digits of the patient's CEP (postal code), type: code}
+      ds_nacionalidade_paciente: {role: nationality of the patient (B Brazilian, E foreign, as filed), type: code}
+      no_etnia_indigena_paciente: {role: name of the patient's indigenous ethnicity, type: label}
+      co_etnia_indigena_paciente: {role: code of the patient's indigenous ethnicity, type: code, label_from: no_etnia_indigena_paciente}
+      co_cnes_estabelecimento: {role: CNES code of the establishment that applied the dose, type: code}
+      no_razao_social_estabelecimento: {role: registered (legal) name of the establishment in the CNES, type: label}
+      no_fantasia_estalecimento: {role: trade name of the establishment (the header's spelling), type: label}
+      co_municipio_estabelecimento: {role: IBGE code of the establishment's municipality, type: municipality}
+      no_municipio_estabelecimento: {role: name of the establishment's municipality, type: label}
+      sg_uf_estabelecimento: {role: abbreviation of the establishment's state, type: code}
+      co_troca_documento: {role: code of the document this one replaced or altered, type: code}
+      co_vacina: {role: code of the vaccine applied, type: code, label_from: sg_imunobiologico}
+      sg_imunobiologico: {role: abbreviation of the vaccine applied, type: label}
+      dt_vacina: {role: date of vaccination, type: date, format: "%Y-%m-%d"}
+      co_dose_vacina: {role: code of the dose applied, type: code, label_from: ds_tipo_dose}
+      ds_tipo_dose: {role: description of the dose applied (1ª Dose, Reforço...), type: label}
+      co_local_aplicacao: {role: code of the body site of application, type: code, label_from: ds_local_aplicacao}
+      ds_local_aplicacao: {role: description of the body site of application, type: label}
+      co_via_administracao: {role: code of the route of administration, type: code, label_from: ds_via_administracao}
+      ds_via_administracao: {role: description of the route of administration, type: label}
+      co_lote_vacina: {role: lot code of the vaccine, type: code}
+      ds_vacina_fabricante: {role: manufacturer of the vaccine applied, type: label}
+      dt_entrada_rnds: {role: date the record entered the RNDS, type: date, format: "%Y-%m-%d"}
+      co_sistema_origem: {role: code of the system the record came from, type: code, label_from: ds_sistema_origem}
+      ds_sistema_origem: {role: description of the system the record came from (ESUS APS, SI-PNI...), type: label}
+      st_documento: {role: status of the document (final, or replaced or altered), type: code}
+      co_estrategia_vacinacao: {role: code of the vaccination strategy, type: code, label_from: no_estrategia}
+      no_estrategia: {role: description of the vaccination strategy (Rotina, Campanha...), type: label}
+      co_origem_registro: {role: code marking the record as a transcription, type: code, label_from: ds_origem_registro}
+      ds_origem_registro: {role: description marking the record as a transcription, type: label}
+      co_vacina_grupo_atendimento: {role: code of the care group of the vaccination, type: code, label_from: no_grupo_atendimento}
+      no_grupo_atendimento: {role: description of the care group of the vaccination, type: label}
+      co_categoria: {role: code of the category of the care group, type: code, label_from: ds_categoria}
+      ds_categoria: {role: description of the category of the care group, type: label}
+      co_vacina_fabricante: {role: code of the manufacturer of the vaccine (mostly empty), type: code}
+      ds_nome: {role: full name of the vaccine (immunobiological), type: label}
+      ds_condicao_maternal: {role: description of the patient's maternal condition (pregnant, postpartum), type: label}
+      co_tipo_estabelecimento: {role: code of the establishment's type in the CNES, type: code, label_from: ds_tipo_estabelecimento}
+      ds_tipo_estabelecimento: {role: description of the establishment's type in the CNES, type: label}
+      co_natureza_estabelecimento: {role: code of the establishment's nature in the CNES, type: code, label_from: ds_natureza_estabelecimento}
+      ds_natureza_estabelecimento: {role: description of the establishment's nature in the CNES, type: label}
+      nu_idade_paciente: {role: age of the patient in years at the dose (holds -1, 120 and 220), type: integer}
+      co_condicao_maternal: {role: code of the patient's maternal condition, type: code, label_from: ds_condicao_maternal}
+      no_uf_paciente: {role: name of the patient's state, type: label}
+      no_uf_estabelecimento: {role: name of the establishment's state, type: label}
+      dt_deletado_rnds: {role: date the record was altered or deleted in the system, type: date, format: "%Y-%m-%d"}
+    place: {column: co_municipio_paciente, type: municipality}
+    period: {type: date, column: dt_vacina, format: "%Y-%m-%d", grain: month, valid: 2020-2026}
+    fields:
+      vaccine_doses_residence:
+        label: "Vaccine doses by residence and vaccine"
+        measure: count
+        where: {st_documento: [final]}
+        by: [co_vacina, co_dose_vacina]
+        unit: doses
+        grain: month
+        law: sum
+        what: >
+          Doses applied (final RNDS documents), by the person's municipality of residence, month of vaccination, vaccine and
+          dose.

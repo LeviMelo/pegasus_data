@@ -784,6 +784,10 @@ def _span(text: Any) -> list[int]:
     return out
 
 
+#: The month as the Portal de Dados Abertos spells it in file names (PNI/csv/vacinacao_jan_2023_csv.zip): `{month_pt}`.
+MONTHS_PT = ("jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez")
+
+
 def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]]:
     """The pieces a files origin is read in: each file (with the year it stands for, when the declaration states one).
 
@@ -806,7 +810,8 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
             for combination in itertools.product(*across.values()):
                 axes = dict(zip(across, map(str, combination), strict=True))
                 out.append({"key": "-".join([str(period), *axes.values()]),
-                            "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}", **axes), "year": year,
+                            "url": origin["pattern"].format(year=year, period=period, month=f"{period % 100:02d}",
+                                                            month_pt=MONTHS_PT[period % 100 - 1], **axes), "year": year,
                             "month": None if origin.get("years") else period})
     for unit in out:
         unit["path"] = unit["url"]
@@ -1321,6 +1326,8 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
     ``fetch=False`` downloads nothing: units whose records the lake holds are derived again where the declaration changed,
     the others are reported ``not_held``."""
     spec = declared_sources()[source]
+    if _origin(spec).get("on_request") and not years:
+        raise ValueError(f"{source} is declared on request (too large to land whole): name the years to build")
     fields = [f for f in spec.get("fields") or {} if not names or f in names]
     report: dict[str, Any] = {"units": {}}
     if _origin(spec)["kind"] == "api":
