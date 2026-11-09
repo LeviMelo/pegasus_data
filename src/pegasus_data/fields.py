@@ -95,7 +95,8 @@ def _classification(spec: dict[str, Any]) -> str:
 
 
 def build_fields(settings: Any, names: list[str] | None = None, years: list[int] | None = None) -> dict[str, Any]:
-    """Read each declared field from its source and write it to ``<lake>/fields/<name>/``."""
+    """Make each declared field readable by `load_field`: fetch or land what its cube or view reads (ADR-0217). Only the
+    climate bases (raw observations) are written under ``<lake>/fields/``; every other field is served, never copied."""
     report: dict[str, Any] = {}
     sidra = None
     declared = declared_fields()
@@ -270,7 +271,7 @@ def _landed(source: dict[str, Any]) -> bool:
 def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,
                         settings: Any) -> pa.Table:
     """An intake field read from its records cube, in the field's columns: (municipality, [month], its strata, value,
-    municipality7, status, unit, source, year), as `intake._derive` wrote them (evaluation 2026-11-09-the-cube-stage-1).
+    municipality7, status, unit, source, year), as the removed `intake._derive` wrote them (evaluation 2026-11-09-the-cube-stage-1).
     An event source's events follow its event type (SRAG's notifications filed in two yearly files count once)."""
     import pyarrow.compute as pc
 

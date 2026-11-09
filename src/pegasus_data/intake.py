@@ -14,8 +14,8 @@ does everything else, so a source adds no code:
   ontology folds in its system and series, and the curation loader folds in its column
   documentation (``semantics.curation``), so ``query("FA-HUM")`` and ``info()`` serve it like any FTP dataset. Where a source
   is itself an aggregate (a DEMAS endpoint that serves counts) the aggregate is the record.
-* **Fields second.** The context fields (``fields:`` of the declaration) are sums and counts by place and period *derived
-  from the lake records* and written to ``<lake>/fields/<field>/year=Y/``, where `fields.load_field` reads them, so
+* **Fields second.** The context fields (``fields:`` of the declaration) are sums and counts by place and period *read
+  from the lake records* by `fields.load_field` as a records cube (ADR-0217; nothing is copied to ``<lake>/fields``), so
   ``contexts: auto`` finds them. A place that is not an IBGE municipality of the universe is *unallocated* (kept in the
   records, left out of the field, counted); a row without a date is year 0 (*undated*); an absent (place, period) is absent,
   not zero.
@@ -93,7 +93,7 @@ def _with_populations(fields: dict[str, Any]) -> dict[str, Any]:
     """A field that declares an ``outcome`` beside its ``where`` counts the records of its population (``where``) with
     the outcome; its population is a field of its own, ``<name>_assessed``, named as its denominator (``over``): samples
     with E. coli present over the samples assessed for E. coli, never over every analysis. The field keeps its ``outcome``
-    and `_derive` counts it over the population's own groups, so it has a row (0 where none had the outcome) wherever its
+    and the records cube counts it over the population's own groups, so it has a row (0 where none had the outcome) wherever its
     population has one: a place-month with samples and no positive is a true zero, one without samples is missing."""
     out: dict[str, Any] = {}
     for name, fs in fields.items():
@@ -125,7 +125,7 @@ def intake_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
                           "source": "intake", "intake": name, "unit": fs.get("unit", ""), "what": fs.get("what", spec.get("what", "")),
                           **({"label": fs["label"]} if fs.get("label") else {}),
                           "years": str(years), **({"over": fs["over"]} if fs.get("over") else {}),
-                          # its strata as `load_field` names them (`_derive`)
+                          # its strata as `load_field` names them (`cubes`)
                           **({"by": [alias for _, alias in _strata(fs)]} if fs.get("by") or fs.get("unpivot") else {})}
     return out
 
@@ -379,10 +379,6 @@ def _settings(root: str | Path | None = None) -> Any:
 
 def _ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
-
-
-def _sql_text(value: Any) -> str:
-    return "'" + str(value).replace("'", "''") + "'"
 
 
 def _duck(settings: Any, spec: dict[str, Any]) -> Any:
@@ -1309,118 +1305,11 @@ def _strata(fs: dict[str, Any]) -> list[tuple[str | None, str]]:
     return out
 
 
-def _derive(settings: Any, spec: dict[str, Any], names: list[str], years: list[int] | None) -> dict[str, Any]:
-    """The declared fields, derived from the lake records of the source: counts and sums by place and period."""
-    system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
-    pattern = (Path(settings.lake_dir) / system / f"{system}_{series}_*" / "schema_signature=*" / "uf=BR" / "year=*" / "*.parquet").as_posix()
-    declared = {c.upper(): (d or {}) for c, d in (spec.get("columns") or {}).items()}
-    place, period = spec.get("place") or {}, spec.get("period") or {"type": "file"}
-    by_place = place.get("type") in ("municipality", "municipality_name")
-    place_sql = "_MUNICIPALITY" if by_place else (_ident("_" + (place.get("as") or place["column"]).upper()) if place else None)
-    place_name = "municipality" if by_place else ((place.get("as") or place.get("column")) if place else None)
-    valid = _span(period["valid"]) if period.get("valid") else None
-
-    def raw_name(column: str) -> str:
-        return _ident(column.upper() + ("__RAW" if declared.get(column.upper(), {}).get("type") in TYPED else ""))
-
-    def numeric(column: str, field: str) -> str:
-        if declared.get(column.upper(), {}).get("type") not in ("number", "result", "integer"):
-            raise ValueError(f"field {field}: sum of {column} needs a column declared `type: number`, `integer` or `result`")
-        return _ident(column.upper())
-
-    def conditions(wanted: dict[str, Any]) -> list[str]:
-        # a list: the raw value is one of them; {prefix: [...]}: it starts with one; {above / below / at_least / at_most: x}:
-        # the typed value against a bound (a potability limit: turbidity above 5 uT)
-        out = []
-        for column, values in wanted.items():
-            if isinstance(values, dict):
-                typed_col = _ident(column.upper())
-                bounds = {"above": ">", "below": "<", "at_least": ">=", "at_most": "<="}
-                parts = [f"{typed_col} {op} {float(values[k])}" for k, op in bounds.items() if k in values]
-                parts += [" OR ".join(f"starts_with({raw_name(column)}, {str(v)!r})" for v in values.get("prefix") or [])]
-                out.append("(" + " AND ".join(f"({x})" for x in parts if x) + ")")
-            else:
-                out.append(f"{raw_name(column)} IN ({','.join(repr(str(v)) for v in values)})")
-        return out
-
-    con = _duck(settings, spec)
-    report: dict[str, Any] = {}
-    try:
-        con.execute(f"CREATE VIEW rec AS SELECT * FROM read_parquet('{pattern}', union_by_name=true, hive_partitioning=true)")
-        for name in names:
-            fs = spec["fields"][name]
-            keys = ([f"{place_sql} AS {place_name}"] if place else []) + ["year"] + (["_MONTH AS month"] if period.get("grain") == "month" else [])
-            keys += [f"{raw_name(c)} AS {_ident(alias)}" for c, alias in _strata(fs) if c]
-            where = ["year > 0"] + ([f"{place_sql} IS NOT NULL"] if place else [])
-            if valid:
-                where.append(f"year BETWEEN {valid[0]} AND {valid[-1]}")
-            if years:
-                where.append(f"year IN ({','.join(str(int(y)) for y in years)})")
-            where += conditions(fs.get("where") or {})
-            filtered = f"FROM rec WHERE {' AND '.join(where)}"
-            if fs.get("rows"):
-                # one row per record, the declared columns of the lake records under the declared names (an event register read
-                # as events: the field is a view of the records, nothing is summed)
-                table = con.execute(f"SELECT {', '.join(f'{_ident(col)} AS {_ident(alias)}' for alias, col in fs['rows'].items())}, year {filtered}").fetch_arrow_table()
-                report[name] = _write_rows(settings, name, table, years)
-                continue
-            if fs.get("unpivot"):
-                # a source that files its strata as columns (enrolments by sex, by race, by age band): one row per column, the
-                # two keys named by `as` ([margin, category]) and the column's own as declared in `columns`
-                group = ", ".join(str(i + 1) for i in range(len(keys)))
-                for column, labels in fs["unpivot"]["columns"].items():
-                    if not all(isinstance(v, str) for v in labels):      # YAML reads 0_3 as the number 3
-                        raise ValueError(f"field {name}: the labels of {column} must be text (quote them): {labels}")
-                parts = [f"SELECT {', '.join(keys)}, {', '.join(f'{_sql_text(v)} AS {_ident(k)}' for k, v in zip(fs['unpivot']['as'], labels, strict=True))}, "
-                         f"sum({numeric(column, name)}) AS value {filtered} GROUP BY {group}"
-                         for column, labels in fs["unpivot"]["columns"].items()]
-                table = con.execute(" UNION ALL ".join(parts)).fetch_arrow_table()
-            else:
-                measure = fs["measure"]
-                value = "count(*)" if measure == "count" else f"sum({numeric(measure['sum'], name)})"
-                if fs.get("outcome"):
-                    # the population's rows that have the outcome: every (place, month) of the population has a row, 0 where
-                    # none of its samples did (a true zero), while a place-month without samples has none (missing)
-                    value = f"count(*) FILTER (WHERE {' AND '.join(conditions(fs['outcome']))})"
-                group = ", ".join(str(i + 1) for i in range(len(keys)))
-                table = con.execute(f"SELECT {', '.join(keys)}, {value} AS value {filtered} GROUP BY {group}").fetch_arrow_table()
-            table = table.set_column(table.schema.get_field_index("value"), "value", pc.cast(table.column("value"), pa.float64()))
-            report[name] = _write_field(spec, settings, name, fs, table, place_name, years)
-    finally:
-        con.close()
-    return report
-
-
-def _write_rows(settings: Any, name: str, table: pa.Table, years: list[int] | None) -> dict[str, Any]:
-    """A field of records (``rows``): the table split by its ``year`` (`fields._write_by_year`); a build of every year
-    replaces the field."""
-    from .fields import _write_by_year
-
-    return {"rows": _write_by_year(table, name, settings, prune=not years)}
-
-
-def _write_field(spec: dict[str, Any], settings: Any, name: str, fs: dict[str, Any], table: pa.Table, place_name: str | None, years: list[int] | None) -> dict[str, Any]:
-    from .fields import _write_by_year
-    from .geography import municipalities
-
-    n = table.num_rows
-    if place_name == "municipality":
-        universe = municipalities()
-        table = table.append_column("municipality7", pa.array([universe[c]["code7"] for c in table.column("municipality").to_pylist()], pa.string()))
-    table = table.append_column("status", pa.array(["ok"] * n, pa.string()))
-    table = table.append_column("unit", pa.array([str(fs.get("unit", ""))] * n, pa.string()))
-    table = table.append_column("source", pa.array([str(spec.get("citation", ""))] * n, pa.string()))
-    sums = table.group_by("year").aggregate([("value", "sum")])
-    by_year = {int(y): v for y, v in zip(sums.column("year").to_pylist(), sums.column("value_sum").to_pylist(), strict=True)}
-    _write_by_year(table, name, settings, prune=not years)
-    return {"rows": n, "total": sum(by_year.values()), "by_year": dict(sorted(by_year.items()))}
-
-
 def build_source(settings: Any, source: str, names: list[str] | None = None, years: list[int] | None = None, refresh: bool = False,
                  fetch: bool = True) -> dict[str, Any]:
-    """Land a declared source's records in the lake and derive its fields from them. Returns, per field, its rows, total and
+    """Land a declared source's records in the lake and read its fields from them. Returns, per field, its rows, total and
     totals by year, and under ``units`` what each file or API unit held and what was left out of the fields and why.
-    ``fetch=False`` downloads nothing: units whose records the lake holds are derived again where the declaration changed,
+    ``fetch=False`` downloads nothing: units whose records the lake holds are read again where the declaration changed,
     the others are reported ``not_held``."""
     spec = declared_sources()[source]
     if _origin(spec).get("on_request") and not years:
@@ -1449,18 +1338,17 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
             unparsed[column] = unparsed.get(column, 0) + n
     if unparsed:
         report["unparsed"] = unparsed
-    # A field that is a records cube is built as one (kept under lake/cubes by its data's fingerprint), not copied
-    # into lake/fields (ADR-0217); the others are still derived here.
+    # Every intake field is a records cube or a view of the landed records (ADR-0217): building it is reading it once
+    # through `load_field`, which keeps the cube under lake/cubes by its data's fingerprint; nothing is copied to lake/fields.
     from .fields import declared_fields, intake_cube, load_field, margins_view, rows_view
 
     declared = declared_fields()
-    served = [f for f in fields if f in declared
-              and any(view(f, declared[f]) is not None for view in (intake_cube, rows_view, margins_view))]
-    for name in served:
+    for name in fields:
+        if name not in declared or all(view(name, declared[name]) is None for view in (intake_cube, rows_view, margins_view)):
+            raise ValueError(f"{source}.{name}: an intake field that is neither a records cube nor a view of the records")
         table = load_field(name, years=years, settings=settings)
         total = float(pc.sum(table.column("value")).as_py() or 0) if "value" in table.column_names else None
         report[name] = {"rows": table.num_rows, "total": total, "cube": True}
-    report.update(_derive(settings, spec, [f for f in fields if f not in served], years))
     return report
 
 

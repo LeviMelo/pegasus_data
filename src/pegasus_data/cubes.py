@@ -39,7 +39,7 @@ __all__ = ["STATUSES", "cube", "cube_sources"]
 STATUSES = ("value", "zero", "not_applicable", "not_available", "suppressed", "empty", "unknown_symbol", "incomplete")
 #: The statuses that carry a number.
 NUMBERED = ("value", "zero")
-#: A bound of a `where` on a typed number, and its comparison (the intake's grammar: `intake._derive`'s conditions).
+#: A bound of a `where` on a typed number, and its comparison (the intake's `where` grammar).
 BOUNDS = {"above": "greater", "below": "less", "at_least": "greater_equal", "at_most": "less_equal"}
 #: A records cube's measure written ``<transform>:<column>``: `count` the rows holding a number, `sumsq` the squares'
 #: sum, `sumlog` / `sumsqlog` the sum of the logs and of their squares (positive numbers), `countpos` how many are positive.
