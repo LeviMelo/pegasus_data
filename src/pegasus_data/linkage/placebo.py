@@ -5,11 +5,14 @@ carries the person's identity (a birth date, a death day) to a value the same pe
 every pair it still finds is a coincidence. The count estimates the false pairs among the real ones only if two things
 hold, and both are decided here, once, for the deterministic passes and the probabilistic blocks alike:
 
-1. **The moved value stays inside the partner's own range** (`rotation`). A date moved by a fixed number of days leaves
-   the partner side's period for the records near its end, and out of it meets no partner whatever the chance of a
-   coincidence is: a flat +400 days left 2.1-3.1% of the neonatal admissions a partner-side birth on the shifted day
-   (+7 days: 99.8%), so the date blocks had no placebo and the false-match rate read 1% by construction (2026-10-14).
-   The displacement goes round the range (`lo + (v - lo + k) mod span`), by whole weeks for a date: the weekday is kept.
+1. **The moved value stays where both sides hold values** (`shared_range`, `rotation`). A date moved by a fixed number
+   of days leaves the partner side's period for the records near its end, and out of it meets no partner whatever the
+   chance of a coincidence is: a flat +400 days left 2.1-3.1% of the neonatal admissions a partner-side birth on the
+   shifted day (+7 days: 99.8%), so the date blocks had no placebo and the false-match rate read 1% by construction
+   (2026-10-14). The displacement goes round the range (`lo + (v - lo + k) mod span`), by whole weeks for a date: the
+   weekday is kept. The range is the partner's AND the left side's: national SIH 2022 holds admissions from 2008 (11.7
+   of 12.5 million in 2022), so a 2022 birth turned half a year round 2008-2022 left the year for 2008, where nothing is,
+   and the delivery link's placebo found half its coincidences (2026-11-09, OQ 97).
 2. **The control must reach** what the real keys reach (`key_reach`, `block_report`): a placebo that finds a partner
    value for far fewer records than the real value does, or too few coincidences for a block, measured no chance at all,
    and its zero reads as "no false pairs". Such a run is not viable (`engine.judge`).
@@ -48,6 +51,18 @@ def partner_range(con: duckdb.DuckDBPyConnection, roles: Iterable[str], view: st
     union = " UNION ALL ".join(f"SELECT {quote(c)} AS v FROM {view}" for c in roles)
     lo, hi = con.execute(f"SELECT min(v), max(v) FROM ({union})").fetchone() or (None, None)
     return None if lo is None else (lo, hi)
+
+
+def shared_range(con: duckdb.DuckDBPyConnection, left_roles: Iterable[str], right_roles: Iterable[str],
+                 left: str = "L", right: str = "R") -> tuple[Any, Any] | None:
+    """The range a moved value must stay inside: the overlap of the left values' range and the partner's (each from
+    `partner_range`), so a moved value lands where the partner holds values as densely as the real one did. None when
+    either side holds none or they do not overlap."""
+    ours, theirs = partner_range(con, left_roles, left), partner_range(con, right_roles, right)
+    if ours is None or theirs is None:
+        return None
+    lo, hi = max(ours[0], theirs[0]), min(ours[1], theirs[1])
+    return (lo, hi) if lo <= hi else None
 
 
 def rotation(role: str, within: tuple[Any, Any] | None, wanted: int) -> str | None:
@@ -126,4 +141,5 @@ def block_report(blocks: Any, real: list[tuple[int, int]], control: list[tuple[i
 
 
 __all__ = ["BLOCK_MIN_EXPECTED", "BLOCK_REACH", "KEY_REACH", "PLACEBO_DAYS", "block_report", "key_failures", "key_reach",
+           "shared_range",
            "moved_sql", "partner_range", "rotation"]

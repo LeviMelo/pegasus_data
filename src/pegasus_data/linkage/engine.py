@@ -507,10 +507,10 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     con = connect()
     n_left = _prepare(con, "L", left, spec.left)
     n_right = _prepare(con, "R", right, spec.right)
-    # the control: each key pairing the control role moves round the partner's own range (`placebo.rotation`)
+    # the control: each key pairing the control role moves round the range both sides hold (`placebo.shared_range`)
     control_keys = sorted({k for p in spec.passes if not why_skipped[p.name] for k in p.keys if k[0] == spec.control_role})
     moved = {key: sql for key in control_keys
-             if (sql := placebo.rotation(key[0], placebo.partner_range(con, [key[1]]), spec.control_shift_days))}
+             if (sql := placebo.rotation(key[0], placebo.shared_range(con, [key[0]], [key[1]]), spec.control_shift_days))}
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
     kept_controls: list[pa.Table] = []      # a cohort's control pairs, kept to read the false-match rate by horizon

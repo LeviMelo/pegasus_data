@@ -167,8 +167,9 @@ class ProbabilisticResult(Report):
 
 def _placebo_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, left_dates: list[str]
                     ) -> dict[str, tuple[Any, Any]]:
-    """For each left date role, the first and last date of the partner side's roles it is compared or blocked with (an
-    interval's start and end both): the period a placebo date has to stay inside to meet a partner. A role the
+    """For each left date role, the overlap of its own dates and the partner side's roles it is compared or blocked with
+    (an interval's start and end both; `placebo.shared_range`): the period a placebo date has to stay inside to meet a
+    partner as often as a real one. A role the
     comparisons and blocks do not pair (the control role alone) is placed inside its own side's period."""
     partners: dict[str, set[str]] = {role: set() for role in left_dates}
     for c in prob.compare:
@@ -178,7 +179,7 @@ def _placebo_ranges(con: duckdb.DuckDBPyConnection, prob: ProbabilisticSpec, lef
         for left, right in block:
             if left in partners:
                 partners[left].update(right.split(".."))
-    found = {role: placebo.partner_range(con, sorted(rights), "R") if rights else placebo.partner_range(con, [role], "L")
+    found = {role: placebo.shared_range(con, [role], sorted(rights)) if rights else placebo.partner_range(con, [role], "L")
              for role, rights in partners.items()}
     return {role: within for role, within in found.items() if within is not None}
 

@@ -29,5 +29,9 @@ changed number, so each change is judged by whether every output it touches is e
   readers of the parts' paths double-counted, and the study modules that did are moved onto `cube()`.
 - **ANS was never landed.** `sus_dependent._unplaced` reads `lake/ANS/…`, which did not exist, so the model could not be
   rebuilt. The source is now landing (2 GB of December files).
-- **Placebo reach (OQ 97).** On RR 2022 with exact birth dates, 10,442 births have 11,528 admission candidates, none a
-  continuation AIH. Several true admissions per birth cannot explain the delivery link's missing half of the coincidences.
+- **Placebo reach (OQ 97, resolved).** The delivery link's placebo turned each date half a year round the partner's
+  whole range; national SIH 2022 holds admissions from 2008 (11.7 of 12.5 million in 2022), so births of the second half
+  of 2022 landed in 2008, where nothing is, and the block's placebo held 25,234 candidates against at least 51,402
+  coincidences. Several true admissions per birth were measured and ruled out first (RR 2022, exact birth dates: 11,528
+  candidates for 10,442 births, no continuation AIH). Rotated inside the range both sides hold (`placebo.shared_range`),
+  it holds 53,519, and the link is viable on RR 2022 (probabilistic 8,392 pairs at 0.77%, deterministic 8,865 at 1.9%).

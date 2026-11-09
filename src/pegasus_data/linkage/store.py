@@ -23,8 +23,9 @@ from .engine import raw_links
 
 #: Bumped when the engine, the levels, the placebo or the verdict rules change what a run holds: every stored run
 #: written under another version is stale (`fingerprint`). 3: one placebo for both engines (`placebo`: the deterministic
-#: control and the anchors' control move round the partner's range, as the probabilistic one does).
-LINKAGE_VERSION = 3
+#: control and the anchors' control move round the partner's range, as the probabilistic one does). 4: round the range
+#: both sides hold (`placebo.shared_range`), not the partner's whole range (OQ 97).
+LINKAGE_VERSION = 4
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for
