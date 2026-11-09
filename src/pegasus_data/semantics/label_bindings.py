@@ -42,18 +42,15 @@ from ..catalog.store import CatalogStore, utcnow
 from ..inventory.naming import UF_CODES
 from ..normalize.time import month_of
 
-#: Below this share of observed codes, no candidate is the column's codelist.
-TOO_WEAK = 0.5
-#: Candidates within this share of the best are ties; grain decides between them.
-SHARE_TIE = 0.05
-#: Mapping codes to fewer than this share of distinct labels is a ROLLUP: it
-#: answers a coarser question (which region) than the column asks (which place).
-ROLLUP = 0.5
-#: A decision is STORED only on enough evidence: every observed code decoded,
-#: or at least this many distinct codes. Two small samples of an empty column,
-#: or one code in two decoded, are not grounds for a permanent answer; the
-#: decision then waits for a read that sees more (live compile 2026-09-28).
-MIN_EVIDENCE = 5
+
+def _cut(name: str) -> float:
+    """A cut of the evidence ladder, declared with its evidence in ``codelists.yml`` (``label_bindings:``):
+    `too_weak` (below this share of observed codes no candidate is the codelist), `share_tie`, `rollup`,
+    `min_evidence` (distinct codes a decision needs to be stored) and `form_dictionary_rows`."""
+    from .curation import declared
+
+    return float(declared("codelists.yml", "label_bindings", name))
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,12 +71,12 @@ class LabelBinding:
     @property
     def conclusive(self) -> bool:
         """Enough evidence to store: a curated or unbound answer, a complete
-        decode, or a measurement over at least ``MIN_EVIDENCE`` distinct codes."""
+        decode, or a measurement over at least ``min_evidence`` distinct codes."""
         if self.basis == "curated" or self.reason == "no codelist is bound to this field":
             return True
         if self.labels and self.share is not None and self.share >= 1.0:
             return True
-        return self.observed >= MIN_EVIDENCE
+        return self.observed >= _cut("min_evidence")
 
 
 def collapse_partitions(candidates: Iterable[str]) -> list[str]:
@@ -134,10 +131,10 @@ def weigh(
     # A rollup names a group (a municipality's region), never the code, so it
     # leaves the pool before coverage is compared: a 100% region table must not
     # outrank the municipality table that decodes 75%.
-    identities = [c for c in scored if c[2] >= ROLLUP]
+    identities = [c for c in scored if c[2] >= _cut("rollup")]
     if not identities:
         top = max(scored, key=lambda c: c[1])
-        if top[1] >= TOO_WEAK:
+        if top[1] >= _cut("too_weak"):
             return LabelBinding((), "none", share=round(top[1], 4), grain=round(top[2], 4),
                                 observed=len(observed), candidates=len(pool),
                                 reason=f"only rollups decode it: {top[0]!r} maps the codes to {top[2]:.0%} "
@@ -146,12 +143,12 @@ def weigh(
                             reason=f"no bound table decodes the column: the best, {top[0]!r}, "
                                    f"matches {top[1]:.0%} of {len(observed)} observed codes")
     best = max(s for _, s, _ in identities)
-    if best < TOO_WEAK:
+    if best < _cut("too_weak"):
         top = max(identities, key=lambda c: c[1])
         return LabelBinding((), "none", share=round(top[1], 4), observed=len(observed), candidates=len(pool),
                             reason=f"no bound table decodes the column: the best, {top[0]!r}, "
                                    f"matches {top[1]:.0%} of {len(observed)} observed codes")
-    labels = [c for c in identities if best - c[1] <= SHARE_TIE + 1e-9]
+    labels = [c for c in identities if best - c[1] <= _cut("share_tie") + 1e-9]
     chosen = max(labels, key=lambda c: (c[2], c[1], -_affinity(field_name, c[0]), c[0]))
     return LabelBinding((chosen[0],), "measured", share=round(chosen[1], 4), grain=round(chosen[2], 4),
                         observed=len(observed), candidates=len(pool),
@@ -502,9 +499,6 @@ def _as_dict(binding: LabelBinding) -> dict[str, Any]:
 # to be separate implementations and drifted: ADR-0080 had to be added to
 # both, and the harvested dictionaries reached only one (ADR-0082).
 
-#: The form's own dictionary is taken when it decodes this share of the ROWS.
-FORM_DICTIONARY_ROWS = 0.95
-
 
 def candidates_for(doc: object, candidates: Sequence[str]) -> list[str]:
     """The pool weighed for a column: bound tables, plus a per-form curated list."""
@@ -561,7 +555,7 @@ def decide(
         if harvested:
             table = inline_codelist(harvested) or {}
             covered = sum(n for v, n in counts.items() if v in table)
-            if total and covered >= TOO_WEAK * total:
+            if total and covered >= _cut("too_weak") * total:
                 # Below the 95% bar the form's own table still outranks
                 # measurement (below); the codes it lacks stay "(?)".
                 # AIDA CRITERIO: 100/300/600/900/901 documented, 101 and 601
@@ -570,7 +564,7 @@ def decide(
                     (harvested,), "curated", share=round(covered / total, 4), observed=len(observed),
                     reason=f"the form's own data dictionary, partial: {covered / total:.0%} of rows",
                 )
-            if not total or covered >= FORM_DICTIONARY_ROWS * total:
+            if not total or covered >= _cut("form_dictionary_rows") * total:
                 return LabelBinding(
                     (harvested,), "curated",
                     share=round(covered / total, 4) if total else None,

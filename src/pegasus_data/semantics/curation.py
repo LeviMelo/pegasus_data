@@ -365,6 +365,18 @@ def read_yaml(path: Path, *, shared: bool = False, missing_ok: bool = False) -> 
     return doc if shared else copy.deepcopy(doc)
 
 
+def declared(file: str, *path: str) -> Any:
+    """One value declared in a curation file (``declared("quality.yml", "thresholds", "icd", "suspect_share")``): the
+    analytic cuts and gates live in the curation, each with the evidence it came from, not in the code that reads
+    them. A missing key raises (``KeyError`` naming the path): a gate must not fall back to a number of its own."""
+    from ..config import curation_root
+
+    node: Any = read_yaml(curation_root() / file, shared=True)
+    for key in path:
+        node = node[key]
+    return node
+
+
 def load_yaml_text(text: str) -> Any:
     """YAML text, parsed by libyaml's safe loader when it is installed (the pure-Python one is ~10x slower)."""
     yaml = _require_yaml()

@@ -51,6 +51,7 @@ from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
 from ..config import UF_ABBREVIATIONS
 from ..normalize.time import year_bounds
+from ..semantics.curation import declared
 from .decisions import (
     borrowed_tables,
     collecting,
@@ -929,11 +930,6 @@ def has_reference_tables(lake_root: str | Path) -> bool:
     return root.exists() and any(p.is_dir() for p in root.iterdir())
 
 
-#: A lookup whose labels are this blank did not decode anything. Not 100%:
-#: CADMUN carries 62 stray labels among 5,579 rows and would slip past an
-#: equality test while being useless.
-BLANK_LABEL_THRESHOLD = 0.9
-
 
 def flag_unlabelled_codelists(catalog: CatalogStore) -> list[dict[str, object]]:
     """Report codelists whose labels are overwhelmingly empty.
@@ -959,7 +955,7 @@ def flag_unlabelled_codelists(catalog: CatalogStore) -> list[dict[str, object]]:
         HAVING n >= 20 AND CAST(blank AS REAL) / n >= ?
          ORDER BY n DESC
         """,
-        (BLANK_LABEL_THRESHOLD,),
+        (declared("quality.yml", "thresholds", "reference", "blank_label_share"),),
     )
     out: list[dict[str, object]] = []
     for r in rows:

@@ -28,21 +28,21 @@ import duckdb
 
 from .identity import quote
 
-#: The probabilistic placebo's displacement in days: half a year (26 weeks), so the day and month change (a year would
-#: hand back the same day-month and earn typo credit) and the weekday does not. A deterministic pass moves its control
-#: key by the spec's `shift_days` (a week): it joins on equality, so no typo level can be earned, and measured on five
-#: links a week counts as many chance pairs as half a year in the passes that count many and more in the strong
-#: ones (ADR-0186).
-PLACEBO_DAYS = 182
-#: The least share of the real key's reach the moved key must keep (`key_reach`)
-KEY_REACH = 0.5
-#: A block's placebo must produce at least this share of its real candidates' coincidences. The coincidences are at
-#: least `candidates - left records` (a left record has at most one true partner), whatever the true-link rate is;
-#: a faithful placebo has about that many, half is the slack for the season and weekday mix a rotation changes.
-BLOCK_REACH = 0.5
-#: ... and is judged only when the coincidences expected are at least this many (below it a Poisson count falls short
-#: of half by chance)
-BLOCK_MIN_EXPECTED = 30
+
+def _declared(key: str) -> float:
+    """A placebo threshold from ``links.yml`` (``thresholds.placebo``): the displacement `days` of the probabilistic
+    placebo, the least share of the real key's reach the moved key keeps (`key_reach`), the share of a block's
+    coincidences its placebo must hold (`block_reach`) and the count below which a block is not judged
+    (`block_min_expected`). Each is declared there with its evidence."""
+    from ..semantics.curation import declared
+
+    return declared("links.yml", "thresholds", "placebo", key)
+
+
+def placebo_days() -> int:
+    """The probabilistic placebo's displacement in days (``thresholds.placebo.days``, ADR-0186)."""
+    return int(_declared("days"))
+
 
 
 def partner_range(con: duckdb.DuckDBPyConnection, roles: Iterable[str], view: str = "R") -> tuple[Any, Any] | None:
@@ -115,20 +115,21 @@ def key_reach(con: duckdb.DuckDBPyConnection, left: str, right: str, moved: str)
 def key_failures(reach: dict[str, dict[str, float | int]]) -> list[str]:
     return [f"the control cannot reach {key}: its shifted key finds a partner value for {v['control_reach']:.1%} of "
             f"the left records against {v['real_reach']:.1%} for the real key"
-            for key, v in reach.items() if v["real_reach"] and v["control_reach"] < KEY_REACH * v["real_reach"]]
+            for key, v in reach.items() if v["real_reach"] and v["control_reach"] < _declared("key_reach") * v["real_reach"]]
 
 
 def block_report(blocks: Any, real: list[tuple[int, int]], control: list[tuple[int, int]]
                  ) -> tuple[list[dict[str, Any]], list[str]]:
     """Per candidate block, whether the placebo reaches it, and the failures in words. A left record has at most one
     true partner, so of a block's real candidates at least ``candidates - left records`` are coincidences, and the
-    placebo (which holds only coincidences) must hold about as many. Fewer than `BLOCK_REACH` of them: it does not reach
+    placebo (which holds only coincidences) must hold about as many. Fewer than the declared `block_reach` of them: it does not reach
     the block, and the threshold chosen against it would let through the false pairs the block creates."""
+    block_reach = _declared("block_reach")
     rows: list[dict[str, Any]] = []
     failures: list[str] = []
     for block, (cand, left), (ctl, _l) in zip(blocks, real, control, strict=True):
         expected = max(cand - left, 0)
-        reaches = expected < BLOCK_MIN_EXPECTED or ctl >= BLOCK_REACH * expected
+        reaches = expected < _declared("block_min_expected") or ctl >= block_reach * expected
         label = " + ".join(f"{a}~{b}" for a, b in block)
         rows.append({"block": label, "candidates": cand, "left_records": left, "control_candidates": ctl,
                      "coincidences_at_least": expected, "reaches": reaches})
@@ -140,6 +141,6 @@ def block_report(blocks: Any, real: list[tuple[int, int]], control: list[tuple[i
     return rows, failures
 
 
-__all__ = ["BLOCK_MIN_EXPECTED", "BLOCK_REACH", "KEY_REACH", "PLACEBO_DAYS", "block_report", "key_failures", "key_reach",
+__all__ = ["block_report", "key_failures", "key_reach", "placebo_days",
            "shared_range",
            "moved_sql", "partner_range", "rotation"]

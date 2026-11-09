@@ -56,6 +56,24 @@ codebook:
   max_codes: 128
   max_width: 3
 
+# label_bindings: the ladder of evidence for "which table labels this column" (semantics/label_bindings.py, read by
+# `decide` at query time and by `compile_bindings` at build time). Deliberate analytic cuts, not learned.
+label_bindings:
+  # Below this share of observed codes, no candidate is the column's codelist. Also the share of rows the form's own
+  # harvested table must decode to count as covering the column. Not measured.
+  too_weak: 0.5
+  # Candidates within this share of the best are ties; grain decides between them. Not measured.
+  share_tie: 0.05
+  # Mapping codes to fewer than this share of distinct labels is a ROLLUP: it answers a coarser question (which
+  # region) than the column asks (which place). Not measured.
+  rollup: 0.5
+  # A decision is STORED only on enough evidence: every observed code decoded, or at least this many distinct codes.
+  # Two small samples of an empty column, or one code in two decoded, are not grounds for a permanent answer; the
+  # decision then waits for a read that sees more (live compile 2026-09-28).
+  min_evidence: 5
+  # The form's own dictionary is taken when it decodes this share of the ROWS. Not measured.
+  form_dictionary_rows: 0.95
+
 # Bridges between classifications (`view._bridge_code`): a recipe's short name for a bridge, the classification each
 # lands in and the width of its codes there, and the share of the evidence a claim must hold to cross (a code the old
 # classification held several meanings of crosses only when one meaning has that share). SIA's (A) and SIH's (H) old

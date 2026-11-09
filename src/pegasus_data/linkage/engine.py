@@ -24,7 +24,7 @@ Then held-out validations and the verdict fixed before any result: *viable* when
 chance and the strongest held-out validation agrees in at least 90% of pairs; *use with caution* at 20% and 75%;
 *not viable* otherwise. A validation is held out only if no role it reads is a pass key, a compared field, a block or
 a side's filter: those agree by construction (the neonatal link's "born in the admitting hospital" was a key and
-agreed 99.6-100%, and carried "viable" over a held-out 81-87%). A validation compares at least `MIN_COMPARED` pairs, or
+agreed 99.6-100%, and carried "viable" over a held-out 81-87%). A validation compares at least `thresholds.engine.min_compared` pairs, or
 it is not evidence. A control that cannot reach its partner's values (a date moved out of the partner's period) is no
 control, and the run is not viable: an empty placebo reads as "no false pairs".
 """
@@ -56,9 +56,17 @@ def links_file() -> Path:
     from ..config import curation_root
 
     return curation_root() / "links.yml"
-CHANCE_DROP = 20.0
-#: pairs a validation must compare to count (a proportion of fewer says nothing)
-MIN_COMPARED = 30
+
+
+def chance_drop() -> float:
+    """The chance rate (%) from which a pass is dropped, declared in ``links.yml`` (``thresholds.engine``)."""
+    return float(raw_links()["thresholds"]["engine"]["chance_drop_pct"])
+
+
+def min_compared() -> int:
+    """Pairs a validation must compare to count (a proportion of fewer says nothing), declared in ``links.yml``."""
+    return int(raw_links()["thresholds"]["engine"]["min_compared"])
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -529,7 +537,7 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             control = con.execute(f"SELECT count(*) FROM ({_join(p.keys, moved)})").fetchone()[0]  # type: ignore[index]
         n = real.num_rows
         chance = 100.0 * control / n if n else None
-        kept = bool(n) and control < n and (chance is None or chance < CHANCE_DROP)
+        kept = bool(n) and control < n and (chance is None or chance < chance_drop())
         reports.append(PassReport(p.name, n, int(control), round(chance, 2) if chance is not None else None, kept))
         if kept:
             con.register("_new", real)
@@ -673,19 +681,19 @@ def judge(
     """The verdict fixed before any result (ADR-0107), judged on the 95% upper bound of the chance rate when one is
     given (ADR-0113: 13 maternal deaths with no control pair read "0% chance" and were called viable, with a bound of
     28%), and its reasons. The validation that counts is the strongest HELD-OUT one that compared at least
-    `MIN_COMPARED` pairs: a validation on a key or a compared field agrees by construction. A placebo that did not reach
+    `thresholds.engine.min_compared` pairs: a validation on a key or a compared field agrees by construction. A placebo that did not reach
     its blocks (``placebo_failures``) measured no chance at all: not viable."""
     reasons = list(placebo_failures)
     held = [float(v["agreement_percent"]) for v in validations.values()
             if not v.get("circular") and v["agreement_percent"] is not None
-            and (v.get("pairs_compared") or 0) >= MIN_COMPARED]
+            and (v.get("pairs_compared") or 0) >= min_compared()]
     best = max(held) if held else None
     if not pairs:
         reasons.append("no pairs")
     if worst_chance is None:
         reasons.append("no chance estimate: no kept pass or no placebo threshold")
     if best is None:
-        reasons.append(f"no held-out validation compares at least {MIN_COMPARED} pairs")
+        reasons.append(f"no held-out validation compares at least {min_compared()} pairs")
     if reasons:
         return "not viable", reasons
     assert best is not None and worst_chance is not None

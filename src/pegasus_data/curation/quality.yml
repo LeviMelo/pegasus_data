@@ -2,6 +2,28 @@
 # What a code MEANS is never here: a check resolves its codes through the column's codelist and the roles file's
 # `compare: {type: label, categories: ...}` of the same dataset.
 
+# `thresholds`: the cuts of the diagnostics that gate a verdict or flag a column, read by semantics.curation.declared.
+# Deliberate analytic choices, not learned; each carries the reason the code gave, or "not measured".
+thresholds:
+  icd:
+    # Below this share of structurally valid codes, a binding is not weak evidence: it is the wrong table. A real ICD
+    # column is overwhelmingly ICD-shaped. (semantics/icd.py flag_suspect_bindings.) Not measured.
+    suspect_binding_share: 0.10
+  coverage:
+    # A share at or above this is "decoded": rounding in the stored share only. (semantics/coverage.py.)
+    decoded_share: 0.9999
+  reference:
+    # A lookup whose labels are this blank did not decode anything. Not 100%: CADMUN carries 62 stray labels among
+    # 5,579 rows and would slip past an equality test while being useless. (persist/reference.py
+    # flag_unlabelled_codelists.)
+    blank_label_share: 0.9
+  prefix_systems:
+    # Below this level of agreement a prefix is not treated as identifying a system: it is genuinely ambiguous and
+    # the path stays authoritative for it. (inventory/systems.py.) Not measured.
+    min_agreement: 0.9
+    # A prefix seen fewer times than this is too thin to learn from. Not measured.
+    min_observations: 5
+
 # `quality.race_reliability`: the SIH race code per hospital-month (OQ-66, docs/evaluation/2026-10-03-sih-asian-default-fill-and-code-swap.md).
 race_reliability:
   dataset: SIH-RD

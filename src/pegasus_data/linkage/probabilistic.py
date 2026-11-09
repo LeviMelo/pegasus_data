@@ -678,7 +678,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {prob.control_role})
     ranges = _placebo_ranges(con, prob, left_dates)
     con.execute("CREATE OR REPLACE TEMP TABLE LS AS " + placebo.moved_sql("L", {
-        role: sql for role, within in ranges.items() if (sql := placebo.rotation(role, within, placebo.PLACEBO_DAYS))}))
+        role: sql for role, within in ranges.items() if (sql := placebo.rotation(role, within, placebo.placebo_days()))}))
     evidence_only = [c for c in prob.compare if not c.is_key]
     # The candidate pairs, real and placebo, built once each, and counted per block.
     real_counts = _build_candidates(con, "L", "C", prob.blocks)
