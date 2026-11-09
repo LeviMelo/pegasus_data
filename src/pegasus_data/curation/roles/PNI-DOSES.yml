@@ -1,0 +1,676 @@
+# PNI DOSES: Vaccine doses applied (SI-PNI / RNDS), microdata: one row per dose applied to one person, 2020-01 on (one zipped CSV a month).
+# Columns as the intake lands them (curation/intake.yml, source pni_doses). Meaning from the system's own data dictionary:
+# Dicionario_tb_ria_rotina.pdf (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/dbbni/Dicionario_tb_ria_rotina.pdf; copy in
+# registries/pni), checked against the first rows of the June 2020 file. The dictionary names fields in lower case and
+# the lake keeps them upper case; where the landed header differs from the dictionary's (SG_IMUNOBIOLOGICO is the dictionary's
+# sg_vacina, DS_TIPO_DOSE its ds_dose_vacina) the entry says so. Dictionary rows 49 and 57-60 give a description but no field name, and a
+# few descriptions are matched to columns by that description alone: noted per column. The code lists are the file's own descriptor
+# columns beside each code, never a separate table. The lake's __RAW companions and underscore-prefixed provenance columns are
+# not source columns and carry no role.
+dataset: PNI-DOSES
+record: vaccination
+columns:
+  CO_CATEGORIA:
+    role: dose.priority_category_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código da categoria do grupo de atendimento da vacinação" (dose.priority_category_code): doses
+      applied and coverage: care delivered'
+    name: Código da categoria do grupo de atendimento da vacinação
+    years:
+    - 2020
+    - 2026
+    note: Category code within the attendance group (dictionary); its label is DS_CATEGORIA.
+  CO_CNES_ESTABELECIMENTO:
+    role: dose.facility
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"Código CNES do estabelecimento" (dose.facility): facility: the facility register, or record type,
+      internal flag or system field'
+    name: Código CNES do estabelecimento
+    years:
+    - 2020
+    - 2026
+    note: CNES code of the vaccinating establishment. The dictionary has no row for the code by itself (it lists name, municipality
+      and state); the descriptions of the other establishment columns say CNES.
+  CO_CONDICAO_MATERNAL:
+    role: patient.maternal_condition_code
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Código da condição maternal do paciente" (patient.maternal_condition_code): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Código da condição maternal do paciente
+    years:
+    - 2020
+    - 2026
+    note: Maternal-condition code (dictionary row 56, described only as "Condição maternal"); its label is DS_CONDICAO_MATERNAL.
+      The dictionary lists no values.
+  CO_DOCUMENTO:
+    role: dose.document
+    kind: identifier
+    model: link_only
+    name: Código de Documento
+    years:
+    - 2020
+    - 2026
+    note: 'Code of the FHIR document in the RNDS (dictionary): one dose, with a suffix such as -i0b0. A document can be replaced
+      (CO_TROCA_DOCUMENTO, ST_DOCUMENTO).'
+  CO_DOSE_VACINA:
+    role: dose.dose_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código da dose da vacina administrada" (dose.dose_code): doses applied and coverage: care delivered'
+    name: Código da dose da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: Code of the dose (dictionary). Its label is the descriptor column DS_TIPO_DOSE of the same file (label_from).
+  CO_ESTRATEGIA_VACINACAO:
+    role: dose.strategy_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código da estratégia de vacinação" (dose.strategy_code): doses applied and coverage: care delivered'
+    name: Código da estratégia de vacinação
+    years:
+    - 2020
+    - 2026
+    note: Vaccination strategy code (dictionary); its label is NO_ESTRATEGIA.
+  CO_ETNIA_INDIGENA_PACIENTE:
+    role: patient.indigenous_ethnicity_code
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Código da etnia indígena do paciente" (patient.indigenous_ethnicity_code): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Código da etnia indígena do paciente
+    years:
+    - 2020
+    - 2026
+    note: Indigenous ethnicity code (dictionary); mostly empty.
+  CO_LOCAL_APLICACAO:
+    role: dose.site_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código do local de aplicação da vacina" (dose.site_code): doses applied and coverage: care delivered'
+    name: Código do local de aplicação da vacina
+    years:
+    - 2020
+    - 2026
+    note: Anatomical site code (dictionary); 0 is "Sem registro no sistema de informação de origem" in the descriptor column
+      DS_LOCAL_APLICACAO.
+  CO_LOTE_VACINA:
+    role: dose.lot
+    kind: identifier
+    model: link_only
+    name: Código do lote da vacina
+    years:
+    - 2020
+    - 2026
+    note: Vaccine lot code (dictionary).
+  CO_MUNICIPIO_ESTABELECIMENTO:
+    role: dose.facility_municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE do município do estabelecimento" (dose.facility_municipality): facility: the facility
+      register, or record type, internal flag or system field'
+    name: Código IBGE do município do estabelecimento
+    years:
+    - 2020
+    - 2026
+    note: 'IBGE code of the vaccinating establishment''s municipality (dictionary): where the dose was applied.'
+  CO_MUNICIPIO_PACIENTE:
+    role: patient.residence
+    kind: place
+    model: stratum
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Código IBGE do município de residência do paciente" (patient.residence): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Código IBGE do município de residência do paciente
+    years:
+    - 2020
+    - 2026
+    note: 'IBGE code of the patient''s municipality of residence, 6 digits (dictionary): the person''s own place.'
+  CO_NATUREZA_ESTABELECIMENTO:
+    role: dose.facility_nature_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código da natureza do estabelecimento no CNES" (dose.facility_nature_code): facility: the facility
+      register, or record type, internal flag or system field'
+    name: Código da natureza do estabelecimento no CNES
+    years:
+    - 2020
+    - 2026
+    note: CNES establishment nature code (dictionary); its label is DS_NATUREZA_ESTABELECIMENTO.
+  CO_ORIGEM_REGISTRO:
+    role: dose.record_origin_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código que identifica o registro de origem como transcrição" (dose.record_origin_code): facility:
+      the facility register, or record type, internal flag or system field'
+    name: Código que identifica o registro de origem como transcrição
+    years:
+    - 2020
+    - 2026
+    note: Code marking the record as a transcription (dictionary); its label is DS_ORIGEM_REGISTRO.
+  CO_PACIENTE:
+    role: patient.pseudonym
+    kind: identifier
+    model: link_only
+    name: Código do Paciente
+    years:
+    - 2020
+    - 2026
+    note: 'Patient code assigned by the RNDS (dictionary); in the file a 64-hex-character pseudonymous hash. A personal identifier:
+      passes through unmodified and flagged; it links doses of one person within these files, never to another system.'
+  CO_PAIS_PACIENTE:
+    role: patient.country_code
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Código do país de residência do paciente" (patient.country_code): attribute of the person (sex,
+      age, race/colour, residence)'
+    name: Código do país de residência do paciente
+    years:
+    - 2020
+    - 2026
+    note: Country-of-residence code (dictionary); 10 is Brasil in the first rows. Not a municipality binding.
+  CO_RACA_COR_PACIENTE:
+    role: patient.race
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"Código que identifica a raça/cor do paciente" (patient.race): attribute of the person (sex, age,
+      race/colour, residence)'
+    name: Código que identifica a raça/cor do paciente
+    years:
+    - 2020
+    - 2026
+    note: Race/colour code (dictionary); its label is the descriptor column NO_RACA_COR_PACIENTE in the same file.
+  CO_SISTEMA_ORIGEM:
+    role: dose.source_system_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código do sistema de origem" (dose.source_system_code): facility: the facility register, or record
+      type, internal flag or system field'
+    name: Código do sistema de origem
+    years:
+    - 2020
+    - 2026
+    note: Code of the system that sent the record (dictionary).
+  CO_TIPO_ESTABELECIMENTO:
+    role: dose.facility_type_code
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Código do tipo de estabelecimento no CNES" (dose.facility_type_code): facility: the facility register,
+      or record type, internal flag or system field'
+    name: Código do tipo de estabelecimento no CNES
+    years:
+    - 2020
+    - 2026
+    note: CNES establishment type code (dictionary); its label is DS_TIPO_ESTABELECIMENTO.
+  CO_TROCA_DOCUMENTO:
+    role: dose.replaced_document
+    kind: identifier
+    model: link_only
+    name: Código que identifica o documento que foi substituído ou alterado
+    years:
+    - 2020
+    - 2026
+    note: Code of the document this one replaced or altered (dictionary); empty for originals.
+  CO_VACINA:
+    role: dose.vaccine_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código da vacina administrada" (dose.vaccine_code): doses applied and coverage: care delivered'
+    name: Código da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: Code of the vaccine applied (dictionary). Its label is the descriptor column SG_IMUNOBIOLOGICO of the same file
+      (label_from), never a separate table.
+  CO_VACINA_FABRICANTE:
+    role: dose.manufacturer_code
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Código do fabricante da vacina administrada" (dose.manufacturer_code): doses applied and coverage:
+      care delivered'
+    name: Código do fabricante da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: Manufacturer code (dictionary row 48); mostly empty (intake.yml).
+  CO_VACINA_GRUPO_ATENDIMENTO:
+    role: dose.priority_group_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código do grupo de atendimento da vacinação" (dose.priority_group_code): doses applied and coverage:
+      care delivered'
+    name: Código do grupo de atendimento da vacinação
+    years:
+    - 2020
+    - 2026
+    note: Code of the attendance group of the vaccination (dictionary); its label is NO_GRUPO_ATENDIMENTO.
+  CO_VIA_ADMINISTRACAO:
+    role: dose.route_code
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Código da via de administração da vacina" (dose.route_code): doses applied and coverage: care
+      delivered'
+    name: Código da via de administração da vacina
+    years:
+    - 2020
+    - 2026
+    note: Administration route code (dictionary); its label is DS_VIA_ADMINISTRACAO.
+  DS_CATEGORIA:
+    role: dose.priority_category_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição da categoria do grupo de atendimento da vacinação" (dose.priority_category_label): doses
+      applied and coverage: care delivered'
+    name: Descrição da categoria do grupo de atendimento da vacinação
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_CATEGORIA (dictionary).
+  DS_CONDICAO_MATERNAL:
+    role: patient.maternal_condition_label
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Descrição da condição maternal do paciente" (patient.maternal_condition_label): attribute of the
+      person (sex, age, race/colour, residence)'
+    name: Descrição da condição maternal do paciente
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_CONDICAO_MATERNAL (dictionary).
+  DS_LOCAL_APLICACAO:
+    role: dose.site_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição do local de aplicação da vacina" (dose.site_label): doses applied and coverage: care
+      delivered'
+    name: Descrição do local de aplicação da vacina
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_LOCAL_APLICACAO (dictionary).
+  DS_NACIONALIDADE_PACIENTE:
+    role: patient.nationality
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Descrição da nacionalidade do paciente" (patient.nationality): attribute of the person (sex, age,
+      race/colour, residence)'
+    name: Descrição da nacionalidade do paciente
+    years:
+    - 2020
+    - 2026
+    note: Nationality (dictionary). The file holds a letter code (B in the first rows); the dictionary lists no values.
+  DS_NATUREZA_ESTABELECIMENTO:
+    role: dose.facility_nature_label
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Descrição da natureza do estabelecimento no CNES" (dose.facility_nature_label): facility: the
+      facility register, or record type, internal flag or system field'
+    name: Descrição da natureza do estabelecimento no CNES
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_NATUREZA_ESTABELECIMENTO, e.g. ADMINISTRACAO PUBLICA (dictionary).
+  DS_NOME:
+    role: dose.vaccine_description
+    kind: text
+    model: excluded
+    name: Descrição do imunobiológico
+    years:
+    - 2020
+    - 2026
+    note: Full vaccine description in the file (e.g. vacina meningocócica C (conjugada)). Dictionary row 49 is empty, so this
+      meaning is read from the content of the column, not from the dictionary; intake.yml notes it does not pair with CO_VACINA_FABRICANTE.
+  DS_ORIGEM_REGISTRO:
+    role: dose.record_origin_label
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Descrição que identifica o registro de origem como transcrição" (dose.record_origin_label): facility:
+      the facility register, or record type, internal flag or system field'
+    name: Descrição que identifica o registro de origem como transcrição
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_ORIGEM_REGISTRO (dictionary).
+  DS_SISTEMA_ORIGEM:
+    role: dose.source_system
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Descrição do sistema de origem" (dose.source_system): facility: the facility register, or record
+      type, internal flag or system field'
+    name: Descrição do sistema de origem
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_SISTEMA_ORIGEM, e.g. SIPNI LEGADO, ESUS APS (dictionary).
+  DS_TIPO_DOSE:
+    role: dose.dose_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição da dose da vacina administrada" (dose.dose_label): doses applied and coverage: care
+      delivered'
+    name: Descrição da dose da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: 'Description of the dose, e.g. 1ª Dose, 1º Reforço (dictionary field ds_dose_vacina; landed as DS_TIPO_DOSE): the
+      file''s own label for CO_DOSE_VACINA.'
+  DS_TIPO_ESTABELECIMENTO:
+    role: dose.facility_type_label
+    kind: category
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Descrição do tipo de estabelecimento no CNES" (dose.facility_type_label): facility: the facility
+      register, or record type, internal flag or system field'
+    name: Descrição do tipo de estabelecimento no CNES
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_TIPO_ESTABELECIMENTO, e.g. HOSPITAL GERAL (dictionary).
+  DS_VACINA_FABRICANTE:
+    role: dose.manufacturer
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Descrição do fabricante da vacina administrada" (dose.manufacturer): doses applied and coverage:
+      care delivered'
+    name: Descrição do fabricante da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: Manufacturer of the vaccine applied (dictionary).
+  DS_VIA_ADMINISTRACAO:
+    role: dose.route_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição da via de administração da vacina" (dose.route_label): doses applied and coverage: care
+      delivered'
+    name: Descrição da via de administração da vacina
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_VIA_ADMINISTRACAO (dictionary).
+  DT_DELETADO_RNDS:
+    role: dose.deleted_rnds_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de alteração do registro" (dose.deleted_rnds_on): facility: the facility register, or record
+      type, internal flag or system field'
+    name: Data de alteração do registro
+    years:
+    - 2020
+    - 2026
+    note: The nearest dictionary row (58) is "Data de alteração do registro", with no field name; the column name says deletion
+      from the RNDS and the content is empty in the first rows, so the meaning is not sourced beyond that.
+  DT_ENTRADA_RNDS:
+    role: dose.entered_rnds_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data e hora de entrada do registro na RNDS" (dose.entered_rnds_on): facility: the facility register,
+      or record type, internal flag or system field'
+    name: Data e hora de entrada do registro na RNDS
+    years:
+    - 2020
+    - 2026
+    note: 'Date the record entered the RNDS (dictionary): a transmission date, not the date of the dose.'
+  DT_VACINA:
+    role: dose.date
+    kind: date
+    model: when
+    fact_domain: process
+    fact_domain_evidence: '"Data da vacinação" (dose.date): doses applied and coverage: care delivered'
+    name: Data da vacinação
+    years:
+    - 2020
+    - 2026
+    note: Date the dose was applied (dictionary). The time binding.
+  NO_ESTRATEGIA:
+    role: dose.strategy_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição da estratégia de vacinação" (dose.strategy_label): doses applied and coverage: care
+      delivered'
+    name: Descrição da estratégia de vacinação
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_ESTRATEGIA_VACINACAO, e.g. Rotina (dictionary).
+  NO_ETNIA_INDIGENA_PACIENTE:
+    role: patient.indigenous_ethnicity_label
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Nome da etnia indígena do paciente" (patient.indigenous_ethnicity_label): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Nome da etnia indígena do paciente
+    years:
+    - 2020
+    - 2026
+    note: Indigenous ethnicity name (dictionary); mostly empty.
+  NO_FANTASIA_ESTALECIMENTO:
+    role: dose.facility_trade_name
+    kind: text
+    model: excluded
+    name: Nome fantasia do estabelecimento de saúde
+    years:
+    - 2020
+    - 2026
+    note: Trade name of the establishment (dictionary). The misspelling ESTALECIMENTO is the file's own.
+  NO_GRUPO_ATENDIMENTO:
+    role: dose.priority_group_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Descrição do grupo de atendimento da vacinação" (dose.priority_group_label): doses applied and
+      coverage: care delivered'
+    name: Descrição do grupo de atendimento da vacinação
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_VACINA_GRUPO_ATENDIMENTO (dictionary).
+  NO_MUNICIPIO_ESTABELECIMENTO:
+    role: dose.facility_municipality_name
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Nome do município do estabelecimento" (dose.facility_municipality_name): facility: the facility
+      register, or record type, internal flag or system field'
+    name: Nome do município do estabelecimento
+    years:
+    - 2020
+    - 2026
+    note: Name of the establishment's municipality (dictionary).
+  NO_MUNICIPIO_PACIENTE:
+    role: patient.residence_name
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Nome do município de residência do paciente" (patient.residence_name): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Nome do município de residência do paciente
+    years:
+    - 2020
+    - 2026
+    note: Name of the municipality of residence (dictionary); the code is CO_MUNICIPIO_PACIENTE.
+  NO_PAIS_PACIENTE:
+    role: patient.country_label
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Nome do país de residência do paciente" (patient.country_label): attribute of the person (sex,
+      age, race/colour, residence)'
+    name: Nome do país de residência do paciente
+    years:
+    - 2020
+    - 2026
+    note: Country-of-residence name (dictionary).
+  NO_RACA_COR_PACIENTE:
+    role: patient.race_color_label
+    kind: category
+    model: mark
+    fact_domain: person
+    fact_domain_evidence: '"Nome que identifica a raça/cor do paciente" (patient.race_color_label): attribute of the person
+      (sex, age, race/colour, residence)'
+    name: Nome que identifica a raça/cor do paciente
+    years:
+    - 2020
+    - 2026
+    note: The file's own label for CO_RACA_COR_PACIENTE (dictionary).
+  NO_RAZAO_SOCIAL_ESTABELECIMENTO:
+    role: dose.facility_legal_name
+    kind: text
+    model: excluded
+    name: Nome da razão social do Estabelecimento de Saúde no CNES
+    years:
+    - 2020
+    - 2026
+    note: Legal name of the establishment in the CNES (dictionary).
+  NO_UF_ESTABELECIMENTO:
+    role: dose.facility_state_name
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Nome da Unidade Federativa (UF) do estabelecimento" (dose.facility_state_name): facility: the
+      facility register, or record type, internal flag or system field'
+    name: Nome da Unidade Federativa (UF) do estabelecimento
+    years:
+    - 2020
+    - 2026
+    note: State name of the establishment (dictionary row 60, matched by description).
+  NO_UF_PACIENTE:
+    role: patient.state_name
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Nome da Unidade Federativa (UF) do paciente" (patient.state_name): attribute of the person (sex,
+      age, race/colour, residence)'
+    name: Nome da Unidade Federativa (UF) do paciente
+    years:
+    - 2020
+    - 2026
+    note: State name of the patient (dictionary row 57, matched by description).
+  NU_CEP_PACIENTE:
+    role: patient.postal_code
+    kind: identifier
+    model: link_only
+    name: CEP do paciente
+    years:
+    - 2020
+    - 2026
+    note: 'The dictionary row 11 describes this field as "Nome da Unidade Federativa (UF) do paciente", a copy error: the
+      file holds a 5-digit postal-code prefix (76954) and the field name says CEP. Kept as a quasi-identifier, never a dimension.'
+  NU_IDADE_PACIENTE:
+    role: patient.age
+    kind: number
+    model: stratum
+    unit: years
+    unit_evidence: 'Dicionario_tb_ria_rotina.pdf: "Idade do paciente"'
+    fact_domain: person
+    fact_domain_evidence: '"Idade do paciente" (patient.age): attribute of the person (sex, age, race/colour, residence)'
+    name: Idade do paciente
+    years:
+    - 2020
+    - 2026
+    note: 'Age of the patient (dictionary row 55, which gives no unit); the first rows hold small integers consistent with
+      years. Holds -1, 120 and 220 (intake.yml, DATA_SOURCES): sentinels not declared here.'
+  SG_IMUNOBIOLOGICO:
+    role: dose.vaccine_label
+    kind: category
+    model: mark
+    fact_domain: process
+    fact_domain_evidence: '"Sigla da vacina administrada" (dose.vaccine_label): doses applied and coverage: care delivered'
+    name: Sigla da vacina administrada
+    years:
+    - 2020
+    - 2026
+    note: 'Acronym of the vaccine applied (dictionary field sg_vacina; landed as SG_IMUNOBIOLOGICO, e.g. MenC, HAinf): the
+      file''s own label for CO_VACINA.'
+  SG_UF_ESTABELECIMENTO:
+    role: dose.facility_state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Sigla da Unidade Federativa (UF) do estabelecimento" (dose.facility_state): facility: the facility
+      register, or record type, internal flag or system field'
+    name: Sigla da Unidade Federativa (UF) do estabelecimento
+    years:
+    - 2020
+    - 2026
+    note: State abbreviation of the establishment (dictionary).
+  SG_UF_PACIENTE:
+    role: patient.state
+    kind: place
+    model: mark
+    place_of: subject
+    fact_domain: person
+    fact_domain_evidence: '"Sigla da Unidade Federativa (UF) do paciente" (patient.state): attribute of the person (sex, age,
+      race/colour, residence)'
+    name: Sigla da Unidade Federativa (UF) do paciente
+    years:
+    - 2020
+    - 2026
+    note: State abbreviation of the patient (dictionary).
+  ST_DOCUMENTO:
+    role: dose.document_status
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Status do documento" (dose.document_status): facility: the facility register, or record type,
+      internal flag or system field'
+    name: Status do documento
+    years:
+    - 2020
+    - 2026
+    note: Whether the document was replaced or altered or is a final record (dictionary). Only `final` documents are doses
+      (intake.yml).
+  TP_SEXO_PACIENTE:
+    role: patient.sex
+    kind: category
+    model: stratum
+    fact_domain: person
+    fact_domain_evidence: '"Descrição do sexo biológico do paciente" (patient.sex): attribute of the person (sex, age, race/colour,
+      residence)'
+    name: Descrição do sexo biológico do paciente
+    years:
+    - 2020
+    - 2026
+    note: Sex of the patient (dictionary). The file holds a letter code (M, F); the dictionary lists no values.

@@ -213,8 +213,8 @@ def _field_from_cube(name: str, spec: dict[str, Any], years: list[int] | None, s
 
 def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     """The records cube an intake field is, or None for one still built apart: a count or a sum, with its `where` and
-    `by`, over a landed dataset placed by municipality code with place and time bindings (curated, or read from its
-    roles). Shares (`outcome`), unpivoted margins and row registers are not yet cubes; neither is a field whose dataset
+    `by`, over a landed dataset placed by a municipality's code or name, with place and time bindings (curated, read
+    from its roles, or the place and period it was landed by). Shares (`outcome`), unpivoted margins and row registers are not yet cubes; neither is a field whose dataset
     holds no landed records, whose stored copy is then the only form of its data (ANS's beneficiaries)."""
     from .intake import _strata, declared_sources
     from .semantics.curation import semantics_for
@@ -225,7 +225,7 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     fs = ((source or {}).get("fields") or {}).get(name) if source else None
     if not fs or fs.get("unpivot") or fs.get("rows"):
         return None
-    if (source.get("place") or {}).get("type") != "municipality":
+    if (source.get("place") or {}).get("type") not in ("municipality", "municipality_name"):
         return None
     dataset = f"{source['system']}-{source['series']}"
     if semantics_for(dataset) is None or not _landed(source):

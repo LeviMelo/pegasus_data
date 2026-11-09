@@ -105,8 +105,10 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
 **Progress (2026-11-09, evaluation 2026-11-09-the-cube-stage-1).**
 - **Stage 1 is done.**
 - **Stage 2.**
-  - **The records adapter** counts events (or rows, or sums a column) by the dataset's bindings: curated, or read from
-    its roles. It applies codes or prefixes in `where`, reads only the published years, and caches each cube by its data's
+  - **The records adapter** counts events (or rows, or sums a column) by the dataset's bindings: curated, read from
+    its roles, or the place and period the intake landed each record by (`_MUNICIPALITY`, `year`, `_MONTH`: the
+    binding `landed`, the default where the roles give none, as for SNGPC's municipality names). So an intake
+    declaration is the one declaration of its place and time. It applies codes or prefixes in `where`, reads only the published years, and caches each cube by its data's
     fingerprint.
   - **Reproduced:** the 17 SISAGUA count fields equal cell for cell; yellow fever equal; SRAG 29 lower (the
     notifications filed twice).

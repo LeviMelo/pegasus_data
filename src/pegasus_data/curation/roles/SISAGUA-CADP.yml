@@ -1,0 +1,460 @@
+# SISAGUA CADP: Register, population supplied: one row per supply form (SAA, SAC or SAI) in a municipality and year, 2014-2026 (one file).
+# Columns as the intake lands them (curation/intake.yml, source sisagua_supply_population; the headers of the file read through the
+# shared SISAGUA dictionary's aliases). Meaning from the system's own data dictionary: dicionario_cadastro_populacao_abastecida.odt
+# (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/dicionario_cadastro_populacao_abastecida.odt), checked against the header and first rows of the published file.
+# The dictionary lists the columns in the file's order; the landed headers NO_EMPRESA_1 / NU_CNPJ_1 and the truncated
+# NU_ECONOMIAS_DOMICILIOS_NAO_PE are matched to their dictionary entries by that position and by their content. The lake's
+# __RAW companions and underscore-prefixed provenance columns are not source columns and carry no role.
+dataset: SISAGUA-CADP
+record: supply_form
+columns:
+  CAIXA_DAGUA:
+    role: supply.water_tank
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Caixa d''água" (supply.water_tank): the supply register: how the water is supplied and treated'
+    name: Caixa d'água
+    years:
+    - 2014
+    - 2026
+    note: 'Whether the SAI has a water tank: Sim / Não (dictionary). Only SAI carries it.'
+  CANALIZAÇÃO:
+    role: supply.piping
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Canalização" (supply.piping): the supply register: how the water is supplied and treated'
+    name: Canalização
+    years:
+    - 2014
+    - 2026
+    note: 'Piped distribution to the homes: Sim / Não (dictionary). No data for SAA and SAI. The header keeps its accent.'
+  CAPTACAO_AGUA_CHUVA:
+    role: supply.rain_intake
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Captação de Água de chuva" (supply.rain_intake): the supply register: how the water is supplied
+      and treated'
+    name: Captação de Água de chuva
+    years:
+    - 2014
+    - 2026
+    note: 'Rainwater capture: Sim / Não (dictionary). No data for SAA.'
+  CAPTACAO_SUBTERRANEA:
+    role: supply.ground_intake
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Captação subterrânea" (supply.ground_intake): the supply register: how the water is supplied and
+      treated'
+    name: Captação subterrânea
+    years:
+    - 2014
+    - 2026
+    note: 'At least one intake from groundwater: Sim / Não (dictionary).'
+  CAPTACAO_SUPERFICIAL:
+    role: supply.surface_intake
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Captação superficial" (supply.surface_intake): the supply register: how the water is supplied
+      and treated'
+    name: Captação superficial
+    years:
+    - 2014
+    - 2026
+    note: 'At least one intake from a surface source: Sim / Não (dictionary).'
+  CARRO_PIPA:
+    role: supply.carro_pipa
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Carro Pipa" (supply.carro_pipa): the supply register: how the water is supplied and treated'
+    name: Carro Pipa
+    years:
+    - 2014
+    - 2026
+    note: 'Tanker truck as a supply type: Sim / Não (dictionary). No data for SAA and SAI.'
+  CHAFARIZ:
+    role: supply.fountain
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Chafariz" (supply.fountain): the supply register: how the water is supplied and treated'
+    name: Chafariz
+    years:
+    - 2014
+    - 2026
+    note: 'Public fountain as a supply type: Sim / Não (dictionary). No data for SAA and SAI.'
+  CISTERNA:
+    role: supply.cistern
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Cisterna" (supply.cistern): the supply register: how the water is supplied and treated'
+    name: Cisterna
+    years:
+    - 2014
+    - 2026
+    note: 'Cistern as a supply and storage type: Sim / Não (dictionary). No data for SAA.'
+  CO_MUNICIPIO_IBGE:
+    role: supply.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE" (supply.municipality): the supply register: where, who is responsible, and how the
+      water is supplied'
+    name: Código IBGE
+    years:
+    - 2014
+    - 2026
+    note: 'IBGE code of the supplied municipality, 6 digits (dictionary): where the water is supplied, not where the supplier
+      is based.'
+  DESINFECCAO:
+    role: supply.disinfection
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Desinfecção" (supply.disinfection): the supply register: how the water is supplied and treated'
+    name: Desinfecção
+    years:
+    - 2014
+    - 2026
+    note: 'Disinfection among the treatment steps; for SAI, disinfection inside the home: Sim / Não (dictionary). An empty
+      value is not Não (intake.yml).'
+  DT_FORMULARIO_CADASTRO:
+    role: supply.form_filled_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de preenchimento" (supply.form_filled_on): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Data de preenchimento
+    years:
+    - 2014
+    - 2026
+    note: Date the responsible party filled in the register form (dictionary). Not the reference year.
+  DT_INCLUSAO_REGISTRO:
+    role: supply.registered_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de registro" (supply.registered_on): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Data de registro
+    years:
+    - 2014
+    - 2026
+    note: Date the information was entered in SISAGUA, filled automatically (dictionary).
+  FILTRACAO:
+    role: supply.filtration
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Filtração" (supply.filtration): the supply register: how the water is supplied and treated'
+    name: Filtração
+    years:
+    - 2014
+    - 2026
+    note: 'Filtration among the treatment steps; for SAI, filtration inside the home: Sim / Não (dictionary). An empty value
+      is not Não (intake.yml).'
+  FONTE:
+    role: supply.spring
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Fonte" (supply.spring): the supply register: how the water is supplied and treated'
+    name: Fonte
+    years:
+    - 2014
+    - 2026
+    note: 'Spring as a supply type: Sim / Não (dictionary). No data for SAA and SAI.'
+  NO_EMPRESA:
+    role: institution.name
+    kind: text
+    model: excluded
+    name: Nome da Instituição
+    years:
+    - 2014
+    - 2026
+    note: Institution responsible for the SAA or SAC; no data for SAI (dictionary).
+  NO_EMPRESA_1:
+    role: institution.office_name
+    kind: text
+    model: excluded
+    name: Nome do escritório regional/local
+    years:
+    - 2014
+    - 2026
+    note: Regional or local office of the institution; no data for Local institutions or SAI (dictionary). Header NO_EMPRESA_1
+      matched to this entry by position.
+  NO_MUNICIPIO:
+    role: supply.municipality_name
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Município" (supply.municipality_name): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: Município
+    years:
+    - 2014
+    - 2026
+    note: Name of the supplied municipality. An SAA can supply more than one municipality and a municipality more than one
+      SAA (dictionary).
+  NO_REGIAO:
+    role: supply.macro_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Região Geográfica" (supply.macro_region): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Região Geográfica
+    years:
+    - 2014
+    - 2026
+    note: Macro-region name of the supplied municipality (dictionary).
+  NO_REGIONAL:
+    role: supply.health_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Regional de Saúde" (supply.health_region): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Regional de Saúde
+    years:
+    - 2014
+    - 2026
+    note: Health region name, maintained by each state's SISAGUA managers (dictionary).
+  NO_SOLUCAO_ABASTECIMENTO:
+    role: supply.name
+    kind: text
+    model: excluded
+    name: Nome da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+    note: Name of the supply form (dictionary).
+  NU_ANO:
+    role: supply.year
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Ano de referência" (supply.year): the supply register: where, who is responsible, and how the
+      water is supplied'
+    name: Ano de referência
+    years:
+    - 2014
+    - 2026
+    note: Year of the register entry or of its annual update (dictionary). The time binding; 2026 is partial (intake.yml).
+  NU_CNPJ:
+    role: institution.cnpj
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ da Instituição" (institution.cnpj): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: CNPJ da Instituição
+    years:
+    - 2014
+    - 2026
+    note: CNPJ of the institution (the head office for Regional ones); no data for SAI (dictionary). Landed as text with a
+      trailing ".0" (43776517000180.0), so leading zeros of short CNPJs are lost.
+  NU_CNPJ_1:
+    role: institution.office_cnpj
+    kind: institution
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ do escritório regional/local" (institution.office_cnpj): the supply register: where, who
+      is responsible, and how the water is supplied'
+    name: CNPJ do escritório regional/local
+    years:
+    - 2014
+    - 2026
+    note: CNPJ of the office; no data for Local institutions or SAI (dictionary). Header NU_CNPJ_1 matched by position; same
+      ".0" suffix as NU_CNPJ.
+  NU_ECONOMIAS_DOMICILIOS_NAO_PE:
+    role: supply.occasional_dwellings
+    kind: number
+    model: mark
+    unit: count
+    unit_of: Residential economies
+    unit_evidence: 'dicionario_cadastro_populacao_abastecida.odt: "Número de economias residenciais (de uso ocasional)"'
+    fact_domain: administrative
+    fact_domain_evidence: '"Número de economias residenciais (de uso ocasional)" (supply.occasional_dwellings): the supply
+      register: where, who is responsible, and how the water is supplied'
+    name: Número de economias residenciais (de uso ocasional)
+    years:
+    - 2014
+    - 2026
+    note: Residential economies of occasional use, such as holiday homes (dictionary). Header truncated in the file, matched
+      by position. Landed as text with ".0".
+  NU_ECONOMIA_DOMICILIO_PERMAN:
+    role: supply.permanent_dwellings
+    kind: number
+    model: mark
+    unit: count
+    unit_of: Residential economies
+    unit_evidence: 'dicionario_cadastro_populacao_abastecida.odt: "Número de economias residenciais (domicílios permanentes)"'
+    fact_domain: administrative
+    fact_domain_evidence: '"Número de economias residenciais (domicílios permanentes)" (supply.permanent_dwellings): the supply
+      register: where, who is responsible, and how the water is supplied'
+    name: Número de economias residenciais (domicílios permanentes)
+    years:
+    - 2014
+    - 2026
+    note: Residential economies used as permanent dwellings (dictionary). Landed as text with ".0".
+  NU_SOLUCAO_ABASTECIMENTO:
+    role: supply.code
+    kind: identifier
+    model: link_only
+    name: Código Forma de abastecimento
+    years:
+    - 2014
+    - 2026
+    note: Generated by SISAGUA at registration or yearly update (dictionary); an SAA code does not repeat within a municipality
+      and year but can repeat across the municipalities it supplies.
+  NU_VALOR_POPULACAO_ESTIMADA:
+    role: supply.population
+    kind: number
+    model: mark
+    unit: count
+    unit_of: People supplied
+    unit_evidence: 'dicionario_cadastro_populacao_abastecida.odt: "População estimada"'
+    fact_domain: administrative
+    fact_domain_evidence: '"População estimada" (supply.population): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: População estimada
+    years:
+    - 2014
+    - 2026
+    note: Registrant's estimate of the population supplied by the SAA or SAC (dictionary); an SAA supplying several municipalities
+      has a value for each. SISAGUA caps the sum over forms (except SAC receiving SAA water and SAI receiving SAA/SAC water)
+      at the IBGE population of the previous year; the forms of a municipality still overlap (intake.yml).
+  NU_VALOR_RURAL:
+    role: supply.rural_population
+    kind: number
+    model: mark
+    unit: count
+    unit_of: People supplied
+    unit_evidence: 'dicionario_cadastro_populacao_abastecida.odt: "População rural"'
+    fact_domain: administrative
+    fact_domain_evidence: '"População rural" (supply.rural_population): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: População rural
+    years:
+    - 2014
+    - 2026
+    note: Estimated rural population supplied by the SAA or SAC (dictionary).
+  NU_VALOR_URBANA:
+    role: supply.urban_population
+    kind: number
+    model: mark
+    unit: count
+    unit_of: People supplied
+    unit_evidence: 'dicionario_cadastro_populacao_abastecida.odt: "População urbana"'
+    fact_domain: administrative
+    fact_domain_evidence: '"População urbana" (supply.urban_population): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: População urbana
+    years:
+    - 2014
+    - 2026
+    note: Estimated urban population supplied by the SAA or SAC (dictionary).
+  OUTRO_TIPO_SUPRIMENTO:
+    role: supply.other_supply_type
+    kind: text
+    model: excluded
+    name: Outro tipo de suprimento
+    years:
+    - 2014
+    - 2026
+    note: Free-text description of a supply type SISAGUA does not tabulate; no data for SAA (dictionary).
+  POP_RECEBE_AGUA_SAA:
+    role: supply.also_receives_saa
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Pop recebe Água de SAA" (supply.also_receives_saa): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Pop recebe Água de SAA
+    years:
+    - 2014
+    - 2026
+    note: Whether the population of an SAC also receives water from an SAA (dictionary); data for SAC only. The dictionary
+      does not list the values.
+  POP_RECEBE_AGUA_SAA_SAC:
+    role: supply.also_receives_saa_sac
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Pop recebe Água de SAA/SAC" (supply.also_receives_saa_sac): the supply register: where, who is
+      responsible, and how the water is supplied'
+    name: Pop recebe Água de SAA/SAC
+    years:
+    - 2014
+    - 2026
+    note: Whether the population of an SAI also receives water from an SAA or SAC (dictionary); data for SAI only. The dictionary
+      does not list the values.
+  SEM_RESERVACAO:
+    role: supply.no_storage
+    kind: category
+    model: dimension
+    fact_domain: process
+    fact_domain_evidence: '"Sem reservação" (supply.no_storage): the supply register: how the water is supplied and treated'
+    name: Sem reservação
+    years:
+    - 2014
+    - 2026
+    note: 'Whether the SAI has no storage reservoir (Sim means there is none): Sim / Não (dictionary). Only SAI carries it.'
+  SG_EMPRESA:
+    role: institution.acronym
+    kind: text
+    model: excluded
+    name: Sigla da Instituição
+    years:
+    - 2014
+    - 2026
+    note: Acronym of the institution responsible for the SAA or SAC; no data for SAI (dictionary).
+  SG_UF:
+    role: supply.state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"UF" (supply.state): the supply register: where, who is responsible, and how the water is supplied'
+    name: UF
+    years:
+    - 2014
+    - 2026
+    note: State abbreviation of the supplied municipality (dictionary).
+  TP_ABASTECIMENTO:
+    role: supply.type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Forma de Abastecimento" (supply.type): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Tipo da Forma de Abastecimento
+    years:
+    - 2014
+    - 2026
+    note: SAA (Sistema de Abastecimento de Água), SAC (Solução Alternativa Coletiva), SAI (Solução Alternativa Individual),
+      as defined by the potability norm (dictionary).
+  TP_ABRANGENCIA:
+    role: institution.scope
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Instituição" (institution.scope): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Tipo da Instituição
+    years:
+    - 2014
+    - 2026
+    note: Local (one municipality) or Regional (more than one) (dictionary); no data for SAI.

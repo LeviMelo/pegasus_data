@@ -72,7 +72,10 @@ def _final_projection(table: pa.Table, spec: QuerySpec, *, keep_condition: bool 
             keep += [name for name in table.column_names if name in PROVENANCE_COLUMNS]
         keep = list(dict.fromkeys(keep))
     if spec.provenance != "all":
-        keep = [name for name in keep if not name.startswith("_") and name != "year"]
+        # a column the caller named is kept (the intake's `_MUNICIPALITY` and `year`: the place and period it landed a
+        # record by, `semantics.curation._landed_axes`); other internal columns are not part of a record's answer
+        named = {str(item).upper() for item in spec.select} if spec.select is not None else set()
+        keep = [name for name in keep if name.upper() in named or (not name.startswith("_") and name != "year")]
     if keep_condition and CONDITION in table.column_names:
         keep.append(CONDITION)         # the engine's: the record's answer to a condition, for the caller to count by group
     return table.select(keep)

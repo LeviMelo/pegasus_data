@@ -326,22 +326,27 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     # `geography` selects the publications read (a state's files), never the records: a test reads the least it needs
     publications = geography or "BR"
     years = sorted({int(str(p)[:4]) for p in periods})
-    # Only the years the source publishes are read, in runs of consecutive years; a year asked for that has no
-    # publication is said in the manifest, never fetched and failed (FA-HUM's file has no case in 2012).
+    # Only the years the source publishes are read; a year asked for that has no publication is said in the manifest,
+    # never fetched and failed (FA-HUM's file has no case in 2012). Events are read in runs of consecutive years, since an
+    # event type removes a record filed in two years' publications (SRAG's) only within one read; a dataset's rows have no
+    # identity across files and are read one year at a time (SNGPC's national sales of 2014-2021 read at once ran out of
+    # memory).
     from ._explore import explore
 
     published = {int(r["year"]) for r in explore(dataset).as_dict()["rows"] if r.get("year")}
     unpublished = [y for y in years if y not in published]
+    readable = [y for y in years if y in published]
+    if not readable:
+        raise LookupError(f"{dataset} publishes none of the years {years}")
     runs: list[list[int]] = []
-    for y in (y for y in years if y in published):
-        if runs and y == runs[-1][-1] + 1:
+    for y in readable:
+        if runs and y == runs[-1][-1] + 1 and event != "rows":
             runs[-1].append(y)
         else:
             runs.append([y])
-    if not runs:
-        raise LookupError(f"{dataset} publishes none of the years {years}")
     spans: list[Any] = ([m for m in months if int(m[:4]) in published] if months
                         else [run[0] if len(run) == 1 else (run[0], run[-1]) for run in runs])
+
     def kept(table: pa.Table) -> pa.Table:
         """`where`'s prefixes, exclusions, bounds and two-column codes, applied to a table that holds their columns."""
         for key, rule in after.items():

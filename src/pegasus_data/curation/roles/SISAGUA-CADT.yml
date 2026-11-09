@@ -1,0 +1,272 @@
+# SISAGUA CADT: Register, tanker trucks (carro-pipa) and the population they supply: one row per truck authorisation in a municipality, 2023-2026 (one file).
+# Columns as the intake lands them (curation/intake.yml, source sisagua_tanker_population; the headers of the file read through the
+# shared SISAGUA dictionary's aliases). Meaning from the system's own data dictionary: dicionario_cadastro_carro_pipa_populacao.odt
+# (https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SISAGUA/dicionario_cadastro_carro_pipa_populacao.odt), checked against the header and first rows of the published file.
+# A truck can supply more than one municipality (dictionary), hence one row per truck and municipality. The lake's __RAW companions and
+# underscore-prefixed provenance columns are not source columns and carry no role.
+dataset: SISAGUA-CADT
+record: tanker_truck
+columns:
+  CO_MUNICIPIO_IBGE:
+    role: tanker.municipality
+    kind: place
+    model: where
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Código IBGE" (tanker.municipality): the supply register: where, who is responsible, and how the
+      water is supplied'
+    name: Código IBGE
+    years:
+    - 2023
+    - 2026
+    note: IBGE code of the municipality supplied by the truck, 6 digits (dictionary).
+  DS_TIPO_FINALIDADE:
+    role: tanker.purpose
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Finalidade" (tanker.purpose): the supply register: where, who is responsible, and how the water
+      is supplied'
+    name: Finalidade
+    years:
+    - 2023
+    - 2026
+    note: 'Purpose of the supply: Particular, Prestador de serviço, Saúde Indígena or Outro (dictionary).'
+  DT_CRIACAO:
+    role: tanker.created_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de criação" (tanker.created_on): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: Data de criação
+    years:
+    - 2023
+    - 2026
+    note: Date the truck was created in the register (dictionary). Landed as text "YYYY/MM/DD hh:mm:ss.fffffffff", not parsed.
+  DT_PREENCHIMENTO_FORMULARIO:
+    role: tanker.form_filled_on
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data de preenchimento" (tanker.form_filled_on): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Data de preenchimento
+    years:
+    - 2023
+    - 2026
+    note: Date the responsible party filled in the register information (dictionary). Landed as text, not parsed.
+  DT_TRANSPORTE_FIM:
+    role: tanker.authorisation_end
+    kind: date
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"Data fim da autorização" (tanker.authorisation_end): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Data fim da autorização
+    years:
+    - 2023
+    - 2026
+    note: End of the authorisation (dictionary).
+  DT_TRANSPORTE_INICIO:
+    role: tanker.authorisation_start
+    kind: date
+    model: when
+    fact_domain: administrative
+    fact_domain_evidence: '"Data início da autorização" (tanker.authorisation_start): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Data início da autorização
+    years:
+    - 2023
+    - 2026
+    note: Start of the authorisation to supply drinking water (dictionary). The time binding; one authorisation can span two
+      years (intake.yml).
+  NO_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_name
+    kind: text
+    model: excluded
+    name: Nome do escritório regional/local
+    years:
+    - 2023
+    - 2026
+    note: Deconcentrated unit of a Regional institution; empty for Local ones (dictionary).
+  NO_INSTITUICAO:
+    role: institution.name
+    kind: text
+    model: excluded
+    name: Nome da Instituição
+    years:
+    - 2023
+    - 2026
+    note: Only when a legal entity is responsible for the truck (dictionary).
+  NO_MUNICIPIO:
+    role: tanker.municipality_name
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Município" (tanker.municipality_name): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: Município
+    years:
+    - 2023
+    - 2026
+    note: Name of the municipality supplied; a truck can supply more than one (dictionary).
+  NO_REGIAO:
+    role: tanker.macro_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Região Geográfica" (tanker.macro_region): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Região Geográfica
+    years:
+    - 2023
+    - 2026
+    note: Macro-region of the municipality supplied by the truck (dictionary).
+  NO_REGIONAL:
+    role: tanker.health_region
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"Regional de Saúde" (tanker.health_region): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Regional de Saúde
+    years:
+    - 2023
+    - 2026
+    note: Health region name, maintained by each state's SISAGUA managers (dictionary).
+  NO_RESPONSAVEL_CADASTRO:
+    role: tanker.informant_name
+    kind: text
+    model: excluded
+    name: Responsável pelas informações
+    years:
+    - 2023
+    - 2026
+    note: 'Name of the person responsible for the information about the truck (dictionary). A personal name: kept in the lake,
+      never modelled.'
+  NO_RESPONSAVEL_CADASTRO_CARRO_PIPA:
+    role: tanker.responsible_name
+    kind: text
+    model: excluded
+    name: Nome do responsável pelo Carro-Pipa
+    years:
+    - 2023
+    - 2026
+    note: 'Only when a natural person is responsible (dictionary). A personal name: kept in the lake, never modelled.'
+  NU_AUTORIZACAO:
+    role: tanker.authorisation_number
+    kind: identifier
+    model: link_only
+    name: Número da autorização
+    years:
+    - 2023
+    - 2026
+    note: Authorisation number (dictionary); the file also holds words such as ISENTO (exempt) here.
+  NU_CARRO_PIPA:
+    role: tanker.code
+    kind: identifier
+    model: link_only
+    name: Código do Carro-Pipa
+    years:
+    - 2023
+    - 2026
+    note: Generated automatically by SISAGUA when the truck is registered (dictionary).
+  NU_CNPJ_NO_ESCRITORIO_REGIONAL_LOCAL:
+    role: institution.office_cnpj
+    kind: institution
+    model: mark
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ do escritório regional/local" (institution.office_cnpj): the supply register: where, who
+      is responsible, and how the water is supplied'
+    name: CNPJ do escritório regional/local
+    years:
+    - 2023
+    - 2026
+    note: Empty for Local institutions (dictionary). Text with a trailing ".0".
+  NU_CNPJ_NO_INSTITUICAO:
+    role: institution.cnpj
+    kind: institution
+    model: institution
+    fact_domain: administrative
+    fact_domain_evidence: '"CNPJ da Instituição" (institution.cnpj): the supply register: where, who is responsible, and how
+      the water is supplied'
+    name: CNPJ da Instituição
+    years:
+    - 2023
+    - 2026
+    note: Only when a legal entity is responsible; the head office for Regional institutions (dictionary). Text with a trailing
+      ".0".
+  NU_PESSOAS_ABASTECIDAS:
+    role: tanker.population
+    kind: number
+    model: mark
+    unit: count
+    unit_of: People supplied
+    unit_evidence: 'dicionario_cadastro_carro_pipa_populacao.odt: "N° estimado de pessoas abastecidas"'
+    fact_domain: administrative
+    fact_domain_evidence: '"N° estimado de pessoas abastecidas" (tanker.population): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: N° estimado de pessoas abastecidas
+    years:
+    - 2023
+    - 2026
+    note: 'Registrant''s estimate of the population the truck supplies in the municipality (dictionary). Not summable: registrants
+      often enter the whole municipality on each truck (intake.yml).'
+  NU_PLACA:
+    role: tanker.plate
+    kind: identifier
+    model: link_only
+    name: Placa
+    years:
+    - 2023
+    - 2026
+    note: 'Licence plate of the truck (dictionary). A vehicle identifier: kept and flagged, never a dimension.'
+  SG_INSTITUICAO:
+    role: institution.acronym
+    kind: text
+    model: excluded
+    name: Sigla da Instituição
+    years:
+    - 2023
+    - 2026
+    note: Only when a legal entity (pessoa jurídica) is responsible for the truck (dictionary).
+  SG_UF:
+    role: tanker.state
+    kind: place
+    model: mark
+    place_of: event
+    fact_domain: administrative
+    fact_domain_evidence: '"UF" (tanker.state): the supply register: where, who is responsible, and how the water is supplied'
+    name: UF
+    years:
+    - 2023
+    - 2026
+    note: State of the municipality supplied (dictionary).
+  TP_ABRANGENCIA:
+    role: institution.scope
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo da Instituição" (institution.scope): the supply register: where, who is responsible, and
+      how the water is supplied'
+    name: Tipo da Instituição
+    years:
+    - 2023
+    - 2026
+    note: Local (one municipality) or Regional (more than one) (dictionary).
+  TP_PESSOA:
+    role: tanker.responsible_type
+    kind: category
+    model: dimension
+    fact_domain: administrative
+    fact_domain_evidence: '"Tipo de responsável" (tanker.responsible_type): the supply register: where, who is responsible,
+      and how the water is supplied'
+    name: Tipo de responsável
+    years:
+    - 2023
+    - 2026
+    note: Pessoa Física or Pessoa Jurídica responsible for the supply (dictionary); the file holds the abbreviation (PJ).

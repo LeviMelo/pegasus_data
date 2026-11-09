@@ -413,7 +413,9 @@ def s_sweep() -> dict[str, Any]:
 
 def s_linkage() -> dict[str, Any]:
     """Record linkage as a person would run it (ADR-0107): the three spine links on RR 2022, both
-    methods, freshly computed; each must be viable, and the report must carry its error."""
+    methods, freshly computed; none may be not viable, and the report must carry its error, its verdict's reasons and
+    which validations are circular (a validation on a key never decides, b52e7a8: SIH deaths to SIM reads "use with
+    caution" since, its held-out residence agreeing 85-86%, the place of death being a key)."""
     from pegasus_data import link
 
     out: dict[str, Any] = {}
@@ -430,8 +432,10 @@ def s_linkage() -> dict[str, Any]:
                 "error": s.get("chance_percent", s.get("estimated_fdr_percent")),
                 "upper95": s.get("chance_upper95_percent", s.get("fdr_upper95_percent")),
                 "validations": {k: v["agreement_percent"] for k, v in s["validations"].items()},
+                "circular": sorted(k for k, v in s["validations"].items() if v.get("circular")),
+                "reasons": s.get("verdict_reasons") or s.get("reasons"),
             }
-            if s["verdict"] != "viable":
+            if s["verdict"] == "not viable":
                 raise AssertionError(f"{spec}/{method} is {s['verdict']} on RR 2022: {out[f'{spec}/{method}']}")
     return out
 

@@ -1346,9 +1346,10 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
     base = Path(root or curation_root())
     wanted = str(dataset).upper().replace(".", "-", 1)
     path = base / "roles" / f"{wanted}.yml"
-    if not path.is_file():
+    landed = _landed_axes(wanted)
+    if not path.is_file() and not landed:
         return None
-    doc = read_yaml(path) or {}
+    doc = (read_yaml(path) or {}) if path.is_file() else {}
     columns = {str(c): b for c, b in (doc.get("columns") or {}).items() if isinstance(b, dict)}
     geography: dict[str, Any] = {}
     default_geography = None
@@ -1376,10 +1377,18 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
             time[f"{entity}.year_month"] = {"fields": [pair["year"], pair["month"]], "encoding": "year_month"}
         elif "year" in pair:
             time[f"{entity}.year"] = {"fields": [pair["year"]], "encoding": "year"}
+    dated = _lake_period_columns(wanted)
+    default_time = next((name for name, b in time.items() if dated and set(b["fields"]) & dated), None) if time else None
+    if landed:
+        # the place and period the intake landed each record by: a default only where the roles give none (a place
+        # written as a name, SNGPC's; a dataset with no roles file)
+        geography.setdefault("landed", landed["geography"])
+        time.setdefault("landed", landed["time"])
+        default_geography = default_geography or (next((n for n in geography if n != "landed"), "landed"))
+        default_time = default_time or (next((n for n in time if n != "landed"), "landed"))
     if not geography or not time:
         return None
-    dated = _lake_period_columns(wanted)
-    default_time = next((name for name, b in time.items() if dated and set(b["fields"]) & dated), next(iter(time)))
+    default_time = default_time or next(iter(time))
     system, _, series = wanted.partition("-")
     return DatasetSemantics(
         dataset_id=wanted.replace("-", "_"), system=system, series=series,
@@ -1387,6 +1396,23 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
         axes={"geography": geography, "default_geography": default_geography or next(iter(geography)),
               "time": time, "default_time": default_time},
     )
+
+
+def _landed_axes(dataset: str) -> dict[str, Any] | None:
+    """The bindings an intake source's records were landed by: ``_MUNICIPALITY`` (its declared place resolved to the
+    IBGE code, a name matched within its state, the sole-municipality rule for Brasília's administrative regions) and
+    ``year`` with ``_MONTH`` (its declared period). Written by `intake._records_sql` beside the raw columns, so a source
+    placed by a name, or with no roles file, has a place and a time without a second declaration."""
+    from ..intake import declared_sources
+
+    system, _, series = dataset.partition("-")
+    for spec in declared_sources().values():
+        if str(spec.get("system") or "").upper() == system and str(spec.get("series") or "").upper() == series:
+            if (spec.get("place") or {}).get("type") not in ("municipality", "municipality_name"):
+                return None
+            return {"geography": {"fields": ["_MUNICIPALITY"], "code_system": "ibge_municipality"},
+                    "time": {"fields": ["year", "_MONTH"], "encoding": "year_month"}}
+    return None
 
 
 def _lake_period_columns(dataset: str) -> set[str]:
