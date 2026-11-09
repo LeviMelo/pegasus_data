@@ -447,9 +447,10 @@ def s_timeline() -> dict[str, Any]:
     from pegasus_data.linkage.timeline import notable_births, timeline
 
     # A timeline reads stored runs only (a request never computes one; 2026-10-14 review), so every link it reads is
-    # linked first. The newborn link inherits the stored delivery link of each year of its padded period (ADR-0121).
+    # linked first. The newborn link inherits the stored delivery link of each year of its padded period (ADR-0121) and
+    # its held-out validation from the infant death link (OQ 99), so both are linked before it.
     link(tl.DELIVERY, period="2021", geography="RR", method="probabilistic")
-    for spec in (tl.DELIVERY, tl.DELIVERY_PRIVATE, tl.NEONATAL, tl.INFANT_DEATH, tl.MATERNAL_DEATH):
+    for spec in (tl.DELIVERY, tl.DELIVERY_PRIVATE, tl.INFANT_DEATH, tl.NEONATAL, tl.MATERNAL_DEATH):
         link(spec, period="2022", geography="RR", method="probabilistic", allow_not_viable=True)
     births = notable_births(period="2022", geography="RR", method="probabilistic", limit=5)
     if not births:
