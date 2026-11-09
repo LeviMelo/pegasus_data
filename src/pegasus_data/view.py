@@ -543,11 +543,15 @@ def _label_via(
     return expand(pc.cast(table.column(field_name), pa.string()), at)
 
 
-#: A recipe's short names for bridges, and the classification each lands in.
-BRIDGE_NAMES = {"A": "SIGTAP_A", "H": "SIGTAP_H"}
-BRIDGE_TARGETS = {"SIGTAP_A": ("SIGTAP", 10), "SIGTAP_H": ("SIGTAP", 10), "CBO94": ("CBO2002", 6)}
-#: A claim crosses when it holds for this share of the evidence or more.
-BRIDGE_UNIQUE = 0.95
+def _bridge_declarations() -> tuple[dict[str, str], dict[str, tuple[str, int]], float]:
+    """A recipe's short names for bridges, the classification and code width each lands in, and the share of the evidence
+    a claim must hold to cross, as `codelists.yml` declares them (``bridges:``)."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    declared = (read_yaml(curation_root() / "codelists.yml") or {})["bridges"]
+    targets = {str(k): (str(v["classification"]), int(v["width"])) for k, v in declared["targets"].items()}
+    return {str(k): str(v) for k, v in declared["names"].items()}, targets, float(declared["unique"])
 
 
 @lru_cache(maxsize=1)
@@ -574,12 +578,13 @@ def bridged(codes: object, bridge: str) -> pa.Array:
     """Each code in the classification that replaced its own (ADR-0101, ADR-0104).
 
     A code already of the target's width is itself. A code of the replaced
-    classification crosses when one claim holds for ``BRIDGE_UNIQUE`` of the
+    classification crosses when one claim holds for the declared ``unique`` share of the
     evidence (the official link, or the share of professionals DATASUS moved);
     otherwise it stays null rather than choosing.
     """
-    name = BRIDGE_NAMES.get(bridge.upper(), bridge.upper())
-    _target, width = BRIDGE_TARGETS.get(name, ("", 0))
+    names, targets, unique = _bridge_declarations()
+    name = names.get(bridge.upper(), bridge.upper())
+    _target, width = targets.get(name, ("", 0))
     table = _bridges()
 
     def one(v: object) -> str | None:
@@ -587,18 +592,19 @@ def bridged(codes: object, bridge: str) -> pa.Array:
         if width and len(code) == width:
             return code
         claims = table.get((name, code), ())
-        return claims[0][0] if claims and claims[0][1] >= BRIDGE_UNIQUE else None
+        return claims[0][0] if claims and claims[0][1] >= unique else None
 
     empty = table.get((name, ""), ())
     out = _per_distinct(codes, one)
-    if empty and empty[0][1] >= BRIDGE_UNIQUE:   # a null read as "" before; keep that
+    if empty and empty[0][1] >= unique:   # a null read as "" before; keep that
         out = pc.fill_null(out, empty[0][0])
     return out
 
 
 def bridge_target(bridge: str) -> str:
     """The classification a bridge lands in (SIGTAP, CBO2002)."""
-    return BRIDGE_TARGETS.get(BRIDGE_NAMES.get(bridge.upper(), bridge.upper()), ("SIGTAP", 0))[0]
+    names, targets, _unique = _bridge_declarations()
+    return targets.get(names.get(bridge.upper(), bridge.upper()), ("SIGTAP", 0))[0]
 
 
 def _names_of(table: pa.Table, wanted: Sequence[object]) -> dict[str, str]:

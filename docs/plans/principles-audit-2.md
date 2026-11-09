@@ -172,7 +172,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - The list is a fact about DATASUS kits and exists twice; adding `CNESN4` would update one and silently not the fingerprint.
 - Fix: one `SIA_UPS_TABLES(uf)` generator (or declare the pattern in curation) used by both. Size XS.
 
-**T10. Bridges and standard names in `view.py`**
+**T10. Bridges and standard names in `view.py`** — done: `codelists.yml` `bridges:` declares the short names, target classifications and widths, and the crossing share; a bridged SIH 2007-06 AC query (3,772 rows, PROC_REA_grupo through bridge H) is identical
 - `view.py:546-549`: `BRIDGE_NAMES {"A": "SIGTAP_A", "H": "SIGTAP_H"}`, `BRIDGE_TARGETS {"SIGTAP_A": ("SIGTAP", 10), "CBO94": ("CBO2002", 6)}`, `BRIDGE_UNIQUE = 0.95`.
 - Which classification a bridge lands in, and the widths 10 and 6, are data facts.
 - Fix: `bridges:` in `codelists.yml`. Size XS.

@@ -56,6 +56,18 @@ codebook:
   max_codes: 128
   max_width: 3
 
+# Bridges between classifications (`view._bridge_code`): a recipe's short name for a bridge, the classification each
+# lands in and the width of its codes there, and the share of the evidence a claim must hold to cross (a code the old
+# classification held several meanings of crosses only when one meaning has that share). SIA's (A) and SIH's (H) old
+# procedure codes land in SIGTAP's 10 digits; CBO 1994 occupations in CBO 2002's 6.
+bridges:
+  names: {A: SIGTAP_A, H: SIGTAP_H}
+  targets:
+    SIGTAP_A: {classification: SIGTAP, width: 10}
+    SIGTAP_H: {classification: SIGTAP, width: 10}
+    CBO94: {classification: CBO2002, width: 6}
+  unique: 0.95
+
 roles:
   registry:
     what: >
