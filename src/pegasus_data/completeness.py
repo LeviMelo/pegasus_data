@@ -264,6 +264,7 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
         model="published Ministry/IBGE ratio (IDB 2012 A.17, A.18) to 2011, then a logit drift (SIM) or persistence "
               "(SINASC) with an interval calibrated by rolling-origin on the published years; completeness.py v2",
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
+        place="uf", period="year", strata=["system"],
         inputs={"published ratio": "tabnet.datasus.gov.br/cgi/idb2012/a17b.htm, a1801b.htm (IBGE and MS/SVS)",
                 "ill-defined share": "SIM municipality × year × cause aggregate", "census-based SINASC": acct_dir.parent.name + "/" + acct_dir.name},
         validation=validation,

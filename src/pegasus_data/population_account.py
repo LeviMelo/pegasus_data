@@ -1034,6 +1034,7 @@ def build_registration_completeness(root: str | Path, population_root: str | Pat
         model="vital account's cohorts aged 0-4 and 5-9 at the closing census against the coverage-corrected census, by state; "
               "population_account.py v2",
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
+        place="uf", period="period", strata=["system", "census_basis", "cohort"],
         inputs={"CENSO 2010, 2022 (raw)": "SIDRA tables 1378, 9514", "SIM.DO deaths and SINASC births 2000-2023": f"pegasus_data {__version__}",
                 "PES 2022 net-error margins": "IBGE liv102110 (sources/pes.py)", "population_account": "population-account-2 (same inputs)"},
         validation=validation,

@@ -619,6 +619,7 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     table = summarise(model, comp, muns[keep], mat[keep])
     manifest = ModelledManifest(
         product=population.product, version=population.version, model=__doc__.split("\n")[0], estimates={"p": ["p_lo", "p_hi"]},
+        place="uf", strata=["age_band", "declared", "recorded"],
         inputs={f"link:{population.link}": "stored links, see lake/links",
                 "SIM.DO": f"RACACOR, CODMUNRES, DTNASC, DTOBITO; years {years}", "SINASC-DN": "RACACOR, CODMUNRES (declared race, composition)"},
         validation=validation,

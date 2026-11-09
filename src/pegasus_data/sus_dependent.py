@@ -131,6 +131,7 @@ def build_sus_dependent(root: str | Path, *, version: str, validation: str, draw
         estimates={"private_coverage": ["private_coverage_lo", "private_coverage_hi"],
                    "population_without_private_coverage": ["population_without_private_coverage_lo",
                                                            "population_without_private_coverage_hi"]},
+        place="place", period="year", strata=["sex", "age_band"], additive=["population_without_private_coverage"],
         inputs={"population_account": pm["version"], "ans_beneficiaries": f"ANS PDA-024, December {years}"},
         validation=validation,
         notes=["Not SUS users: plan holders use the SUS for part of their care; non-holders may use private care.",

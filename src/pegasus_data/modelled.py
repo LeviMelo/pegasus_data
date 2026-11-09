@@ -52,6 +52,15 @@ class ModelledManifest:
     validation: str                       # where the evidence that it beats the baseline is written
     tier: str = "modelled"
     notes: list[str] = field(default_factory=list)
+    #: the axes of a row: the column of its place (a municipality's 7 digits, an area "A+B", or a state's code), of its
+    #: period ("" for a product of no period), and its strata; every other column is an estimate, its uncertainty or an
+    #: annotation (``basis``, ``horizon``). A cube reads these (`cubes._modelled`), never guesses them.
+    place: str = ""
+    period: str = ""
+    strata: list[str] = field(default_factory=list)
+    #: the estimates whose point values add up over places and strata (counts of people); a share or a probability does
+    #: not, and no interval bound ever does
+    additive: list[str] = field(default_factory=list)
 
 
 def _root(settings: Any) -> Path:
@@ -83,6 +92,12 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
             raise ValueError(f"{column}: an estimate without its uncertainty is refused")
     if not manifest.validation:
         raise ValueError("a modelled product names its validation evidence")
+    if not manifest.place:
+        raise ValueError("a modelled product declares its axes: the column of its place (and its period and strata)")
+    axes = [c for c in (manifest.place, manifest.period, *manifest.strata) if c]
+    absent = [c for c in axes if c not in table.column_names]
+    if absent or set(manifest.additive) - set(manifest.estimates):
+        raise ValueError(f"declared axes {absent} not in the table, or additive {manifest.additive} not estimates")
     import os
     import shutil
 

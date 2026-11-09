@@ -666,6 +666,7 @@ def build_account(root: str | Path, population_root: str | Path, events_dir: str
               "years of age from the account's own path (80+ by the state's census shape), race by cohort composition between "
               "the censuses with a state reclassification rate",
         estimates={"population": ["population_lo", "population_hi", "population_lo95", "population_hi95"]},
+        place="municipality", period="year", strata=["sex", "age", "race"], additive=["population"],
         inputs={"population-account-2 inputs": "see that version's manifest (census 2000/2010/2022, SIM, SINASC, PES, POPSVS, SIDRA 200)",
                 "CENSO 2010, 2022 race by single age": "SIDRA table 9606", "CENSO 2000 race by age band (sample)": "SIDRA table 2093",
                 "Contagem 2007 (municipal totals, the split's second anchor)": "SIDRA table 793",

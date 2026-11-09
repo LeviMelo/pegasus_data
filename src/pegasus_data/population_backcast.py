@@ -378,7 +378,8 @@ def write_product(root: str | Path, *, source: str, version: str, validation: st
         model=old["model"] + "; extended back to 1991 by population_backcast.py: the vital account run backward from the "
                              "coverage-corrected Census 2000 with SIM deaths of 1991-1999 and settled on the Census 1991 "
                              "(comparable areas 1991-2010), the municipal split anchored on the 2000 estimate and the Contagem 1996" + model_note,
-        estimates=old["estimates"], inputs={**old["inputs"], "Census 1991 by five-year group": "SIDRA table 200",
+        estimates=old["estimates"], place="municipality", period="year", strata=["sex", "age", "race"],
+        additive=["population"], inputs={**old["inputs"], "Census 1991 by five-year group": "SIDRA table 200",
                                             "Contagem 1996 by five-year group (split anchor, hold-out of the area estimate)": "SIDRA table 475",
                                             "SIM 1991-1995 (corrected base)": "SIM.DOR", "SIM 1996-1999": "SIM.DO"},
         validation=validation, notes=old["notes"] + notes)

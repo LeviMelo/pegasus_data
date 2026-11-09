@@ -99,7 +99,8 @@ def cube_sources() -> dict[str, str]:
             "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)",
             "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns",
             "population": "<series>: a population series (curation/populations.yml: POPSVS, POPTCU, CENSO...)",
-            "climate": "<measure>: BR-DWGD's municipal climate by year (sums and their months held, sources.brdwgd)"}
+            "climate": "<measure>: BR-DWGD's municipal climate by year (sums and their months held, sources.brdwgd)",
+            "modelled": "<product>[@<version>]/<estimate>: a modelled product on its declared axes, with its bounds"}
 
 
 # ---------------------------------------------------------------------------------------------------------- SIDRA
@@ -604,6 +605,96 @@ def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                                   "denominator": f"climate:{brdwgd.MEASURES[ident]}_months"})
 
 
+def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+              periods: Sequence[str | int] | None, labels: bool, settings: Any) -> pa.Table:
+    """An estimate of a modelled product as a cube (``modelled:<product>/<estimate>``, the latest version, or
+    ``<product>@<version>/<estimate>``), on the axes its manifest declares (``place``, ``period``, ``strata``), its
+    uncertainty carried as columns named by their suffix (``lo``, ``hi``, ``lo95``, ``hi95``). Never summed implicitly:
+    every declared stratum is named in ``by`` or fixed in ``where``, except for an estimate the manifest declares
+    ``additive``, whose point value sums over the strata left out (its bounds then do not: they are null). A place that
+    is an area of several municipalities ("A+B") is no municipality and is counted, not placed; a product whose places
+    are states is read at ``place="uf"``."""
+    import pyarrow.compute as pc
+    import pyarrow.dataset as ds
+
+    from .config import UF_NUMERIC
+    from .modelled import read_modelled
+
+    name, _, estimate = ident.partition("/")
+    product, _, version = name.partition("@")
+    _, manifest = read_modelled(product, version or None, settings=settings)
+    folder = Path(settings.lake_dir) / "modelled" / product / manifest["version"]
+    if not manifest.get("place"):
+        raise LookupError(f"modelled:{product} {manifest['version']}: its manifest declares no axes")
+    if estimate not in manifest["estimates"]:
+        raise KeyError(f"modelled:{product}: estimates are {sorted(manifest['estimates'])}, got {estimate!r}")
+    strata, place_column, period_column = list(manifest["strata"]), manifest["place"], manifest["period"]
+    unknown = [b for b in [*by, *where] if b not in strata]
+    if unknown:
+        raise KeyError(f"modelled:{product}: strata are {strata}, got {unknown}")
+    additive = estimate in (manifest.get("additive") or [])
+    left_out = [c for c in strata if c not in by and c not in where]
+    if left_out and not additive:
+        raise ValueError(f"modelled:{product}/{estimate} is not additive: name {left_out} in by or fix them in where")
+    bounds = {c.removeprefix(f"{estimate}_"): c for c in manifest["estimates"][estimate]}
+    states = place_column == "uf"
+    if states != (place == "uf"):
+        raise ValueError(f"modelled:{product}'s places are {'states' if states else 'municipalities'}; "
+                         f"read it at place={'uf' if states else 'municipality'}")
+    dataset = ds.dataset(folder / "estimates.parquet")
+    expression = None
+    if periods and period_column:
+        years = [int(str(p)[:4]) for p in periods]
+        kind = dataset.schema.field(period_column).type
+        expression = ds.field(period_column).isin(years if pa.types.is_integer(kind) else [str(p) for p in periods])
+    for column, codes in where.items():
+        kind = dataset.schema.field(column).type
+        values = [int(c) for c in codes] if pa.types.is_integer(kind) else [str(c) for c in codes]
+        clause = ds.field(column).isin(values)
+        expression = clause if expression is None else expression & clause
+    columns = list(dict.fromkeys([place_column, *([period_column] if period_column else []), *by, estimate,
+                                  *bounds.values()]))
+    table = dataset.to_table(columns=columns, filter=expression)
+    raw = pc.cast(table.column(place_column), pa.string())
+    if states:
+        codes = {abbr: int(code) for code, abbr in UF_NUMERIC.items()}
+        places = pa.array([int(v) if v and v.isdigit() else codes.get(v) for v in raw.to_pylist()], pa.int64())
+    else:
+        sole = pc.match_substring_regex(raw, r"^\d{6,7}$")
+        places = pa.array(place_municipalities_of(raw, sole), pa.int64())
+    keep = pc.is_valid(places)
+    areas = int(pc.sum(pc.invert(keep)).as_py() or 0)
+    period = (pc.cast(table.column(period_column), pa.string()) if period_column
+              else pa.array([""] * table.num_rows, pa.string()))
+    facts = pa.table({"place": places, "period": period, **{b: pc.cast(table.column(b), pa.string()) for b in by},
+                      "value": pc.cast(table.column(estimate), pa.float64()),
+                      **{k: pc.cast(table.column(c), pa.float64()) for k, c in bounds.items()}}).filter(keep)
+    keys = ["place", "period", *by]
+    if left_out:
+        # an additive estimate summed over the strata left out; its bounds are not sums of bounds
+        facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"])
+        for k in bounds:
+            facts = facts.append_column(k, pa.nulls(facts.num_rows, pa.float64()))
+    n = facts.num_rows
+    facts = (facts.append_column("status", pa.array(["value"] * n, pa.string()))
+             .append_column("unit", pa.array([estimate] * n, pa.string()))
+             .append_column("source", pa.array([f"modelled {product} {manifest['version']}"] * n, pa.string())))
+    return _with_manifest(facts, {"source": f"modelled:{product}/{estimate}", "version": manifest["version"],
+                                  "tier": "modelled", "place_level": place, "strata": by, "summed_over": left_out,
+                                  "additive": additive, "areas_not_municipalities": areas, "bounds": sorted(bounds),
+                                  "model": manifest.get("model"), "validation": manifest.get("validation")})
+
+
+def place_municipalities_of(raw: Any, sole: Any) -> list[int | None]:
+    """A modelled product's places as municipalities (`geography.place_municipalities`); an area ("A+B") is none."""
+    from .geography import place_municipalities
+
+    values = raw.to_pylist()
+    flags = sole.to_pylist()
+    placed = place_municipalities([v if f else None for v, f in zip(values, flags, strict=True)])
+    return placed
+
+
 def _derived_dimensions(dataset: str, derived: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
     """Each derived stratum's dimension: an age band (``age``: the derived variable whose declaration gives the age's
     form, resolved from the system's variables, `_age.resolve_age`; or a ``form`` given in place) or a numeric band
@@ -746,7 +837,8 @@ def _json_list(text: Any) -> list[Any]:
         return []
 
 
-_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "population": _population, "climate": _climate}
+_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "population": _population, "climate": _climate,
+             "modelled": _modelled}
 
 
 def cube_manifest(table: pa.Table) -> dict[str, Any]:
