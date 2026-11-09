@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from ..config import Settings, load_settings
-from ..crosswalk import EnrichmentRequest
+from ..crosswalk import EnrichmentRequest, source_field
 from ..providers import provider
 from .coverage import _coverage, download_estimate, shared_catalog
 from .model import Adaptation, QueryPlan, RetrievalPlan, SemanticPlan, _spec
@@ -143,14 +143,11 @@ def plan(
     for item in spec.enrichments:
         # Only the column the route reads is required. The record's own
         # identifier, when the layout has one, is compared if present
-        # (crosswalk.OWN_CNPJ_FIELDS); requiring a column named CNPJ made
+        # (column_roles.facility_cnpj_field); requiring a column named CNPJ made
         # enrich=["CNPJ"] fail on every SIH query (ADR-0100).
-        if item.target == "CNPJ":
-            hidden.add((item.from_field or "CNES").upper())
-        elif item.target == "CNES":
-            hidden.add((item.from_field or "CNPJ").upper())
-        elif item.target in CNES_ATTRIBUTE_FIELDS or item.target == "CNES.ESTABLISHMENT_NAME":
-            hidden.add((item.from_field or "CNES").upper())
+        if (item.target in ("CNPJ", "CNES", "CNES.ESTABLISHMENT_NAME")
+                or item.target in CNES_ATTRIBUTE_FIELDS):
+            hidden.add(source_field(spec.dataset, item))
         else:
             raise KeyError(f"no declared enrichment route to {item.target}")
     required_set = {

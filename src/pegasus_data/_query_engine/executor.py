@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import warnings
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -14,7 +14,8 @@ import pyarrow as pa
 
 from ..conditions import CONDITION
 from ..config import Settings, load_settings
-from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
+from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj, source_field
+from ..semantics.column_roles import facility_cnpj_field, facility_code_field
 from ..semantics.through import attach as attach_through
 from ..semantics.through import describe as describe_through
 from ..semantics.through import split as split_through
@@ -393,15 +394,17 @@ def query(
         table, report.condition = settle(table, prepared, keep_unknown=_keep_unknown)
     table = _apply_dimensions(table, query_plan, report, resolved)
     for request in query_plan.spec.enrichments:
+        dataset = query_plan.spec.dataset
+        request = replace(request, from_field=source_field(dataset, request))
         if request.target == "CNPJ":
             table, enrichment_report = enrich_cnpj(
-                table, from_field=(request.from_field or "CNES").upper(),
+                table, from_field=request.from_field, raw_field=facility_cnpj_field(dataset),
                 as_field=request.as_field or "CNPJ_resolved", explode=request.explode,
                 resource_path=crosswalk_path, settings=resolved,
             )
         elif request.target == "CNES":
             table, enrichment_report = enrich_cnes(
-                table, from_field=(request.from_field or "CNPJ").upper(),
+                table, from_field=request.from_field, raw_field=facility_code_field(dataset),
                 as_field=request.as_field or "CNES_resolved", explode=request.explode,
                 resource_path=crosswalk_path, settings=resolved,
             )

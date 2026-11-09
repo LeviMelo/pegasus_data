@@ -126,7 +126,7 @@ def build(system: str, *, refresh: bool = False, settings: Settings | None = Non
                 raw = pa.Table.from_batches(batches)
                 if raw.num_rows == 0:
                     continue
-                if "CNES" in raw.column_names and "CPF_CNPJ" in raw.column_names:
+                if _establishment_columns(raw) is not None:
                     tables[name] = _establishments(raw)
                 else:
                     table = _code_label(raw)
@@ -190,6 +190,20 @@ def _clean_name(value: object) -> str | None:
     return strip_identifier(value)
 
 
+def _establishment_columns(raw: pa.Table) -> tuple[str, str] | None:
+    """The (CNES code, CPF/CNPJ) columns of an establishment register file, as the roles of the register's dataset
+    (CNES-ST: ``establishment.cnes``, ``establishment.cpf_cnpj``) name them; None when the file lacks them (it is then
+    some other code table). The file's name columns (FANTASIA, RAZ_SOCI, RSOC_MAN, EXCLUIDO, DATAINCL, DATAEXCL) are
+    the register kit's own layout, declared in no roles file."""
+    from .semantics.column_roles import declared_columns, facility_code_field
+
+    code = facility_code_field("CNES-ST")
+    cpf_cnpj = next((c.column for c in declared_columns("CNES-ST") if c.role == "establishment.cpf_cnpj"), None)
+    if code in raw.column_names and cpf_cnpj in raw.column_names:
+        return code, cpf_cnpj
+    return None
+
+
 def _establishments(raw: pa.Table) -> pa.Table:
     """The CNES establishment registry, typed (ADR-0100).
 
@@ -198,11 +212,14 @@ def _establishments(raw: pa.Table) -> pa.Table:
     and is never stored or resolved, and zeros mean none. No identifier is
     left in a name.
     """
+    columns = _establishment_columns(raw)
+    assert columns is not None
+    code_column, cpf_cnpj_column = columns
     rows = raw.to_pylist()
     kinds: list[str] = []
     cnpjs: list[str | None] = []
     for r in rows:
-        digits = re.sub(r"\D", "", str(r.get("CPF_CNPJ") or ""))
+        digits = re.sub(r"\D", "", str(r.get(cpf_cnpj_column) or ""))
         if not digits or set(digits) == {"0"}:
             kinds.append("none")
             cnpjs.append(None)
@@ -217,7 +234,7 @@ def _establishments(raw: pa.Table) -> pa.Table:
         return _clean_name(r.get("FANTASIA")) or _clean_name(r.get("RAZ_SOCI"))
 
     return pa.table({
-        "code": [str(r["CNES"]).strip() for r in rows],
+        "code": [str(r[code_column]).strip() for r in rows],
         "label": [_label(r) for r in rows],
         # The legal name is a legal entity's only when the identifier is a CNPJ.
         "legal": [_clean_name(r.get("RAZ_SOCI")) if k == "cnpj" else None for r, k in zip(rows, kinds, strict=True)],

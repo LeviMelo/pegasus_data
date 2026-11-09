@@ -18,6 +18,7 @@ import pyarrow.compute as pc
 from .._vintage import months_in, source_vintages
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
+from ..semantics.column_roles import facility_code_field
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
 
@@ -325,7 +326,7 @@ def _enrich_cnes_name(
 ) -> tuple[pa.Table, EnrichmentReport]:
     import pyarrow.dataset as ds
 
-    source_field = (request.from_field or "CNES").upper()
+    source_field = (request.from_field or "").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
     from .._resources import ResourceManager
@@ -459,10 +460,11 @@ def _enrich_cnes_attribute(
     query_plan: QueryPlan,
     settings: Settings,
 ) -> tuple[pa.Table, EnrichmentReport]:
-    source_field = (request.from_field or "CNES").upper()
+    source_field = (request.from_field or "").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
     registry_field = CNES_ATTRIBUTE_FIELDS[request.target]
+    key_field = cast("str", facility_code_field("CNES-ST"))   # the registry's own establishment column (its roles)
     inverse, counts, distinct = _distinct(table, (source_field, "_competencia"))
     source_codes = {
         str(value or "").strip() for value in distinct[source_field].to_pylist()
@@ -478,12 +480,12 @@ def _enrich_cnes_attribute(
         "CNES-ST",
         period=(_period_text(period.start), _period_text(period.end)) if period else None,
         geography=list(query_plan.spec.geography.ufs) if query_plan.spec.geography else None,
-        select=["CNES", registry_field, "COMPETEN"],
+        select=[key_field, registry_field, "COMPETEN"],
         present="analysis" if query_plan.spec.labels else "codes",
         settings=settings,
         allow_partial=True,
     ))
-    registry = registry.filter(pc.is_in(pc.cast(registry["CNES"], pa.string()),
+    registry = registry.filter(pc.is_in(pc.cast(registry[key_field], pa.string()),
                                         value_set=pa.array(sorted(source_codes), pa.string())))
     registry = _with_registry_competence(
         registry, "COMPETEN" if "COMPETEN" in registry.column_names else None
@@ -491,7 +493,7 @@ def _enrich_cnes_attribute(
     label_field = f"{registry_field}_label"
     lookup: dict[tuple[str, int | None], set[tuple[object, object]]] = {}
     # the registry's distinct (establishment, month, value, label), not its rows
-    keys = [c for c in ("CNES", "_competencia", registry_field, label_field) if c in registry.column_names]
+    keys = [c for c in (key_field, "_competencia", registry_field, label_field) if c in registry.column_names]
     _inv, _counts, registry = _distinct(registry, keys)
     registry_competence = (
         registry["_competencia"].to_pylist()
@@ -504,7 +506,7 @@ def _enrich_cnes_attribute(
         else [None] * registry.num_rows
     )
     for code, competence, value, label in zip(
-        registry["CNES"].to_pylist(),
+        registry[key_field].to_pylist(),
         registry_competence,
         registry[registry_field].to_pylist(),
         registry_labels,
