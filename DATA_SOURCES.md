@@ -199,6 +199,7 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - 4,422 logical publications exist in more than one physical form, covering
   14,446 files; a cost preference avoids 10,024 reads (recovered full catalog,
   2026-08-23, F §3m).
+- SINASC's first layout (DNR, 1994-1995) sits in three places for AC 1995 (listed 2026-11-09): `ANT/DNRES/DNRAC95.DBC` and `1994_1995/Dados/DNRES/DNRAC1995.dbc` (293,208 bytes each) and `ANT/DNRES/DNRAC1995.dbc` (222,112 bytes); the two ANT files carry the same server minute (2020-01-27 12:22), so the newest-edition rule cannot choose and a read refuses the publication (contradictory schema signatures). Decoded: all three hold 12,635 records; the two 293,208-byte files are byte-identical, and the 222,112-byte one is the same publication in a narrower layout (field widths 8/4/8/1/7... against 8/8/9/10/9..., `CODIGO` for `CONTADOR`). One publication in two layouts, not two editions. DNR is declared no event source; the population account's 1994-1995 births come from SINASC-DN.
 - SINASC was published byte-identically into two trees during a transition
   (2026-08-30, F §3w).
 - SIM publishes 27 per-state files plus a consolidated `DOBR` file for the same
