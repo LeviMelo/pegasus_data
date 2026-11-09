@@ -154,7 +154,7 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
 - The intake's `role:` becomes `meaning:`: a column's description, not an entity.property.
 - `curation/roles.yml`'s linkage block moves into `curation/roles/` (one declaration per column). Done (ADR-0219).
 
-## 6. What a row is: one home per fact (defect 9, inventory 2026-11-09)
+## 7. What a row is: one home per fact (defect 9, inventory 2026-11-09)
 
 Where curation states it: `datasets/*.yml` `what_one_row_is` + `unit_of_analysis` (154 datasets; `grain:` blocks none); `intake.yml` `one_row` +
 `unit_of_analysis` (20 sources, projected into the same dataset docs by `intake.py`: one home, not a duplicate); `roles/*.yml` `record:` (187, read by
@@ -163,5 +163,7 @@ Where curation states it: `datasets/*.yml` `what_one_row_is` + `unit_of_analysis
 description, 25 differ: the token is a coarse linkage class (every SIASUS APAC block is `procedure`), the unit the grain (SIASUS-AB authorisation,
 SIHSUS-ER rejection reason, SINAN-HIVE exposed child, -HIVG pregnancy, -NTRA survey batch, -SDTA outbreak). Both are true; they are not two copies.
 Done: SINAN's `unit_of_analysis: notification` ×53 stated once under `shared:` (`semantics.curation.dataset_entries`, the one reader of a file's datasets).
-Left: (1) `record:` is the linkage tag and should be derived from the dataset doc's unit (or the doc from the roles) once `linkage/` is free to change
-its table keys; (2) the 39 roles-only datasets take their grain from `record`; (3) the SINAN `record: notification` ×58 follows (1).
+Decided (2026-11-09): `record:` stays where it is, the typed record class (one word from a closed set, read by linkage, the person graph and the
+role-table keys), and `unit_of_analysis` stays the prose grain a person reads; deriving either from the other would turn prose into a key or lose the
+grain. A roles-only dataset takes its grain from `record`, the only statement it has. Each SINAN roles file states its own `record:` because a roles
+file is one dataset's whole declaration.
