@@ -23,9 +23,11 @@ changed number, so each change is judged by whether every output it touches is e
 | cubes | a row count that keeps the unplaced in the manifest | SIM-DO AC 2022 | 4,159 records: 4,146 placed, 13 unplaced (the manifest had said 0) |
 
 **Found on the way.**
-- **Duplicate SIDRA facts.** Read raw, SIDRA's fact store holds table 5938 twice (244,932 rows, 122,466 facts) and table 202
-  in part (116,164 for 70,515). The cube and the old dict readers collapse them (OQ 95).
+- **Duplicate SIDRA facts, by design.** Read raw, SIDRA's fact store holds table 5938 twice (244,932 rows, 122,466 facts)
+  and table 202 in part (116,164 for 70,515). It is written one part per request, and requests overlap (a field wants the
+  Total cells, a census series the cells below them); `sidra.store.load_facts` keeps each observation's latest copy. Only
+  readers of the parts' paths double-counted, and the study modules that did are moved onto `cube()`.
 - **ANS was never landed.** `sus_dependent._unplaced` reads `lake/ANS/…`, which did not exist, so the model could not be
   rebuilt. The source is now landing (2 GB of December files).
-- **Placebo reach (OQ 94).** On RR 2022 with exact birth dates, 10,442 births have 11,528 admission candidates, none a
+- **Placebo reach (OQ 97).** On RR 2022 with exact birth dates, 10,442 births have 11,528 admission candidates, none a
   continuation AIH. Several true admissions per birth cannot explain the delivery link's missing half of the coincidences.
