@@ -43,16 +43,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .config import UF_CODES
 from .semantics.epoch import curated
 
 #: Brazilian state codes plus BR, used to recognise a filename's UF segment.
-UFS = frozenset(
-    {
-        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
-        "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
-        "SP", "SE", "TO", "BR",
-    }
-)
+UFS = UF_CODES
 
 #: ``<prefix><UF><date>[part]`` — the filename convention across the tree. The
 #: part suffix is ``_1``/``_2`` or a bare letter: SIA splits one month's

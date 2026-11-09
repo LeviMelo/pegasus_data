@@ -56,8 +56,6 @@ def links_file() -> Path:
 
     return curation_root() / "links.yml"
 CHANCE_DROP = 20.0
-VIABLE = (5.0, 90.0)
-CAUTION = (20.0, 75.0)
 #: pairs a validation must compare to count (a proportion of fewer says nothing)
 MIN_COMPARED = 30
 
@@ -204,6 +202,14 @@ def raw_links() -> dict[str, Any]:
     """`links.yml` as one process read it: the specs a run uses and the digest its store key carries come from this one
     snapshot (a file edited while a run was going stored old specs under the new digest, 2026-10-09)."""
     return read_yaml(links_file())
+
+
+@curated
+def verdict_bands() -> tuple[tuple[float, float], tuple[float, float]]:
+    """``(viable, caution)`` as ``(highest chance %, lowest held-out validation %)``: declared once in ``links.yml``
+    (``verdict:``), fixed before any result by ADR-0107."""
+    declared = raw_links()["verdict"]
+    return tuple(tuple(float(x) for x in declared[band]) for band in ("viable", "caution"))  # type: ignore[return-value]
 
 
 @curated
@@ -683,6 +689,7 @@ def judge(
     assert best is not None and worst_chance is not None
     if upper is not None:
         worst_chance = max(worst_chance, upper)
+    VIABLE, CAUTION = verdict_bands()
     if worst_chance <= VIABLE[0] and best >= VIABLE[1]:
         return "viable", []
     found = [f"chance up to {worst_chance}% (viable: at most {VIABLE[0]}%)" if worst_chance > VIABLE[0] else "",

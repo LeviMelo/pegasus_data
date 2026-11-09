@@ -37,6 +37,7 @@ import sys, time, warnings, json
 warnings.simplefilter("ignore")
 import pyarrow as pa, pyarrow.compute as pc
 import pegasus_data as pg
+from pegasus_data.config import UF_ABBREVIATIONS
 mode, dataset, year, cols = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4].split(",")
 present = "labels" if "--labels" in sys.argv else "codes"
 root = sys.argv[sys.argv.index("--root") + 1]
@@ -54,7 +55,7 @@ if mode == "query":
 elif mode == "stream":
     import duckdb
     con = duckdb.connect()
-    ufs = ["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"]
+    ufs = list(UF_ABBREVIATIONS)
     made, biggest = False, 0
     for uf in ufs:
         part = pg.query(dataset, geography=uf, **kw)

@@ -65,7 +65,11 @@ general rule.
    2022-01 AC enrichments equal before and after; SIA-PA `enrich=["CNPJ"]` and SIH-RD `["CNES"]` now work. Remains:
    the CADGER kit's name columns (FANTASIA, RAZ_SOCI, ...) are in no roles file, and the profiler's name hints still
    serve undeclared columns.
-7. **Hand-fixed lists and thresholds:** CNES code groups, `CODEBOOK_MAX_CODES`, linkage VIABLE/CAUTION, four UF lists.
+7. ~~Hand-fixed lists and thresholds~~ **closed:** the CNES groups already live in `fields.yml` (`cnes:`, read by
+   `groups()`); the codebook cut moved to `codelists.yml` (`codebook:`), the linkage verdict bands to `links.yml`
+   (`verdict:`, ADR-0107), values unchanged; the UF lists derive from `config.UF_NUMERIC` (`UF_ABBREVIATIONS`).
+   UF sets and 20 `judge()` verdicts identical before and after. Remains: `sources/cnes.py` `UFS` (its mirror
+   pipeline is being removed).
 8. ~~Repeated plumbing~~ **closed (33a0d62):** one dataset spelling (`ontology.dataset_key`, 10 sites), one YAML reader
    (`curation.read_yaml`, 12 modules), snapshot and SIGTAP on the project transport. `semantics_for` on 12 spellings
    hashes the same before and after; SIGTAP listed 227 exports and fetched one at its listed size.

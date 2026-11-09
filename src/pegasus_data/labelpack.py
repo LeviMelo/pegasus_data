@@ -211,13 +211,17 @@ def _unescape_accents(label: str) -> str:
     return _ESCAPED_ACCENT.sub("", label)
 
 
-#: A codelist with more codes than this, or with codes wider than this, is an entity
-#: register (establishments, municipalities, teams, occupations), not a codebook. A
-#: register identifies an entity by its code, so two kits that name a code differently
-#: are renaming it, not recoding it, and a code only the older kit lists is still that
-#: entity. A codebook's codes are a digit or two (RACACOR 1-5, ANO 00-99).
-CODEBOOK_MAX_CODES = 128
-CODEBOOK_MAX_WIDTH = 3
+def codebook_limits() -> tuple[int, int]:
+    """``(max codes, max code width)`` of a codebook, from ``codelists.yml`` (``codebook:``). A codelist with more
+    codes than the first, or with codes wider than the second, is an entity register (establishments, municipalities,
+    teams, occupations), not a codebook. A register identifies an entity by its code, so two kits that name a code
+    differently are renaming it, not recoding it, and a code only the older kit lists is still that entity. A
+    codebook's codes are a digit or two (RACACOR 1-5, ANO 00-99)."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    declared = (read_yaml(curation_root() / "codelists.yml") or {})["codebook"]
+    return int(declared["max_codes"]), int(declared["max_width"])
 
 
 def _meaning_tokens(label: str) -> list[str]:
@@ -464,8 +468,9 @@ def build_label_pack(
         ):
             windows.setdefault((valid_from, valid_to), {})[kit] = n_rows
             widest[(valid_from, valid_to)] = max(widest.get((valid_from, valid_to), 0), width)
+        max_codes, max_width = codebook_limits()
         for (valid_from, valid_to), kits in windows.items():
-            is_codebook = sum(kits.values()) <= CODEBOOK_MAX_CODES and widest[(valid_from, valid_to)] <= CODEBOOK_MAX_WIDTH
+            is_codebook = sum(kits.values()) <= max_codes and widest[(valid_from, valid_to)] <= max_width
             if len(kits) < 2 or not is_codebook:
                 continue
             gone: set[str] = set()
