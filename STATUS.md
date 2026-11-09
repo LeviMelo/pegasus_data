@@ -2,22 +2,66 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-10-04; the declarations section 2026-10-08; the population and climate section 2026-10-24.
+`DECISIONS.md`. The opening sections rewritten 2026-11-09; the declarations section 2026-10-08; the population and
+climate section 2026-10-24.
 
 ## Where the project is
 
-One branch, **`master`** (2026-11-08): every branch and worktree was merged and removed, and `master` is pushed to
-GitHub (`origin/master` bd867e4, 2026-11-08). The remote's old `linkage` and `redesign` branches are merged into it. The work now converges on release: one map of what the package holds and can do
-(ADR-0216), the catalog's open questions reduced to what a person must answer (none open on 2026-11-08), and every
-queryable column documented.
+One branch, **`master`**: every branch and worktree was merged and removed (2026-11-08), and `master` is on GitHub to
+bd867e4; the commits since are local. The work is the release: one map of what the package holds and can do, one
+space × time object, and the principles audit's defects closed one by one.
 
-- **The map.** `compendium()` and its home copy (`_compendium.current`) describe every dataset `query()` serves, each
-  column's query-time codelists and fill, the 122 context fields, roles, events, links, aggregates, SIDRA's tables and
-  every function and command; `search()` reads it and returns the call for each hit, and `info()` with no target prints
-  its whole overview (422 lines) for a reader or agent to take in at once, products included (`curation/products.yml`:
-  46 layers, geometries, reference tables, indices and modelled products). The map lists the home's undescribed stores:
-  `lake/records` (SI-PNI per-dose records 2023, 8.7 GB, an interrupted probe with no reader), `registries/tse` (no reader),
-  `registries/pni`, `lake/demas` (empty). SI-PNI per-dose records are the next source to integrate whole, or to drop.
+- **The map** (ADR-0216). `compendium()` and the home's copy (`_compendium.current`) describe:
+  - every dataset `query()` serves, each column's query-time codelists and fill;
+  - the context fields, roles, events, links, aggregates and SIDRA's tables;
+  - the 46 products of `curation/products.yml`;
+  - every function and command.
+
+  `search()` reads it, and `info()` with no target prints its overview (about 420 lines). It also lists the home's
+  undescribed stores; one is left, `registries/tse` (the electorate zip, no reader yet).
+- **The catalog's open questions.** None are open; the 733 were noise or answered (ADR-0216). Real ones are in
+  `OPEN_QUESTIONS.md`.
+- **SI-PNI per-dose records** are declared on request (`PNI.DOSES`, 200 GiB zipped, built by naming years). June 2020 is
+  landed and verified. Intake writes are sorted by place and month, about 30% smaller.
+
+## The space × time unification (docs/plans/cubes.md, ADR-0217)
+
+Thirteen mechanisms made place × time tables. The cube (`cubes.py`, `cube()`) is the one object: one long shape,
+roll-ups only along the source's additivity, named by where it comes from.
+
+| stage | state |
+|---|---|
+| 1. core and SIDRA | **done.** Any SIDRA table is a cube without a declaration. The 26 SIDRA and series fields are views of their cubes (26/26 equal) and their copies are removed. Stitched series are cached by their facts' fingerprint |
+| 2. records on roles | **adapter done.** `records:<dataset>/<event>` counts events by the dataset's bindings. It reproduces the intake fields: yellow fever equal; SRAG 29 lower, the notifications filed twice. **Left:** the intake fields served as views (with their `where`, `by`, `outcome` and `sum`); bindings derived from roles where a dataset declares none (SISAGUA, PNI-DOSES); the aggregate recipes as materialised cubes |
+| 3. CNES through the one reader | not started: 43 fields from a private mirror pipeline (`sources/cnes.py`) |
+| 4. gridded, population, modelled | not started |
+| 5. one door | not started: `load_field` as a resolver; `aggregate`, `capabilities` and `serve` on cubes; the old builders removed |
+
+**Found on the way, repaired (2026-11-09).** `pegasus-data families` deleted every family it does not derive from the
+crawl, the intake's among them. SRAG, SISAGUA, SNGPC, FA, BNAFAR, SIES and REGIAO were unreachable by `query`. The
+stage now keeps intake families, and `pegasus-data intake-register` restored 391 partitions (711,680,059 rows) from
+disk.
+
+## The principles audit (2026-11-08): open defects
+
+Ranked. Evidence is in the session audit, summarised here; each is closed by replacing the special case with the
+general rule.
+1. **CNES has its own pipeline:** a third-party mirror, hard-coded column names. Stage 3.
+2. **One column, three declarations:** `curation/roles.yml` (linkage, 108 roles), `curation/roles/*.yml` (11,003
+   columns), and intake `role:`, which is really a description.
+3. **Study modules name datasets and columns in code:** `completeness`, `population_account`, `modelled_race`,
+   `sus_dependent`, `population_backcast`/`forecast`, about 4,000 lines.
+4. **Age encodings named per system:** `_age.py` keeps sih/cih/sim/sinan/sivep tables, where the `person.age` role
+   should declare the encoding.
+5. **Linkage cardinality hard-coded:** `linkage/entities.py` `AT_MOST_ONE`/`EXCLUSIVE`.
+6. **Column names guessed in code:** `registry.py` CNES key guesses, `profile/detectors`, `crosswalk.OWN_CNPJ_FIELDS`,
+   enrichment's hard-coded `CNES`.
+7. **Hand-fixed lists and thresholds:** CNES code groups, `CODEBOOK_MAX_CODES`, linkage VIABLE/CAUTION, four UF lists.
+8. **Repeated plumbing:** dataset ids normalised ad hoc in 13 places; the private `ontology._read_yaml` imported by 12
+   modules; `snapshot.py`'s own httpx client; `sigtap`'s own ftplib.
+9. **Declaration sprawl:** 55 near-copies of SINAN recipes; about 20 YAML kinds overlapping on "what a row is".
+10. **Overloaded terms** ("field" five ways, "role" four, "source" six) and code serving the deprecated `pegasus_view`
+    (`capabilities`, `presentation`, `serve/`).
 
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 
@@ -126,7 +170,7 @@ Work for PegaSUS's work plan units P1 (declarations at scale) and P2 (labels acr
   - In progress on their own branches: SI-PNI (`pni`), medicines (`medicines`), links for the toxoplasmosis study
     (`links`). SISAGUA is merged (ADR-0162).
 
-## Record linkage (branch `linkage`, ADR-0107 to ADR-0124)
+## Record linkage (merged 2026-11-08; ADR-0107 to ADR-0124)
 
 **The theory** (`docs/plans/linkage-theory.md`; accepted 2026-10-03; what
 executing it taught is in §11) is executed through T1–T5:

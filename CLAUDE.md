@@ -31,8 +31,11 @@ the table + the semantic layer ─► labels, dimensions, aggregates, the HTTP A
 ```
 
 The consumer that matters is **a person analysing Brazilian health data**:
-in Python (`query`, `info`, `explore`), on the command line (`pegasus-data`),
-or through `serve/`, which the sibling frontend `../pegasus_view` reads.
+in Python (`query`, `info`, `cube`, `search`), on the command line (`pegasus-data`;
+`pegasus-data info` prints everything held and doable), or through PegaSUS
+(`../pegasus_project`), which reads it. `serve/` is an HTTP transport; the
+frontend it was written for (`../pegasus_view`) is deprecated and does not
+shape it.
 
 ---
 
@@ -111,9 +114,11 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
   process actually started, and watch it with a filter that catches
   completion and failure alike, so a stalled or failed job is noticed rather
   than waited on.
-- **Keep `../pegasus_view` working.** Its contract is `serve/` (`/health`,
-  `/datasets`, `/datasets/{a}/capabilities`, `/population`, `/geo/membership`,
-  `/records`). A change there is made in both repositories, or not at all.
+- **Keep PegaSUS working.** `../pegasus_project` reads `load_field`, `count_events`,
+  `load_population`, `read_modelled`, `proximity_graph` and `read_events`
+  (`pegasus_core/gateway.py`). A change to what they return is made with PegaSUS,
+  or answers exactly as before (docs/plans/cubes.md keeps `load_field` answering
+  each old name while the cube replaces it).
 
 ---
 

@@ -109,8 +109,15 @@ There are two halves.
   (`curation/aggregates/*.yml`) is built once into a base cuboid of mergeable
   states (count, sum, mean as sum and count …) by municipality and period.
   `aggregate()` rolls it up through health regions, states and the country.
+- **Cubes** (`cubes.py`, ADR-0217). One measure over place × period × strata, in
+  one long shape, by one door `cube()`: any SIDRA table (`sidra:<table>/<variable>`,
+  undeclared), a stitched census series, or the events of any record dataset
+  (`records:<dataset>/<event>`) by its place and time bindings. Roll-ups follow the
+  source's own additivity. Fields and aggregates are being folded into it
+  (`docs/plans/cubes.md`); the SIDRA and series fields already are views of it.
 - **`serve/`.** Exposes built aggregates, their capabilities, population
-  denominators and geography over HTTP for `../pegasus_view`.
+  denominators and geography over HTTP (its frontend, `../pegasus_view`, is
+  deprecated).
 
 ## 4b. Context and linkage
 

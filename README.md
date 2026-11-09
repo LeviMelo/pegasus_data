@@ -163,8 +163,17 @@ labelled = translate("my_sih_extract.csv", system="SIHSUS")
 
 `aggregate()` serves prebuilt municipality × time cells (counts, sums and
 means stored as mergeable states) that roll up through health regions, states
-and the country without touching microdata. `serve/` exposes them over HTTP to
-the companion frontend (`../pegasus_view`).
+and the country without touching microdata. `serve/` exposes them over HTTP.
+
+### Cubes
+
+`cube()` is the one place × time object (ADR-0217): `cube("sidra:5938/37", place="uf")`
+is IBGE's GDP by state, any SIDRA table without a declaration;
+`cube("records:SRAG-NOTIF/notification", periods=[2022], grain="month", by=["CS_SEXO"])`
+counts a record dataset's events by municipality, month and a column, with the event
+type's own rules (duplicates, consolidation). Roll-ups follow the source's additivity and
+are refused otherwise; a part without a value makes a total `incomplete`, never a
+short sum.
 
 ### Context: dimensions, enrichment, geography, fields
 

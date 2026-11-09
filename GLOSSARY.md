@@ -351,7 +351,17 @@ a geography role: yes for `residence`, `patient`, `area`; no for facility or
 occurrence roles. *Prevents:* a small town with a regional hospital shown at
 several times its real risk (ADR-0055).
 
-**`serve/`.** The HTTP transport over the library for `../pegasus_view`
+**Cube.** One measure observed over place × period × strata, in one long shape (place,
+period, strata, value, status, unit, source) and served by `cube()`; named by where it
+comes from (`sidra:5938/37`, `records:SRAG-NOTIF/notification`), never curated by hand
+(ADR-0217). *Prevents:* a hand-copied slice of a table beside the table, and a sum the
+source does not allow.
+
+**Field (context field).** A named place × year quantity served by `load_field`; being
+folded into cubes, of which the SIDRA and series fields are already views. Not to be
+confused with a record's column (`field_name` in the catalog).
+
+**`serve/`.** The HTTP transport over the library, written for the deprecated `../pegasus_view`
 (`/health`, `/datasets`, `/datasets/{a}/capabilities`, `/population`,
 `/geo/membership`, `/records`). It shapes the wire (7-digit municipality codes,
 codes and labels sent apart) and holds no logic; `/records` is off unless the
