@@ -519,29 +519,26 @@ def _cube_report(name: str, spec: dict[str, Any], years: list[int] | None, setti
 def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
     """A sum field over the resident population: (municipality, year, numerator, population, rate per ``per``).
 
-    The population is the municipal total of ``population-account-2`` (reference date 1 August), summed over sex
-    and age; a ratio of sums, so any group of municipalities lifts it by summing numerator and population. A
-    population-account place that merges municipalities (a post-2010 creation inside its parent's area) has no
-    separate figure: its members are left without a rate and counted in ``rate_missing`` below, not given a share.
+    The population is the municipal total of the population account (its current version, reference date 1 August),
+    summed over sex and age (`cube("modelled:population_account/population")`, all races together); a ratio of sums,
+    so any group of municipalities lifts it by summing numerator and population. A municipality the account does not
+    hold in a year has no rate, never a share of another's.
     """
     import pyarrow.compute as pc
 
     from .config import load_settings
-    from .modelled import read_modelled
+    from .cubes import cube
 
     settings = settings or load_settings()
     field = load_field(name, years=years, settings=settings).filter(pc.field("status") == "ok")
     wanted = sorted(set(field.column("year").to_pylist()))
-    account, _ = read_modelled("population_account", "population-account-2", settings=settings)
-    account = account.filter(pc.and_(pc.equal(account.column("place_kind"), "municipality"), pc.is_in(account.column("year"), value_set=pa.array(wanted, account.column("year").type))))
-    total = account.group_by(["place", "year"]).aggregate([("population", "sum")])
-    single = pc.invert(pc.match_substring(total.column("place"), "+"))
-    total = total.filter(single)
+    total = cube("modelled:population_account/population", place="municipality", periods=wanted,
+                 where={"race": ["total"]}, settings=settings)
     from .geography import place_six
 
-    places = total.column("place").to_pylist()
-    population = {(p, int(y)): v for p, y, v in zip(place_six(places), total.column("year").to_pylist(),
-                                                  total.column("population_sum").to_pylist(), strict=True) if p is not None}
+    population = {(str(p)[:6], int(y)): v for p, y, v in zip(total.column("place").to_pylist(),
+                                                              total.column("period").to_pylist(),
+                                                              total.column("value").to_pylist(), strict=True)}
     municipality = field.column("municipality").to_pylist()
     distinct = sorted({m for m in municipality if m is not None})
     placed = dict(zip(distinct, place_six(distinct), strict=True))
