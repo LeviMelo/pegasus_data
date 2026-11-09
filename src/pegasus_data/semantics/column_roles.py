@@ -110,12 +110,12 @@ PLACE_OF = {
     "record": "where the record was made, kept or managed, or an institution it names served: the registry office, the "
               "death-verification service, a managing authority, a laboratory or partner service",
 }
-#: The keys a column's declaration may carry.
+#: The keys a column's declaration may carry (`compare`: how linkage compares its roles, `linkage.roles`).
 KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_unknown", "note", "codelists", "domain",
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
                   "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other", "through",
-                  "place_label"})
+                  "place_label", "compare"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
