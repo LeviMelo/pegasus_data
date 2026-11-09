@@ -76,7 +76,8 @@ def cube_sources() -> dict[str, str]:
     """The adapters a cube can come from, with what their ids name."""
     return {"sidra": "<table>/<variable>: any table of IBGE's SIDRA registry",
             "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)",
-            "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns"}
+            "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns",
+            "population": "<series>: a population series (curation/populations.yml: POPSVS, POPTCU, CENSO...)"}
 
 
 # ---------------------------------------------------------------------------------------------------------- SIDRA
@@ -283,8 +284,15 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     grain = grain or "month"
     if grain not in ("month", "year"):
         raise ValueError("a records cube's grain is month or year")
-    group = list(dict.fromkeys([place_column, *time_fields, *by]))
-    extra = {"rows": {k: [str(x) for x in v] for k, v in where.items()}} if where else {}
+    # `where` is the record's own codes ({column: [codes]}, read by the query) or a prefix ({column: {prefix: [...]}}, kept
+    # after counting): SISAGUA's monthly control keeps the CAMPO rows that are counts ("Número de...", "N de...").
+    exact = {k: [str(x) for x in v] for k, v in where.items() if not isinstance(v, Mapping)}
+    prefixes = {k: [str(x) for x in v["prefix"]] for k, v in where.items() if isinstance(v, Mapping) and "prefix" in v}
+    unknown_forms = set(where) - set(exact) - set(prefixes)
+    if unknown_forms:
+        raise ValueError(f"where takes codes or {{prefix: [...]}}; not understood for {sorted(unknown_forms)}")
+    group = list(dict.fromkeys([place_column, *time_fields, *by, *prefixes]))
+    extra = {"rows": exact} if exact else {}
     years = sorted({int(str(p)[:4]) for p in periods})
     # Only the years the source publishes are read, in runs of consecutive years; a year asked for that has no
     # publication is said in the manifest, never fetched and failed (FA-HUM's file has no case in 2012).
@@ -319,6 +327,13 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
     parts = [count(run[0] if len(run) == 1 else (run[0], run[-1])) for run in runs]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
+    for column, starts in prefixes.items():
+        text = pc.cast(counts.column(column), pa.string())
+        hit = pc.starts_with(text, starts[0])
+        for start in starts[1:]:
+            hit = pc.or_kleene(hit, pc.starts_with(text, start))
+        hit = pc.fill_null(hit, False)
+        counts = counts.filter(hit)
     competencia = _competencia_column(counts, time_fields, encoding)
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
@@ -348,6 +363,46 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
         "unkeyed": unkeyed.decode() if unkeyed else None,
     })
+
+
+# --------------------------------------------------------------------------------------------------- population
+
+
+def _population(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+                periods: Sequence[str | int] | None, labels: bool, settings: Any) -> pa.Table:
+    """A population series (`load_population`) as a cube: persons by municipality and year, by the series' own axes
+    (``sex``, ``age``...) when named in ``by``. A series refuses an axis it does not publish (`load_population`), and a
+    year it does not hold. Counts of persons add up over places and strata, never over years (a stock)."""
+    import pyarrow.compute as pc
+
+    from .api import load_population
+    from .geography import place_municipalities
+
+    years = [int(str(p)[:4]) for p in periods] if periods else None
+    table = load_population(series=ident, years=years, by=tuple(by), settings=settings)
+    for column, codes in where.items():
+        table = table.filter(pc.is_in(pc.cast(table.column(column), pa.string()), pa.array([str(c) for c in codes])))
+    places = pa.array(place_municipalities(table.column("municipality").to_pylist()), pa.int64())
+    keep = pc.is_valid(places)
+    unplaced = float(pc.sum(pc.filter(table.column("population"), pc.invert(keep))).as_py() or 0)
+    facts = pa.table({"place": pc.filter(places, keep),
+                      "period": pc.cast(pc.filter(table.column("year"), keep), pa.string()),
+                      **{k: pc.filter(table.column(k), keep) for k in by},
+                      "value": pc.cast(pc.filter(table.column("population"), keep), pa.float64())})
+    if place == "uf":
+        facts = facts.set_column(0, "place", pc.cast(pc.divide(facts.column("place"), 100000), pa.int64()))
+    elif place == "country":
+        facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
+    keys = ["place", "period", *by]
+    facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])
+    n = facts.num_rows
+    facts = (facts.append_column("status", pa.array(["value"] * n, pa.string()))
+             .append_column("unit", pa.array(["persons"] * n, pa.string()))
+             .append_column("source", pa.array([f"population {ident}"] * n, pa.string())))
+    series = json.loads((table.schema.metadata or {}).get(b"pegasus.series", b"{}"))
+    return _with_manifest(facts, {"source": f"population:{ident}", "series": series, "place_level": place,
+                                  "period_grain": "year", "strata": by, "additive_over": ["territory", "strata"],
+                                  "stock": True, "unplaced_persons": unplaced})
 
 
 # ------------------------------------------------------------------------------------------------------ algebra
@@ -414,7 +469,7 @@ def _json_list(text: Any) -> list[Any]:
         return []
 
 
-_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records}
+_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "population": _population}
 
 
 def cube_manifest(table: pa.Table) -> dict[str, Any]:
