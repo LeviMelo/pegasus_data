@@ -54,8 +54,12 @@ general rule.
 4. ~~Age encodings named per system~~ **closed (ADR-0218):** five forms with the unit table as data, declared once on
    each system's `IDADE_anos`; the 59 aggregates name the variable. Decoding equal on six systems' records.
 5. ~~Linkage cardinality hard-coded~~ **closed (9958a80):** read from each dataset's roles file (`persons:`).
-6. **Column names guessed in code:** `registry.py` CNES key guesses, `profile/detectors`, `crosswalk.OWN_CNPJ_FIELDS`,
-   enrichment's hard-coded `CNES`.
+6. ~~Column names guessed in code~~ **closed:** the enrichment's key and a record's own CNPJ are read from the roles
+   (`column_roles.facility_code_field`, `facility_cnpj_field`; `OWN_CNPJ_FIELDS` and the `"CNES"` defaults gone), the
+   register's key from CNES-ST's roles, the profiler defers to declared roles (`declared_verdict`). SIH-RD and SIA-PA
+   2022-01 AC enrichments equal before and after; SIA-PA `enrich=["CNPJ"]` and SIH-RD `["CNES"]` now work. Remains:
+   the CADGER kit's name columns (FANTASIA, RAZ_SOCI, ...) are in no roles file, and the profiler's name hints still
+   serve undeclared columns.
 7. **Hand-fixed lists and thresholds:** CNES code groups, `CODEBOOK_MAX_CODES`, linkage VIABLE/CAUTION, four UF lists.
 8. ~~Repeated plumbing~~ **closed (33a0d62):** one dataset spelling (`ontology.dataset_key`, 10 sites), one YAML reader
    (`curation.read_yaml`, 12 modules), snapshot and SIGTAP on the project transport. `semantics_for` on 12 spellings

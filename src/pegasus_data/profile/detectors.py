@@ -609,6 +609,28 @@ DETECTORS: tuple[Callable[[FieldStats, ReferenceSets, str], SemanticVerdict | No
 )
 
 
+def declared_verdict(dataset: str | None, name: str) -> SemanticVerdict | None:
+    """The verdict a dataset's column roles already give for the column ``name`` (an establishment CNES code, an
+    establishment CNPJ), or None. The detectors above are the profiler's way to type columns nobody has declared;
+    a declared column is not re-guessed from its name and values."""
+    if dataset is None:
+        return None
+    from ..semantics.column_roles import declared_columns
+
+    try:
+        columns = declared_columns(dataset)
+    except KeyError:
+        return None
+    for column in columns:
+        if column.column.upper() != name.upper() or column.kind != "institution":
+            continue
+        for codelist, semantic_type in (("CADGERBR", "cnes_establishment"), ("CNPJ_BR", "personal_identifier_cnpj")):
+            if codelist in column.codelists:
+                return SemanticVerdict(semantic_type, 1.0, {"rule": "declared_role", "role": column.role,
+                                                            "codelist": codelist, "dataset": dataset})
+    return None
+
+
 def classify(
     stats: FieldStats,
     *,

@@ -30,6 +30,22 @@ class EnrichmentRequest:
     explode: bool = False
 
 
+def source_field(dataset: str, request: EnrichmentRequest) -> str:
+    """The column an enrichment reads its key from: the request's own, else the one the dataset's roles declare (the
+    establishment's CNES code; for the CNPJ→CNES route its CNPJ). Never a guessed name: a dataset whose roles name
+    none (or several) asks for ``from_field``."""
+    from .semantics.column_roles import facility_cnpj_field, facility_code_field
+
+    if request.from_field:
+        return request.from_field.upper()
+    reverse = request.target == "CNES"
+    found = (facility_cnpj_field if reverse else facility_code_field)(dataset)
+    if found is None:
+        raise KeyError(f"{dataset}: its column roles name no single {'CNPJ' if reverse else 'CNES code'} column "
+                       f"of the establishment; say which with from_field")
+    return found.upper()
+
+
 @dataclass(slots=True)
 class EnrichmentReport:
     target: str
@@ -249,12 +265,6 @@ def _resolver(available_for: Any, distinct: Sequence[SourceVintage | None]) -> A
     return resolve
 
 
-#: A record's own CNPJ for its establishment, by layout: compared with the
-#: crosswalk's answer when present (SIH/CIH hospital CGC_HOSP, APAC and BPA-I
-#: executing establishment).
-OWN_CNPJ_FIELDS = ("CNPJ", "CGC_HOSP", "AP_CNPJCPF", "CNPJCPF", "PA_CNPJCPF")
-
-
 def enrich_cnpj(
     table: pa.Table,
     *,
@@ -265,11 +275,12 @@ def enrich_cnpj(
     resource_path: str | Path | None = None,
     settings: Settings | None = None,
 ) -> tuple[pa.Table, EnrichmentReport]:
-    """Resolve CNPJ additively from CNES without changing fact-row count."""
+    """Resolve CNPJ additively from CNES without changing fact-row count. ``from_field`` is the column holding the
+    CNES code and ``raw_field`` the record's own CNPJ, compared with the answer when given; the dataset's roles name
+    both (`column_roles.facility_code_field`, `facility_cnpj_field`)."""
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNES→CNPJ enrichment")
     source_values = table[from_field].to_pylist()
-    raw_field = raw_field or next((f for f in OWN_CNPJ_FIELDS if f in table.column_names), None)
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
     distinct, vintage_index = vintage_groups(table)
     rows = _crosswalk_slice(
@@ -346,7 +357,7 @@ def enrich_cnes(
     table: pa.Table,
     *,
     from_field: str = "CNPJ",
-    raw_field: str = "CNES",
+    raw_field: str | None = None,
     as_field: str = "CNES_resolved",
     explode: bool = False,
     resource_path: str | Path | None = None,

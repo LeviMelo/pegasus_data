@@ -838,6 +838,7 @@ class Pipeline:
                 profile = profile_table(
                     table,
                     refs=refs,
+                    dataset=f"{row['system']}-{row['series']}",
                     row_limit=row_limit or self.settings.profile_row_limit,
                     max_distinct=self.settings.max_distinct_tracked,
                     top_values=self.settings.top_values_kept,

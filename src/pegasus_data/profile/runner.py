@@ -15,7 +15,7 @@ from ..catalog.store import CatalogStore
 from ..decode.base import DecodedTable
 from ..inventory.families import schema_signature
 from .accumulators import FieldAccumulator, FieldStats
-from .detectors import ReferenceSets, SemanticVerdict, classify
+from .detectors import ReferenceSets, SemanticVerdict, classify, declared_verdict
 
 
 @dataclass(slots=True)
@@ -38,6 +38,7 @@ def profile_table(
     table: DecodedTable,
     *,
     refs: ReferenceSets | None = None,
+    dataset: str | None = None,
     row_limit: int | None = None,
     max_distinct: int = 50_000,
     top_values: int = 200,
@@ -59,7 +60,8 @@ def profile_table(
         rows += batch.num_rows
 
     stats = {name: acc.stats() for name, acc in accumulators.items()}
-    verdicts = {name: classify(s, refs=refs, name=name) for name, s in stats.items()}
+    verdicts = {name: declared_verdict(dataset, name) or classify(s, refs=refs, name=name)
+                for name, s in stats.items()}
     names = table.field_names
     return TableProfile(
         path=table.path,

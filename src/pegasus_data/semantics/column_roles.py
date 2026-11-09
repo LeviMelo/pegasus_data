@@ -585,3 +585,34 @@ def declared_columns(dataset: str) -> tuple[ColumnRole, ...]:
 
 def _all_roles(dataset: str) -> list[dict[str, Any]]:
     return [c.as_dict() for c in declared_columns(dataset)]
+
+
+def facility_code_field(dataset: str) -> str | None:
+    """The column that holds the record's own establishment as a CNES code: the one column of the dataset typed
+    ``kind: institution`` with the CNES register's codelist (``CADGERBR``); when a layout files several (APAC's
+    executing and requesting units, SINAN's notifying and treating units), the one whose role property is the
+    record's own ``facility`` or ``cnes``. None when the roles name none or leave it ambiguous: the caller says so
+    and asks for the column, it does not guess one."""
+    return _institution_field(dataset, "CADGERBR", ("facility", "cnes"))
+
+
+def facility_cnpj_field(dataset: str) -> str | None:
+    """The column that holds the record's own establishment as a CNPJ (SIH's ``CGC_HOSP``, APAC's ``AP_CNPJCPF``,
+    BPA's ``PA_CNPJCPF``): the column with the role ``facility.cnpj`` (not the maintainer's). None when the dataset
+    files none."""
+    try:
+        found = {c.column for c in declared_columns(dataset) if c.role == "facility.cnpj"}
+    except KeyError:
+        return None
+    return found.pop() if len(found) == 1 else None
+
+
+def _institution_field(dataset: str, codelist: str, properties: tuple[str, ...]) -> str | None:
+    try:
+        columns = declared_columns(dataset)
+    except KeyError:
+        return None
+    found = [c.column for c in columns if c.kind == "institution" and codelist in c.codelists]
+    if len(found) > 1:
+        found = [c.column for c in columns if c.column in found and c.property in properties]
+    return found[0] if len(set(found)) == 1 else None
