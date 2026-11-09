@@ -379,7 +379,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                     text, pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())), ""), "")
             if isinstance(rule, Mapping) and set(rule) & set(BOUNDS):
                 # the typed value against a bound (a potability limit: turbidity above 5 uT); a value not a number fails
-                number = pc.cast(table.column(columns[0]), pa.float64(), safe=False)
+                from .normalize.types import to_number
+
+                number = to_number(table.column(columns[0]))
                 hit = None
                 for bound, op in BOUNDS.items():
                     if bound in rule:
@@ -445,11 +447,11 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         table = banded(placed(kept(query(dataset, period=span, geography=publications,
                                          select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
         if summed:
-            # one number reader (`_aggregate._to_number`: digits, a decimal comma); several columns sum row-wise, a part
+            # one number reader (`normalize.types.to_number`); several columns sum row-wise, a part
             # with no number contributing nothing and a row where no part holds one staying null (missing is not zero)
-            from ._aggregate import _to_number
+            from .normalize.types import to_number
 
-            values = [_to_number(table.column(part), table.num_rows) for part in parts_summed]
+            values = [to_number(table.column(part)) for part in parts_summed]
             total = values[0]
             for value in values[1:]:
                 total = pc.if_else(pc.or_(pc.is_valid(total), pc.is_valid(value)),
@@ -458,10 +460,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             table = table.append_column("__sum", total)
             return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
         if numbered:
-            from ._aggregate import _to_number
+            from .normalize.types import to_number
 
-            table = table.append_column("__n", pc.cast(pc.is_valid(_to_number(table.column(numbered), table.num_rows)),
-                                                       pa.float64()))
+            table = table.append_column("__n", pc.cast(pc.is_valid(to_number(table.column(numbered))), pa.float64()))
             return table.group_by(cell).aggregate([("__n", "sum")]).rename_columns([*cell, "events"])
         if distinct:
             # one row per distinct value in its cell (an establishment listed twice in a month is one), then counted

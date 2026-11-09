@@ -50,6 +50,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
 
+from .normalize.types import to_number
 from .semantics.column_roles import ColumnRole, declared_columns
 
 __all__ = ["CONDITION", "CONDITION_META", "Clause", "Condition", "condition_report", "measurement", "prepare", "role_column"]
@@ -64,8 +65,6 @@ OPS = ("<", "<=", ">", ">=", "==", "in", "not in")
 _ORDER = ("<", "<=", ">", ">=")
 _OP_NAMES = {"not_in": "not in", "=": "==", "eq": "=="}
 _TIME_UNITS = ("days", "weeks", "months", "years")
-#: A decimal number as the files write it: digits, optionally a point or a comma and digits.
-_NUMBER = r"^\d+([.,]\d+)?$"
 _TRUE, _FALSE = pa.scalar(True), pa.scalar(False)
 _UNKNOWN = pa.scalar(None, pa.bool_())
 
@@ -352,9 +351,9 @@ def measurement(role: ColumnRole, x: Any) -> tuple[Any, Any, Any]:
     role's declared ``domain``: the values a measurement may be. Booleans, never null. The one reading of a measure's
     "not recorded" and "not a measurement", for a condition (`_state`) and for a sum (`proximity.care_flows(measure=)`)."""
     text = _trim(x)
-    syntax = pc.coalesce(pc.match_substring_regex(text, _NUMBER), _FALSE)
-    safe = pc.if_else(syntax, pc.replace_substring(text, ",", "."), pa.scalar("0"))
-    value = safe.cast(pa.float64()) if isinstance(safe, ds.Expression) else pc.cast(safe, pa.float64())
+    number = to_number(x, signed=False)
+    syntax = pc.is_valid(number)
+    value = pc.coalesce(number, pa.scalar(0.0))
     recorded = syntax
     missing = tuple(role.missing or ())
     if missing:

@@ -622,26 +622,6 @@ def build_aggregate(
     return report
 
 
-#: DATASUS writes numbers as fixed-width text, and a blank is ABSENT rather than
-#: zero. Arrow's cast raises on `''` and on anything else unparseable, so
-#: non-numeric cells are nulled first: a null contributes nothing to a sum and
-#: nothing to a mean's denominator, which is what "we did not observe this"
-#: should do. Casting them to zero instead would drag every mean down invisibly.
-_NUMERIC = r"^[+-]?\d+([.,]\d+)?$"
-
-
-def _to_number(column: Any, rows: int) -> Any:
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    text = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
-    looks_numeric = pc.fill_null(pc.match_substring_regex(text, _NUMERIC), False)
-    cleaned = pc.if_else(looks_numeric, text, pa.nulls(rows, pa.string()))
-    # A decimal comma is how some DATASUS layouts write money.
-    cleaned = pc.replace_substring(cleaned, ",", ".")
-    return pc.cast(cleaned, pa.float64(), safe=False)
-
-
 def _reductions(spec: AggregateSpec) -> dict[str, str]:
     """Each state column's merge: min/max for the extremes, a sum for every other kind."""
     return {column: (measure.kind.name if measure.kind.name in ("min", "max") else "sum")

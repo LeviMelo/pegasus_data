@@ -286,11 +286,10 @@ def coerce_numeric(table: pa.Table, columns: Sequence[str]) -> pa.Table:
             continue
         arr = table.column(column)
         if pa.types.is_string(arr.type):
-            cleaned = pc.utf8_trim_whitespace(arr)
-            valid = pc.fill_null(pc.match_substring_regex(cleaned, r"^-?\d+$"), False)
-            cleaned = pc.if_else(valid, cleaned, pa.scalar(None, pa.string()))
+            from ..normalize.types import to_number
+
             table = table.set_column(
-                table.schema.get_field_index(column), column, pc.cast(cleaned, pa.int64())
+                table.schema.get_field_index(column), column, pc.cast(to_number(arr, fraction=False), pa.int64())
             )
     return table
 

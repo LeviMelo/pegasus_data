@@ -48,6 +48,8 @@ from typing import Any
 import numpy as np
 import pyarrow as pa
 
+from ._age import bands
+
 MODEL_VERSION = "race-confusion-infant-1"
 #: Factor on the sd of a simulated state x recorded-race count for 90% predictive coverage out of sample
 #: (measured: z-scores of 2021->2022 and 2022->2021 had sd 1.52 and 1.60).
@@ -81,13 +83,12 @@ def encode_race(codes: Any) -> np.ndarray:
 
 def age_band(days: np.ndarray) -> np.ndarray:
     """Age at death in days to the band index 0 (0-6 d), 1 (7-27 d), 2 (28-364 d)."""
-    d = np.asarray(days)
-    return np.where(d < 7, 0, np.where(d < 28, 1, 2)).astype(np.int8)
+    return np.maximum(bands(days, (0, 7, 28)), 0).astype(np.int8)
 
 
 def age_band_years(years: np.ndarray) -> np.ndarray:
     """Age in years to the women product's band index 0 (15-24), 1 (25-34), 2 (35-49)."""
-    return np.searchsorted(np.asarray(WOMEN_AGE_EDGES), np.asarray(years), side="right").astype(np.int8)
+    return np.maximum(bands(years, (15, *WOMEN_AGE_EDGES)), 0).astype(np.int8)
 
 
 @dataclass(frozen=True)

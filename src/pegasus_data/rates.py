@@ -21,7 +21,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+import numpy as np
 import pyarrow as pa
+
+from ._age import bands
 
 #: Band lower bounds: 0, 5, ..., 80 (80 = 80 and over).
 BANDS: tuple[int, ...] = tuple(range(0, 85, 5))
@@ -35,9 +38,10 @@ __all__ = ["BANDS", "WHO_2000", "age_standardised_rates"]
 
 
 def _band(age_years: float | None) -> int | None:
-    if age_years is None or age_years != age_years or age_years < 0:
+    if age_years is None:
         return None
-    return min(int(age_years) // 5 * 5, 80)
+    found = int(bands(np.array([age_years]), BANDS)[0])
+    return None if found < 0 else BANDS[found]
 
 
 def _standard(name: str, settings: Any) -> dict[int, float]:
