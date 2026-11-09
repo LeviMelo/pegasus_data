@@ -35,16 +35,17 @@ def national_events(events_dir: str | Path, years: list[int]) -> tuple[np.ndarra
 
     d = np.zeros((len(years), 2, A))
     b = np.zeros((len(years), 2))
-    code = {"1": 0, "M": 0, "2": 1, "F": 1}
+    from .population_account import SEX_INDEX
+
     for k, y in enumerate(years):
         t = pq.read_table(Path(events_dir) / f"deaths_{y}.parquet").to_pandas()
-        t["x"] = t.SEXO.map(lambda s: code.get(str(s).strip().upper(), -1))
-        t["a"] = t.IDADE_anos.map(lambda v: -1 if v is None or v != v else int(min(np.floor(float(v)), A - 1)))
+        t["x"] = t["sex"].map(lambda s: SEX_INDEX.get(s, -1))
+        t["a"] = t["age"].map(lambda v: -1 if v is None or v != v else int(min(np.floor(float(v)), A - 1)))
         ok = (t.x >= 0) & (t.a >= 0)
         np.add.at(d[k], (t.x[ok].to_numpy(), t.a[ok].to_numpy()), t.events[ok].to_numpy())
         d[k] *= t.events.sum() / max(d[k].sum(), 1)
         t = pq.read_table(Path(events_dir) / f"births_{y}.parquet").to_pandas()
-        t["x"] = t.SEXO.map(lambda s: code.get(str(s).strip().upper(), -1))
+        t["x"] = t["sex"].map(lambda s: SEX_INDEX.get(s, -1))
         for x in (0, 1):
             b[k, x] = t.events[t.x == x].sum()
         b[k] *= t.events.sum() / max(b[k].sum(), 1)

@@ -59,15 +59,17 @@ def events_uf(events_dir: str | Path, year: int, kind: str) -> np.ndarray:
 
     t = pq.read_table(Path(events_dir) / f"{kind}_{year}.parquet").to_pydict()
     pos = {u: i for i, u in enumerate(UFS)}
-    codes = t["CODMUNRES"]
+    codes = t["residence"]
     uf = np.array([pos.get(int(c[:2]), -1) if c and c[:2].isdigit() else -1 for c in codes])
     ev = np.array(t["events"], dtype=float)
     if kind == "births":
         out = np.zeros(len(UFS))
         np.add.at(out, uf[uf >= 0], ev[uf >= 0])
         return out
-    sx = np.array([{"1": 0, "2": 1}.get((s or "").strip(), -1) for s in t["SEXO"]])
-    ag = np.array([-1 if a is None else min(int(float(a)), AGES - 1) for a in t["IDADE_anos"]])
+    from .population_account import SEX_INDEX
+
+    sx = np.array([SEX_INDEX.get(s, -1) for s in t["sex"]])
+    ag = np.array([-1 if a is None else min(int(float(a)), AGES - 1) for a in t["age"]])
     out = np.zeros((len(UFS), 2, AGES))
     ok = (uf >= 0) & (sx >= 0) & (ag >= 0)
     np.add.at(out, (uf[ok], sx[ok], ag[ok]), ev[ok])

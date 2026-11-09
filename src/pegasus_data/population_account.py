@@ -168,9 +168,51 @@ def load_census(root: str | Path, year: int, places: Places, by: str = "unit") -
     return out
 
 
+def vital_inputs() -> dict[str, dict[str, Any]]:
+    """What the account counts (``inputs`` of its product, `curation/products.yml`): per input, its event type
+    (``records:<dataset>/<event>``) and its strata, a name for each role it is stratified by."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    product = (read_yaml(curation_root() / "products.yml").get("products") or {})["population_account"]
+    out = {}
+    for name, body in (product.get("inputs") or {}).items():
+        dataset, _, event = str(body["events"]).removeprefix("records:").partition("/")
+        out[str(name)] = {"dataset": dataset, "event": event, "strata": {str(k): str(v) for k, v in body["strata"].items()}}
+    return out
+
+
+def sex_of(dataset: str, column: str, year: int, codes: list[str | None], root: str | Path | None = None) -> list[str | None]:
+    """Each sex code as M, F or None, read from its label in ``dataset``'s ``year`` (the one rule linkage's ``sex``
+    type applies): every system codes sex its own way (SIH 1/3, SIM and SINASC 1/2, SINASC 2014 M/F), so a code is
+    never read as a sex by itself. A code whose label is neither (ignorado) is None."""
+    from ._request import parse_dataset
+    from .catalog.store import CatalogStore
+    from .config import load_settings
+    from .view import codelist_levels
+
+    settings = load_settings(root=Path(root) if root else None)
+    system, series = parse_dataset(dataset)
+    present = sorted({str(c).strip() for c in codes if c is not None and str(c).strip()})
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        labels = codelist_levels(column, store=store, lake_root=settings.lake_dir, system=system,
+                                 family_id=f"{system}.{series}", year=year, codes=present)
+    finally:
+        store.close()
+    sex = {c: ("M" if str(labels.get(c, "")).strip().lower().startswith("m") else
+               "F" if str(labels.get(c, "")).strip().lower().startswith("f") else None) for c in present}
+    return [sex.get(str(c).strip()) if c is not None else None for c in codes]
+
+
+#: a sex as the collected files write it, as an index (male 0, female 1)
+SEX_INDEX = {"M": 0, "F": 1}
+
+
 def collect_events(root: str | Path, years: range | list[int], events_dir: str | Path, log=print) -> None:
-    """Deaths (residence × sex × age in years) and births (residence × sex) per year, through the public
-    API into ``events_dir`` as parquet of raw codes; a year already collected is not fetched again."""
+    """Each input of `vital_inputs` (deaths by residence × sex × age in years, births by residence × sex) per year,
+    through the public API into ``events_dir``, its strata under their declared names (sex as M, F or null); a year
+    already collected is not fetched again."""
     import warnings
 
     import pyarrow as pa
@@ -179,24 +221,38 @@ def collect_events(root: str | Path, years: range | list[int], events_dir: str |
 
     import pegasus_data as pg
 
+    from .semantics.column_roles import column_of
+
     out = Path(events_dir)
     out.mkdir(parents=True, exist_ok=True)
     for y in years:
-        for name, dataset, event, by in (("deaths", "SIM.DO", "death", ["CODMUNRES", "SEXO", "IDADE_anos"]),
-                                         ("births", "SINASC-DN", "birth", ["CODMUNRES", "SEXO"])):
+        for name, spec in vital_inputs().items():
             f = out / f"{name}_{y}.parquet"
             if f.exists():
                 continue
             t0 = time.time()
+            columns = {stratum: column_of(spec["dataset"], role) for stratum, role in spec["strata"].items()}
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                tab = pg.count_events(dataset, event, period=y, geography="BR", by=by, root=root,
-                                      allow_partial=False, max_download=8 * 1024**3)
-            tab = pa.table({c: pc.cast(tab[c], pa.string()) for c in by} | {"events": tab["events"]})
+                tab = pg.count_events(spec["dataset"], spec["event"], period=y, geography="BR", by=list(columns.values()),
+                                      root=root, allow_partial=False, max_download=8 * 1024**3)
+            tab = vital_table(spec["dataset"], y, {s: pc.cast(tab[c], pa.string()) for s, c in columns.items()},
+                              columns, tab["events"], root)
             tmp = f.with_name(f"{f.name}.{os.getpid()}.tmp")     # whole or absent: a truncated file passed `f.exists()` for good
             pq.write_table(tab, tmp)
             tmp.replace(f)
             log(f"{name} {y}: {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
+
+
+def vital_table(dataset: str, year: int, strata: dict[str, Any], columns: dict[str, str], events: Any,
+                root: str | Path | None = None) -> Any:
+    """The collected file of one input and year: its strata under their names, sex as M, F or null (`sex_of`)."""
+    import pyarrow as pa
+
+    out = dict(strata)
+    if "sex" in out:
+        out["sex"] = pa.array(sex_of(dataset, columns["sex"], year, out["sex"].to_pylist(), root), pa.string())
+    return pa.table(out | {"events": events})
 
 
 #: SIM and SINASC of 1991-1998 write the city of Rio de Janeiro as 3345xxx (its administrative regions; about 50,000 deaths a
@@ -224,15 +280,14 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
     order = sorted(index, key=lambda m: int(str(m)[:6]))
     keys = np.array([int(str(m)[:6]) for m in order])
     targets = np.array([index[m] for m in order])
-    sex_code = {"1": 0, "M": 0, "2": 1, "F": 1}
     deaths = np.zeros((len(years), n, 2, A))
     births = np.zeros((len(years), n, 2))
     report: dict[str, dict[str, int]] = {}
     for k, y in enumerate(years):
         t = pq.read_table(Path(events_dir) / f"deaths_{y}.parquet")
-        i = _place(t["CODMUNRES"].to_pylist(), keys, targets)
-        sx = np.array([sex_code.get((s or "").strip().upper(), -1) for s in t["SEXO"].to_pylist()])
-        ag = np.array([-1.0 if a is None else float(a) for a in t["IDADE_anos"].to_pylist()])
+        i = _place(t["residence"].to_pylist(), keys, targets)
+        sx = np.array([SEX_INDEX.get(s, -1) for s in t["sex"].to_pylist()])
+        ag = np.array([-1.0 if a is None else float(a) for a in t["age"].to_pylist()])
         age = np.where(ag >= 0, np.minimum(np.floor(ag), A - 1), -1).astype(int)
         e = np.array(t["events"].to_pylist(), dtype=float)
         placed = i >= 0
@@ -265,8 +320,8 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
             report[str(y)] = rep | {"births_total": None}
             continue
         t = pq.read_table(Path(events_dir) / f"births_{y}.parquet")
-        i = _place(t["CODMUNRES"].to_pylist(), keys, targets)
-        sx = np.array([sex_code.get((s or "").strip().upper(), -1) for s in t["SEXO"].to_pylist()])
+        i = _place(t["residence"].to_pylist(), keys, targets)
+        sx = np.array([SEX_INDEX.get(s, -1) for s in t["sex"].to_pylist()])
         e = np.array(t["events"].to_pylist(), dtype=float)
         placed = i >= 0
         rep |= {"births_total": int(e.sum()), "births_unplaced": int(e[~placed].sum()),
@@ -395,7 +450,6 @@ LEVELS = (0.8, 0.95)
 #: 0.73-0.91 in the size classes below 20,000 (1 is the bridge) and a spread at 6.7 years 0.78-0.80 of that at 10 (√ law:
 #: 0.82; a linear law: 0.67).
 TIMING_VARIANCE = 1.0
-_SEX_CODE = {"1": 0, "M": 0, "2": 1, "F": 1}
 _AGE_GROUP_IDS = (1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 2503)
 
 
@@ -447,10 +501,10 @@ def mortality_rates(events_dir: str | Path, year: int, population: np.ndarray) -
     """National death rates by sex × five-year group (2, 17): SIM deaths of ``year`` over ``population`` (2, 17)."""
     import pyarrow.parquet as pq
 
-    t = pq.read_table(Path(events_dir) / f"deaths_{year}.parquet", columns=["SEXO", "IDADE_anos", "events"])
+    t = pq.read_table(Path(events_dir) / f"deaths_{year}.parquet", columns=["sex", "age", "events"])
     deaths = np.zeros((2, 17))
-    for s, a, e in zip(t["SEXO"].to_pylist(), t["IDADE_anos"].to_pylist(), t["events"].to_pylist(), strict=True):
-        s = _SEX_CODE.get((s or "").strip().upper())
+    for s, a, e in zip(t["sex"].to_pylist(), t["age"].to_pylist(), t["events"].to_pylist(), strict=True):
+        s = SEX_INDEX.get(s)
         if s is not None and a is not None:
             deaths[s, min(int(float(a)) // 5, 16)] += e
     return deaths / np.maximum(population, 1)

@@ -587,6 +587,15 @@ def _all_roles(dataset: str) -> list[dict[str, Any]]:
     return [c.as_dict() for c in declared_columns(dataset)]
 
 
+def column_of(dataset: str, role: str) -> str:
+    """The one column of ``dataset`` that states ``role`` (its ``role`` or an ``also``): a study names the property it
+    needs, never the column. More than one, or none, raises."""
+    found = sorted({c.column for c in declared_columns(dataset) if c.role == role or role in (c.also or ())})
+    if len(found) != 1:
+        raise KeyError(f"{dataset}: {len(found)} columns state {role!r} ({found}); one is needed")
+    return found[0]
+
+
 def facility_code_field(dataset: str) -> str | None:
     """The column that holds the record's own establishment as a CNES code: the one column of the dataset typed
     ``kind: institution`` with the CNES register's codelist (``CADGERBR``); when a layout files several (APAC's

@@ -510,6 +510,11 @@ products:
     period: "1991-2030"
     call: 'pegasus_data.modelled.read_modelled("population_account")'
     stores: [lake/modelled/population_account]
+    # what the account counts, as event types stratified by roles (`population_account.collect_events`): the files it
+    # writes carry the strata under these names, sex read from its label (M, F or unknown), never from a code
+    inputs:
+      deaths: {events: "records:SIM-DO/death", strata: {residence: deceased.residence, sex: deceased.sex, age: deceased.age_years}}
+      births: {events: "records:SINASC-DN/birth", strata: {residence: mother.residence, sex: baby.sex}}
 
   population_without_private_coverage:
     label: "Population without a private health plan"

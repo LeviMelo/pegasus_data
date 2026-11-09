@@ -49,8 +49,13 @@ general rule.
 1. **CNES has its own pipeline:** a third-party mirror, hard-coded column names. Stage 3.
 2. ~~One column, three declarations~~ **closed (ADR-0219):** linkage reads `compare:` from the roles files
    (`roles.yml` deleted, 108 roles equal); the intake's `role:` is `description:`.
-3. **Study modules name datasets and columns in code:** `completeness`, `population_account`, `modelled_race`,
-   `sus_dependent`, `population_backcast`/`forecast`, about 4,000 lines.
+3. **Study modules name datasets and columns in code:** partly closed (2026-11-09). The population account's inputs
+   are declared on its product (`inputs:` of `products.yml`: event types and strata roles, resolved by
+   `column_roles.column_of`), and sex is read from its label by one function (`sex_of`) where four modules each kept a
+   code map. The 48 collected files were rewritten in that form, and every reader's output is equal (deaths and
+   births by unit and entity, national, by state, mortality rates). **Left:** `sus_dependent`, `population_backcast`
+   and `completeness` read lake paths (ANS, `lake/fields`, SIDRA facts, the census) instead of `load_field`, `cube`
+   and `load_population`.
 4. ~~Age encodings named per system~~ **closed (ADR-0218):** five forms with the unit table as data, declared once on
    each system's `IDADE_anos`; the 59 aggregates name the variable. Decoding equal on six systems' records.
 5. ~~Linkage cardinality hard-coded~~ **closed (9958a80):** read from each dataset's roles file (`persons:`).
