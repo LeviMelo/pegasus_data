@@ -307,6 +307,11 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     if at not in places_bound or time not in times:
         raise KeyError(f"{dataset}: place binding {at!r} of {sorted(places_bound)}, time binding {time!r} of {sorted(times)}")
     place_column = str(places_bound[at]["fields"][0])
+    # a binding whose values are states (`code_system: uf`, SIES's SES-SP) is read at state level, never below
+    states = places_bound[at].get("code_system") == "uf"
+    state_prefix = str(places_bound[at].get("prefix") or "")
+    if states and place == "municipality":
+        raise ValueError(f"{dataset}: its place {at!r} is a state; read it at place='uf'")
     time_fields = [str(f) for f in times[time]["fields"]]
     encoding = str(times[time].get("encoding") or "")
     grain = grain or "month"
@@ -410,7 +415,14 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         distinct count is of its municipality, never summed over the codes that place there (the Federal District's PF
         files code its administrative regions to 2016, and a physician of two regions is one physician of Brasília)."""
         codes = pc.dictionary_encode(pc.cast(table.column(place_column), pa.string())).combine_chunks()
-        mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
+        if states:
+            from .config import UF_NUMERIC
+
+            by_abbreviation = {abbr: int(code) for code, abbr in UF_NUMERIC.items()}
+            mapped = pa.array([by_abbreviation.get(str(v).strip().removeprefix(state_prefix)) if v else None
+                               for v in codes.dictionary.to_pylist()], pa.int64())
+        else:
+            mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
         return table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
 
     def count(span: Any) -> pa.Table:
@@ -486,7 +498,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     unplaced = float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
     facts = pa.table({"place": pc.filter(places, keep), "period": pc.filter(period, keep),
                       **{k: pc.filter(counts.column(k), keep) for k in by}, "value": pc.filter(events, keep)})
-    if place == "uf":
+    if place == "uf" and not states:
         facts = facts.set_column(0, "place", pc.cast(pc.divide(facts.column("place"), 100000), pa.int64()))
     elif place == "country":
         facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))

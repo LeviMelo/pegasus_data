@@ -997,7 +997,7 @@ sources:
       QTDE: {description: quantity requested and distributed, type: number}
       ORIGEM: {description: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
       TX_AREA: {description: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
-    place: {column: TX_SIGLA, type: code, as: ses}
+    place: {column: TX_SIGLA, type: code, as: ses, states: 'SES-'}   # a state's secretariat: SES- and its abbreviation
     period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
     fields:
       sies_distributed:

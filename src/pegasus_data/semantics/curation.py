@@ -1370,7 +1370,10 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
         if role_name.endswith("_name") or role_name.endswith(".name"):
             continue                    # a place written as a name is no code: placed by the intake's name match, not here
         if body.get("kind") == "place" and body.get("model") in ("stratum", "where"):
-            geography[str(body.get("role") or column)] = {"fields": [column], "code_system": "ibge_municipality"}
+            binding = _place_code_system(wanted, column, body)
+            if binding is None:
+                continue                # what the column codes is not declared: no binding, never a guess
+            geography[str(body.get("role") or column)] = {"fields": [column], **binding}
             if body.get("model") == "stratum" and default_geography is None:
                 default_geography = str(body.get("role") or column)
     time: dict[str, Any] = {}
@@ -1410,6 +1413,31 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
     )
 
 
+#: codelists of states: a place column bound to one codes a state
+_STATE_CODELISTS = frozenset({"UF_BR", "UFNACIO"})
+
+
+def _place_code_system(dataset: str, column: str, body: Mapping[str, Any]) -> dict[str, Any] | None:
+    """What a place role's values code, as declared: its codelist (a states table is a state, any other a municipality,
+    the place codelists of every roles file), else the intake's declaration of that column (a municipality, or states
+    under a prefix: SIES's SES-SP); None when neither says."""
+    codelists = {str(c).upper() for c in body.get("codelists") or ()}
+    if codelists:
+        return {"code_system": "uf"} if codelists <= _STATE_CODELISTS else {"code_system": "ibge_municipality"}
+    from ..intake import declared_sources
+
+    system, _, series = dataset.partition("-")
+    for spec in declared_sources().values():
+        if str(spec.get("system") or "").upper() == system and str(spec.get("series") or "").upper() == series:
+            place = spec.get("place") or {}
+            if str(place.get("column") or "").upper() != column.upper():
+                return None
+            if place.get("states") is not None:
+                return {"code_system": "uf", "prefix": str(place["states"])}
+            return {"code_system": "ibge_municipality"} if place.get("type") == "municipality" else None
+    return None
+
+
 def _landed_axes(dataset: str) -> dict[str, Any] | None:
     """The bindings an intake source's records were landed by: ``_MUNICIPALITY`` (its declared place resolved to the
     IBGE code, a name matched within its state, the sole-municipality rule for Brasília's administrative regions) and
@@ -1420,10 +1448,16 @@ def _landed_axes(dataset: str) -> dict[str, Any] | None:
     system, _, series = dataset.partition("-")
     for spec in declared_sources().values():
         if str(spec.get("system") or "").upper() == system and str(spec.get("series") or "").upper() == series:
-            if (spec.get("place") or {}).get("type") not in ("municipality", "municipality_name"):
+            place = spec.get("place") or {}
+            time = {"fields": ["year", "_MONTH"], "encoding": "year_month"}
+            if place.get("states") is not None:
+                # a code naming a state (SIES's SES-SP): the state's abbreviation after the declared prefix
+                column = "_" + str(place.get("as") or place["column"]).upper()
+                return {"geography": {"fields": [column], "code_system": "uf", "prefix": str(place["states"])},
+                        "time": time}
+            if place.get("type") not in ("municipality", "municipality_name"):
                 return None
-            return {"geography": {"fields": ["_MUNICIPALITY"], "code_system": "ibge_municipality"},
-                    "time": {"fields": ["year", "_MONTH"], "encoding": "year_month"}}
+            return {"geography": {"fields": ["_MUNICIPALITY"], "code_system": "ibge_municipality"}, "time": time}
     return None
 
 

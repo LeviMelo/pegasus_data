@@ -222,7 +222,8 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     fs = ((source or {}).get("fields") or {}).get(name) if source else None
     if not fs or fs.get("unpivot") or fs.get("rows"):
         return None
-    if (source.get("place") or {}).get("type") not in ("municipality", "municipality_name"):
+    place = source.get("place") or {}
+    if place.get("type") not in ("municipality", "municipality_name") and place.get("states") is None:
         return None
     dataset = f"{source['system']}-{source['series']}"
     if semantics_for(dataset) is None or not _landed(source):
@@ -248,6 +249,9 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
             "where": where, "strata": [(c.upper() if c else c, alias) for c, alias in _strata(fs)],
             "measure": str(measure).upper() if measure else None,
             "grain": (source.get("period") or {}).get("grain") or "year",
+            # a source placed by a state's code is read at state level, its field keyed by that code as filed
+            "states": ({"as": str(place.get("as") or place["column"]).lower(), "prefix": str(place["states"])}
+                       if place.get("states") is not None else None),
             "citation": str(source.get("citation") or source.get("what") or "")}
 
 
@@ -280,14 +284,22 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     columns = [c for c, _ in plan["strata"]]
     if periods:
         table = cube(plan["source"], periods=periods, grain=plan["grain"], by=columns, where=plan["where"],
-                     measure=plan["measure"], support=plan.get("support"), settings=settings)
+                     measure=plan["measure"], support=plan.get("support"), settings=settings,
+                     place="uf" if plan.get("states") else "municipality")
     else:
         table = pa.table({"place": pa.array([], pa.int64()), "period": pa.array([], pa.string()),
                           **{c: pa.array([], pa.string()) for c in columns}, "value": pa.array([], pa.float64())})
     code7 = pc.cast(table.column("place"), pa.string())
     period = table.column("period")
     n = table.num_rows
-    out: dict[str, Any] = {"municipality": pc.utf8_slice_codeunits(code7, 0, 6)}
+    states = plan.get("states")
+    if states:
+        from .config import UF_NUMERIC
+
+        out: dict[str, Any] = {states["as"]: pa.array([f"{states['prefix']}{UF_NUMERIC.get(str(c), '')}"
+                                                        for c in code7.to_pylist()], pa.string())}
+    else:
+        out = {"municipality": pc.utf8_slice_codeunits(code7, 0, 6)}
     if plan["grain"] == "month":
         # a period kept at its year (its month not recorded) has no month, as the field had it
         month = pc.utf8_slice_codeunits(period, 5, 7)
@@ -296,7 +308,7 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
         out[alias] = pc.cast(table.column(column), pa.string())
     out.update({
         "value": pc.cast(table.column("value"), pa.float64()),
-        "municipality7": code7,
+        **({} if states else {"municipality7": code7}),
         "status": pa.array(["ok"] * n, pa.string()),
         "unit": pa.array([str(spec.get("unit") or "")] * n, pa.string()),
         "source": pa.array([plan["citation"]] * n, pa.string()),

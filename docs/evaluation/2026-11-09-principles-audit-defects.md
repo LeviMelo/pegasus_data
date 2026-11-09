@@ -21,6 +21,9 @@ changed number, so each change is judged by whether every output it touches is e
 | stage 4 | BR-DWGD's six annual fields as `climate:` cube views | the stored copies | 356,032 rows each, value, status, months and release equal |
 | stage 5 | aggregate recipes built from records cubes | the old build's cells, AC 2022 (SINAN Zika BR 2022) | SIH 20,730, SINASC 11,707, CNES-ST 3,241 cells equal; SIM 13 and Zika 56 records no municipality places were cells (state "ignored" codes), now unplaced; Brasília's region codes place in Brasília |
 | cubes | sums read by the one number reader, null where no part holds a number | CNES hours (2015, 2020), SISAGUA sums (2022) | equal |
+| registers | S2iD landed, `disasters` a view of its records | the copy | 76,190 rows equal |
+| state places | SIES read at state level (`code_system: uf`) | the copies | 91,549 and 46,365 rows equal |
+| place roles | a role's place level from its codelist or the intake's declaration, never assumed a municipality | the bindings of all 187 roles files | 3 changed: SIES's secretariat and SINAN's `notification.state` are states (were bound as municipalities); PNI's facility municipality declared `MUNICBR` |
 | cubes | a row count that keeps the unplaced in the manifest | SIM-DO AC 2022 | 4,159 records: 4,146 placed, 13 unplaced (the manifest had said 0) |
 
 **Found on the way.**

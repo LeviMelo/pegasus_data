@@ -122,6 +122,8 @@ columns:
     fact_domain_evidence: '"Código IBGE do município do estabelecimento" (dose.facility_municipality): facility: the facility
       register, or record type, internal flag or system field'
     name: Código IBGE do município do estabelecimento
+    codelists:
+    - MUNICBR      # "Código IBGE do município" (the dictionary): an IBGE municipality code
     years:
     - 2020
     - 2026
