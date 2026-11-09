@@ -93,7 +93,7 @@ NEAREST_KM = 10.0
 #: parallel and decoded one at a time
 _DECODE = threading.Lock()
 
-__all__ = ["PRODUCTS", "daily", "day_grid", "grid", "listing", "read_file", "update", "weekly"]
+__all__ = ["PRODUCTS", "daily", "day_grid", "grid", "listing", "period_sums", "read_file", "update", "weekly"]
 
 
 def _store(settings: Any) -> Path:
@@ -409,26 +409,8 @@ def _update_locked(settings: Any, product: Product, start: dt.date, end: dt.date
             "first_days_not_on_server": [d.isoformat() for d in missing_days[:10]]}
 
 
-def daily(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "tmed"), *, start: Any = None, end: Any = None,
-          municipality: Any = None, uf: Any = None, weight: str = "population", as_of: Any = None,
-          settings: Any = None) -> Any:
-    """Daily municipal weather (a pyarrow table): ``municipality7``, ``date``, and per variable its value (``weight``
-    ``population`` or ``area``), ``<variable>_coverage``, ``<variable>_stations`` and ``<variable>_published``.
-
-    One row per municipality and day, from the latest vintage, or with ``as_of`` (a date or datetime, UTC) the latest one
-    published on or before it; a day with no vintage by then has no value. ``municipality`` takes 6 or 7 digits, ``uf``
-    2-digit codes. Raises when nothing is held for a variable (`update`, ``pegasus-data climate update``)."""
-    import duckdb
-
-    from ..config import load_settings
-
-    if weight not in ("population", "area"):
-        raise ValueError("weight is 'population' or 'area'")
-    settings = settings or load_settings()
-    names = [variables] if isinstance(variables, str) else list(variables)
-    unknown = [v for v in names if v not in PRODUCTS]
-    if unknown:
-        raise KeyError(f"unknown variables {unknown}; known: {sorted(PRODUCTS)}")
+def _clause(start: Any, end: Any, municipality: Any, uf: Any, as_of: Any) -> str:
+    """The WHERE of a read of the daily store: the days, the municipalities or states, and the vintages published by ``as_of``."""
     where = []
     if start is not None:
         where.append(f"date >= DATE '{dt.date.fromisoformat(str(start)[:10])}'")
@@ -450,41 +432,122 @@ def daily(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "tm
         else:
             moment = dt.datetime.fromisoformat(str(as_of))
         where.append(f"published <= TIMESTAMPTZ '{moment.replace(tzinfo=moment.tzinfo or dt.UTC).isoformat()}'")
-    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    return ("WHERE " + " AND ".join(where)) if where else ""
+
+
+def _latest(con: Any, name: str, weight: str, clause: str, settings: Any, start: Any = None, end: Any = None) -> None:
+    """A view ``name`` of the latest vintage of each municipality and day (the files of the years asked only)."""
+    if weight not in ("population", "area"):
+        raise ValueError("weight is 'population' or 'area'")
+    if name not in PRODUCTS:
+        raise KeyError(f"unknown variables {[name]}; known: {sorted(PRODUCTS)}")
+    folder = _store(settings) / name
+    if not any(folder.glob("year=*/month=*/*.parquet")):
+        raise FileNotFoundError(f"no {name} is held in {folder}; run `pegasus-data climate update --variable {name}`")
+    years = (range(dt.date.fromisoformat(str(start)[:10]).year, dt.date.fromisoformat(str(end)[:10]).year + 1)
+             if start is not None and end is not None else None)
+    files = ([f"'{folder.as_posix()}/year={y}/month=*/*.parquet'" for y in years if (folder / f"year={y}").is_dir()]
+             if years is not None else [f"'{folder.as_posix()}/year=*/month=*/*.parquet'"])
+    if not files:
+        raise FileNotFoundError(f"no {name} is held in {folder} for {years[0]}-{years[-1]}")
+    con.execute(f"""CREATE OR REPLACE VIEW {name} AS
+        SELECT municipality7, date, value_{weight} AS {name}, coverage_{weight} AS {name}_coverage,
+               stations AS {name}_stations, published AS {name}_published, file
+        FROM read_parquet([{",".join(files)}], hive_partitioning = false) {clause}
+        QUALIFY row_number() OVER (PARTITION BY municipality7, date ORDER BY published DESC, file DESC) = 1""")
+
+
+def daily(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "tmed"), *, start: Any = None, end: Any = None,
+          municipality: Any = None, uf: Any = None, weight: str = "population", as_of: Any = None,
+          settings: Any = None) -> Any:
+    """Daily municipal weather (a pyarrow table): ``municipality7``, ``date``, and per variable its value (``weight``
+    ``population`` or ``area``), ``<variable>_coverage``, ``<variable>_stations`` and ``<variable>_published``.
+
+    One row per municipality and day, from the latest vintage, or with ``as_of`` (a date or datetime, UTC) the latest one
+    published on or before it; a day with no vintage by then has no value. ``municipality`` takes 6 or 7 digits, ``uf``
+    2-digit codes. Raises when nothing is held for a variable (`update`, ``pegasus-data climate update``)."""
+    import duckdb
+
+    from ..config import load_settings
+
+    settings = settings or load_settings()
+    names = [variables] if isinstance(variables, str) else list(variables)
+    clause = _clause(start, end, municipality, uf, as_of)
     con = duckdb.connect()
     joined = None
     for name in names:
-        folder = _store(settings) / name
-        if not any(folder.glob("year=*/month=*/*.parquet")):
-            raise FileNotFoundError(f"no {name} is held in {folder}; run `pegasus-data climate update --variable {name}`")
-        con.execute(f"""CREATE OR REPLACE VIEW {name} AS
-            SELECT municipality7, date, value_{weight} AS {name}, coverage_{weight} AS {name}_coverage,
-                   stations AS {name}_stations, published AS {name}_published
-            FROM read_parquet('{folder.as_posix()}/year=*/month=*/*.parquet', hive_partitioning = false) {clause}
-            QUALIFY row_number() OVER (PARTITION BY municipality7, date ORDER BY published DESC, file DESC) = 1""")
+        _latest(con, name, weight, clause, settings)
         joined = name if joined is None else f"{joined} FULL JOIN {name} USING (municipality7, date)"
-    return con.execute(f"SELECT * FROM {joined} ORDER BY municipality7, date").to_arrow_table()
+    columns = ", ".join(c for n in names for c in (n, f"{n}_coverage", f"{n}_stations", f"{n}_published"))
+    return con.execute(f"SELECT municipality7, date, {columns} FROM {joined} ORDER BY municipality7, date").to_arrow_table()
+
+
+def period_sums(variable: str, grain: str, *, start: Any, end: Any, municipality: Any = None, uf: Any = None,
+                weight: str = "population", as_of: Any = None, settings: Any = None) -> Any:
+    """One variable's daily values summed by ``grain`` (``day``, ``epi_week``, ``month``, ``year``), a pyarrow table:
+    ``municipality7``, ``period`` (``YYYY-MM-DD``, ``YYYY-Www`` by the Ministry's rule, ``YYYY-MM``, ``YYYY``), ``value``
+    (the sum of the days held), ``days`` (days held), ``coverage`` (their mean share of weight read at its own cell),
+    ``first_day``, ``last_day`` and ``published`` (the latest vintage among them).
+
+    Aggregated inside the scan, over the latest vintage (or ``as_of``) of the files of ``start``'s to ``end``'s years: no
+    daily table is held. For ``epi_week`` the days run to the whole weeks that touch the range."""
+    import duckdb
+    import pyarrow as pa
+
+    from ..config import load_settings
+    from ..normalize.time import epi_week_array
+
+    settings = settings or load_settings()
+    first, last = dt.date.fromisoformat(str(start)[:10]), dt.date.fromisoformat(str(end)[:10])
+    if grain == "epi_week":
+        first, last = first - dt.timedelta(days=6), last + dt.timedelta(days=6)
+    days = [first + dt.timedelta(n) for n in range((last - first).days + 1)]
+    if grain == "epi_week":
+        years, weeks = epi_week_array(pa.array(days, pa.date32()))
+        period = [f"{y}-W{w:02d}" for y, w in zip(years.to_pylist(), weeks.to_pylist(), strict=True)]
+    else:
+        width = {"day": 10, "month": 7, "year": 4}.get(grain)
+        if width is None:
+            raise ValueError(f"grain is one of day, epi_week, month, year, got {grain!r}")
+        period = [d.isoformat()[:width] for d in days]
+    con = duckdb.connect()
+    con.execute("SET memory_limit = '2GB'")
+    con.execute("SET threads = 2")
+    con.register("calendar", pa.table({"date": pa.array(days, pa.date32()), "period": pa.array(period, pa.string())}))
+    _latest(con, variable, weight, _clause(first, last, municipality, uf, as_of), settings, first, last)
+    return con.execute(f"""SELECT municipality7, period, sum({variable}) AS value, count({variable}) AS days,
+                                  avg({variable}_coverage) AS coverage, min(date) AS first_day, max(date) AS last_day,
+                                  max({variable}_published) AS published
+                           FROM {variable} JOIN calendar USING (date) WHERE {variable} IS NOT NULL
+                           GROUP BY municipality7, period ORDER BY municipality7, period""").to_arrow_table()
 
 
 def weekly(variables: str | Iterable[str] = ("precipitation", "tmax", "tmin", "tmed"), **options: Any) -> Any:
     """`daily` summed by epidemiological week (the Ministry's rule, `normalize.time.epi_week_array`): ``epi_year``,
-    ``epi_week``, ``days`` (days with a value), and per variable ``<variable>_sum`` (the sum of the daily values: the week's
-    rain; a mean temperature is ``_sum / _days``) and ``<variable>_days``. Sums and counts, never a stored mean."""
+    ``epi_week``, ``first_day``, ``last_day`` (of the days held), and per variable ``<variable>_sum`` (the sum of the daily
+    values: the week's rain; a mean temperature is ``_sum / _days``) and ``<variable>_days``. Sums and counts, never a
+    stored mean. Each variable is `period_sums` at ``epi_week``, the cube's own aggregation."""
     import duckdb
-    import pyarrow as pa
-
-    from ..normalize.time import epi_week_array
 
     names = [variables] if isinstance(variables, str) else list(variables)
-    table = daily(names, **options)
-    epi_year, epi_week = epi_week_array(table.column("date"))
-    table = table.append_column("epi_year", epi_year).append_column("epi_week", epi_week)
+    start, end = options.pop("start", None), options.pop("end", None)
+    start = start if start is not None else DEFAULT_START
+    end = end if end is not None else dt.date.today()
     con = duckdb.connect()
-    con.register("d", table)
-    sums = ", ".join(f"sum({n}) AS {n}_sum, count({n}) AS {n}_days" for n in names)
-    out = con.execute(f"""SELECT municipality7, epi_year, epi_week, min(date) AS first_day, max(date) AS last_day, {sums}
-                          FROM d GROUP BY ALL ORDER BY municipality7, epi_year, epi_week""").to_arrow_table()
-    return out if isinstance(out, pa.Table) else pa.table(out)
+    joined = None
+    for name in names:
+        part = period_sums(name, "epi_week", start=start, end=end, **options)
+        con.register(f"p_{name}", part)
+        con.execute(f"""CREATE VIEW {name} AS SELECT municipality7, period, value AS {name}_sum, days AS {name}_days,
+                        first_day AS {name}_first, last_day AS {name}_last FROM p_{name}""")
+        joined = name if joined is None else f"{joined} FULL JOIN {name} USING (municipality7, period)"
+    sums = ", ".join(f"{n}_sum, {n}_days" for n in names)
+    low = "least(" + ", ".join(f"{n}_first" for n in names) + ")" if len(names) > 1 else f"{names[0]}_first"
+    high = "greatest(" + ", ".join(f"{n}_last" for n in names) + ")" if len(names) > 1 else f"{names[0]}_last"
+    return con.execute(f"""SELECT municipality7, CAST(substr(period, 1, 4) AS SMALLINT) AS epi_year,
+                                  CAST(substr(period, 7, 2) AS TINYINT) AS epi_week, {low} AS first_day,
+                                  {high} AS last_day, {sums}
+                           FROM {joined} ORDER BY municipality7, epi_year, epi_week""").to_arrow_table()
 
 
 #: The public names (`pegasus_data.climate_daily`, `climate_weekly`)

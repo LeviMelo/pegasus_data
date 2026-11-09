@@ -113,6 +113,11 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
   - **Reproduced:** the 17 SISAGUA count fields equal cell for cell; yellow fever equal; SRAG 29 lower (the
     notifications filed twice).
   - **Population cubes** are added.
+- **Stage 4 (gridded) is done.** One adapter, `climate:`, serves BR-DWGD (`climate:<measure>`, by year), INMET
+  (`climate:inmet/<measure>`, by month or year: the municipality a station stands in is the place, the station a stratum that
+  is never summed) and CPTEC (`climate:cptec/<variable>[@area]`, by day, epi week, month or year, aggregated inside the scan).
+  `climate_weekly` is CPTEC's epi-week cube. The three stored bases are the raw observations and stay (evaluation
+  2026-11-09-principles-audit-defects).
 - **Stage 3 has measured requirements.**
   - The mirror's 1,728 CNES DBCs are the FTP's own files and are adopted into the blob store, so no download is needed.
   - The CNES fields need four things records cubes do not have yet:
