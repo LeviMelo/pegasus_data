@@ -765,12 +765,13 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
 
 
 def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,
-               settings: Any, **query_kwargs: Any) -> pa.Table:
+               settings: Any, run_geography: object = None, **query_kwargs: Any) -> pa.Table:
     """Attach roles taken from each record's partner in stored links (``Inherit``).
 
-    The stored link of the same scope is used, else the national one (it covers
-    every slice's records); a record without a partner there gets null, which
-    compares as missing (no evidence either way).
+    The stored link of the side's scope is used, else the run's own (a side read nationally, the neonatal link's
+    births, still finds the run's state's delivery link: its records are most of the side's partners), else the
+    national one (it covers every slice's records); a record without a partner there gets null, which compares as
+    missing (no evidence either way).
     """
     from .._query_engine.model import _period
     from . import store
@@ -791,8 +792,9 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
             raise ValueError("an inherited link is read per year: pass a period")
         found, years = [], []
         for year in span.years:
-            run = (store.load(settings, stored_key(item.via, "probabilistic", str(year), geography))
-                   or store.load(settings, stored_key(item.via, "probabilistic", str(year), "BR")))
+            scopes = list(dict.fromkeys(str(g) for g in (geography, run_geography, "BR") if g is not None))
+            run = next((r for g in scopes if (r := store.load(settings, stored_key(item.via, "probabilistic", str(year), g)))),
+                       None)
             if run is not None:
                 found.append(run[0].select(["l", "r"]))
                 years.append(str(year))
@@ -846,7 +848,8 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     right = role_table(spec.right.dataset, period=right_period or period,
                        geography=right_geo, roles=right_roles, **query_kwargs)
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
-                       period=right_period or period, geography=right_geo, settings=settings, **rest)
+                       period=right_period or period, geography=right_geo, settings=settings, run_geography=geography,
+                       **rest)
     national, reference = None, ""
     if not (str(geography).upper() == "BR" and right_geography is None) and spec.bound is None:
         # a slice decides with the national run of ITS period (`store.save_params`: one reference per period)
