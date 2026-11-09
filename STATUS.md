@@ -96,8 +96,8 @@ before it is fixed and marked done there with its evidence.
 - **Study modules (2026-11-09):** T5 and T17 done there; T13 done but the age axes (the study constants are `parameters:` in
   `products.yml`, recorded in each manifest); T14 not closed: the cube drops the events no municipality places (0.16-0.75% of
   deaths), which the completeness needs.
-- **Open:** T5 (the non-study paths, in progress), T14 (the cube drops unplaced events) and
-  T17, T19, T20, T22, T24 (small), H1 (unreferenced functions), H3 (import cycles), H5 (oversized functions).
+- **Open:** T5 and T24 (the non-study paths, in progress), T14 (the cube drops unplaced events), H1 (the rest of the
+  unreferenced functions), H3 (import cycles), H5 (oversized functions).
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**
 `pegasus-data model-build <product> --version V --validation TEXT` calls the function each modelled entry of `products.yml`
