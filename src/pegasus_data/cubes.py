@@ -22,6 +22,7 @@ part without a value is ``incomplete``, never a partial total.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -251,12 +252,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     key = f"{key}-{hashlib.blake2b(json.dumps(where, sort_keys=True, default=str).encode(), digest_size=6).hexdigest()}"
     digest = hashlib.blake2b(digest_size=12)
     digest.update(curation_epoch()[1].encode())
-    # the code a cube's arithmetic runs through: this module, the period reader (`_aggregate._competencia_column`), the
-    # age decoder, the event counter and the placing rule (an edit to the period reader once served a stale empty cube)
-    here = Path(__file__).parent
-    for module in (Path(__file__), here / "_aggregate.py", here / "_age.py", here / "semantics" / "event_types.py",
-                   here / "geography.py"):
-        digest.update(module.read_bytes())
+    digest.update(_code_fingerprint())
     if stamp is not None:
         stamp(digest)
     else:
@@ -627,6 +623,26 @@ def _variable_docs(dataset: str) -> dict[str, Any]:
         for doc in parse_variable_file(path, read_yaml(path) or {}):
             out[f"{path.stem}:{doc.field_name}"] = doc
     return out
+
+
+_CODE: dict[str, Any] = {}
+
+
+def _code_fingerprint() -> bytes:
+    """The package's source, as a cube's version: a cube computes through the period reader, the age decoder, the event
+    counter, the placing rule, the query engine and more, and a list of them goes stale (an edit to the period reader,
+    outside the list, once served a stale empty cube). Every module counts, so a cached cube is never one computed by
+    code that no longer exists; memoised in the process by the files' sizes and times."""
+    root = Path(__file__).parent
+    files = sorted(root.rglob("*.py"))
+    stat = tuple((str(f), f.stat().st_size, f.stat().st_mtime_ns) for f in files)
+    if _CODE.get("stat") != stat:
+        digest = hashlib.blake2b(digest_size=16)
+        for f in files:
+            digest.update(str(f.relative_to(root)).encode())
+            digest.update(f.read_bytes())
+        _CODE.update(stat=stat, digest=digest.digest())
+    return _CODE["digest"]
 
 
 def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
