@@ -64,11 +64,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
-        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [exam.health_unit_municipality], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [DT_ID_COMP], encoding: year_month}
+        competence: {roles: [exam.competence_year_month], encoding: year_month}
     known_biases: >
       Screening data: it describes who was screened, not who has disease, and women who never present are absent.
       It covers the services that used SISCOLO, not every Pap smear of the SUS.
@@ -119,11 +119,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
-        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [exam.health_unit_municipality], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [DT_ID_COMP], encoding: year_month}
+        competence: {roles: [exam.competence_year_month], encoding: year_month}
     known_biases: >
       Only women referred after an abnormal screen reach here, so the population is selected by the screening step and
       its abnormality rate is not a population rate.
@@ -167,11 +167,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
-        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [exam.health_unit_municipality], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [DT_ID_COMP], encoding: year_month}
+        competence: {roles: [exam.competence_year_month], encoding: year_month}
     known_biases: Far less common than mammography, and requested for a lump or discharge, so a diagnostic population; small counts are volatile.
     gotchas:
       - A row is a group of exams; sum QUANTEXAME (BA 2013-09 524 rows, 596 exams).
@@ -211,11 +211,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
-        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [exam.health_unit_municipality], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [DT_ID_COMP], encoding: year_month}
+        competence: {roles: [exam.competence_year_month], encoding: year_month}
     known_biases: Reached only after an abnormal mammogram or a clinical finding, so the population is selected.
     gotchas:
       - A row is a group of exams; sum QUANTEXAME (SP 2014-06 1,329 rows, 1,558 exams).
@@ -257,11 +257,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_PAC_IBG], code_system: ibge_municipality}
-        facility: {fields: [CO_US_IBGE], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [exam.health_unit_municipality], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [DT_ID_COMP], encoding: year_month}
+        competence: {roles: [exam.competence_year_month], encoding: year_month}
     known_biases: >
       Screening and diagnostic mammograms are both here and mean different things; mixing them distorts any positivity
       rate. Only the exams of services using SISMAMA.
@@ -316,11 +316,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [CO_ANO_MES_LIBERACAO], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_report_release], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Screening data, so it describes who was screened rather than who has disease. SISCAN was implanted state by state, so
       a rise in exams can be the system's spread: 2013 holds only its second half (competence 2013-06 on), and SISCOLO
@@ -376,11 +376,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [CO_ANO_MES_LIBERACAO], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_report_release], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Women who had an exam recorded in SISCAN, not the eligible population nor every woman examined in the SUS. Where a
       woman has several rows in a year the first in file order is kept, so her result here is not always her worst.
@@ -434,11 +434,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [CO_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.reference_year_month], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Only women referred after an abnormal screen or a suggestive lesion reach here (TP_ENCAMINHAMENTO), so the population
       is selected by the screening step and its abnormality rate is not a population rate.
@@ -488,11 +488,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Referred women only, as the exam file, and only those recorded in SISCAN; a woman with several exams in a year can
       appear on more than one row (3% of the 2014 rows are a second row).
@@ -545,11 +545,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Requested for a lump or discharge, so a diagnostic population, and only the services using SISCAN; small counts are
       volatile.
@@ -597,10 +597,10 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
     known_biases: Patients recorded in SISCAN who had a diagnostic cytology, not a screened population.
     gotchas:
       - Not the exams of SISCAN_CITO_MAMA; never add the two.
@@ -649,11 +649,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Reached only after an abnormal mammogram or a clinical finding, so the population is selected and its malignancy
       share is not a population rate.
@@ -701,10 +701,10 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
         result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
     known_biases: >
       Referred patients only, as the exam file. In 2013 the file has 420 rows for 444 exams: by Nota Técnica 14's rule the
@@ -755,11 +755,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: >
       Screening and diagnostic mammograms are both here and mean different things; mixing them distorts any positivity
       rate. Only the exams of services using SISCAN.
@@ -806,11 +806,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        residence: {roles: [patient.residence], code_system: ibge_municipality}
       default_time: competence
       time:
-        competence: {fields: [NU_ANO_MES_COMPETENCIA], encoding: year_month}
-        result: {fields: [CO_ANO_MES_RESULTADO], encoding: year_month}
+        competence: {roles: [exam.year_month_of_compet_ncia_billing_period], encoding: year_month}
+        result: {roles: [exam.year_month_of_result], encoding: year_month}
     known_biases: Patients recorded in SISCAN who had a mammogram, not the eligible population; screening and diagnostic mammograms are both here.
     gotchas:
       - Not the exams of SISCAN_MAMOGRAFIA; never add the two.

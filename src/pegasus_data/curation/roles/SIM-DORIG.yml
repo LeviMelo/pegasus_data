@@ -179,6 +179,8 @@ columns:
     - 1995
     note: '1979-1995 layout: DDMMAAAA, some values a bare year (1945); 00000000 marks no date.'
   DATAOBITO:
+    # AAMMDD: a two-digit year of the 1900s (1995: 950914; 3 of 2,184 AC deaths filed as the year alone, 95)
+    century: '19'
     role: death.date
     kind: date
     model: when
@@ -189,6 +191,8 @@ columns:
     - 1995
     - 1995
   DATAREG:
+    # AAMMDD: a two-digit year of the 1900s (1995: 950914; 3 of 2,184 AC deaths filed as the year alone, 95)
+    century: '19'
     role: death.receipt_date
     kind: date
     model: mark

@@ -1271,16 +1271,92 @@ class DatasetSemantics:
     axes: dict[str, Any] = field(default_factory=dict)
 
     def geography_bindings(self) -> dict[str, Any]:
-        return dict(self.axes.get("geography") or {})
+        return self._resolved("geography")
 
     def time_bindings(self) -> dict[str, Any]:
-        return dict(self.axes.get("time") or {})
+        return self._resolved("time")
+
+    def _resolved(self, kind: str) -> dict[str, Any]:
+        """The bindings of ``kind`` with their columns: a binding names the ROLES it binds (``roles: [deceased.residence]``),
+        resolved through this dataset's roles file (`column_roles.column_of`), so a system's binding reads each layout's
+        own column (SIM's residence is CODMUNRES in SIM-DO and MUNIRES in SIM-DOR) and a column is declared once
+        (ADR-0219); a date's declared ``century`` (AAMMDD) comes with it. A binding whose roles this dataset does not
+        carry is absent here, never a column of another layout. A binding with ``fields`` (the intake's landed columns)
+        is as declared."""
+        out: dict[str, Any] = {}
+        # every binding the roles imply, under its role's name (`semantics_from_roles`): a dataset whose curated binding
+        # names roles it does not carry (SIA-BI's competence is DT_ATEND, `procedure.competence`) keeps the axis its roles
+        # give; the curated names, resolved, come after and keep their meaning
+        derived = _derived_semantics(self.dataset_id)
+        if derived is not None and derived is not self:
+            out.update(dict(derived.axes.get(kind) or {}))
+        for name, body in dict(self.axes.get(kind) or {}).items():
+            body = dict(body or {})
+            roles = body.pop("roles", None)
+            if roles is None:
+                out[name] = body
+                continue
+            resolved = _role_columns(self.dataset_id, tuple(str(r) for r in roles))
+            if resolved is None:
+                continue
+            columns, century = resolved
+            out[name] = {"fields": list(columns), **body, **({"century": century} if century else {})}
+        return out
 
     def default_geography(self) -> str | None:
-        return self.axes.get("default_geography")
+        return self._default("geography")
 
     def default_time(self) -> str | None:
-        return self.axes.get("default_time")
+        return self._default("time")
+
+    def _default(self, kind: str) -> str | None:
+        """The curated default where this dataset has it, else the one its roles imply (`semantics_from_roles`)."""
+        declared = self.axes.get(f"default_{kind}")
+        resolved = self._resolved(kind)
+        if declared and declared in resolved:
+            return str(declared)
+        derived = _derived_semantics(self.dataset_id)
+        fallback = derived.axes.get(f"default_{kind}") if derived is not None and derived is not self else None
+        # a default this dataset does not hold is no default: the roles' own, else none (SIH-MT names no place a cube binds)
+        return str(fallback) if fallback and fallback in resolved else None
+
+
+@curated(maxsize=512)
+def _derived_semantics(dataset_id: str) -> DatasetSemantics | None:
+    """The semantics a dataset's roles imply (`semantics_from_roles`), once per dataset."""
+    from ..ontology import dataset_key
+
+    try:
+        return semantics_from_roles(dataset_key(dataset_id), partial=True)
+    except Exception:  # noqa: BLE001 - a dataset whose roles cannot be read implies nothing
+        return None
+
+
+def _role_columns(dataset_id: str, roles: tuple[str, ...]) -> tuple[tuple[str, ...], str | None] | None:
+    """The columns of ``dataset_id`` that state ``roles``, in order, and the century a two-digit date declares; None
+    when the dataset's roles state one of them in no column (or in several)."""
+    from ..ontology import dataset_key
+    from .column_roles import declared_columns
+
+    try:
+        columns = declared_columns(dataset_key(dataset_id))
+    except KeyError:
+        return None
+    out, century = [], None
+    for role in roles:
+        found = [c for c in columns if c.role == role or role in (c.also or ())]
+        if not found:
+            return None
+        # a role stated by one column per era (SIM-DOEXT: CODMUNRES from 1996, MUNIRES to 1995) binds the latest era's,
+        # as the curated column did; two columns of the same era are ambiguous and bind nothing
+        last = max((c.years[1] or 9999) for c in found)
+        current = {c.column for c in found if (c.years[1] or 9999) == last}
+        if len(current) != 1:
+            return None
+        chosen = next(c for c in found if c.column in current)
+        out.append(chosen.column)
+        century = century or chosen.century
+    return tuple(out), century
 
 
 @curated(rooted=True)
@@ -1367,7 +1443,7 @@ def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | 
     return semantics_from_roles(dataset, root)
 
 
-def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSemantics | None:
+def semantics_from_roles(dataset: str, root: Path | None = None, *, partial: bool = False) -> DatasetSemantics | None:
     """A dataset's place and time bindings read from its roles (``curation/roles/<dataset>.yml``), for a dataset whose
     curation declares no ``semantic_axes``: the roles already say which column is whose place and which date is when, so
     a second declaration of the same fact is not asked for (ADR-0217).
@@ -1382,7 +1458,13 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
 
     base = Path(root or curation_root())
     wanted = str(dataset).upper().replace(".", "-", 1)
-    path = base / "roles" / f"{wanted}.yml"
+    # the dataset's roles file by the system's declared spellings (`column_roles.declared_key`: SIA-BI's is SIASUS-BI.yml)
+    from .column_roles import declared_key
+
+    try:
+        path = base / "roles" / f"{declared_key(wanted)}.yml"
+    except KeyError:
+        path = base / "roles" / f"{wanted}.yml"
     landed = _landed_axes(wanted)
     if not path.is_file() and not landed:
         return None
@@ -1430,14 +1512,16 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
         time.setdefault("landed", landed["time"])
         default_geography = default_geography or (next((n for n in geography if n != "landed"), "landed"))
         default_time = default_time or (next((n for n in time if n != "landed"), "landed"))
-    if not geography or not time:
+    # a dataset is placed and dated only with both; ``partial`` keeps either alone (the bindings a curated dataset adds
+    # to its own, `DatasetSemantics._resolved`)
+    if (not geography or not time) if not partial else (not geography and not time):
         return None
-    default_time = default_time or next(iter(time))
+    default_time = default_time or next(iter(time), None)
     system, _, series = wanted.partition("-")
     return DatasetSemantics(
         dataset_id=wanted.replace("-", "_"), system=system, series=series,
         grain=parse_grain(doc.get("record")),
-        axes={"geography": geography, "default_geography": default_geography or next(iter(geography)),
+        axes={"geography": geography, "default_geography": default_geography or next(iter(geography), None),
               "time": time, "default_time": default_time},
     )
 
