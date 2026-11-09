@@ -82,7 +82,7 @@ general rule.
     `workbook`, `_compendium`, `serve`; timeline routes: `s_timeline`), so none was removed; its start script and
     wording left RUNBOOK, workbook and the docs. Nothing in `../pegasus_project` imports them.
 
-## The second principles audit (2026-11-09): closed but for code-shape items
+## The second principles audit (2026-11-09): closed
 
 The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) was the work plan; each item was verified
 before it was fixed and is marked there with its evidence (evaluation 2026-11-09-principles-audit-defects).
@@ -98,9 +98,12 @@ before it was fixed and is marked there with its evidence (evaluation 2026-11-09
   its year alone, keeps its month or year (SIM-DO 2000: 497 deaths). With both, the cube equals the old event files in
   2000, 2012 and 2022.
 - **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), H6, T19, T20, T22.
-- **Open (code shape, not principle):** H1's last test-only helpers (`measures.merge_all`, `ensure_adjudication_item`,
-  kept on purpose), H3 (7 import cycles closed by function-level imports; `proximity`/`ibge_grade` broken), H5 (oversized
-  functions; `column_roles._column` is a validator whose branches are its rules).
+- **Checked, kept (code shape, not principle):** H1's last test-only helpers (`measures.merge_all`,
+  `ensure_adjudication_item`); H3: `scripts/codehealth.py` lists 6 cycles (`proximity`/`ibge_grade` broken), each a real
+  two-way relation closed by one function-level import (a store installs the seed a store writes; an ontology lookup uses
+  the request parser that consults it; an orchestrator calls a stage that reads its constants), so a third module would
+  serve the graph, not the code; H5: codehealth flags no long function, and `column_roles._column` is a validator whose
+  branches are its rules.
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed: all six rebuild from the repository.**
 `pegasus-data model-build <product> --version V --validation TEXT` calls the function each modelled entry of `products.yml`
