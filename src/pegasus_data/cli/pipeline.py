@@ -948,7 +948,8 @@ def snapshot(
 @app.command(name="model-build", rich_help_panel="MAINTENANCE")
 def model_build(
     product: Annotated[str, typer.Argument(help="Modelled product: population_account, population_without_private_coverage, "
-                                                "system_completeness or registration_completeness")],
+                                                "system_completeness, registration_completeness, race_confusion_infant "
+                                                "or race_confusion_women")],
     version: Annotated[str, typer.Option("--version", help="The new version's name (a stored version is never overwritten)")],
     validation: Annotated[str, typer.Option("--validation", help="Where the evidence for the product is written, e.g. an evaluation entry")],
     root: RootOpt = None,

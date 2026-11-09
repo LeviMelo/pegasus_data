@@ -622,6 +622,10 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
         scales = {n: best[n] for n in SCALE_NAMES}
     model = fit(pairs(linked), scales, z_mean=comp.mean, z_sd=comp.sd, seed=seed, age_bands=population.age_bands,
                 version=population.version)
+    diag = model.diagnostics
+    if diag["divergences"] > 0 or diag["max_rhat"] > 1.1:
+        # a sampler that diverged (the women's check build of 2026-11-09: 800 of 800, one leapfrog step) describes nothing
+        raise RuntimeError(f"{population.product}: the sampler did not converge, nothing written ({diag})")
 
     ref = reference_births
     rmun = np.array([int(m) for m in ref["mun"].to_pylist()])
@@ -648,3 +652,229 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     model.save(target / "draws.npz")
     (target / "scales_table.json").write_text(json.dumps(mean_table, indent=1), encoding="utf-8")
     return target
+
+
+# --------------------------------------------------------------------------------------- the products' inputs
+#
+# What `pegasus-data model-build race_confusion_infant|race_confusion_women` assembles from the data home before it calls
+# `build`: the deaths of the years declared in the product's ``inputs:`` (`curation/products.yml`) with the colour the linked
+# birth declares, and the births by municipality and colour. Records come as role tables, links from the stored runs.
+
+#: the race roles' labels (SIM ``deceased.race``, SINASC ``baby.race``/``mother.race``) to the RACACOR codes `encode_race` reads
+RACE_LABEL_CODE = {"white": "1", "black": "2", "asian": "3", "brown": "4", "indigenous": "5"}
+
+
+def _declaration(product: str) -> dict[str, Any]:
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    entry = (read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {}
+    return dict(entry.get("inputs") or {})
+
+
+def _codes(labels: Any) -> list[str | None]:
+    """Role labels of a race column to RACACOR codes; anything but the five colours is a blank (None)."""
+    return [RACE_LABEL_CODE.get(v) for v in labels.to_pylist()]
+
+
+def _residence(settings: Any, dataset: str, role: str, table: pa.Table, ids: list[str], year: int) -> pa.Array:
+    """The residence role of ``table`` as text, a null filled from the column the role is read from: the role leaves out the
+    state's "ignored" municipality (xx0000), whose deaths and births still belong to their state (a null's UF is unknown)."""
+    import pyarrow.compute as pc
+
+    from . import query
+    from .linkage.identity import record_ids
+    from .semantics.column_roles import column_of
+
+    value = table[role].cast(pa.string())
+    gaps = pc.is_null(value)
+    if not pc.any(gaps).as_py():
+        return value
+    column = column_of(dataset, role)
+    raw = query(dataset, period=year, geography="BR", select=[column], present="codes", provenance="all", root=settings.root)
+    found = dict(zip(record_ids(raw).to_pylist(), raw[column].cast(pa.string()).to_pylist(), strict=True))
+    return pa.array([v if v is not None else found.get(i) for v, i in zip(value.to_pylist(), ids, strict=True)], pa.string())
+
+
+def births_by_race(settings: Any, years: list[int]) -> pa.Table:
+    """SINASC births of ``years`` by the mother's residence (``mun``) and the baby's colour code (``race``, null if blank):
+    the municipal composition, and the year the product is expressed on. Columns ``mun``, ``race``, ``n``."""
+    from .linkage.identity import record_ids
+    from .linkage.roles import role_table
+
+    parts = []
+    for year in years:
+        t = role_table("SINASC-DN", period=year, geography="BR", roles=["mother.residence", "baby.race"], root=settings.root)
+        mun = _residence(settings, "SINASC-DN", "mother.residence", t, record_ids(t).to_pylist(), year)
+        parts.append(pa.table({"mun": mun, "race": pa.array(_codes(t["baby.race"]), pa.string())}))
+    g = pa.concat_tables(parts).group_by(["mun", "race"]).aggregate([([], "count_all")])
+    return g.select(["mun", "race", "count_all"]).rename_columns(["mun", "race", "n"])
+
+
+def _stored_pairs(settings: Any, name: str, year: int, notes: list[str]) -> tuple[pa.Table, dict[str, Any]]:
+    """A probabilistic link's stored pairs for ``year``. A run stored before fingerprints existed reads as stale; it is used
+    (the link takes hours and is not this build's to rerun) and the reason goes into the manifest's notes."""
+    from .linkage import engine, store
+
+    key = engine.stored_key(name, engine.link_method(name), year, "BR")
+    found = store.load(settings, key, allow_stale=True)
+    if found is None:
+        raise FileNotFoundError(f"{name} for {year} is not stored ({key.stem}): run the link first (`pegasus-data link {name}`)")
+    pairs, report = found
+    if report.get("stale"):
+        notes.append(f"link {name} {year} ({key.stem}): stored run read although {report['stale']}")
+    return pairs, report
+
+
+def infant_deaths(settings: Any, name: str, years: list[int], notes: list[str]) -> pa.Table:
+    """Every SIM death before one year of age in ``years`` (the link's own left side): the colour code recorded, the age in
+    days, the residence, whether the stored link found its birth, and the colour that birth declares."""
+    import pyarrow.compute as pc
+
+    from .linkage import engine
+    from .linkage.identity import record_ids
+    from .linkage.roles import role_table
+
+    spec = engine.load_links()[name]
+    out = []
+    for year in years:
+        pairs, report = _stored_pairs(settings, name, year, notes)
+        left = role_table(spec.left.dataset, period=year, geography="BR", where=spec.left.where, root=settings.root,
+                          roles=["deceased.race", "deceased.residence", "deceased.birth_date", "death.date"])
+        right = role_table(spec.right.dataset, period=engine.padded_period(year, spec.right), geography="BR",
+                           roles=["baby.race"], root=settings.root)
+        if left.num_rows != report["left_records"]:
+            raise ValueError(f"{name} {year}: the stored run linked {report['left_records']} deaths, the data now holds {left.num_rows}")
+        declared = dict(zip(record_ids(right).to_pylist(), _codes(right["baby.race"]), strict=True))
+        partner = dict(zip(pairs["l"].to_pylist(), pairs["r"].to_pylist(), strict=True))
+        lid = record_ids(left).to_pylist()
+        residence = _residence(settings, spec.left.dataset, "deceased.residence", left, lid, year)
+        out.append(pa.table({
+            "year": pa.array([year] * left.num_rows, pa.int64()),
+            "uf": pc.cast(pc.utf8_slice_codeunits(residence, 0, 2), pa.int64()),
+            "age_days": pc.days_between(left["deceased.birth_date"], left["death.date"]).cast(pa.int64()),
+            "recorded": pa.array(_codes(left["deceased.race"]), pa.string()),
+            "mun": residence,
+            "linked": pa.array([i in partner for i in lid], pa.bool_()),
+            "declared": pa.array([declared.get(partner.get(i)) for i in lid], pa.string()),
+        }))
+    return pa.concat_tables(out)
+
+
+def _women_year(settings: Any, name: str, year: int, first_year: int, shifts: list[int],
+                log: Any) -> tuple[pa.Table, dict[int, dict[int, int]]]:
+    """One death year of the women's link: every eligible death with the mother groups of its municipality (``ng``), the
+    partner mother's colour where the spec's pass finds one (a partner born after the death is no partner: the spec's
+    validation), and the control read per municipality size: the pairs the same keys make when the death's birth date is
+    moved by each of ``shifts`` days round the shared range (`placebo.rotation`), as ``{shift: {ng: pairs}}``. The births
+    are those of ``first_year`` to ``year``. The pass is run here, not read from `engine.link`: with 85-90% of its pairs
+    reproduced by the control the engine drops the pass (``chance_drop``) and stores none, while this product keeps the
+    pairs and prices their false share by municipality size."""
+    import time
+
+    from .linkage import engine, placebo
+    from .linkage.identity import connect
+
+    t0 = time.time()
+    spec = engine.load_links()[name]
+    period = (str(first_year), str(year))
+    left = engine._side_table(spec.left, sorted({*engine._roles_needed(spec, "left"), "deceased.race"}), period=year,
+                              geography="BR", root=settings.root)
+    right = engine._side_table(spec.right, sorted({*engine._roles_needed(spec, "right"), "mother.race"}), period=period,
+                               geography="BR", root=settings.root)
+    con = connect()
+    engine._prepare(con, "L", left, spec.left)
+    engine._prepare(con, "R", right, spec.right)
+    del left, right
+    keep = next(v.sql for v in spec.validations if v.sql)           # death on or after the latest birth
+    con.execute('CREATE TEMP TABLE ng AS SELECT "mother.residence" AS mun, count(*) AS ng FROM R GROUP BY 1')
+    con.execute("""CREATE TEMP TABLE lpop AS SELECT _id AS l, "deceased.residence" AS mun, "deceased.age_years" AS age,
+                   "deceased.race" AS rec, substr("deceased.residence", 1, 2) AS uf FROM L""")
+    con.execute('CREATE TEMP TABLE rr AS SELECT DISTINCT ON (_id) _id AS r, "mother.race" AS mrace FROM R')
+    con.execute("CREATE TEMP TABLE linked(l VARCHAR, r VARCHAR, pass VARCHAR)")
+    keys = spec.passes[0].keys
+    con.execute(f"""CREATE TEMP TABLE real AS SELECT p.l, p.r FROM ({engine._join(keys, {})}) p JOIN L l ON l._id = p.l
+                    JOIN R r ON r._id = p.r WHERE {keep}""")
+    control = sorted({k for p in spec.passes for k in p.keys if k[0] == spec.control_role})
+    controls: dict[int, dict[int, int]] = {}
+    for d in shifts:
+        moved = {k: sql for k in control if (sql := placebo.rotation(k[0], placebo.shared_range(con, [k[0]], [k[1]]), d))}
+        con.execute("CREATE OR REPLACE TEMP TABLE ctl AS " + engine._join(keys, moved))
+        rows = con.execute(f"""SELECT coalesce(ng.ng, 0), count(*) FROM (SELECT c.l FROM ctl c JOIN L l ON l._id = c.l
+                               JOIN R r ON r._id = c.r WHERE {keep}) c JOIN lpop USING (l) LEFT JOIN ng USING (mun)
+                               GROUP BY 1""").fetchall()
+        controls[d] = {int(a): int(b) for a, b in rows}
+    out = con.execute("""SELECT lpop.l, lpop.mun, lpop.uf, lpop.age, lpop.rec, coalesce(ng.ng, 0) AS ng,
+                         real.r IS NOT NULL AS linked, rr.mrace FROM lpop LEFT JOIN ng USING (mun)
+                         LEFT JOIN real USING (l) LEFT JOIN rr ON rr.r = real.r""").to_arrow_table()
+    log(f"{name} {year}: {out.num_rows} deaths, {sum(out['linked'].to_pylist())} linked, {round(time.time() - t0)} s")
+    return out, controls
+
+
+def women_deaths(settings: Any, name: str, years: list[int], decl: dict[str, Any], log: Any) -> pa.Table:
+    """The women's deaths table of ``build``: the recorded colour and the partner mother's, whether linked, the death's
+    municipality class (``stratum``: the mother groups the births hold, by ``class_edges``) and ``phi``, the share of false
+    links of its (year, class) read from the negative control: control pairs P (mean over the declared shifts) corrected for
+    the true mothers the moved date also finds, as a share of the pairs found, capped at 0.95. Classes up to ``max_class``."""
+    import pyarrow.compute as pc
+
+    edges, max_class = np.asarray(decl["class_edges"]), int(decl["max_class"])
+    parts = []
+    for year in years:
+        t, controls = _women_year(settings, name, year, int(decl["births_from"]), [int(s) for s in decl["control_shifts"]], log)
+        t = t.filter(pc.is_valid(t["uf"]))
+        klass = np.digitize(np.asarray(t["ng"].to_numpy(zero_copy_only=False)), edges)
+        linked = np.asarray(t["linked"].to_numpy(zero_copy_only=False), dtype=bool)
+        phi_of = {}
+        for c in range(max_class + 1):
+            n_c, found = int((klass == c).sum()), int((linked & (klass == c)).sum())
+            if n_c == 0:
+                continue
+            p = sum(n for shift in controls.values() for ng, n in shift.items() if int(np.digitize(ng, edges)) == c) / len(controls)
+            phi_of[c] = min(p * (1 - found / n_c) / (1 - p / n_c) / max(found, 1), 0.95)
+        mask = pa.array(klass <= max_class)
+        t = t.filter(mask)
+        k = klass[klass <= max_class]
+        parts.append(pa.table({
+            "phi": [phi_of.get(int(c), 0.0) for c in k], "year": np.full(len(k), year, dtype=np.int64),
+            "uf": pc.cast(t["uf"], pa.int64()), "age_years": t["age"],
+            "recorded": pa.array([RACE_LABEL_CODE.get(v) for v in t["rec"].to_pylist()], pa.string()),
+            "mun": t["mun"], "linked": t["linked"],
+            "declared": pa.array([RACE_LABEL_CODE.get(v) for v in t["mrace"].to_pylist()], pa.string()),
+            "stratum": k.astype(np.int64)}))
+    return pa.concat_tables(parts)
+
+
+def _build_product(population: Population, settings: Any, version: str, validation: str, log: Any) -> dict[str, Any]:
+    from dataclasses import replace
+
+    from .fields import _years
+
+    decl = _declaration(population.product)
+    years = _years(decl["years"])
+    notes: list[str] = []
+    if population is INFANT:
+        deaths = infant_deaths(settings, population.link, years, notes)
+    else:
+        deaths = women_deaths(settings, population.link, years, decl, log)
+        notes += [f"links: runs of {population.link}, one per death year, over the births {decl['births_from']} to that year; only "
+                  f"municipalities with fewer than {int(decl['class_edges'][int(decl['max_class'])])} mother groups (class <= "
+                  f"{decl['max_class']}) are used; pairs carry the measured share of false links phi (negative control), entered in "
+                  "the likelihood as (1 - phi) C + phi r(state)",
+                  "population: women dying aged 15-49 who were mothers of a SINASC birth in the years read and kept their municipality; "
+                  "transport to women who never gave birth, to men and to older ages is not validated"]
+    log(f"{population.product}: {deaths.num_rows} deaths, {sum(deaths['linked'].to_pylist())} linked, years {years}")
+    target = build(deaths, births_by_race(settings, _years(decl["composition_years"])),
+                   births_by_race(settings, [int(decl["reference_year"])]), settings=settings, validation=validation,
+                   population=replace(population, version=version), notes=tuple(notes))
+    return {"product": population.product, "version": version, "path": str(target), "deaths": deaths.num_rows}
+
+
+def build_infant_product(settings: Any, *, version: str, validation: str, log: Any = print) -> dict[str, Any]:
+    """``model-build race_confusion_infant``: the infant deaths with the colour of their linked birth, then `build`."""
+    return _build_product(INFANT, settings, version, validation, log)
+
+
+def build_women_product(settings: Any, *, version: str, validation: str, log: Any = print) -> dict[str, Any]:
+    """``model-build race_confusion_women``: women's deaths with the colour their mother's birth record declares, then `build`."""
+    return _build_product(WOMEN, settings, version, validation, log)
