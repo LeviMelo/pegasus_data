@@ -38,17 +38,16 @@ def member_inputs(root: str | Path, places: Places) -> dict[str, np.ndarray]:
     """Per municipality (``places.municipalities`` order): the raw census by sex
     and single age 2010 and 2022 (a zero row where the municipality did not exist yet), the census-2000 total (NaN where
     it did not exist) and the Contagem-2007 total (NaN where absent)."""
-    import duckdb
-    import pyarrow.parquet as pq
+    from .cubes import cube
+    from .population_account import _settings, census_table
 
     ms = places.municipalities
     out = {"c10": load_census(root, 2010, places, "member"), "c22": load_census(root, 2022, places, "member")}
-    d = pq.read_table(Path(root) / "lake" / "population" / "CENSO" / "censo_2000.parquet").to_pandas()
+    d = census_table(root, 2000, ["municipality", "population"]).to_pandas()
     tot = d.groupby("municipality").population.sum(min_count=1)
     out["t00"] = np.array([tot.get(m, np.nan) for m in ms], dtype=float)
-    path = Path(root) / "lake" / "sidra" / "facts" / "table=793" / "*.parquet"
-    rows = dict(duckdb.connect().execute(
-        f"select cast(locality as bigint), value from read_parquet('{path.as_posix()}') where value is not null").fetchall())
+    rows = {r["place"]: r["value"] for r in cube("sidra:793/93", labels=False, settings=_settings(root)).to_pylist()
+            if r["value"] is not None}
     out["t07"] = np.array([rows.get(m, np.nan) for m in ms], dtype=float)
     return out
 
@@ -181,10 +180,9 @@ def fit_spread(e: np.ndarray, u: np.ndarray, bins: int = 12) -> tuple[float, flo
 
 def census_old(root: str | Path, year: int, places: Places) -> np.ndarray:
     """Raw census counts at ages 80..99 and 100+ by municipality × sex, (n, 2, 21)."""
-    import pyarrow.parquet as pq
+    from .population_account import census_table
 
-    d = pq.read_table(Path(root) / "lake" / "population" / "CENSO" / f"censo_{year}.parquet",
-                      columns=["municipality", "sex", "age", "population"]).to_pandas()
+    d = census_table(root, year, ["municipality", "sex", "age", "population"]).to_pandas()
     d = d[d.age >= 80].dropna()
     idx = {m: i for i, m in enumerate(places.municipalities)}
     out = np.zeros((len(idx), 2, OLD))

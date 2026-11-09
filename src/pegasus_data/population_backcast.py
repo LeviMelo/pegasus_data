@@ -47,15 +47,21 @@ def area_places(places: Places, area_of: dict[int, int], n_areas: int) -> Simple
                            entity_of={m: area_of[m] for m in places.municipalities}, municipalities=places.municipalities)
 
 
+def _settings(root: str | Path) -> object:
+    from .config import load_settings
+
+    return load_settings(root=Path(root))
+
+
 def load_contagem(root: str | Path, municipalities: list[int]) -> np.ndarray:
     """The Contagem of 1996 by municipality × sex × 15 groups (0-4 .. 65-69, 70+), NaN where the municipality has no count
-    (4,974 of the 5,570 existed). SIDRA table 475, variable 93."""
-    import duckdb
+    (4,974 of the 5,570 existed). SIDRA table 475, variable 93, read as its cube."""
+    from .cubes import cube
 
-    path = Path(root) / "lake" / "sidra" / "facts" / "table=475" / "*.parquet"
-    rows = duckdb.connect().execute(
-        f"select cast(locality as bigint), c2, c58, value from read_parquet('{path.as_posix()}') "
-        f"where value is not null and c2 in (4, 5) and c58 in {CONTAGEM_GROUPS}").fetchall()
+    t = cube("sidra:475/93", by=["c2", "c58"], where={"c2": [4, 5], "c58": list(CONTAGEM_GROUPS)}, periods=["1996"],
+             labels=False, settings=_settings(root))
+    rows = [(r["place"], r["c2"], r["c58"], r["value"]) for r in t.select(["place", "c2", "c58", "value"]).to_pylist()
+            if r["value"] is not None]
     index = {m: i for i, m in enumerate(municipalities)}
     gid = {g: i for i, g in enumerate(CONTAGEM_GROUPS)}
     out = np.full((len(municipalities), 2, len(CONTAGEM_GROUPS)), np.nan)
@@ -196,14 +202,15 @@ def area_matrix(values: np.ndarray, area_of: dict[int, int], members: list[int],
 def member_totals(root: str | Path, municipalities: list[int]) -> dict[str, np.ndarray]:
     """Per municipality (``municipalities`` order): the 1991 census total (SIDRA 200, sample table whose total is the
     universe) and the 1996 Contagem total, NaN where the municipality had no count."""
-    import duckdb
-
+    from .cubes import cube
     from .population_account import _AGE_GROUP_IDS
 
-    path = Path(root) / "lake" / "sidra" / "facts" / "table=200" / "*.parquet"
-    rows = dict(duckdb.connect().execute(
-        f"select cast(locality as bigint), sum(value) from read_parquet('{path.as_posix()}') where value is not null "
-        f"and period = '1991' and c2 in (4, 5) and c58 in {tuple(_AGE_GROUP_IDS)} group by 1").fetchall())
+    t = cube("sidra:200/93", by=["c2", "c58"], where={"c2": [4, 5], "c58": list(_AGE_GROUP_IDS)}, periods=["1991"],
+             labels=False, settings=_settings(root))
+    rows: dict[int, float] = {}
+    for r in t.select(["place", "value"]).to_pylist():
+        if r["value"] is not None:
+            rows[r["place"]] = rows.get(r["place"], 0.0) + r["value"]
     return {"t91": np.array([rows.get(m, np.nan) for m in municipalities], dtype=float)}
 
 

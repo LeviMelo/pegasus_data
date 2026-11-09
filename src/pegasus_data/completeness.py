@@ -39,10 +39,9 @@ def published() -> dict[tuple[str, int, int], float]:
 
 def census_uf(root: str | Path, year: int) -> np.ndarray:
     """The census (raw count) by UF × sex × single age, shape ``[27, 2, AGES]``."""
-    import pyarrow.parquet as pq
+    from .population_account import census_table
 
-    t = pq.read_table(Path(root) / "lake" / "population" / "CENSO" / f"censo_{year}.parquet",
-                      columns=["municipality", "sex", "age", "population"]).to_pydict()
+    t = census_table(root, year, ["municipality", "sex", "age", "population"]).to_pydict()
     out = np.zeros((len(UFS), 2, AGES))
     pos = {u: i for i, u in enumerate(UFS)}
     for m, s, a, p in zip(t["municipality"], t["sex"], t["age"], t["population"], strict=True):

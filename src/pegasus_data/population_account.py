@@ -80,6 +80,19 @@ class Places:
         return len(self.entity_members)
 
 
+def _settings(root: str | Path) -> object:
+    from .config import load_settings
+
+    return load_settings(root=Path(root))
+
+
+def census_table(root: str | Path, year: int, columns: list[str]):
+    """A census's counts by municipality, sex and single age (``load_population``'s CENSO series), ``columns`` of it."""
+    from .api import load_population
+
+    return load_population(series="CENSO", years=year, by=["sex", "age"], settings=_settings(root)).select(columns)
+
+
 def build_places(municipalities: list[int]) -> Places:
     """Units from IPEA's 2000–2010 comparable areas plus the post-2010 creations' parents."""
     import pegasus_data as pg
@@ -461,14 +474,13 @@ def lag_series(root: str | Path, places: Places) -> tuple[dict[int, np.ndarray],
     ``{year: (areas, 2, 17)}``, ``{municipality: area index}`` and the number of areas. A municipality not yet created is
     a gap and contributes nothing; its comparable area holds its parent's count. Fetch the table first: ``pegasus-data sidra
     fetch 200 --variables 93 --periods 1991,2000,2010 --level N6 --class 2=4,5 --class 1=0 --class 58=1140,…,1155,2503``."""
-    import duckdb
-
     import pegasus_data as pg
 
-    path = Path(root) / "lake" / "sidra" / "facts" / "table=200" / "*.parquet"
-    rows = duckdb.connect().execute(
-        f"select cast(locality as bigint), cast(period as int), c2, c58, value from read_parquet('{path.as_posix()}') where value is not null"
-    ).fetchall()
+    from .cubes import cube
+
+    rows = [(r["place"], int(r["period"]), r["c2"], r["c58"], r["value"])
+            for r in cube("sidra:200/93", by=["c2", "c58"], labels=False, settings=_settings(root)).to_pylist()
+            if r["value"] is not None]
     parent: dict[str, str] = {}
 
     def find(x: str) -> str:
@@ -582,16 +594,13 @@ def lag_features(c0: np.ndarray, c1: np.ndarray, length: float, m: np.ndarray, s
 def static_covariates(root: str | Path, members: list[list[int]], census_year: int, gdp_year: int, population: np.ndarray):
     """Urban share at the census opening a period (SIDRA 202) and log GDP per head (5938, R$ 1000) of ``gdp_year`` over
     ``population``, per row; both centred on their median. A row with no value takes the median."""
-    import duckdb
+    from .cubes import cube
 
-    base = Path(root) / "lake" / "sidra" / "facts"
-    con = duckdb.connect()
-    pop = {(m, c1): v for m, c1, v in con.execute(
-        f"select cast(locality as bigint), c1, value from read_parquet('{(base / 'table=202' / '*.parquet').as_posix()}') "
-        f"where c2 = 0 and period = '{census_year}' and value is not null").fetchall()}
-    gdp = dict(con.execute(
-        f"select cast(locality as bigint), value from read_parquet('{(base / 'table=5938' / '*.parquet').as_posix()}', union_by_name=true) "
-        f"where variable = 37 and period = '{gdp_year}' and value is not null").fetchall())
+    settings = _settings(root)
+    pop = {(r["place"], r["c1"]): r["value"] for r in cube("sidra:202/93", by=["c1"], periods=[census_year], labels=False,
+                                                         settings=settings).to_pylist() if r["value"] is not None}
+    gdp = {r["place"]: r["value"] for r in cube("sidra:5938/37", periods=[gdp_year], labels=False,
+                                                settings=settings).to_pylist() if r["value"] is not None}
     urb = np.full(len(members), np.nan)
     lg = np.full(len(members), np.nan)
     for i, mem in enumerate(members):
@@ -820,9 +829,7 @@ def assemble(root: str | Path, population_root: str | Path, events_dir: str | Pa
     Coverage: 2022 by IBGE's PES (published margins, raked onto cells), 2000 and 2010 by IBGE's reconciliation
     (POPSVS / raw; a sensitivity, since it was made with the PES). The regression's period B opens on the *raw* 2010
     census (the protocol that was scored); the account's interior opens on the reconciled one."""
-    import pyarrow.parquet as pq
-
-    t22 = pq.read_table(Path(root) / "lake" / "population" / "CENSO" / "censo_2022.parquet", columns=["municipality"])
+    t22 = census_table(root, 2022, ["municipality"])
     places = build_places(sorted(set(int(m) for m in t22["municipality"].to_pylist())))
     members_u: list[list[int]] = [[] for _ in range(places.n_units)]
     for m in places.municipalities:
