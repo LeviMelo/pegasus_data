@@ -428,39 +428,43 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     if spec.get("source") != "cnes":
         return None
     g = cnes_groups()
-    family = spec["family"]
-    where: dict[str, Any] = {}
-    if family == "facilities":
-        listed = [c for codes in g["facility_groups"].values() for c in codes]
-        group = spec["group"]
-        where["TP_UNID"] = {"not": listed} if group == "other" else list(g["facility_groups"][group])
-        where["VINC_SUS"] = ["1"] if spec["sector"] == "sus" else {"not": ["1"]}
-        dataset, measure = "CNES-ST", "distinct:CNES"
-    elif family == "beds":
-        if spec["kind"] in ("icu", "neonatal_icu"):
-            where["CODLEITO"] = list(g[f"{spec['kind']}_bed_codes"])
-        dataset, measure = "CNES-LT", {"all": "QT_EXIST", "sus": "QT_SUS", "nonsus": "QT_NSUS"}[spec["sector"]]
-    elif family == "equipment":
-        where["TIPEQUIP+CODEQUIP"] = list(g["equipment"][spec["equipment"]])
-        if spec["sector"] == "sus":
-            where["IND_SUS"] = ["1"]
-        dataset, measure = "CNES-EQ", "QT_EXIST"
-    elif family == "professionals":
-        # an occupation counts in every group whose prefixes it has (ophthalmologists are physicians); a person once
-        where["CBO"] = {"prefix": list(g["professional_groups"][spec["group"]])}
-        hours = "HORA_AMB+HORAHOSP+HORAOUTR"
-        if spec["measure"] == "hours_sus":
-            where["PROF_SUS"] = ["1"]
-        dataset = "CNES-PF"
-        measure = {"jobs": None, "professionals": "distinct:CNS_PROF", "hours": hours, "hours_sus": hours}[spec["measure"]]
-    elif family == "teams":
-        where["TIPO_EQP"] = list(g["team_groups"][spec["group"]])
-        where["DT_DESAT"] = list(g["team_not_deactivated"])
-        dataset, measure = "CNES-EP", "distinct:IDEQUIPE"
-    else:
+    recipe = (g.get("families") or {}).get(spec["family"])
+    if recipe is None:
         return None
+    where: dict[str, Any] = {}
+    group = recipe.get("group")
+    if group:
+        chosen = spec.get(group["select"])
+        lists = group["groups"]
+        if isinstance(lists, dict):                 # a group named by the field, each its own list (beds' ICU kinds)
+            codes = g[lists[chosen]] if chosen in lists else None
+        elif group.get("other") and chosen == "other":   # everything the named groups do not list
+            codes = {"not": [c for listed in g[lists].values() for c in listed]}
+        else:
+            codes = g[lists][chosen]
+        if codes is not None:
+            where[group["column"]] = codes if isinstance(codes, dict) else (
+                {"prefix": list(codes)} if group.get("prefix") else list(codes))
+        elif not group.get("optional"):
+            raise KeyError(f"{name}: no group {chosen!r} in {group['groups']}")
+    sector = recipe.get("sector")
+    if sector:
+        chosen = spec.get("sector")
+        if sector.get("only_measure"):
+            if spec.get("measure") == sector["only_measure"]:
+                where[sector["column"]] = list(sector["sus"])
+        elif chosen == "sus":
+            where[sector["column"]] = list(sector["sus"])
+        elif chosen == "nonsus":
+            where[sector["column"]] = {"not": list(sector["sus"])}
+    for column, listed in (recipe.get("fixed") or {}).items():
+        where[column] = list(g[listed])
+    measure = recipe["measure"]
+    if isinstance(measure, dict):
+        measure = measure[spec[recipe["measure_by"]]]
+    dataset = recipe["dataset"]
     return {"source": f"records:{dataset}/rows", "dataset": dataset, "where": where, "measure": measure,
-            "support": "records:CNES-ST/rows"}
+            "support": f"records:{g.get('support', 'CNES-ST')}/rows"}
 
 
 def _field_from_cnes(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,

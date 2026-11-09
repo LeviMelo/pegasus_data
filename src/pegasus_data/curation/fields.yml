@@ -30,6 +30,39 @@
 # belong together, and the `cnes_` fields say which one they use. Codes outside every group are never guessed into
 # one: facilities fall in `other`; beds and equipment are tallied only for the codes named here.
 cnes:
+  # Each family's recipe (`fields.cnes_cube`): the register it counts (a December's file), what it counts or sums per
+  # `measure`, the column its group codes are read in (`groups`: the list below holding them, `select`: the field key that
+  # names the group, `other`: everything no group lists, `prefix`: codes as prefixes) and the column whose codes say SUS
+  # (`sus`: the codes; non-SUS is every other recorded code). SUS is code 1 in VINC_SUS (ST), IND_SUS (EQ) and PROF_SUS
+  # (PF) by the CNES layout (DOCUMENTOS_CNES, the three fields' "1 - SIM"), and the support of every family is ST's register.
+  families:
+    facilities:
+      dataset: CNES-ST
+      measure: distinct:CNES
+      group: {column: TP_UNID, groups: facility_groups, select: group, other: true}
+      sector: {column: VINC_SUS, sus: ['1']}
+    beds:
+      dataset: CNES-LT
+      measure: {all: QT_EXIST, sus: QT_SUS, nonsus: QT_NSUS}
+      measure_by: sector
+      group: {column: CODLEITO, groups: {icu: icu_bed_codes, neonatal_icu: neonatal_icu_bed_codes}, select: kind, optional: true}
+    equipment:
+      dataset: CNES-EQ
+      measure: QT_EXIST
+      group: {column: TIPEQUIP+CODEQUIP, groups: equipment, select: equipment}
+      sector: {column: IND_SUS, sus: ['1']}
+    professionals:
+      dataset: CNES-PF
+      measure: {jobs: null, professionals: 'distinct:CNS_PROF', hours: HORA_AMB+HORAHOSP+HORAOUTR, hours_sus: HORA_AMB+HORAHOSP+HORAOUTR}
+      measure_by: measure
+      group: {column: CBO, groups: professional_groups, select: group, prefix: true}
+      sector: {column: PROF_SUS, sus: ['1'], only_measure: hours_sus}
+    teams:
+      dataset: CNES-EP
+      measure: distinct:IDEQUIPE
+      group: {column: TIPO_EQP, groups: team_groups, select: group}
+      fixed: {DT_DESAT: team_not_deactivated}
+  support: CNES-ST
   # DT_DESAT of a team that is not deactivated: blank, or the far-future sentinel 900001 CNES writes (EP files)
   team_not_deactivated: ['', '900001']
   facility_groups:                     # TP_UNID

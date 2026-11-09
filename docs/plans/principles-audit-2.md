@@ -108,7 +108,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 ## STRUCTURAL (T): hand-fixed facts about the data in code
 
-**T1. CNES field recipes name 15 columns and their filters in code** (RESIDUE of defect 6/7; the groups moved to `fields.yml`, the columns did not)
+**T1. CNES field recipes name 15 columns and their filters in code** (RESIDUE of defect 6/7; the groups moved to `fields.yml`, the columns did not) — done: each family's recipe (dataset, measures, group column, SUS codes with their layout evidence, fixed filters) is declared in `fields.yml` `cnes: families:` and `cnes_cube` is generic; the 43 plans are byte-identical
 - `fields.py:425-466` (`_cnes_cube_plan`): `TP_UNID`, `VINC_SUS`, `CODLEITO`, `QT_EXIST/QT_SUS/QT_NSUS`, `TIPEQUIP+CODEQUIP`,
   `IND_SUS`, `CBO`, `PROF_SUS`, `HORA_AMB+HORAHOSP+HORAOUTR`, `CNS_PROF`, `TIPO_EQP`, `DT_DESAT`, `IDEQUIPE`; dataset names
   `CNES-ST/-LT/-EQ/-PF/-EP`; `{"1"}` for SUS (`VINC_SUS == "1"`, `IND_SUS == "1"`, `PROF_SUS == "1"`).
