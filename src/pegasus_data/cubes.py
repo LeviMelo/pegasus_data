@@ -494,10 +494,11 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
-    # An event whose year is recorded and month is not (a year and a month held apart, or a binding that is a year
-    # alone: SISAGUA's register by NU_ANO) is kept at the finest period known, its year: it counts in every year's total
-    # and is never placed in a month (FA's 13 month-less events).
-    if (len(time_fields) >= 2 or encoding == "year") and time_fields[0] in counts.column_names:
+    # An event whose year is recorded and month is not (a year and a month held apart, a binding that is a year alone:
+    # SISAGUA's register by NU_ANO, or a date filed as its year alone: SIM-DO 2000's 496 deaths dated "2000") is kept at
+    # the finest period known, its year: it counts in every year's total and is never placed in a month (FA's 13
+    # month-less events).
+    if time_fields and time_fields[0] in counts.column_names:
         filed_year = pc.utf8_trim_whitespace(pc.cast(counts.column(time_fields[0]), pa.string()))
         known = pc.fill_null(pc.match_substring_regex(filed_year, r"^(19|20|21)\d\d$"), False)
         missing = pc.is_null(competencia)

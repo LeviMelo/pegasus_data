@@ -460,6 +460,10 @@ def competencia_column(table: Any, time_fields: Sequence[str], encoding: str = "
         return None
     if layout == "dmy":
         # DDMMAAAA -> AAAAMM. Built by concatenation rather than by a regex so it stays inside Arrow at national volume.
-        joined = pc.binary_join_element_wise(
-            pc.utf8_slice_codeunits(joined, 4, 8), pc.utf8_slice_codeunits(joined, 2, 4), "")
+        # A date filed without its day is MMAAAA in the same order (SIM-DO 2000: one death, 022000) -> AAAAMM too.
+        no_day = pc.equal(pc.utf8_length(joined), 6)
+        joined = pc.if_else(
+            pc.fill_null(no_day, False),
+            pc.binary_join_element_wise(pc.utf8_slice_codeunits(joined, 2, 6), pc.utf8_slice_codeunits(joined, 0, 2), ""),
+            pc.binary_join_element_wise(pc.utf8_slice_codeunits(joined, 4, 8), pc.utf8_slice_codeunits(joined, 2, 4), ""))
     return _valid_competencia(joined)
