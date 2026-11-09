@@ -82,13 +82,14 @@ def encode_race(codes: Any) -> np.ndarray:
 
 
 def age_band(days: np.ndarray) -> np.ndarray:
-    """Age at death in days to the band index 0 (0-6 d), 1 (7-27 d), 2 (28-364 d)."""
-    return np.maximum(bands(days, (0, 7, 28)), 0).astype(np.int8)
+    """Age at death in days to the band index 0 (0-6 d), 1 (7-27 d), 2 (28-364 d); -1 where the age is not known (no band:
+    the model leaves such a death out, `prepare`)."""
+    return bands(days, (0, 7, 28)).astype(np.int8)
 
 
 def age_band_years(years: np.ndarray) -> np.ndarray:
-    """Age in years to the women product's band index 0 (15-24), 1 (25-34), 2 (35-49)."""
-    return np.maximum(bands(years, (15, *WOMEN_AGE_EDGES)), 0).astype(np.int8)
+    """Age in years to the women product's band index 0 (15-24), 1 (25-34), 2 (35-49); -1 where not known or under 15."""
+    return bands(years, (15, *WOMEN_AGE_EDGES)).astype(np.int8)
 
 
 @dataclass(frozen=True)
@@ -554,9 +555,12 @@ def prepare(deaths: pa.Table, comp: Composition, population: Population = INFANT
     dec = encode_race(deaths["declared"].to_pylist())
     linked = np.asarray(deaths["linked"].to_numpy(zero_copy_only=False), dtype=bool)
     z = comp.z(np.asarray([int(m) for m in deaths["mun"].to_pylist()]))
+    # a death of no known age has no band: it is left out of the weights and the pairs (an index of -1 would read as the
+    # last band, as a missing age once did)
+    known = age >= 0
     w = np.zeros(len(year))
     for y in np.unique(year):
-        s = year == y
+        s = (year == y) & known
         wy = link_weights(uf[s], age[s], rec[s], year[s], linked[s], None if stratum is None else stratum[s], n_age)
         w[s] = wy / wy[linked[s]].mean()
 
@@ -568,6 +572,7 @@ def prepare(deaths: pa.Table, comp: Composition, population: Population = INFANT
         r_state = (r_state + 0.5) / (r_state + 0.5).sum(1, keepdims=True)
 
     def pairs(mask):
+        mask = mask & known
         return Pairs(dec[mask], rec[mask], uf[mask], age[mask], z[mask], w[mask], n_age,
                      None if phi is None else phi[mask], r_state)
 

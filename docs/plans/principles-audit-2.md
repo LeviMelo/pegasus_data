@@ -230,7 +230,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 **T22. Dated sentinels "9999"**: `linkage/timeline.py:191` sorts missing dates as `"9999"`; `crosswalk.py:215` treats `9999*` as open end; `profile/detectors.py:46` has `DATE_SENTINELS` as a global set (the file itself says it is per-field). Fix: per-field sentinels from the ledger only. Size XS.
 
-**T23. `view._apply_derived` and `_aggregate` both bucket ages/bands** — done (this commit): `_age.bands`, outputs equal; `ibge_tracts.BANDS` buckets nothing, and `rates._band`, `modelled_race.age_band*`, `ibge_tracts.BANDS` implement the same "closed-open band by edges" in numpy/Python separately. Fix: `_age.bands(values, edges)`. Size S.
+**T23. `view._apply_derived` and `_aggregate` both bucket ages/bands** — done (this commit): `_age.bands`, outputs equal; `ibge_tracts.BANDS` buckets nothing, and `rates._band`, `modelled_race.age_band*`, `ibge_tracts.BANDS` implement the same "closed-open band by edges" in numpy/Python separately. Fix: `_age.bands(values, edges)`. Size S. Follow-up: the race model's bands keep an unknown age as -1 and leave that death out of the fit (the routing had put it in band 0, and before it the last band).
 
 **T24. `retrieve.py` and `fields.py` read registries/mesh through hard-coded subfolders** (see T5) and `fields.py:556-592` names INMET and BR-DWGD caches inline. Folded into T5; listed separately because both are field readers whose stores STATUS calls "the only stored ones left".
 
