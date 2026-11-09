@@ -306,6 +306,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
 | stock time reducers | ~~refused in `measures.py`, implemented in `tools/export_workbook.py`~~ | **done** (2026-10-04): `_aggregate` reduces a stock over time (OQ-14); the workbook (`workbook.py`, `pegasus-data workbook`) calls it |
 | choose a publication's files | `Builder.build` and `retrieve._select_files` each read a family's files, filter by state, year and month, and call `choose_representations`; the retry after a refusal for columns is shared since ADR-0190 | one function that returns the selected rows of a family, called by both |
+| spell a dataset id; read a curation YAML; reach a server | ~~`.upper().replace(".", "-")` in ten modules; `ontology._read_yaml` imported by twelve; `snapshot`'s own httpx client, `sigtap`'s own ftplib~~ | **done** (2026-11-09): `ontology.dataset_key`; `semantics.curation.read_yaml(missing_ok=)`; `transport.get_text` and `discovery.ftp_client.FtpClient` |
 
 Also known, not duplicates:
 - ~~`decode/_native/` compiled into the package with a hardcoded Visual

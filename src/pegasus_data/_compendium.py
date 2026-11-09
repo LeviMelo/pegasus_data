@@ -1279,10 +1279,10 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     each one's stores; the population series (``populations.yml``) and geography memberships (``geography.yml``) from
     their own declarations; and every store folder of the home that nothing describes."""
     from .config import curation_root
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
     base = curation_root()
-    declared = dict((_read_yaml(base / "products.yml") or {}).get("products") or {})
+    declared = dict((read_yaml(base / "products.yml", missing_ok=True) or {}).get("products") or {})
     rows = []
     claimed: set[str] = set()
     for pid, spec in sorted(declared.items()):
@@ -1297,11 +1297,11 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     report.rows["products"] = len(rows)
 
     members = []
-    for name, spec in sorted(((_read_yaml(base / "populations.yml") or {}).get("series") or {}).items()):
+    for name, spec in sorted(((read_yaml(base / "populations.yml", missing_ok=True) or {}).get("series") or {}).items()):
         what = " ".join(str(spec.get(k) or "") for k in ("kind", "authority", "notes")).strip()
         members.append(("population_series", name, what, spec.get("axes") and json.dumps(spec["axes"]),
                         f'load_population(series="{name}")'))
-    geo = _read_yaml(base / "geography.yml") or {}
+    geo = read_yaml(base / "geography.yml", missing_ok=True) or {}
     for section in ("classifications", "ibge_classifications", "tabnet_classifications", "ipea_classifications"):
         for name, spec in sorted((geo.get(section) or {}).items()):
             if isinstance(spec, dict):

@@ -45,10 +45,10 @@ def declared_notes(root: Path | None = None) -> dict[int, dict[str, Any]]:
     basis, for a table whose note gives each census its own basis) with its ``evidence``, or ``basis: unknown`` with
     ``why``."""
     from ..config import curation_root
-    from ..ontology import _read_yaml
+    from ..semantics.curation import read_yaml
 
     base = root or curation_root()
-    entries = (_read_yaml(base / "sidra" / "notes.yml") or {}).get("tables") or {}
+    entries = (read_yaml(base / "sidra" / "notes.yml", missing_ok=True) or {}).get("tables") or {}
     out: dict[int, dict[str, Any]] = {}
     for key, entry in entries.items():
         table = int(key)

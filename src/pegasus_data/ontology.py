@@ -67,6 +67,14 @@ _TEMPLATE = re.compile(r"^(?P<prefix>[A-Z]{2,6})UFAAMM$")
 _YEAR_TAIL = re.compile(r"^(?P<stem>[A-Z0-9_]+?)_(?:19|20)\d{2}$")
 
 
+def dataset_key(dataset: str) -> str:
+    """A dataset spelling as the ontology keys it: upper case, ``SIH.RD`` and ``SIH-RD`` the same (``SIH-RD``).
+
+    The one spelling step shared by every module that keys on a dataset id. Aliases between systems
+    (``SIH`` / ``SIHSUS``) are the ontology's to resolve (``_request.parse_dataset``), not this function's."""
+    return str(dataset).upper().replace(".", "-")
+
+
 def canonical_series(series: str) -> tuple[str, str]:
     """Collapse an observed series string onto a canonical code.
 
@@ -346,10 +354,12 @@ def _load_joins(root: Path) -> tuple[dict[str, JoinKey], list[UnestablishedJoin]
     loading: knowing how datasets join is valuable, and knowing what exists is
     the thing the rest of the API is built on.
     """
+    from .semantics.curation import read_yaml
+
     path = root / "joins.yml"
     if not path.exists():
         return {}, []
-    data = _read_yaml(path)
+    data = read_yaml(path)
     keys: dict[str, JoinKey] = {}
     for name, body in (data.get("keys") or {}).items():
         body = body or {}
@@ -511,7 +521,9 @@ class Ontology:
 
     @classmethod
     def _load_uncached(cls, root: Path) -> Ontology:
-        data = _read_yaml(root / "ontology.yml")
+        from .semantics.curation import read_yaml
+
+        data = read_yaml(root / "ontology.yml", missing_ok=True)
 
         systems: dict[str, SystemNode] = {}
         for code, body in (data.get("systems") or {}).items():
@@ -545,7 +557,7 @@ class Ontology:
         # SINAN agravos, declared in their own file.
         sinan_path = root / "datasets" / "sinan_agravos.yml"
         if sinan_path.exists():
-            for body in (_read_yaml(sinan_path).get("datasets") or {}).values():
+            for body in (read_yaml(sinan_path, missing_ok=True).get("datasets") or {}).values():
                 body = body or {}
                 series = str(body.get("series") or "").upper()
                 if not series:
@@ -963,13 +975,3 @@ def _load_ontology(root: Path | None) -> Ontology:
     from .config import curation_root
 
     return Ontology._load_uncached(Path(root) if root is not None else curation_root())
-
-
-def _read_yaml(path: Path) -> dict[str, Any]:
-    """The ontology file through the curation reader: libyaml (ADR-0097), parsed once per version of the file across
-    processes (`semantics.curation.read_yaml`)."""
-    if not path.exists():
-        return {}
-    from .semantics.curation import read_yaml
-
-    return read_yaml(path)

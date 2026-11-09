@@ -49,7 +49,7 @@ from typing import Any, Literal
 
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
-from .ontology import Ontology
+from .ontology import Ontology, dataset_key
 
 __all__ = [
     "Availability",
@@ -449,7 +449,7 @@ def field_fill(dataset: str, fields: list[str] | str, years: list[int] | range, 
     wanted = [fields] if isinstance(fields, str) else list(fields)
     wanted = [f.upper() for f in wanted]
     try:
-        roles = {r.column: r for r in column_roles.load_column_roles().get(dataset.upper().replace(".", "-"), ())}
+        roles = {r.column: r for r in column_roles.load_column_roles().get(dataset_key(dataset), ())}
     except Exception:  # noqa: BLE001 - a dataset without roles has no declared missing codes
         roles = {}
     out = {"year": [], "field": [], "records": [], "filled": [], "share": []}

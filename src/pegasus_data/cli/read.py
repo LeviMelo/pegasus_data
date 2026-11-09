@@ -12,6 +12,7 @@ from rich.table import Table
 from ..build import Builder
 from ..catalog.store import CatalogStore
 from ..config import load_settings
+from ..ontology import dataset_key
 from ._common import (
     JsonOpt,
     RootOpt,
@@ -68,10 +69,10 @@ def adjudicate_apply(
     by: Annotated[str, typer.Option("--by", help="Reviewer identity")],
     root: RootOpt = None,
 ) -> None:
-    from ..ontology import _read_yaml
+    from ..semantics.curation import read_yaml
     from ..semantics.relations import RelationType, SemanticRelation, adjudicate
 
-    body = _read_yaml(decision)
+    body = read_yaml(decision, missing_ok=True)
     relation = SemanticRelation(
         system=str(body["system"]).upper(),
         dataset=str(body.get("dataset", "")).upper(),
@@ -388,7 +389,7 @@ def graph_cmd(
     from ..measures import AggregationRefused
     from ..proximity import care_flows, flows, graph_kinds, proximity_graph
 
-    if kind.lower() not in graph_kinds(root) and kind.upper().replace(".", "-") in flows():
+    if kind.lower() not in graph_kinds(root) and dataset_key(kind) in flows():
         if period is None:
             raise typer.BadParameter("care flows need --period")
         try:

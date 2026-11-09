@@ -346,7 +346,7 @@ def _code_windows(path: Path, name: str, raw: object) -> dict[str, tuple[str, st
     return out
 
 
-def read_yaml(path: Path, *, shared: bool = False) -> dict[str, Any]:
+def read_yaml(path: Path, *, shared: bool = False, missing_ok: bool = False) -> dict[str, Any]:
     """One curation file, parsed once per process per version of the file.
 
     Every curation reader parsed all 157 files itself, with the pure-Python
@@ -356,7 +356,10 @@ def read_yaml(path: Path, *, shared: bool = False) -> dict[str, Any]:
     Callers get a fresh copy: the parsed mapping is not theirs to mutate. A loader that only reads it
     and keeps none of its mutable parts passes ``shared=True`` and gets the cached mapping itself, without
     the deep copy (17 ms for ``codes/sinan.yml``): it must not edit it, nor hand out its lists and mappings.
+    ``missing_ok=True`` reads an absent file as ``{}`` (a curation file a root may not carry); otherwise it raises.
     """
+    if missing_ok and not path.exists():
+        return {}
     stat = path.stat()
     doc = _parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size)
     return doc if shared else copy.deepcopy(doc)
@@ -1313,7 +1316,9 @@ def dataset_semantics(root: Path | None = None) -> dict[str, DatasetSemantics]:
 def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | None:
     """Resolve `SIH-RD`, `SIH.RD` or `SIHSUS_RD` to its curated semantics."""
     table = dataset_semantics(root)
-    wanted = str(dataset).upper().replace("-", "_").replace(".", "_")
+    from ..ontology import dataset_key
+
+    wanted = dataset_key(dataset).replace("-", "_")
     for key, value in table.items():
         if key.upper() == wanted:
             return value

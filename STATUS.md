@@ -11,6 +11,8 @@ GitHub (`origin/master` bd867e4, 2026-11-08). The remote's old `linkage` and `re
 (ADR-0216), the catalog's open questions reduced to what a person must answer (none open on 2026-11-08), and every
 queryable column documented.
 
+- **Repeated plumbing closed** (principles audit defect 8, 2026-11-09): one dataset-id spelling (`ontology.dataset_key`), one YAML reader (`curation.read_yaml`), and `snapshot`/`sigtap` on the project transport; `semantics_for` over 6 spellings and a SIGTAP list+fetch (800,403 bytes) unchanged.
+
 - **The map.** `compendium()` and its home copy (`_compendium.current`) describe every dataset `query()` serves, each
   column's query-time codelists and fill, the 122 context fields, roles, events, links, aggregates, SIDRA's tables and
   every function and command; `search()` reads it and returns the call for each hit, and `info()` with no target prints

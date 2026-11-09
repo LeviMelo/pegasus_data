@@ -30,13 +30,13 @@ from __future__ import annotations
 import ftplib
 import io
 import re
-import time
 import zipfile
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import Any
 
 from ..catalog.store import CatalogStore
+from ..discovery.ftp_client import FtpClient, ListingUnavailable
 from ..semantics.dictionary import DictionaryEntry, persist_entries
 
 HOST = "ftp2.datasus.gov.br"
@@ -120,61 +120,32 @@ def parse_layout(text: str) -> list[LayoutColumn]:
 def list_exports(*, timeout: int = 90) -> list[SigtapExport]:
     """Every monthly export on the SIGTAP FTP, oldest competência first."""
     try:
-        client = ftplib.FTP(HOST, timeout=timeout)
-        client.login()
-    except Exception as exc:  # noqa: BLE001 - reported, not swallowed
-        raise SigtapUnavailable(
-            f"could not connect to {HOST}: {type(exc).__name__}: {exc}"
-        ) from exc
-    try:
-        lines: list[str] = []
-        client.retrlines(f"LIST {DOWNLOAD_DIR}", lines.append)
-    finally:
-        try:
-            client.quit()
-        except Exception:  # noqa: BLE001 - closing is best-effort
-            pass
+        with FtpClient(HOST, timeout=timeout) as client:
+            entries, _method = client.list_directory(DOWNLOAD_DIR)
+    except (OSError, EOFError, ftplib.Error, ListingUnavailable, RuntimeError) as exc:
+        raise SigtapUnavailable(f"could not list {HOST}{DOWNLOAD_DIR}: {type(exc).__name__}: {exc}") from exc
 
     out: list[SigtapExport] = []
-    for line in lines:
-        if line.startswith("d"):
+    for entry in entries:
+        if entry.is_dir or not _EXPORT.match(entry.name):
             continue
-        parts = line.split()
-        name = parts[-1]
-        if not _EXPORT.match(name):
-            continue
-        match = _COMPETENCIA.search(name)
+        match = _COMPETENCIA.search(entry.name)
         if not match:
             continue
-        size = int(parts[4]) if len(parts) > 4 and parts[4].isdigit() else 0
-        out.append(SigtapExport(filename=name, competencia=match.group(1), size=size))
+        out.append(SigtapExport(filename=entry.name, competencia=match.group(1), size=entry.size or 0))
     return sorted(out, key=lambda e: e.competencia)
 
 
 def fetch_export(export: SigtapExport, *, timeout: int = 120, attempts: int = 4) -> bytes:
-    """One export's bytes. A reset or timeout is retried with backoff (an export is tens of megabytes on a server that drops
+    """One export's bytes. A reset or timeout is retried (an export is tens of megabytes on a server that drops
     connections); a refusal by the server (550: no such file) is not."""
-    last: Exception | None = None
-    for attempt in range(attempts):
-        try:
-            client = ftplib.FTP(HOST, timeout=timeout)
-            client.login()
-            try:
-                buffer = io.BytesIO()
-                client.retrbinary(f"RETR {DOWNLOAD_DIR}/{export.filename}", buffer.write)
-                return buffer.getvalue()
-            finally:
-                try:
-                    client.quit()
-                except Exception:  # noqa: BLE001 - closing is best-effort
-                    pass
-        except ftplib.error_perm:
-            raise
-        except (OSError, EOFError, ftplib.Error) as exc:
-            last = exc
-            if attempt < attempts - 1:
-                time.sleep(min(60.0, 5.0 * 2 ** attempt))
-    raise SigtapUnavailable(f"{export.filename}: {attempts} attempts failed; last: {type(last).__name__}: {last}") from last
+    try:
+        with FtpClient(HOST, timeout=timeout, max_retries=attempts) as client:
+            return client.retrieve(f"{DOWNLOAD_DIR}/{export.filename}")
+    except ftplib.error_perm:
+        raise
+    except (OSError, EOFError, ftplib.Error, RuntimeError) as exc:
+        raise SigtapUnavailable(f"{export.filename}: {attempts} attempts failed; last: {type(exc).__name__}: {exc}") from exc
 
 
 def read_table(archive: zipfile.ZipFile, table: str) -> Iterator[dict[str, str]]:

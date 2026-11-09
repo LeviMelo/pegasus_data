@@ -249,14 +249,14 @@ def _spec_root(root: Path | None = None) -> Path:
 
 def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
     """Every declared aggregate, keyed by name."""
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
     folder = _spec_root(root)
     out: dict[str, AggregateSpec] = {}
     if not folder.exists():
         return out
     for path in sorted(folder.glob("*.yml")):
-        data = _read_yaml(path) or {}
+        data = read_yaml(path, missing_ok=True) or {}
         name = str(data.get("name") or path.stem)
         measures = tuple(
             measure_from_declaration(key, body or {})
