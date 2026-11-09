@@ -8,12 +8,10 @@ of national SIH volume.
 
 So an aggregate is built once, offline, and served cheaply. Two surfaces:
 
-* :func:`build_aggregate` — maintainer, expensive, writes an artifact under the
-  lake. Its rows come from :func:`pegasus_data.fetch`, chunk by chunk (a state-year at a time, to bound memory), NOT from
-  the lake or from :func:`pegasus_data.query`: a built lake is never used by an aggregate build, and the planner's
-  lake/fetch/hybrid choice is bypassed (hence `_physical_geography`, which asks the plan only which files a year is
-  published as). Routing it through `query()` with `select=` is the open alternative (review of the read path, 2026-10-14,
-  finding 30).
+* :func:`build_aggregate` — maintainer, writes an artifact under the lake. Its cells are records cubes
+  (`cells_from_cubes`, ADR-0217): the recipe is a materialisation request (dataset, event type, bindings, dimensions,
+  derived strata, measures), read through `query()` like every other read, a year at a time for rows; the old private
+  read path (`fetch` chunk by chunk, its own keying and lifting) is removed (finding 30 of the 2026-10-14 review).
 * :func:`aggregate` — filter, roll up, finalize. Arithmetic on a few thousand
   rows, no microdata touched.
 
@@ -197,46 +195,6 @@ def _uf_basis_note(dataset: str, geography_field: str, ufs: Sequence[str]) -> st
         f"{geography_field}: the cells of {list(ufs)} omit the records of their municipalities that were published in "
         "other states' files, so a cell that exists is short too; only a build of every state is complete"
     )
-
-
-def _physical_geography(dataset: str, year: int, settings: Settings) -> tuple[str, ...] | None:
-    """The publications a national read of this dataset-year selects: ("BR",)
-    for one national file, () for a dataset with no state axis, the states
-    otherwise; None when the year cannot be planned (per-state chunks)."""
-    import sqlite3
-    import time
-
-    from ._query_engine.planner import plan
-    from ._request import DatasetUnknown
-
-    # A catalog that does not know the dataset yet (none at all, or no family of it: a fresh install, which `fetch`
-    # discovers on demand) keeps the per-state chunks. A locked catalog is retried once, then raised, and any other
-    # planning error is raised as it is: swallowing it turned a year held as one national file into 27 state probes
-    # that all failed the same way (`NothingPublished` per chunk is recorded; this is not that).
-    for attempt in (1, 2):
-        try:
-            retrieval = plan(dataset, period=str(year), geography="BR", settings=settings).retrieval
-        except (FileNotFoundError, DatasetUnknown):
-            return None
-        except sqlite3.OperationalError:
-            if attempt == 2:
-                raise
-            time.sleep(0.25)
-        else:
-            return retrieval.geography_for(year) or ()
-    return None
-
-
-#: Every UF, for chunking a national build. Ordered by IBGE code so a build's
-#: progress reads north to south, which is also roughly smallest to largest and
-#: therefore fails fast on a systematic problem.
-_ALL_UFS: tuple[str, ...] = (
-    "RO", "AC", "AM", "RR", "PA", "AP", "TO",
-    "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA",
-    "MG", "ES", "RJ", "SP",
-    "PR", "SC", "RS",
-    "MS", "MT", "GO", "DF",
-)
 
 
 def _spec_root(root: Path | None = None) -> Path:
@@ -499,7 +457,6 @@ def _resolve_semantics(spec: AggregateSpec):
     return semantics
 
 
-
 def _require_municipality_geography(semantics: Any, spec: AggregateSpec) -> None:
     """The base cuboid is keyed on a municipality, so the binding must be one.
 
@@ -552,14 +509,11 @@ def build_aggregate(
     that is arithmetic: lift each row into accumulator state, group by the key
     tuple, merge.
     """
-    import pyarrow.compute as pc
     import pyarrow.parquet as pq
 
     from ._availability import field_available
     from .config import load_settings
     from .persist.staging import staged_file
-    from .retrieve import NothingPublished
-    from .retrieve import fetch as _fetch
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     spec = spec_named(name)
@@ -567,9 +521,9 @@ def build_aggregate(
         spec = replace(spec, age=_resolved_age(spec, resolved))
     semantics = _resolve_semantics(spec)
     from .semantics.event_types import event_type as _event_type
-    from .semantics.event_types import events_of
 
-    event = _event_type(spec.dataset, spec.event_type) if spec.event_type else None
+    if spec.event_type:
+        _event_type(spec.dataset, spec.event_type)      # an event type the dataset lacks is refused here
 
     # Refuse a measure the grain contradicts BEFORE reading anything: counting
     # rows on an establishment-month dataset counts establishment-months.
@@ -579,25 +533,8 @@ def build_aggregate(
     geography_fields = _binding_fields(
         semantics.geography_bindings(), spec.geography_binding, "geography", spec.dataset)
     _require_municipality_geography(semantics, spec)
-    time_fields = _binding_fields(
-        semantics.time_bindings(), spec.time_binding, "time", spec.dataset)
-    time_encoding = str(
-        (semantics.time_bindings().get(spec.time_binding) or {}).get("encoding") or "")
+    _binding_fields(semantics.time_bindings(), spec.time_binding, "time", spec.dataset)   # refuses an unknown binding
     geography_field = geography_fields[0]
-    # Only the columns the recipe reads: a national SIM year is 87 columns,
-    # and holding all of them peaked a 2010-2023 build at 12.75 GB (2026-10-04).
-    derived_names = {d.name for d in ([spec.age] if spec.age is not None else []) + list(spec.band_dims)}
-    needed = sorted({
-        *geography_fields, *time_fields,
-        *(d for d in spec.dimensions if d not in derived_names),
-        *(f for f in (spec.age.fields if spec.age is not None else ())),
-        *(b.field_name for b in spec.band_dims),
-        *(f for m in spec.measures for f in m.source_fields),
-        *((event.status_column,) if event is not None and event.status_column else ()),
-        *(event.consolidation_key if event is not None else ()),
-        # the source's own duplicate flag (SINAN's NDUPLIC_N, ADR-0159), null where a form lacks it
-        *((event.duplicates_flag[0],) if event is not None and event.duplicates_flag else ()),
-    })
 
     report = AggregateReport(name=name)
     # Normalised the same way `fetch` reads it, so the manifest says what was
@@ -622,177 +559,46 @@ def build_aggregate(
     multi_valued = sorted(_curated_multi_valued(spec.dataset, spec.dimensions, resolved))
 
     # One grouped Arrow table per chunk; merged once at the end (_merge_cells).
+    # The cells are records cubes (`cells_from_cubes`, ADR-0217): one per state asked for, or the whole publication.
     cells: list[Any] = []
-    blob_digests: set[str] = set()
-
-    # One chunk per (year, UF) rather than one per year.
-    #
-    # `_fetch(uf=None, years=Y)` materialises a whole national year as one Arrow
-    # table before any cell is written. Measured on SIH-RD 2022: 7.9 GB resident
-    # and climbing, for ~11.8 million admissions.
-    #
-    # The merge is a commutative monoid, so `cells` accumulating across chunks
-    # gives exactly the artifact one big call would have. Chunking caps the peak
-    # at the LARGEST STATE instead of the country, and lets the build report
-    # progress rather than going quiet for half an hour.
-    def _chunks() -> list[tuple[int, str | Sequence[str] | None]]:
-        if report.uf:
-            return [(year, u) for year in sorted(wanted_years) for u in report.uf]
-        # A year DATASUS publishes as one national file is read from it, not
-        # from its 27 state files: the same records, read once (handoff §1.7).
-        out: list[tuple[int, str | Sequence[str] | None]] = []
-        for year in sorted(wanted_years):
-            physical = _physical_geography(spec.dataset, year, resolved)
-            # SINAN publishes one national file and no state axis at all.
-            out.extend([(year, None)] if physical == () else [(year, "BR")] if physical == ("BR",)
-                       else [(year, u) for u in _ALL_UFS])
-        return out
-
-    chunks = _chunks()
-    national_fallback = not report.uf
-
-    for year, chunk_uf in chunks:
-        # `fetch()` is the retrieval path of a build (not `query()`: see the module docstring). It unions
-        # schema generations with structural nulls and returns raw codes, which
-        # is what `lift` needs.
+    for chunk_uf in (list(report.uf) or [None]):
         try:
-            table, fetch_report = _fetch(
-                spec.dataset, uf=chunk_uf, years=year, settings=resolved,
-                report=True, labels=False, provenance=True,
-                columns=needed, on_missing_column="null_fill",
-            )
-        except NothingPublished:
-            # An empty (year, UF) chunk is DATA for the fallback below, not an
-            # error: a dataset published one national file per year -- SINAN's
-            # agravos -- answers every per-UF probe with nothing, and raising
-            # here made the national fallback unreachable for exactly the
-            # datasets it was written for. It is RECORDED all the same: a state-year absent on the server
-            # leaves a hole in the series that is a gap, never a zero.
-            if national_fallback:
-                report.missing_chunks.append(f"{year} {chunk_uf}")
-                continue
-            raise
-        report.rows_read += table.num_rows
-        if event is not None:
-            table = events_of(table, event)
-        names = set(table.schema.names)
-        missing = [f for f in (geography_field, *time_fields) if f not in names]
-        if missing:
-            report.warnings.append(
-                f"{year} {chunk_uf}: {missing} absent from this generation; skipped")
+            table, read = cells_from_cubes(spec, sorted(wanted_years), chunk_uf, resolved)
+        except LookupError as exc:
+            report.warnings.append(f"{chunk_uf or 'BR'}: {exc}")
+            report.missing_chunks.append(f"{min(wanted_years)} {chunk_uf or 'BR'}")
             continue
-
-        if "_blob_sha256" in names:
-            for digest in set(table.column("_blob_sha256").to_pylist()):
-                if digest:
-                    blob_digests.add(str(digest))
-
-        # The support mask, from the existing availability verb rather than
-        # from schema logic re-derived here.
-        if str(year) not in report.support:
-            def _support_of(dimension: str, year: int = year) -> str:
-                for band in spec.band_dims:
-                    if dimension == band.name:
-                        return str(field_available(
-                            spec.dataset, band.field_name, year, settings=resolved))
-                if spec.age is not None and dimension == spec.age.name:
-                    # Derived: available exactly when its sources are. The
-                    # weakest source decides -- a band computed from an absent
-                    # unit column is not "present".
-                    return min(
-                        str(field_available(spec.dataset, f, year, settings=resolved))
-                        for f in spec.age.fields
-                    )
-                return str(field_available(spec.dataset, dimension, year, settings=resolved))
-
-            report.support[str(year)] = {
-                dimension: _support_of(dimension) for dimension in spec.dimensions
-            }
-
-        # lift + merge, columnar. Each accumulator's lift is a column
-        # expression and its merge is a sum, so the whole build is one
-        # group_by. The row loop this replaced ran at about 1.4 ms per
-        # admission -- fine for one state-year, and roughly five hours for a
-        # national one, which is not a build anybody would run.
-        keyed_and_mask = _key_columns(
-            table, geography_field, time_fields, spec.dimensions, names,
-            encoding=time_encoding, age=spec.age, band_dims=spec.band_dims)
-        if keyed_and_mask is None:
-            report.warnings.append(
-                f"{year} {chunk_uf}: no usable geography/time values; skipped. If the time "
-                f"axis is a date, {list(time_fields)} may hold a layout neither "
-                "AAAAMMDD nor DDMMAAAA explains -- which is refused rather than "
-                "bucketed under a period that means nothing."
-            )
-            continue
-        keyed, keep_mask = keyed_and_mask
-        report.unkeyed_rows += table.num_rows - int(pc.sum(keep_mask).as_py() or 0)
-        _accumulate(cells, table.filter(keep_mask), keyed, spec)
-        if year not in report.years:
-            report.years = (*report.years, year)
-
-    if not cells and national_fallback:
-        # Every state came back empty, which for a UF-partitioned dataset would
-        # mean nothing was published at all. More likely the dataset is NOT
-        # partitioned by state -- IBGE's population files are national, and so
-        # is anything published one file a year. Ask for it whole.
-        report.missing_chunks = []          # the whole-year read below replaces the per-state probes
-        report.warnings.append(
-            "no state-partitioned files found; retrying as a single national "
-            "fetch. This dataset appears not to be published per UF, so the "
-            "build holds a whole year at once."
-        )
-        for year in sorted(wanted_years):
-            table, fetch_report = _fetch(
-                spec.dataset, uf=None, years=year, settings=resolved,
-                report=True, labels=False, provenance=True,
-                columns=needed, on_missing_column="null_fill",
-            )
-            report.rows_read += table.num_rows
-            if event is not None:
-                table = events_of(table, event)
-            names = set(table.schema.names)
-            if [f for f in (geography_field, *time_fields) if f not in names]:
-                continue
-            if "_blob_sha256" in names:
-                for digest in set(table.column("_blob_sha256").to_pylist()):
-                    if digest:
-                        blob_digests.add(str(digest))
-            keyed_and_mask = _key_columns(
-                table, geography_field, time_fields, spec.dimensions, names,
-                encoding=time_encoding, age=spec.age, band_dims=spec.band_dims)
-            if keyed_and_mask is None:
-                continue
-            keyed, keep_mask = keyed_and_mask
-            report.unkeyed_rows += table.num_rows - int(pc.sum(keep_mask).as_py() or 0)
-            _accumulate(cells, table.filter(keep_mask), keyed, spec)
+        cells.append(table)
+        report.rows_read += int(read.get("events") or 0)
+        report.unkeyed_rows += int(read.get("unplaced_events") or 0)
+        for year in sorted({int(str(c)[:4]) for c in table.column(TIME_KEY).to_pylist()}):
             if year not in report.years:
                 report.years = (*report.years, year)
-            report.warnings.extend(fetch_report.warnings[:3])
+    for year in sorted(report.years):
+        def _support_of(dimension: str, year: int = year) -> str:
+            for band in spec.band_dims:
+                if dimension == band.name:
+                    return str(field_available(spec.dataset, band.field_name, year, settings=resolved))
+            if spec.age is not None and dimension == spec.age.name:
+                # derived: available exactly when its sources are, the weakest deciding
+                return min(str(field_available(spec.dataset, f, year, settings=resolved)) for f in spec.age.fields)
+            return str(field_available(spec.dataset, dimension, year, settings=resolved))
 
+        report.support[str(year)] = {dimension: _support_of(dimension) for dimension in spec.dimensions}
     if not cells:
-        raise AggregationRefused(
-            f"{name}: no cells produced for years {sorted(wanted_years)}"
-        )
+        raise AggregationRefused(f"{name}: no cells produced for years {sorted(wanted_years)}")
     if report.unkeyed_rows:
         report.warnings.append(
-            f"{report.unkeyed_rows:,} of {report.rows_read:,} rows read have no municipality or no valid period "
-            "(a month 01-12 of a year 1900-2200) and are in no cell"
-        )
-    # What the build did not produce is said, in the report and the manifest, never left as a shorter series.
+            f"{report.unkeyed_rows:,} of {report.rows_read:,} records no municipality places or with no valid period "
+            "are in no cell (the cube's unplaced_events)")
     no_cells = sorted(set(wanted_years) - set(report.years))
     if no_cells:
         report.warnings.append(f"no cells for year(s) {no_cells}: nothing was read or nothing usable in them")
-    if report.missing_chunks:
-        by_year: dict[str, int] = {}
-        for chunk in report.missing_chunks:
-            by_year[chunk.split()[0]] = by_year.get(chunk.split()[0], 0) + 1
-        report.warnings.append(
-            f"{len(report.missing_chunks)} (year, state) chunk(s) had no publication, so no cells: "
-            + ", ".join(f"{y}: {n}" for y, n in sorted(by_year.items()))
-            + " (named in missing_chunks); those states are NOT OBSERVED in those years, not zero"
-        )
+    stamp = hashlib.blake2b(digest_size=16)
+    from .cubes import _records_stamp
 
+    _records_stamp(resolved, spec.dataset, stamp)
+    blob_digests = {stamp.hexdigest()}
     key_names = (GEOGRAPHY_KEY, TIME_KEY, *spec.dimensions)
     arrow = _merge_cells(cells, key_names, spec)
     report.cells = arrow.num_rows
@@ -830,8 +636,6 @@ def build_aggregate(
     return report
 
 
-
-
 #: DATASUS writes numbers as fixed-width text, and a blank is ABSENT rather than
 #: zero. Arrow's cast raises on `''` and on anything else unparseable, so
 #: non-numeric cells are nulled first: a null contributes nothing to a sum and
@@ -858,28 +662,61 @@ def _reductions(spec: AggregateSpec) -> dict[str, str]:
             for measure in spec.measures for column in measure.state_columns()}
 
 
-def _accumulate(cells: list, table: Any, keyed: dict, spec: AggregateSpec) -> None:
-    """Lift and group one chunk; the chunks are merged once, by ``_merge_cells``.
-
-    The merge is a commutative monoid, which is exactly why a national build can
-    be assembled a chunk at a time: the order chunks arrive in cannot change the
-    artifact, and neither can how they are divided. Each chunk stays an Arrow
-    table: merging a million cells a year through a Python dict was most of a
-    national cause-of-death build (2026-10-04).
-    """
+def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, settings: Any) -> tuple[Any, dict]:
+    """A recipe's base cuboid as records cubes (ADR-0217): one cube per measure state over the recipe's dataset, event
+    type, bindings, dimensions and derived strata (its age band, its numeric bands), joined on the cell keys. A count is
+    the cube's events; a sum its column's (``A+B`` row-wise, null where no part holds a number); a mean its numbers'
+    count (``count:<column>``) and sum. A record no municipality places is the cube's ``unplaced_events``, never a cell.
+    The cells keep the artifact's columns: ``municipality`` (6 digits), ``competencia`` (``YYYYMM``, or ``YYYY``), the
+    dimensions ('' where not recorded) and the state columns; with the first cube's manifest (records read, unplaced)."""
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    lifted, state_names = _lift_columns(table, spec.measures)
-    reduction = _reductions(spec)
-    grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
-        [(name, reduction[name]) for name in state_names])
-    grouped = grouped.rename_columns(
-        [n if n in keyed else n.rsplit("_", 1)[0] for n in grouped.schema.names])
-    cells.append(pa.table({
-        **{k: pc.cast(grouped.column(k), pa.string()) for k in keyed},
-        **{c: _filled(_kind_of(spec.measures, c), pc.cast(grouped.column(c), pa.float64())) for c in state_names},
-    }))
+    from .cubes import cube
+
+    derived: dict[str, dict[str, Any]] = {}
+    if spec.age is not None:
+        age = spec.age
+        derived[age.name] = {"form": age.form, "fields": list(age.fields), "units": dict(age.units),
+                             "unknown": list(age.unknown), "plain_below": age.plain_below, "bands": list(age.bands),
+                             "lookup": dict(age.lookup)}
+    for band in spec.band_dims:
+        derived[band.name] = {"field": band.field_name, "bands": list(band.bands), "label": band.label, "unit": band.unit}
+    source = f"records:{spec.dataset}/{spec.event_type or 'rows'}"
+    common = {"by": list(spec.dimensions), "periods": [str(y) for y in years], "settings": settings,
+              "at": spec.geography_binding or None, "time": spec.time_binding or None, "grain": spec.time_grain,
+              "geography": uf, "derived": derived or None}
+    keys = ["place", "period", *spec.dimensions]
+    merged = None
+    read: dict[str, Any] = {}
+    for measure in spec.measures:
+        kind, fields = measure.kind.name, list(measure.source_fields)
+        if kind == "count":
+            parts = {f"{measure.name}_n": None}
+        elif kind == "sum":
+            parts = {f"{measure.name}_sum": "+".join(fields)}
+        elif kind == "mean" and len(fields) == 1:
+            parts = {f"{measure.name}_n": f"count:{fields[0]}", f"{measure.name}_sum": fields[0]}
+        else:
+            raise AggregationRefused(f"{spec.name}: a {kind} measure over {fields} is not built from cubes yet")
+        for state, measured in parts.items():
+            table = cube(source, measure=measured, **common) if measured else cube(source, **common)
+            if not read:
+                # what the records were: the first cube's manifest (every cube reads the same records)
+                read = json.loads((table.schema.metadata or {}).get(b"pegasus.cube", b"{}"))
+            part = table.select([*keys, "value"]).rename_columns([*keys, state])
+            merged = part if merged is None else merged.join(part, keys=keys, join_type="full outer")
+    assert merged is not None
+    period = pc.replace_substring(merged.column("period"), "-", "")
+    out = {"municipality": pc.utf8_slice_codeunits(pc.cast(merged.column("place"), pa.string()), 0, 6),
+           "competencia": period,
+           **{d: pc.fill_null(pc.cast(merged.column(d), pa.string()), "") for d in spec.dimensions}}
+    for state in spec.state_columns():
+        column = pc.cast(merged.column(state), pa.float64())
+        out[state] = column if state.endswith("_sum") else pc.fill_null(column, 0.0)
+    keys_out = ["municipality", "competencia", *spec.dimensions]
+    table = pa.table(out).select([*keys_out, *spec.state_columns()])
+    return table.sort_by([(k, "ascending") for k in keys_out]), read
 
 
 def _merge_cells(cells: list, key_names: Sequence[str], spec: AggregateSpec) -> Any:
@@ -893,60 +730,6 @@ def _merge_cells(cells: list, key_names: Sequence[str], spec: AggregateSpec) -> 
         [n if n in key_names else n.rsplit("_", 1)[0] for n in merged.schema.names])
     merged = merged.select([*key_names, *spec.state_columns()])
     return merged.sort_by([(k, "ascending") for k in key_names])
-
-
-def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
-                 dimensions: Sequence[str], names: set[str],
-                 encoding: str = "", age: Any = None,
-                 band_dims: Sequence[Any] = (),
-                 ) -> tuple[dict[str, Any], Any] | None:
-    """The cell key, as columns: municipality, competencia, then dimensions.
-
-    Rows with no municipality or no resolvable period are dropped here rather
-    than being bucketed under an empty key, which would silently invent a cell
-    that means "we could not tell".
-    """
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    municipality = pc.utf8_trim_whitespace(
-        pc.cast(table.column(geography_field), pa.string()))
-    period = _competencia_column(table, time_fields, encoding)
-    if period is None:
-        return None
-    keep = pc.and_(pc.not_equal(municipality, ""), pc.is_valid(period))
-    keep = pc.fill_null(keep, False)
-    out: dict[str, Any] = {
-        GEOGRAPHY_KEY: pc.filter(municipality, keep),
-        TIME_KEY: pc.filter(period, keep),
-    }
-    banded = {b.name: b for b in band_dims}
-    for dimension in dimensions:
-        if dimension in banded:
-            out[dimension] = pc.filter(banded[dimension].column(table), keep)
-        elif age is not None and dimension == age.name:
-            # Derived, not read: decoded to years by the system's own
-            # convention and banded per the spec (see _age.py). Undecodable
-            # ages land in their own level rather than vanishing.
-            from ._age import band_column, years_column
-
-            out[dimension] = pc.filter(band_column(age, years_column(age, table)), keep)
-        elif dimension in names:
-            column = pc.utf8_trim_whitespace(pc.cast(table.column(dimension), pa.string()))
-            out[dimension] = pc.filter(pc.fill_null(column, ""), keep)
-        else:
-            # Structurally absent in this generation. An empty category is not
-            # "unknown" -- the support mask is what says the column did not
-            # exist -- but the cell still has to exist so its measures are not
-            # silently lost.
-            # `or 0`: Arrow sums an empty mask to null, not to nought.
-            kept = int(pc.sum(pc.cast(keep, pa.int64())).as_py() or 0)
-            out[dimension] = pa.array([""] * kept, pa.string())
-    # The mask goes back WITH the keys. The keys are filtered by it; measures
-    # must be lifted from a table filtered the same way, and returning only
-    # the keys let the two drift -- length-mismatch crash on the first dataset
-    # with an undecodable row, silent misalignment never (Arrow validates).
-    return out, keep
 
 
 #: How many values to look at when deciding a date column's layout. The two
@@ -1063,78 +846,6 @@ def _competencia_column(
     # let `00000000` and `20229999` become periods 000000 and 202299 (month 99), each a cell of its own
     valid = pc.fill_null(pc.match_substring_regex(sliced, _PERIOD), False)
     return pc.if_else(valid, sliced, pa.nulls(len(sliced), pa.string()))
-
-
-def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, Any], list[str]]:
-    """Every measure's `lift`, as columns rather than per-row calls.
-
-    The mapping is exact, not an approximation of the algebra:
-
-    * ``count``  -> a column of ones, so its sum is the row count;
-    * ``sum``    -> the numeric column, a null staying null: it contributes
-      nothing to a cell that has other values, and a cell with none has no sum
-      (null), not a sum of zero;
-    * ``mean``   -> (1 where the value parses, else 0) and (the value, else 0),
-      so a blank stay is an unknown length rather than a stay of no days;
-    * ``ratio``  -> the value and a validity indicator.
-    """
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    out: dict[str, Any] = {}
-    order: list[str] = []
-    rows = table.num_rows
-    for measure in measures:
-        columns = measure.state_columns()
-        present = [f for f in measure.source_fields if f in table.schema.names]
-        if present:
-            # Several columns sum row-wise (null contributes nothing, but a
-            # row where NO column parses stays null, not zero).
-            numeric = _to_number(table.column(present[0]), rows)
-            for extra in present[1:]:
-                more = _to_number(table.column(extra), rows)
-                numeric = pc.if_else(
-                    pc.is_valid(numeric),
-                    pc.add(pc.fill_null(numeric, 0.0), pc.fill_null(more, 0.0)),
-                    more,
-                )
-        else:
-            numeric = pa.nulls(rows, pa.float64())
-        valid = pc.cast(pc.is_valid(numeric), pa.float64())
-        filled = pc.fill_null(numeric, 0.0)
-        if measure.kind.name == "count":
-            out[columns[0]] = pa.array([1.0] * rows, pa.float64())
-        elif measure.kind.name == "sum":
-            out[columns[0]] = numeric      # a null stays null: a cell with no value has no sum, not a sum of zero
-        elif measure.kind.name in ("mean", "ratio"):
-            first, second = columns
-            if measure.kind.name == "mean":
-                out[first], out[second] = valid, filled
-            else:
-                out[first], out[second] = filled, valid
-        elif measure.kind.name == "moments":
-            n, total, squares = columns
-            out[n], out[total], out[squares] = valid, filled, pc.multiply(filled, filled)
-        elif measure.kind.name == "logmoments":
-            # a value that is not positive has no logarithm: out of the state, like a blank
-            n, total, squares = columns
-            positive = pc.and_(pc.is_valid(numeric), pc.greater(pc.fill_null(numeric, 0.0), 0.0))
-            logs = pc.if_else(positive, pc.ln(pc.if_else(positive, numeric, 1.0)), 0.0)
-            out[n], out[total], out[squares] = pc.cast(positive, pa.float64()), logs, pc.multiply(logs, logs)
-        elif measure.kind.name in ("min", "max"):
-            # The fill is the kind's IDENTITY, not zero: a blank lifted to 0.0
-            # would drag every minimum to nought and hand every maximum a floor.
-            identity = measure.kind.identity()[0]
-            out[columns[0]] = pc.fill_null(numeric, identity)
-        else:
-            raise AggregationRefused(
-                f"no columnar lift for kind {measure.kind.name!r}; a new kind "
-                "must be added here explicitly, because the generic fallback "
-                "this replaced summed whatever it was handed"
-            )
-        order.extend(columns)
-    return out, order
-
 
 
 def _flag_partial_periods(spec: AggregateSpec, semantics: Any, report: AggregateReport,
@@ -1604,7 +1315,6 @@ def aggregate(
             "subset total and not a national one."
         )
     return (result, report) if return_report else result
-
 
 
 def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequence[str],

@@ -326,7 +326,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                              f"not understood for {k!r}")
     filter_columns = [c for k in after for c in k.split("+")]
     distinct = measure.split(":", 1)[1] if measure and measure.startswith("distinct:") else None
-    summed = None if distinct else measure
+    # ``count:<column>``: the rows where the column holds a number (a mean's denominator: a blank stay is unknown, not 0)
+    numbered = measure.split(":", 1)[1] if measure and measure.startswith("count:") else None
+    summed = None if distinct or numbered else measure
     # a derived stratum is read from its input columns and made after counting by them (`_derived_dimensions`)
     bands = _derived_dimensions(dataset, derived or {})
     missing = [b for b in bands if b not in by]
@@ -425,17 +427,28 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
         # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
         parts_summed = summed.split("+") if summed else []
-        extra_columns = [*parts_summed, *([distinct] if distinct else [])]
+        extra_columns = [*parts_summed, *([distinct] if distinct else []), *([numbered] if numbered else [])]
         table = banded(placed(kept(query(dataset, period=span, geography=publications,
                                          select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
         if summed:
-            total = None
-            for part in parts_summed:
-                value = pc.cast(table.column(part), pa.float64(), safe=False)
-                value = pc.fill_null(value, 0.0) if len(parts_summed) > 1 else value
-                total = value if total is None else pc.add(total, value)
+            # one number reader (`_aggregate._to_number`: digits, a decimal comma); several columns sum row-wise, a part
+            # with no number contributing nothing and a row where no part holds one staying null (missing is not zero)
+            from ._aggregate import _to_number
+
+            values = [_to_number(table.column(part), table.num_rows) for part in parts_summed]
+            total = values[0]
+            for value in values[1:]:
+                total = pc.if_else(pc.or_(pc.is_valid(total), pc.is_valid(value)),
+                                   pc.add(pc.fill_null(total, 0.0), pc.fill_null(value, 0.0)),
+                                   pa.scalar(None, pa.float64()))
             table = table.append_column("__sum", total)
             return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
+        if numbered:
+            from ._aggregate import _to_number
+
+            table = table.append_column("__n", pc.cast(pc.is_valid(_to_number(table.column(numbered), table.num_rows)),
+                                                       pa.float64()))
+            return table.group_by(cell).aggregate([("__n", "sum")]).rename_columns([*cell, "events"])
         if distinct:
             # one row per distinct value in its cell (an establishment listed twice in a month is one), then counted
             values = pc.utf8_trim_whitespace(pc.cast(table.column(distinct), pa.string()))

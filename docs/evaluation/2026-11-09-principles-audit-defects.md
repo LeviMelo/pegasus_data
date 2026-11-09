@@ -18,6 +18,9 @@ changed number, so each change is judged by whether every output it touches is e
 | 9 recipes | 54 SINAN recipes → one template | all 60 `AggregateSpec`s | every field equal; 19 descriptions name the agravo instead of its code |
 | 1 CNES | mirror pipeline removed | the 43 cube plans | byte-identical; the fields themselves in the national rerun |
 | stage 4 | BR-DWGD's six annual fields as `climate:` cube views | the stored copies | 356,032 rows each, value, status, months and release equal |
+| stage 5 | aggregate recipes built from records cubes | the old build's cells, AC 2022 (SINAN Zika BR 2022) | SIH 20,730, SINASC 11,707, CNES-ST 3,241 cells equal; SIM 13 and Zika 56 records no municipality places were cells (state "ignored" codes), now unplaced; Brasília's region codes place in Brasília |
+| cubes | sums read by the one number reader, null where no part holds a number | CNES hours (2015, 2020), SISAGUA sums (2022) | equal |
+| cubes | a row count that keeps the unplaced in the manifest | SIM-DO AC 2022 | 4,159 records: 4,146 placed, 13 unplaced (the manifest had said 0) |
 
 **Found on the way.**
 - **Duplicate SIDRA facts.** Read raw, SIDRA's fact store holds table 5938 twice (244,932 rows, 122,466 facts) and table 202
