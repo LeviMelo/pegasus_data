@@ -59,6 +59,12 @@ def _cache_dir(system: str, registries: str | Path) -> Path:
     return Path(registries) / system.upper()
 
 
+def cache_files(registries: str | Path, codelist: str) -> list[Path]:
+    """The built cache files of a registry table under ``registries``, one per system that holds it (the cache's
+    layout, known here only)."""
+    return sorted(Path(registries).glob(f"*/{codelist.upper()}.parquet"))
+
+
 def _current_kit(kits: list[str], sizes: dict[str, int]) -> str | None:
     import re
 

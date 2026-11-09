@@ -156,6 +156,15 @@ def _release(settings: Any, paths: Sequence[str]) -> int:
         store.close()
 
 
+def _part_path(target: Path, year: int, geo_code: str, period: str) -> Path:
+    """Where a file's kept rows land in an extract: the extract's layout, written and read only here."""
+    return target / f"year={int(year)}" / f"{geo_code}_{period}.parquet"
+
+
+def _year_parts(extract_dir: Path, year: int) -> list[Path]:
+    return sorted((extract_dir / f"year={year}").glob("*.parquet"))
+
+
 def _match(table: pa.Table, column: str, prefixes: Sequence[str]) -> pa.Array | None:
     """The rows whose ``column`` starts with one of ``prefixes`` (None: the table has no such column)."""
     from .api import prefix_match
@@ -284,7 +293,7 @@ def _build_extract(dataset: str, years: Sequence[int], filters: dict[str, Sequen
             log(f"extract {dataset}: {f['path']} failed: {type(kept).__name__}: {kept}")
             continue
         if kept.num_rows:
-            part = target / f"year={int(f['year'])}" / f"{f['geo_code']}_{f['normalized_date']}.parquet"
+            part = _part_path(target, f["year"], f["geo_code"], f["normalized_date"])
             part.parent.mkdir(parents=True, exist_ok=True)
             pq.write_table(kept, part, compression="zstd")
         manifest["files"][f["path"]] = {"year": int(f["year"]), "uf": f["geo_code"], "period": f["normalized_date"],
@@ -332,7 +341,7 @@ def extract_table(dataset: str, column: str, codes: Sequence[str], years: Sequen
         if unread or failed:
             raise LookupError(f"{dataset} {column} {asked}: the extract does not hold {want} whole "
                               f"({len(unread)} files unread, {len(failed)} failed)")
-        parts = [p for y in want for p in sorted((d / f"year={y}").glob("*.parquet"))]
+        parts = [p for y in want for p in _year_parts(d, y)]
         table = pa.concat_tables([pq.read_table(p) for p in parts], promote_options="default") if parts else pa.table({})
         if table.num_rows:
             mask = _match(table, column, asked)

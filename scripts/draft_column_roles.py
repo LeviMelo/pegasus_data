@@ -89,9 +89,9 @@ def _sibling_precedents(system: str, series: str) -> dict[str, tuple[dict, str]]
     same in every file of the system: the reviewed role a sibling dataset gives it is its role, where the siblings
     agree (SIM's DOEXT, DOINF and DOMAT are subsets of the death certificate SIM-DO reads; SIH's RJ is the AIH of RD).
     A column a sibling's own series file documents differently is no precedent."""
-    from pegasus_data.semantics.curation import INHERITS
+    from pegasus_data.semantics.curation import inherited
 
-    names = {system.upper(), *(p.upper() for p in INHERITS.get(system.upper(), ())), *(
+    names = {system.upper(), *(p.upper() for p in inherited(system)), *(
         k for k, v in {"SIH": "SIHSUS"}.items() if v == system.upper())}
     keys: dict[str, set] = {}
     first: dict[str, tuple[dict, str]] = {}
@@ -161,13 +161,13 @@ def _yaml(path: Path) -> dict:
 
 
 def _docs(system: str, stem: str | None) -> dict[str, dict]:
-    """A system's variable docs: its parent's where it republishes them (`curation.INHERITS`: Dados Abertos' APAC
+    """A system's variable docs: its parent's where it republishes them (`curation.inherited`: Dados Abertos' APAC
     exports carry SIA's columns), its shared file, then the series' own."""
-    from pegasus_data.semantics.curation import INHERITS
+    from pegasus_data.semantics.curation import inherited
 
     out: dict[str, dict] = {}
     files = []
-    for parent in INHERITS.get(system.upper(), ()):
+    for parent in inherited(system):
         files += sorted((CURATION / "variables" / parent.lower()).glob("*.yml"))
     folder = CURATION / "variables" / {"SIHSUS": "sihsus"}.get(system, system.lower())
     files += [folder / "_shared.yml", *([folder / f"{stem}.yml"] if stem else [])]

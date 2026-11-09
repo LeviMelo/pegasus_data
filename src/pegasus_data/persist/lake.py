@@ -84,6 +84,13 @@ def published_files(lake_dir: str | Path, system: str, series: str, year: int) -
     return lake, files
 
 
+def unit_parts(lake_dir: str | Path, family: str, unit_key: str) -> list[Path]:
+    """The partition files of one landed unit (``part-<unit key>-*``, the key already file-safe) in the families
+    matching ``family`` (a glob over the family folder name), every system, schema and place. The lake's layout is
+    known here only."""
+    return list(Path(lake_dir).glob(f"*/{family}/schema_signature=*/uf=*/year=*/part-{unit_key}-*.parquet"))
+
+
 def listed_partitions(catalog: CatalogStore, family_ids: Sequence[str]) -> dict[str, tuple[LakePartition, ...]]:
     """The partitions the catalog lists for ``family_ids`` (all states and years), by family.
 
