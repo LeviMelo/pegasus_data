@@ -68,8 +68,17 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
                                  ("measure", measure)) if v is not None}
     if options and kind != "records":
         raise ValueError(f"{sorted(options)} apply to records cubes only")
+    settings = settings or load_settings()
+    if kind == "records":
+        # A records cube reads many records; it is kept by the request and the version of what it was read from.
+        request = {"place": place, "by": list(by), "where": dict(where or {}), "periods": [str(p) for p in periods or []],
+                   **dict(options)}
+        return _cached(settings, f"records-{ident.replace('/', '-')}", request,
+                       lambda: adapter(ident, place=place, by=list(by), where=dict(where or {}), periods=periods,
+                                       labels=labels, settings=settings, **options),
+                       stamp=lambda digest: _records_stamp(settings, ident.partition("/")[0], digest))
     return adapter(ident, place=place, by=list(by), where=dict(where or {}), periods=periods, labels=labels,
-                   settings=settings or load_settings(), **options)
+                   settings=settings, **options)
 
 
 def cube_sources() -> dict[str, str]:
@@ -213,10 +222,11 @@ def _series(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[
                                 "strata": [], "where": {k: list(v) for k, v in where.items()}})
 
 
-def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any) -> pa.Table:
-    """A built cube kept under ``<lake>/cubes/`` beside the fingerprint of the facts it was built from: SIDRA's fact
-    parts (names, sizes, times) and the curation. A fact fetched or a declaration edited makes it stale, and it is built
-    again; a stitched series is seconds to build and read many times."""
+def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp: Any = None) -> pa.Table:
+    """A built cube kept under ``<lake>/cubes/`` beside the fingerprint of what it was built from: by default SIDRA's
+    fact parts (names, sizes, times); ``stamp`` adds another source's (a records cube's lake partitions and files). The
+    curation and this module's own code are always in it, so an edited declaration or a changed adapter makes the cube
+    stale and it is built again. A stitched series is seconds to build, a records cube minutes; both are read often."""
     import hashlib
 
     import pyarrow.parquet as pq
@@ -229,10 +239,14 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any) -> pa
     key = f"{key}-{hashlib.blake2b(json.dumps(where, sort_keys=True, default=str).encode(), digest_size=6).hexdigest()}"
     digest = hashlib.blake2b(digest_size=12)
     digest.update(curation_epoch()[1].encode())
-    base = facts_dir(Path(settings.lake_dir))
-    for part in sorted(base.glob("table=*/req-*.parquet")) if base.exists() else ():
-        stat = part.stat()
-        digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
+    digest.update(Path(__file__).read_bytes())
+    if stamp is not None:
+        stamp(digest)
+    else:
+        base = facts_dir(Path(settings.lake_dir))
+        for part in sorted(base.glob("table=*/req-*.parquet")) if base.exists() else ():
+            stat = part.stat()
+            digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
     target = folder / f"{key}-{digest.hexdigest()}.parquet"
     if target.exists():
         return pq.read_table(target)
@@ -403,6 +417,30 @@ def _population(ident: str, *, place: str, by: list[str], where: dict[str, Seque
     return _with_manifest(facts, {"source": f"population:{ident}", "series": series, "place_level": place,
                                   "period_grain": "year", "strata": by, "additive_over": ["territory", "strata"],
                                   "stock": True, "unplaced_persons": unplaced})
+
+
+def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
+    """What a records cube was read from: the dataset's lake partitions and its published files, as the catalog lists
+    them (path, size, time). A unit landed again, a file republished or a partition rebuilt changes it."""
+    from .catalog.store import CatalogStore
+    from .semantics.curation import semantics_for
+
+    semantics = semantics_for(dataset)
+    system, series = (str(semantics.system or "").upper(), str(semantics.series or "").upper()) if semantics else ("", "")
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        for row in store.query(
+            "SELECT lp.relative_path, lp.byte_size, lp.written_at FROM lake_partitions lp JOIN families f"
+            " ON f.family_id = lp.family_id WHERE f.system = ? AND f.series = ?"
+            " ORDER BY lp.relative_path", (system, series)):
+            digest.update(f"{row[0]}:{row[1]}:{row[2]}".encode())
+        for row in store.query(
+            "SELECT f.path, f.size, f.modified FROM file_facts ff JOIN files f ON f.path = ff.path"
+            " WHERE ff.system = ? AND ff.series_prefix = ? AND f.gone_at IS NULL"
+            " ORDER BY f.path", (system, series)):
+            digest.update(f"{row[0]}:{row[1]}:{row[2]}".encode())
+    finally:
+        store.close()
 
 
 # ------------------------------------------------------------------------------------------------------ algebra
