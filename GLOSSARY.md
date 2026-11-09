@@ -377,7 +377,7 @@ that points at "row 12 of today's query" (ADR-0107).
 
 **Role.** The property a column states about an entity, `<entity>.<property>`:
 SINASC `DTNASCMAE` is `mother.birth_date`; SIH `NASC` is `patient.birth_date`.
-Declared in `curation/roles.yml` with a type that says how the value is
+Declared as a column's `compare:` in its roles file with a type that says how the value is
 normalised. *Prevents:* comparing columns by name, and linking a baby to its
 mother's admission because both carry "a birth date" (ADR-0109).
 

@@ -1,3 +1,5 @@
+# Foetal deaths: their certificate lines are read as one set of codes, as SIM-DO's are. Of the 29 foetal deaths
+# of 2018 naming B58, P37.1 or O98.6, 10 name them only on a line, not as the underlying cause (2026-10-10).
 dataset: SIM-DOFET
 record: death
 columns:
@@ -90,6 +92,7 @@ columns:
     - 1979
     - 1995
   CAUSABAS:
+    compare: {death.cause: {type: code}}
     role: death.cause
     kind: code_tree
     model: event_type
@@ -275,6 +278,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   CODMUNRES:
+    compare: {deceased.residence: {type: municipality}}
     role: deceased.residence
     kind: place
     model: stratum
@@ -475,6 +479,7 @@ columns:
     - 2026
     note: 'Role from SIM-DO: foetal deaths are certified on the same Declaração de Óbito (TIPOBITO 1).'
   DTOBITO:
+    compare: {death.date: {type: date, format: DDMMYYYY}}
     role: death.date
     kind: date
     model: when
@@ -835,6 +840,7 @@ columns:
     - 1979
     - 1998
   LINHAA:
+    compare: {death.causes: {also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}}
     role: death.certificate_line_a
     also:
     - death.causes

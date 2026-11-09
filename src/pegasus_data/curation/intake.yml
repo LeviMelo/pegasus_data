@@ -61,91 +61,91 @@
 dictionaries:
   sisagua:
     NO_REGIAO:
-      role: Macrorregião do Brasil do município de coleta.
+      description: Macrorregião do Brasil do município de coleta.
       aliases:
       - Região Geográfica
     SG_UF:
-      role: Sigla da UF do município de coleta.
+      description: Sigla da UF do município de coleta.
       aliases:
       - UF
     NO_REGIONAL:
-      role: Regional de saúde do município, mantida pelos gestores do SISAGUA em cada UF (free text, not IBGE's).
+      description: Regional de saúde do município, mantida pelos gestores do SISAGUA em cada UF (free text, not IBGE's).
       aliases:
       - Regional de Saúde
     NO_MUNICIPIO:
-      role: Nome do município onde se fez a coleta. A water system serving several municipalities appears in each; an SAC
+      description: Nome do município onde se fez a coleta. A water system serving several municipalities appears in each; an SAC
         is always in one.
       aliases:
       - Município
     CO_MUNICIPIO_IBGE:
-      role: 'Código IBGE do município, 6 dígitos, as given. The Distrito Federal is split into its Regiões Administrativas
+      description: 'Código IBGE do município, 6 dígitos, as given. The Distrito Federal is split into its Regiões Administrativas
         with codes 530001-5300xx made up in the same format (Brasília itself is 530010): they are not IBGE municipalities.'
       aliases:
       - Código IBGE
       type: municipality
     TP_ABRANGENCIA:
-      role: 'Abrangência da instituição responsável pelo SAA ou SAC: Local (um município) ou Regional (mais de um).'
+      description: 'Abrangência da instituição responsável pelo SAA ou SAC: Local (um município) ou Regional (mais de um).'
       aliases:
       - Tipo da Instituição
     TP_EMPRESA:
-      role: Tipo da instituição responsável (control, other parameters; values such as Empresa Estadual). The dictionary describes
+      description: Tipo da instituição responsável (control, other parameters; values such as Empresa Estadual). The dictionary describes
         it as the institution type.
     SG_INSTITUICAO:
-      role: Sigla da instituição responsável pelo SAA ou SAC.
+      description: Sigla da instituição responsável pelo SAA ou SAC.
       aliases:
       - Sigla da Instituição
     NO_INSTITUICAO:
-      role: Nome da instituição responsável pelo SAA ou SAC.
+      description: Nome da instituição responsável pelo SAA ou SAC.
       aliases:
       - Nome da Instituição
     NU_CNPJ_INSTITUICAO:
-      role: CNPJ da instituição (da sede, se Regional). Stored as the source writes it (often with a trailing .0).
+      description: CNPJ da instituição (da sede, se Regional). Stored as the source writes it (often with a trailing .0).
       aliases:
       - CNPJ da Instituição
     NO_ESCRITORIO_REGIONAL_LOCAL:
-      role: Escritório regional ou local da instituição; empty for Local institutions.
+      description: Escritório regional ou local da instituição; empty for Local institutions.
       aliases:
       - Nome do escritório regional/local
     NU_CNPJ_ESCRITORIO_REGIONAL_LOCAL:
-      role: CNPJ do escritório; empty for Local institutions.
+      description: CNPJ do escritório; empty for Local institutions.
       aliases:
       - CNPJ do escritório regional/local
     TP_ABASTECIMENTO:
-      role: 'Tipo da forma de abastecimento: SAA sistema de abastecimento de água, SAC solução alternativa coletiva, SAI solução
+      description: 'Tipo da forma de abastecimento: SAA sistema de abastecimento de água, SAC solução alternativa coletiva, SAI solução
         alternativa individual (the control has SAA and SAC only).'
       aliases:
       - Tipo da Forma de Abastecimento
     NU_SOLUCAO_ABASTECIMENTO:
-      role: Código da forma de abastecimento, gerado pelo SISAGUA no cadastro (S + 6-digit municipality + sequence).
+      description: Código da forma de abastecimento, gerado pelo SISAGUA no cadastro (S + 6-digit municipality + sequence).
       aliases:
       - Código Forma de abastecimento
     NO_SOLUCAO_ABASTECIMENTO:
-      role: Nome da forma de abastecimento.
+      description: Nome da forma de abastecimento.
       aliases:
       - Nome da Forma de Abastecimento
     NO_ETA:
-      role: Estação ou unidade de tratamento onde se coletou; empty when the sample was taken elsewhere.
+      description: Estação ou unidade de tratamento onde se coletou; empty when the sample was taken elsewhere.
       aliases:
       - Nome da ETA/UTA
       - Nome da ETA / UTA
     TP_FILTRACAO:
-      role: 1 sem filtração, 2 filtração lenta, 3 filtração rápida, 4 filtração em membranas (control dictionary).
+      description: 1 sem filtração, 2 filtração lenta, 3 filtração rápida, 4 filtração em membranas (control dictionary).
       aliases:
       - Tipo de Filtração
     NU_ANO:
-      role: Ano de coleta (control and surveillance) das amostras.
+      description: Ano de coleta (control and surveillance) das amostras.
       aliases:
       - Ano
       - Ano de referência
       type: integer
     NU_MES:
-      role: Mês de coleta.
+      description: Mês de coleta.
       aliases:
       - Mês
       - Mês de referência
       type: integer
     DT_COLETA:
-      role: Data em que foi realizada a coleta da amostra.
+      description: Data em que foi realizada a coleta da amostra.
       aliases:
       - Data da Coleta
       - Data da coleta
@@ -156,12 +156,12 @@ dictionaries:
       - '%Y/%m/%d'
       - '%d/%m/%Y'
     HR_COLETA:
-      role: Horário da coleta.
+      description: Horário da coleta.
       aliases:
       - Hora da Coleta
       - Hora da coleta
     DT_LAUDO:
-      role: Data de emissão do laudo pelo laboratório.
+      description: Data de emissão do laudo pelo laboratório.
       aliases:
       - Data do Laudo
       type: date
@@ -170,7 +170,7 @@ dictionaries:
       - '%Y/%m/%d'
       - '%d/%m/%Y'
     DT_INCLUSAO_REGISTRO:
-      role: Data de registro no SISAGUA (saved by the system).
+      description: Data de registro no SISAGUA (saved by the system).
       aliases:
       - Data de Registro no SISAGUA
       - Data de registro
@@ -180,7 +180,7 @@ dictionaries:
       - '%Y/%m/%d'
       - '%d/%m/%Y'
     DT_FORMULARIO_CADASTRO:
-      role: Data em que o responsável preencheu o relatório mensal (control).
+      description: Data em que o responsável preencheu o relatório mensal (control).
       aliases:
       - Data de preenchimento do relatório mensal
       type: date
@@ -189,7 +189,7 @@ dictionaries:
       - '%Y/%m/%d'
       - '%d/%m/%Y'
     DT_ANALISE:
-      role: Data em que a amostra foi analisada.
+      description: Data em que a amostra foi analisada.
       aliases:
       - Data da análise
       - DT-ANALISE
@@ -199,103 +199,103 @@ dictionaries:
       - '%Y/%m/%d'
       - '%d/%m/%Y'
     NU_AMOSTRA:
-      role: 'Número de identificação da amostra: from GAL when the municipality uses it, otherwise typed by the water-quality
+      description: 'Número de identificação da amostra: from GAL when the municipality uses it, otherwise typed by the water-quality
         surveillance officer. Not unique across municipalities.'
       aliases:
       - Número da amostra
     TP_MOTIVO_COLETA:
-      role: 'Motivo da coleta: Rotina, Denúncia, Desastre ou Surto. Surto and Desastre samples follow an event, so they are
+      description: 'Motivo da coleta: Rotina, Denúncia, Desastre ou Surto. Surto and Desastre samples follow an event, so they are
         not routine surveillance.'
       aliases:
       - Motivo da coleta
     TP_PROCEDENCIA_COLETA:
-      role: 'Parte da forma de abastecimento da coleta: ponto de captação, estação de tratamento de água, sistema de distribuição,
+      description: 'Parte da forma de abastecimento da coleta: ponto de captação, estação de tratamento de água, sistema de distribuição,
         intra-domiciliar/intrapredial, solução alternativa.'
       aliases:
       - Procedência da Coleta
     TP_PONTO_COLETA:
-      role: 'Ponto de coleta (surveillance: torneira, cavalete/hidrômetro, reservatório, chafariz, bebedouro, ...) or, in
+      description: 'Ponto de coleta (surveillance: torneira, cavalete/hidrômetro, reservatório, chafariz, bebedouro, ...) or, in
         the monthly control from 2015, the point of monitoring (pós-filtração, saída do tratamento, sistema de distribuição,
         ponto de consumo, ...).'
       aliases:
       - Ponto de Coleta
       - Ponto de Monitoramento
     PT_MONITORAMENTO:
-      role: 'Ponto de monitoramento do controle: sistema de distribuição (reservatórios, rede do SAA) ou ponto de consumo
+      description: 'Ponto de monitoramento do controle: sistema de distribuição (reservatórios, rede do SAA) ou ponto de consumo
         (chafariz, torneira pública de uma SAC).'
     DS_LOCAL:
-      role: Descrição (texto livre) do local da coleta.
+      description: Descrição (texto livre) do local da coleta.
       aliases:
       - Descrição do Local
     TP_ZONA:
-      role: Rural ou Urbana.
+      description: Rural ou Urbana.
       aliases:
       - Zona
     NO_CATEGORIA_AREA:
-      role: Bairro, sede de distrito, povoado, aldeia indígena, comunidade quilombola, ribeirinha, ... (the dictionary lists
+      description: Bairro, sede de distrito, povoado, aldeia indígena, comunidade quilombola, ribeirinha, ... (the dictionary lists
         ten).
       aliases:
       - Categoria Área
       - Categoria da área
     NO_AREA:
-      role: Nome da área da coleta.
+      description: Nome da área da coleta.
       aliases:
       - Área
     TP_LOCAL:
-      role: Tipo do local da coleta (estabelecimento de ensino
+      description: Tipo do local da coleta (estabelecimento de ensino
       aliases:
       - Tipo do local
       - Tipo do Local
     NO_LOCAL:
-      role: Nome do local da coleta.
+      description: Nome do local da coleta.
       aliases:
       - Local
     NO_ENDERECO:
-      role: Endereço da coleta (control
+      description: Endereço da coleta (control
       aliases:
       - Endereço
     NU_LATITUDE:
-      role: Latitude do ponto de coleta.
+      description: Latitude do ponto de coleta.
       aliases:
       - Latitude
       - LATITUDE
       type: number
       decimal: ','
     NU_LONGITUDE:
-      role: Longitude do ponto de coleta.
+      description: Longitude do ponto de coleta.
       aliases:
       - Longitude
       - LONGIDADE
       type: number
       decimal: ','
     TP_CAPTACAO:
-      role: Tipo de captação (superficial / subterrâneo) when the sample has a capture point.
+      description: Tipo de captação (superficial / subterrâneo) when the sample has a capture point.
       aliases:
       - Tipo de captação
     NO_CATEGORIA_MANANCIAL:
-      role: Categoria do manancial superficial.
+      description: Categoria do manancial superficial.
       aliases:
       - Categoria do manancial superficial
     NO_MANANCIAL:
-      role: Nome do manancial superficial.
+      description: Nome do manancial superficial.
       aliases:
       - Nome do manancial superficial
     TP_CATEGORIA_CAPT_SUB:
-      role: Categoria do ponto de captação subterrânea.
+      description: Categoria do ponto de captação subterrânea.
       aliases:
       - Categoria do ponto de captação subterrânea
     NO_PONTO_CAPTACAO:
-      role: Nome do ponto de captação subterrânea.
+      description: Nome do ponto de captação subterrânea.
       aliases:
       - Nome do ponto de captação subterrânea
     GRUPO_PARAMETROS:
-      role: 'Grupo do parâmetro: agrotóxicos, organolépticos, produtos secundários de desinfecção, radioatividade, substâncias
+      description: 'Grupo do parâmetro: agrotóxicos, organolépticos, produtos secundários de desinfecção, radioatividade, substâncias
         inorgânicas, orgânicas (other parameters); cianobactérias, cianotoxinas.'
       aliases:
       - Grupo de parâmetros
       - Grupo
     PARAMETRO:
-      role: Parâmetro de qualidade da água, with its unit in the name for the basic ones (Turbidez (uT), Cloro Residual Livre
+      description: Parâmetro de qualidade da água, with its unit in the name for the basic ones (Turbidez (uT), Cloro Residual Livre
         (mg/L), Cor (uH), Fluoreto (mg/L), pH, Coliformes totais, Escherichia coli, Bactérias Heterotróficas (UFC/mL)); in
         the other-parameters table the name carries the limit (VMP). Spelling differs between tables (Cloro residual livre
         / Cloro Residual Livre).
@@ -304,25 +304,25 @@ dictionaries:
       - Parâmetro (ciano)
       - Parâmetro (demais parâmetros)
     CAMPO:
-      role: 'Tipo do monitoramento do controle mensal: número de amostras analisadas, percentil 95, número de dados acima/abaixo
+      description: 'Tipo do monitoramento do controle mensal: número de amostras analisadas, percentil 95, número de dados acima/abaixo
         de um limite (the limits are the control''s bins), número de amostras com presença/ausência de coliformes.'
       aliases:
       - Campo
     ANALISE_REALIZADA:
-      role: EM_CAMPO or EM_LABORATORIO (surveillance basic parameters, from 2023).
+      description: EM_CAMPO or EM_LABORATORIO (surveillance basic parameters, from 2023).
     UNIDADE:
-      role: Unidade de medida do parâmetro (control
+      description: Unidade de medida do parâmetro (control
     LD:
-      role: 'Limite de detecção do método: a menor concentração que pode ser detectada, não necessariamente quantificada (filled
+      description: 'Limite de detecção do método: a menor concentração que pode ser detectada, não necessariamente quantificada (filled
         from 2023).'
       type: number
       decimal: ','
     LQ:
-      role: 'Limite de quantificação: a menor concentração determinável com precisão e exatidão aceitáveis (filled from 2023).'
+      description: 'Limite de quantificação: a menor concentração determinável com precisão e exatidão aceitáveis (filled from 2023).'
       type: number
       decimal: ','
     RESULTADO:
-      role: 'Resultado da análise: a quantified value (decimal comma), MENOR_LD or MENOR_LQ (below the detection / quantification
+      description: 'Resultado da análise: a quantified value (decimal comma), MENOR_LD or MENOR_LQ (below the detection / quantification
         limit), PRESENTE/AUSENTE for coliforms; in the outside-the-standard list, the result of the sample the supplier listed.'
       aliases:
       - Resultado
@@ -337,7 +337,7 @@ dictionaries:
         NAO_REALIZADA: not_done
         NÃO_REALIZADA: not_done
     VALOR:
-      role: 'Valor do controle mensal para o par parâmetro x campo: a count of analyses or of results above/below a limit,
+      description: 'Valor do controle mensal para o par parâmetro x campo: a count of analyses or of results above/below a limit,
         a percentile or a mean, as CAMPO says.'
       aliases:
       - Valor
@@ -352,126 +352,126 @@ dictionaries:
         NAO_REALIZADA: not_done
         NÃO_REALIZADA: not_done
     PROVIDENCIA:
-      role: Providência da vigilância (free text), filled until 2022.
+      description: Providência da vigilância (free text), filled until 2022.
       aliases:
       - Providência
     PROVIDENCIA_CONTROLE:
-      role: Ação do prestador ao identificar amostras que não atendem ao padrão (control, outside the standard).
+      description: Ação do prestador ao identificar amostras que não atendem ao padrão (control, outside the standard).
       aliases:
       - Providência do controle
 
     FILTRACAO:
-      role: 'Existência de filtração na forma de abastecimento (cadastro população abastecida): Sim ou Não (dictionary,
+      description: 'Existência de filtração na forma de abastecimento (cadastro população abastecida): Sim ou Não (dictionary,
         dicionario_cadastro_populacao_abastecida.odt).'
       aliases:
       - Filtração
     DESINFECCAO:
-      role: 'Existência de desinfecção na forma de abastecimento (cadastro população abastecida): Sim ou Não.'
+      description: 'Existência de desinfecção na forma de abastecimento (cadastro população abastecida): Sim ou Não.'
       aliases:
       - Desinfecção
     CAPTACAO_SUPERFICIAL:
-      role: Existência de ponto(s) de captação em manancial superficial na forma de abastecimento (Sim / Não).
+      description: Existência de ponto(s) de captação em manancial superficial na forma de abastecimento (Sim / Não).
       aliases:
       - Captação superficial
     CAPTACAO_SUBTERRANEA:
-      role: Existência de ponto(s) de captação de água subterrânea na forma de abastecimento (Sim / Não).
+      description: Existência de ponto(s) de captação de água subterrânea na forma de abastecimento (Sim / Não).
       aliases:
       - Captação subterrânea
     CAPTACAO_AGUA_CHUVA:
-      role: Existência de captação de água de chuva (Sim / Não); SAC only.
+      description: Existência de captação de água de chuva (Sim / Não); SAC only.
       aliases:
       - Captação de água de chuva
     CARRO_PIPA:
-      role: Carro-pipa como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida).
+      description: Carro-pipa como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida).
       aliases:
       - Carro Pipa
     CISTERNA:
-      role: Cisterna como tipo de suprimento e reservação (Sim / Não); not filled for SAA.
+      description: Cisterna como tipo de suprimento e reservação (Sim / Não); not filled for SAA.
       aliases:
       - Cisterna
     NU_VALOR_POPULACAO_ESTIMADA:
-      role: 'População estimada abastecida pela forma de abastecimento no município e ano. A SAC or SAI whose population also
+      description: 'População estimada abastecida pela forma de abastecimento no município e ano. A SAC or SAI whose population also
         receives SAA water is counted in both (POP_RECEBE_AGUA_SAA), so the supply forms of a municipality do not add up to
         its population.'
       aliases:
       - População estimada
       type: number
     NU_VALOR_RURAL:
-      role: População rural abastecida (estimada) pela forma de abastecimento.
+      description: População rural abastecida (estimada) pela forma de abastecimento.
       type: number
     NU_VALOR_URBANA:
-      role: População urbana abastecida (estimada) pela forma de abastecimento.
+      description: População urbana abastecida (estimada) pela forma de abastecimento.
       type: number
     POP_RECEBE_AGUA_SAA:
-      role: A população da SAC ou SAI também recebe água de SAA (S / N).
+      description: A população da SAC ou SAI também recebe água de SAA (S / N).
     NU_PESSOAS_ABASTECIDAS:
-      role: Número estimado de pessoas abastecidas pelo carro-pipa no município (cadastro carro-pipa população).
+      description: Número estimado de pessoas abastecidas pelo carro-pipa no município (cadastro carro-pipa população).
       aliases:
       - Nº estimado de pessoas abastecidas
       type: number
     DT_TRANSPORTE_INICIO:
-      role: Data de início da autorização do transporte de água pelo carro-pipa.
+      description: Data de início da autorização do transporte de água pelo carro-pipa.
       type: date
       take: 10
       format: '%Y/%m/%d'
     DT_TRANSPORTE_FIM:
-      role: Data de fim da autorização do transporte de água pelo carro-pipa.
+      description: Data de fim da autorização do transporte de água pelo carro-pipa.
       type: date
       take: 10
       format: '%Y/%m/%d'
     DS_TIPO_FINALIDADE:
-      role: 'Finalidade do carro-pipa: Operação carro-pipa (the federal programme), prestador de serviço, particular, saúde
+      description: 'Finalidade do carro-pipa: Operação carro-pipa (the federal programme), prestador de serviço, particular, saúde
         indígena, outro.'
     SG_EMPRESA:
-      role: Sigla da instituição responsável pelo SAA ou SAC (cadastro população abastecida; SG_INSTITUICAO in the other files). Empty for SAI.
+      description: Sigla da instituição responsável pelo SAA ou SAC (cadastro população abastecida; SG_INSTITUICAO in the other files). Empty for SAI.
     NO_EMPRESA:
-      role: Nome da instituição responsável pelo SAA ou SAC (cadastro população abastecida; NO_INSTITUICAO in the other files). Empty for SAI.
+      description: Nome da instituição responsável pelo SAA ou SAC (cadastro população abastecida; NO_INSTITUICAO in the other files). Empty for SAI.
     NU_CNPJ:
-      role: CNPJ da instituição responsável pelo SAA ou SAC; da sede se Regional (cadastro população abastecida). Empty for SAI.
+      description: CNPJ da instituição responsável pelo SAA ou SAC; da sede se Regional (cadastro população abastecida). Empty for SAI.
     NO_EMPRESA_1:
-      role: Nome do escritório regional ou local da instituição (cadastro população abastecida); empty for Local institutions and for SAI.
+      description: Nome do escritório regional ou local da instituição (cadastro população abastecida); empty for Local institutions and for SAI.
     NU_CNPJ_1:
-      role: CNPJ do escritório regional ou local da instituição (cadastro população abastecida); empty for Local institutions and for SAI.
+      description: CNPJ do escritório regional ou local da instituição (cadastro população abastecida); empty for Local institutions and for SAI.
     CHAFARIZ:
-      role: Chafariz como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida, dictionary dicionario_cadastro_populacao_abastecida.odt).
+      description: Chafariz como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida, dictionary dicionario_cadastro_populacao_abastecida.odt).
     FONTE:
-      role: Fonte como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida).
+      description: Fonte como tipo de suprimento de água (Sim / Não); SAC only (cadastro população abastecida).
     CANALIZAÇÃO:
-      role: Existência de canalização para distribuição da água até as residências (Sim / Não); SAC only (cadastro população abastecida). The header keeps its accent.
+      description: Existência de canalização para distribuição da água até as residências (Sim / Não); SAC only (cadastro população abastecida). The header keeps its accent.
     CAIXA_DAGUA:
-      role: Caixa d'água como tipo de suprimento de água (Sim / Não), whether the SAI has one; SAI only (cadastro população abastecida).
+      description: Caixa d'água como tipo de suprimento de água (Sim / Não), whether the SAI has one; SAI only (cadastro população abastecida).
     SEM_RESERVACAO:
-      role: Ausência de reservatório de água na residência (Sim / Não); SIM means there is no storage; SAI only (cadastro população abastecida).
+      description: Ausência de reservatório de água na residência (Sim / Não); SIM means there is no storage; SAI only (cadastro população abastecida).
     OUTRO_TIPO_SUPRIMENTO:
-      role: Descrição (free text) de outro tipo de suprimento de água não tabulado pelo SISAGUA; empty for SAA (cadastro população abastecida).
+      description: Descrição (free text) de outro tipo de suprimento de água não tabulado pelo SISAGUA; empty for SAA (cadastro população abastecida).
     NU_ECONOMIA_DOMICILIO_PERMAN:
-      role: Número de economias residenciais destinadas ao uso como domicílio permanente (moradia), as opposed to occasional use; not the same as active economies (cadastro população abastecida).
+      description: Número de economias residenciais destinadas ao uso como domicílio permanente (moradia), as opposed to occasional use; not the same as active economies (cadastro população abastecida).
       type: number
     NU_ECONOMIAS_DOMICILIOS_NAO_PE:
-      role: Número de economias residenciais de uso ocasional, such as holiday homes (cadastro população abastecida). The header is truncated by the source.
+      description: Número de economias residenciais de uso ocasional, such as holiday homes (cadastro população abastecida). The header is truncated by the source.
       type: number
     POP_RECEBE_AGUA_SAA_SAC:
-      role: A população abastecida pela SAI também recebe água de SAA ou SAC (S / N); SAI only (cadastro população abastecida).
+      description: A população abastecida pela SAI também recebe água de SAA ou SAC (S / N); SAI only (cadastro população abastecida).
     NU_CNPJ_NO_INSTITUICAO:
-      role: CNPJ da instituição responsável pelo carro-pipa; da sede se Regional. Only for a legal-person responsible (cadastro carro-pipa população, dicionario_cadastro_carro_pipa_populacao.odt).
+      description: CNPJ da instituição responsável pelo carro-pipa; da sede se Regional. Only for a legal-person responsible (cadastro carro-pipa população, dicionario_cadastro_carro_pipa_populacao.odt).
     NU_CNPJ_NO_ESCRITORIO_REGIONAL_LOCAL:
-      role: CNPJ do escritório regional ou local da instituição responsável pelo carro-pipa; empty for Local institutions (cadastro carro-pipa população).
+      description: CNPJ do escritório regional ou local da instituição responsável pelo carro-pipa; empty for Local institutions (cadastro carro-pipa população).
     NU_CARRO_PIPA:
-      role: Código de identificação do carro-pipa, generated by SISAGUA when the truck is registered (cadastro carro-pipa população).
+      description: Código de identificação do carro-pipa, generated by SISAGUA when the truck is registered (cadastro carro-pipa população).
     NU_PLACA:
-      role: Número da placa do carro-pipa (cadastro carro-pipa população). A vehicle identifier, kept as filed.
+      description: Número da placa do carro-pipa (cadastro carro-pipa população). A vehicle identifier, kept as filed.
     DT_CRIACAO:
-      role: Data de criação do carro-pipa no cadastro (cadastro carro-pipa população).
+      description: Data de criação do carro-pipa no cadastro (cadastro carro-pipa população).
     DT_PREENCHIMENTO_FORMULARIO:
-      role: Data de preenchimento das informações de cadastro pelo responsável pelo carro-pipa (cadastro carro-pipa população).
+      description: Data de preenchimento das informações de cadastro pelo responsável pelo carro-pipa (cadastro carro-pipa população).
     NU_AUTORIZACAO:
-      role: Número da autorização para abastecimento de água para consumo humano pelo carro-pipa (cadastro carro-pipa população).
+      description: Número da autorização para abastecimento de água para consumo humano pelo carro-pipa (cadastro carro-pipa população).
     NO_RESPONSAVEL_CADASTRO:
-      role: Responsável pelas informações relacionadas ao carro-pipa (cadastro carro-pipa população). A person's or company's name as filed.
+      description: Responsável pelas informações relacionadas ao carro-pipa (cadastro carro-pipa população). A person's or company's name as filed.
     TP_PESSOA:
-      role: Tipo de responsável pelo abastecimento pelo carro-pipa - Pessoa Física ou Pessoa Jurídica (cadastro carro-pipa população).
+      description: Tipo de responsável pelo abastecimento pelo carro-pipa - Pessoa Física ou Pessoa Jurídica (cadastro carro-pipa população).
     NO_RESPONSAVEL_CADASTRO_CARRO_PIPA:
-      role: Nome da pessoa física responsável pelo carro-pipa; filled only when the responsible is a natural person (cadastro carro-pipa população). Personal name.
+      description: Nome da pessoa física responsável pelo carro-pipa; filled only when the responsible is a natural person (cadastro carro-pipa população). Personal name.
 
 sources:
 
@@ -528,23 +528,23 @@ sources:
       # split by state (and by municipality where a state is still a full page) until each slice fits in one page.
       partition: [{param: codigo_uf, values: uf_code}, {param: codigo_municipio, values: municipality, within: codigo_uf}]
     columns:
-      codigo_uf: {role: state of the establishment, type: code}
-      uf: {role: state abbreviation, type: label}
-      codigo_municipio: {role: municipality of the establishment, type: municipality}
-      municipio: {role: municipality name, type: label}
-      codigo_cnes: {role: establishment, type: facility}
-      data_posicao_estoque: {role: date of the lot's last stock report, type: date}
-      codigo_catmat: {role: "CATMAT item with its supply unit (BR + item + unit, taken whole by the filter)", type: code}
-      descricao_produto: {role: product description, type: label}
-      quantidade_estoque: {role: quantity in stock, type: number}
-      numero_lote: {role: lot, type: code}
-      data_validade: {role: expiry, type: date, take: 10}
+      codigo_uf: {description: state of the establishment, type: code}
+      uf: {description: state abbreviation, type: label}
+      codigo_municipio: {description: municipality of the establishment, type: municipality}
+      municipio: {description: municipality name, type: label}
+      codigo_cnes: {description: establishment, type: facility}
+      data_posicao_estoque: {description: date of the lot's last stock report, type: date}
+      codigo_catmat: {description: "CATMAT item with its supply unit (BR + item + unit, taken whole by the filter)", type: code}
+      descricao_produto: {description: product description, type: label}
+      quantidade_estoque: {description: quantity in stock, type: number}
+      numero_lote: {description: lot, type: code}
+      data_validade: {description: expiry, type: date, take: 10}
       # tipo_produto: TP_PRODUTO of the dictionary "Posição de Estoque" (ckan.saude.gov.br/bnafar/estoque/Dicionario_de_dados_Posicao_estoque.pdf, same dataset, same 15 attributes in
       # the same order, same description "Sigla do Tipo do produto em estoque"): B Componente Básico (Anexos I e IV da RENAME), E Componente Especializado (Anexo III),
       # S Componente Estratégico (Anexos II e IV), O produtos financiados somente com recursos próprios do ente.
-      tipo_produto: {role: product type, type: code, codes: {"B": "Componente Básico da Assistência Farmacêutica (Anexos I e IV da RENAME)", "E": "Componente Especializado da Assistência Farmacêutica (Anexo III da RENAME)", "S": "Componente Estratégico da Assistência Farmacêutica (Anexos II e IV da RENAME)", "O": "Financiado somente com recursos próprios do ente"}}
-      sigla_programa_saude: {role: health programme (NI = not informed), type: code}
-      sigla_sistema_origem: {role: system the report came from, type: code}
+      tipo_produto: {description: product type, type: code, codes: {"B": "Componente Básico da Assistência Farmacêutica (Anexos I e IV da RENAME)", "E": "Componente Especializado da Assistência Farmacêutica (Anexo III da RENAME)", "S": "Componente Estratégico da Assistência Farmacêutica (Anexos II e IV da RENAME)", "O": "Financiado somente com recursos próprios do ente"}}
+      sigla_programa_saude: {description: health programme (NI = not informed), type: code}
+      sigla_sistema_origem: {description: system the report came from, type: code}
 
   yellow_fever_humans:
     system: FA
@@ -590,21 +590,21 @@ sources:
       endpoint: /arboviroses/febre-amarela-humanos-primatas-nao-humanos
       paging: {rows: febre_amarela_humanos_primatas}
     columns:
-      ID: {role: sequential unique identifier, type: integer}
-      MACRORREG_LPI: {role: abbreviation of the macro-region of the probable place of infection, type: code}
-      COD_UF_LPI: {role: IBGE code of the state of the probable place of infection, type: code}
-      UF_LPI: {role: abbreviation of the state of the probable place of infection, type: code}
-      COD_MUN_LPI: {role: IBGE code of the municipality of the probable place of infection, type: municipality}
-      MUN_LPI: {role: name of the municipality of the probable place of infection, type: label}
-      SEXO: {role: sex of the individual, type: code, codes: {"M": Masculino, "F": Feminino}}
-      IDADE: {role: age of the individual, type: number, decimal: ","}
-      DT_IS: {role: date of the onset of symptoms (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
-      SE_IS: {role: epidemiological week of the onset of symptoms, type: integer}
-      MES_IS: {role: month of the onset of symptoms, type: integer}
-      ANO_IS: {role: year of the onset of symptoms, type: integer}
-      MONITORAMENTO_IS: {role: monitoring period of the onset of symptoms (July to June), type: code}
-      OBITO: {role: evolution to death, type: code, codes: {"SIM": died, "NÃO": did not die, "IGN": ignored}}
-      DT_OBITO: {role: date of death (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      ID: {description: sequential unique identifier, type: integer}
+      MACRORREG_LPI: {description: abbreviation of the macro-region of the probable place of infection, type: code}
+      COD_UF_LPI: {description: IBGE code of the state of the probable place of infection, type: code}
+      UF_LPI: {description: abbreviation of the state of the probable place of infection, type: code}
+      COD_MUN_LPI: {description: IBGE code of the municipality of the probable place of infection, type: municipality}
+      MUN_LPI: {description: name of the municipality of the probable place of infection, type: label}
+      SEXO: {description: sex of the individual, type: code, codes: {"M": Masculino, "F": Feminino}}
+      IDADE: {description: age of the individual, type: number, decimal: ","}
+      DT_IS: {description: date of the onset of symptoms (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_IS: {description: epidemiological week of the onset of symptoms, type: integer}
+      MES_IS: {description: month of the onset of symptoms, type: integer}
+      ANO_IS: {description: year of the onset of symptoms, type: integer}
+      MONITORAMENTO_IS: {description: monitoring period of the onset of symptoms (July to June), type: code}
+      OBITO: {description: evolution to death, type: code, codes: {"SIM": died, "NÃO": did not die, "IGN": ignored}}
+      DT_OBITO: {description: date of death (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
     place: {column: COD_MUN_LPI, type: municipality}
     period: {type: parts, year: ANO_IS, month: MES_IS, grain: month, valid: 1994-2026}
     fields:
@@ -653,17 +653,17 @@ sources:
       endpoint: /arboviroses/febre-amarela-epzootias
       paging: {rows: febre_amarela_epzootias}
     columns:
-      ID: {role: sequential unique identifier, type: integer}
-      MACRORREG_OCOR: {role: abbreviation of the macro-region of the place of occurrence, type: code}
-      COD_UF_OCOR: {role: IBGE code of the state of the place of occurrence, type: code}
-      UF_OCOR: {role: abbreviation of the state of the place of occurrence, type: code}
-      COD_MUN_OCOR: {role: IBGE code of the municipality of the place of occurrence, type: municipality}
-      MUN_OCOR: {role: name of the municipality of the place of occurrence, type: label}
-      DATA_OCOR: {role: date of the occurrence (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
-      SE_OCOR: {role: epidemiological week of the occurrence, type: integer}
-      MES_OCOR: {role: month of the occurrence, type: integer}
-      ANO_OCOR: {role: year of the occurrence, type: integer}
-      MONITORAMENTO_OCOR: {role: monitoring period of the occurrence (July to June), type: code}
+      ID: {description: sequential unique identifier, type: integer}
+      MACRORREG_OCOR: {description: abbreviation of the macro-region of the place of occurrence, type: code}
+      COD_UF_OCOR: {description: IBGE code of the state of the place of occurrence, type: code}
+      UF_OCOR: {description: abbreviation of the state of the place of occurrence, type: code}
+      COD_MUN_OCOR: {description: IBGE code of the municipality of the place of occurrence, type: municipality}
+      MUN_OCOR: {description: name of the municipality of the place of occurrence, type: label}
+      DATA_OCOR: {description: date of the occurrence (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      SE_OCOR: {description: epidemiological week of the occurrence, type: integer}
+      MES_OCOR: {description: month of the occurrence, type: integer}
+      ANO_OCOR: {description: year of the occurrence, type: integer}
+      MONITORAMENTO_OCOR: {description: monitoring period of the occurrence (July to June), type: code}
     place: {column: COD_MUN_OCOR, type: municipality}
     period: {type: parts, year: ANO_OCOR, month: MES_OCOR, grain: month, valid: 1994-2026}
     fields:
@@ -725,206 +725,206 @@ sources:
         - {url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2025/INFLUD25-28-09-2026.parquet", year: 2025}
         - {url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2026/INFLUD26-28-09-2026.parquet", year: 2026}
     columns:
-      NU_NOTIFIC: {role: "Record number generated by the system; digit 1 is the form type (1 SG, 2 SRAG-UTI, 3 SRAG hospitalizado) (dictionary: Número do registro)"}
-      DT_NOTIFIC: {role: "Date the notification form was filled (dictionary: Data do preenchimento da ficha de notificação)", type: date, take: 10, format: "%Y-%m-%d"}
-      SEM_NOT: {role: "Epidemiological week of the notification form (dictionary: Semana Epidemiológica do preenchimento da ficha de notificação)"}
-      DT_SIN_PRI: {role: "Date of the first symptoms (dictionary: Data de 1ºs sintomas)", type: date, take: 10, format: "%Y-%m-%d"}
-      SEM_PRI: {role: "Epidemiological week of the first symptoms (dictionary: Semana Epidemiológica dos Primeiros Sintomas)"}
-      SG_UF_NOT: {role: "State of the notifying unit (dictionary: UF (da unidade notificadora))"}
-      ID_REGIONA: {role: "Name of the health region of the notifying municipality (the file gives the name here and the code in CO_REGIONA) (dictionary: Regional de Saúde de Notificação)"}
-      CO_REGIONA: {role: "Code of the health region of the notifying municipality, as the system files it (the dictionary says IBGE code; values such as 1331 for GVE I CAPITAL are the system's own) (dictionary: Regional de Saúde de Notificação)"}
-      ID_MUNICIP: {role: "Name of the notifying municipality (the file gives the name here and the IBGE code in CO_MUN_NOT) (dictionary: Município de notificação)"}
-      CO_MUN_NOT: {role: "IBGE code (6 digits) of the municipality of the notifying unit (dictionary: Município de notificação, código (IBGE))"}
-      CS_SEXO: {role: "Sex of the patient (dictionary: Sexo)", codes: {"M": "Masculino", "F": "Feminino", "I": "Ignorado"}}
-      DT_NASC: {role: "Date of birth of the patient (dictionary: Data de nascimento)", type: date, take: 10, format: "%Y-%m-%d"}
-      NU_IDADE_N: {role: "Age of the patient in the unit TP_IDADE; calculated by the system from the birth date and the first symptoms when the birth date is given (dictionary: Idade)", type: number, derived: [{name: IDADE_anos, from: [NU_IDADE_N, TP_IDADE], age: {form: unit_column, units: {'1': day, '2': month, '3': year}}, rule: "fractional years (ADR-0070); TP_IDADE 1 days, 2 months, 3 years, measured against DT_NASC and DT_SIN_PRI (SRAG 2022: 1.0 day, 30.2 days and 365-368 days a unit); a negative age is null. One converter, _age.years_column"}]}
-      TP_IDADE: {role: "Unit of NU_IDADE_N (dictionary: Tipo da idade)", codes: {"1": "Dia", "2": "Mês", "3": "Ano"}}
-      COD_IDADE: {role: "Age as the unit digit TP_IDADE followed by the age in three digits (dictionary: Código da idade)"}
-      CS_GESTANT: {role: "Gestational age of the patient (dictionary: Gestante)", codes: {"1": "1º Trimestre", "2": "2º Trimestre", "3": "3º Trimestre", "4": "Idade Gestacional Ignorada", "5": "Não", "6": "Não se aplica", "9": "Ignorado"}}
-      CS_RACA: {role: "Race or colour declared by the patient (dictionary: Raça/Cor)", codes: {"1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena", "9": "Ignorado"}}
-      CS_ETINIA: {role: "Ethnic group of an indigenous patient, by name (SIASI's table) (dictionary: Se indígena, qual etnia?)"}
-      CS_ESCOL_N: {role: "Schooling of the patient (dictionary: Escolaridade)", codes: {"0": "Sem escolaridade/Analfabeto", "1": "Fundamental 1º ciclo (1ª a 5ª série)", "2": "Fundamental 2º ciclo (6ª a 9ª série)", "3": "Médio (1º ao 3º ano)", "4": "Superior", "5": "Não se aplica", "9": "Ignorado"}}
-      ID_PAIS: {role: "Name of the country of residence (the file gives the name here and the code in CO_PAIS) (dictionary: País de residência)"}
-      CO_PAIS: {role: "Code of the country of residence (dictionary: País (se residente fora do Brasil))"}
-      SG_UF: {role: "State of residence of the patient (dictionary: UF de residência)"}
-      ID_RG_RESI: {role: "Name of the health region of the municipality of residence (dictionary: Regional de Saúde de Residência)"}
-      CO_RG_RESI: {role: "Code of the health region of the municipality of residence, as the system files it (dictionary: Regional de Saúde de Residência)"}
-      ID_MN_RESI: {role: "Name of the municipality of residence (the file gives the name here and the IBGE code in CO_MUN_RES) (dictionary: Município de residência)"}
-      CO_MUN_RES: {role: "IBGE code (6 digits) of the municipality of residence of the patient (dictionary: Município de residência, código (IBGE))"}
-      CS_ZONA: {role: "Geographic zone of the address of residence (dictionary: Zona)", codes: {"1": "Urbana", "2": "Rural", "3": "Periurbana", "9": "Ignorado"}}
-      NOSOCOMIAL: {role: "SRAG with infection acquired after admission (dictionary: Caso nosocomial (infecção adquirida no hospital)?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      AVE_SUINO: {role: "Contact with birds, swine or another animal (dictionary: Paciente trabalha ou tem contato direto com aves, suínos, ou outro animal?)", codes: {"1": "Sim, aves e/ou suínos", "2": "Não, nenhum", "3": "Sim, outros", "9": "Ignorado"}}
-      OUT_ANIM: {role: "The other animal, free text (dictionary: Contato com outro animal (especificar))"}
-      FEBRE: {role: "Fever (dictionary: Sinais e Sintomas/Febre)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TOSSE: {role: "Cough (dictionary: Sinais e Sintomas/Tosse)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      GARGANTA: {role: "Sore throat (dictionary: Sinais e Sintomas/Dor de Garganta)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DISPNEIA: {role: "Dyspnoea (dictionary: Sinais e Sintomas/Dispneia)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DESC_RESP: {role: "Respiratory distress (dictionary: Sinais e Sintomas/Desconforto Respiratório)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      SATURACAO: {role: "Oxygen saturation under 95% (dictionary: Sinais e Sintomas/Saturação O2 < 95%)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DIARREIA: {role: "Diarrhoea (dictionary: Sinais e Sintomas/Diarreia)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      VOMITO: {role: "Vomiting (dictionary: Sinais e Sintomas/Vômito)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      OUTRO_SIN: {role: "Another sign or symptom (dictionary: Sinais e Sintomas/Outros)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      OUTRO_DES: {role: "The other signs and symptoms, free text (dictionary: Sinais e Sintomas/Outros (Descrição))"}
-      FATOR_RISC: {role: "The patient has some risk factor (dictionary: Fatores de risco)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PUERPERA: {role: "Puerperal or parturient (gave birth up to 45 days before) (dictionary: Fatores de risco/Puérpera)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      CARDIOPATI: {role: "Chronic cardiovascular disease (dictionary: Fatores de risco/Doença Cardiovascular Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      HEMATOLOGI: {role: "Chronic haematological disease (dictionary: Fatores de risco/Doença Hematológica Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      SIND_DOWN: {role: "Down syndrome (dictionary: Fatores de risco/Síndrome de Down)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      HEPATICA: {role: "Chronic liver disease (dictionary: Fatores de risco/Doença Hepática Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      ASMA: {role: "Asthma (dictionary: Fatores de risco/Asma)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DIABETES: {role: "Diabetes mellitus (dictionary: Fatores de risco/Diabetes mellitus)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      NEUROLOGIC: {role: "Chronic neurological disease (dictionary: Fatores de risco/Doença Neurológica Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PNEUMOPATI: {role: "Another chronic lung disease (dictionary: Fatores de risco/Outra Pneumatopatia Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      IMUNODEPRE: {role: "Immunodeficiency or immunosuppression (dictionary: Fatores de risco/Imunodeficiência ou Imunodepressão)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      RENAL: {role: "Chronic kidney disease (dictionary: Fatores de risco/Doença Renal Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      OBESIDADE: {role: "Obesity (dictionary: Fatores de risco/Obesidade)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      OBES_IMC: {role: "Body mass index of the patient, as calculated by the health professional (dictionary: Fatores de risco/Obesidade (Descrição IMC))", type: number}
-      OUT_MORBI: {role: "Another risk factor (dictionary: Fatores de risco/Outros)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      MORB_DESC: {role: "The other risk factors, free text (dictionary: Fatores de risco/Outros (Descrição))"}
-      TABAG: {role: "Smoker (dictionary: Fatores de risco/Tabagismo)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      VACINA: {role: "Received the influenza vaccine in the last campaign (dictionary: Recebeu vacina contra Gripe na última campanha?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_UT_DOSE: {role: "Date of the last dose of influenza vaccine (dictionary: Data da vacinação)", type: date, take: 10, format: "%Y-%m-%d"}
-      MAE_VAC: {role: "For a patient under 6 months, the mother received the influenza vaccine (dictionary: Se < 6 meses: a mãe recebeu a vacina?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_VAC_MAE: {role: "Date of the mother's influenza vaccine (dictionary: Se sim, data (da vacina da mãe))", type: date, take: 10, format: "%Y-%m-%d"}
-      M_AMAMENTA: {role: "For a patient under 6 months, the mother breastfeeds (dictionary: Se < 6 meses: a mãe amamenta a criança?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_DOSEUNI: {role: "For 6 months to 8 years, date of the single dose of children vaccinated in earlier campaigns (dictionary: Se >= 6 meses e <= 8 anos: Data da dose única 1/1)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_1_DOSE: {role: "For 6 months to 8 years, date of the first dose of children vaccinated for the first time (dictionary: Se >= 6 meses e <= 8 anos: Data da 1ª dose)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_2_DOSE: {role: "For 6 months to 8 years, date of the second dose (dictionary: Se >= 6 meses e <= 8 anos: Data da 2ª dose)", type: date, take: 10, format: "%Y-%m-%d"}
-      ANTIVIRAL: {role: "Used an antiviral for influenza (dictionary: Usou antiviral para gripe?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TP_ANTIVIR: {role: "The antiviral used for influenza (dictionary: Qual antiviral?)", codes: {"1": "Oseltamivir", "2": "Zanamivir", "3": "Outro, especifique"}}
-      OUT_ANTIV: {role: "The other antiviral, free text (dictionary: Qual antiviral / Outro, especifique)"}
-      DT_ANTIVIR: {role: "Date the antiviral treatment began (dictionary: Data do início do tratamento)", type: date, take: 10, format: "%Y-%m-%d"}
-      HOSPITAL: {role: "The patient was admitted to hospital (dictionary: Houve internação?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_INTERNA: {role: "Date the patient was admitted (dictionary: Data da internação por SRAG)", type: date, take: 10, format: "%Y-%m-%d"}
-      SG_UF_INTE: {role: "State of the hospital (dictionary: UF de internação)"}
-      ID_RG_INTE: {role: "Name of the health region of the hospital's municipality (dictionary: Regional de Saúde de Internação)"}
-      CO_RG_INTE: {role: "Code of the health region of the hospital's municipality, as the system files it (dictionary: Regional de Saúde de Internação)"}
-      ID_MN_INTE: {role: "Name of the hospital's municipality (dictionary: Município de internação)"}
-      CO_MU_INTE: {role: "IBGE code of the municipality of the hospital (dictionary: Município de internação, código (IBGE))"}
-      NM_UN_INTE: {role: "Name of the hospital unit (the dictionary also lists its CNES code, which the open files do not carry) (dictionary: Unidade de Saúde de internação)"}
-      UTI: {role: "The patient was admitted to an intensive care unit (dictionary: Internado em UTI?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_ENTUTI: {role: "Date of entry into the intensive care unit (dictionary: Data da entrada na UTI)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_SAIDUTI: {role: "Date of leaving the intensive care unit (dictionary: Data da saída da UTI)", type: date, take: 10, format: "%Y-%m-%d"}
-      SUPORT_VEN: {role: "Use of ventilatory support (dictionary: Uso de suporte ventilatório?)", codes: {"1": "Sim, invasivo", "2": "Sim, não invasivo", "3": "Não", "9": "Ignorado"}}
-      RAIOX_RES: {role: "Result of the chest X-ray (dictionary: Raio X de Tórax)", type: int_code, codes: {"1": "Normal", "2": "Infiltrado intersticial", "3": "Consolidação", "4": "Misto", "5": "Outro", "6": "Não realizado", "9": "Ignorado"}}
-      RAIOX_OUT: {role: "The other chest X-ray finding, free text (dictionary: Raio X de Tórax/Outro (especificar))"}
-      DT_RAIOX: {role: "Date of the chest X-ray (dictionary: Data do Raio X)", type: date, take: 10, format: "%Y-%m-%d"}
-      AMOSTRA: {role: "A sample was collected for a diagnostic test (dictionary: Coletou amostra?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DT_COLETA: {role: "Date the sample was collected (dictionary: Data da Coleta)", type: date, take: 10, format: "%Y-%m-%d"}
-      TP_AMOSTRA: {role: "Type of the clinical sample (dictionary: Tipo de amostra)", codes: {"1": "Secreção de Naso-orofaringe", "2": "Lavado Broco-alveolar", "3": "Tecido post-mortem", "4": "Outra, qual?", "5": "LCR", "9": "Ignorado"}}
-      OUT_AMOST: {role: "The other sample type, free text (dictionary: Tipo de amostra/Outra)"}
-      PCR_RESUL: {role: "Result of the RT-PCR or other molecular-biology test (dictionary: Resultado da RT-PCR/outro método por Biologia Molecular)", codes: {"1": "Detectável", "2": "Não Detectável", "3": "Inconclusivo", "4": "Não Realizado", "5": "Aguardando Resultado", "9": "Ignorado"}}
-      DT_PCR: {role: "Date of the molecular test result (dictionary: Data do Resultado RT-PCR/outro método por Biologia Molecular)", type: date, take: 10, format: "%Y-%m-%d"}
-      POS_PCRFLU: {role: "The molecular test was positive for influenza (dictionary: Agente etiológico RT-PCR: Positivo para Influenza?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TP_FLU_PCR: {role: "Influenza type in the molecular test (dictionary: Agente etiológico RT-PCR: Se sim, qual Influenza?)", codes: {"1": "Influenza A", "2": "Influenza B"}}
-      PCR_FLUASU: {role: "Influenza A subtype in the molecular test (dictionary: Agente etiológico RT-PCR: Se Influenza A, qual subtipo?)", codes: {"1": "Influenza A(H1N1)pdm09", "2": "Influenza A (H3N2)", "3": "Influenza A não subtipado", "4": "Influenza A não subtipável", "5": "Inconclusivo", "6": "Outro, especifique"}}
-      FLUASU_OUT: {role: "The other influenza A subtype, free text (dictionary: Se Influenza A, qual subtipo? Outro, especifique)"}
-      PCR_FLUBLI: {role: "Influenza B lineage in the molecular test (dictionary: Agente etiológico RT-PCR: Se Influenza B, qual linhagem?)", codes: {"1": "Victoria", "2": "Yamagatha", "3": "Não realizado", "4": "Inconclusivo", "5": "Outro, especifique"}}
-      FLUBLI_OUT: {role: "The other influenza B lineage, free text (dictionary: Se Influenza B, qual linhagem? Outro, especifique)"}
-      POS_PCROUT: {role: "The molecular test was positive for another virus (dictionary: Agente etiológico RT-PCR: Positivo para outros vírus?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PCR_VSR: {role: "Respiratory syncytial virus in the molecular test (dictionary: Agente etiológico RT-PCR: VSR)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_PARA1: {role: "Parainfluenza 1 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 1)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_PARA2: {role: "Parainfluenza 2 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 2)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_PARA3: {role: "Parainfluenza 3 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 3)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_PARA4: {role: "Parainfluenza 4 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 4)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_ADENO: {role: "Adenovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Adenovírus)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_METAP: {role: "Metapneumovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Metapneumovírus)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_BOCA: {role: "Bocavirus in the molecular test (dictionary: Agente etiológico RT-PCR: Bocavírus)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_RINO: {role: "Rhinovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Rinovírus)", codes: {"1": "Marcado pelo usuário"}}
-      PCR_OUTRO: {role: "Another respiratory virus in the molecular test (dictionary: Agente etiológico RT-PCR: Outro vírus respiratório, especifique)", codes: {"1": "Marcado pelo usuário"}}
-      DS_PCR_OUT: {role: "The other respiratory virus found by the molecular test, free text (dictionary: Outro vírus respiratório (Descrição))"}
-      CLASSI_FIN: {role: "Final classification of the case (the agent): SRAG by influenza, by another respiratory virus, by another aetiological agent, unspecified, or by covid-19 (dictionary: Classificação final do caso)", type: int_code, codes: {"1": "SRAG por influenza", "2": "SRAG por outro vírus respiratório", "3": "SRAG por outro agente etiológico", "4": "SRAG não especificado", "5": "SRAG por covid-19"}}
-      CLASSI_OUT: {role: "The other aetiological agent, free text (dictionary: Classificação final do caso/SRAG por outro agente etiológico, qual)"}
-      CRITERIO: {role: "Criterion by which the case was closed (dictionary: Critério de Encerramento)", codes: {"1": "Laboratorial", "2": "Clínico Epidemiológico", "3": "Clínico", "4": "Clínico Imagem"}}
-      EVOLUCAO: {role: "Outcome of the case (dictionary: Evolução do caso)", type: int_code, codes: {"1": "Cura", "2": "Óbito", "3": "Óbito por outras causas", "9": "Ignorado"}}
-      DT_EVOLUCA: {role: "Date of discharge or death (dictionary: Data da alta ou óbito)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_ENCERRA: {role: "Date the case was closed (dictionary: Data do Encerramento)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_DIGITA: {role: "Date the record was entered in the system (not changed by later edits) (dictionary: Data da digitação)", type: date, take: 10, format: "%Y-%m-%d"}
+      NU_NOTIFIC: {description: "Record number generated by the system; digit 1 is the form type (1 SG, 2 SRAG-UTI, 3 SRAG hospitalizado) (dictionary: Número do registro)"}
+      DT_NOTIFIC: {description: "Date the notification form was filled (dictionary: Data do preenchimento da ficha de notificação)", type: date, take: 10, format: "%Y-%m-%d"}
+      SEM_NOT: {description: "Epidemiological week of the notification form (dictionary: Semana Epidemiológica do preenchimento da ficha de notificação)"}
+      DT_SIN_PRI: {description: "Date of the first symptoms (dictionary: Data de 1ºs sintomas)", type: date, take: 10, format: "%Y-%m-%d"}
+      SEM_PRI: {description: "Epidemiological week of the first symptoms (dictionary: Semana Epidemiológica dos Primeiros Sintomas)"}
+      SG_UF_NOT: {description: "State of the notifying unit (dictionary: UF (da unidade notificadora))"}
+      ID_REGIONA: {description: "Name of the health region of the notifying municipality (the file gives the name here and the code in CO_REGIONA) (dictionary: Regional de Saúde de Notificação)"}
+      CO_REGIONA: {description: "Code of the health region of the notifying municipality, as the system files it (the dictionary says IBGE code; values such as 1331 for GVE I CAPITAL are the system's own) (dictionary: Regional de Saúde de Notificação)"}
+      ID_MUNICIP: {description: "Name of the notifying municipality (the file gives the name here and the IBGE code in CO_MUN_NOT) (dictionary: Município de notificação)"}
+      CO_MUN_NOT: {description: "IBGE code (6 digits) of the municipality of the notifying unit (dictionary: Município de notificação, código (IBGE))"}
+      CS_SEXO: {description: "Sex of the patient (dictionary: Sexo)", codes: {"M": "Masculino", "F": "Feminino", "I": "Ignorado"}}
+      DT_NASC: {description: "Date of birth of the patient (dictionary: Data de nascimento)", type: date, take: 10, format: "%Y-%m-%d"}
+      NU_IDADE_N: {description: "Age of the patient in the unit TP_IDADE; calculated by the system from the birth date and the first symptoms when the birth date is given (dictionary: Idade)", type: number, derived: [{name: IDADE_anos, from: [NU_IDADE_N, TP_IDADE], age: {form: unit_column, units: {'1': day, '2': month, '3': year}}, rule: "fractional years (ADR-0070); TP_IDADE 1 days, 2 months, 3 years, measured against DT_NASC and DT_SIN_PRI (SRAG 2022: 1.0 day, 30.2 days and 365-368 days a unit); a negative age is null. One converter, _age.years_column"}]}
+      TP_IDADE: {description: "Unit of NU_IDADE_N (dictionary: Tipo da idade)", codes: {"1": "Dia", "2": "Mês", "3": "Ano"}}
+      COD_IDADE: {description: "Age as the unit digit TP_IDADE followed by the age in three digits (dictionary: Código da idade)"}
+      CS_GESTANT: {description: "Gestational age of the patient (dictionary: Gestante)", codes: {"1": "1º Trimestre", "2": "2º Trimestre", "3": "3º Trimestre", "4": "Idade Gestacional Ignorada", "5": "Não", "6": "Não se aplica", "9": "Ignorado"}}
+      CS_RACA: {description: "Race or colour declared by the patient (dictionary: Raça/Cor)", codes: {"1": "Branca", "2": "Preta", "3": "Amarela", "4": "Parda", "5": "Indígena", "9": "Ignorado"}}
+      CS_ETINIA: {description: "Ethnic group of an indigenous patient, by name (SIASI's table) (dictionary: Se indígena, qual etnia?)"}
+      CS_ESCOL_N: {description: "Schooling of the patient (dictionary: Escolaridade)", codes: {"0": "Sem escolaridade/Analfabeto", "1": "Fundamental 1º ciclo (1ª a 5ª série)", "2": "Fundamental 2º ciclo (6ª a 9ª série)", "3": "Médio (1º ao 3º ano)", "4": "Superior", "5": "Não se aplica", "9": "Ignorado"}}
+      ID_PAIS: {description: "Name of the country of residence (the file gives the name here and the code in CO_PAIS) (dictionary: País de residência)"}
+      CO_PAIS: {description: "Code of the country of residence (dictionary: País (se residente fora do Brasil))"}
+      SG_UF: {description: "State of residence of the patient (dictionary: UF de residência)"}
+      ID_RG_RESI: {description: "Name of the health region of the municipality of residence (dictionary: Regional de Saúde de Residência)"}
+      CO_RG_RESI: {description: "Code of the health region of the municipality of residence, as the system files it (dictionary: Regional de Saúde de Residência)"}
+      ID_MN_RESI: {description: "Name of the municipality of residence (the file gives the name here and the IBGE code in CO_MUN_RES) (dictionary: Município de residência)"}
+      CO_MUN_RES: {description: "IBGE code (6 digits) of the municipality of residence of the patient (dictionary: Município de residência, código (IBGE))"}
+      CS_ZONA: {description: "Geographic zone of the address of residence (dictionary: Zona)", codes: {"1": "Urbana", "2": "Rural", "3": "Periurbana", "9": "Ignorado"}}
+      NOSOCOMIAL: {description: "SRAG with infection acquired after admission (dictionary: Caso nosocomial (infecção adquirida no hospital)?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      AVE_SUINO: {description: "Contact with birds, swine or another animal (dictionary: Paciente trabalha ou tem contato direto com aves, suínos, ou outro animal?)", codes: {"1": "Sim, aves e/ou suínos", "2": "Não, nenhum", "3": "Sim, outros", "9": "Ignorado"}}
+      OUT_ANIM: {description: "The other animal, free text (dictionary: Contato com outro animal (especificar))"}
+      FEBRE: {description: "Fever (dictionary: Sinais e Sintomas/Febre)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TOSSE: {description: "Cough (dictionary: Sinais e Sintomas/Tosse)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      GARGANTA: {description: "Sore throat (dictionary: Sinais e Sintomas/Dor de Garganta)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DISPNEIA: {description: "Dyspnoea (dictionary: Sinais e Sintomas/Dispneia)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DESC_RESP: {description: "Respiratory distress (dictionary: Sinais e Sintomas/Desconforto Respiratório)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      SATURACAO: {description: "Oxygen saturation under 95% (dictionary: Sinais e Sintomas/Saturação O2 < 95%)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DIARREIA: {description: "Diarrhoea (dictionary: Sinais e Sintomas/Diarreia)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      VOMITO: {description: "Vomiting (dictionary: Sinais e Sintomas/Vômito)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      OUTRO_SIN: {description: "Another sign or symptom (dictionary: Sinais e Sintomas/Outros)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      OUTRO_DES: {description: "The other signs and symptoms, free text (dictionary: Sinais e Sintomas/Outros (Descrição))"}
+      FATOR_RISC: {description: "The patient has some risk factor (dictionary: Fatores de risco)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PUERPERA: {description: "Puerperal or parturient (gave birth up to 45 days before) (dictionary: Fatores de risco/Puérpera)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      CARDIOPATI: {description: "Chronic cardiovascular disease (dictionary: Fatores de risco/Doença Cardiovascular Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      HEMATOLOGI: {description: "Chronic haematological disease (dictionary: Fatores de risco/Doença Hematológica Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      SIND_DOWN: {description: "Down syndrome (dictionary: Fatores de risco/Síndrome de Down)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      HEPATICA: {description: "Chronic liver disease (dictionary: Fatores de risco/Doença Hepática Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      ASMA: {description: "Asthma (dictionary: Fatores de risco/Asma)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DIABETES: {description: "Diabetes mellitus (dictionary: Fatores de risco/Diabetes mellitus)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      NEUROLOGIC: {description: "Chronic neurological disease (dictionary: Fatores de risco/Doença Neurológica Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PNEUMOPATI: {description: "Another chronic lung disease (dictionary: Fatores de risco/Outra Pneumatopatia Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      IMUNODEPRE: {description: "Immunodeficiency or immunosuppression (dictionary: Fatores de risco/Imunodeficiência ou Imunodepressão)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      RENAL: {description: "Chronic kidney disease (dictionary: Fatores de risco/Doença Renal Crônica)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      OBESIDADE: {description: "Obesity (dictionary: Fatores de risco/Obesidade)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      OBES_IMC: {description: "Body mass index of the patient, as calculated by the health professional (dictionary: Fatores de risco/Obesidade (Descrição IMC))", type: number}
+      OUT_MORBI: {description: "Another risk factor (dictionary: Fatores de risco/Outros)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      MORB_DESC: {description: "The other risk factors, free text (dictionary: Fatores de risco/Outros (Descrição))"}
+      TABAG: {description: "Smoker (dictionary: Fatores de risco/Tabagismo)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      VACINA: {description: "Received the influenza vaccine in the last campaign (dictionary: Recebeu vacina contra Gripe na última campanha?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_UT_DOSE: {description: "Date of the last dose of influenza vaccine (dictionary: Data da vacinação)", type: date, take: 10, format: "%Y-%m-%d"}
+      MAE_VAC: {description: "For a patient under 6 months, the mother received the influenza vaccine (dictionary: Se < 6 meses: a mãe recebeu a vacina?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_VAC_MAE: {description: "Date of the mother's influenza vaccine (dictionary: Se sim, data (da vacina da mãe))", type: date, take: 10, format: "%Y-%m-%d"}
+      M_AMAMENTA: {description: "For a patient under 6 months, the mother breastfeeds (dictionary: Se < 6 meses: a mãe amamenta a criança?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_DOSEUNI: {description: "For 6 months to 8 years, date of the single dose of children vaccinated in earlier campaigns (dictionary: Se >= 6 meses e <= 8 anos: Data da dose única 1/1)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_1_DOSE: {description: "For 6 months to 8 years, date of the first dose of children vaccinated for the first time (dictionary: Se >= 6 meses e <= 8 anos: Data da 1ª dose)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_2_DOSE: {description: "For 6 months to 8 years, date of the second dose (dictionary: Se >= 6 meses e <= 8 anos: Data da 2ª dose)", type: date, take: 10, format: "%Y-%m-%d"}
+      ANTIVIRAL: {description: "Used an antiviral for influenza (dictionary: Usou antiviral para gripe?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TP_ANTIVIR: {description: "The antiviral used for influenza (dictionary: Qual antiviral?)", codes: {"1": "Oseltamivir", "2": "Zanamivir", "3": "Outro, especifique"}}
+      OUT_ANTIV: {description: "The other antiviral, free text (dictionary: Qual antiviral / Outro, especifique)"}
+      DT_ANTIVIR: {description: "Date the antiviral treatment began (dictionary: Data do início do tratamento)", type: date, take: 10, format: "%Y-%m-%d"}
+      HOSPITAL: {description: "The patient was admitted to hospital (dictionary: Houve internação?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_INTERNA: {description: "Date the patient was admitted (dictionary: Data da internação por SRAG)", type: date, take: 10, format: "%Y-%m-%d"}
+      SG_UF_INTE: {description: "State of the hospital (dictionary: UF de internação)"}
+      ID_RG_INTE: {description: "Name of the health region of the hospital's municipality (dictionary: Regional de Saúde de Internação)"}
+      CO_RG_INTE: {description: "Code of the health region of the hospital's municipality, as the system files it (dictionary: Regional de Saúde de Internação)"}
+      ID_MN_INTE: {description: "Name of the hospital's municipality (dictionary: Município de internação)"}
+      CO_MU_INTE: {description: "IBGE code of the municipality of the hospital (dictionary: Município de internação, código (IBGE))"}
+      NM_UN_INTE: {description: "Name of the hospital unit (the dictionary also lists its CNES code, which the open files do not carry) (dictionary: Unidade de Saúde de internação)"}
+      UTI: {description: "The patient was admitted to an intensive care unit (dictionary: Internado em UTI?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_ENTUTI: {description: "Date of entry into the intensive care unit (dictionary: Data da entrada na UTI)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_SAIDUTI: {description: "Date of leaving the intensive care unit (dictionary: Data da saída da UTI)", type: date, take: 10, format: "%Y-%m-%d"}
+      SUPORT_VEN: {description: "Use of ventilatory support (dictionary: Uso de suporte ventilatório?)", codes: {"1": "Sim, invasivo", "2": "Sim, não invasivo", "3": "Não", "9": "Ignorado"}}
+      RAIOX_RES: {description: "Result of the chest X-ray (dictionary: Raio X de Tórax)", type: int_code, codes: {"1": "Normal", "2": "Infiltrado intersticial", "3": "Consolidação", "4": "Misto", "5": "Outro", "6": "Não realizado", "9": "Ignorado"}}
+      RAIOX_OUT: {description: "The other chest X-ray finding, free text (dictionary: Raio X de Tórax/Outro (especificar))"}
+      DT_RAIOX: {description: "Date of the chest X-ray (dictionary: Data do Raio X)", type: date, take: 10, format: "%Y-%m-%d"}
+      AMOSTRA: {description: "A sample was collected for a diagnostic test (dictionary: Coletou amostra?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DT_COLETA: {description: "Date the sample was collected (dictionary: Data da Coleta)", type: date, take: 10, format: "%Y-%m-%d"}
+      TP_AMOSTRA: {description: "Type of the clinical sample (dictionary: Tipo de amostra)", codes: {"1": "Secreção de Naso-orofaringe", "2": "Lavado Broco-alveolar", "3": "Tecido post-mortem", "4": "Outra, qual?", "5": "LCR", "9": "Ignorado"}}
+      OUT_AMOST: {description: "The other sample type, free text (dictionary: Tipo de amostra/Outra)"}
+      PCR_RESUL: {description: "Result of the RT-PCR or other molecular-biology test (dictionary: Resultado da RT-PCR/outro método por Biologia Molecular)", codes: {"1": "Detectável", "2": "Não Detectável", "3": "Inconclusivo", "4": "Não Realizado", "5": "Aguardando Resultado", "9": "Ignorado"}}
+      DT_PCR: {description: "Date of the molecular test result (dictionary: Data do Resultado RT-PCR/outro método por Biologia Molecular)", type: date, take: 10, format: "%Y-%m-%d"}
+      POS_PCRFLU: {description: "The molecular test was positive for influenza (dictionary: Agente etiológico RT-PCR: Positivo para Influenza?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TP_FLU_PCR: {description: "Influenza type in the molecular test (dictionary: Agente etiológico RT-PCR: Se sim, qual Influenza?)", codes: {"1": "Influenza A", "2": "Influenza B"}}
+      PCR_FLUASU: {description: "Influenza A subtype in the molecular test (dictionary: Agente etiológico RT-PCR: Se Influenza A, qual subtipo?)", codes: {"1": "Influenza A(H1N1)pdm09", "2": "Influenza A (H3N2)", "3": "Influenza A não subtipado", "4": "Influenza A não subtipável", "5": "Inconclusivo", "6": "Outro, especifique"}}
+      FLUASU_OUT: {description: "The other influenza A subtype, free text (dictionary: Se Influenza A, qual subtipo? Outro, especifique)"}
+      PCR_FLUBLI: {description: "Influenza B lineage in the molecular test (dictionary: Agente etiológico RT-PCR: Se Influenza B, qual linhagem?)", codes: {"1": "Victoria", "2": "Yamagatha", "3": "Não realizado", "4": "Inconclusivo", "5": "Outro, especifique"}}
+      FLUBLI_OUT: {description: "The other influenza B lineage, free text (dictionary: Se Influenza B, qual linhagem? Outro, especifique)"}
+      POS_PCROUT: {description: "The molecular test was positive for another virus (dictionary: Agente etiológico RT-PCR: Positivo para outros vírus?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PCR_VSR: {description: "Respiratory syncytial virus in the molecular test (dictionary: Agente etiológico RT-PCR: VSR)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_PARA1: {description: "Parainfluenza 1 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 1)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_PARA2: {description: "Parainfluenza 2 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 2)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_PARA3: {description: "Parainfluenza 3 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 3)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_PARA4: {description: "Parainfluenza 4 in the molecular test (dictionary: Agente etiológico RT-PCR: Parainfluenza 4)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_ADENO: {description: "Adenovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Adenovírus)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_METAP: {description: "Metapneumovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Metapneumovírus)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_BOCA: {description: "Bocavirus in the molecular test (dictionary: Agente etiológico RT-PCR: Bocavírus)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_RINO: {description: "Rhinovirus in the molecular test (dictionary: Agente etiológico RT-PCR: Rinovírus)", codes: {"1": "Marcado pelo usuário"}}
+      PCR_OUTRO: {description: "Another respiratory virus in the molecular test (dictionary: Agente etiológico RT-PCR: Outro vírus respiratório, especifique)", codes: {"1": "Marcado pelo usuário"}}
+      DS_PCR_OUT: {description: "The other respiratory virus found by the molecular test, free text (dictionary: Outro vírus respiratório (Descrição))"}
+      CLASSI_FIN: {description: "Final classification of the case (the agent): SRAG by influenza, by another respiratory virus, by another aetiological agent, unspecified, or by covid-19 (dictionary: Classificação final do caso)", type: int_code, codes: {"1": "SRAG por influenza", "2": "SRAG por outro vírus respiratório", "3": "SRAG por outro agente etiológico", "4": "SRAG não especificado", "5": "SRAG por covid-19"}}
+      CLASSI_OUT: {description: "The other aetiological agent, free text (dictionary: Classificação final do caso/SRAG por outro agente etiológico, qual)"}
+      CRITERIO: {description: "Criterion by which the case was closed (dictionary: Critério de Encerramento)", codes: {"1": "Laboratorial", "2": "Clínico Epidemiológico", "3": "Clínico", "4": "Clínico Imagem"}}
+      EVOLUCAO: {description: "Outcome of the case (dictionary: Evolução do caso)", type: int_code, codes: {"1": "Cura", "2": "Óbito", "3": "Óbito por outras causas", "9": "Ignorado"}}
+      DT_EVOLUCA: {description: "Date of discharge or death (dictionary: Data da alta ou óbito)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_ENCERRA: {description: "Date the case was closed (dictionary: Data do Encerramento)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_DIGITA: {description: "Date the record was entered in the system (not changed by later edits) (dictionary: Data da digitação)", type: date, take: 10, format: "%Y-%m-%d"}
       # HISTO_VGM: campo 27 of the SIVEP-Gripe dictionary of 31/03/2020 (saude.sp.gov.br copy, dicionario_de_dados-srag_hospitalizado_31_03_2020.pdf): "Paciente tem
       # histórico de viagem internacional até 14 dias antes do início dos sintomas?" 1-Sim 2-Não 9-Ignorado. The files also hold 0 (3,744,410 of 4,666,910 rows, every row
       # from 2021-04), in no document: it stays undecoded, visibly (open question 3).
-      HISTO_VGM: {role: "Travel history flag of the earlier forms (dictionary of 2020: Paciente tem histórico de viagem internacional até 14 dias antes do início dos sintomas?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PAIS_VGM: {role: "Country of the trip, free text of the earlier forms (dictionary: (histórico de viagem) país)"}
-      CO_PS_VGM: {role: "Code of the country of the trip of the earlier forms (dictionary: (histórico de viagem) código do país)"}
-      LO_PS_VGM: {role: "Place of the trip, free text of the earlier forms (dictionary: (histórico de viagem) local)"}
-      DT_VGM: {role: "Date of the trip of the earlier forms (dictionary: (histórico de viagem) data)", type: date, take: 10, format: "%Y-%m-%d"}
-      DT_RT_VGM: {role: "Date of the return from the trip of the earlier forms (dictionary: (histórico de viagem) data de retorno)", type: date, take: 10, format: "%Y-%m-%d"}
-      PCR_SARS2: {role: "SARS-CoV-2 in the molecular test (dictionary: Agente etiológico RT-PCR: SARS-CoV-2)", type: int_code, codes: {"1": "Marcado pelo usuário"}}
-      PAC_COCBO: {role: "Occupation of the patient (CBO code) (dictionary: Ocupação)", codelist: CBO2002}
-      PAC_DSCBO: {role: "Description of the occupation (dictionary: Ocupação (descrição))"}
-      DOR_ABD: {role: "Abdominal pain (dictionary: Sinais e Sintomas/Dor abdominal)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      FADIGA: {role: "Fatigue (dictionary: Sinais e Sintomas/Fadiga)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PERD_OLFT: {role: "Loss of smell (dictionary: Sinais e Sintomas/Perda do Olfato)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      PERD_PALA: {role: "Loss of taste (dictionary: Sinais e Sintomas/Perda do Paladar)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TOMO_RES: {role: "Result of the chest CT scan (dictionary: Aspecto Tomografia)", codes: {"1": "Típico covid-19", "2": "Indeterminado covid-19", "3": "Atípico covid-19", "4": "Negativo para Pneumonia", "5": "Outro", "6": "Não realizado", "9": "Ignorado"}}
-      TOMO_OUT: {role: "The other CT finding, free text (dictionary: Aspecto Tomografia/Outro (especificar))"}
-      DT_TOMO: {role: "Date of the chest CT scan (dictionary: Data da Tomografia)", type: date, take: 10, format: "%Y-%m-%d"}
-      TP_TES_AN: {role: "Type of the antigen test (dictionary: Tipo do Teste antigênico)", codes: {"1": "Imunofluorescência (IF)", "2": "Teste rápido antigênico"}}
-      DT_RES_AN: {role: "Date of the antigen test result (dictionary: Data do resultado teste Antigênico)", type: date, take: 10, format: "%Y-%m-%d"}
-      RES_AN: {role: "Result of the antigen test (dictionary: Resultado do Teste Antigênico)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
-      POS_AN_FLU: {role: "The antigen test was positive for influenza (dictionary: Agente etiológico Teste Antigênico: Positivo para Influenza?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TP_FLU_AN: {role: "Influenza type in the antigen test (dictionary: Agente etiológico Teste Antigênico: Se sim, qual Influenza?)", codes: {"1": "Influenza A", "2": "Influenza B"}}
-      POS_AN_OUT: {role: "The antigen test was positive for another virus (dictionary: Agente etiológico Teste Antigênico: Positivo para outros vírus?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      AN_SARS2: {role: "SARS-CoV-2 in the antigen test (dictionary: Agente etiológico Teste Antigênico: SARS-CoV-2)", type: int_code, codes: {"1": "Marcado pelo usuário"}}
-      AN_VSR: {role: "Respiratory syncytial virus in the antigen test (dictionary: Agente etiológico Teste Antigênico: VSR)", codes: {"1": "Marcado pelo usuário"}}
-      AN_PARA1: {role: "Parainfluenza 1 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 1)", codes: {"1": "Marcado pelo usuário"}}
-      AN_PARA2: {role: "Parainfluenza 2 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 2)", codes: {"1": "Marcado pelo usuário"}}
-      AN_PARA3: {role: "Parainfluenza 3 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 3)", codes: {"1": "Marcado pelo usuário"}}
-      AN_ADENO: {role: "Adenovirus in the antigen test (dictionary: Agente etiológico Teste Antigênico: Adenovírus)", codes: {"1": "Marcado pelo usuário"}}
-      AN_OUTRO: {role: "Another respiratory virus in the antigen test (dictionary: Agente etiológico Teste Antigênico: Outro vírus respiratório)", codes: {"1": "Marcado pelo usuário"}}
-      DS_AN_OUT: {role: "The other respiratory virus found by the antigen test, free text (dictionary: Outro vírus respiratório (Descrição))"}
-      TP_AM_SOR: {role: "Type of the serological sample (dictionary: Tipo de Amostra Sorológica para SARS-Cov-2)", codes: {"1": "Sangue/plasma/soro", "2": "Outra, qual?", "9": "Ignorado"}}
-      SOR_OUT: {role: "The other serological sample type, free text (dictionary: Tipo de Amostra Sorológica para SARS-Cov-2/Outra, qual?)"}
-      DT_CO_SOR: {role: "Date the serological sample was collected (dictionary: Data da coleta (sorologia))", type: date, take: 10, format: "%Y-%m-%d"}
-      TP_SOR: {role: "Type of the serological test (dictionary: Tipo de Sorologia para SARS-Cov-2)", codes: {"1": "Teste rápido", "2": "Elisa", "3": "Quimiluminescência", "4": "Outro, qual"}}
-      OUT_SOR: {role: "The other serological test, free text (dictionary: Tipo de Sorologia para SARS-Cov-2/Outro, qual?)"}
-      DT_RES: {role: "Date of the serological result (dictionary: Data do Resultado (sorologia))", type: date, take: 10, format: "%Y-%m-%d"}
+      HISTO_VGM: {description: "Travel history flag of the earlier forms (dictionary of 2020: Paciente tem histórico de viagem internacional até 14 dias antes do início dos sintomas?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PAIS_VGM: {description: "Country of the trip, free text of the earlier forms (dictionary: (histórico de viagem) país)"}
+      CO_PS_VGM: {description: "Code of the country of the trip of the earlier forms (dictionary: (histórico de viagem) código do país)"}
+      LO_PS_VGM: {description: "Place of the trip, free text of the earlier forms (dictionary: (histórico de viagem) local)"}
+      DT_VGM: {description: "Date of the trip of the earlier forms (dictionary: (histórico de viagem) data)", type: date, take: 10, format: "%Y-%m-%d"}
+      DT_RT_VGM: {description: "Date of the return from the trip of the earlier forms (dictionary: (histórico de viagem) data de retorno)", type: date, take: 10, format: "%Y-%m-%d"}
+      PCR_SARS2: {description: "SARS-CoV-2 in the molecular test (dictionary: Agente etiológico RT-PCR: SARS-CoV-2)", type: int_code, codes: {"1": "Marcado pelo usuário"}}
+      PAC_COCBO: {description: "Occupation of the patient (CBO code) (dictionary: Ocupação)", codelist: CBO2002}
+      PAC_DSCBO: {description: "Description of the occupation (dictionary: Ocupação (descrição))"}
+      DOR_ABD: {description: "Abdominal pain (dictionary: Sinais e Sintomas/Dor abdominal)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      FADIGA: {description: "Fatigue (dictionary: Sinais e Sintomas/Fadiga)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PERD_OLFT: {description: "Loss of smell (dictionary: Sinais e Sintomas/Perda do Olfato)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      PERD_PALA: {description: "Loss of taste (dictionary: Sinais e Sintomas/Perda do Paladar)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TOMO_RES: {description: "Result of the chest CT scan (dictionary: Aspecto Tomografia)", codes: {"1": "Típico covid-19", "2": "Indeterminado covid-19", "3": "Atípico covid-19", "4": "Negativo para Pneumonia", "5": "Outro", "6": "Não realizado", "9": "Ignorado"}}
+      TOMO_OUT: {description: "The other CT finding, free text (dictionary: Aspecto Tomografia/Outro (especificar))"}
+      DT_TOMO: {description: "Date of the chest CT scan (dictionary: Data da Tomografia)", type: date, take: 10, format: "%Y-%m-%d"}
+      TP_TES_AN: {description: "Type of the antigen test (dictionary: Tipo do Teste antigênico)", codes: {"1": "Imunofluorescência (IF)", "2": "Teste rápido antigênico"}}
+      DT_RES_AN: {description: "Date of the antigen test result (dictionary: Data do resultado teste Antigênico)", type: date, take: 10, format: "%Y-%m-%d"}
+      RES_AN: {description: "Result of the antigen test (dictionary: Resultado do Teste Antigênico)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      POS_AN_FLU: {description: "The antigen test was positive for influenza (dictionary: Agente etiológico Teste Antigênico: Positivo para Influenza?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TP_FLU_AN: {description: "Influenza type in the antigen test (dictionary: Agente etiológico Teste Antigênico: Se sim, qual Influenza?)", codes: {"1": "Influenza A", "2": "Influenza B"}}
+      POS_AN_OUT: {description: "The antigen test was positive for another virus (dictionary: Agente etiológico Teste Antigênico: Positivo para outros vírus?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      AN_SARS2: {description: "SARS-CoV-2 in the antigen test (dictionary: Agente etiológico Teste Antigênico: SARS-CoV-2)", type: int_code, codes: {"1": "Marcado pelo usuário"}}
+      AN_VSR: {description: "Respiratory syncytial virus in the antigen test (dictionary: Agente etiológico Teste Antigênico: VSR)", codes: {"1": "Marcado pelo usuário"}}
+      AN_PARA1: {description: "Parainfluenza 1 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 1)", codes: {"1": "Marcado pelo usuário"}}
+      AN_PARA2: {description: "Parainfluenza 2 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 2)", codes: {"1": "Marcado pelo usuário"}}
+      AN_PARA3: {description: "Parainfluenza 3 in the antigen test (dictionary: Agente etiológico Teste Antigênico: Parainfluenza 3)", codes: {"1": "Marcado pelo usuário"}}
+      AN_ADENO: {description: "Adenovirus in the antigen test (dictionary: Agente etiológico Teste Antigênico: Adenovírus)", codes: {"1": "Marcado pelo usuário"}}
+      AN_OUTRO: {description: "Another respiratory virus in the antigen test (dictionary: Agente etiológico Teste Antigênico: Outro vírus respiratório)", codes: {"1": "Marcado pelo usuário"}}
+      DS_AN_OUT: {description: "The other respiratory virus found by the antigen test, free text (dictionary: Outro vírus respiratório (Descrição))"}
+      TP_AM_SOR: {description: "Type of the serological sample (dictionary: Tipo de Amostra Sorológica para SARS-Cov-2)", codes: {"1": "Sangue/plasma/soro", "2": "Outra, qual?", "9": "Ignorado"}}
+      SOR_OUT: {description: "The other serological sample type, free text (dictionary: Tipo de Amostra Sorológica para SARS-Cov-2/Outra, qual?)"}
+      DT_CO_SOR: {description: "Date the serological sample was collected (dictionary: Data da coleta (sorologia))", type: date, take: 10, format: "%Y-%m-%d"}
+      TP_SOR: {description: "Type of the serological test (dictionary: Tipo de Sorologia para SARS-Cov-2)", codes: {"1": "Teste rápido", "2": "Elisa", "3": "Quimiluminescência", "4": "Outro, qual"}}
+      OUT_SOR: {description: "The other serological test, free text (dictionary: Tipo de Sorologia para SARS-Cov-2/Outro, qual?)"}
+      DT_RES: {description: "Date of the serological result (dictionary: Data do Resultado (sorologia))", type: date, take: 10, format: "%Y-%m-%d"}
       # RES_IGG/IGM/IGA: campo 76 of the notification form (ficha de registro individual de SRAG hospitalizado, SVS, 31/07/2026: "Resultado do Teste Sorológico para
       # SARS-CoV-2: IgG IgM IgA, 1-Positivo 2-Negativo 3-Inconclusivo 4-Não realizado 5-Aguarda resultado 9-Ignorado") and campo 73 of the SIVEP-Gripe dictionary
       # (prefeitura.sp.gov.br copy, Dicionario_de_dados_SRAG.pdf: the same six categories, RES_IGG/RES_IGM/RES_IGA); the 2019-2025 dictionary prints the fields without them.
-      RES_IGG: {role: "Result of the IgG serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgG)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
-      RES_IGM: {role: "Result of the IgM serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgM)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
-      RES_IGA: {role: "Result of the IgA serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgA)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
-      POV_CT: {role: "The patient belongs to a traditional people or community (dictionary: É membro de povo ou comunidade tradicional?)", codes: {"1": "Sim", "2": "Não"}}
-      TP_POV_CT: {role: "The traditional people or community, by name (dictionary: Se sim, qual?)"}
-      TEM_CPF: {role: "The patient has a CPF (the number itself is not published) (dictionary: Tem CPF?)", codes: {"1": "Sim", "2": "Não"}}
-      ESTRANG: {role: "The patient is a foreigner (dictionary: Estrangeiro)", codes: {"1": "Sim", "2": "Não"}}
-      VACINA_COV: {role: "Received a covid-19 vaccine, after checking the vaccination record (dictionary: Recebeu vacina COVID-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      DOSE_1_COV: {role: "Date of the first dose of covid-19 vaccine (dictionary: Data 1ª dose da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
-      DOSE_2_COV: {role: "Date of the second dose of covid-19 vaccine (dictionary: Data 2ª dose da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
-      DOSE_REF: {role: "Date of the booster dose (dictionary: Data da dose reforço da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
-      DOSE_2REF: {role: "Date of the second booster dose (dictionary: Data da 2ª dose reforço da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
-      DOSE_ADIC: {role: "Date of the additional dose (dictionary: Data da dose adicional da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
-      DOS_RE_BI: {role: "Date of the bivalent booster dose (dictionary: Data dose reforço bivalente COVID-19)", type: date, format: "%d/%m/%Y"}
-      FAB_COV_1: {role: "Manufacturer of the first dose, as filed (the national vaccination base's code and name, or free text) (dictionary: Fabricante 1ª dose da vacina COVID-19)"}
-      FAB_COV_2: {role: "Manufacturer of the second dose, as filed (dictionary: Fabricante 2ª dose da vacina COVID-19)"}
-      FAB_COVRF: {role: "Manufacturer of the booster dose, as filed (dictionary: Fabricante dose reforço da vacina COVID-19)"}
-      FAB_COVRF2: {role: "Manufacturer of the second booster dose, as filed (dictionary: Fabricante 2ª dose reforço da vacina COVID-19)"}
-      FAB_ADIC: {role: "Manufacturer of the additional dose, as filed (dictionary: Fabricante dose adicional da vacina COVID-19)"}
-      FAB_RE_BI: {role: "Manufacturer of the bivalent booster, as filed (dictionary: Fabricante dose reforço bivalente COVID-19)"}
-      LOTE_1_COV: {role: "Lot of the first dose (dictionary: Lote da vacina COVID-19: Lote 1ª Dose)"}
-      LOTE_2_COV: {role: "Lot of the second dose (dictionary: Lote da vacina COVID-19: Lote 2ª Dose)"}
-      LOTE_REF: {role: "Lot of the booster dose (dictionary: Lote da vacina COVID-19: Lote dose reforço)"}
-      LOTE_REF2: {role: "Lot of the second booster dose (dictionary: Lote da vacina COVID-19: Lote 2ª dose reforço)"}
-      LOTE_ADIC: {role: "Lot of the additional dose (dictionary: Lote da vacina COVID-19: Lote dose adicional)"}
-      LOT_RE_BI: {role: "Lot of the bivalent booster (dictionary: Lote da vacina COVID-19: Lote dose reforço bivalente)"}
-      FNT_IN_COV: {role: "How the covid-19 vaccine data were entered (dictionary: Fonte dos dados/informação sobre a vacina COVID-19)", codes: {"1": "Manual", "2": "Integração"}}
-      TRAT_COV: {role: "Received an antiviral for covid-19 (dictionary: Recebeu tratamento antiviral para covid-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      TIPO_TRAT: {role: "The antiviral used for covid-19 (dictionary: Qual antiviral (covid-19)?)", codes: {"1": "Nirmatrelvir/ritonavir (Paxlovid)", "2": "Molnupiravir (Lagevrio)", "3": "Baricitinibe (Olumiant)", "4": "Outro, especifique"}}
-      DT_TRT_COV: {role: "Date the covid-19 antiviral began (dictionary: Data do início do tratamento (covid-19))", type: date, take: 10, format: "%Y-%m-%d"}
-      OUT_TRAT: {role: "The other covid-19 antiviral, free text (dictionary: Qual antiviral / Outro, especifique (covid-19))"}
-      SURTO_SG: {role: "The case is part of an outbreak chain of influenza-like illness (dictionary: Faz parte de uma cadeia de surto de SG?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      CO_DETEC: {role: "Co-detection: two viruses identified at the same time (dictionary: É um caso de co-detecção?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      VG_OMS: {role: "Variant named by the WHO designation (dictionary: Designação da variante (OMS))", codes: {"1": "Ômicron", "2": "Delta", "3": "Alfa", "4": "Beta", "5": "Gama", "6": "Recombinante (exemplos XE, XF, XQ, XS)", "7": "Outra, especifique"}}
-      VG_OMSOUT: {role: "The other variant, free text (dictionary: Designação da variante (OMS): Outra, especifique)"}
-      VG_LIN: {role: "Lineage from the genomic sequencing (dictionary: Linhagem da variante)"}
-      VG_MET: {role: "Most recent laboratory method (dictionary: Método laboratorial mais recente)", codes: {"1": "Sequenciamento genômico completo", "2": "Sequenciamento genômico parcial", "3": "RT-PCR em tempo real de inferência", "4": "Outro, especifique"}}
-      VG_METOUT: {role: "The other method, free text (dictionary: Método laboratorial mais recente: Outro, especifique)"}
-      VG_DTRES: {role: "Date of the genomic result (dictionary: Data do resultado (vigilância genômica))", type: date, format: "%d/%m/%Y"}
-      VG_ENC: {role: "Closure of the variant case under technical note NT 1.129/2021-CGPNI/DEIDT/SVS/MS (dictionary: Encerramento do caso (para VOC, VOI ou VUM))", codes: {"1": "Confirmado por Sequenciamento genômico completo", "2": "Provável por Sequenciamento genômico parcial", "3": "Sugestivo por RT-PCR de inferência", "4": "Sugestivo por vínculo epidemiológico", "5": "Descartado"}}
-      VG_REINF: {role: "Possible covid-19 reinfection (earlier positive record 90 or more days before) (dictionary: Possível caso de reinfecção por covid-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
-      VG_CODEST: {role: "CNES code of the establishment that filled the genomic-surveillance block (dictionary: Código (CNES) do Estabelecimento responsável pelo preenchimento (vigilância genômica))"}
-      REINF: {role: "Possible covid-19 reinfection (dictionary: Possível caso de reinfecção por covid-19?)"}
+      RES_IGG: {description: "Result of the IgG serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgG)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      RES_IGM: {description: "Result of the IgM serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgM)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      RES_IGA: {description: "Result of the IgA serology (dictionary: Resultado do Teste Sorológico para SARS-CoV-2: IgA)", codes: {"1": "Positivo", "2": "Negativo", "3": "Inconclusivo", "4": "Não realizado", "5": "Aguardando resultado", "9": "Ignorado"}}
+      POV_CT: {description: "The patient belongs to a traditional people or community (dictionary: É membro de povo ou comunidade tradicional?)", codes: {"1": "Sim", "2": "Não"}}
+      TP_POV_CT: {description: "The traditional people or community, by name (dictionary: Se sim, qual?)"}
+      TEM_CPF: {description: "The patient has a CPF (the number itself is not published) (dictionary: Tem CPF?)", codes: {"1": "Sim", "2": "Não"}}
+      ESTRANG: {description: "The patient is a foreigner (dictionary: Estrangeiro)", codes: {"1": "Sim", "2": "Não"}}
+      VACINA_COV: {description: "Received a covid-19 vaccine, after checking the vaccination record (dictionary: Recebeu vacina COVID-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      DOSE_1_COV: {description: "Date of the first dose of covid-19 vaccine (dictionary: Data 1ª dose da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
+      DOSE_2_COV: {description: "Date of the second dose of covid-19 vaccine (dictionary: Data 2ª dose da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
+      DOSE_REF: {description: "Date of the booster dose (dictionary: Data da dose reforço da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
+      DOSE_2REF: {description: "Date of the second booster dose (dictionary: Data da 2ª dose reforço da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
+      DOSE_ADIC: {description: "Date of the additional dose (dictionary: Data da dose adicional da vacina COVID-19)", type: date, format: "%d/%m/%Y"}
+      DOS_RE_BI: {description: "Date of the bivalent booster dose (dictionary: Data dose reforço bivalente COVID-19)", type: date, format: "%d/%m/%Y"}
+      FAB_COV_1: {description: "Manufacturer of the first dose, as filed (the national vaccination base's code and name, or free text) (dictionary: Fabricante 1ª dose da vacina COVID-19)"}
+      FAB_COV_2: {description: "Manufacturer of the second dose, as filed (dictionary: Fabricante 2ª dose da vacina COVID-19)"}
+      FAB_COVRF: {description: "Manufacturer of the booster dose, as filed (dictionary: Fabricante dose reforço da vacina COVID-19)"}
+      FAB_COVRF2: {description: "Manufacturer of the second booster dose, as filed (dictionary: Fabricante 2ª dose reforço da vacina COVID-19)"}
+      FAB_ADIC: {description: "Manufacturer of the additional dose, as filed (dictionary: Fabricante dose adicional da vacina COVID-19)"}
+      FAB_RE_BI: {description: "Manufacturer of the bivalent booster, as filed (dictionary: Fabricante dose reforço bivalente COVID-19)"}
+      LOTE_1_COV: {description: "Lot of the first dose (dictionary: Lote da vacina COVID-19: Lote 1ª Dose)"}
+      LOTE_2_COV: {description: "Lot of the second dose (dictionary: Lote da vacina COVID-19: Lote 2ª Dose)"}
+      LOTE_REF: {description: "Lot of the booster dose (dictionary: Lote da vacina COVID-19: Lote dose reforço)"}
+      LOTE_REF2: {description: "Lot of the second booster dose (dictionary: Lote da vacina COVID-19: Lote 2ª dose reforço)"}
+      LOTE_ADIC: {description: "Lot of the additional dose (dictionary: Lote da vacina COVID-19: Lote dose adicional)"}
+      LOT_RE_BI: {description: "Lot of the bivalent booster (dictionary: Lote da vacina COVID-19: Lote dose reforço bivalente)"}
+      FNT_IN_COV: {description: "How the covid-19 vaccine data were entered (dictionary: Fonte dos dados/informação sobre a vacina COVID-19)", codes: {"1": "Manual", "2": "Integração"}}
+      TRAT_COV: {description: "Received an antiviral for covid-19 (dictionary: Recebeu tratamento antiviral para covid-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      TIPO_TRAT: {description: "The antiviral used for covid-19 (dictionary: Qual antiviral (covid-19)?)", codes: {"1": "Nirmatrelvir/ritonavir (Paxlovid)", "2": "Molnupiravir (Lagevrio)", "3": "Baricitinibe (Olumiant)", "4": "Outro, especifique"}}
+      DT_TRT_COV: {description: "Date the covid-19 antiviral began (dictionary: Data do início do tratamento (covid-19))", type: date, take: 10, format: "%Y-%m-%d"}
+      OUT_TRAT: {description: "The other covid-19 antiviral, free text (dictionary: Qual antiviral / Outro, especifique (covid-19))"}
+      SURTO_SG: {description: "The case is part of an outbreak chain of influenza-like illness (dictionary: Faz parte de uma cadeia de surto de SG?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      CO_DETEC: {description: "Co-detection: two viruses identified at the same time (dictionary: É um caso de co-detecção?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      VG_OMS: {description: "Variant named by the WHO designation (dictionary: Designação da variante (OMS))", codes: {"1": "Ômicron", "2": "Delta", "3": "Alfa", "4": "Beta", "5": "Gama", "6": "Recombinante (exemplos XE, XF, XQ, XS)", "7": "Outra, especifique"}}
+      VG_OMSOUT: {description: "The other variant, free text (dictionary: Designação da variante (OMS): Outra, especifique)"}
+      VG_LIN: {description: "Lineage from the genomic sequencing (dictionary: Linhagem da variante)"}
+      VG_MET: {description: "Most recent laboratory method (dictionary: Método laboratorial mais recente)", codes: {"1": "Sequenciamento genômico completo", "2": "Sequenciamento genômico parcial", "3": "RT-PCR em tempo real de inferência", "4": "Outro, especifique"}}
+      VG_METOUT: {description: "The other method, free text (dictionary: Método laboratorial mais recente: Outro, especifique)"}
+      VG_DTRES: {description: "Date of the genomic result (dictionary: Data do resultado (vigilância genômica))", type: date, format: "%d/%m/%Y"}
+      VG_ENC: {description: "Closure of the variant case under technical note NT 1.129/2021-CGPNI/DEIDT/SVS/MS (dictionary: Encerramento do caso (para VOC, VOI ou VUM))", codes: {"1": "Confirmado por Sequenciamento genômico completo", "2": "Provável por Sequenciamento genômico parcial", "3": "Sugestivo por RT-PCR de inferência", "4": "Sugestivo por vínculo epidemiológico", "5": "Descartado"}}
+      VG_REINF: {description: "Possible covid-19 reinfection (earlier positive record 90 or more days before) (dictionary: Possível caso de reinfecção por covid-19?)", codes: {"1": "Sim", "2": "Não", "9": "Ignorado"}}
+      VG_CODEST: {description: "CNES code of the establishment that filled the genomic-surveillance block (dictionary: Código (CNES) do Estabelecimento responsável pelo preenchimento (vigilância genômica))"}
+      REINF: {description: "Possible covid-19 reinfection (dictionary: Possível caso de reinfecção por covid-19?)"}
     place: {column: CO_MUN_RES, type: municipality}
     period: {type: date, column: DT_SIN_PRI, grain: month}
     fields:
@@ -989,14 +989,14 @@ sources:
       csv: {sep: ";", encoding: latin1}
       files: [{url: "https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIES/csv/sies_csv.zip"}]
     columns:
-      TX_SIGLA: {role: state health secretariat (SES) and state that requested or received the supplies, type: code}
-      IBGE: {role: IBGE code of the municipality of the secretariat, type: code}
-      TX_INSUMO: {role: type of immunobiological or supply, type: label}
-      ANO: {role: year requested and distributed, type: year}
-      MES: {role: month requested and distributed, type: integer}
-      QTDE: {role: quantity requested and distributed, type: number}
-      ORIGEM: {role: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
-      TX_AREA: {role: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
+      TX_SIGLA: {description: state health secretariat (SES) and state that requested or received the supplies, type: code}
+      IBGE: {description: IBGE code of the municipality of the secretariat, type: code}
+      TX_INSUMO: {description: type of immunobiological or supply, type: label}
+      ANO: {description: year requested and distributed, type: year}
+      MES: {description: month requested and distributed, type: integer}
+      QTDE: {description: quantity requested and distributed, type: number}
+      ORIGEM: {description: request or distribution, type: code, codes: {Solicitado: requested, Distribuido: distributed}}
+      TX_AREA: {description: immunobiologicals and supplies (vaccines, sera, immunoglobulins, supplies), type: label}
     place: {column: TX_SIGLA, type: code, as: ses}
     period: {type: parts, year: ANO, month: MES, grain: month, valid: 2018-2026}
     fields:
@@ -1043,17 +1043,17 @@ sources:
       # Unfiltered offset paging loses rows here (4,870 of 5,571 municipalities): each state is read whole.
       partition: [{param: sigla_uf, values: uf_sigla}]
     columns:
-      codigo_regiao_pais: {role: code of the country region (1 Norte ... 5 Centro-Oeste), type: code}
-      regiao_pais: {role: name of the country region, type: label}
-      codigo_uf: {role: IBGE code of the state, type: code}
-      uf: {role: name of the state, type: label}
-      codigo_macrorregiao_saude: {role: code of the health macro-region, type: code}
-      macrorregiao_saude: {role: name of the health macro-region, type: label}
-      codigo_regiao_saude: {role: code of the health region, type: code}
-      regiao_saude: {role: name of the health region, type: label}
-      codigo_municipio: {role: IBGE code of the municipality (6 digits), type: municipality}
-      municipio: {role: name of the municipality with its state, type: label}
-      populacao_estimada_ibge_2022: {role: IBGE population estimate 2022, type: integer}
+      codigo_regiao_pais: {description: code of the country region (1 Norte ... 5 Centro-Oeste), type: code}
+      regiao_pais: {description: name of the country region, type: label}
+      codigo_uf: {description: IBGE code of the state, type: code}
+      uf: {description: name of the state, type: label}
+      codigo_macrorregiao_saude: {description: code of the health macro-region, type: code}
+      macrorregiao_saude: {description: name of the health macro-region, type: label}
+      codigo_regiao_saude: {description: code of the health region, type: code}
+      regiao_saude: {description: name of the health region, type: label}
+      codigo_municipio: {description: IBGE code of the municipality (6 digits), type: municipality}
+      municipio: {description: name of the municipality with its state, type: label}
+      populacao_estimada_ibge_2022: {description: IBGE population estimate 2022, type: integer}
     place: {column: codigo_municipio, type: municipality}
     period: {type: file}
 
@@ -1816,57 +1816,57 @@ sources:
       months: 201401-202110,202601-202609
     columns:
       NU_ANO_VENDA:
-        role: year of the sale
+        description: year of the sale
         type: integer
       NU_MES_VENDA:
-        role: month of the sale
+        description: month of the sale
         type: integer
       SG_UF_VENDA:
-        role: state (UF) of the pharmacy
+        description: state (UF) of the pharmacy
         type: code
       NO_MUNICIPIO_VENDA:
-        role: name of the pharmacy's municipality (no IBGE code in the file)
+        description: name of the pharmacy's municipality (no IBGE code in the file)
         type: label
       NO_CONSELHO_PRESCRITOR:
-        role: the prescriber's professional council (CRM, CRO, CRMV, ...)
+        description: the prescriber's professional council (CRM, CRO, CRMV, ...)
         type: code
         aliases:
         - NO_CONSEITOR
       SG_UF_CONSELHO_PRESCRITOR:
-        role: state of the prescriber's council registration
+        description: state of the prescriber's council registration
         type: code
       TP_RECEITUARIO:
-        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
+        description: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
         type: int_code      # filed '5.', '1.' in the industrialised files (OQ 90)
         codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
                 "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
                 "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
       CO_CID10:
-        role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
+        description: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
         codelist: ICD10
       SG_SEXO:
-        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
+        description: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
         codes: {"1": male, "2": female}
       NU_IDADE:
-        role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
+        description: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
         type: number
       NU_UNIDADE_IDADE:
-        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
+        description: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
         codes: {"1": years, "2": months}
       DS_PRINCIPIO_ATIVO:
-        role: active principle(s) of the manufactured medicine
+        description: active principle(s) of the manufactured medicine
         type: label
       DS_DESCRICAO_APRESENTACAO:
-        role: presentation of the medicine as registered
+        description: presentation of the medicine as registered
         type: label
       QT_VENDIDA:
-        role: quantity sold, in DS_UNIDADE_MEDIDA
+        description: quantity sold, in DS_UNIDADE_MEDIDA
         type: number
       DS_UNIDADE_MEDIDA:
-        role: unit of the quantity sold (CAIXA, FRASCO, ...)
+        description: unit of the quantity sold (CAIXA, FRASCO, ...)
         type: code
     place:
       column: NO_MUNICIPIO_VENDA
@@ -1944,64 +1944,64 @@ sources:
       months: 201401-202110,202601-202609
     columns:
       NU_ANO_VENDA:
-        role: year of the sale
+        description: year of the sale
         type: integer
       NU_MES_VENDA:
-        role: month of the sale
+        description: month of the sale
         type: integer
       SG_UF_VENDA:
-        role: state (UF) of the pharmacy
+        description: state (UF) of the pharmacy
         type: code
       NO_MUNICIPIO_VENDA:
-        role: name of the pharmacy's municipality (no IBGE code in the file)
+        description: name of the pharmacy's municipality (no IBGE code in the file)
         type: label
       NO_CONSELHO_PRESCRITOR:
-        role: the prescriber's professional council (CRM, CRO, CRMV, ...)
+        description: the prescriber's professional council (CRM, CRO, CRMV, ...)
         type: code
         aliases:
         - NO_CONSEITOR
       SG_UF_CONSELHO_PRESCRITOR:
-        role: state of the prescriber's council registration
+        description: state of the prescriber's council registration
         type: code
       TP_RECEITUARIO:
-        role: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
+        description: type of prescription form (ANVISA's SNGPC dictionary, the sales panels' data dictionary)
         type: code
         codes: {"1": "Receita de Controle Especial em 2 vias (Receita Branca)", "2": "Notificação de Receita B (Notificação Azul)",
                 "3": "Notificação de Receita Especial (Notificação Branca)", "4": "Notificação de Receita A (Notificação Amarela)",
                 "5": "Receita Antimicrobiano e GLP-1 em 2 vias"}
       CO_CID10:
-        role: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
+        description: the patient's ICD-10 code, entered by the pharmacist for antimicrobials (often blank)
         type: code
         codelist: ICD10
       SG_SEXO:
-        role: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
+        description: the patient's sex (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
         codes: {"1": male, "2": female}
       NU_IDADE:
-        role: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
+        description: the patient's age, in the unit NU_UNIDADE_IDADE gives (antimicrobials)
         type: number
       NU_UNIDADE_IDADE:
-        role: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
+        description: the unit of NU_IDADE (antimicrobials only; ANVISA's SNGPC dictionary)
         type: code
         codes: {"1": years, "2": months}
       DS_DCB:
-        role: the active principle's Denominação Comum Brasileira
+        description: the active principle's Denominação Comum Brasileira
         type: label
         label_from: NO_PRINCIPIO_ATIVO
       NO_PRINCIPIO_ATIVO:
-        role: name of the active principle
+        description: name of the active principle
         type: label
       QT_ATIVO_POR_UNID_FARMACOTEC:
-        role: amount of active principle per pharmacotechnical unit
+        description: amount of active principle per pharmacotechnical unit
         type: number
       DS_UNIDADE_MEDIDA_PRINCIPIO_ATIVO:
-        role: unit of that amount
+        description: unit of that amount
         type: code
       QT_UNIDADE_FARMACOTECNICA:
-        role: pharmacotechnical units sold
+        description: pharmacotechnical units sold
         type: number
       DS_TIPO_UNIDADE_FARMACOTECNICA:
-        role: kind of pharmacotechnical unit (capsule, ...)
+        description: kind of pharmacotechnical unit (capsule, ...)
         type: code
     place:
       column: NO_MUNICIPIO_VENDA
@@ -2065,21 +2065,21 @@ sources:
       csv: {sep: ";", encoding: mixed, multiline: true}
       files: [{key: events, extension: csv, url: "https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234/resource/1c8aac93-f874-4f07-9405-86a0398dadd6/download"}]
     columns:
-      Protocolo_S2iD: {role: the event's protocol (state, type, municipality, COBRADE code and date), type: code}
-      Cod_IBGE_Mun: {role: IBGE code of the municipality (7 digits), type: municipality}
-      Data_Evento: {role: date of the event (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
-      Cod_Cobrade: {role: COBRADE code of the disaster, type: code}
-      descricao_tipologia: {role: typology of the disaster, type: label}
-      grupo_de_desastre: {role: group of the disaster (climatological, hydrological, meteorological, ...), type: label}
-      Status: {role: registered (Registro) or federally recognised (Reconhecido), type: code}
-      DH_MORTOS: {role: people killed, type: integer}
-      DH_FERIDOS: {role: people injured, type: integer}
-      DH_ENFERMOS: {role: people sick, type: integer}
-      DH_DESABRIGADOS: {role: people left homeless, type: integer}
-      DH_DESALOJADOS: {role: people displaced, type: integer}
-      DH_DESAPARECIDOS: {role: people missing, type: integer}
-      DH_AFETADOS_SECA_ESTIAGEM: {role: people affected by drought, type: integer}
-      DH_OUTROS AFETADOS: {role: other people affected, type: integer}
+      Protocolo_S2iD: {description: the event's protocol (state, type, municipality, COBRADE code and date), type: code}
+      Cod_IBGE_Mun: {description: IBGE code of the municipality (7 digits), type: municipality}
+      Data_Evento: {description: date of the event (dd/mm/yyyy), type: date, format: "%d/%m/%Y"}
+      Cod_Cobrade: {description: COBRADE code of the disaster, type: code}
+      descricao_tipologia: {description: typology of the disaster, type: label}
+      grupo_de_desastre: {description: group of the disaster (climatological, hydrological, meteorological, ...), type: label}
+      Status: {description: registered (Registro) or federally recognised (Reconhecido), type: code}
+      DH_MORTOS: {description: people killed, type: integer}
+      DH_FERIDOS: {description: people injured, type: integer}
+      DH_ENFERMOS: {description: people sick, type: integer}
+      DH_DESABRIGADOS: {description: people left homeless, type: integer}
+      DH_DESALOJADOS: {description: people displaced, type: integer}
+      DH_DESAPARECIDOS: {description: people missing, type: integer}
+      DH_AFETADOS_SECA_ESTIAGEM: {description: people affected by drought, type: integer}
+      DH_OUTROS AFETADOS: {description: other people affected, type: integer}
     place: {column: Cod_IBGE_Mun, type: municipality}
     period: {type: date, column: Data_Evento, grain: year}
     fields:
@@ -2169,15 +2169,15 @@ sources:
       across:
         uf: [AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MG, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP, TO, XX]
     columns:
-      ID_CMPT_MOVEL: {role: the month of the position (yyyy-mm), type: code}
-      SG_UF: {role: state of the beneficiary (XX when none), type: code}
-      CD_MUNICIPIO: {role: IBGE code of the beneficiary's municipality (6 digits; -1 when none), type: municipality}
-      TP_SEXO: {role: sex of the beneficiary (F, M), type: code}
-      DE_FAIXA_ETARIA: {role: age band of the beneficiary, type: label}
-      COBERTURA_ASSIST_PLAN: {role: coverage of the plan (Médico-hospitalar or Odontológico), type: code}
-      QT_BENEFICIARIO_ATIVO: {role: active beneficiary links, type: integer}
-      QT_BENEFICIARIO_ADERIDO: {role: links joined in the month, type: integer}
-      QT_BENEFICIARIO_CANCELADO: {role: links cancelled in the month, type: integer}
+      ID_CMPT_MOVEL: {description: the month of the position (yyyy-mm), type: code}
+      SG_UF: {description: state of the beneficiary (XX when none), type: code}
+      CD_MUNICIPIO: {description: IBGE code of the beneficiary's municipality (6 digits; -1 when none), type: municipality}
+      TP_SEXO: {description: sex of the beneficiary (F, M), type: code}
+      DE_FAIXA_ETARIA: {description: age band of the beneficiary, type: label}
+      COBERTURA_ASSIST_PLAN: {description: coverage of the plan (Médico-hospitalar or Odontológico), type: code}
+      QT_BENEFICIARIO_ATIVO: {description: active beneficiary links, type: integer}
+      QT_BENEFICIARIO_ADERIDO: {description: links joined in the month, type: integer}
+      QT_BENEFICIARIO_CANCELADO: {description: links cancelled in the month, type: integer}
     place: {column: CD_MUNICIPIO, type: municipality}
     period: {type: file}
     fields:
@@ -2236,24 +2236,24 @@ sources:
       pattern: https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_{year}.zip
       years: 2021-2024
     columns:
-      NU_ANO_CENSO: {role: census year, type: year}
-      CO_MUNICIPIO: {role: IBGE code of the school's municipality (7 digits), type: municipality}
-      CO_ENTIDADE: {role: the school's INEP code, type: code}
-      QT_MAT_BAS: {role: enrolments in basic education (total), type: integer}
-      QT_MAT_BAS_FEM: {role: enrolments, female, type: integer}
-      QT_MAT_BAS_MASC: {role: enrolments, male, type: integer}
-      QT_MAT_BAS_BRANCA: {role: enrolments, white, type: integer}
-      QT_MAT_BAS_PRETA: {role: enrolments, black, type: integer}
-      QT_MAT_BAS_PARDA: {role: enrolments, brown, type: integer}
-      QT_MAT_BAS_AMARELA: {role: enrolments, yellow, type: integer}
-      QT_MAT_BAS_INDIGENA: {role: enrolments, indigenous, type: integer}
-      QT_MAT_BAS_ND: {role: enrolments, colour/race not declared, type: integer}
-      QT_MAT_BAS_0_3: {role: enrolments aged 0 to 3, type: integer}
-      QT_MAT_BAS_4_5: {role: enrolments aged 4 to 5, type: integer}
-      QT_MAT_BAS_6_10: {role: enrolments aged 6 to 10, type: integer}
-      QT_MAT_BAS_11_14: {role: enrolments aged 11 to 14, type: integer}
-      QT_MAT_BAS_15_17: {role: enrolments aged 15 to 17, type: integer}
-      QT_MAT_BAS_18_MAIS: {role: enrolments aged 18 or more, type: integer}
+      NU_ANO_CENSO: {description: census year, type: year}
+      CO_MUNICIPIO: {description: IBGE code of the school's municipality (7 digits), type: municipality}
+      CO_ENTIDADE: {description: the school's INEP code, type: code}
+      QT_MAT_BAS: {description: enrolments in basic education (total), type: integer}
+      QT_MAT_BAS_FEM: {description: enrolments, female, type: integer}
+      QT_MAT_BAS_MASC: {description: enrolments, male, type: integer}
+      QT_MAT_BAS_BRANCA: {description: enrolments, white, type: integer}
+      QT_MAT_BAS_PRETA: {description: enrolments, black, type: integer}
+      QT_MAT_BAS_PARDA: {description: enrolments, brown, type: integer}
+      QT_MAT_BAS_AMARELA: {description: enrolments, yellow, type: integer}
+      QT_MAT_BAS_INDIGENA: {description: enrolments, indigenous, type: integer}
+      QT_MAT_BAS_ND: {description: enrolments, colour/race not declared, type: integer}
+      QT_MAT_BAS_0_3: {description: enrolments aged 0 to 3, type: integer}
+      QT_MAT_BAS_4_5: {description: enrolments aged 4 to 5, type: integer}
+      QT_MAT_BAS_6_10: {description: enrolments aged 6 to 10, type: integer}
+      QT_MAT_BAS_11_14: {description: enrolments aged 11 to 14, type: integer}
+      QT_MAT_BAS_15_17: {description: enrolments aged 15 to 17, type: integer}
+      QT_MAT_BAS_18_MAIS: {description: enrolments aged 18 or more, type: integer}
     place: {column: CO_MUNICIPIO, type: municipality}
     period: {type: year, column: NU_ANO_CENSO, grain: year}
     fields:
@@ -2329,62 +2329,62 @@ sources:
       months: 202001-202609
       on_request: true
     columns:
-      co_documento: {role: code of the document in the RNDS (every FHIR document entering the RNDS receives one), type: code}
-      co_paciente: {role: pseudonymous code of the patient assigned in the RNDS (a hash; a personal identifier kept as filed), type: code}
-      tp_sexo_paciente: {role: biological sex of the patient (F, M, I), type: code}
-      co_raca_cor_paciente: {role: code of the patient's race/colour, type: code, label_from: no_raca_cor_paciente}
-      no_raca_cor_paciente: {role: name of the patient's race/colour, type: label}
-      co_municipio_paciente: {role: IBGE code of the patient's municipality of residence (6 digits), type: municipality}
-      co_pais_paciente: {role: code of the patient's country of residence, type: code, label_from: no_pais_paciente}
-      no_municipio_paciente: {role: name of the patient's municipality of residence, type: label}
-      no_pais_paciente: {role: name of the patient's country of residence, type: label}
-      sg_uf_paciente: {role: abbreviation of the patient's state, type: code}
-      nu_cep_paciente: {role: first five digits of the patient's CEP (postal code), type: code}
-      ds_nacionalidade_paciente: {role: nationality of the patient (B Brazilian, E foreign, as filed), type: code}
-      no_etnia_indigena_paciente: {role: name of the patient's indigenous ethnicity, type: label}
-      co_etnia_indigena_paciente: {role: code of the patient's indigenous ethnicity, type: code, label_from: no_etnia_indigena_paciente}
-      co_cnes_estabelecimento: {role: CNES code of the establishment that applied the dose, type: code}
-      no_razao_social_estabelecimento: {role: registered (legal) name of the establishment in the CNES, type: label}
-      no_fantasia_estalecimento: {role: trade name of the establishment (the header's spelling), type: label}
-      co_municipio_estabelecimento: {role: IBGE code of the establishment's municipality, type: municipality}
-      no_municipio_estabelecimento: {role: name of the establishment's municipality, type: label}
-      sg_uf_estabelecimento: {role: abbreviation of the establishment's state, type: code}
-      co_troca_documento: {role: code of the document this one replaced or altered, type: code}
-      co_vacina: {role: code of the vaccine applied, type: code, label_from: sg_imunobiologico}
-      sg_imunobiologico: {role: abbreviation of the vaccine applied, type: label}
-      dt_vacina: {role: date of vaccination, type: date, format: "%Y-%m-%d"}
-      co_dose_vacina: {role: code of the dose applied, type: code, label_from: ds_tipo_dose}
-      ds_tipo_dose: {role: description of the dose applied (1ª Dose, Reforço...), type: label}
-      co_local_aplicacao: {role: code of the body site of application, type: code, label_from: ds_local_aplicacao}
-      ds_local_aplicacao: {role: description of the body site of application, type: label}
-      co_via_administracao: {role: code of the route of administration, type: code, label_from: ds_via_administracao}
-      ds_via_administracao: {role: description of the route of administration, type: label}
-      co_lote_vacina: {role: lot code of the vaccine, type: code}
-      ds_vacina_fabricante: {role: manufacturer of the vaccine applied, type: label}
-      dt_entrada_rnds: {role: date the record entered the RNDS, type: date, format: "%Y-%m-%d"}
-      co_sistema_origem: {role: code of the system the record came from, type: code, label_from: ds_sistema_origem}
-      ds_sistema_origem: {role: description of the system the record came from (ESUS APS, SI-PNI...), type: label}
-      st_documento: {role: status of the document (final, or replaced or altered), type: code}
-      co_estrategia_vacinacao: {role: code of the vaccination strategy, type: code, label_from: no_estrategia}
-      no_estrategia: {role: description of the vaccination strategy (Rotina, Campanha...), type: label}
-      co_origem_registro: {role: code marking the record as a transcription, type: code, label_from: ds_origem_registro}
-      ds_origem_registro: {role: description marking the record as a transcription, type: label}
-      co_vacina_grupo_atendimento: {role: code of the care group of the vaccination, type: code, label_from: no_grupo_atendimento}
-      no_grupo_atendimento: {role: description of the care group of the vaccination, type: label}
-      co_categoria: {role: code of the category of the care group, type: code, label_from: ds_categoria}
-      ds_categoria: {role: description of the category of the care group, type: label}
-      co_vacina_fabricante: {role: code of the manufacturer of the vaccine (mostly empty), type: code}
-      ds_nome: {role: full name of the vaccine (immunobiological), type: label}
-      ds_condicao_maternal: {role: description of the patient's maternal condition (pregnant, postpartum), type: label}
-      co_tipo_estabelecimento: {role: code of the establishment's type in the CNES, type: code, label_from: ds_tipo_estabelecimento}
-      ds_tipo_estabelecimento: {role: description of the establishment's type in the CNES, type: label}
-      co_natureza_estabelecimento: {role: code of the establishment's nature in the CNES, type: code, label_from: ds_natureza_estabelecimento}
-      ds_natureza_estabelecimento: {role: description of the establishment's nature in the CNES, type: label}
-      nu_idade_paciente: {role: age of the patient in years at the dose (holds -1, 120 and 220), type: integer}
-      co_condicao_maternal: {role: code of the patient's maternal condition, type: code, label_from: ds_condicao_maternal}
-      no_uf_paciente: {role: name of the patient's state, type: label}
-      no_uf_estabelecimento: {role: name of the establishment's state, type: label}
-      dt_deletado_rnds: {role: date the record was altered or deleted in the system, type: date, format: "%Y-%m-%d"}
+      co_documento: {description: code of the document in the RNDS (every FHIR document entering the RNDS receives one), type: code}
+      co_paciente: {description: pseudonymous code of the patient assigned in the RNDS (a hash; a personal identifier kept as filed), type: code}
+      tp_sexo_paciente: {description: biological sex of the patient (F, M, I), type: code}
+      co_raca_cor_paciente: {description: code of the patient's race/colour, type: code, label_from: no_raca_cor_paciente}
+      no_raca_cor_paciente: {description: name of the patient's race/colour, type: label}
+      co_municipio_paciente: {description: IBGE code of the patient's municipality of residence (6 digits), type: municipality}
+      co_pais_paciente: {description: code of the patient's country of residence, type: code, label_from: no_pais_paciente}
+      no_municipio_paciente: {description: name of the patient's municipality of residence, type: label}
+      no_pais_paciente: {description: name of the patient's country of residence, type: label}
+      sg_uf_paciente: {description: abbreviation of the patient's state, type: code}
+      nu_cep_paciente: {description: first five digits of the patient's CEP (postal code), type: code}
+      ds_nacionalidade_paciente: {description: nationality of the patient (B Brazilian, E foreign, as filed), type: code}
+      no_etnia_indigena_paciente: {description: name of the patient's indigenous ethnicity, type: label}
+      co_etnia_indigena_paciente: {description: code of the patient's indigenous ethnicity, type: code, label_from: no_etnia_indigena_paciente}
+      co_cnes_estabelecimento: {description: CNES code of the establishment that applied the dose, type: code}
+      no_razao_social_estabelecimento: {description: registered (legal) name of the establishment in the CNES, type: label}
+      no_fantasia_estalecimento: {description: trade name of the establishment (the header's spelling), type: label}
+      co_municipio_estabelecimento: {description: IBGE code of the establishment's municipality, type: municipality}
+      no_municipio_estabelecimento: {description: name of the establishment's municipality, type: label}
+      sg_uf_estabelecimento: {description: abbreviation of the establishment's state, type: code}
+      co_troca_documento: {description: code of the document this one replaced or altered, type: code}
+      co_vacina: {description: code of the vaccine applied, type: code, label_from: sg_imunobiologico}
+      sg_imunobiologico: {description: abbreviation of the vaccine applied, type: label}
+      dt_vacina: {description: date of vaccination, type: date, format: "%Y-%m-%d"}
+      co_dose_vacina: {description: code of the dose applied, type: code, label_from: ds_tipo_dose}
+      ds_tipo_dose: {description: description of the dose applied (1ª Dose, Reforço...), type: label}
+      co_local_aplicacao: {description: code of the body site of application, type: code, label_from: ds_local_aplicacao}
+      ds_local_aplicacao: {description: description of the body site of application, type: label}
+      co_via_administracao: {description: code of the route of administration, type: code, label_from: ds_via_administracao}
+      ds_via_administracao: {description: description of the route of administration, type: label}
+      co_lote_vacina: {description: lot code of the vaccine, type: code}
+      ds_vacina_fabricante: {description: manufacturer of the vaccine applied, type: label}
+      dt_entrada_rnds: {description: date the record entered the RNDS, type: date, format: "%Y-%m-%d"}
+      co_sistema_origem: {description: code of the system the record came from, type: code, label_from: ds_sistema_origem}
+      ds_sistema_origem: {description: description of the system the record came from (ESUS APS, SI-PNI...), type: label}
+      st_documento: {description: status of the document (final, or replaced or altered), type: code}
+      co_estrategia_vacinacao: {description: code of the vaccination strategy, type: code, label_from: no_estrategia}
+      no_estrategia: {description: description of the vaccination strategy (Rotina, Campanha...), type: label}
+      co_origem_registro: {description: code marking the record as a transcription, type: code, label_from: ds_origem_registro}
+      ds_origem_registro: {description: description marking the record as a transcription, type: label}
+      co_vacina_grupo_atendimento: {description: code of the care group of the vaccination, type: code, label_from: no_grupo_atendimento}
+      no_grupo_atendimento: {description: description of the care group of the vaccination, type: label}
+      co_categoria: {description: code of the category of the care group, type: code, label_from: ds_categoria}
+      ds_categoria: {description: description of the category of the care group, type: label}
+      co_vacina_fabricante: {description: code of the manufacturer of the vaccine (mostly empty), type: code}
+      ds_nome: {description: full name of the vaccine (immunobiological), type: label}
+      ds_condicao_maternal: {description: description of the patient's maternal condition (pregnant, postpartum), type: label}
+      co_tipo_estabelecimento: {description: code of the establishment's type in the CNES, type: code, label_from: ds_tipo_estabelecimento}
+      ds_tipo_estabelecimento: {description: description of the establishment's type in the CNES, type: label}
+      co_natureza_estabelecimento: {description: code of the establishment's nature in the CNES, type: code, label_from: ds_natureza_estabelecimento}
+      ds_natureza_estabelecimento: {description: description of the establishment's nature in the CNES, type: label}
+      nu_idade_paciente: {description: age of the patient in years at the dose (holds -1, 120 and 220), type: integer}
+      co_condicao_maternal: {description: code of the patient's maternal condition, type: code, label_from: ds_condicao_maternal}
+      no_uf_paciente: {description: name of the patient's state, type: label}
+      no_uf_estabelecimento: {description: name of the establishment's state, type: label}
+      dt_deletado_rnds: {description: date the record was altered or deleted in the system, type: date, format: "%Y-%m-%d"}
     place: {column: co_municipio_paciente, type: municipality}
     period: {type: date, column: dt_vacina, format: "%Y-%m-%d", grain: month, valid: 2020-2026}
     fields:

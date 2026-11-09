@@ -576,6 +576,7 @@ columns:
     - 2000
     - 2026
   CS_SEXO:
+    compare: {case.sex: {type: sex}}
     missing:
     - 'I'
     # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
@@ -860,6 +861,7 @@ columns:
     - 2007
     - 2026
   DT_OBITO:
+    compare: {case.death_date: {type: date, format: YYYY-MM-DD}}
     role: case.death_date
     kind: date
     model: mark
@@ -890,6 +892,7 @@ columns:
     - 2014
     - 2026
   DT_SIN_PRI:
+    compare: {case.onset: {type: date, format: YYYY-MM-DD}}
     role: case.onset
     kind: date
     model: when
@@ -1001,6 +1004,7 @@ columns:
     - 2007
     - 2026
   EVOLUCAO:
+    compare: {case.outcome: {type: code}}
     missing: ['0', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2019-2023): 0='Ign/Branco', 5='Ign/Branco', 6='Ign/Branco', 7='Ign/Branco', 8='Ign/Branco', 9='Ign/Branco'
     fatal: ['2']
@@ -1427,6 +1431,7 @@ columns:
     note: '2000-2006 SINAN Windows layout: no dictionary for it is published (searched: FTP SINAN/DOCS, Docs_TAB_SINAN,
       TAB_SINANNET, the web). Meaning read from the variable note (the name); kind from the values; codes undecoded.'
   ID_MN_RESI:
+    compare: {case.residence: {type: municipality}}
     role: patient.residence
     kind: place
     model: stratum
@@ -1448,6 +1453,7 @@ columns:
     - 2000
     - 2026
   ID_MUNICIP:
+    compare: {notification.municipality: {type: municipality}}
     role: notification.municipality
     kind: place
     model: where
@@ -1523,6 +1529,7 @@ columns:
     - 2000
     - 2026
   ID_UNIDADE:
+    compare: {notification.facility: {type: facility}}
     role: notification.facility
     kind: institution
     width: 7
@@ -2379,6 +2386,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    compare: {case.age_years: {type: number}}
     missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: patient.age_years
     kind: number

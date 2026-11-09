@@ -198,11 +198,10 @@ def _axes(key: str, system: str = "") -> tuple[dict[str, str], dict[str, str]]:
 
 
 def _linkage(dataset: str) -> dict[str, list[str]]:
-    body = (_yaml(CURATION / "roles.yml").get("datasets") or {}).get(dataset) or {}
-    out: dict[str, list[str]] = {}
-    for role, spec in (body.get("roles") or {}).items():
-        out.setdefault(str(spec["column"]).upper(), []).append(str(role))
-    return out
+    path = CURATION / "roles" / f"{dataset}.yml"
+    columns = (_yaml(path).get("columns") or {}) if path.is_file() else {}
+    return {str(column).upper(): [str(r) for r in (body.get("compare") or {})]
+            for column, body in columns.items() if isinstance(body, dict) and body.get("compare")}
 
 
 def _columns(conn: sqlite3.Connection, system: str, series: str) -> dict[str, dict]:

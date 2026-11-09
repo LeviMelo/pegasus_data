@@ -1,6 +1,6 @@
 """Measurements behind record linkage (docs/plans/linkage.md, phase A2).
 
-Every quantity is computed on roles (``curation/roles.yml``), so it is about
+Every quantity is computed on roles (the ``compare:`` columns of ``curation/roles/``), so it is about
 the property a column states, not the column:
 
     python scripts/linkage_study.py bits SINASC-DN 2022

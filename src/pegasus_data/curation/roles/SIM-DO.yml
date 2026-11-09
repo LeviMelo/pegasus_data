@@ -1,5 +1,6 @@
 dataset: SIM-DO
 record: death
+setting: deceased.residence    # the municipality role whose state publishes a record (linkage)
 persons:
   deceased: {at_most_one: true}   # one death certificate per person
 columns:
@@ -65,6 +66,7 @@ columns:
     - 2001
     - 2026
   CAUSABAS:
+    compare: {death.cause: {type: code}}
     role: death.cause
     kind: code_tree
     model: event_type
@@ -173,6 +175,7 @@ columns:
     - 2012
     - 2013
   CODESTAB:
+    compare: {death.facility: {type: facility}}
     role: death.facility
     kind: institution
     model: institution
@@ -222,6 +225,7 @@ columns:
     - 2014
     - 2026
   CODMUNOCOR:
+    compare: {death.municipality: {type: municipality}}
     role: death.municipality
     kind: place
     model: where
@@ -236,6 +240,7 @@ columns:
     - 1996
     - 2026
   CODMUNRES:
+    compare: {deceased.residence: {type: municipality}}
     role: deceased.residence
     kind: place
     model: stratum
@@ -363,6 +368,7 @@ columns:
     - 2006
     - 2026
   DTNASC:
+    compare: {deceased.birth_date: {type: date, format: DDMMYYYY}}
     role: deceased.birth_date
     kind: date
     model: stratum
@@ -373,6 +379,7 @@ columns:
     - 1996
     - 2026
   DTOBITO:
+    compare: {death.date: {type: date, format: DDMMYYYY}}
     role: death.date
     kind: date
     model: when
@@ -621,6 +628,7 @@ columns:
     - 1996
     - 2026
   GRAVIDEZ:
+    compare: {death.plurality: {type: label, categories: {single: [única, unica], twins: [dupla], triplets or more: [tripla e mais, tripla e+, tripla ou mais]}}}
     missing: ['0', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality
@@ -660,6 +668,7 @@ columns:
     note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_anos) is the 
       decoded stratum.
   IDADEMAE:
+    compare: {death.maternal_age: {type: integer}}
     missing: []
     domain: [1, 99]
     # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 29100 values in 2022 (none)
@@ -677,6 +686,7 @@ columns:
     - 1996
     - 2026
   LINHAA:
+    compare: {death.causes: {also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}}
     role: death.certificate_line_a
     also:
     - death.causes
@@ -744,6 +754,7 @@ columns:
     - 1996
     - 2026
   LOCOCOR:
+    compare: {death.place: {type: label, categories: {hospital: [hospital], other health facility: [outros estabelecimentos de saúde, outro estabelecimento de saúde, outro estab de saúde], home: [domicílio], street: [via pública], indigenous village: [aldeia indígena, aldeia indigena], other: [outros, outro]}}}
     missing: ['0', '7', '8', '9']
     # the record layout (sources/sim2025.txt) defines 5 = 'outros' and 6 = 'aldeia indígena'; TabNet's 2022 labels
     # call 0 and 5-9 'Ignorado'. The layout wins for 5 and 6, the labels stand for 0, 7 and 8; corrected 2026-10-08
@@ -861,6 +872,7 @@ columns:
     - 2012
     - 2013
   OBITOGRAV:
+    compare: {death.pregnancy: {type: label}}
     missing: ['3', '4', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: deceased.pregnancy_status
@@ -887,6 +899,7 @@ columns:
     - 1996
     - 2026
   OBITOPUERP:
+    compare: {death.puerperium: {type: label}}
     missing: ['4', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: deceased.puerperium_status
@@ -937,6 +950,7 @@ columns:
     - 2009
     - 2026
   PARTO:
+    compare: {death.delivery: {type: label, categories: {vaginal: [vaginal], cesarean: [cesáreo, cesário, cesárea]}}}
     missing: ['0', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.delivery
@@ -951,6 +965,7 @@ columns:
     - 1996
     - 2026
   PESO:
+    compare: {death.birth_weight: {type: integer}}
     missing: []
     domain: [1, 8000]
     # proposed (SP 2008): the range DATASUS's tabulation bands label as values; outside it 0 of 6360 values in SP 2008 (none)
@@ -1006,6 +1021,7 @@ columns:
     - 1996
     - 2026
   RACACOR:
+    compare: {deceased.race: {type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: [indígena]}}}
     missing: []
     # the layout lists 1-5 and no code for ignored (sources/sim2025.txt, campo 11): a blank is missing, and 9 (5 of
     # 3.9 million deaths of 2010, 2016, 2023) is no category, left undecoded
@@ -1019,6 +1035,7 @@ columns:
     - 1996
     - 2026
   SEMAGESTAC:
+    compare: {death.gestation_weeks: {type: integer}}
     missing: []
     domain: [0, 98]
     # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 491 of 28341 values in 2022 (99: 491)
@@ -1068,6 +1085,7 @@ columns:
     - 2012
     - 2026
   SEXO:
+    compare: {deceased.sex: {type: sex}}
     missing: ['0', '9', 'I']
     # the record layout (sources/sim2025.txt, campo 10): 'M,1 - masculino; F,2 - feminino; I,0,9 - ignorado';
     # SIM-DO 2010, 2016, 2023 hold 0 and 9 (1,099 and 432 of 3.9 million deaths), no letter
@@ -1111,6 +1129,7 @@ columns:
     - 2011
     - 2026
   TIPOBITO:
+    compare: {death.kind: {type: label}}
     role: death.kind
     kind: category
     model: event_type
@@ -1224,6 +1243,7 @@ columns:
     - 2014
     - 2026
   IDADE_anos:
+    compare: {deceased.age_years: {type: number}}
     missing_unknown: 'no codelist or tabulation band of DATASUS bounds it'
     role: deceased.age_years
     kind: number

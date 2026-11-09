@@ -893,7 +893,7 @@ def link_cmd(
 
 @app.command(name="link-discover", rich_help_panel="EXTRACT")
 def link_discover_cmd(
-    left: Annotated[str, typer.Argument(help="A dataset with roles (curation/roles.yml), e.g. SINASC-DN")],
+    left: Annotated[str, typer.Argument(help="A dataset with linkage roles (compare: in curation/roles/<dataset>.yml), e.g. SINASC-DN")],
     right: Annotated[str, typer.Argument(help="The other dataset, e.g. SIH-RD")],
     period: Annotated[str, typer.Option("--period", "-p", help="2022, or 2020..2022")],
     geography: Annotated[str, typer.Option("--geo", "-g", help="AC, or AC,RR, or BR")],

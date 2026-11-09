@@ -146,7 +146,7 @@ def ontology_nodes(root: Path | None = None) -> tuple[dict[str, dict[str, Any]],
 
 def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """The documentation the declarations carry, as ``variables:`` and ``datasets:`` files of the curation loader: a column's
-    role is its description, its ``codes`` the inline code list (served as ``CURATED.<SYSTEM>.<FIELD>``)."""
+    ``description`` is its description, its ``codes`` the inline code list (served as ``CURATED.<SYSTEM>.<FIELD>``)."""
     variable_files, dataset_files = [], []
     for spec in declared_sources(root).values():
         if not spec.get("system"):
@@ -155,7 +155,7 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
         reference = spec.get("dictionary") or spec.get("citation")
         variables: dict[str, Any] = {}
         for column, decl in (spec.get("columns") or {}).items():
-            body: dict[str, Any] = {"description": str((decl or {}).get("role") or column)}
+            body: dict[str, Any] = {"description": str((decl or {}).get("description") or column)}
             if (decl or {}).get("codes"):
                 body["codes"] = decl["codes"]
             if (decl or {}).get("codelist"):
@@ -920,7 +920,7 @@ PERIOD_DERIVATION = {"parts": 2}
 
 
 #: The keys of a column's declaration that change what is landed: how its typed value, raw and flag are read (`_typed`,
-#: `_flag`), the spellings its header is found by, whether it may be absent. Its role's words and its code table are read
+#: `_flag`), the spellings its header is found by, whether it may be absent. Its description and its code table are read
 #: with the lake, so editing them lands nothing again (until 2026-10-19 the whole declaration was digested, and any
 #: curation edit to a source's columns downloaded the source again: SNGPC-IND's 94 months for a code table, OQ-90).
 LANDED_KEYS = ("type", "take", "format", "formats", "decimal", "tokens", "aliases", "optional")

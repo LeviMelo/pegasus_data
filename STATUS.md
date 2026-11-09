@@ -47,8 +47,8 @@ disk.
 Ranked. Evidence is in the session audit, summarised here; each is closed by replacing the special case with the
 general rule.
 1. **CNES has its own pipeline:** a third-party mirror, hard-coded column names. Stage 3.
-2. **One column, three declarations:** `curation/roles.yml` (linkage, 108 roles), `curation/roles/*.yml` (11,003
-   columns), and intake `role:`, which is really a description.
+2. ~~One column, three declarations~~ **closed (ADR-0219):** linkage reads `compare:` from the roles files
+   (`roles.yml` deleted, 108 roles equal); the intake's `role:` is `description:`.
 3. **Study modules name datasets and columns in code:** `completeness`, `population_account`, `modelled_race`,
    `sus_dependent`, `population_backcast`/`forecast`, about 4,000 lines.
 4. ~~Age encodings named per system~~ **closed (ADR-0218):** five forms with the unit table as data, declared once on

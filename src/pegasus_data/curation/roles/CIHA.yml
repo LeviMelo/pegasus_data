@@ -1,5 +1,6 @@
 dataset: CIHA
 record: admission
+setting: admission.facility_municipality    # the municipality role whose state publishes a record (linkage)
 columns:
   ANO_CMPT:
     role: admission.processing_year
@@ -48,6 +49,7 @@ columns:
     - 2011
     - 2026
   CNES:
+    compare: {admission.facility: {type: facility}}
     role: admission.facility
     kind: institution
     model: institution
@@ -85,6 +87,7 @@ columns:
     - 2011
     - 2026
   DIAG_PRINC:
+    compare: {admission.diagnosis: {type: code}}
     role: admission.diagnosis
     kind: code_tree
     model: event_type
@@ -126,6 +129,7 @@ columns:
     - 2011
     - 2026
   DT_ATEND:
+    compare: {admission.start: {type: date, format: YYYYMMDD}}
     role: admission.start
     kind: date
     model: when
@@ -136,6 +140,7 @@ columns:
     - 2011
     - 2026
   DT_SAIDA:
+    compare: {admission.end: {type: date, format: YYYYMMDD}}
     role: admission.end
     kind: date
     model: when
@@ -157,6 +162,7 @@ columns:
     - 2011
     - 2026
   FONTE:
+    compare: {admission.payer: {type: code}}
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (01='convenio plano privado', 02='particular pessoa fisica', 03='gratuito', 04='financiado/ses', 05='financiado/sms', 06='convenio plano publico', 09='particular pessoa juridica', 10='pronon', 11='pronas/pcd', 13='consorcio'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.payer
@@ -218,6 +224,7 @@ columns:
     - 2011
     - 2026
   MODALIDADE:
+    compare: {admission.modality: {type: code}}
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (00='atendimentos ambulatoriais consolidados', 01='atendimentos ambulatoriais individualizados', 02='internações'): a code table, not a catch-all; no value labelled as not recorded
     role: admission.modality
@@ -232,6 +239,7 @@ columns:
     - 2011
     - 2026
   MORTE:
+    compare: {admission.death: {type: code}}
     missing: []
     # declared from DATASUS's own sources (SP 2026-07): no form dictionary; the table names every code the records use, each with its own label (0='sem óbito', 1='com óbito'): a code table, not a catch-all; no value labelled as not recorded
     fatal: ['1']
@@ -248,6 +256,7 @@ columns:
     - 2011
     - 2026
   MUNIC_MOV:
+    compare: {admission.facility_municipality: {type: municipality}}
     role: admission.facility_municipality
     kind: place
     model: where
@@ -266,6 +275,7 @@ columns:
     - 2011
     - 2026
   MUNIC_RES:
+    compare: {patient.residence: {type: municipality}}
     role: patient.residence
     kind: place
     model: stratum
@@ -295,6 +305,7 @@ columns:
     - 2011
     - 2026
   NASC:
+    compare: {patient.birth_date: {type: date, format: YYYYMMDD}}
     role: patient.birth_date
     kind: date
     model: stratum
@@ -318,6 +329,7 @@ columns:
     - 2011
     - 2026
   PROC_REA:
+    compare: {admission.procedure: {type: code}}
     role: admission.procedure
     kind: code_tree
     model: event_type
@@ -343,6 +355,7 @@ columns:
     - 2011
     - 2026
   SEXO:
+    compare: {patient.sex: {type: sex}}
     role: patient.sex
     kind: category
     model: stratum

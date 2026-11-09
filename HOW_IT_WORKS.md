@@ -134,7 +134,7 @@ There are two halves.
 - **Rates** (`rates.age_standardised_rates`) divide queried records by
   POPSVS, crude and age-standardised.
 - **Linkage** (`linkage/`, `link()`):
-  - specs in `curation/links.yml` compare roles (`curation/roles.yml`)
+  - specs in `curation/links.yml` compare roles (the `compare:` columns of `curation/roles/`)
     probabilistically, with error measured against a shifted placebo;
   - `build_entities()` merges stored links into persons.
 

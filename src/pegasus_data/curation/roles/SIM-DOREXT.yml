@@ -84,6 +84,7 @@ columns:
     - 2026
     note: role from SIM-DO
   CAUSABAS:
+    compare: {death.cause: {type: code}}
     role: death.cause
     kind: code_tree
     model: event_type
@@ -252,6 +253,7 @@ columns:
     - 2026
     note: role from SIM-DO
   CODMUNRES:
+    compare: {deceased.residence: {type: municipality}}
     role: deceased.residence
     kind: place
     model: stratum
@@ -404,6 +406,7 @@ columns:
     - 2026
     note: role from SIM-DO
   DTOBITO:
+    compare: {death.date: {type: date, format: DDMMYYYY}}
     role: death.date
     kind: date
     model: when
@@ -704,6 +707,7 @@ columns:
     - 2026
     note: role from SIM-DO
   LINHAA:
+    compare: {death.causes: {also: [LINHAB, LINHAC, LINHAD, LINHAII], type: codes}}
     role: death.certificate_line_a
     also:
     - death.causes

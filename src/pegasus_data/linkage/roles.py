@@ -1,10 +1,26 @@
 """Roles: records from any system as comparable properties of entities (ADR-0109).
 
-Linkage never compares columns by name. ``curation/roles.yml`` declares which
-column states which property of whom (``mother.birth_date`` is SINASC's
-DTNASCMAE and, in a delivery admission, SIH's NASC), and this module turns one
-query's records into a table of those properties, normalised through the
-project's own meaning:
+Linkage never compares columns by name. A dataset's roles file (``curation/roles/<dataset>.yml``, the one
+declaration of its columns) says which column states which property of whom (``mother.birth_date`` is SINASC's
+DTNASCMAE and, in a delivery admission, SIH's NASC); a column linkage compares carries ``compare:``, how each of its
+roles is normalised before comparison, and the file's ``setting:`` names the municipality role whose state publishes a
+record (DATASUS files SIM and SINASC by residence, SIH and CIHA by the hospital's municipality; error channels are
+estimated per setting, ADR-0123). This module turns one query's records into a table of those properties, normalised
+through the project's own meaning. A ``compare`` type is one of:
+
+* ``date`` (a calendar date, with ``format`` DDMMYYYY, YYYYMMDD or YYYY-MM-DD), ``month`` (``format`` YYYYMM, its first
+  day), ``year``, or ``birth_from_age`` (the birth date an age in ``column`` and the one ``also`` reference date fix);
+* ``sex``: M or F from the column's decoded label, because every system codes it
+  differently (SIH 1/3, SIM and SINASC 1/2, SIA M/F);
+* ``municipality`` (6-digit IBGE code) or ``facility`` (7-digit CNES): one whose label says "ignorado" is missing,
+  not a place;
+* ``integer``/``number`` (a count or measure), ``code`` (compared exactly), ``codes`` (every code of ``column`` and
+  the ``also`` columns: all of an admission's diagnoses);
+* ``label``: the decoded label, lower-cased; with ``categories`` (canonical -> each system's spellings) the canonical
+  category, a label outside the map missing (SIM writes "cesáreo", SINASC "cesário": compared as text they
+  disagreed in 54% of linked pairs);
+* anything that does not parse is null. Missing contributes no evidence; it is
+  never guessed.
 
 * dates are parsed with the dataset's declared format;
 * sex is read from the decoded label, because every system codes it
@@ -35,10 +51,11 @@ from ..semantics.curation import read_yaml
 from ..semantics.epoch import curated
 
 
-def roles_file() -> Path:
+def roles_files() -> list[Path]:
+    """The datasets' roles files (`curation/roles/*.yml`); those with a ``compare:`` column are linkable."""
     from ..config import curation_root
 
-    return curation_root() / "roles.yml"
+    return sorted((curation_root() / "roles").glob("*.yml"))
 
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "year", "birth_from_age", "sex", "municipality", "facility", "integer", "number", "code",
@@ -71,23 +88,31 @@ class DatasetRoles:
 
 @curated
 def load_roles() -> dict[str, DatasetRoles]:
-    """Every dataset's roles, validated: an unknown type or format is an error."""
-    data = read_yaml(roles_file())
+    """Every linkable dataset's roles, read from its roles file's ``compare:`` columns and validated: an unknown type
+    or format is an error."""
     out: dict[str, DatasetRoles] = {}
-    for dataset, body in (data.get("datasets") or {}).items():
+    for path in roles_files():
+        doc = read_yaml(path, shared=True) or {}
+        dataset = str(doc.get("dataset") or path.stem)
+        specs = {str(name): {**dict(spec), "column": str(column)}
+                 for column, body in (doc.get("columns") or {}).items() if isinstance(body, dict)
+                 for name, spec in (body.get("compare") or {}).items()}
+        if not specs:
+            continue
+        body = doc
         roles: dict[str, Role] = {}
-        for name, spec in (body.get("roles") or {}).items():
+        for name, spec in specs.items():
             kind = str(spec["type"])
             if kind not in _TYPES:
-                raise ValueError(f"roles.yml: {dataset}.{name}: unknown type {kind!r}")
+                raise ValueError(f"roles/{dataset}.yml: {dataset}.{name}: unknown type {kind!r}")
             fmt = spec.get("format")
             if kind in ("date", "month", "year", "birth_from_age") and fmt not in _FORMATS:
-                raise ValueError(f"roles.yml: {dataset}.{name}: date needs format in {sorted(_FORMATS)}")
+                raise ValueError(f"roles/{dataset}.yml: {dataset}.{name}: date needs format in {sorted(_FORMATS)}")
             if kind == "birth_from_age" and len(spec.get("also") or ()) != 1:
-                raise ValueError(f"roles.yml: {dataset}.{name}: birth_from_age reads the age in `column` and "
+                raise ValueError(f"roles/{dataset}.yml: {dataset}.{name}: birth_from_age reads the age in `column` and "
                                  "the reference date in the one `also` column")
             if "." not in name:
-                raise ValueError(f"roles.yml: {dataset}.{name}: a role is <entity>.<property>")
+                raise ValueError(f"roles/{dataset}.yml: {dataset}.{name}: a role is <entity>.<property>")
             categories = tuple(
                 (str(variant).lower(), str(canonical))
                 for canonical, variants in (spec.get("categories") or {}).items()
@@ -97,7 +122,7 @@ def load_roles() -> dict[str, DatasetRoles]:
                                tuple(str(c) for c in spec.get("also") or ()))
         setting = body.get("setting")
         if setting is not None and (setting not in roles or roles[setting].type != "municipality"):
-            raise ValueError(f"roles.yml: {dataset}: setting {setting!r} is not a municipality role")
+            raise ValueError(f"roles/{dataset}.yml: {dataset}: setting {setting!r} is not a municipality role")
         out[str(dataset).upper()] = DatasetRoles(str(dataset).upper(), str(body.get("record", "")), roles,
                                                  str(setting) if setting else None)
     return out
@@ -333,7 +358,8 @@ def table_key(dataset: str, year: int, settings: Any) -> str | None:
         return None
     spec = dataset_roles(dataset)
     h = hashlib.sha256(f"{ROLE_TABLE_VERSION}|{dataset.upper()}|{year}|".encode())
-    h.update(repr((spec.record, spec.roles)).encode())
+    # in the roles' name order: where they are declared (a column's `compare:`) does not change the table
+    h.update(repr((spec.record, sorted(spec.roles.items()))).encode())
     h.update(label_inputs(dataset, files, lake, settings).encode())
     for f in files:
         st = f.stat()

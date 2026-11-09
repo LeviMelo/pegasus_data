@@ -54,6 +54,7 @@ columns:
     - 2012
     - 2026
   CNES_EXEC:
+    compare: {care.facility: {type: facility}}
     role: care.facility
     kind: institution
     model: institution
@@ -87,6 +88,7 @@ columns:
     - 2012
     - 2026
   CNS_PAC:
+    compare: {patient.id: {type: code}}
     role: patient.cns
     kind: identifier
     model: link_only
@@ -142,6 +144,7 @@ columns:
     - DESTINO
     - DEST_PSI
   DTNASC:
+    compare: {patient.birth_date: {type: date, format: YYYYMMDD}}
     role: patient.birth_date
     kind: date
     model: stratum
@@ -152,6 +155,7 @@ columns:
     - 2012
     - 2026
   DT_ATEND:
+    compare: {care.competence: {type: month, format: YYYYMM}}
     role: care.competence
     kind: date
     model: when
@@ -172,6 +176,7 @@ columns:
     - 2012
     - 2026
   DT_INICIO:
+    compare: {treatment.start: {type: date, format: YYYYMMDD}}
     role: treatment.start
     kind: date
     model: mark
@@ -213,6 +218,7 @@ columns:
     - 2012
     - 2026
   FIM:
+    compare: {care.end: {type: date, format: YYYYMMDD}}
     role: care.end
     kind: date
     model: mark
@@ -261,6 +267,7 @@ columns:
     - 2012
     - 2026
   INICIO:
+    compare: {care.start: {type: date, format: YYYYMMDD}}
     role: care.start
     kind: date
     model: mark
@@ -313,6 +320,7 @@ columns:
     codelists:
     - MOTSAIPE
   MUNPAC:
+    compare: {patient.residence: {type: municipality}}
     role: patient.residence
     kind: place
     model: stratum
@@ -490,6 +498,7 @@ columns:
     - 2012
     - 2026
   SEXOPAC:
+    compare: {patient.sex: {type: sex}}
     role: patient.sex
     kind: category
     model: stratum

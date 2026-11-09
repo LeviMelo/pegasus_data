@@ -152,4 +152,4 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
 - **column:** a column; "field" stops naming the place × time object.
 - **context:** a study's choice of cubes, a PegaSUS word, not a pegasus_data object.
 - The intake's `role:` becomes `meaning:`: a column's description, not an entity.property.
-- `curation/roles.yml`'s linkage block moves into `curation/roles/` (one declaration per column).
+- `curation/roles.yml`'s linkage block moves into `curation/roles/` (one declaration per column). Done (ADR-0219).

@@ -178,7 +178,7 @@ def _uf_basis_note(dataset: str, geography_field: str, ufs: Sequence[str]) -> st
     """What a state build means when the dataset's files are published by another geography than its cells' key.
 
     ``uf`` selects PUBLICATIONS, never records (ADR-0043), so a state build keeps whatever its files hold. SIH-RD's
-    files are by hospital state (``setting`` in ``curation/roles.yml``) and its cells are keyed by residence: the
+    files are by hospital state (``setting`` in its roles file) and its cells are keyed by residence: the
     municipalities of the state lose the residents treated in other states, so even the cells that exist are short,
     which "no cell means not observed" does not say. Empty when the files are by the cells' own geography (SIM-DO,
     SINASC-DN: by residence), or when no setting is declared.

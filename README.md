@@ -284,7 +284,7 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   - births → the mother's delivery admission.
 - **Roles.** `role_table(dataset, …)` gives any dataset's records as the
   properties they state (`mother.birth_date`, `patient.sex`), normalised
-  (`curation/roles.yml`).
+  (the `compare:` columns of `curation/roles/<dataset>.yml`).
 - **Refusal.** A linkage that is not viable raises `LinkNotViable` instead of
   returning pairs.
 - **Discovery.** `discover_links("SINASC-DN", "SIH-RD", period=2022,

@@ -1,5 +1,6 @@
 dataset: SINASC-DN
 record: birth
+setting: mother.residence    # the municipality role whose state publishes a record (linkage)
 persons:
   baby: {at_most_one: true}    # one birth record per person born (linkage/entities.py merges persons under it)
   mother: {}
@@ -114,6 +115,7 @@ columns:
     - 2010
     - 2013
   CODESTAB:
+    compare: {birth.facility: {type: facility}}
     role: birth.facility
     kind: institution
     model: institution
@@ -136,6 +138,7 @@ columns:
     - 2013
     - 2013
   CODMUNNASC:
+    compare: {birth.municipality: {type: municipality}}
     role: birth.municipality
     kind: place
     model: where
@@ -168,6 +171,7 @@ columns:
     - 2010
     - 2026
   CODMUNRES:
+    compare: {mother.residence: {type: municipality}}
     role: mother.residence
     kind: place
     model: stratum
@@ -326,6 +330,7 @@ columns:
     - 2014
     - 2026
   DTNASC:
+    compare: {baby.birth_date: {type: date, format: DDMMYYYY}, birth.date: {type: date, format: DDMMYYYY}}
     role: baby.birth_date
     kind: date
     model: when
@@ -338,6 +343,7 @@ columns:
     - 1994
     - 2026
   DTNASCMAE:
+    compare: {mother.birth_date: {type: date, format: DDMMYYYY}, mother.birth_year: {type: year, format: DDMMYYYY}}
     role: mother.birth_date
     kind: date
     model: stratum
@@ -521,6 +527,7 @@ columns:
     - 1994
     - 2026
   GRAVIDEZ:
+    compare: {birth.plurality: {type: label, categories: {single: [única, unica], twins: [dupla], triplets or more: [tripla e mais, tripla e+, tripla ou mais]}}}
     missing: ['0', '4', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.plurality
@@ -544,6 +551,7 @@ columns:
     - 2026
     note: Clock time packed as HHMM.
   IDADEMAE:
+    compare: {mother.age: {type: integer}}
     missing: ['00', '99']
     domain: [1, 65]
     # 00 and 99 are the not-recorded codes: IDADEMAE.CNV of NASC_NOV_TAB labels 00 'Ign' and 66-99 'Ign' (the 1994-95 kit 00 and 60-99 'Ignorado').
@@ -604,6 +612,7 @@ columns:
     - 2014
     - 2026
   LOCNASC:
+    compare: {birth.place: {type: label, categories: {hospital: [hospital], other health facility: [outros estabelecimentos de saúde, outro estabelecimento de saúde, outro estab de saúde], home: [domicílio], street: [via pública], indigenous village: [aldeia indígena, aldeia indigena], other: [outros, outro]}}}
     missing: ['0', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado'
     role: birth.place
@@ -689,6 +698,7 @@ columns:
     - 2014
     - 2026
   PARTO:
+    compare: {birth.delivery: {type: label, categories: {vaginal: [vaginal], cesarean: [cesáreo, cesário, cesárea]}}}
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']
     # proposed from DATASUS's labels (2022): 0='Ign', 3='Ign', 4='Ign', 5='Ign', 6='Ign', 7='Ign', 8='Ign', 9='Ign'
     role: birth.delivery
@@ -701,6 +711,7 @@ columns:
     - 1994
     - 2026
   PESO:
+    compare: {birth.weight: {type: integer}}
     missing: ['0000', '9999']
     domain: [1, 8999]
     # 0000 and 9999 are the not-recorded codes: PESO1.CNV of NASC_NOV_TAB labels 0000 'ignorado' and 9000-9999 'ignorado' (the 1994-95 kit 0000 and
@@ -816,6 +827,7 @@ columns:
     - 2010
     - 2026
   RACACOR:
+    compare: {baby.race: {type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: [indígena]}}}
     missing: []
     # proposed from DATASUS's labels (2022): no value labelled as not recorded
     role: baby.race
@@ -828,6 +840,7 @@ columns:
     - 1994
     - 2026
   RACACORMAE:
+    compare: {mother.race: {type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: [indígena]}}}
     role: mother.race
     kind: category
     model: stratum
@@ -865,6 +878,7 @@ columns:
     - 2011
     note: Newborn race in the 2011 files only; coalesce with RACACOR and RACACORN.
   SEMAGESTAC:
+    compare: {birth.gestation_weeks: {type: integer}}
     missing: []
     domain: [1, 50]
     # proposed (2022): the range DATASUS's tabulation bands label as values; outside it 0 of 2539168 values in 2022 (none)
@@ -896,6 +910,7 @@ columns:
     - 2010
     - 2026
   SEXO:
+    compare: {baby.sex: {type: sex}}
     missing: ['0', '3', '4', '5', '6', '7', '8', '9', I]
     # proposed from DATASUS's labels (2022): 0='Ignorado', 3='Ignorado', 4='Ignorado', 5='Ignorado', 6='Ignorado', 7='Ignorado', 8='Ignorado', 9='Ignorado', I='Ignorado'
     # measured 2026-10-14 (DNBR2009-2024): the ignored sex is 0 in 2009, 2012-2013 and 2015-2024, 9 in 2010-2011 (878 births) and I in 2014 (659); the codelist (variables/sinasc/_shared.yml) windows the 9

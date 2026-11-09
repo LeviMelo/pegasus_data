@@ -50,9 +50,8 @@ The column keeps the source's name and must state the same role and kind there (
 selected by name, from the source for the same period and geography, never filling a record's gap with a guess:
 `semantics.through` reads it and reports the records whose key found no row.
 
-The linkage roles of ``curation/roles.yml`` name some of these columns for
-comparison; each must agree with the column's declared role (one mechanism,
-two uses).
+A column linkage compares carries ``compare:`` in the same file (role -> how it is normalised, `linkage.roles`):
+one declaration of a column, read by both.
 """
 
 from __future__ import annotations

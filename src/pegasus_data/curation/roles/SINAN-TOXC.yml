@@ -1,7 +1,15 @@
+# Congenital and gestational toxoplasmosis notifications (BACKLOG 6.2). SINAN carries no birth date since the LGPD
+# rewrite: a year (ANO_NASC) and an age coded as a unit and a count (NU_IDADE_N: 1 hours, 2 days, 3 months, 4 years).
+# A child's age in days was counted from the date of first symptoms or diagnosis: counted back from DT_SIN_PRI it
+# gives ANO_NASC for 99.7% of the 30,478 TOXC 2019-2025 records aged in days, from DT_NOTIFIC for 91.8% (7.9% agree
+# only through DT_SIN_PRI, 0.04% only through DT_NOTIFIC). It fixes the birth date: `birth_from_age`. A record aged
+# in months or years (14.4% of TOXC) has no birth day; one aged in hours (54) is left without one too.
+# The notified person is the child in TOXC, the mother in TOXG.
 dataset: SINAN-TOXC
 record: notification
 columns:
   ANO_NASC:
+    compare: {patient.birth_year: {type: integer}}
     role: patient.birth_year
     kind: number
     model: mark
@@ -13,6 +21,7 @@ columns:
     - 2026
     note: Four-digit birth year (the form's notification block); a calendar index, not a measurement.
   CLASSI_FIN:
+    compare: {case.classification: {type: code}}
     role: case.classification
     kind: category
     model: event_type
@@ -143,6 +152,7 @@ columns:
     - 2026
     note: role from the notification block
   CS_SEXO:
+    compare: {patient.sex: {type: sex}}
     missing:
     - 'I'
     # declared from DATASUS's own sources: DIC_DADOS_NET Notificação Individual (rev. Nov/2018, sources/dic_notif_indiv.txt), the notification block every form carries: I- Ignorado
@@ -206,6 +216,7 @@ columns:
     - 2019
     - 2026
   DT_NOTIFIC:
+    compare: {notification.date: {type: date, format: YYYY-MM-DD}}
     role: notification.date
     kind: date
     model: when
@@ -217,6 +228,7 @@ columns:
     - 2026
     note: role from the notification block
   DT_OBITO:
+    compare: {case.death_date: {type: date, format: YYYY-MM-DD}}
     role: case.death_date
     kind: date
     model: mark
@@ -227,6 +239,7 @@ columns:
     - 2019
     - 2026
   DT_SIN_PRI:
+    compare: {case.onset: {type: date, format: YYYY-MM-DD}}
     role: case.onset
     kind: date
     model: when
@@ -238,6 +251,7 @@ columns:
     - 2026
     note: role from the notification block
   EVOLUCAO:
+    compare: {case.outcome: {type: code}}
     missing: ['9']
     # declared from DATASUS's own sources (2021): no form dictionary; the table names every code the records use, each with its own label (1='vivo', 2='óbito pelo agravo notificado', 3='óbito por outra causa', 9='ignorado'): a code table, not a catch-all; 9='Ignorado'
     fatal: ['2']
@@ -260,6 +274,7 @@ columns:
     - 2019
     - 2026
   ID_AGRAVO:
+    compare: {case.disease: {type: code}}
     role: case.disease
     kind: code_tree
     model: event_type
@@ -279,6 +294,7 @@ columns:
     - 2026
     note: role from the notification block
   ID_MN_RESI:
+    compare: {patient.residence: {type: municipality}}
     role: patient.residence
     kind: place
     model: stratum
@@ -301,6 +317,7 @@ columns:
     - 2026
     note: role from the notification block
   ID_MUNICIP:
+    compare: {notification.municipality: {type: municipality}}
     role: notification.municipality
     kind: place
     model: where
@@ -379,6 +396,7 @@ columns:
     - 2026
     note: role from the notification block
   ID_UNIDADE:
+    compare: {notification.facility: {type: facility}}
     role: notification.facility
     kind: institution
     width: 7
@@ -428,6 +446,7 @@ columns:
     - 2026
     note: role from the notification block
   NU_IDADE_N:
+    compare: {patient.birth_date: {also: [DT_SIN_PRI], type: birth_from_age, format: YYYY-MM-DD}}
     role: patient.age_coded
     kind: number
     model: mark
