@@ -55,9 +55,9 @@ links:
       - name: birth date, sex, death day, hospital
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
                [admission.end, death.date], [admission.facility, death.facility]]
-      - name: birth date, sex, death day
+      - name: birth date, sex, death day, the hospital's municipality
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
-               [admission.end, death.date]]
+               [admission.end, death.date], [admission.facility_municipality, death.municipality]]
       - name: birth date, sex, residence, hospital
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
                [patient.residence, deceased.residence], [admission.facility, death.facility]]
@@ -290,9 +290,9 @@ links:
       - name: birth date, sex, death day, hospital
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
                [admission.end, death.date], [admission.facility, death.facility]]
-      - name: birth date, sex, death day
+      - name: birth date, sex, death day, the hospital's municipality
         keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
-               [admission.end, death.date]]
+               [admission.end, death.date], [admission.facility_municipality, death.municipality]]
     control: {role: patient.birth_date, shift_days: 7}
     validate:
       - {name: died in hospital, sql: "r.\"death.place\" = 'hospital'"}

@@ -44,3 +44,8 @@ changed number, so each change is judged by whether every output it touches is e
 - **The linkage scenario passes** (`scripts/live.py linkage`, fresh home, 2026-11-09, `data/probes/live/20261109-092800`):
   all six runs viable but SIH deaths → SIM deterministic, `use with caution` by its no-hospital pass (76 pairs, 13 in
   the control, 17.11%); the probabilistic run of the same link is viable (1,208 pairs, 0.41%).
+- **A stronger fallback pass.** SIH deaths → SIM's second pass (birth date, sex, death day) now also keys the hospital's
+  municipality against the death's (`links.yml`; CIHA's deaths link likewise). RR 2022: the pass keeps 68 pairs with no
+  control pair (76 with 13 before), the link is viable (1,189 pairs, 0.08%, upper95 0.47%), and "died in hospital"
+  rises from 99.58% to 99.92%: the 8 pairs dropped were the false ones. The question that led here (OQ 98, whether a weak
+  pass should decide a link's verdict) is resolved by design: it should, and the pass is what to strengthen.
