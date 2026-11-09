@@ -192,3 +192,47 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
             raise ValueError(f"{len(plan.blobs_corrupt)} blobs of {other} fail their digest: that home is kept")
         plan.removed_bytes = _remove_home(other, Path(settings.root).resolve())
     return plan
+
+
+def adopt_copies(settings: Settings, folder: str | Path, ftp_directory: str, *, apply: bool = False) -> dict[str, object]:
+    """Adopt loose copies of FTP files into the blob store, so the one reader finds them held and fetches nothing.
+
+    A file of ``folder`` is a copy of ``<ftp_directory>/<its name>`` when the catalog lists that path with the same size;
+    it is stored under its own SHA-256 (a copy, ``folder`` untouched) and recorded as a fetch of that path with the
+    listing's size and time (``serving_method`` ``local-copy``), so the fetcher's then-and-now comparison holds it current
+    until DATASUS republishes it. Bytes are not proven equal by a size: the caller samples files against the server first
+    (the CNES mirror: 5 of 5 identical, 2026-11-09). Without ``apply`` nothing is written; the counts say what would be.
+    """
+    from .acquire.cache import BlobStore, sha256_file
+    from .catalog.store import CatalogStore
+
+    base = Path(folder)
+    prefix = ftp_directory.rstrip("/") + "/"
+    store = CatalogStore(settings.catalog_path, read_only=not apply)
+    try:
+        listed = {str(r["path"]).rsplit("/", 1)[-1].upper(): (str(r["path"]), int(r["size"] or -1), r["modified"])
+                  for r in store.query("SELECT path, size, modified FROM files WHERE path LIKE ? AND gone_at IS NULL",
+                                       (prefix + "%",))}
+        blobs = BlobStore(settings.blobs_dir, catalog=store if apply else None)
+        counts: Counter[str] = Counter()
+        for path in sorted(p for p in base.rglob("*") if p.is_file()):
+            hit = listed.get(path.name.upper())
+            if hit is None:
+                counts["not listed"] += 1
+                continue
+            ftp_path, size, modified = hit
+            if path.stat().st_size != size:
+                counts["size differs"] += 1
+                continue
+            if not apply:
+                counts["would adopt"] += 1
+                continue
+            digest = sha256_file(path)
+            staged = blobs.staging_path(path.name)
+            shutil.copyfile(path, staged)
+            blobs.adopt(staged, digest, size, source_path=ftp_path, serving_method="local-copy",
+                        remote_size=size, remote_modified=modified)
+            counts["adopted"] += 1
+        return dict(counts)
+    finally:
+        store.close()

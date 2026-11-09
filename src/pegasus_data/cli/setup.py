@@ -332,3 +332,18 @@ def crawl(
         console.print(f"[green]{files}[/green] files present, [green]{with_size}[/green] carrying size and mtime")
     finally:
         pipeline.close()
+
+
+@app.command(name="adopt-copies", rich_help_panel="SETUP")
+def adopt_copies_cmd(
+    folder: Annotated[Path, typer.Argument(help="A folder of local copies of FTP files (e.g. a mirror's download)")],
+    ftp_dir: Annotated[str, typer.Option("--ftp-dir", help="The FTP directory they copy, e.g. /dissemin/publicos/CNES/200508_/Dados")],
+    root: RootOpt = None,
+    apply: Annotated[bool, typer.Option("--apply", help="Store and record them; without it, only the counts are shown")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Adopt local copies of FTP files into the blob store (matched by name and the listed size; sample their bytes
+    against the server first), so queries read them and fetch nothing. The folder is left as it is."""
+    from ..adopt import adopt_copies
+    from ._common import _emit, _settings
+    _emit(adopt_copies(_settings(root), folder, ftp_dir, apply=apply), as_json, "adopt-copies")

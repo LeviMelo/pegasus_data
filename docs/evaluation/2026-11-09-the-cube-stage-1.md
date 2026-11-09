@@ -54,3 +54,12 @@ The comparison is by (municipality, month).
   files in both INFLUD24 and INFLUD25 (its gotcha). The field counted rows; the event type merges by `NU_NOTIFIC`.
 - **Brasília.** Before the single-municipality rule, 105,788 SRAG events filed under the Federal District's
   administrative-region codes (53xxxx) were unplaced, for example 1,373 against 5 in December 2022.
+
+**Stage 3 can start without downloads.**
+- **The mirror is a copy.** The CNES fields' private pipeline (`sources/cnes.py`) had downloaded 1,728 DBCs (ST, LT, EQ and
+  EP, 432 each) from a third-party mirror of the FTP.
+  - All 1,728 have the size the catalog lists for the same FTP path.
+  - Five sampled from the FTP (STAC2312, LTAC1512, EQRR1012, EPAP0812, STRR2012) are byte-identical.
+- **Adopted.** `adopt-copies` (`adopt.adopt_copies`) stored them in the blob store as fetches of their FTP paths
+  (`local-copy`, 367 MB), the folder left as it was. `query("CNES.LT", period="2015-12", geography="AC")` then read
+  Acre's 204 rows (1,354 SUS beds) within a 1-byte download budget.
