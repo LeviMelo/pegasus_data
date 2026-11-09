@@ -519,6 +519,23 @@ products:
       deaths: {events: "records:SIM-DO/death", from: 1996, earlier: "records:SIM-DOR/death",
                strata: {residence: deceased.residence, sex: deceased.sex, age: deceased.age_years}}
       births: {events: "records:SINASC-DN/birth", from: 1994, strata: {residence: mother.residence, sex: baby.sex}}
+    # the analytic choices of the build (`population_account`, `population_forecast`, `population_backcast`); the version's
+    # manifest records them. The age axes (single years to 80+ in the account, to 100+ in the tensor) are the censuses' own
+    # closure and stay in code with the five-year bands they are folded into.
+    parameters:
+      # the national death-rate and birth trends are fitted on the last `window` observed years without the COVID years: the
+      # excess deaths of 2020-2022 are not a trend, and the same years are left out of the reference years that give a
+      # municipality's ratio to the national rate
+      trend: {window: 10, excluded_years: [2020, 2021, 2022]}
+      # five-year age groups, at a lag's closing census, whose cohort net migration is a regressor: ages 10-24, 25-54, 55-69
+      lag_groups: {young: [2, 3, 4], adult: [5, 6, 7, 8, 9, 10], old: [11, 12, 13]}
+      # the part of the level the account cannot know: how complete the base census was (IBGE's reconciliation puts 2010 at
+      # 2.2% short), as a log sd common to every cell (`sd`), plus a drift of the national total per year of horizon (`drift`;
+      # the two periods' national truth/vital deviations were +0.2% over 10 years and +1.4% over 12)
+      national: &national {sd: 0.02, drift: 0.0012}
+      # the 1996 hold-out found the cross-period spreads of 2000-2010 and 2010-2022 slightly narrow for 1991-2000 (area-total
+      # 80% coverage 0.785, sex-band cells 0.74); this factor on the band spread gives 0.83/0.79 (80%) and 0.94/0.94 (95%)
+      backcast: {pre_scale: 1.2}
 
   population_without_private_coverage:
     label: "Population without a private health plan"
@@ -551,6 +568,10 @@ products:
     period: "2021-2022"
     call: 'pegasus_data.modelled.read_modelled("race_confusion_infant")'
     stores: [lake/modelled/race_confusion_infant]
+    # the one model both race products fit (`modelled_race`)
+    parameters: &race_model
+      kappa: 20.0       # pseudo-count that smooths a municipality's racial shares toward its state's
+      alpha_sd: 3.0     # prior scale of the intercepts (chosen on held-out data, with the other scales the fit selects)
 
   race_confusion_women:
     label: "Race recording confusion, women's deaths"
@@ -563,6 +584,7 @@ products:
     period: "2015-2022"
     call: 'pegasus_data.modelled.read_modelled("race_confusion_women")'
     stores: [lake/modelled/race_confusion_women]
+    parameters: *race_model
 
   race_reliability:
     label: "Reliability flag of hospital race recording"
@@ -615,6 +637,8 @@ products:
     call: 'pegasus_data.modelled.read_modelled("registration_completeness")'
     stores: [lake/modelled/registration_completeness]
     build: pegasus_data.population_account.build_registration_completeness
+    # the census term of the interval is the account's own (see `population_account`)
+    parameters: {national: *national}
 
 # Folders of the data home not attributed to a dataset, field, link, intake source or product:
 #   registries/tse            perfil_eleitorado_2022.zip (TSE electorate profile 2022, one CSV per UF): the zip is held, but no

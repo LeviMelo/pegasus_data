@@ -21,14 +21,17 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from .ontology import dataset_key
 from .population_account import (
     BANDS,
     A,
     Period,
     Places,
+    _settings,
     lag_series,
     load_census,
     load_events,
+    parameters,
     reconciled_coverage,
     step_events,
     step_terms,
@@ -45,12 +48,6 @@ def area_places(places: Places, area_of: dict[int, int], n_areas: int) -> Simple
     """What ``load_census`` and ``load_events`` need of a unit system: here the 1991-2010 comparable areas."""
     return SimpleNamespace(n_units=n_areas, unit_of={m: area_of[m] for m in places.municipalities}, n_entities=n_areas,
                            entity_of={m: area_of[m] for m in places.municipalities}, municipalities=places.municipalities)
-
-
-def _settings(root: str | Path) -> object:
-    from .config import load_settings
-
-    return load_settings(root=Path(root))
 
 
 def load_contagem(root: str | Path, municipalities: list[int]) -> np.ndarray:
@@ -266,9 +263,6 @@ def split_shares(pre: Pre, members_by_area: dict[int, list[int]], t: dict[str, n
 
 # ------------------------------------------------------------------------------------------------ the product
 
-#: The 1996 hold-out found the cross-period spreads of 2000-2010 and 2010-2022 slightly narrow for 1991-2000 (area-total
-#: 80% coverage 0.785, sex-band cells 0.74); this factor on the band spread gives 0.83/0.79 (80%) and 0.94/0.94 (95%).
-PRE_SCALE = 1.2
 #: Quantiles of the standardized logit-share errors of the split at 1996 (areas whose members were all counted then, split from
 #: the 2000 anchor alone, 621 members): larger than 2000-2010's pairs (1.48, 2.76).
 PRE_ZQ = {0.8: 2.16, 0.95: 4.58}
@@ -276,12 +270,12 @@ PRE_ZQ = {0.8: 2.16, 0.95: 4.58}
 
 def area_arrays(pre: Pre, cal) -> tuple[np.ndarray, dict]:
     """The settled interior of every area for 1991..1999, (9, n, 2, A), and the log offsets of its band intervals (lower,
-    upper), each (9, n, 2, 17), per level. The bridge between the two censuses uses the spread of ``cal`` times ``PRE_SCALE``."""
+    upper), each (9, n, 2, 17), per level. The bridge between the two censuses uses the spread of ``cal`` times ``parameters: backcast: pre_scale``."""
     from .population_account import LEVELS, Calibration, interval
 
     _, _, interior, _ = pre.run()
     P = pre.period()
-    c2 = Calibration(cal.b, cal.s_total, cal.gm, cal.q_total, cal.coef, cal.s_band * PRE_SCALE, cal.q_band, cal.widened, cal.periods)
+    c2 = Calibration(cal.b, cal.s_total, cal.gm, cal.q_total, cal.coef, cal.s_band * float(parameters()["backcast"]["pre_scale"]), cal.q_band, cal.widened, cal.periods)
     X = interior[:SPAN]
     bands = np.stack([to_bands(x) for x in X])
     c = np.log(np.maximum(bands, 1e-9))
@@ -352,7 +346,7 @@ MODEL = ("; extended back to 1991 by population_backcast.py: the vital account r
          "the 2000 estimate and the Contagem 1996")
 INPUTS = {"Census 1991 by five-year group": "SIDRA table 200",
           "Contagem 1996 by five-year group (split anchor, hold-out of the area estimate)": "SIDRA table 475",
-          "SIM 1991-1995 (corrected base)": "SIM.DOR", "SIM 1996-1999": "SIM.DO"}
+          "SIM 1991-1995 (corrected base)": dataset_key("SIM.DOR"), "SIM 1996-1999": dataset_key("SIM.DO")}
 NOTES = [
     "1991-1999 are added to the rows of 2000-2030 (ADR-0152). Before 2000 only `race = total` exists: the 1991 Census has race by "
     "municipality only as a total (SIDRA 136, 5,565 municipalities, no age or sex) and by age group and sex only for Brazil, regions "

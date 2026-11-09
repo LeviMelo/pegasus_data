@@ -49,6 +49,8 @@ import numpy as np
 import pyarrow as pa
 
 from ._age import bands
+from .config import UF_NUMERIC
+from .ontology import dataset_key
 
 MODEL_VERSION = "race-confusion-infant-1"
 #: Factor on the sd of a simulated state x recorded-race count for 90% predictive coverage out of sample
@@ -67,9 +69,18 @@ AGE_BANDS = ("0-6 d", "7-27 d", "28-364 d")
 #: Age bands (years) of the women 15-49 product; the model is the same, the bands are the population's.
 WOMEN_AGE_BANDS = ("15-24 y", "25-34 y", "35-49 y")
 WOMEN_AGE_EDGES = (25, 35)
-UF_CODES = (11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53)
-#: Pseudo-count that smooths a municipality's racial shares toward its state's.
-KAPPA = 20.0
+UF_CODES = tuple(sorted(int(code) for code in UF_NUMERIC))
+
+
+def race_parameter(name: str) -> float:
+    """One analytic choice of the race model (``parameters:`` of ``race_confusion_infant`` in `curation/products.yml`, which
+    ``race_confusion_women`` repeats: the one model, with the reason beside each): ``kappa``, the pseudo-count that smooths a
+    municipality's racial shares toward its state's; ``alpha_sd``, the prior scale of the intercepts."""
+    from .modelled import product_parameters
+
+    return float(product_parameters("race_confusion_infant")[name])
+
+
 #: Composition covariates: shares of Branca, Preta, Parda, Indígena and log10 births.
 Z_NAMES = ("share_Branca", "share_Preta", "share_Parda", "share_Indigena", "log10_births")
 
@@ -144,7 +155,7 @@ def composition(births: pa.Table, *, standardise: tuple[np.ndarray, np.ndarray] 
         known = counts[rows][:, :5]
         state_share = known.sum(0)[sel] / max(known.sum(), 1.0)
         tot = known.sum(1, keepdims=True)
-        shares[rows] = (known[:, sel] + KAPPA * state_share) / (tot + KAPPA)
+        shares[rows] = (known[:, sel] + race_parameter("kappa") * state_share) / (tot + race_parameter("kappa"))
     size = np.log10(np.maximum(counts.sum(1), 1.0))
     z_raw = np.column_stack([shares, size])
     mean, sd = standardise if standardise else (z_raw.mean(0), z_raw.std(0))
@@ -212,7 +223,6 @@ def _logits(p: dict[str, Any], j, uf, reg_of_uf, age, z, xp):
 
 #: Prior scales of the four groups of effects (state, region, composition, age); chosen on held-out data.
 SCALE_NAMES = ("state", "region", "beta", "age")
-ALPHA_SD = 3.0
 
 
 def _effects(raw: dict[str, Any], scales: dict[str, float], reg_of_uf: np.ndarray, xp):
@@ -224,7 +234,7 @@ def _effects(raw: dict[str, Any], scales: dict[str, float], reg_of_uf: np.ndarra
     state = raw["state"] * scales["state"]
     by_region = xp.einsum("ur,jvk->jrk", member, state) / member.sum(0)[None, :, None]
     state = state - xp.einsum("ur,jrk->juk", member, by_region)
-    return {"alpha": raw["alpha"] * ALPHA_SD, "region": region, "state": state,
+    return {"alpha": raw["alpha"] * race_parameter("alpha_sd"), "region": region, "state": state,
             "beta": raw["beta"] * scales["beta"], "age": raw["age"] * scales["age"]}
 
 
@@ -628,7 +638,7 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
         product=population.product, version=population.version, model=__doc__.split("\n")[0], estimates={"p": ["p_lo", "p_hi"]},
         place="uf", strata=["age_band", "declared", "recorded"],
         inputs={f"link:{population.link}": "stored links, see lake/links",
-                "SIM.DO": f"RACACOR, CODMUNRES, DTNASC, DTOBITO; years {years}", "SINASC-DN": "RACACOR, CODMUNRES (declared race, composition)"},
+                dataset_key("SIM.DO"): f"RACACOR, CODMUNRES, DTNASC, DTOBITO; years {years}", dataset_key("SINASC.DN"): "RACACOR, CODMUNRES (declared race, composition)"},
         validation=validation,
         notes=[f"{model.n_pairs} linked pairs weighted by inverse linkage probability; scales {scales}; diagnostics {model.diagnostics}",
                "p is C(recorded | declared) averaged over the state's municipalities by their births; draws.npz holds the parameter draws",
