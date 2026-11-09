@@ -419,9 +419,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         files code its administrative regions to 2016, and a physician of two regions is one physician of Brasília)."""
         codes = pc.dictionary_encode(pc.cast(table.column(place_column), pa.string())).combine_chunks()
         if states:
-            from .config import UF_NUMERIC
+            from .geography import uf_codes_by_sigla
 
-            by_abbreviation = {abbr: int(code) for code, abbr in UF_NUMERIC.items()}
+            by_abbreviation = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
             mapped = pa.array([by_abbreviation.get(str(v).strip().removeprefix(state_prefix)) if v else None
                                for v in codes.dictionary.to_pylist()], pa.int64())
         else:
@@ -803,7 +803,7 @@ def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequenc
     import pyarrow.compute as pc
     import pyarrow.dataset as ds
 
-    from .config import UF_NUMERIC
+    from .geography import uf_codes_by_sigla
     from .modelled import read_modelled
 
     name, _, estimate = ident.partition("/")
@@ -843,7 +843,7 @@ def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequenc
     table = dataset.to_table(columns=columns, filter=expression)
     raw = pc.cast(table.column(place_column), pa.string())
     if states:
-        codes = {abbr: int(code) for code, abbr in UF_NUMERIC.items()}
+        codes = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
         places = pa.array([int(v) if v and v.isdigit() else codes.get(v) for v in raw.to_pylist()], pa.int64())
     else:
         sole = pc.match_substring_regex(raw, r"^\d{6,7}$")

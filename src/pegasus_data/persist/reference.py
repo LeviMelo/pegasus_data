@@ -411,7 +411,7 @@ def _legacy_sia_establishments(
     codes: list[str] = []
     labels: list[str | None] = []
     for uf in _UF_CODES:
-        for table_id in (f"UPS-N{uf}", f"CNESN{uf}", f"CNESN{uf}1", f"CNESN{uf}2", f"CNESN{uf}3"):
+        for table_id in sia_establishment_tables(uf):
             try:
                 part = read_reference_table(
                     lake_root, table_id, system="SIASUS", year=year, competencia=competencia
@@ -421,6 +421,13 @@ def _legacy_sia_establishments(
             codes.extend(f"{uf}{c}" for c in part.column("code").to_pylist())
             labels.extend(part.column("label").to_pylist())
     return pa.table({"code": pa.array(codes, pa.string()), "label": pa.array(labels, pa.string())})
+
+
+def sia_establishment_tables(uf: str) -> tuple[str, ...]:
+    """The SIA kit's establishment tables of a state, in TabWin's order: ``UPS-N<UF>`` (kits 1994-2003), then
+    ``CNESN<UF>`` and its continuations 1-3. One list for the reader and its fingerprint (a table added to one and not the
+    other would change labels without changing the fingerprint)."""
+    return (f"UPS-N{uf}", f"CNESN{uf}", f"CNESN{uf}1", f"CNESN{uf}2", f"CNESN{uf}3")
 
 
 @functools.lru_cache(maxsize=1)
@@ -641,9 +648,8 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
     if name == "CIR_BR":
         return "resource:" + resource_digest("geography.parquet")
     if name == SIA_UPS_TABLE:
-        parts = [reference_fingerprint(lake_root, f"{head}{uf}{tail}", "SIASUS")
-                 for uf in _UF_CODES for head, tail in (("UPS-N", ""), ("CNESN", ""), ("CNESN", "1"), ("CNESN", "2"),
-                                                        ("CNESN", "3"))]
+        parts = [reference_fingerprint(lake_root, table_id, "SIASUS")
+                 for uf in _UF_CODES for table_id in sia_establishment_tables(uf)]
         return "sia-ups:" + hashlib.sha256("|".join(parts).encode()).hexdigest()[:16]
     canonical = CLASSIFICATIONS.get(name)
     if canonical is not None:

@@ -167,7 +167,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
   `profile/detectors.py:50-55,523` (name hints; acknowledged open in STATUS item 6 as "the profiler's name hints still serve undeclared columns").
 - Fix: kit-table roles in `curation/` (`code_column`, `label_column`) for the CADGER kit and tabkit; detector hints are the declared remainder. Size M.
 
-**T9. SIA pre-2008 establishment naming duplicated twice in `persist/reference.py`**
+**T9. SIA pre-2008 establishment naming duplicated twice in `persist/reference.py`** — done: one list (`reference.sia_establishment_tables`) for the reader and its fingerprint, same tables in the same order
 - `persist/reference.py:419-427` (`UPS-N{uf}`, `CNESN{uf}`, `CNESN{uf}1/2/3`) and `:655-656` (same list again for the fingerprint); `:457` (`"CIRBRN"`, `"health_region"`); `:464-470` `CLASSIFICATIONS` map; `labelpack.py:675,757` (`"CNES"` namespace literal).
 - The list is a fact about DATASUS kits and exists twice; adding `CNESN4` would update one and silently not the fingerprint.
 - Fix: one `SIA_UPS_TABLES(uf)` generator (or declare the pattern in curation) used by both. Size XS.
@@ -200,7 +200,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Closed in part by defect 3, but the intermediate file convention is still a second store.
 - Fix: read the events through `cube("records:SIM-DO/...")`; drop `collect_events`. Size M.
 
-**T15. Non-obvious UF abbreviation/code tables replicated**
+**T15. Non-obvious UF abbreviation/code tables replicated** — part done: the cubes read state codes from `geography.uf_codes_by_sigla` (SIES 2023 11,518 rows as before); the profile detector and registry lists remain
 - `cubes.py:421,671` build `{abbr: int(code)}` from `UF_NUMERIC`; `geography.py:1148-1162` reads sigla from the pack; `profile/detectors.py:291`; `registry.py:186` `_UFS`; `persist/reference.py:405` `_UF_CODES`. Four spellings of "the UFs".
 - Fix: `config.UF_NUMERIC` plus two derived constants in one place. Size XS.
 
