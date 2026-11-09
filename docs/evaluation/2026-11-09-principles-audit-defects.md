@@ -57,3 +57,4 @@ changed number, so each change is judged by whether every output it touches is e
   control pair (76 with 13 before), the link is viable (1,189 pairs, 0.08%, upper95 0.47%), and "died in hospital"
   rises from 99.58% to 99.92%: the 8 pairs dropped were the false ones. The question that led here (OQ 98, whether a weak
   pass should decide a link's verdict) is resolved by design: it should, and the pass is what to strengthen.
+- **All spine links viable** (`scripts/live.py linkage`, strict again, fresh home, on 916fe13): the six runs on RR 2022 viable, SIH deaths → SIM deterministic among them after its stronger fallback pass.
