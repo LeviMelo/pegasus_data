@@ -671,7 +671,7 @@ def build_population_account(settings, *, version: str, validation: str, only: t
     The steps, each computed here from the home (``settings.root``) and nothing else:
 
     1. the events: deaths (SIM-DO, SIM-DOR to 1995) and births (SINASC-DN from 1994) by residence, sex and age for 1991-2023,
-       collected through the API into ``<work>/population_account/events`` (a year already there is not fetched again);
+       read from the records cube (`population_account.vital_events`);
     2. the vital account of comparable areas and entities between the censuses, its calibration, and the forecast to 2030;
     3. the municipal split, the race composition and the single-age shapes (`member_inputs` ... `calibrate_shape`);
     4. the migration schedule that carries each intercensal residual along the cohorts, and the account before 2000
@@ -684,7 +684,6 @@ def build_population_account(settings, *, version: str, validation: str, only: t
     from .modelled import ModelledManifest, write_modelled
     from .population_account import (
         assemble,
-        ensure_events,
         fit_calibration,
         migration_schedule,
         widen_to_nominal,
@@ -693,13 +692,12 @@ def build_population_account(settings, *, version: str, validation: str, only: t
 
     root = settings.root
     log("events 1991-2023")
-    events = ensure_events(settings, range(1991, 2024), log)
-    inp = assemble(root, events, log)
+    inp = assemble(settings, log)
     places = inp.places
     log("calibration of the account's bands")
     cal = widen_to_nominal(fit_calibration([inp.A, inp.B]), [inp.A, inp.B])
     log("forecast")
-    fc = forecast_account(inp, cal, events)
+    fc = forecast_account(inp, cal, settings)
     log("members, split error, race, ages")
     mi = member_inputs(root, places)
     split_cal = calibrate_split(places, mi)
@@ -711,7 +709,7 @@ def build_population_account(settings, *, version: str, validation: str, only: t
     groups = group_shares(places, mi, split_cal)
 
     log("the account before 2000")
-    pre = pb.Pre(root, events, places, log)
+    pre = pb.Pre(settings, places, log)
     pre.use_schedule(migration_schedule(inp))
     ages = census_ages(inp, acc, groups, ctx, old, shape_cal, (2000, 2010))
     index = {m: i for i, m in enumerate(places.municipalities)}

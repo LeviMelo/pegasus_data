@@ -510,8 +510,8 @@ products:
     period: "1991-2030"
     call: 'pegasus_data.modelled.read_modelled("population_account")'
     stores: [lake/modelled/population_account]
-    # what the account counts, as event types stratified by roles (`population_account.collect_events`): the files it
-    # writes carry the strata under these names, sex read from its label (M, F or unknown), never from a code
+    # what the account counts, as event types stratified by roles (`population_account.vital_events`, read from the records cube):
+    # the strata are under these names, sex read from its label (M, F or unknown), never from a code
     # `from` is the first year a system publishes; `earlier` the system that holds the years before it (SIM-DO starts in 1996,
     # its ICD-9 predecessor SIM-DOR, non-foetal deaths by residence, holds 1979-1995; SINASC starts in 1994, so 1991-1993 have no births)
     build: pegasus_data.population_tensor.build_population_account
