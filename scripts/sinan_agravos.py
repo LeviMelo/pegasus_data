@@ -109,7 +109,6 @@ def main() -> None:
             "(DATASUS files this series under that name in its open-data tree)"
         )
         print(f"    what_one_row_is: one notification of {name}")
-        print("    unit_of_analysis: notification")
         print("    gotchas:")
         print(
             "      - A row is a notification, not a confirmed case. CLASSI_FIN carries "

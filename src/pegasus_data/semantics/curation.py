@@ -538,11 +538,18 @@ def inline_windows(codelist: str) -> dict[str, tuple[str, str]]:
     return dict(inline[1]) if inline else {}
 
 
-def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
-    datasets = data.get("datasets") or {}
-    out: list[DatasetDoc] = []
-    for dataset_id, body in datasets.items():
+def dataset_entries(data: dict[str, Any]) -> Iterator[tuple[str, dict[str, Any]]]:
+    """The ``datasets:`` of a curation file as ``(key, body)``, each body carrying the file's ``shared: unit_of_analysis``
+    unless it states its own: what one row is is stated once for a family (SINAN's notification), by every reader of it."""
+    default = (data.get("shared") or {}).get("unit_of_analysis")
+    for key, body in (data.get("datasets") or {}).items():
         body = body or {}
+        yield key, ({**body, "unit_of_analysis": default} if default and "unit_of_analysis" not in body else body)
+
+
+def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
+    out: list[DatasetDoc] = []
+    for dataset_id, body in dataset_entries(data):
         if not any(body.get(k) for k in ("what_one_row_is", "unit_of_analysis", "known_biases", "gotchas")):
             # A key that only declares event types (SIM-DO, SINASC-DN, ...) says nothing about what a row means; it
             # would be stored as a dataset with no system, series or prose, and listed by search as an empty context.
@@ -1283,7 +1290,7 @@ def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
             str(name).upper(): dict((body or {}).get("semantic_axes") or {})
             for name, body in (data.get("shared_by_system") or {}).items()
         }
-        for dataset_id, body in (data.get("datasets") or {}).items():
+        for dataset_id, body in dataset_entries(data):
             if not isinstance(body, dict):
                 continue
             system = body.get("system")

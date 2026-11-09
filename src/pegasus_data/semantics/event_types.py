@@ -194,12 +194,11 @@ def load_event_types() -> dict[str, tuple[EventType, ...]]:
 def _declarations() -> dict[str, tuple[str, str, dict[str, Any]]]:
     """``SYSTEM-SERIES`` -> (the datasets file, its key there, the dataset's declaration as written)."""
     from ..config import curation_root
-    from .curation import read_yaml
+    from .curation import dataset_entries, read_yaml
 
     out: dict[str, tuple[str, str, dict[str, Any]]] = {}
     for path in sorted((curation_root() / "datasets").glob("*.yml")):
-        for key, body in (read_yaml(path, shared=True).get("datasets") or {}).items():
-            body = body or {}
+        for key, body in dataset_entries(read_yaml(path, shared=True)):
             out[f"{_canonical_system(str(body.get('system') or ''))}-{str(body.get('series') or '').upper()}"] = (
                 path.name, str(key), body)
     # the sources the intake mechanism reads (ADR-0162) are documented in curation/intake.yml, as the catalog's loader reads them
