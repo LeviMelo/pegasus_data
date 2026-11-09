@@ -30,9 +30,7 @@ dimensions:
   - EVOLUCAO
 
 age_dimension:
-  encoding: sinan
-  fields: [NU_IDADE_N]
-
+  of: IDADE_anos
 dimension_labels:
   CLASSI_FIN: Classificação final
   CS_SEXO: Sexo

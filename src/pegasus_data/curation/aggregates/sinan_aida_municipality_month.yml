@@ -30,9 +30,7 @@ dimensions:
   - CRITERIO
 
 age_dimension:
-  encoding: sinan
-  fields: [NU_IDADE_N]
-
+  of: IDADE_anos
 dimension_labels:
   CS_SEXO: Sexo
   EVOLUCAO: Evolução

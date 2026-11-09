@@ -6037,7 +6037,7 @@ variables:
     - name: IDADE_anos
       from:
       - NU_IDADE_N
-      encoding: sinan
+      age: {form: packed, units: {'1': hour, '2': day, '3': month, '4': year, '5': hundred_plus}, plain_below: 4}
       rule: fractional years (ADR-0070); four characters = leading digit 1 hours, 2 days,
         3 months, 4 years; fewer than four characters = plain years (measured against ANO_NASC).
         One converter, _age.years_column

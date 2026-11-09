@@ -725,7 +725,7 @@ variables:
       from:
       - AP_NUIDADE
       - AP_COIDADE
-      encoding: sih
+      age: {form: unit_column, units: {'2': day, '3': month, '4': year, '5': hundred_plus}}
       rule: fractional years (ADR-0070), the SIH unit table (AP_COIDADE 2 days, 3 months, 4 years, 5 = 100 + value,
         0 ignored). Measured on AQ SP 2023-01 (80,069 rows) and AC, DF files of AQ, AR, AN, ATD, AD, AM (units 2, 3, 4
         and 5 occur; unit 4 ages run 1 to 99, unit 5 values 00 to 07, that is 100 to 107). The APAC carries no
@@ -1221,7 +1221,7 @@ variables:
       from:
       - IDADEPAC
       - TPIDADEPAC
-      encoding: sih
+      age: {form: unit_column, units: {'2': day, '3': month, '4': year, '5': hundred_plus}}
       rule: fractional years (ADR-0070); TPIDADEPAC 2 days, 3 months, 4 years, 5 '100 anos' + IDADEPAC (IDADEDET.CNV
         500 = 100 anos, 501 = 101 anos), 0, 1 and 6-9 invalid or ignored; IDADEPAC holds two digits (BI AC 2023-01, units
         2-5 and 9). One converter, _age.years_column

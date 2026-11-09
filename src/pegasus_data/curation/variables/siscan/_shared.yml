@@ -577,7 +577,7 @@ variables:
     - name: IDADE_faixa_anos
       from:
       - CO_FAIXA_ETARIA_PACIENTE
-      encoding: band
+      age: {form: band}
       lookup:
         '01': 0
         '02': 10
@@ -621,7 +621,7 @@ variables:
     - name: IDADE_faixa_anos
       from:
       - CO_FX_ETAR
-      encoding: band
+      age: {form: band}
       lookup:
         '00': 0
         '61': 11

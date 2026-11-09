@@ -158,7 +158,7 @@ class AggregateSpec:
                 for b in self.band_dims
             ],
             "age": (
-                {"name": self.age.name, "encoding": self.age.encoding,
+                {"name": self.age.name, "form": self.age.form, "of": self.age.of,
                  "fields": list(self.age.fields), "bands": list(self.age.bands)}
                 if self.age is not None else None
             ),
@@ -309,11 +309,32 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
     return out
 
 
+def _resolved_age(spec: AggregateSpec, settings: Any) -> Any:
+    """The age an aggregate names by its derived variable (``age_dimension: {of: IDADE_anos}``), as the dataset's
+    variables declare it (`_age.resolve_age`): one declaration of a system's age convention, read by all its
+    aggregates."""
+    from ._age import resolve_age
+    from ._request import parse_dataset
+    from .catalog.store import CatalogStore
+    from .semantics.curation import load_variable_docs
+
+    system, _series = parse_dataset(spec.dataset)
+    catalog = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        docs = load_variable_docs(catalog, system)
+    finally:
+        catalog.close()
+    try:
+        return resolve_age(spec.age, docs)
+    except ValueError as exc:
+        raise AggregationRefused(f"{spec.name}: {exc}") from exc
+
+
 def _parse_age(body: Any):
-    from ._age import parse_age_dimension
+    from ._age import parse_age
 
     try:
-        return parse_age_dimension(body)
+        return parse_age(body)
     except ValueError as exc:
         raise AggregationRefused(str(exc)) from exc
 
@@ -511,6 +532,8 @@ def build_aggregate(
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     spec = spec_named(name)
+    if spec.age is not None and spec.age.of:
+        spec = replace(spec, age=_resolved_age(spec, resolved))
     semantics = _resolve_semantics(spec)
     from .semantics.event_types import event_type as _event_type
     from .semantics.event_types import events_of

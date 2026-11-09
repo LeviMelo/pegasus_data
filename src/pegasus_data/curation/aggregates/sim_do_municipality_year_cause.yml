@@ -25,8 +25,7 @@ dimension_structures:
   CAUSABAS: ICD10
 
 age_dimension:
-  encoding: sim
-  fields: [IDADE]
+  of: IDADE_anos
   bands: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85]
 
 dimension_labels:

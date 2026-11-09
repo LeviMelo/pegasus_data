@@ -51,9 +51,9 @@ general rule.
    columns), and intake `role:`, which is really a description.
 3. **Study modules name datasets and columns in code:** `completeness`, `population_account`, `modelled_race`,
    `sus_dependent`, `population_backcast`/`forecast`, about 4,000 lines.
-4. **Age encodings named per system:** `_age.py` keeps sih/cih/sim/sinan/sivep tables, where the `person.age` role
-   should declare the encoding.
-5. **Linkage cardinality hard-coded:** `linkage/entities.py` `AT_MOST_ONE`/`EXCLUSIVE`.
+4. ~~Age encodings named per system~~ **closed (ADR-0218):** five forms with the unit table as data, declared once on
+   each system's `IDADE_anos`; the 59 aggregates name the variable. Decoding equal on six systems' records.
+5. ~~Linkage cardinality hard-coded~~ **closed (9958a80):** read from each dataset's roles file (`persons:`).
 6. **Column names guessed in code:** `registry.py` CNES key guesses, `profile/detectors`, `crosswalk.OWN_CNPJ_FIELDS`,
    enrichment's hard-coded `CNES`.
 7. **Hand-fixed lists and thresholds:** CNES code groups, `CODEBOOK_MAX_CODES`, linkage VIABLE/CAUTION, four UF lists.

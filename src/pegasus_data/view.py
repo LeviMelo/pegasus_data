@@ -1470,11 +1470,11 @@ def _apply_derived(
             # nothing when the unit column had no codelist (SIH's COD_IDADE).
             derived_column = _age_years(recipe, column_name, inputs, source)
             if derived_column is None:
-                from ._age import ENCODINGS as AGE_ENCODINGS
+                from ._age import FORMS as AGE_FORMS
 
                 report.warnings.append(
-                    f"{column_name}: the curated recipe declares no age encoding "
-                    f"({'|'.join(AGE_ENCODINGS)}), so it cannot be derived"
+                    f"{column_name}: the curated recipe declares no age form "
+                    f"(age: {{form: {'|'.join(AGE_FORMS)}}}), so it cannot be derived"
                 )
                 continue
             rendered = rendered.append_column(column_name, derived_column)
@@ -1484,15 +1484,15 @@ def _apply_derived(
 
 def _age_years(recipe: Mapping[str, Any], name: str, inputs: Sequence[str], source: pa.Table) -> Any:
     """The age a curated recipe declares, in fractional years, made from ``source``'s raw columns by the one converter
-    (`_age.years_column`); None when the recipe names no age encoding."""
-    from ._age import ENCODINGS as AGE_ENCODINGS
-    from ._age import AgeDimension, years_column
+    (`_age.years_column`); None when the recipe declares no age (``age: {form: ...}``). A band's ``lookup`` is the
+    recipe's own table, beside its form."""
+    from ._age import parse_age, years_column
 
-    encoding = str(recipe.get("encoding") or "")
-    if encoding not in AGE_ENCODINGS:
+    body = recipe.get("age")
+    if not isinstance(body, dict):
         return None
-    lookup = tuple((str(k), float(v)) for k, v in (recipe.get("lookup") or {}).items())
-    return years_column(AgeDimension(name=name, encoding=encoding, fields=tuple(inputs), lookup=lookup), source)
+    body = {**body, "lookup": body.get("lookup") or recipe.get("lookup")}
+    return years_column(parse_age(body, tuple(inputs), name=name), source)
 
 
 def derived_age_years(docs: Mapping[str, VariableDoc], name: str, source: pa.Table) -> Any:

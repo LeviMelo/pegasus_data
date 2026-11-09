@@ -49,7 +49,7 @@ dimensions:
 age_dimension:
   name: IDADEMAE_FAIXA
   label: Idade da mãe
-  encoding: years
+  form: years
   fields: [IDADEMAE]
   bands: [0, 15, 20, 25, 30, 35, 40, 45]
 

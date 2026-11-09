@@ -256,7 +256,7 @@ variables:
       from:
       - DT_NASC
       - DT_NOTIFIC
-      encoding: dates
+      age: {form: dates}
       rule: the child's age at notification in fractional years, DT_NOTIFIC - DT_NASC (DDMMYYYY), null where either is
         empty or the notification precedes the birth; a stillbirth or abortion has no DT_NASC, so no age. One
         converter, _age.years_column

@@ -655,7 +655,7 @@ variables:
       from:
       - IDADE
       - COD_IDADE
-      encoding: sih
+      age: {form: unit_column, units: {'2': day, '3': month, '4': year, '5': hundred_plus}}
       rule: fractional years (ADR-0070); COD_IDADE 2 days, 3 months, 4 years, 5 = 100 + value,
         0 ignored (null). Units measured against NASC and DT_INTER. One converter, _age.years_column
     source: layout_doc

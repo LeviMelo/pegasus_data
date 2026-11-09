@@ -47,9 +47,7 @@ dimensions:
 # own level). Near-singleton cells are expected at this width and are not a
 # new disclosure: SIM's row-level microdata is itself public.
 age_dimension:
-  encoding: sim
-  fields: [IDADE]
-
+  of: IDADE_anos
 dimension_labels:
   SEXO: Sexo
   RACACOR: Raça/cor

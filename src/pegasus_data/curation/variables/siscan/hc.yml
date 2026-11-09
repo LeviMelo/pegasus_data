@@ -508,7 +508,7 @@ variables:
     - name: IDADE_faixa_anos
       from:
       - CO_FAIXA_ETARIA
-      encoding: band
+      age: {form: band}
       lookup:
         '01': 0
         '02': 10

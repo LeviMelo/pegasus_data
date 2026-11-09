@@ -1108,7 +1108,7 @@ variables:
     - name: IDADE_anos
       from:
       - IDADE
-      encoding: sim
+      age: {form: packed, units: {'0': minute, '1': hour, '2': day, '3': month, '4': year, '5': hundred_plus}, unknown: ['000']}
       rule: fractional years (ADR-0070); leading digit 0 minutes, 1 hours, 2 days, 3 months,
         4 years, 5 = 100 + years; 999 ignored. Units measured against DTNASC and DTOBITO (the
         layout document's 1 = minutes is wrong). One converter, _age.years_column

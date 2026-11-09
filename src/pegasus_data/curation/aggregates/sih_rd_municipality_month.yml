@@ -43,9 +43,7 @@ dimensions:
 # COD_IDADE beside the value (2=days, 3=months, 4=years, 5=100+); anything
 # sub-year lands in the first band, anything undecodable in its own level.
 age_dimension:
-  encoding: sih
-  fields: [IDADE, COD_IDADE]
-
+  of: IDADE_anos
 # What the interface calls these. A column name is not a label, and curation's
 # translated names are English while the interface is Portuguese -- so the
 # artifact's own spec, where an analyst says what this artifact IS, names them.
