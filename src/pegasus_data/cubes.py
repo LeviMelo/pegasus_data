@@ -42,13 +42,17 @@ LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 
 
 def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), where: Mapping[str, Sequence[Any]] | None = None,
-         periods: Sequence[str | int] | None = None, labels: bool = True, settings: Any = None) -> pa.Table:
+         periods: Sequence[str | int] | None = None, labels: bool = True, settings: Any = None,
+         at: str | None = None, time: str | None = None, grain: str | None = None, condition: object = None) -> pa.Table:
     """The cube ``source`` at ``place`` level (``municipality``, ``uf``, ``country``), keeping the strata named in ``by``
     and the categories named in ``where``; every other stratum is the source's Total. ``periods`` restricts the periods.
 
-    ``source`` is ``<adapter>:<id>``: ``sidra:<table>/<variable>`` or ``series:<name>/<measure>`` (`cube_sources`).
-    The facts must be held (``pegasus-data sidra fetch`` or the series' fetch); a cube of nothing raises, never returns an
-    empty table that could pass for an empty result.
+    ``source`` is ``<adapter>:<id>``: ``sidra:<table>/<variable>``, ``series:<name>/<measure>`` or
+    ``records:<dataset>/<event type>`` (`cube_sources`). A records cube also takes ``at`` (whose place: one of the
+    dataset's geography bindings, its default when left out), ``time`` (which date: one of its time bindings) and ``grain``
+    (``month`` or ``year``); its ``where`` is the record's own codes ({column: [codes]}) and ``condition`` clauses on roles
+    (`pegasus_data.conditions`). The facts must be held or fetchable; a cube of nothing raises, never returns an empty
+    table that could pass for an empty result.
     """
     from .config import load_settings
 
@@ -58,14 +62,18 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     adapter = _ADAPTERS.get(kind)
     if adapter is None or not ident:
         raise ValueError(f"a cube is <adapter>:<id> with adapter one of {sorted(_ADAPTERS)}, got {source!r}")
+    options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition)) if v is not None}
+    if options and kind != "records":
+        raise ValueError(f"{sorted(options)} apply to records cubes only")
     return adapter(ident, place=place, by=list(by), where=dict(where or {}), periods=periods, labels=labels,
-                   settings=settings or load_settings())
+                   settings=settings or load_settings(), **options)
 
 
 def cube_sources() -> dict[str, str]:
     """The adapters a cube can come from, with what their ids name."""
     return {"sidra": "<table>/<variable>: any table of IBGE's SIDRA registry",
-            "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)"}
+            "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)",
+            "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns"}
 
 
 # ---------------------------------------------------------------------------------------------------------- SIDRA
@@ -234,6 +242,82 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any) -> pa
     return table
 
 
+# ------------------------------------------------------------------------------------------------------ records
+
+
+def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
+             labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
+             condition: object = None) -> pa.Table:
+    """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
+    weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
+    declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
+    no date, is counted in the manifest (``unplaced_events``), never dropped silently. A (place, period) with no event has
+    no row: not observed, never zero."""
+    import pyarrow.compute as pc
+
+    from ._aggregate import _competencia_column
+    from .geography import municipalities
+    from .semantics.curation import semantics_for
+    from .semantics.event_types import count_events
+
+    dataset, _, event = ident.partition("/")
+    if not event:
+        raise ValueError("a records cube is records:<dataset>/<event type>")
+    if not periods:
+        raise ValueError("a records cube names its periods (years): it reads the records of those publications")
+    semantics = semantics_for(dataset)
+    if semantics is None:
+        raise LookupError(f"{dataset}: no curated place and time bindings (semantic_axes) to place and date its events")
+    geography = semantics.geography_bindings()
+    times = semantics.time_bindings()
+    at = at or semantics.default_geography() or "residence"
+    time = time or semantics.default_time()
+    if at not in geography or time not in times:
+        raise KeyError(f"{dataset}: place binding {at!r} of {sorted(geography)}, time binding {time!r} of {sorted(times)}")
+    place_column = str(geography[at]["fields"][0])
+    time_fields = [str(f) for f in times[time]["fields"]]
+    encoding = str(times[time].get("encoding") or "")
+    grain = grain or "month"
+    if grain not in ("month", "year"):
+        raise ValueError("a records cube's grain is month or year")
+    group = list(dict.fromkeys([place_column, *time_fields, *by]))
+    extra = {"rows": {k: [str(x) for x in v] for k, v in where.items()}} if where else {}
+    years = sorted({int(str(p)[:4]) for p in periods})
+    span: Any = years[0] if len(years) == 1 else (years[0], years[-1])
+    counts = count_events(dataset, event, period=span, geography="BR", by=group, condition=condition, **extra)
+    competencia = _competencia_column(counts, time_fields, encoding)
+    year = pc.utf8_slice_codeunits(competencia, 0, 4)
+    period = year if grain == "year" else pc.binary_join_element_wise(
+        year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
+    code7 = {k: int(v["code7"]) for k, v in municipalities().items()}
+    code7.update({str(v): v for v in list(code7.values())})
+    raw = [None if c is None else str(c).strip() for c in counts.column(place_column).to_pylist()]
+    places = pa.array([code7.get(c) if c else None for c in raw], pa.int64())
+    events = pc.cast(counts.column("events"), pa.float64())
+    wanted = pc.is_in(pc.cast(year, pa.int64()), pa.array(years, pa.int64()))   # a span's years not asked for are left out
+    keep = pc.fill_null(pc.and_(pc.and_(pc.is_valid(places), pc.is_valid(period)), wanted), False)
+    unplaced = float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
+    facts = pa.table({"place": pc.filter(places, keep), "period": pc.filter(period, keep),
+                      **{k: pc.filter(counts.column(k), keep) for k in by}, "value": pc.filter(events, keep)})
+    if place == "uf":
+        facts = facts.set_column(0, "place", pc.cast(pc.divide(facts.column("place"), 100000), pa.int64()))
+    elif place == "country":
+        facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
+    keys = ["place", "period", *by]
+    facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])
+    n = facts.num_rows
+    facts = (facts.append_column("status", pa.array(["value"] * n, pa.string()))
+             .append_column("unit", pa.array(["events"] * n, pa.string()))
+             .append_column("source", pa.array([f"{dataset} {event}"] * n, pa.string())))
+    unkeyed = (counts.schema.metadata or {}).get(b"UNKEYED")
+    return _with_manifest(facts, {
+        "source": f"records:{ident}", "dataset": dataset, "event": event, "at": at, "time": time,
+        "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
+        "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0),
+        "unkeyed": unkeyed.decode() if unkeyed else None,
+    })
+
+
 # ------------------------------------------------------------------------------------------------------ algebra
 
 
@@ -298,7 +382,7 @@ def _json_list(text: Any) -> list[Any]:
         return []
 
 
-_ADAPTERS = {"sidra": _sidra, "series": _series}
+_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records}
 
 
 def cube_manifest(table: pa.Table) -> dict[str, Any]:

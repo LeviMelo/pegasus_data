@@ -166,6 +166,19 @@ def intake_periods(
     _emit(register_periods(_writer(root), source, dry_run=dry_run), as_json, "intake-periods")
 
 
+@app.command(name="intake-register", rich_help_panel="MAINTENANCE")
+def intake_register(
+    source: Annotated[str | None, typer.Option("--source", help="One declared source (curation/intake.yml); default every one")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Register in the catalog every landed unit of the declared sources from its parts in the lake, reading nothing from
+    the source and rewriting nothing: for a catalog that lost the intake's families and lake partitions."""
+    from ..intake import register_held
+
+    _emit(register_held(_writer(root), source), as_json, "intake-register")
+
+
 @app.command(rich_help_panel="PIPELINE")
 def cnefe(
     uf: Annotated[list[str] | None, typer.Option("--uf", help="Only these UFs (abbreviation or IBGE code); default all 27")] = None,

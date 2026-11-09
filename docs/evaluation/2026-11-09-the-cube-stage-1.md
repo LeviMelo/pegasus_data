@@ -16,3 +16,20 @@ columns and their types.
 | a stitched series read | 8.2-8.6 s built, 0.66-0.70 s from the cube cache |
 
 The 26 copies under `lake/fields/` were removed after the second check.
+
+**A defect found on the way, and repaired.** A records cube of SRAG was planned as an FTP fetch, though SRAG lives in the
+lake. The catalog held no lake partitions for any intake source except PNI's month landed the day before.
+- **Cause.** `pegasus-data families`, run on 2026-11-08 to refile the CM files, deletes every family it does not derive
+  from the crawl's strata. The intake's families are not derived from strata, so it deleted them, and with them their lake
+  partitions, codelist bindings and ledger rows. The records on disk were untouched, but `query` could not reach SRAG,
+  SISAGUA, SNGPC, FA, BNAFAR, SIES or REGIAO. Their old fields were built from disk, which hid the loss.
+- **Fix.** The families stage now keeps a family whose `schema_source` is `intake` (`inventory/families.py`).
+- **Restored.** `intake-register` (`intake.register_held`) re-registers every landed unit from its own parts. A file
+  source's unit is found by its sidecar's family; an API piece or a snapshot read by the publication path the catalog
+  still kept.
+  - 186 file units and 79 API or snapshot units, 391 partitions, 711,680,059 rows, each source's count equal to its files.
+  - One stale unit was left out: the health-region list's old offset piece, superseded by the per-state pieces.
+- **Checked.**
+  - After `curate`, SRAG 2022 (566,133 rows), SISAGUA-VIGB 2023, SNGPC-IND 2021 and BNAFAR 2025 query from the lake,
+    labelled.
+  - `families` run again keeps all 391 partitions.

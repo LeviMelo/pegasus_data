@@ -783,6 +783,92 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
         store.close()
 
 
+def register_held(settings: Any, source: str | None = None) -> dict[str, Any]:
+    """Catalog rows for every landed unit of the declared file sources, from the unit's own parts in the lake: nothing is
+    read from the source and nothing is rewritten. For a catalog that lost them: `pegasus-data families` deleted every
+    family it did not derive from the crawl until 2026-11-08, the intake's among them, and their records became unreachable
+    by `query`. A unit counts as landed when its sidecar names its family (`_land`) and its parts are in that family's folder.
+    Returns, per source, the units registered and the ones whose sidecar or parts were not found."""
+    import pyarrow.parquet as pq
+
+    lake_root = Path(settings.lake_dir)
+    out: dict[str, Any] = {}
+    for name, spec in declared_sources().items():
+        if (source and name != source) or not spec.get("system"):
+            continue
+        if _origin(spec).get("kind") != "files":
+            result = _register_held_pieces(settings, name, spec, lake_root)
+            if result["registered"] or result["missing"]:
+                out[name] = result
+            continue
+        registered, missing = 0, []
+        for unit in _units(spec, None):
+            side = _sidecar(name, settings.root, unit["key"])
+            if not side.is_file():
+                continue
+            family = (json.loads(side.read_text(encoding="utf8")).get("stats") or {}).get("family")
+            parts = sorted(lake_root.glob(f"*/{family}/schema_signature=*/uf=*/year=*/part-{_safe(unit['key'])}-*.parquet")) \
+                if family else []
+            if not parts:
+                missing.append(unit["key"])
+                continue
+            signature = parts[0].parents[2].name.split("=", 1)[1]
+            names = [n for n in pq.read_schema(parts[0]).names if n != "year"]
+            unit["fingerprint"] = _fingerprint(spec, unit)
+            _register(settings, name, spec, unit, unit["key"], family, signature, names, parts, lake_root)
+            registered += 1
+        if registered or missing:
+            out[name] = {"registered": registered, "missing": missing}
+    return out
+
+
+
+def _register_held_pieces(settings: Any, name: str, spec: dict[str, Any], lake_root: Path) -> dict[str, Any]:
+    """`register_held` for an API source's pieces and a snapshot's reads, whose units are not a pattern to enumerate: each
+    unit is found by the publication the catalog still records for it (``files``, which the families stage never
+    deleted), its key read back from that path as the landing wrote it (`_api_units`, `land_snapshot`)."""
+    from urllib.parse import parse_qs, urlsplit
+
+    import pyarrow.parquet as pq
+
+    from .catalog.store import CatalogStore
+
+    system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
+    store = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        paths = {str(r["path"]).split(SLICE)[0] for r in store.query(
+            "SELECT path FROM file_facts WHERE system = ? AND series_prefix = ? AND grammar = 'intake'", (system, series))}
+    finally:
+        store.close()
+    registered, missing = 0, []
+    for path in sorted(paths):
+        query = {k: v[0] for k, v in parse_qs(urlsplit(path).query).items()}
+        if "slice" in query and "read" in query:
+            key = f"{query['slice']}@{query['read']}"
+        elif "offset" in query:
+            key = f"api-{int(query['offset']):010d}"
+        elif len(query) == 1:
+            param, value = next(iter(query.items()))
+            key = f"api-{param}={value}"
+        else:
+            missing.append(path)
+            continue
+        found = list(lake_root.glob(f"*/{_safe(system)}_{_safe(series)}_*/schema_signature=*/uf=*/year=*/part-{_safe(key)}-*.parquet"))
+        if not found:
+            missing.append(key)
+            continue
+        families: dict[Path, list[Path]] = {}
+        for part in found:
+            families.setdefault(part.parents[3], []).append(part)
+        newest = max(families, key=lambda fam: max(q.stat().st_mtime for q in families[fam]))
+        parts = sorted(families[newest])
+        unit = {"key": key, "year": None, "extension": "json", "size": 0, "path": path}
+        unit["fingerprint"] = _fingerprint(spec, unit)
+        _register(settings, name, spec, unit, key, newest.name, parts[0].parents[2].name.split("=", 1)[1],
+                  [n for n in pq.read_schema(parts[0]).names if n != "year"], parts, lake_root)
+        registered += 1
+    return {"registered": registered, "missing": missing}
+
 def _span(text: Any) -> list[int]:
     out: list[int] = []
     for part in str(text).split(","):

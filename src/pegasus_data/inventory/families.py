@@ -278,10 +278,13 @@ def build_families(catalog: CatalogStore) -> list[Family]:
 
 def persist_families(catalog: CatalogStore, families: Sequence[Family]) -> int:
     keep = {f.family_id for f in families}
+    # A family the intake registered (`intake._register`, schema_source 'intake': SRAG, SISAGUA, SNGPC, PNI's doses...) is
+    # not derived from the crawl's strata, so this derivation does not own it: deleting it here took every intake source's
+    # lake partitions and bindings out of the catalog, their records unreachable by `query` (2026-11-08).
     stale = [
         (r["family_id"],)
-        for r in catalog.query("SELECT family_id FROM families")
-        if r["family_id"] not in keep
+        for r in catalog.query("SELECT family_id, schema_source FROM families")
+        if r["family_id"] not in keep and r["schema_source"] != "intake"
     ]
     if stale:
         # Everything keyed on a family goes with it. Nothing in this schema
