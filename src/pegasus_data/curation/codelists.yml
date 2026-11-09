@@ -44,6 +44,18 @@
 # the package so that `fetch(labels=True)` works on a fresh install with no
 # network and no separate download.
 
+# codebook: where a codebook ends and an entity register begins, for the label
+# pack's recoding check (labelpack.build_label_pack). A codelist with more codes than
+# `max_codes`, or codes wider than `max_width`, is a register (establishments,
+# municipalities, teams, occupations): its kits renaming a code are renaming an
+# entity, not recoding, so no kit is dropped. A codebook's codes are a digit or
+# two (RACACOR 1-5, ANO 00-99). A deliberate analytic cut, not learned: the
+# registers sit orders of magnitude above it (CADGERBR 687,789 codes, CNES
+# teams, CBO ~2,500) and the codebooks far below (SEXO 3, RACACOR 6).
+codebook:
+  max_codes: 128
+  max_width: 3
+
 roles:
   registry:
     what: >

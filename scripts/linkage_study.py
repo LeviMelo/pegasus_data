@@ -36,11 +36,12 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
+from pegasus_data.config import UF_ABBREVIATIONS
 from pegasus_data.linkage.roles import dataset_roles, role_table
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "probes" / "linkage"
-UFS = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
+UFS = list(UF_ABBREVIATIONS)
 NATIONAL_FILE = {"SINASC-DN", "SIM-DO"}
 
 #: The key a linkage would build, one role at a time, strongest first.

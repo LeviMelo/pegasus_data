@@ -34,8 +34,11 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from ..config import UF_ABBREVIATIONS
+
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/"
-STATES = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP1", "SP2_RM", "TO"]
+#: SP is published as two files (the metropolitan region apart).
+STATES = [x for uf in UF_ABBREVIATIONS for x in (("SP1", "SP2_RM") if uf == "SP" else (uf,))]
 VINTAGE = 2010
 #: Variable -> (first, last) position, 1-based inclusive: Layout_microdados_Amostra.xls, sheet PESS (checked at build)
 COLUMNS = {"V0001": (1, 2), "V0002": (3, 7), "V0010": (29, 44), "V0636": (168, 168), "V6364": (176, 182),

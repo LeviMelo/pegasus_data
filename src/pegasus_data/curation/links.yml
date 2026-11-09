@@ -35,6 +35,13 @@
 # The first three reproduce omnisus's deterministic study (EVALUATION
 # 2026-09-30) so both projects can be checked against each other.
 
+# verdict: the thresholds of a link's verdict, [highest chance rate %, lowest
+# held-out validation agreement %]. A deliberate analytic choice fixed before
+# any result (ADR-0107), so no result could move it; read by engine.judge().
+verdict:
+  viable: [5.0, 90.0]
+  caution: [20.0, 75.0]
+
 links:
   sih_deaths_to_sim:
     description: >

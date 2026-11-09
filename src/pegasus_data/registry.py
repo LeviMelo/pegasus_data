@@ -31,7 +31,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from .config import Settings
+from .config import UF_ABBREVIATIONS, Settings
 from .identifiers import strip_identifier, valid_cnpj
 
 
@@ -183,9 +183,7 @@ def _current(out_dir: Path) -> bool:
         return False
 
 
-_UFS = frozenset(
-    ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
-)
+_UFS = frozenset(UF_ABBREVIATIONS)
 def _clean_name(value: object) -> str | None:
     return strip_identifier(value)
 

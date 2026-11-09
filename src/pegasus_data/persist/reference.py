@@ -49,6 +49,7 @@ import pyarrow.parquet as pq
 
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
+from ..config import UF_ABBREVIATIONS
 from .decisions import (
     borrowed_tables,
     collecting,
@@ -401,10 +402,7 @@ def _municipalities7() -> pa.Table:
 
 #: SIA's pre-2008 establishments, keyed by state + code (ADR-0103).
 SIA_UPS_TABLE = "SIA_UPS_BR"
-_UF_CODES = (
-    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA",
-    "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
-)
+_UF_CODES = UF_ABBREVIATIONS
 
 
 def _legacy_sia_establishments(

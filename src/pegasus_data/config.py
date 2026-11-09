@@ -13,15 +13,6 @@ DEFAULT_BASE_PATH = "/dissemin/publicos"
 DEMAS_BASE_URL = "https://apidadosabertos.saude.gov.br"
 DEMAS_SWAGGER_PATH = "/static/swagger.json"
 
-#: Brazilian federal units plus the national aggregate token used in filenames.
-UF_CODES: frozenset[str] = frozenset(
-    {
-        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
-        "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
-        "SP", "SE", "TO", "BR",
-    }
-)
-
 #: IBGE two-digit numeric UF codes (11..53, with gaps) mapped to their abbreviation.
 UF_NUMERIC: dict[str, str] = {
     "11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP", "17": "TO",
@@ -31,6 +22,12 @@ UF_NUMERIC: dict[str, str] = {
     "41": "PR", "42": "SC", "43": "RS",
     "50": "MS", "51": "MT", "52": "GO", "53": "DF",
 }
+#: The 27 federal units, alphabetical: the one list of the states, derived from IBGE's codes above.
+UF_ABBREVIATIONS: tuple[str, ...] = tuple(sorted(UF_NUMERIC.values()))
+
+#: Brazilian federal units plus the national aggregate token used in filenames.
+UF_CODES: frozenset[str] = frozenset(UF_ABBREVIATIONS) | {"BR"}
+
 UF_TO_NUMERIC: dict[str, str] = {v: k for k, v in UF_NUMERIC.items()}
 
 
