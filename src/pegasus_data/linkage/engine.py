@@ -44,6 +44,7 @@ import duckdb
 import numpy as np
 import pyarrow as pa
 
+from ..normalize.time import year_of
 from ..semantics.curation import read_yaml
 from ..semantics.epoch import curated
 from . import placebo
@@ -194,7 +195,8 @@ def padded_period(period: object, side: Side) -> object:
     p = _period(period)
     if p is None:
         return period
-    return (str(p.start // 100 - before), str(p.end // 100 + after))
+
+    return (str(year_of(p.start) - before), str(year_of(p.end) + after))
 
 
 @curated

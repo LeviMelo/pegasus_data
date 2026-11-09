@@ -15,6 +15,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..normalize.time import month_of, month_range, parse_month, years_of
 from . import store
 from .session import Sidra
 
@@ -61,8 +62,8 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
     if periods != expected:
         raise ValueError(f"the price index has no value for {sorted(set(expected) - set(periods))[:6]}: not a continuous monthly series")
     monthly = pa.table({"period": pa.array(periods, pa.string()),
-                        "year": pa.array([int(p[:4]) for p in periods], pa.int32()),
-                        "month": pa.array([int(p[4:]) for p in periods], pa.int32()),
+                        "year": pa.array(years_of(periods), pa.int32()),
+                        "month": pa.array([month_of(p) for p in periods], pa.int32()),
                         "index": series.column("value").take(order).cast(pa.float64())})
     if grain == "month":
         table, key, parse = monthly, "period", _month_key
@@ -93,18 +94,13 @@ def price_index(root: str | Path | None = None, *, grain: str = "month", years: 
 
 
 def _months(first: str, last: str) -> list[str]:
-    out, y, m = [], int(first[:4]), int(first[4:])
-    while f"{y}{m:02d}" <= last:
-        out.append(f"{y}{m:02d}")
-        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
-    return out
+    return [str(c) for c in month_range(first, last)]
 
 
 def _month_key(value: str | int) -> str:
-    match = re.fullmatch(r"(\d{4})-?(\d{2})", str(value))
-    if not match or not 1 <= int(match.group(2)) <= 12:
+    if (month := parse_month(value)) is None:
         raise ValueError(f"a month is YYYYMM or YYYY-MM, not {value!r}")
-    return match.group(1) + match.group(2)
+    return str(month)
 
 
 def _year_key(value: str | int) -> int:

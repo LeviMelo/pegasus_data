@@ -32,6 +32,7 @@ from .acquire.fetcher import Fetcher
 from .catalog.store import CatalogStore, utcnow
 from .config import Settings, curation_root, load_settings
 from .discovery.crawler import Crawler
+from .normalize.time import add_months, compose
 
 #: Free RAM a run needs before it opens a connection (the machine is shared).
 MIN_AVAILABLE_RAM = 4 * 2**30
@@ -129,8 +130,7 @@ def declared_series(only: Sequence[str] | None = None) -> dict[str, dict[str, An
 
 def _competence_floor(months: int, today: date) -> int:
     """The oldest competence (YYYYMM) kept: ``months`` back from ``today``."""
-    index = today.year * 12 + today.month - 1 - months
-    return (index // 12) * 100 + index % 12 + 1
+    return add_months(compose(today.year, today.month), -months)
 
 
 def _keeps(spec: Mapping[str, Any], filename: str, today: date) -> bool:
@@ -146,7 +146,8 @@ def _keeps(spec: Mapping[str, Any], filename: str, today: date) -> bool:
         return False
     if spec.get("months") and groups.get("yy") and groups.get("mm"):
         floor = _competence_floor(int(spec["months"]), today)
-        if (2000 + int(groups["yy"])) * 100 + int(groups["mm"]) < floor:
+        filed = compose(2000 + int(groups["yy"]), groups["mm"])
+        if filed is not None and filed < floor:       # a name whose month is no month is not dated: kept
             return False
     return True
 

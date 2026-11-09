@@ -28,6 +28,7 @@ from typing import Any
 import pyarrow as pa
 
 from .. import intake
+from ..normalize.time import compose
 from ..textenc import fold
 from ..transport import get_json
 
@@ -140,7 +141,7 @@ def monthly(catmats: list[str], year: int, months: range | list[int] = range(1, 
     out = []
     for code in catmats:
         for m in months:
-            t = stock(code, year * 100 + m, root=root)
+            t = stock(code, compose(year, m), root=root)
             if not t.num_rows:
                 continue
             incomplete = bool((t.schema.metadata or {}).get(b"intake_unstable"))
@@ -154,7 +155,7 @@ def monthly(catmats: list[str], year: int, months: range | list[int] = range(1, 
             by_uf: dict[str, dict] = {}
             for r in last.values():
                 d = by_uf.setdefault(r["uf"], {"catmat": code, "description": (r["descricao_produto"] or "").strip(),
-                                               "anomes": year * 100 + m, "uf": r["uf"], "rows": per_state[r["uf"]],
+                                               "anomes": compose(year, m), "uf": r["uf"], "rows": per_state[r["uf"]],
                                                "cnes": set(), "lots": 0, "quantity": None, "lots_without_quantity": 0,
                                                "incomplete": incomplete})
                 d["cnes"].add(r["codigo_cnes"])

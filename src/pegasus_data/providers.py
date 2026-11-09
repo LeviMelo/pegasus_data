@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .config import Settings
+from .normalize.time import year_of
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,7 +68,7 @@ class LocalCnesRegistryProvider:
                 )
                 family_ids = [str(row["family_id"]) for row in family_rows]
                 requested_years = (
-                    set(range(period[0] // 100, period[1] // 100 + 1))
+                    set(range(year_of(period[0]), year_of(period[1]) + 1))
                     if period else set()
                 )
                 held_years: set[int] = set()
@@ -136,7 +137,7 @@ class LocalCnesRegistryProvider:
                 parameters: list[int] = []
                 if period:
                     where += "AND file_facts.year BETWEEN ? AND ? "
-                    parameters = [period[0] // 100, period[1] // 100]
+                    parameters = [year_of(period[0]), year_of(period[1])]
                 total_rows = store.query(
                     "SELECT COALESCE(SUM(files.size),0) total FROM files "
                     "JOIN file_facts ON file_facts.path=files.path "

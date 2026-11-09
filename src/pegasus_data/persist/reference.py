@@ -50,6 +50,7 @@ import pyarrow.parquet as pq
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
 from ..config import UF_ABBREVIATIONS
+from ..normalize.time import year_bounds
 from .decisions import (
     borrowed_tables,
     collecting,
@@ -578,7 +579,7 @@ def _read_reference_table(
         # does not cover its year.
         span = (
             (int(competencia), int(competencia)) if competencia is not None
-            else (year * 100 + 1, year * 100 + 12) if year is not None else None
+            else year_bounds(year) if year is not None else None
         )
         windows = inline_windows(table_id) if span is not None else {}
         codes = [c for c in inline if c not in windows or _window_overlaps(windows[c], span)]
@@ -617,7 +618,7 @@ def _read_reference_table(
     if competencia is not None:
         span = (int(competencia), int(competencia))
     elif year is not None:
-        span = (year * 100 + 1, year * 100 + 12)
+        span = year_bounds(year)
     return _in_answering_windows(table, table_id, span, str(competencia if competencia is not None else year))
 
 
@@ -788,7 +789,7 @@ def reference_vintage(
     if competencia is not None:
         span, asked = (int(competencia), int(competencia)), str(int(competencia))
     else:
-        span, asked = (year * 100 + 1, year * 100 + 12), str(year)       # type: ignore[operator]
+        span, asked = year_bounds(year), str(year)       # type: ignore[operator]
     from ..labelpack import read_packed, select_windows, windows_answering
     from ..semantics.curation import inline_windows
 

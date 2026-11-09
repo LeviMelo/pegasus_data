@@ -125,7 +125,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Different thresholds of what counts as a number: `1.234,5`, `+5`, `-`, blanks and `0,5` are read differently.
 - Fix: one `normalize.numbers.to_number(array, policy)` that returns (values, unparsed count); the six call sites use it. Size M.
 
-**T3. Same-job duplicates: period parsing (about 14 ad hoc sites)**
+**T3. Same-job duplicates: period parsing (about 14 ad hoc sites)** — done (commit): `normalize/time.py` is the one period module; 21 files routed, 3 impossible-month defects fixed (`docs/evaluation/2026-11-09-principles-audit-defects.md`)
 - `normalize/time.py:87` (`competencia_to_year_month`), `_query_engine/model.py:239` (`_period`), `retrieve.py:1686` (`_month_of`),
   `intake.py:517-533` (SQL `substr(ym,1,4)`/`5,2`), `serve/_filters.py:70`, `serve/_payload.py:106`, `capabilities.py:659`,
   `labelpack.py:858,1012,1287,1377,1418`, `cubes.py:348,367,550,599,658` (`str(p)[:4]`), `sidra/prices.py:64,96`,

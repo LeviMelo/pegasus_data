@@ -61,6 +61,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ..normalize.time import month_of, year_of
 from ..ontology import dataset_key
 from .epoch import curated
 
@@ -419,8 +420,8 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
         raise bad("an amount of money names the column(s) of the month it belongs to (`competence`), and nothing else does")
     if len(competence) > 2:
         raise bad(f"competence is a year and a month column or one AAAAMM column, not {list(competence)}")
-    if unit_from is not None and (unit not in CURRENCIES or not isinstance(unit_from, int) or not 1 <= unit_from % 100 <= 12
-                                  or not 1900 <= unit_from // 100 <= 2100):
+    if unit_from is not None and (unit not in CURRENCIES or not isinstance(unit_from, int) or month_of(unit_from) is None
+                                  or not 1900 <= year_of(unit_from) <= 2100):
         raise bad(f"unit_from {unit_from!r} is the first AAAAMM an amount is in the unit, for a currency")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):

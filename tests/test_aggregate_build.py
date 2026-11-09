@@ -436,12 +436,12 @@ class TestDateLayoutIsMeasured:
     """
 
     def test_the_two_layouts_are_told_apart(self) -> None:
-        from pegasus_data._aggregate import _date_layout
+        from pegasus_data.normalize.time import date_layout
 
         # Measured on live 2022 files.
-        assert _date_layout(["20211227", "20211226", "20220113"]) == "ymd"  # SIH
-        assert _date_layout(["07052022", "14052022", "28052022"]) == "dmy"  # SIM
-        assert _date_layout(["16041976", "13021959", "03042021"]) == "dmy"  # SINASC
+        assert date_layout(["20211227", "20211226", "20220113"]) == "ymd"  # SIH
+        assert date_layout(["07052022", "14052022", "28052022"]) == "dmy"  # SIM
+        assert date_layout(["16041976", "13021959", "03042021"]) == "dmy"  # SINASC
 
     def test_they_are_disjoint_for_every_real_date(self) -> None:
         """No eight-digit date after 1900 reads both ways.
@@ -450,42 +450,42 @@ class TestDateLayoutIsMeasured:
         not a month -- so year-first cannot also hold. This is why a small sample
         settles it exactly rather than probabilistically.
         """
-        from pegasus_data._aggregate import _date_layout
+        from pegasus_data.normalize.time import date_layout
 
         for year in (1900, 1999, 2000, 2022, 2100):
             for month in (1, 6, 12):
                 for day in (1, 15, 28):
                     ymd = f"{year:04d}{month:02d}{day:02d}"
                     dmy = f"{day:02d}{month:02d}{year:04d}"
-                    assert _date_layout([ymd]) == "ymd", ymd
-                    assert _date_layout([dmy]) == "dmy", dmy
+                    assert date_layout([ymd]) == "ymd", ymd
+                    assert date_layout([dmy]) == "dmy", dmy
 
     def test_an_unreadable_column_is_refused_rather_than_guessed(self) -> None:
         """A period that means nothing is worse than no period at all."""
-        from pegasus_data._aggregate import _date_layout
+        from pegasus_data.normalize.time import date_layout
 
-        assert _date_layout([]) is None
-        assert _date_layout(["", "   ", None]) is None
-        assert _date_layout(["abcdefgh", "1234"]) is None
+        assert date_layout([]) is None
+        assert date_layout(["", "   ", None]) is None
+        assert date_layout(["abcdefgh", "1234"]) is None
         # Mostly junk with a couple of readable values does not clear the bar.
-        assert _date_layout(["99999999"] * 20 + ["20220101"]) is None
+        assert date_layout(["99999999"] * 20 + ["20220101"]) is None
 
     def test_a_day_first_column_becomes_the_right_period(self) -> None:
         import pyarrow as pa
 
-        from pegasus_data._aggregate import _competencia_column
+        from pegasus_data.normalize.time import competencia_column
 
         table = pa.table({"DTOBITO": pa.array(["07052022", "31122022", "01012022"])})
-        periods = _competencia_column(table, ["DTOBITO"], "date").to_pylist()
+        periods = competencia_column(table, ["DTOBITO"], "date").to_pylist()
         assert periods == ["202205", "202212", "202201"]
 
     def test_a_competence_is_left_alone(self) -> None:
         """The first six characters ARE the period when it is already year-first."""
         import pyarrow as pa
 
-        from pegasus_data._aggregate import _competencia_column
+        from pegasus_data.normalize.time import competencia_column
 
         table = pa.table({"AP_CMP": pa.array(["202201", "202212"])})
-        assert _competencia_column(table, ["AP_CMP"], "year_month").to_pylist() == [
+        assert competencia_column(table, ["AP_CMP"], "year_month").to_pylist() == [
             "202201", "202212",
         ]

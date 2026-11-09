@@ -51,6 +51,7 @@ from typing import Any
 
 from .catalog.store import CatalogStore
 from .identifiers import strip_label_prefix
+from .normalize.time import add_months, year_bounds, year_of
 from .persist.decisions import historical_labels, note_pack_fallback
 
 __all__ = [
@@ -855,7 +856,7 @@ def _is_historical(asked: int) -> bool:
     """Is this request older than the pack can plausibly speak for?"""
     from datetime import UTC, datetime
 
-    year = int(str(asked)[:4])
+    year = year_of(asked)
     built = _pack_built_year() or datetime.now(UTC).year
     return year < built - PACK_CURRENT_ERA_YEARS
 
@@ -1008,8 +1009,7 @@ def packed_mapping_covers_interval(
             for lo, hi in windows
         ):
             return False
-        year, month = divmod(cursor, 100)
-        cursor = (year + 1) * 100 + 1 if month == 12 else year * 100 + month + 1
+        cursor = add_months(cursor, 1)
     return True
 
 
@@ -1284,7 +1284,7 @@ def _read_packed(
     if competencia is not None:
         span = (int(competencia), int(competencia))
     elif year is not None:
-        span = (int(year) * 100 + 1, int(year) * 100 + 12)
+        span = year_bounds(year)
     runs, served = _vintage_runs(codelist, system, span)
     if not has_windows and asked is not None and _is_historical(asked) and policy == "refuse":
         # REFUSE, rather than answer 1995 with today's mapping. This pack
@@ -1374,7 +1374,7 @@ def build_cnes_registry_pack(
         valid_from = _window_key(row["valid_from"])
         valid_to = _window_key(row["valid_to"])
         if years:
-            first, last = min(years) * 100 + 1, max(years) * 100 + 12
+            first, last = year_bounds(min(years))[0], year_bounds(max(years))[1]
             lo = int(valid_from) if valid_from else 0
             hi = int(valid_to) if valid_to else 999912
             if hi < first or lo > last:
@@ -1415,8 +1415,8 @@ def build_cnes_registry_pack(
         {
             **(table.schema.metadata or {}),
             b"pegasus_resource_schema": b"1",
-            b"pegasus_period_start": str(min(covered_years) * 100 + 1).encode(),
-            b"pegasus_period_end": str(max(covered_years) * 100 + 12).encode(),
+            b"pegasus_period_start": str(year_bounds(min(covered_years))[0]).encode(),
+            b"pegasus_period_end": str(year_bounds(max(covered_years))[1]).encode(),
             b"pegasus_covered_years": ",".join(
                 str(year) for year in sorted(covered_years)
             ).encode(),

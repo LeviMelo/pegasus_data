@@ -11,6 +11,7 @@ from typing import Any
 
 from ..catalog.store import CatalogStore
 from ..config import Settings
+from ..normalize.time import month_of
 from ..persist.lake import Lake, LakePartition, listed_partitions, record_source
 from .model import Geography, Period
 
@@ -111,7 +112,7 @@ def in_months(
     kept = []
     for part in parts:
         dates = [filed.get((part.family_id, source)) for source in part.sources]
-        if dates and all(date is not None and date % 100 not in (0, *wanted) for date in dates):
+        if dates and all(date is not None and (m := month_of(date)) is not None and m not in wanted for date in dates):
             continue
         kept.append(part)
     return kept
@@ -134,7 +135,7 @@ def sole_competence(parts: Iterable[LakePartition], publications: Iterable[dict[
         (source,) = part.sources
         date = filed.get((part.family_id, source), 0)
         key = record_source(source)
-        found[key] = date if date % 100 and found.get(key, date) == date else None
+        found[key] = date if month_of(date) and found.get(key, date) == date else None
     return {key: date for key, date in found.items() if date}
 
 
@@ -437,7 +438,7 @@ def _catalog_coverage(
                 candidates, ufs_year = reading, ("BR",)
                 year_geography.append((year, ufs_year))
         selected = list(choose_representations(store, candidates).selected) if candidates else []
-        month_marks = {int(row.get("normalized_date") or 0) % 100 for row in selected}
+        month_marks = {month_of(row.get("normalized_date")) or 0 for row in selected}
         resolution = (
             "mixed" if 0 in month_marks and any(month_marks) else
             "month" if any(month_marks) else
@@ -463,7 +464,7 @@ def _catalog_coverage(
             asked_months = period.months_in(year) if period is not None else ()
             read = in_months(year_parts, candidates, asked_months) if asked_months else year_parts
             if asked_months and resolution == "month":
-                filed = {int(row.get("normalized_date") or 0) % 100 for row in candidates}
+                filed = {month_of(row.get("normalized_date")) or 0 for row in candidates}
                 if absent := tuple(month for month in asked_months if month not in filed):
                     unpublished.append((year, absent))
                     published[year] = tuple(sorted(filed))
@@ -559,7 +560,6 @@ def download_estimate(
     if not years:
         return 0, 0
     from ..representations import choose_representations
-    from ..retrieve import _month_of
     from .readplan import resolve_family
 
     ids = [str(f["family_id"]) for f in resolve_family(store, system, series, None)]
@@ -576,7 +576,7 @@ def download_estimate(
         if wanted and str(row.get("geo_code") or "").upper() not in wanted:
             continue
         months = months_by_year.get(int(year))
-        month = _month_of(row.get("normalized_date"))
+        month = month_of(row.get("normalized_date"))
         if months and month is not None and month not in set(months):
             continue
         rows.append(row)

@@ -31,6 +31,7 @@ from typing import Any
 import pyarrow as pa
 
 from .measures import AggregationRefused
+from .normalize.time import competencia_column, parse_month, year_of, years_of
 
 __all__ = ["STATUSES", "cube", "cube_sources"]
 
@@ -238,6 +239,10 @@ def _series(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[
                                 "strata": [], "where": {k: list(v) for k, v in where.items()}})
 
 
+def _bad_month(period: object) -> int:
+    raise ValueError(f"periods are years, months or days, got {period!r}")
+
+
 def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp: Any = None) -> pa.Table:
     """A built cube kept under ``<lake>/cubes/`` beside the fingerprint of what it was built from: by default SIDRA's
     fact parts (names, sizes, times); ``stamp`` adds another source's (a records cube's lake partitions and files). The
@@ -289,7 +294,6 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     no row: not observed, never zero."""
     import pyarrow.compute as pc
 
-    from ._aggregate import _competencia_column
     from .geography import place_municipalities
     from .semantics.curation import semantics_for
     from .semantics.event_types import count_events
@@ -347,7 +351,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     months = sorted({str(p) for p in periods if len(str(p)) == 7 and str(p)[4] == "-"})
     # `geography` selects the publications read (a state's files), never the records: a test reads the least it needs
     publications = geography or "BR"
-    years = sorted({int(str(p)[:4]) for p in periods})
+    years = sorted(set(years_of(periods)))
     # Only the years the source publishes are read; a year asked for that has no publication is said in the manifest,
     # never fetched and failed (FA-HUM's file has no case in 2012). Events are read in runs of consecutive years, since an
     # event type removes a record filed in two years' publications (SRAG's) only within one read; a dataset's rows have no
@@ -366,7 +370,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             runs[-1].append(y)
         else:
             runs.append([y])
-    spans: list[Any] = ([m for m in months if int(m[:4]) in published] if months
+    spans: list[Any] = ([m for m in months if year_of(m) in published] if months
                         else [run[0] if len(run) == 1 else (run[0], run[-1]) for run in runs])
 
     def kept(table: pa.Table) -> pa.Table:
@@ -477,7 +481,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
     parts = [count(span) for span in spans]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
-    competencia = _competencia_column(counts, time_fields, encoding)
+    competencia = competencia_column(counts, time_fields, encoding)
     # a period of no month (ANS's file year) leaves the column all null, of no type: it is text that holds nothing
     competencia = pa.nulls(counts.num_rows, pa.string()) if competencia is None else pc.cast(competencia, pa.string())
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
@@ -550,7 +554,7 @@ def _population(ident: str, *, place: str, by: list[str], where: dict[str, Seque
     from .api import load_population
     from .geography import place_municipalities
 
-    years = [int(str(p)[:4]) for p in periods] if periods else None
+    years = years_of(periods) if periods else None
     table = load_population(series=ident, years=years, by=tuple(by), settings=settings)
     for column, codes in where.items():
         table = table.filter(pc.is_in(pc.cast(table.column(column), pa.string()), pa.array([str(c) for c in codes])))
@@ -617,7 +621,7 @@ def _climate_brdwgd(ident: str, *, place: str, by: list[str], where: dict[str, S
     base_dir = Path(settings.lake_dir) / "fields" / "climate_monthly"
     if not base_dir.is_dir():
         raise LookupError("BR-DWGD's municipal base is not built: run `pegasus-data fields --name climate_monthly`")
-    years = sorted({int(str(p)[:4]) for p in periods}) if periods else None
+    years = sorted(set(years_of(periods))) if periods else None
     base = ds.dataset(base_dir, format="parquet", partitioning="hive")
     months = base.to_table(filter=ds.field("year").isin(years) if years else None)
     months = months.set_column(months.schema.get_field_index("year"), "year", pc.cast(months.column("year"), pa.int32()))
@@ -678,7 +682,7 @@ def _climate_inmet(ident: str, *, place: str, by: list[str], where: dict[str, Se
     dataset = ds.dataset(directory, format="parquet", partitioning="hive")
     expression = None
     if periods:
-        years = sorted({int(str(p)[:4]) for p in periods})
+        years = sorted(set(years_of(periods)))
         expression = ds.field("year").isin(years)
     if "station" in where:
         clause = ds.field("station_id").isin([str(c) for c in where["station"]])
@@ -750,7 +754,7 @@ def _climate_cptec(ident: str, *, place: str, by: list[str], where: dict[str, Se
         if len(p) == 4 and p.isdigit():
             spans.append((dt.date(int(p), 1, 1), dt.date(int(p), 12, 31)))
         elif len(p) == 7:
-            y, m = int(p[:4]), int(p[5:])
+            y, m = divmod(parse_month(p) or _bad_month(p), 100)
             spans.append((dt.date(y, m, 1), dt.date(y, m, calendar.monthrange(y, m)[1])))
         elif len(p) == 10:
             spans.append((dt.date.fromisoformat(p),) * 2)
@@ -788,7 +792,7 @@ def _period_days(period: str) -> int:
     if len(period) == 4:
         return 366 if calendar.isleap(int(period)) else 365
     if len(period) == 7:
-        return calendar.monthrange(int(period[:4]), int(period[5:]))[1]
+        return calendar.monthrange(*divmod(parse_month(period) or _bad_month(period), 100))[1]
     return 1
 
 
@@ -831,7 +835,7 @@ def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequenc
     dataset = ds.dataset(folder / "estimates.parquet")
     expression = None
     if periods and period_column:
-        years = [int(str(p)[:4]) for p in periods]
+        years = years_of(periods)
         kind = dataset.schema.field(period_column).type
         expression = ds.field(period_column).isin(years if pa.types.is_integer(kind) else [str(p) for p in periods])
     for column, codes in where.items():

@@ -52,6 +52,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+from .normalize.time import month_of, year_of
 from .persist.lake import SLICE
 from .textenc import fold
 from .transport import SourceAbsent, download, get_json
@@ -664,7 +665,7 @@ def _dated(unit: dict[str, Any], year: int) -> tuple[str, str, int]:
     part files a month's query opens), never read back from the records' own month column. Records of a monthly unit dated
     in another year are a publication of that year, at year resolution, so a month's query does not serve them."""
     month = int(unit.get("month") or 0)
-    if month and month // 100 == year:
+    if month_of(month) and year_of(month) == year:
         return str(month), "YYYYMM", month
     return str(year), "YYYY", year * 100
 
@@ -901,9 +902,9 @@ def _units(spec: dict[str, Any], years: list[int] | None) -> list[dict[str, Any]
         # `across` names further axes of the pattern (ANS files each month by state: {uf: [AC, AL, ...]}): one unit per combination
         across = origin.get("across") or {}
         for period in _span(origin["years"] if origin.get("years") else origin["months"]):
-            if not origin.get("years") and not 1 <= period % 100 <= 12:
+            if not origin.get("years") and month_of(period) is None:
                 continue                     # a span of YYYYMM months ("201401-202110") holds no month 13 to 00
-            year = period if origin.get("years") else int(str(period)[:4])
+            year = period if origin.get("years") else year_of(period)
             for combination in itertools.product(*across.values()):
                 axes = dict(zip(across, map(str, combination), strict=True))
                 out.append({"key": "-".join([str(period), *axes.values()]),

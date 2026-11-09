@@ -77,6 +77,7 @@ from .decode.registry import ReaderRegistry
 from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failure, short_body_note
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
+from .normalize.time import compose, month_of
 from .pipeline import Pipeline
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
@@ -961,7 +962,7 @@ def _select_files(
             for row in global_rows
             if (uf_set is None or (row["geo_code"] or "") in uf_set)
             and (year_set is None or row["year"] in year_set)
-            and (month_set is None or _month_of(row["normalized_date"]) in month_set)
+            and (month_set is None or month_of(row["normalized_date"]) in month_set)
         ]
         global_matched = [row for row in asked if str(row["path"]) not in exclude_paths]
         if uf_set is None and one_reading:
@@ -1018,7 +1019,7 @@ def _select_files(
             for r in rows
             if (uf_set is None or (r["geo_code"] or "") in uf_set)
             and (year_set is None or r["year"] in year_set)
-            and (month_set is None or _month_of(r["normalized_date"]) in month_set)
+            and (month_set is None or month_of(r["normalized_date"]) in month_set)
             and (
                 family_id,
                 str(r["path"]),
@@ -1041,9 +1042,9 @@ def _select_files(
         for item in matched:
             selected.append((family_id, plan, item))
             year = item.get("year")
-            month = _month_of(item.get("normalized_date"))
+            month = month_of(item.get("normalized_date"))
             competencia = (
-                int(year) * 100 + int(month) if year is not None and month else None
+                compose(year, month) if year is not None and month else None
             )
             from .decode.base import logical_source_id
 
@@ -1681,18 +1682,6 @@ def _open_decoded_source(
         row_limit=registry.row_limit,
     )
     return outcome, size
-
-
-def _month_of(normalized_date: Any) -> int | None:
-    """The month inside a ``YYYYMM`` integer; ``None`` for annual files.
-
-    An annual file has month 00, and treating that as January would make
-    ``months=[1]`` silently pull in whole years of data.
-    """
-    if normalized_date is None:
-        return None
-    month = int(normalized_date) % 100
-    return month or None
 
 
 def _latest_published(catalog: CatalogStore, families: Sequence[Mapping[str, Any]], ufs: Sequence[str]) -> int | None:
