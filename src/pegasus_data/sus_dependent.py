@@ -31,13 +31,42 @@ from typing import Any
 import numpy as np
 import pyarrow as pa
 
-BANDS = ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59",
-         "60-64", "65-69", "70-74", "75-79", "80+"]
-#: ANS age labels -> the account's bands (15-17 and 18-19 join; "Informada Incorreta" has no band).
-ANS_BAND = {"Menos de 1 ano": "0-4", "1 a 4 anos": "0-4", "5 a 9 anos": "5-9", "10 a 14 anos": "10-14",
-            "15 a 17 anos": "15-19", "18 a 19 anos": "15-19", "80 anos ou mais": "80+",
-            **{f"{a} a {a + 4} anos": f"{a}-{a + 4}" for a in range(20, 80, 5)}}
 Z80 = 1.2815515655446004
+
+
+def _links_field() -> tuple[str, dict, dict]:
+    """The field of plan links the product subtracts (``inputs: links`` of its entry in ``curation/products.yml``) and its
+    declaration: the declared ``where`` names the coverage that insures hospital care, the declared ``years`` the years;
+    and its records cube plan (the measure column, the stratum columns by their names)."""
+    from .config import curation_root
+    from .fields import declared_fields, intake_cube
+    from .semantics.curation import read_yaml
+
+    name = str(read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["links"]["field"])
+    spec = declared_fields()[name]
+    return name, spec, intake_cube(name, spec)
+
+
+def ans_band(label: str | None, labels: list[str]) -> str | None:
+    """The population account's five-year band (``population_account.BAND_LABELS``) holding an ANS age label, read from
+    the numbers it states ("Menos de 1 ano", "5 a 9 anos", "15 a 17 anos", "80 anos ou mais"); None when the label states
+    none or spans two bands (Informada Incorreta): such links are counted and reported, never placed in a band."""
+    import re
+
+    text = str(label or "").lower()
+    if (m := re.fullmatch(r"menos de (\d+) anos?", text)):
+        lo, hi = 0, int(m.group(1)) - 1
+    elif (m := re.fullmatch(r"(\d+) a (\d+) anos", text)):
+        lo, hi = int(m.group(1)), int(m.group(2))
+    elif (m := re.fullmatch(r"(\d+) anos ou mais", text)):
+        lo, hi = int(m.group(1)), None
+    else:
+        return None
+    top = len(labels) - 1                                      # the open band (80+) begins at 5 * top
+    first = min(lo // 5, top)
+    if hi is None:
+        return labels[first] if lo // 5 >= top else None
+    return labels[first] if min(hi // 5, top) == first else None
 
 
 def _unplaced(root: str | Path, year: int) -> int:
@@ -49,33 +78,46 @@ def _unplaced(root: str | Path, year: int) -> int:
     from .config import load_settings
     from .cubes import cube
 
-    table = cube("records:ANS-ICB/rows", measure="QT_BENEFICIARIO_ATIVO", where={"COBERTURA_ASSIST_PLAN": {"prefix": ["M"]}},
+    _, spec, plan = _links_field()
+    coverage = {alias: column for column, alias in plan["strata"]}["coverage"]
+    table = cube(plan["source"], measure=plan["measure"], where={coverage: [str(spec["where"]["coverage"])]},
                  periods=[str(year)], grain="year", settings=load_settings(root=Path(root)))
     return int(json.loads(table.schema.metadata[b"pegasus.cube"])["unplaced_events"])
 
 
 def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict[int, dict[str, int]]]:
-    """Medical-hospital links per (year, 6-digit municipality, sex, band), and what could not be placed."""
+    """Medical-hospital links per (year, 6-digit municipality, sex, band), and what could not be placed: links with no
+    municipality, with an age no band holds (``age_incorrect``) or a sex neither M nor F (``sex_unknown``) are counted in
+    ``medical_total`` and reported, and subtracted from no cell."""
+    import pyarrow as pa
+
     from .config import load_settings
     from .fields import load_field
+    from .population_account import BAND_LABELS
+    from .semantics.categories import canonical_sex
 
+    name, spec, _ = _links_field()
     settings = load_settings(root=Path(root))
     cells: dict[tuple, int] = {}
     report: dict[int, dict[str, int]] = {}
     for y in years:
-        t = load_field("ans_beneficiaries", years=[y], settings=settings).select(
+        t = load_field(name, years=[y], settings=settings).select(
             ["municipality", "sex", "age_band", "coverage", "value"]).to_pylist()
+        sexes = canonical_sex(pa.array([r["sex"] for r in t], pa.string())).to_pylist()
         unknown = _unplaced(root, y)
-        rep = {"medical_total": unknown, "municipality_unknown": unknown, "age_incorrect": 0}
-        for r in t:
-            if not r["coverage"].startswith("M"):          # the label is stored with a replacement character
+        rep = {"medical_total": unknown, "municipality_unknown": unknown, "age_incorrect": 0, "sex_unknown": 0}
+        for r, sex in zip(t, sexes, strict=True):
+            if r["coverage"] != spec["where"]["coverage"]:       # the declared plan coverage, whole (a dental plan is another link)
                 continue
             rep["medical_total"] += int(r["value"])
-            band = ANS_BAND.get(r["age_band"])
+            band = ans_band(r["age_band"], BAND_LABELS)
             if band is None:
                 rep["age_incorrect"] += int(r["value"])
                 continue
-            key = (y, int(r["municipality"]), 1 if r["sex"] == "M" else 2, band)
+            if sex is None:
+                rep["sex_unknown"] += int(r["value"])
+                continue
+            key = (y, int(r["municipality"]), 1 if sex == "M" else 2, band)
             cells[key] = cells.get(key, 0) + int(r["value"])
         report[y] = rep
     return cells, report
@@ -88,11 +130,15 @@ def build_sus_dependent(root: str | Path, *, version: str, validation: str, draw
     from .modelled import ModelledManifest, write_modelled
 
     settings = SimpleNamespace(lake_dir=Path(root) / "lake")
+    from .config import curation_root
+    from .fields import _years
     from .modelled import read_modelled
+    from .semantics.curation import read_yaml
 
-    years = [2021, 2022, 2023, 2024, 2025]
-    # band-level intervals: version 2 (version 3 and later are single-age, ADR-0151)
-    estimates, pm = read_modelled("population_account", "population-account-2", settings=settings)
+    # the years the links field declares; those the account holds are built (it does not extrapolate, ADR-0145)
+    years = _years(str(_links_field()[1]["years"]))
+    version = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account"]["version"]
+    estimates, pm = read_modelled("population_account", str(version), settings=settings)
     import pyarrow.compute as pc
 
     keep = pc.and_(pc.is_in(estimates.column("year"), pa.array(years, estimates.column("year").type)),

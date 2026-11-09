@@ -75,8 +75,9 @@ Z_NAMES = ("share_Branca", "share_Preta", "share_Parda", "share_Indigena", "log1
 # --------------------------------------------------------------------------------------- inputs
 
 def encode_race(codes: Any) -> np.ndarray:
-    """RACACOR codes ('1'..'5', null or anything else) to 0..4, 5 for a blank."""
-    return np.array([CODE.get(None if c is None else str(c).strip().lstrip("0"), UNKNOWN) for c in codes], dtype=np.int8)
+    """RACACOR codes ('1'..'5', null or anything else) to 0..4, 5 for a blank. The code is matched at its width (RACACOR
+    is one digit): '01' is not '1', it is a code the codelist does not hold, so it is unknown."""
+    return np.array([CODE.get(None if c is None else str(c).strip(), UNKNOWN) for c in codes], dtype=np.int8)
 
 
 def age_band(days: np.ndarray) -> np.ndarray:

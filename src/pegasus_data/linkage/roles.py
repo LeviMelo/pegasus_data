@@ -47,6 +47,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..semantics.categories import canonical_sex
 from ..semantics.curation import read_yaml
 from ..semantics.epoch import curated
 
@@ -191,13 +192,7 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
         parsed = pc.strptime(raw, format=_FORMATS[role.format or ""], unit="s", error_is_null=True)
         return pc.cast(parsed, pa.date32())
     if role.type == "sex":
-        if labels is None:
-            source = pc.utf8_lower(raw)
-        else:
-            source = pc.utf8_lower(_strings(labels))
-        male = pc.starts_with(source, "m")
-        female = pc.starts_with(source, "f")
-        return pc.if_else(male, "M", pc.if_else(female, "F", pa.scalar(None, pa.string())))
+        return canonical_sex(raw if labels is None else labels)      # the whole label, as curation/categories.yml spells it
     if role.type in ("municipality", "facility"):
         width = 6 if role.type == "municipality" else 7
         valid = pc.and_(pc.utf8_is_digit(raw), pc.equal(pc.utf8_length(raw), width))

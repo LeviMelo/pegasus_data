@@ -38,7 +38,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: generate the intake CASE from the same data (`universe`, `sole`, `legacy_places` registered as one DuckDB table by a
   function that `place_municipalities` also reads), or place in Python over distinct values and join. Size M.
 
-**S3. `sus_dependent` turns any non-"M" sex into female and matches a coverage class by the first letter of a label**
+**S3. `sus_dependent` turns any non-"M" sex into female and matches a coverage class by the first letter of a label** — done (branch worktree-agent-a28eb98f9b9fd700e): sex through `canonical_sex`, coverage by the field's declared `where`, age bands parsed from the labels, years and account version declared; 2021-2022 cells equal (99,667,547 links, 0 unknown sex)
 - `sus_dependent.py:78` (`1 if r["sex"] == "M" else 2`), `:71` (`r["coverage"].startswith("M")`, comment "stored with a
   replacement character"), `:37-39` (`ANS_BAND`: PT label text to bands), `:85` (`years = [2021..2025]`), `:93`
   (`"population-account-2"` pinned).
@@ -48,7 +48,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: take sex and coverage from the ANS records cube's codes (roles/codelist `categories`), band edges from the
   cube's age dimension; unknown sex -> reported residual, not a sex. Size S.
 
-**S4. Sex read from a label's first letter**
+**S4. Sex read from a label's first letter** — done (branch worktree-agent-a28eb98f9b9fd700e): one `canonical_sex` (`curation/categories.yml`) for linkage and `sex_of`; `encode_race` matches at width; real labels and codes equal, 0 of 69.5 M race values had a leading zero
 - `population_account.py:208-219` (`sex_of`: `startswith("m")` / `startswith("f")` on the lowercased label; the one function
   closing defect 3), `:222` `SEX_INDEX = {"M": 0, "F": 1}`; `modelled_race.py:62` `CODE = {"1":0..."5":4}` with
   `lstrip("0")` at `:79`.
@@ -58,7 +58,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: sex from the field's roles (`categories: {male: [...], female: [...]}` per codelist/validity window), race codes
   from the RACACOR codelist; one function in `semantics/column_roles`. Size S.
 
-**S5. `quality.race_reliability` encodes SIH's RACA_COR code meanings and thresholds in code**
+**S5. `quality.race_reliability` encodes SIH's RACA_COR code meanings and thresholds in code** — done (branch worktree-agent-a28eb98f9b9fd700e): columns by role, codes from the year's codelist labels through the roles' categories, thresholds in `curation/quality.yml`; SIH-RD CE and AC 2022 flags equal on 579,505 rows
 - `quality.py:20-60` (code `04`=amarela, `03`=parda, 50 %, 10 %, 1 %, `MIN_ADMISSIONS=30`), default column names
   `RACA_COR`, `CNES`, `DT_SAIDA`.
 - A fact about one system's codes lives in code, reading `"04"` etc. as strings (exact widths assumed), so it breaks
@@ -66,7 +66,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Violates: hand-fixed facts; "never guess a code's meaning".
 - Fix: resolve the codes from the column's codelist (label "Amarela"/"Parda") through roles; keep thresholds as declared parameters of the check in `curation`. Size S.
 
-**S6. `completeness.ill_defined_shares` hard-codes ICD chapter R and the CAUSABAS column; SIM/SINASC branches throughout**
+**S6. `completeness.ill_defined_shares` hard-codes ICD chapter R and the CAUSABAS column; SIM/SINASC branches throughout** — done (branch worktree-agent-a28eb98f9b9fd700e): ill-defined causes declared on the `death.cause` role, per-system model in `products.yml`, SIM/SINASC branches removed; the 1,296-row product equal
 - `completeness.py:193-204` (`CAUSABAS`, `R` except `R95`), `:228-258` (`if system == "SINASC"` / `"SIM"` x6),
   `:135-137` (`ANCHOR_SD`, `MODEL` per system), `:27` and `:225-226` (`period[:4]`, `period[5:]`).
 - Which causes are "ill-defined" is a semantic fact (ICD-10 R00-R99 minus R95 by the module's own choice) written in the

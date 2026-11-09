@@ -1,0 +1,25 @@
+# Thresholds and cause groups of the quality checks, as declared parameters (the code reads them; none is written in it).
+# What a code MEANS is never here: a check resolves its codes through the column's codelist and the roles file's
+# `compare: {type: label, categories: ...}` of the same dataset.
+
+# `quality.race_reliability`: the SIH race code per hospital-month (OQ-66, docs/evaluation/2026-10-03-sih-asian-default-fill-and-code-swap.md).
+race_reliability:
+  dataset: SIH-RD
+  race: patient.race            # the roles read: the race code, the hospital, the month of discharge
+  facility: admission.facility
+  month: admission.end
+  asian: asian                  # the roles file's canonical categories of the two codes that are tested
+  brown: brown
+  min_admissions: 30            # a hospital-month with fewer admissions is not judged
+  unreliable_asian_share: 0.5   # asian over this share of the hospital-month: a default
+  suspect_asian_share: 0.10     # asian over this: suspect; with brown under `swapped_brown_share`, unreliable (SIM's 4 written into SIH)
+  swapped_brown_share: 0.01
+
+# `completeness.ill_defined_shares`: the underlying causes counted as ill-defined, a share of deaths (a quality covariate of
+# the SIM completeness ratio, not a completeness): ICD-10 chapter R (symptoms, signs) without R95 (sudden infant death
+# syndrome, a defined cause), the module's own choice since 2026-10-05 (docs/evaluation/2026-10-05-completeness-and-sus-dependent.md).
+ill_defined_causes:
+  SIM-DO:
+    cause: death.cause          # the role of the cause column
+    chapter: R
+    except: [R95]

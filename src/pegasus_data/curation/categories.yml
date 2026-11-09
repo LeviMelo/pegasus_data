@@ -1,0 +1,9 @@
+# Canonical categories: a label (as a codelist or a file decodes it) to the one category every system shares. Matched whole
+# (trimmed, case-folded), never by a letter of it: a label outside the map is unknown (null), not another category.
+# Read through `semantics.categories`. A new spelling is added here when a codelist is found that writes it, with the
+# codelist named; "Masculino"/"Feminino" are every DATASUS sex codelist (SEXO of SIH, SIM, SINASC, SINAN, SIA), M/F is ANS
+# (TP_SEXO) and SINASC 2014 (DATASUS writes the codes themselves); "Mas"/"Fem" is the truncated codelist SEXOC of the
+# label pack (SINASC, codes M and F). Found by listing every label of the codelists that hold "Masculino" and of SEXOC.
+sex:
+  M: [masculino, m, mas]
+  F: [feminino, f, fem]
