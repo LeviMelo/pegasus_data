@@ -235,16 +235,17 @@ def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
         events = []
     measure = fs["measure"]["sum"] if isinstance(fs.get("measure"), dict) else None
     cube_source = f"records:{dataset}/{events[0] if events else 'rows'}"
-    where = dict(fs.get("where") or {})
+    # the intake lands every column upper-cased: a declaration's names are read as landed (PNI's st_documento)
+    where = {"+".join(part.upper() for part in str(k).split("+")): v for k, v in (fs.get("where") or {}).items()}
     support = None
     if fs.get("outcome"):
         # a share's numerator: its population's records with the outcome, a row (0 where none) wherever the population has one
         if fs.get("by"):
             return None
         support = {"source": cube_source, "where": dict(where)}
-        where = {**where, **fs["outcome"]}
+        where = {**where, **{str(k).upper(): v for k, v in fs["outcome"].items()}}
     return {"source": cube_source, "dataset": dataset, "support": support,
-            "where": where, "strata": _strata(fs),
+            "where": where, "strata": [(c.upper() if c else c, alias) for c, alias in _strata(fs)],
             "measure": str(measure).upper() if measure else None,
             "grain": (source.get("period") or {}).get("grain") or "year",
             "citation": str(source.get("citation") or source.get("what") or "")}

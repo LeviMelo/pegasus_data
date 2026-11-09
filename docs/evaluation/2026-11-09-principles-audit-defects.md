@@ -16,7 +16,8 @@ changed number, so each change is judged by whether every output it touches is e
 | 3 population account | inputs declared, sex from its label | the 48 collected files; `load_events` (unit, entity), `national_events`, `events_uf`, `mortality_rates` | equal; sex codes: 1→M, 2→F, SINASC 2014 M/F, 0/9/I unknown |
 | 3 lake paths | SIDRA as cubes, censuses via `load_population` | `lag_series`, `static_covariates`, `member_inputs`, `census_old`, `census_uf`, `load_contagem`, `member_totals` | equal arrays |
 | 9 recipes | 54 SINAN recipes → one template | all 60 `AggregateSpec`s | every field equal; 19 descriptions name the agravo instead of its code |
-| 1 CNES | mirror pipeline removed | the 43 cube plans | byte-identical; the fields themselves in the national rerun |
+| 1 CNES | mirror pipeline removed | the 43 cube plans; the fields nationally (frozen checkout 90717dd) | plans byte-identical; all 43 fields equal every year |
+| all views | 91 cube-served fields against their stored copies, national, year by year | the copies | all equal (SNGPC's 56 M-row sales included); the copies removed (843 MiB) |
 | stage 4 | BR-DWGD's six annual fields as `climate:` cube views | the stored copies | 356,032 rows each, value, status, months and release equal |
 | stage 5 | aggregate recipes built from records cubes | the old build's cells, AC 2022 (SINAN Zika BR 2022) | SIH 20,730, SINASC 11,707, CNES-ST 3,241 cells equal; SIM 13 and Zika 56 records no municipality places were cells (state "ignored" codes), now unplaced; Brasília's region codes place in Brasília |
 | cubes | sums read by the one number reader, null where no part holds a number | CNES hours (2015, 2020), SISAGUA sums (2022) | equal |
