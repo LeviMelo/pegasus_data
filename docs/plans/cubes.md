@@ -124,8 +124,9 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
     `cells.parquet` is gone. Equal to the old cells on AC 2022 (SIH, CNES-ST, SINASC); SIM by its 13 unplaced records.
   - Moments and log-moments come from cubes as `n`, `sum`, `sumsq` (and `sumlog`, `sumsqlog`): a variance equals the
     records' on AC 2022 SIH-RD.
-  - **Left:** the population route reads `load_population`; ratio, min and max are not built from cubes; `fields.py`'s
-    builders, `intake.py`'s field derivation, recipes as YAML and `semantic_axes` are still to remove.
+  - **Left:** the population route reads `load_population`; ratio, min and max are not built from cubes; `semantic_axes`
+    is still to remove. `intake.py`'s field derivation and the stored-field writers are removed (2026-11-09: every field is
+    served; `lake/fields` keeps only the climate bases); recipes stay YAML, for they carry labels and measures.
 - **Stage 3 has measured requirements.**
   - The mirror's 1,728 CNES DBCs are the FTP's own files and are adopted into the blob store, so no download is needed.
   - The CNES fields need four things records cubes do not have yet:

@@ -144,7 +144,8 @@ def fields(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Read IBGE's municipal statistics (curation/fields.yml) into lake/fields/."""
+    """Make every declared field (curation/fields.yml) readable: fetch what its cube reads (IBGE's SIDRA store, the intake
+records, the climate base); a field is a cube or a view of one, served by `load_field`, not copied."""
     from ..fields import build_fields
 
     with console.status("reading IBGE…"):
