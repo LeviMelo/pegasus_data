@@ -77,6 +77,8 @@ columns:
     fact_domain: process
     fact_domain_evidence: "\"Município de notificação, código (IBGE)\" (notification.municipality): when, where and by whom the case was notified, investigated, entered, closed or cared for: the notification process"
     name: "Município de notificação, código (IBGE)"
+    codelists:
+    - BR_MUNICIPALFA
   CS_SEXO:
     missing: ['I']
     # the files' own letters (measured over 4,666,910 rows): M='Masculino', F='Feminino', I='Ignorado'; the dictionary lists the DBF export's 1 Masculino, 2 Feminino, 9 Ignorado, and SINAN's SEXO table writes the same three letters
@@ -201,6 +203,8 @@ columns:
     fact_domain: person
     fact_domain_evidence: "\"Município de residência, código (IBGE)\" (patient.residence): attribute of the patient (age, birth, residence, occupation, employer)"
     name: "Município de residência, código (IBGE)"
+    codelists:
+    - BR_MUNICIPALFA
   CS_ZONA:
     missing: ['9']
     # declared from the SIVEP-Gripe data dictionary (Dicionário de Dados, ficha de registro individual de SRAG hospitalizado, 25/05/2023): 1='Urbana', 2='Rural', 3='Periurbana', 9='Ignorado'
@@ -611,6 +615,8 @@ columns:
     fact_domain: process
     fact_domain_evidence: "\"Município de internação, código (IBGE)\" (case.hospital_municipality): how care or investigation was carried out"
     name: "Município de internação, código (IBGE)"
+    codelists:
+    - BR_MUNICIPALFA
   NM_UN_INTE:
     role: case.hospital_name
     kind: institution

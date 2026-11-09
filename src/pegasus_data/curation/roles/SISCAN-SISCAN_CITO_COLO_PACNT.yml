@@ -74,6 +74,7 @@ columns:
   CO_ANO_MES_LIBERACAO:
     role: exam.year_month_of_report_release
     kind: date
+    precision: month
     model: when
     fact_domain: process
     fact_domain_evidence: "\"Mês/Ano de liberação (inferido)\" (exam.year_month_of_report_release): date of collection, receipt or result of the exam: how the exam was done"
@@ -84,6 +85,7 @@ columns:
   CO_ANO_MES_RESULTADO:
     role: exam.year_month_of_result
     kind: date
+    precision: month
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"

@@ -39,10 +39,10 @@ shared_by_system:
     semantic_axes:
       default_geography: area
       geography:
-        area: {roles: [population.residence], code_system: ibge_municipality}
+        area: {roles: [population.residence]}
       default_time: reference
       time:
-        reference: {roles: [population.year], encoding: year}
+        reference: {roles: [population.year]}
 
   SIA:
     # The APAC family. `AP_*` is the shared APAC header block, carried by every
@@ -52,125 +52,125 @@ shared_by_system:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        facility: {roles: [authorisation.facility_municipality], code_system: ibge_municipality}
-        manager: {roles: [authorisation.management_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        facility: {roles: [authorisation.facility_municipality]}
+        manager: {roles: [authorisation.management_municipality]}
       default_time: competence
       time:
-        competence: {roles: [authorisation.competence], encoding: year_month}
-        processing: {roles: [authorisation.processing_month], encoding: year_month}
+        competence: {roles: [authorisation.competence]}
+        processing: {roles: [authorisation.processing_month]}
   PNI:
     semantic_axes:
       default_geography: application
       geography:
-        application: {roles: [vaccination.municipality], code_system: ibge_municipality}
+        application: {roles: [vaccination.municipality]}
       default_time: competence
       time:
-        competence: {roles: [vaccination.year], encoding: year}
+        competence: {roles: [vaccination.year]}
   SIH:
     # Every SIH dataset is a view of an AIH and shares the header block. SIH.RD
     # declares its own in core.yml; the rest inherit this.
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        facility: {roles: [admission.facility_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        facility: {roles: [admission.facility_municipality]}
       default_time: competence
       time:
-        competence: {roles: [admission.processing_year, admission.processing_month], encoding: year_month}
+        competence: {roles: [admission.processing_year, admission.processing_month]}
   SISPRENATAL:
     semantic_axes:
       default_geography: facility
       geography:
-        facility: {roles: [pregnancy.health_unit_municipality], code_system: ibge_municipality}
+        facility: {roles: [pregnancy.health_unit_municipality]}
       default_time: enrolment
       time:
-        enrolment: {roles: [pregnancy.registration_inclusion_date], encoding: date}
+        enrolment: {roles: [pregnancy.registration_inclusion_date]}
 
   CIH:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        facility: {roles: [admission.facility_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        facility: {roles: [admission.facility_municipality]}
       default_time: admission
       time:
-        admission: {roles: [admission.start], encoding: date}
-        discharge: {roles: [admission.end], encoding: date}
+        admission: {roles: [admission.start]}
+        discharge: {roles: [admission.end]}
 
   CIHA:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        facility: {roles: [admission.facility_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        facility: {roles: [admission.facility_municipality]}
       default_time: attendance
       time:
-        attendance: {roles: [admission.start], encoding: date}
-        discharge: {roles: [admission.end], encoding: date}
+        attendance: {roles: [admission.start]}
+        discharge: {roles: [admission.end]}
 
   SIM:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [deceased.residence], code_system: ibge_municipality}
-        occurrence: {roles: [death.municipality], code_system: ibge_municipality}
+        residence: {roles: [deceased.residence]}
+        occurrence: {roles: [death.municipality]}
       default_time: occurrence
       time:
-        occurrence: {roles: [death.date], encoding: date}
-        registration: {roles: [death.receipt_date], encoding: date}
+        occurrence: {roles: [death.date]}
+        registration: {roles: [death.receipt_date]}
 
   SINASC:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [mother.residence], code_system: ibge_municipality}
-        occurrence: {roles: [birth.municipality], code_system: ibge_municipality}
+        residence: {roles: [mother.residence]}
+        occurrence: {roles: [birth.municipality]}
       default_time: birth
       time:
-        birth: {roles: [baby.birth_date], encoding: date}
-        registration: {roles: [birth.registration_date], encoding: date}
+        birth: {roles: [baby.birth_date]}
+        registration: {roles: [birth.registration_date]}
 
   CNES:
     semantic_axes:
       default_geography: facility
       geography:
-        facility: {roles: [establishment.municipality], code_system: ibge_municipality}
+        facility: {roles: [establishment.municipality]}
       default_time: competence
       time:
-        competence: {roles: [establishment.competence], encoding: year_month}
+        competence: {roles: [establishment.competence]}
 
   RESP:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        notification: {roles: [notification.notifying_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        notification: {roles: [notification.notifying_municipality]}
       default_time: notification
       time:
-        notification: {roles: [notification.date], encoding: date}
+        notification: {roles: [notification.date]}
 
   ESUSNOTIFICA:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        notification: {roles: [notification.municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        notification: {roles: [notification.municipality]}
       default_time: notification
       time:
-        notification: {roles: [notification.date], encoding: date}
+        notification: {roles: [notification.date]}
 
   PAINEL_ONCOLOGIA:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        diagnosis: {roles: [case.diagnosis_municipality], code_system: ibge_municipality}
-        treatment: {roles: [case.treatment_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        diagnosis: {roles: [case.diagnosis_municipality]}
+        treatment: {roles: [case.treatment_municipality]}
       default_time: diagnosis
       time:
-        diagnosis: {roles: [case.diagnosis_date], encoding: date}
-        treatment: {roles: [case.treatment_start_date], encoding: date}
+        diagnosis: {roles: [case.diagnosis_date]}
+        treatment: {roles: [case.treatment_start_date]}
 
 datasets:
 
@@ -273,10 +273,10 @@ datasets:
     semantic_axes:
       default_time: competence
       time:
-        competence: {roles: [establishment.competence], encoding: yyyymm}
+        competence: {roles: [establishment.competence]}
       default_geography: facility
       geography:
-        facility: {roles: [establishment.municipality], code_system: ibge_municipality}
+        facility: {roles: [establishment.municipality]}
     known_biases: >
       A register, not a census of activity. An establishment stays registered
       whether or not it is treating anyone, and registration is a condition of
@@ -1306,10 +1306,10 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
       default_time: reference
       time:
-        reference: {roles: [vaccination.year], encoding: year}
+        reference: {roles: [vaccination.year]}
     asserted_by: pegasus_data
     source: manual
     source_ref: >-
@@ -1337,10 +1337,10 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
       default_time: competence
       time:
-        competence: {roles: [vaccination.year, vaccination.month], encoding: year_month}
+        competence: {roles: [vaccination.year, vaccination.month]}
     asserted_by: pegasus_data
     source: manual
     source_ref: >-
@@ -1770,7 +1770,7 @@ datasets:
     semantic_axes:
       default_time: competence
       time:
-        competence: {roles: [maintainer.competence], encoding: yyyymm}
+        competence: {roles: [maintainer.competence]}
     asserted_by: pegasus_data
     source: manual
     source_ref: >-
@@ -1793,10 +1793,10 @@ datasets:
     semantic_axes:
       default_geography: facility
       geography:
-        facility: {roles: [facility.municipality], code_system: ibge_municipality}
+        facility: {roles: [facility.municipality]}
       default_time: competence
       time:
-        competence: {roles: [facility.snapshot_competence], encoding: yyyymm}
+        competence: {roles: [facility.snapshot_competence]}
     use: support
     why_no_event_type: >-
       A register of the hospitals that bill SIH: one row per hospital and monthly competence (CNES, CNPJ,
@@ -1910,10 +1910,10 @@ datasets:
     semantic_axes:
       default_geography: area
       geography:
-        area: {roles: [population.residence], code_system: ibge_municipality}
+        area: {roles: [population.residence]}
       default_time: reference
       time:
-        reference: {roles: [population.year], encoding: year}
+        reference: {roles: [population.year]}
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.POP
@@ -1933,10 +1933,10 @@ datasets:
     semantic_axes:
       default_geography: area
       geography:
-        area: {roles: [population.residence], code_system: ibge_municipality}
+        area: {roles: [population.residence]}
       default_time: reference
       time:
-        reference: {roles: [population.year], encoding: year}
+        reference: {roles: [population.year]}
     asserted_by: pegasus_data
     source: manual
     source_ref: >-
@@ -1960,10 +1960,10 @@ datasets:
     semantic_axes:
       default_geography: area
       geography:
-        area: {roles: [population.residence], code_system: ibge_municipality}
+        area: {roles: [population.residence]}
       default_time: reference
       time:
-        reference: {roles: [population.year], encoding: year}
+        reference: {roles: [population.year]}
     asserted_by: pegasus_data
     source: manual
     source_ref: >-
@@ -2090,14 +2090,14 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        notification: {roles: [notification.municipality], code_system: ibge_municipality}
-        hospital: {roles: [case.hospital_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        notification: {roles: [notification.municipality]}
+        hospital: {roles: [case.hospital_municipality]}
       default_time: onset
       time:
-        onset: {roles: [case.onset], encoding: date}
-        notification: {roles: [notification.date], encoding: date}
-        admission: {roles: [case.hospital_admission_date], encoding: date}
+        onset: {roles: [case.onset]}
+        notification: {roles: [notification.date]}
+        admission: {roles: [case.hospital_admission_date]}
     event_types:
       - name: notification
         kind: notification
@@ -2137,11 +2137,11 @@ datasets:
     semantic_axes:
       default_geography: infection
       geography:
-        infection: {roles: [case.residence], code_system: ibge_municipality}
+        infection: {roles: [case.residence]}
       default_time: onset
       time:
-        onset: {roles: [case.onset_year, case.onset_month], encoding: year_month}
-        onset_date: {roles: [case.onset], encoding: date}
+        onset: {roles: [case.onset_year, case.onset_month]}
+        onset_date: {roles: [case.onset]}
     event_types:
       - name: case
         kind: case
@@ -2165,11 +2165,11 @@ datasets:
     semantic_axes:
       default_geography: occurrence
       geography:
-        occurrence: {roles: [epizootic.municipality], code_system: ibge_municipality}
+        occurrence: {roles: [epizootic.municipality]}
       default_time: occurrence
       time:
-        occurrence: {roles: [epizootic.year, epizootic.month], encoding: year_month}
-        occurrence_date: {roles: [epizootic.date], encoding: date}
+        occurrence: {roles: [epizootic.year, epizootic.month]}
+        occurrence_date: {roles: [epizootic.date]}
     event_types:
       - name: epizootic
         kind: epizootic

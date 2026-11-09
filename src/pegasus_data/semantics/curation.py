@@ -1296,11 +1296,28 @@ class DatasetSemantics:
             if roles is None:
                 out[name] = body
                 continue
-            resolved = _role_columns(self.dataset_id, tuple(str(r) for r in roles))
-            if resolved is None:
+            if set(body) & {"encoding", "code_system", "prefix", "fields"}:
+                raise ValueError(f"{self.dataset_id}: binding {name!r} names roles; what its columns code is their "
+                                 f"roles' (ADR-0221), not the binding's {sorted(set(body) & {'encoding', 'code_system', 'prefix', 'fields'})}")
+            chosen = _role_columns(self.dataset_id, tuple(str(r) for r in roles))
+            if chosen is None:
                 continue
-            columns, century = resolved
-            out[name] = {"fields": list(columns), **body, **({"century": century} if century else {})}
+            columns = [c.column for c in chosen]
+            from ..ontology import dataset_key
+
+            wanted = str(dataset_key(self.dataset_id)).upper().replace(".", "-", 1)
+            century = next((c.century for c in chosen if c.century), None)
+            if kind == "time":
+                form = {"encoding": "year_month" if len(chosen) > 1 else
+                        _date_encoding(wanted, chosen[0].column, chosen[0].role,
+                                       chosen[0].precision)}
+            else:
+                form = _place_code_system(wanted, chosen[0].column,
+                                          {"codelists": list(chosen[0].codelists)})
+                if form is None:
+                    raise ValueError(f"{self.dataset_id}: binding {name!r}: the roles of {columns} declare no codelist, "
+                                     "so what the place codes is not stated")
+            out[name] = {"fields": columns, **form, **body, **({"century": century} if century else {})}
         return out
 
     def default_geography(self) -> str | None:
@@ -1332,9 +1349,9 @@ def _derived_semantics(dataset_id: str) -> DatasetSemantics | None:
         return None
 
 
-def _role_columns(dataset_id: str, roles: tuple[str, ...]) -> tuple[tuple[str, ...], str | None] | None:
-    """The columns of ``dataset_id`` that state ``roles``, in order, and the century a two-digit date declares; None
-    when the dataset's roles state one of them in no column (or in several)."""
+def _role_columns(dataset_id: str, roles: tuple[str, ...]) -> list[Any] | None:
+    """The columns of ``dataset_id`` that state ``roles``, in order (`column_roles.ColumnRole`); None when the dataset's
+    roles state one of them in no column (or in several)."""
     from ..ontology import dataset_key
     from .column_roles import declared_columns
 
@@ -1342,7 +1359,7 @@ def _role_columns(dataset_id: str, roles: tuple[str, ...]) -> tuple[tuple[str, .
         columns = declared_columns(dataset_key(dataset_id))
     except KeyError:
         return None
-    out, century = [], None
+    out = []
     for role in roles:
         found = [c for c in columns if c.role == role or role in (c.also or ())]
         if not found:
@@ -1353,10 +1370,20 @@ def _role_columns(dataset_id: str, roles: tuple[str, ...]) -> tuple[tuple[str, .
         current = {c.column for c in found if (c.years[1] or 9999) == last}
         if len(current) != 1:
             return None
-        chosen = next(c for c in found if c.column in current)
-        out.append(chosen.column)
-        century = century or chosen.century
-    return tuple(out), century
+        out.append(next(c for c in found if c.column in current))
+    return out
+
+
+def _date_encoding(dataset: str, column: str, role: str, precision: str | None) -> str:
+    """How one date column is read: a ``year`` (declared ``precision: year``, a role whose property is the year, or a
+    column the intake declares a year), a month (``precision: month``: ``year_month``, AAAAMM), else a day date whose
+    layout is measured (``date``)."""
+    if precision == "month":
+        return "year_month"
+    years = _lake_year_columns(dataset)
+    if precision == "year" or role.rpartition(".")[2] == "year" or (years and column.upper() in years):
+        return "year"
+    return "date"
 
 
 @curated(rooted=True)
@@ -1484,25 +1511,33 @@ def semantics_from_roles(dataset: str, root: Path | None = None, *, partial: boo
             if body.get("model") == "stratum" and default_geography is None:
                 default_geography = str(body.get("role") or column)
     time: dict[str, Any] = {}
-    parts: dict[str, dict[str, str]] = {}
+    # a year and a month held apart are one period: two roles of one entity whose properties differ only by their last
+    # word (admission.processing_year and admission.processing_month: SIH's ANO_CMPT and MES_CMPT; case.year, case.month)
+    parts: dict[tuple[str, str], dict[str, tuple[str, str]]] = {}
     declared_years = _lake_year_columns(wanted)
     for column, body in columns.items():
         if body.get("kind") != "date" or body.get("model") != "when":
             continue
         role = str(body.get("role") or column)
         entity, _, prop = role.rpartition(".")
-        if declared_years and column.upper() in declared_years:
-            # the intake declares this column a year (INEP's NU_ANO_CENSO, the role school.census_year): a year, not a date
-            time[role] = {"fields": [column], "encoding": "year"}
-        elif prop in ("year", "month") and entity:
-            parts.setdefault(entity, {})[prop] = column
+        stem, _, part = prop.rpartition("_") if "_" in prop else ("", "", prop)
+        if (part in ("year", "month") and entity and not body.get("precision")
+                and not (declared_years and column.upper() in declared_years)):
+            parts.setdefault((entity, stem), {})[part] = (column, role)
         else:
-            time[role] = {"fields": [column], "encoding": "date"}
-    for entity, pair in parts.items():
+            # the intake's year (INEP's NU_ANO_CENSO, the role school.census_year), a declared month or year, else a day
+            time[role] = {"fields": [column], "encoding": _date_encoding(wanted, column, role, body.get("precision"))}
+    for (entity, stem), pair in parts.items():
+        name = f"{entity}.{stem + '_' if stem else ''}"
         if "year" in pair and "month" in pair:
-            time[f"{entity}.year_month"] = {"fields": [pair["year"], pair["month"]], "encoding": "year_month"}
-        elif "year" in pair:
-            time[f"{entity}.year"] = {"fields": [pair["year"]], "encoding": "year"}
+            time[f"{name}year_month"] = {"fields": [pair["year"][0], pair["month"][0]], "encoding": "year_month"}
+        elif "year" in pair and not stem:
+            time[f"{entity}.year"] = {"fields": [pair["year"][0]], "encoding": "year"}
+        else:
+            # a part with no partner is one column that dates by itself (SIA's PA_MVM, AAAAMM; SIA-PR's PAR_DATREF,
+            # care.reference_month_year), read as any one-column date is
+            column, role = pair.get("month") or pair["year"]
+            time[role] = {"fields": [column], "encoding": _date_encoding(wanted, column, role, None)}
     dated = _lake_period_columns(wanted)
     default_time = next((name for name, b in time.items() if dated and set(b["fields"]) & dated), None) if time else None
     if landed:

@@ -136,7 +136,7 @@ an enrichment route of `joins.yml` `enrichments:`, 2026-11-09);
 A recipe (`curation/aggregates/*.yml`, 62 of them) is parsed into an
 `AggregateSpec`. `_aggregate.build_aggregate` calls `fetch()` state by state,
 asks the records cubes (`cubes.cube`, ADR-0217) for the mergeable accumulator states (`measures.py`: COUNT, SUM, MEAN,
-MOMENTS, LOGMOMENTS as monoids; ratio, min and max are not built from cubes yet) and writes the artifact's manifest;
+MOMENTS, LOGMOMENTS, MIN, MAX as monoids) and writes the artifact's manifest;
 the base cuboid is those cubes, read back by `_load_artifact`; `aggregate()` rolls it up
 through the geography graph (`geography.py`, compiled from the label pack).
 `capabilities.py` describes a built artifact to a client; `serve/` exposes

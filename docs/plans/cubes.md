@@ -118,15 +118,18 @@ Each stage ends merged, verified on real data, documented, and with nothing it r
   is never summed) and CPTEC (`climate:cptec/<variable>[@area]`, by day, epi week, month or year, aggregated inside the scan).
   `climate_weekly` is CPTEC's epi-week cube. The three stored bases are the raw observations and stay (evaluation
   2026-11-09-principles-audit-defects).
-- **Stage 5, in part (2026-11-09).**
+- **Stage 5 is done (2026-11-09).**
   - An aggregate artifact is its manifest alone. Its cells are the recipe's records cubes (`_aggregate._load_artifact`,
     kept by the cube store), so `aggregate()`, `capabilities()` and `serve/` read cubes through one loader and
     `cells.parquet` is gone. Equal to the old cells on AC 2022 (SIH, CNES-ST, SINASC); SIM by its 13 unplaced records.
   - Moments and log-moments come from cubes as `n`, `sum`, `sumsq` (and `sumlog`, `sumsqlog`): a variance equals the
     records' on AC 2022 SIH-RD.
-  - **Left:** the population route reads `load_population`; ratio, min and max are not built from cubes; `semantic_axes`
-    is still to remove. `intake.py`'s field derivation and the stored-field writers are removed (2026-11-09: every field is
-    served; `lake/fields` keeps only the climate bases); recipes stay YAML, for they carry labels and measures.
+  - `intake.py`'s field derivation and the stored-field writers are removed (every field is served; `lake/fields` keeps
+    only the climate bases). `/population` reads the population cube; min and max come from cubes, and `ratio` (a mean
+    under another name) is gone. `semantic_axes` no longer declares an axis: a binding names roles, and what its columns
+    code is their roles' (ADR-0221). Recipes stay YAML: they carry labels and measures, more than a materialisation request.
+  - **Done (2026-11-09):** PegaSUS's `contexts: auto` gives the same contexts before and after (evaluation
+    2026-11-09-stage-5-one-door).
 - **Stage 3 has measured requirements.**
   - The mirror's 1,728 CNES DBCs are the FTP's own files and are adopted into the blob store, so no download is needed.
   - The CNES fields need four things records cubes do not have yet:

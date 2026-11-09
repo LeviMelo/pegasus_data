@@ -108,13 +108,13 @@ datasets:
     semantic_axes:
       default_time: competence
       time:
-        competence: {roles: [admission.processing_year, admission.processing_month], encoding: year_month}
-        admission: {roles: [admission.start], encoding: date}
-        discharge: {roles: [admission.end], encoding: date}
+        competence: {roles: [admission.processing_year, admission.processing_month]}
+        admission: {roles: [admission.start]}
+        discharge: {roles: [admission.end]}
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        facility: {roles: [admission.facility_municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        facility: {roles: [admission.facility_municipality]}
     known_biases: >
       Fields that affect payment are filled carefully; fields that do not are
       frequently empty. Only SUS-funded admissions appear, so private and
@@ -255,12 +255,12 @@ datasets:
     semantic_axes:
       default_time: occurrence
       time:
-        occurrence: {roles: [death.date], encoding: date}
-        registration: {roles: [death.registration_date], encoding: date}
+        occurrence: {roles: [death.date]}
+        registration: {roles: [death.registration_date]}
       default_geography: residence
       geography:
-        residence: {roles: [deceased.residence], code_system: ibge_municipality}
-        occurrence: {roles: [death.municipality], code_system: ibge_municipality}
+        residence: {roles: [deceased.residence]}
+        occurrence: {roles: [death.municipality]}
     known_biases: >
       Coverage is high nationally but not uniform: under-registration persists in
       the North and Northeast, and ill-defined causes (CID-10 chapter XVIII, R00-R99)
@@ -372,12 +372,12 @@ datasets:
     semantic_axes:
       default_time: birth
       time:
-        birth: {roles: [baby.birth_date], encoding: date}
-        registration: {roles: [birth.registration_date], encoding: date}
+        birth: {roles: [baby.birth_date]}
+        registration: {roles: [birth.registration_date]}
       default_geography: residence
       geography:
-        residence: {roles: [mother.residence], code_system: ibge_municipality}
-        occurrence: {roles: [birth.municipality], code_system: ibge_municipality}
+        residence: {roles: [mother.residence]}
+        occurrence: {roles: [birth.municipality]}
     known_biases: >
       Live births only — stillbirths are in SIM as foetal deaths, so perinatal
       analysis needs both systems joined and neither alone is a denominator for
@@ -401,11 +401,11 @@ datasets:
     semantic_axes:
       default_time: competence
       time:
-        competence: {roles: [procedure.competence], encoding: yyyymm}
+        competence: {roles: [procedure.competence]}
       default_geography: facility
       geography:
-        facility: {roles: [procedure.facility_municipality], code_system: ibge_municipality}
-        patient: {roles: [patient.residence], code_system: ibge_municipality}
+        facility: {roles: [procedure.facility_municipality]}
+        patient: {roles: [patient.residence]}
     known_biases: >
       PA is production reporting, not a patient record. Most rows are counts of a
       procedure performed by an establishment in a month, so the file cannot

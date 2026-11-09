@@ -717,6 +717,7 @@ columns:
   COMPETEN:
     role: establishment.competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Competência (Ano/Mês)\" (establishment.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"

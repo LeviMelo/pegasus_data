@@ -6,14 +6,12 @@ never a pre-divided rate.
 
 What the module guarantees, because each was once silently wrong:
 
-* **One municipality code width.** Events travel as 7-digit IBGE codes; a
-  series may be filed at six (POP, POPTCU before 2017) or seven (POPSVS, POPTCU
-  from 2017). Every code is mapped through ``geography.to_code7`` before
-  grouping, so a client joining events to this denominator loses no year. A code
-  the pack cannot resolve (an extinct one: 53 in POP, 1 in POPTCU 2001) leaves the
-  municipal rows -- widths are matched exactly, so it is never passed through at
-  its own width -- and is named in ``unresolved`` with its mass, which stays in
-  ``total``.
+* **One placing rule.** The denominator is the population cube
+  (``population:<series>``), which places every code as the events' cubes do: a
+  municipality as a 7-digit IBGE code whatever width it was filed at, a state as
+  the state its code places. A code no place takes (an extinct one: POPTCU 2001's
+  431453) leaves the rows -- never passed through at its own width -- and is named
+  in ``unresolved`` with its mass, which stays in ``total``.
 * **A year the series does not hold is a refusal**, with the years it does hold,
   not a ``0.0`` that a client divides by.
 * **What a series can stratify by is what its files carry** (``materialised``),
@@ -33,90 +31,55 @@ _CACHE = ByteCache(64 * 1024 * 1024)
 ALLOWED_AXES = ("municipality", "uf", "year", "age_band")
 
 
-def _to_code7(code: Any) -> tuple[Any, list[str]]:
-    """Map a municipality column (any width) to 7-digit codes; return the codes no pack row resolves."""
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    from ..geography import to_code7
-
-    text = pc.cast(code, pa.string())
-    mapping = {c: to_code7(c) for c in pc.unique(text).drop_null().to_pylist()}
-    keys = pa.array(list(mapping), pa.string())
-    values = pa.array(list(mapping.values()), pa.string())
-    unresolved = sorted(c for c, v in mapping.items() if v is None)
-    return pc.take(values, pc.index_in(text, value_set=keys)), unresolved
-
-
-def _uf_column(code: Any) -> Any:
-    """UF siglas from the first two digits of a municipality (or UF) code, whatever its width."""
-    import pyarrow as pa
-    import pyarrow.compute as pc
-
-    from ..normalize.geo import uf_array
-
-    return pc.fill_null(uf_array(pc.cast(code, pa.string())), "")
-
-
 def _payload(settings: Any, series: str, by: tuple[str, ...], years: tuple[int, ...],
              bands: tuple[int, ...]) -> dict[str, Any]:
+    """The denominator as the population cube (`cubes.cube`, ``population:<series>``) at the finest place ``by`` names.
+
+    The cube places every code by the one placing rule, so the municipalities are 7-digit IBGE codes and a state is the
+    state its code places; the persons no place takes stay in ``total`` and are named in ``unresolved``."""
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from ..api import load_population
+    from ..config import UF_NUMERIC
+    from ..cubes import cube, manifest
 
-    table = load_population(series=series, years=list(years) or None, by=(), settings=settings)
-    names = set(table.schema.names)
+    place = "municipality" if "municipality" in by else "uf" if "uf" in by else "country"
+    facts = cube(f"population:{series}", place=place, by=["age"] if "age_band" in by else [],
+                 periods=list(years) or None, settings=settings)
+    meta = manifest(facts)
+    lost = float(meta.get("unplaced_persons") or 0.0)
+    total = float(pc.sum(facts.column("value")).as_py() or 0.0) + lost
     columns: dict[str, Any] = {}
-    unresolved_report: dict[str, Any] | None = None
-    if "municipality" in by:
-        code7, unresolved = _to_code7(table.column("municipality"))
-        if unresolved:
-            # An extinct or never-IBGE code (POP before 1996: 53; POPTCU 2001: 1) can match no event, whose
-            # codes come from the same pack. Its rows leave the municipal axis -- one width throughout, never
-            # a 6-digit code beside the 7-digit ones -- and are NAMED here with their mass, which stays in `total`.
-            bad = pc.is_in(pc.cast(table.column("municipality"), pa.string()),
-                           value_set=pa.array(unresolved, pa.string()))
-            seen = sorted({int(y) for y in pc.unique(pc.filter(table.column("year"), bad)).to_pylist()})
-            unresolved_report = {
-                "codes": unresolved, "years": seen,
-                "population": float(pc.sum(pc.filter(pc.cast(table.column("population"), pa.float64()), bad)).as_py() or 0.0),
-                "note": "no IBGE code7 in the membership pack: left out of the rows, counted in total",
-            }
-            table = table.filter(pc.invert(bad))
-            code7 = pc.filter(code7, pc.invert(bad))
-        columns["municipality"] = code7
+    if place == "municipality":
+        columns["municipality"] = pc.cast(facts.column("place"), pa.string())
     if "uf" in by:
-        if "municipality" in names:
-            columns["uf"] = _uf_column(table.column("municipality"))
-        elif "ufcod" in names:
-            columns["uf"] = _uf_column(table.column("ufcod"))
-        else:
-            columns["uf"] = pc.cast(table.column("uf"), pa.string())
+        sigla = {int(k): v for k, v in UF_NUMERIC.items()}
+        code = facts.column("place") if place == "uf" else pc.divide(facts.column("place"), 100000)
+        columns["uf"] = pa.array([sigla[c] for c in code.to_pylist()], pa.string())
     if "year" in by:
-        columns["year"] = pc.cast(table.column("year"), pa.string())
+        columns["year"] = facts.column("period")
     if "age_band" in by:
         # Banded with the SAME machinery the artifacts use, so the codes match
         # a derived age dimension's cell values exactly when the edges do.
         from .._age import NumericBandDimension
 
         band = NumericBandDimension(name="age_band", field_name="age", bands=bands, label="age band")
-        columns["age_band"] = band.column(table)
-    pop = pc.cast(table.column("population"), pa.float64())
-    total = float(pc.sum(pop).as_py() or 0.0) + (unresolved_report["population"] if unresolved_report else 0.0)
+        columns["age_band"] = band.column(facts)
+    unresolved = ({"codes": meta.get("unplaced_codes") or [], "years": meta.get("unplaced_years") or [],
+                   "population": lost, "note": f"no {place} place (geography.place_municipalities / place_states): "
+                                               "left out of the rows, counted in total"} if lost else None)
+    body: dict[str, Any]
     if not columns:
-        return {"series": series, "by": [], "rows": 1, "data": {"population": [total]}, "total": total}
-    grouped = (
-        pa.table({**columns, "population": pop})
-        .group_by(list(columns))
-        .aggregate([("population", "sum")])
-        .sort_by([(name, "ascending") for name in columns])
-    )
-    data = {name: grouped.column(name).to_pylist() for name in columns}
-    data["population"] = grouped.column("population_sum").to_pylist()
-    body = {"series": series, "by": list(by), "rows": grouped.num_rows, "data": data, "total": total}
-    if unresolved_report:
-        body["unresolved"] = unresolved_report
+        body = {"series": series, "by": [], "rows": 1, "data": {"population": [total]}, "total": total}
+    else:
+        grouped = (pa.table({**columns, "population": facts.column("value")})
+                   .group_by(list(columns)).aggregate([("population", "sum")])
+                   .sort_by([(name, "ascending") for name in columns]))
+        data = {name: grouped.column(name).to_pylist() for name in columns}
+        data["population"] = grouped.column("population_sum").to_pylist()
+        body = {"series": series, "by": list(by), "rows": grouped.num_rows, "data": data, "total": total}
+    if unresolved:
+        body["unresolved"] = unresolved
     return body
 
 

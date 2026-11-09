@@ -127,6 +127,7 @@ columns:
   NU_ANO_MES_COMPETENCIA:
     role: exam.year_month_of_compet_ncia_billing_period
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Mês/Ano competência\" (exam.year_month_of_compet_ncia_billing_period): billing competence or reference period of the exam record"

@@ -42,8 +42,9 @@ NUMBERED = ("value", "zero")
 #: A bound of a `where` on a typed number, and its comparison (the intake's `where` grammar).
 BOUNDS = {"above": "greater", "below": "less", "at_least": "greater_equal", "at_most": "less_equal"}
 #: A records cube's measure written ``<transform>:<column>``: `count` the rows holding a number, `sumsq` the squares'
-#: sum, `sumlog` / `sumsqlog` the sum of the logs and of their squares (positive numbers), `countpos` how many are positive.
-_TRANSFORMS = ("count", "sumsq", "sumlog", "sumsqlog", "countpos")
+#: sum, `sumlog` / `sumsqlog` the sum of the logs and of their squares (positive numbers), `countpos` how many are positive,
+#: `min` / `max` the least and greatest number (an extreme: merged by min or max, never summed).
+_TRANSFORMS = ("count", "sumsq", "sumlog", "sumsqlog", "countpos", "min", "max")
 #: Place levels and SIDRA's territorial level for each.
 LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 
@@ -365,7 +366,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         transform, argument = "", ""
     numbered = argument if transform == "count" else None
     summed = None if distinct or transform else measure
-    moment = transform if transform in _TRANSFORMS and transform != "count" else None
+    extreme = transform if transform in ("min", "max") else None
+    moment = transform if transform in _TRANSFORMS and transform not in ("count", "min", "max") else None
     # a derived stratum is read from its input columns and made after counting by them (`_derived_dimensions`)
     bands = _derived_dimensions(dataset, derived or {})
     missing = [b for b in bands if b not in by]
@@ -480,7 +482,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
         parts_summed = summed.split("+") if summed else []
         extra_columns = [*parts_summed, *([distinct] if distinct else []), *([numbered] if numbered else []),
-                         *([argument] if moment else [])]
+                         *([argument] if moment or extreme else [])]
         table = banded(placed(kept(query(dataset, period=span, geography=publications,
                                          select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
         if summed:
@@ -496,6 +498,11 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                                    pa.scalar(None, pa.float64()))
             table = table.append_column("__sum", total)
             return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
+        if extreme:
+            from .normalize.types import to_number
+
+            return table.append_column("__x", to_number(table.column(argument))).group_by(cell).aggregate(
+                [("__x", extreme)]).rename_columns([*cell, "events"])
         if moment:
             from .normalize.types import to_number
 
@@ -555,11 +562,14 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     wanted = (pc.is_in(pc.binary_join_element_wise(year, pc.utf8_slice_codeunits(competencia, 4, 6), "-"), pa.array(months))
               if months else pc.is_in(pc.cast(year, pa.int64()), pa.array(years, pa.int64())))
     keep = pc.fill_null(pc.and_(pc.and_(pc.is_valid(places), pc.is_valid(period)), wanted), False)
-    unplaced = float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
+    # an extreme's cells are least or greatest numbers: no count of what was not placed is made from them
+    unplaced = None if extreme else float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
     # the unplaced of a wanted, dated period whose code still names a state ("Município ignorado - <UF>"), per state: what a
     # sum of the municipalities of a state lacks against the state
     in_state = pc.fill_null(pc.and_(pc.and_(pc.invert(keep), pc.is_valid(counts.column("__uf"))),
                                     pc.and_(pc.is_valid(period), wanted)), False)
+    if extreme:
+        in_state = pc.and_(in_state, pa.scalar(False))
     by_state = (pa.table({"uf": pc.filter(counts.column("__uf"), in_state), "n": pc.filter(events, in_state)})
                 .group_by("uf").aggregate([("n", "sum")]))
     unplaced_by_state = {str(u): float(n) for u, n in zip(by_state["uf"].to_pylist(), by_state["n_sum"].to_pylist(),
@@ -569,7 +579,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     if place == "country":
         facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
     keys = ["place", "period", *by]
-    facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])
+    facts = (facts.group_by(keys).aggregate([("value", extreme or "sum")]).rename_columns([*keys, "value"])
+             .select([*keys, "value"]))
     statuses = ["value"] * facts.num_rows
     if support:
         # the places the source could have recorded, per period: inside, a cell with no record is a true 0
@@ -596,7 +607,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
         "measure": measure, "support": support, "publications": publications,
         "unplaced_events": unplaced, "unplaced_by_state": unplaced_by_state,
-        "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
+        "events": None if extreme else float(pc.sum(events).as_py() or 0), "not_published": unpublished,
+        "additive": not extreme,
         "unkeyed": unkeyed.decode() if unkeyed else None,
     })
 
@@ -606,31 +618,50 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
 def _population(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
                 periods: Sequence[str | int] | None, labels: bool, settings: Any) -> pa.Table:
-    """A population series (`load_population`) as a cube: persons by municipality and year, by the series' own axes
-    (``sex``, ``age``...) when named in ``by``. A series refuses an axis it does not publish (`load_population`), and a
-    year it does not hold. Counts of persons add up over places and strata, never over years (a stock)."""
+    """A population series (`load_population`) as a cube: persons by place and year, by the series' own axes (``sex``,
+    ``age``...) when named in ``by``. A series refuses an axis it does not publish (`load_population`), and a year it does
+    not hold. Counts of persons add up over places and strata, never over years (a stock).
+
+    Places follow the one placing rule: a municipality by `place_municipalities`, a state by `place_states`. A series filed
+    by state (``ufcod``: the projections) has no municipality place, and refuses one. The persons no place takes are
+    named in the manifest (``unplaced_persons``, ``unplaced_codes``, ``unplaced_years``), never dropped silently."""
     import pyarrow.compute as pc
 
     from .api import load_population
-    from .geography import place_municipalities
+    from .config import UF_NUMERIC
+    from .geography import place_municipalities, place_states
 
     years = years_of(periods) if periods else None
     table = load_population(series=ident, years=years, by=tuple(by), settings=settings)
     for column, codes in where.items():
         table = table.filter(pc.is_in(pc.cast(table.column(column), pa.string()), pa.array([str(c) for c in codes])))
-    places = pa.array(place_municipalities(table.column("municipality").to_pylist()), pa.int64())
+    names = set(table.schema.names)
+    if "municipality" in names:
+        raw = table.column("municipality").to_pylist()
+        codes = place_municipalities(raw) if place == "municipality" else place_states(raw)
+    else:
+        state = next((c for c in ("ufcod", "uf") if c in names), None)
+        if state is None or place == "municipality":
+            raise ValueError(f"population:{ident} is filed by {state or 'no place'}; it has no municipality place")
+        raw = table.column(state).to_pylist()
+        codes = [int(c) if c is not None and str(c).strip().removesuffix(".0") in UF_NUMERIC else None
+                 for c in (None if r is None else str(r).strip().removesuffix(".0") for r in raw)]
+    places = pa.array(codes, pa.int64())
     keep = pc.is_valid(places)
-    unplaced = float(pc.sum(pc.filter(table.column("population"), pc.invert(keep))).as_py() or 0)
+    lost = pc.invert(keep)
+    unplaced = float(pc.sum(pc.filter(table.column("population"), lost)).as_py() or 0)
+    unplaced_codes = sorted({str(r) for r, c in zip(raw, codes, strict=True) if c is None})
+    unplaced_years = sorted({int(y) for y in pc.unique(pc.filter(table.column("year"), lost)).to_pylist()})
     facts = pa.table({"place": pc.filter(places, keep),
                       "period": pc.cast(pc.filter(table.column("year"), keep), pa.string()),
                       **{k: pc.filter(table.column(k), keep) for k in by},
                       "value": pc.cast(pc.filter(table.column("population"), keep), pa.float64())})
-    if place == "uf":
-        facts = facts.set_column(0, "place", pc.cast(pc.divide(facts.column("place"), 100000), pa.int64()))
-    elif place == "country":
+    if place == "country":
         facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
     keys = ["place", "period", *by]
     facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])
+    if not facts.num_rows:
+        raise ValueError(f"population:{ident} places no persons at {place} for {periods or 'any year'}")
     n = facts.num_rows
     facts = (facts.append_column("status", pa.array(["value"] * n, pa.string()))
              .append_column("unit", pa.array(["persons"] * n, pa.string()))
@@ -638,7 +669,8 @@ def _population(ident: str, *, place: str, by: list[str], where: dict[str, Seque
     series = json.loads((table.schema.metadata or {}).get(b"pegasus.series", b"{}"))
     return _with_manifest(facts, {"source": f"population:{ident}", "series": series, "place_level": place,
                                   "period_grain": "year", "strata": by, "additive_over": ["territory", "strata"],
-                                  "stock": True, "unplaced_persons": unplaced})
+                                  "stock": True, "unplaced_persons": unplaced, "unplaced_codes": unplaced_codes,
+                                  "unplaced_years": unplaced_years})
 
 
 def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
@@ -1042,6 +1074,14 @@ def _label_strata(table: pa.Table, strata: list[str], names: Any) -> pa.Table:
         table = table.append_column(f"{stratum}_label", pa.array(
             [mapping.get(x) for x in table.column(stratum).to_pylist()], pa.string()))
     return table
+
+
+def manifest(table: pa.Table) -> dict[str, Any]:
+    """What a cube is and what its build found (the ``pegasus.cube`` metadata `cube` writes); a table no cube made raises."""
+    raw = (table.schema.metadata or {}).get(b"pegasus.cube")
+    if raw is None:
+        raise ValueError("not a cube: the table carries no pegasus.cube manifest")
+    return json.loads(raw)
 
 
 def _with_manifest(table: pa.Table, manifest: dict[str, Any]) -> pa.Table:

@@ -101,6 +101,7 @@ columns:
   AP_CMP:
     role: authorisation.competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Data de Atendimento ao paciente / Competencia\" (authorisation.competence): billing value or quantity, competence, validity or exit of the authorisation: billing"
@@ -345,6 +346,7 @@ columns:
   AP_MVM:
     role: authorisation.processing_month
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Data de Processamento / Movimento\" (authorisation.processing_month): billing value or quantity, competence, validity or exit of the authorisation: billing"

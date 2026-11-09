@@ -4,6 +4,7 @@ columns:
   CO_ANO_MES_RESULTADO:
     role: exam.year_month_of_result
     kind: date
+    precision: month
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Mês/Ano Resultado\" (exam.year_month_of_result): date of collection, receipt or result of the exam: how the exam was done"
@@ -147,6 +148,7 @@ columns:
   NU_ANO_MES_COMPETENCIA:
     role: exam.year_month_of_compet_ncia_billing_period
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Mês/Ano competência\" (exam.year_month_of_compet_ncia_billing_period): billing competence or reference period of the exam record"

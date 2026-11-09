@@ -73,16 +73,15 @@ def _unplaced(root: str | Path, year: int) -> int:
     """Medical-hospital links of the year's December files that no IBGE municipality holds (the state file XX, whose
     municipality is -1, and a state's "ignored" code 270000): the records cube's own count of what it could not place
     (``unplaced_events``), read from the ANS records in the lake."""
-    import json
 
     from .config import load_settings
-    from .cubes import cube
+    from .cubes import cube, manifest
 
     _, spec, plan = _links_field()
     coverage = {alias: column for column, alias in plan["strata"]}["coverage"]
     table = cube(plan["source"], measure=plan["measure"], where={coverage: [str(spec["where"]["coverage"])]},
                  periods=[str(year)], grain="year", settings=load_settings(root=Path(root)))
-    return int(json.loads(table.schema.metadata[b"pegasus.cube"])["unplaced_events"])
+    return int(manifest(table)["unplaced_events"])
 
 
 def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict[int, dict[str, int]]]:

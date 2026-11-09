@@ -224,9 +224,8 @@ def vital_events(settings: Any, name: str, year: int, place: str) -> dict[str, A
     publication counted, so that what no cell holds is ``total - events.sum()``: the events of a state-only or unknown residence
     (read by municipality), and those of no state or of no date. None where the system publishes nothing that year (no births
     before 1994)."""
-    import json
 
-    from .cubes import cube
+    from .cubes import cube, manifest
     from .semantics.column_roles import column_of
     from .semantics.curation import semantics_for
 
@@ -242,8 +241,7 @@ def vital_events(settings: Any, name: str, year: int, place: str) -> dict[str, A
     strata = [c for s, c in columns.items() if s != "residence"]
     table = cube(f"records:{dataset}/{spec['event']}", place=place, by=strata, periods=[year], grain="year", labels=False,
                  settings=settings)
-    manifest = json.loads(table.schema.metadata[b"pegasus.cube"])
-    if manifest["not_published"]:
+    if manifest(table)["not_published"]:
         return None
     codes = [None if c is None else str(c) for c in table.column(columns["sex"]).to_pylist()]
     out = {"place": np.array(table.column("place").to_pylist(), dtype=np.int64),

@@ -16,6 +16,7 @@ columns:
   COMPET:
     role: maintainer.competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"COMPET\" (maintainer.competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"
