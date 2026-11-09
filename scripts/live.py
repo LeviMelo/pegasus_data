@@ -44,6 +44,9 @@ PROBES = ROOT / "data" / "probes" / "live"
 #: A home kept across runs; unset, each run makes a new one and adopts it into the one data home after it.
 KEPT_HOME = os.environ.get("PEGASUS_LIVE_HOME")
 TIMEOUT = int(os.environ.get("PEGASUS_LIVE_TIMEOUT", "1800"))
+#: A scenario's own budget where the default is too short for what it must read on a fresh home: the timeline links six
+#: RR links against the nation's partner sides (SIH, CIHA, SINASC of two years), 1,846 s on 2026-11-09 (81e9080).
+SCENARIO_TIMEOUT = {"timeline": 3600}
 
 
 # ----------------------------------------------------------------- measuring
@@ -810,10 +813,10 @@ def main() -> int:
         t = time.perf_counter()
         try:
             subprocess.run([sys.executable, str(Path(__file__).resolve()), "--one", name, "--out", str(out_dir)],
-                           cwd=workdir, env=env, timeout=TIMEOUT)
+                           cwd=workdir, env=env, timeout=max(TIMEOUT, SCENARIO_TIMEOUT.get(name, 0)))
         except subprocess.TimeoutExpired:
-            (out_dir / f"{name}.json").write_text(json.dumps({"scenario": name, "ok": False,
-                                                              "error": f"timeout after {TIMEOUT}s"}), encoding="utf-8")
+            (out_dir / f"{name}.json").write_text(json.dumps({"scenario": name, "ok": False, "error":
+                f"timeout after {max(TIMEOUT, SCENARIO_TIMEOUT.get(name, 0))}s"}), encoding="utf-8")
         path = out_dir / f"{name}.json"
         rec = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"ok": False, "error": "no record"}
         res = rec.get("result") or {}
