@@ -177,9 +177,13 @@ def _where(municipality: Any, uf: Any) -> str:
     clauses = []
     if municipality is not None:
         values = [str(v).strip() for v in ([municipality] if isinstance(municipality, (str, int)) else municipality)]
-        if any(len(v) not in (6, 7) for v in values):
-            raise ValueError(f"municipality codes have 6 or 7 digits: {values}")
-        clauses.append("substr(municipality7, 1, 6) IN (" + ",".join(repr(v[:6]) for v in values) + ")")
+        from ..geography import place_municipalities
+
+        placed = place_municipalities(values)
+        if None in placed:
+            raise ValueError(f"not municipality codes (6 or 7 digits naming a municipality): "
+                             f"{[v for v, p in zip(values, placed, strict=True) if p is None]}")
+        clauses.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(set(placed))) + ")")
     if uf is not None:
         states = [str(s).strip() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
         clauses.append("substr(municipality7, 1, 2) IN (" + ",".join(repr(s) for s in states) + ")")

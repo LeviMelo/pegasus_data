@@ -537,12 +537,17 @@ def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None 
     total = account.group_by(["place", "year"]).aggregate([("population", "sum")])
     single = pc.invert(pc.match_substring(total.column("place"), "+"))
     total = total.filter(single)
-    population = {(p[:6], int(y)): v for p, y, v in zip(total.column("place").to_pylist(), total.column("year").to_pylist(),
-                                                      total.column("population_sum").to_pylist(), strict=True)}
+    from .geography import place_six
+
+    places = total.column("place").to_pylist()
+    population = {(p, int(y)): v for p, y, v in zip(place_six(places), total.column("year").to_pylist(),
+                                                  total.column("population_sum").to_pylist(), strict=True) if p is not None}
     municipality = field.column("municipality").to_pylist()
+    distinct = sorted({m for m in municipality if m is not None})
+    placed = dict(zip(distinct, place_six(distinct), strict=True))
     year = [int(y) for y in field.column("year").to_pylist()]
     numerator = field.column("value").to_pylist()
-    denominator = [population.get((m, y)) for m, y in zip(municipality, year, strict=True)]
+    denominator = [population.get((placed.get(m), y)) for m, y in zip(municipality, year, strict=True)]
     rate = [None if d is None or n is None or d <= 0 else n / d * per for n, d in zip(numerator, denominator, strict=True)]
     return pa.table({"municipality": municipality, "year": year, "numerator": numerator, "population": denominator,
                      "rate": rate, "per": [per] * len(rate)})

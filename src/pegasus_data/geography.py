@@ -357,14 +357,9 @@ def _expand_ranges(ranges: list[tuple[str, str, str, str, str, str, str, tuple[s
     one municipality different members in the same window and system are a conflict and raise, not a pick. Codes of a
     range that are no municipality (the "ignorado" spans, the Federal District's administrative regions) are counted per
     classification and returned. Raises when a municipality a range spans ends without its row."""
-    from importlib.resources import files
-
-    import pyarrow.parquet as pq
-
     if not ranges:
         return {}
-    codes = sorted(str(c) for c in pq.read_table(str(files("pegasus_data.resources") / "municipalities.parquet"),
-                                                 columns=["code6"]).column("code6").to_pylist())
+    codes = sorted(municipalities())
     placeholders: dict[str, int] = {}
     given: dict[tuple[str, str, str, str, str], tuple[str, str]] = {}
     for lo, hi, codelist, valid_from, valid_to, system, name, member in ranges:
@@ -622,36 +617,53 @@ def municipalities(pack_path: str | Path | None = None) -> dict[str, dict[str, s
     return _municipality_index(str(resolved), _pack_mtime(str(resolved)))
 
 
-def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
-    """The IBGE 7-digit code for a 6-digit DATASUS municipality, or None.
+def sole_by_uf(pack_path: str | Path | None = None) -> dict[str, str]:
+    """`uf_code -> code6` for each state with exactly one municipality (the Federal District: Brasília)."""
+    per_uf: dict[str, list[str]] = {}
+    for code6, row in municipalities(pack_path).items():
+        per_uf.setdefault(row["uf_code"], []).append(code6)
+    return {uf: codes[0] for uf, codes in per_uf.items() if len(codes) == 1}
 
-    Accepts a 7-digit code and returns it unchanged, so a caller need not know
-    which width it holds. Returns None rather than guessing: the check digit is
-    not derivable, and a wrong seventh digit joins to the WRONG municipality
-    rather than to nothing, which is the more dangerous failure.
-    """
-    text = str(code or "").strip()
-    if len(text) == 7:
-        return text
-    row = municipalities(pack_path).get(text)
-    return row["code7"] if row else None
+
+def uf_codes_by_sigla(pack_path: str | Path | None = None) -> dict[str, str]:
+    """`uf_sigla -> uf_code`, from the one municipality table."""
+    return {row["uf_sigla"]: row["uf_code"] for row in municipalities(pack_path).values()}
+
+
+def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
+    """The IBGE 7-digit code of the municipality a 6- or 7-digit code places (`place_municipalities`), or None.
+
+    Returns None rather than guessing: the check digit is not derivable, and a wrong seventh digit joins to the WRONG
+    municipality rather than to nothing, which is the more dangerous failure. A 7-digit code is placed by its first six
+    like any other: one that names no municipality is None, not itself."""
+    placed = place_municipalities([code], pack_path)[0]
+    return None if placed is None else str(placed)
+
+
+@lru_cache(maxsize=4)
+def _placer(path: str, mtime_ns: int = 0) -> tuple[dict[str, int], dict[str, int], list[tuple[str, int | None]]]:
+    """The placing rule's tables, built once per pack: ``code6 -> code7``, ``uf_code -> sole municipality``, and the
+    declared ``legacy_places`` as ``(prefix, code7)``."""
+    by_six = {k: int(v["code7"]) for k, v in _municipality_index(path, mtime_ns).items()}
+    sole = {uf: by_six[code6] for uf, code6 in sole_by_uf(path).items()}
+    from .semantics.curation import read_yaml
+
+    declared = read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}
+    legacy = [(str(r["prefix"]), by_six.get(str(r["municipality"])[:6])) for r in declared.get("legacy_places") or []]
+    return by_six, sole, legacy
 
 
 def placing_rule(pack_path: str | Path | None = None) -> dict[str, Any]:
     """The facts the one placing rule applies, for every reader of it (`place_municipalities` in Python, the intake's
     landing in SQL): ``universe`` (a municipality's six digits -> its IBGE code), ``sole`` (a state of one municipality ->
     that municipality: the Federal District's administrative regions are Brasília) and ``legacy`` (``geography.yml``'s
-    ``legacy_places``: a code prefix no IBGE municipality has -> the municipality a system wrote it for)."""
-    from .semantics.curation import read_yaml
-
-    table = municipalities(pack_path)
-    by_six = {k: int(v["code7"]) for k, v in table.items()}
-    per_uf: dict[str, list[int]] = {}
-    for six, code7 in by_six.items():
-        per_uf.setdefault(six[:2], []).append(code7)
-    declared = read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}
-    legacy = [(str(r["prefix"]), by_six.get(str(r["municipality"])[:6])) for r in declared.get("legacy_places") or []]
-    return {"universe": by_six, "sole": {uf: c[0] for uf, c in per_uf.items() if len(c) == 1}, "legacy": legacy}
+    ``legacy_places``: a code prefix no IBGE municipality has -> the municipality a system wrote it for); the tables
+    `_placer` builds once per pack."""
+    resolved = _pack_path(pack_path, MUNICIPALITY_PACK_NAME)
+    if resolved is None:
+        return {"universe": {}, "sole": {}, "legacy": []}
+    by_six, sole, legacy = _placer(str(resolved), _pack_mtime(str(resolved)))
+    return {"universe": by_six, "sole": sole, "legacy": legacy}
 
 
 def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> list[int | None]:
@@ -664,8 +676,10 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
     ``geography.yml``'s ``legacy_places`` (Rio de Janeiro's 3345xxx of 1991-1998). Any other is no municipality, never a
     guess. The intake's
     landing applies the same rule in SQL to the records it streams (`intake._records_sql`, ``_MUNICIPALITY``)."""
-    rule = placing_rule(pack_path)
-    by_six, sole, legacy7 = rule["universe"], rule["sole"], rule["legacy"]
+    resolved = _pack_path(pack_path, MUNICIPALITY_PACK_NAME)
+    if resolved is None:
+        return [None for _ in codes]
+    by_six, sole, legacy7 = _placer(str(resolved), _pack_mtime(str(resolved)))
     out: list[int | None] = []
     for raw in codes:
         text = "" if raw is None else str(raw).strip()
@@ -679,6 +693,12 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
             placed = next((code for prefix, code in legacy7 if text.startswith(prefix)), None)
         out.append(placed)
     return out
+
+
+def place_six(codes: Any, pack_path: str | Path | None = None) -> list[str | None]:
+    """Each raw municipality code as the 6-digit DATASUS code of the municipality it places (`place_municipalities`), or
+    None where it places none. The one way to a 6-digit key from a record's code: never a cut of its first six digits."""
+    return [None if p is None else str(p)[:6] for p in place_municipalities(codes, pack_path)]
 
 
 def _pack(path: str) -> Any:
@@ -769,10 +789,12 @@ def memberships(
     stamp_ns = _pack_mtime(str(path))
     index, at = _index(str(path), stamp_ns), _fields(str(path), stamp_ns)
 
+    # the width is matched exactly: 6 or 7 digits (a 7-digit code by its first six, as `place_municipalities` reads it);
+    # any other width is no municipality, so no membership (never padded to a width that matches)
     six = str(code).strip()
-    if len(six) == 7:
-        six = six[:6]
-    six = six.zfill(6) if six.isdigit() else six
+    six = six[:6] if len(six) == 7 and six.isdigit() else six
+    if len(six) != 6:
+        return MembershipSet(municipality=str(code))
 
     stamp = _stamp(vintage)
     covering: dict[str, dict[str, list[tuple[str, str, str, str, str, str]]]] = {}
@@ -1154,13 +1176,7 @@ def distance_km(a: str, b: str, kind: str = "population") -> float | None:
 
 def _uf_codes(ufs: list[str]) -> list[int]:
     """IBGE state codes for sigla or numeric codes (``"SE"`` or ``"28"`` -> 28)."""
-    from importlib.resources import files
-
-    import pyarrow.parquet as pq
-
-    table = pq.read_table(str(files("pegasus_data.resources") / "municipalities.parquet"),
-                          columns=["uf_code", "uf_sigla"])
-    by_sigla = dict(zip(table.column("uf_sigla").to_pylist(), table.column("uf_code").to_pylist(), strict=True))
+    by_sigla = uf_codes_by_sigla()
     out = []
     for uf in ufs:
         text = str(uf).strip().upper()

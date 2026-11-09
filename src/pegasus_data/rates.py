@@ -93,7 +93,8 @@ def age_standardised_rates(
     records must already be that sex.
 
     Records without an age are counted in ``unaged`` and left out of every
-    rate.
+    rate. With ``by``, records whose code places no municipality (`geography.place_municipalities`; a null, a
+    code of another width) are one row of ``group`` None carrying their count in ``events``.
     """
     from scipy.stats import chi2
 
@@ -102,8 +103,11 @@ def age_standardised_rates(
 
     settings = settings or load_settings()
     ages = records.column(age).to_pylist()
-    groups = ([str(v)[:6] if v is not None else None for v in records.column(by).to_pylist()]
-              if by else ["all"] * records.num_rows)
+    from .geography import place_six
+
+    raw = records.column(by).to_pylist() if by else []
+    groups = place_six(raw) if by else ["all"] * records.num_rows
+    unplaced = sum(1 for g in groups if g is None)
     cases: dict[tuple[str, int], int] = {}
     unaged: dict[str, int] = {}
     for group, value in zip(groups, ages, strict=True):
@@ -121,12 +125,16 @@ def age_standardised_rates(
     population = load_population(series="POPSVS", years=year, uf=states,
                                  by=("municipality", "year", "sex", "age"), settings=settings)
     people: dict[tuple[str, int | None], float] = {}
+    distinct = sorted({str(m) for m in population.column("municipality").to_pylist()})
+    placed_pop = dict(zip(distinct, place_six(distinct), strict=True)) if by else {}
     for municipality, s, a, n in zip(population.column("municipality").to_pylist(), population.column("sex").to_pylist(),
                                      population.column("age").to_pylist(), population.column("population").to_pylist(),
                                      strict=True):
         if sex is not None and str(s) != str(sex):
             continue
-        group = str(municipality)[:6] if by else "all"
+        group = placed_pop[str(municipality)] if by else "all"
+        if group is None:
+            continue
         key = (group, _band(a))
         people[key] = people.get(key, 0.0) + float(n or 0)
 
@@ -168,4 +176,9 @@ def age_standardised_rates(
         out["unaged"].append(unaged.get(group, 0))
         out["standard"].append(standard)
         out["numerator_complete"].append(True if prefixes and by else None)
+    if unplaced:
+        # events of no municipality (a null or a code that places none, `geography.place_municipalities`) belong to no
+        # rate: they are one row of group None, so the table's events plus these are the records read
+        for key, value in zip(out, (None, unplaced, None, None, None, None, None, 0, standard, None), strict=True):
+            out[key].append(value)
     return pa.table(out)
