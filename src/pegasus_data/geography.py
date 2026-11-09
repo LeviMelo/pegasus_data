@@ -637,6 +637,23 @@ def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
     return row["code7"] if row else None
 
 
+def placing_rule(pack_path: str | Path | None = None) -> dict[str, Any]:
+    """The facts the one placing rule applies, for every reader of it (`place_municipalities` in Python, the intake's
+    landing in SQL): ``universe`` (a municipality's six digits -> its IBGE code), ``sole`` (a state of one municipality ->
+    that municipality: the Federal District's administrative regions are Brasília) and ``legacy`` (``geography.yml``'s
+    ``legacy_places``: a code prefix no IBGE municipality has -> the municipality a system wrote it for)."""
+    from .semantics.curation import read_yaml
+
+    table = municipalities(pack_path)
+    by_six = {k: int(v["code7"]) for k, v in table.items()}
+    per_uf: dict[str, list[int]] = {}
+    for six, code7 in by_six.items():
+        per_uf.setdefault(six[:2], []).append(code7)
+    declared = read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}
+    legacy = [(str(r["prefix"]), by_six.get(str(r["municipality"])[:6])) for r in declared.get("legacy_places") or []]
+    return {"universe": by_six, "sole": {uf: c[0] for uf, c in per_uf.items() if len(c) == 1}, "legacy": legacy}
+
+
 def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> list[int | None]:
     """Each raw municipality code as an IBGE 7-digit code (int), or None: the one placing rule.
 
@@ -647,17 +664,8 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
     ``geography.yml``'s ``legacy_places`` (Rio de Janeiro's 3345xxx of 1991-1998). Any other is no municipality, never a
     guess. The intake's
     landing applies the same rule in SQL to the records it streams (`intake._records_sql`, ``_MUNICIPALITY``)."""
-    table = municipalities(pack_path)
-    by_six = {k: int(v["code7"]) for k, v in table.items()}
-    per_uf: dict[str, list[int]] = {}
-    for six, code7 in by_six.items():
-        per_uf.setdefault(six[:2], []).append(code7)
-    sole = {uf: c[0] for uf, c in per_uf.items() if len(c) == 1}
-    from .semantics.curation import read_yaml
-
-    declared = read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}
-    legacy = [(str(r["prefix"]), int(r["municipality"])) for r in declared.get("legacy_places") or []]
-    legacy7 = [(prefix, by_six.get(str(code)[:6])) for prefix, code in legacy]
+    rule = placing_rule(pack_path)
+    by_six, sole, legacy7 = rule["universe"], rule["sole"], rule["legacy"]
     out: list[int | None] = []
     for raw in codes:
         text = "" if raw is None else str(raw).strip()

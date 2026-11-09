@@ -404,16 +404,19 @@ def _duck(settings: Any, spec: dict[str, Any]) -> Any:
     con.execute("SET threads=4")
     con.execute("SET preserve_insertion_order=false")
     con.execute(f"SET temp_directory='{work.as_posix()}'")
+    from .geography import placing_rule
+
+    # the one placing rule's facts (`geography.placing_rule`), as tables: the universe, a state of one municipality
+    # (the Distrito Federal: Brasília, whatever the source calls the place: SISAGUA codes its administrative regions
+    # 530000-530015), and the declared legacy codes (Rio de Janeiro's 3345xxx)
     universe = municipalities()
+    rule = placing_rule()
     con.register("universe", pa.table({"code": pa.array(sorted(universe), pa.string())}))
-    # a state of one municipality (the Distrito Federal: Brasília) holds every place inside it, whatever the source
-    # calls the place (SISAGUA codes the DF's administrative regions 530000-530015)
-    by_state: dict[str, list[str]] = {}
-    for code, row in universe.items():
-        by_state.setdefault(row["uf_code"], []).append(code)
-    sole = {uf: codes[0] for uf, codes in by_state.items() if len(codes) == 1}
+    sole = {uf: str(code7)[:6] for uf, code7 in rule["sole"].items()}
     con.register("sole", pa.table({"uf": pa.array(list(sole), pa.string()), "code": pa.array(list(sole.values()), pa.string()),
                                    "sigla": pa.array([fold(universe[c]["uf_sigla"]) for c in sole.values()], pa.string())}))
+    con.register("legacy", pa.table({"prefix": pa.array([p for p, _ in rule["legacy"]], pa.string()),
+                                     "code": pa.array([str(c)[:6] if c else None for _, c in rule["legacy"]], pa.string())}))
     place = spec.get("place") or {}
     if place.get("type") == "municipality_name":
         keys: dict[tuple[str, str], str | None] = {}
@@ -499,7 +502,8 @@ def _records_sql(spec: dict[str, Any], columns: list[str], unit: dict[str, Any],
         text = f"regexp_replace({raw[place['column'].upper()]}, '\\.0+$', '')"
         out.append(f"CASE WHEN regexp_matches({text}, '^[0-9]{{6,7}}$') AND substr({text}, 1, 6) IN (SELECT code FROM universe) "
                    f"THEN substr({text}, 1, 6) WHEN regexp_matches({text}, '^[0-9]{{6,7}}$') "
-                   f"THEN (SELECT code FROM sole WHERE sole.uf = substr({text}, 1, 2)) END AS _MUNICIPALITY")
+                   f"THEN coalesce((SELECT code FROM sole WHERE sole.uf = substr({text}, 1, 2)), "
+                   f"(SELECT code FROM legacy WHERE starts_with({text}, legacy.prefix) LIMIT 1)) END AS _MUNICIPALITY")
     elif place.get("type") == "municipality_name":
         joins = f" LEFT JOIN names ON names.key = fold({raw[place['uf'].upper()]}) || '|' || fold({raw[place['column'].upper()]})"
         out.append(f"coalesce(names.code, (SELECT code FROM sole WHERE sole.sigla = fold({raw[place['uf'].upper()]}))) "

@@ -28,7 +28,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: drop the algorithmic fallback; `_ibge7` is the pack's `code7` or null (counted), via `geography.to_code7`/`place_municipalities`.
   Then `check_digit*` is only a validator. Size S.
 
-**S2. Intake's SQL placing rule lacks `legacy_places`, though `place_municipalities` says it is "the same rule"**
+**S2. Intake's SQL placing rule lacks `legacy_places`, though `place_municipalities` says it is "the same rule"** — done: one source of the rule's facts (`geography.placing_rule`: universe, sole-municipality states, legacy codes), read by `place_municipalities` and registered as the intake's SQL tables; on 7 test codes (legacy Rio, Brasília's regions, an ignored code, 7 digits) the SQL and Python answers agree
 - `intake.py:496-502` (`_MUNICIPALITY` CASE) vs `geography.py:640-673` (adds `legacy_places` from `geography.yml:343`:
   Rio de Janeiro 3345xxx; also trims `.0` with `endswith` while SQL uses `'\.0+$'`).
 - Two implementations of one rule already diverged: a code legacy-placed in Python is unplaced in an intake landing.
