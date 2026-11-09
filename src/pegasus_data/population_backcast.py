@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import numpy as np
 
@@ -137,7 +138,8 @@ def settle(path: np.ndarray, opening: np.ndarray, rates: np.ndarray | None = Non
 class Pre:
     """Everything the pre-2000 account reads, assembled once."""
 
-    def __init__(self, root: str | Path, events_dir: str | Path, places: Places, log=print) -> None:
+    def __init__(self, settings: Any, places: Places, log=print) -> None:
+        root = settings.root
         S, self.area_of, self.n_areas = lag_series(root, places)
         self.places = places
         ns = area_places(places, self.area_of, self.n_areas)
@@ -152,7 +154,7 @@ class Pre:
         self.c91_raw = S[1991]
         self.c91 = S[1991] * self.cov_band                     # the 2000 coverage carried back (an assumption)
         log("deaths 1991-2000")
-        ev = load_events(events_dir, PRE_YEARS + [2000], ns, "unit")
+        ev = load_events(settings, PRE_YEARS + [2000], ns, "unit")
         self.deaths, self.report = ev["deaths"], ev["report"]
         self.births = ev["births"]
         self.members = places.municipalities
@@ -180,18 +182,6 @@ class Pre:
         open_ = split_bands(self.c91, back[0])
         fwd = forward_path(open_, self.deaths)
         return back, fwd, settle(back, open_, self.rates), open_
-
-
-def area_matrix(values: np.ndarray, area_of: dict[int, int], members: list[int], n_areas: int) -> tuple[np.ndarray, np.ndarray]:
-    """Sum member rows ``values`` (M, …) over areas. A member with no count (NaN) did not exist yet: it adds nothing, and the
-    area is flagged ``complete`` only when every member has one. Returns the sums and, per area, whether any member counted."""
-    out = np.zeros((n_areas,) + values.shape[1:])
-    counted = np.zeros(n_areas, dtype=bool)
-    for i, m in enumerate(members):
-        if np.isfinite(values[i]).all():
-            out[area_of[m]] += values[i]
-            counted[area_of[m]] = True
-    return out, counted
 
 
 # ------------------------------------------------------------------------------------ municipalities in an area

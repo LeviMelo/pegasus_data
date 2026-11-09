@@ -17,7 +17,7 @@ same code is run from past bases (``pseudo_forecast``) to measure its error by h
 from __future__ import annotations
 
 from dataclasses import replace
-from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -34,26 +34,21 @@ def trend_window() -> tuple[int, tuple[int, ...]]:
     return int(declared["window"]), tuple(int(y) for y in declared["excluded_years"])
 
 
-def national_events(events_dir: str | Path, years: list[int]) -> tuple[np.ndarray, np.ndarray]:
+def national_events(settings: Any, years: list[int]) -> tuple[np.ndarray, np.ndarray]:
     """National deaths (Y, 2, A) by sex and single age and births (Y, 2) by sex; an unknown sex or age is spread over the known."""
-    import pyarrow.parquet as pq
+    from .population_account import vital_events
 
     d = np.zeros((len(years), 2, A))
     b = np.zeros((len(years), 2))
-    from .population_account import SEX_INDEX
-
     for k, y in enumerate(years):
-        t = pq.read_table(Path(events_dir) / f"deaths_{y}.parquet").to_pandas()
-        t["x"] = t["sex"].map(lambda s: SEX_INDEX.get(s, -1))
-        t["a"] = t["age"].map(lambda v: -1 if v is None or v != v else int(min(np.floor(float(v)), A - 1)))
-        ok = (t.x >= 0) & (t.a >= 0)
-        np.add.at(d[k], (t.x[ok].to_numpy(), t.a[ok].to_numpy()), t.events[ok].to_numpy())
-        d[k] *= t.events.sum() / max(d[k].sum(), 1)
-        t = pq.read_table(Path(events_dir) / f"births_{y}.parquet").to_pandas()
-        t["x"] = t["sex"].map(lambda s: SEX_INDEX.get(s, -1))
+        t = vital_events(settings, "deaths", y, "country")
+        ok = (t["sex"] >= 0) & (t["age"] >= 0)
+        np.add.at(d[k], (t["sex"][ok], np.minimum(np.floor(t["age"][ok]), A - 1).astype(int)), t["events"][ok])
+        d[k] *= t["events"].sum() / max(d[k].sum(), 1)
+        t = vital_events(settings, "births", y, "country")
         for x in (0, 1):
-            b[k, x] = t.events[t.x == x].sum()
-        b[k] *= t.events.sum() / max(b[k].sum(), 1)
+            b[k, x] = t["events"][t["sex"] == x].sum()
+        b[k] *= t["events"].sum() / max(b[k].sum(), 1)
     return d, b
 
 
@@ -159,7 +154,7 @@ EVENT_SD_PER_YEAR = 0.003
 Z_LEVEL = {0.8: 1.2816, 0.95: 1.96}
 
 
-def forecast_account(inp, cal, events_dir: str | Path, steps: int = 8) -> dict:
+def forecast_account(inp, cal, settings: Any, steps: int = 8) -> dict:
     """The account ``steps`` years after the PES-corrected 2022 census (2023 is the first, with observed events).
 
     Returns ``X`` (steps, entities, 2, A) single ages, ``bands`` (steps, entities, 2, 17) and, per level, the log offsets
@@ -168,10 +163,10 @@ def forecast_account(inp, cal, events_dir: str | Path, steps: int = 8) -> dict:
     from .population_account import LEVELS, interval, load_events
 
     years = list(range(2000, 2024))
-    nd, nb = national_events(events_dir, years)
+    nd, nb = national_events(settings, years)
     npop = np.concatenate([inp.path_a.sum(1)[:11], inp.path_b.sum(1)[1:13], inp.vit22.sum(0)[None]])
     tr = Trends(years, nd, nb, npop, 2022, 2023)
-    ev = load_events(events_dir, list(range(2010, 2024)), inp.places, "entity")
+    ev = load_events(settings, list(range(2010, 2024)), inp.places, "entity")
     ref = [y - 2010 for y in tr.ref]
     mult = municipal_multipliers(tr, inp.start22, ev["deaths"][ref].sum(0), ev["births"][ref].sum((0, 2)))
     path = project_vital(inp.start22, tr, mult, ev["deaths"][12:], ev["births"][12:], steps, 2022)

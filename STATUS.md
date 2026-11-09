@@ -94,11 +94,12 @@ before it is fixed and marked done there with its evidence.
 - **Done since:** T8 (the register kits' columns, owners and open end declared), T11 (enrichment targets declared in
   `joins.yml`, dispatched by route).
 - **Study modules (2026-11-09):** T5 and T17 done there; T13 done but the age axes (the study constants are `parameters:` in
-  `products.yml`, recorded in each manifest); T14 not closed: the cube drops the events no municipality places (0.16-0.75% of
-  deaths), which the completeness needs.
+  `products.yml`, recorded in each manifest); T14 done (below).
 - **Done since:** T5 and T24 (every folder of the home through `Settings`: `registry_dir`, `modelled_dir`, `load_settings(root=)`).
-- **Open:** T14 (the cube now counts state-only events at state and country, equal to the event files; the study
-  modules still read their own files), H1 (the rest of the
+- **T14 done (2026-11-09):** the account, backcast, forecast and completeness read the records cube (`population_account.vital_events`); no
+  event-file store (`collect_events` gone); 2012 and 2022 equal the old files, 2000 deaths differ by 497 dated outside the year
+  (evaluation 2026-11-09-principles-audit-defects).
+- **Open:** H1 (the rest of the
   unreferenced functions), H3 (import cycles), H5 (oversized functions).
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**

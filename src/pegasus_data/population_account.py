@@ -27,8 +27,6 @@ parents). The first version of the account (Gibbs-sampled hierarchical migration
 
 from __future__ import annotations
 
-import os
-import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -219,82 +217,55 @@ def sex_of(dataset: str, column: str, year: int, codes: list[str | None], root: 
 SEX_INDEX = {"M": 0, "F": 1}
 
 
-def collect_events(root: str | Path, years: range | list[int], events_dir: str | Path, log=print) -> None:
-    """Each input of `vital_inputs` (deaths by residence × sex × age in years, births by residence × sex) per year,
-    through the public API into ``events_dir``, its strata under their declared names (sex as M, F or null); a year
-    already collected is not fetched again. A year before the input's system publishes is read from its ``earlier``
-    dataset when it has one (SIM-DOR for the deaths to 1995) and skipped when it has none (no births before 1994)."""
-    import warnings
+def vital_events(settings: Any, name: str, year: int, place: str) -> dict[str, Any] | None:
+    """One input of `vital_inputs` in one year, read from the records cube (`cubes.cube`) at ``place`` (``municipality`` or
+    ``uf``) by its sex and age strata: ``place`` (IBGE code), ``sex`` (0 male, 1 female, -1 unknown: read from the label, never
+    the code, `sex_of`), ``age`` (single years, -1 unknown; deaths only), ``events`` and ``total``, every event the year's
+    publication counted, so that what no cell holds is ``total - events.sum()``: the events of a state-only or unknown residence
+    (read by municipality), and those of no state or of no date. None where the system publishes nothing that year (no births
+    before 1994)."""
+    import json
 
-    import pyarrow as pa
-    import pyarrow.compute as pc
-    import pyarrow.parquet as pq
-
-    import pegasus_data as pg
-
+    from .cubes import cube
     from .semantics.column_roles import column_of
+    from .semantics.curation import semantics_for
 
-    out = Path(events_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    for y in years:
-        for name, spec in vital_inputs().items():
-            f = out / f"{name}_{y}.parquet"
-            dataset = spec["dataset"] if y >= spec["first"] else spec["earlier"]
-            if f.exists() or dataset is None:
-                continue
-            t0 = time.time()
-            columns = {stratum: column_of(dataset, role) for stratum, role in spec["strata"].items()}
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                tab = pg.count_events(dataset, spec["event"], period=y, geography="BR", by=list(columns.values()),
-                                      root=root, allow_partial=False, max_download=8 * 1024**3)
-            tab = vital_table(dataset, y, {s: pc.cast(tab[c], pa.string()) for s, c in columns.items()},
-                              columns, tab["events"], root)
-            tmp = f.with_name(f"{f.name}.{os.getpid()}.tmp")     # whole or absent: a truncated file passed `f.exists()` for good
-            pq.write_table(tab, tmp)
-            tmp.replace(f)
-            log(f"{name} {y} ({dataset}): {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
-
-
-def ensure_events(settings: Any, years: range | list[int], log=print) -> Path:
-    """The events the account counts for ``years``, collected into the data home's work area (a cache: a year already there
-    is not fetched again), and the folder that holds them."""
-    events = Path(settings.work_dir) / "population_account" / "events"
-    collect_events(settings.root, years, events, log)
-    return events
+    spec = vital_inputs()[name]
+    dataset = spec["dataset"] if year >= spec["first"] else spec["earlier"]
+    if dataset is None:
+        return None
+    columns = {stratum: column_of(dataset, role) for stratum, role in spec["strata"].items()}
+    semantics = semantics_for(dataset)
+    bound = semantics.geography_bindings()[semantics.default_geography() or "residence"]["fields"][0]
+    if bound != columns["residence"]:
+        raise ValueError(f"{dataset}: the cube places by {bound}, the account's residence is {columns['residence']}")
+    strata = [c for s, c in columns.items() if s != "residence"]
+    table = cube(f"records:{dataset}/{spec['event']}", place=place, by=strata, periods=[year], grain="year", labels=False,
+                 settings=settings)
+    manifest = json.loads(table.schema.metadata[b"pegasus.cube"])
+    if manifest["not_published"]:
+        return None
+    codes = [None if c is None else str(c) for c in table.column(columns["sex"]).to_pylist()]
+    out = {"place": np.array(table.column("place").to_pylist(), dtype=np.int64),
+           "sex": np.array([SEX_INDEX.get(s, -1) for s in sex_of(dataset, columns["sex"], year, codes, settings.root)], dtype=int),
+           "events": np.array(table.column("value").to_pylist(), dtype=float), "total": float(manifest["events"])}
+    if "age" in columns:
+        out["age"] = np.array([-1.0 if a is None else float(a) for a in table.column(columns["age"]).to_pylist()])
+    return out
 
 
-def vital_table(dataset: str, year: int, strata: dict[str, Any], columns: dict[str, str], events: Any,
-                root: str | Path | None = None) -> Any:
-    """The collected file of one input and year: its strata under their names, sex as M, F or null (`sex_of`)."""
-    import pyarrow as pa
-
-    out = dict(strata)
-    if "sex" in out:
-        out["sex"] = pa.array(sex_of(dataset, columns["sex"], year, out["sex"].to_pylist(), root), pa.string())
-    return pa.table(out | {"events": events})
+def _place(codes: np.ndarray, keys: np.ndarray, targets: np.ndarray) -> np.ndarray:
+    """Index of each municipality code (IBGE, as the cube places it) among the sorted six-digit ``keys`` (-1: none)."""
+    pos = np.clip(np.searchsorted(keys, codes // 10), 0, len(keys) - 1)
+    return np.where(keys[pos] == codes // 10, targets[pos], -1)
 
 
-def _place(codes: list[str | None], keys: np.ndarray, targets: np.ndarray) -> np.ndarray:
-    """Index of each residence code's municipality among the sorted municipality ``keys`` (-1: none), placed by the one
-    rule (`geography.place_municipalities`: Rio de Janeiro's 3345xxx of 1991-1998 and Brasília's region codes too)."""
-    from .geography import place_municipalities
-
-    distinct = sorted({c for c in codes if c is not None})
-    placed = dict(zip(distinct, place_municipalities(distinct), strict=True))
-    c6 = np.array([(placed.get(c) or -10) // 10 if c is not None else -1 for c in codes])
-    pos = np.clip(np.searchsorted(keys, c6), 0, len(keys) - 1)
-    return np.where(keys[pos] == c6, targets[pos], -1)
-
-
-def load_events(events_dir: str | Path, years: list[int], places: Places, by: str = "unit") -> dict[str, Any]:
+def load_events(settings: Any, years: list[int], places: Places, by: str = "unit") -> dict[str, Any]:
     """Deaths ``[Y, n, 2, A]`` and births ``[Y, n, 2]`` per year, with what could not be placed counted, not dropped.
 
     Deaths of unknown sex or age are spread over the known cells of the same unit and year, in proportion
     (the totals are kept; the allocation is a documented choice); an event whose residence is not a current
-    municipality is reported as unplaced."""
-    import pyarrow.parquet as pq
-
+    municipality is reported as unplaced (the events the year counted that no municipality cell of the cube holds)."""
     n = places.n_units if by == "unit" else places.n_entities
     index = places.unit_of if by == "unit" else places.entity_of
     order = sorted(index, key=lambda m: int(str(m)[:6]))
@@ -304,14 +275,12 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
     births = np.zeros((len(years), n, 2))
     report: dict[str, dict[str, int]] = {}
     for k, y in enumerate(years):
-        t = pq.read_table(Path(events_dir) / f"deaths_{y}.parquet")
-        i = _place(t["residence"].to_pylist(), keys, targets)
-        sx = np.array([SEX_INDEX.get(s, -1) for s in t["sex"].to_pylist()])
-        ag = np.array([-1.0 if a is None else float(a) for a in t["age"].to_pylist()])
+        t = vital_events(settings, "deaths", y, "municipality")
+        i = _place(t["place"], keys, targets)
+        sx, ag, e = t["sex"], t["age"], t["events"]
         age = np.where(ag >= 0, np.minimum(np.floor(ag), A - 1), -1).astype(int)
-        e = np.array(t["events"].to_pylist(), dtype=float)
         placed = i >= 0
-        rep = {"deaths_total": int(e.sum()), "deaths_unplaced": int(e[~placed].sum()),
+        rep = {"deaths_total": int(t["total"]), "deaths_unplaced": int(t["total"] - e[placed].sum()),
                "deaths_sex_unknown": int(e[placed & (sx < 0)].sum()), "deaths_age_unknown": int(e[placed & (age < 0)].sum())}
         full = placed & (sx >= 0) & (age >= 0)
         np.add.at(deaths[k], (i[full], sx[full], age[full]), e[full])
@@ -336,15 +305,14 @@ def load_events(events_dir: str | Path, years: list[int], places: Places, by: st
         tot = known.sum((1, 2))
         share = np.divide(known, tot[:, None, None], out=np.full((n, 2, A), 1 / (2 * A)), where=tot[:, None, None] > 0)
         deaths[k] += unk[:, None, None] * share
-        if not (Path(events_dir) / f"births_{y}.parquet").exists():      # before SINASC (1994): no births, said so
+        t = vital_events(settings, "births", y, "municipality")
+        if t is None:                                    # before SINASC (1994): no births, said so
             report[str(y)] = rep | {"births_total": None}
             continue
-        t = pq.read_table(Path(events_dir) / f"births_{y}.parquet")
-        i = _place(t["residence"].to_pylist(), keys, targets)
-        sx = np.array([SEX_INDEX.get(s, -1) for s in t["sex"].to_pylist()])
-        e = np.array(t["events"].to_pylist(), dtype=float)
+        i = _place(t["place"], keys, targets)
+        sx, e = t["sex"], t["events"]
         placed = i >= 0
-        rep |= {"births_total": int(e.sum()), "births_unplaced": int(e[~placed].sum()),
+        rep |= {"births_total": int(t["total"]), "births_unplaced": int(t["total"] - e[placed].sum()),
                 "births_sex_unknown": int(e[placed & (sx < 0)].sum())}
         np.add.at(births[k], (i[placed & (sx >= 0)], sx[placed & (sx >= 0)]), e[placed & (sx >= 0)])
         known = births[k].copy()
@@ -526,16 +494,12 @@ def lag_series(root: str | Path, places: Places) -> tuple[dict[int, np.ndarray],
     return out, area_of, len(roots)
 
 
-def mortality_rates(events_dir: str | Path, year: int, population: np.ndarray) -> np.ndarray:
+def mortality_rates(settings: Any, year: int, population: np.ndarray) -> np.ndarray:
     """National death rates by sex × five-year group (2, 17): SIM deaths of ``year`` over ``population`` (2, 17)."""
-    import pyarrow.parquet as pq
-
-    t = pq.read_table(Path(events_dir) / f"deaths_{year}.parquet", columns=["sex", "age", "events"])
+    t = vital_events(settings, "deaths", year, "country")
     deaths = np.zeros((2, 17))
-    for s, a, e in zip(t["sex"].to_pylist(), t["age"].to_pylist(), t["events"].to_pylist(), strict=True):
-        s = SEX_INDEX.get(s)
-        if s is not None and a is not None:
-            deaths[s, min(int(float(a)) // 5, 16)] += e
+    known = (t["sex"] >= 0) & (t["age"] >= 0)
+    np.add.at(deaths, (t["sex"][known], np.minimum(t["age"][known].astype(int) // 5, 16)), t["events"][known])
     return deaths / np.maximum(population, 1)
 
 
@@ -841,12 +805,13 @@ class Inputs:
     vit22: np.ndarray            # the vital account one step from the PES-corrected 2022 census, (entities, 2, A) single ages
 
 
-def assemble(root: str | Path, events_dir: str | Path, log=print) -> Inputs:
+def assemble(settings: Any, log=print) -> Inputs:
     """Load the censuses, bring them to coverage, run the vital account and build the three periods' rows.
 
     Coverage: 2022 by IBGE's PES (published margins, raked onto cells), 2000 and 2010 by IBGE's reconciliation
     (POPSVS / raw; a sensitivity, since it was made with the PES). The regression's period B opens on the *raw* 2010
     census (the protocol that was scored); the account's interior opens on the reconciled one."""
+    root = settings.root
     t22 = census_table(root, 2022, ["municipality"])
     places = build_places(sorted(set(int(m) for m in t22["municipality"].to_pylist())))
     members_u: list[list[int]] = [[] for _ in range(places.n_units)]
@@ -862,14 +827,14 @@ def assemble(root: str | Path, events_dir: str | Path, log=print) -> Inputs:
     c10er = c10e * reconciled_coverage(root, 2010, c10e, ent_state)
     c22t = c22e * pes_coverage(c22e, ent_state)
     log("events")
-    ev0 = load_events(events_dir, list(range(2000, 2011)), places, "unit")
-    ev1 = load_events(events_dir, list(range(2010, 2024)), places, "entity")
+    ev0 = load_events(settings, list(range(2000, 2011)), places, "unit")
+    ev1 = load_events(settings, list(range(2010, 2024)), places, "entity")
     log("previous decades' migration (SIDRA 200)")
     S, area_of, n_areas = lag_series(root, places)
     state_a, micro_a = np.zeros(n_areas, int), np.zeros(n_areas, int)
     for m in places.municipalities:
         state_a[area_of[m]], micro_a[area_of[m]] = int(str(m)[:2]), places.unit_micro[places.unit_of[m]]
-    m00 = mortality_rates(events_dir, 2000, S[2000].sum(0))
+    m00 = mortality_rates(settings, 2000, S[2000].sum(0))
     lag_a = lag_features(S[1991], S[2000], 8.92, m00, state_a, micro_a)
     lag_b = lag_features(S[2000], S[2010], 10.0, m00, state_a, micro_a)
     # period A: units
@@ -887,7 +852,7 @@ def assemble(root: str | Path, events_dir: str | Path, log=print) -> Inputs:
     path_b = run_account(c10er, ev1["deaths"], ev1["births"], 12, keep_path=True)[1]
     # the projection: lag 2010 -> 2022 of the entities themselves (raw counts), one step from the PES-corrected 2022 census
     pop_mid = (to_bands(c10e).sum(0) + to_bands(c22e).sum(0)) / 2
-    m16 = mortality_rates(events_dir, 2016, pop_mid)
+    m16 = mortality_rates(settings, 2016, pop_mid)
     E = places.n_entities
     lag_p = lag_features(to_bands(c10e), to_bands(c22e), 12.0, m16, ent_state, ent_micro)
     urb, lg = static_covariates(root, places.entity_members, 2010, 2021, c22e.sum((1, 2)))
@@ -1037,7 +1002,7 @@ def build_registration_completeness(settings: Any, *, version: str, validation: 
     from . import __version__
     from .modelled import ModelledManifest, write_modelled
 
-    inp = assemble(settings.root, ensure_events(settings, range(2000, 2024), log), log)
+    inp = assemble(settings, log)
     rows = birth_registration(inp)
     by = {(r["uf"], r["cohort"]): r["completeness"] for r in rows}
     diffs = [v - by[(u, c.replace("0-4", "5-9"))] for (u, c), v in by.items() if c.startswith("0-4")]
