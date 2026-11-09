@@ -141,7 +141,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Each reads the file or recomputes `sole` (UFs with one municipality) separately (`geography.py:652-655`, `intake.py:412-414`).
 - Fix: `geography.municipalities()` is the one reader; expose `to_code7`, `sole_by_uf`, `uf_code(sigla)` from it and delete the copies. Size S.
 
-**T5. `lake` / `registries` / `modelled` paths hand-assembled outside their owners**
+**T5. `lake` / `registries` / `modelled` paths hand-assembled outside their owners** — study modules done (the hand-made `settings`, `Path(root)/"lake"` and the backcast's read of `lake/modelled` are gone: `load_settings(root=)`, `read_modelled`; `population_backcast`'s duplicate `_settings` imports the account's). Left: `registries/` and the rest, in the non-study modules
 - `Path(root)/"lake"` with `SimpleNamespace(lake_dir=...)` at `completeness.py:223,283`, `population_account.py:1048`,
   `population_backcast.py:360,386`, `population_tensor.py:708`, `sus_dependent.py:59-66` (3 further hand-made `settings` objects).
   `"registries"/<name>` assembled at `cli/pipeline.py:51-58`, `concepts.py:45`, `fields.py:556,592`, `geography.py:940`, `intake.py:188`, `adopt.py:150-171`.
@@ -188,14 +188,14 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - These are source adapters, and the comments carry evidence, so tolerated individually; but tables of published numbers and code meanings belong in `resources/` or `curation/` with their source and date.
 - Fix: move numeric tables (`pes.py`, `SOLID_ORAL`, `SEX_BANDS`) to a curated YAML/CSV with `source:` and `as_of:`; keep layout constants. Size M.
 
-**T13. Study modules duplicate axes and analytic choices**
+**T13. Study modules duplicate axes and analytic choices** — done except the age axes: UF lists from `config.UF_NUMERIC` (`completeness.UFS`, `modelled_race.UF_CODES`), `completeness.AGES` is `population_tensor.AGES`; COVID years, window, lag groups, national sd/drift, pre-scale, kappa and alpha_sd are `parameters:` of their products in `products.yml` with their rationale, read by the builders and written into every manifest (evaluation entry, row T13). Left in code: `A = 81`, `AGES = 101`, `OLD`, `rates.BANDS`, `ANS_BAND` (the censuses' closure, tied to the 17 five-year bands and the literals 80/16 in the shapes: a declared length would be a knob that breaks them), `DEATH_PRIOR`/`BIRTH_PRIOR`, `CENSUS_NOISE`, `SIZE_CUTS` (not on the list)
 - Ages: `population_account.A = 81` (:40), `population_tensor.AGES = 101, OLD = 21` (:163-164), `completeness.AGES = 101`, `rates.BANDS` (5-year to 80+), `modelled_race.AGE_BANDS`, `sus_dependent.ANS_BAND`.
   UF lists: `completeness.UFS:27`, `modelled_race.UF_CODES:68` (copies of `config.UF_NUMERIC`), `ontology.UFS`.
   `COVID = (2020, 2021, 2022)` (`population_forecast.py:26`), `WINDOW = 10`, `LAG_GROUPS` (`population_account.py:448`), `PRE_SCALE`, `KAPPA`, `ALPHA_SD`, `NATIONAL_DRIFT`.
 - COVID years excluded from the trend fit is an epidemiological choice hard-coded (CLAUDE.md: "every hand-fixed choice is a debt to learn or integrate over").
 - Fix: UF lists from `config.UF_NUMERIC`; study constants into each product's manifest/`products.yml: parameters:` with their rationale; ages one axis. Size M.
 
-**T14. Single-purpose study builders write straight to parquet by path**
+**T14. Single-purpose study builders write straight to parquet by path** — not closed, measured: the events files are `count_events` results (the public API) cached in the work area, and `cube("records:SIM-DO/death")` is not the same count, since it drops the events no municipality places (deaths 0.75% in 2000, 0.34% in 2012, 0.16% in 2022; births 0.06%, 0.004%, 0.003%), which the UF-level completeness and the account's unplaced report need; so `collect_events` stays. To close it the cube would have to keep the unplaced under their raw residence
 - `completeness.py:59`, `population_account.py:300,335,516`, `population_forecast.py:41,47` read `events_dir/{deaths,births}_{year}.parquet` (a private file convention written by `collect_events:225`), with columns `residence`, `sex`, `age`, `events`.
 - Closed in part by defect 3, but the intermediate file convention is still a second store.
 - Fix: read the events through `cube("records:SIM-DO/...")`; drop `collect_events`. Size M.
@@ -208,7 +208,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - `linkage/roles.py:60` (`_FORMATS` date patterns), `profile/detectors.py:206` (`unit_legend {"1": "hora", ...}`: age-unit meaning in the profiler, which ADR-0218 moved into `IDADE_anos` curation for decoding), `intake.py:881` (`MONTHS_PT`; another month table exists in `discovery/listing.py`), `linkage/model.py:64` (`_PAD` digit table: algorithm constant).
 - Fix: profiler reads the age-unit table from `curation`; one month-name table. Size XS.
 
-**T17. Two ways to resolve a hospital race-confusion population / NEST** (minor)
+**T17. Two ways to resolve a hospital race-confusion population / NEST** (minor) — manifest spellings done (`modelled_race`, `population_backcast` through `dataset_key`); `linkage/timeline.py` is not a study module and stays
 - `modelled_race.py:624` strings `"SIM.DO"` and `"SINASC-DN"` in a manifest (two different spellings of a dataset in one dict); `linkage/timeline.py:108-118` calls `_records("SINASC-DN"/"SIH-RD"/"SIM-DO")`, `DELIVERY` etc. - study modules naming datasets in code (defect 3 style).
 - Fix: `ontology.dataset_key`, and the timeline's datasets from the link declarations. Size XS.
 

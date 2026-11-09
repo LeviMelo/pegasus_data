@@ -30,7 +30,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Iterable
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +61,19 @@ class ModelledManifest:
     #: the estimates whose point values add up over places and strata (counts of people); a share or a probability does
     #: not, and no interval bound ever does
     additive: list[str] = field(default_factory=list)
+    #: the analytic choices the build ran with, as `curation/products.yml` declares them (``parameters:``); `write_modelled`
+    #: copies them from the declaration when the builder left them out, so a version says what it was built with
+    parameters: dict[str, Any] = field(default_factory=dict)
+
+
+def product_parameters(product: str) -> dict[str, Any]:
+    """The analytic choices of ``product`` (``parameters:`` of its entry in `curation/products.yml`, each with the rationale
+    in a comment beside it): what a builder reads instead of a constant of its own, and what the version's manifest records."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    entry = (read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {}
+    return dict(entry.get("parameters") or {})
 
 
 def _root(settings: Any) -> Path:
@@ -82,6 +95,8 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
         raise ValueError(f"a product name is lower snake_case: {manifest.product!r}")
     if manifest.product.upper() in OFFICIAL_SERIES or manifest.product.upper().split("_")[0] in OFFICIAL_SERIES:
         raise ValueError(f"{manifest.product!r} takes the name of an official series; name the estimate for what it is")
+    if not manifest.parameters:
+        manifest = replace(manifest, parameters=json.loads(json.dumps(product_parameters(manifest.product))))
     if not manifest.estimates:
         raise ValueError("a modelled product declares its estimate columns")
     for column, uncertainty in manifest.estimates.items():

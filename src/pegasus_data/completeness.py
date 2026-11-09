@@ -25,8 +25,10 @@ from pathlib import Path
 
 import numpy as np
 
-UFS = [11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52, 53]
-AGES = 101      # single years 0..99 and an open 100+ (the 2022 census)
+from .config import UF_NUMERIC
+from .population_tensor import AGES  # single years 0..99 and an open 100+ (the 2022 census)
+
+UFS = sorted(int(code) for code in UF_NUMERIC)
 RESOURCES = Path(__file__).parent / "resources"
 
 

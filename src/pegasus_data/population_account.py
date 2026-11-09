@@ -451,17 +451,27 @@ def pes_coverage(raw_entity: np.ndarray, entity_state: np.ndarray) -> np.ndarray
 
 # ======================================================================================= the model
 
-#: Five-year age groups at a lag's closing census whose cohort net migration is a regressor: ages 10-24, 25-54, 55-69.
-LAG_GROUPS = {"young": (2, 3, 4), "adult": (5, 6, 7, 8, 9, 10), "old": (11, 12, 13)}
+def parameters() -> dict[str, Any]:
+    """The analytic choices of the account (``parameters:`` of ``population_account`` in `curation/products.yml`): the lag
+    groups whose cohort migration is a regressor, the national level term, the trend window and the backcast's widening."""
+    from .modelled import product_parameters
+
+    return product_parameters("population_account")
+
+
+def national(product: str = "population_account") -> tuple[float, float]:
+    """``(sd, drift)``: the log sd common to every cell (how complete the base census was) and the drift of the national
+    total per year of horizon (``parameters: national``)."""
+    from .modelled import product_parameters
+
+    declared = product_parameters(product)["national"]
+    return float(declared["sd"]), float(declared["drift"])
+
+
 #: Columns of the total's design matrix, in order (all but the last two are the previous decade's cohort net migration).
 FEATURES = ("adult", "young", "old", "state", "micro", "urb", "lgdp")
 #: A census count's variance is ``CENSUS_NOISE · N`` (v1's fit); it sets how far an area's own rate is shrunk.
 CENSUS_NOISE = 0.95
-#: The part of the level the account cannot know: how complete the base census was (IBGE's reconciliation puts 2010 at
-#: 2.2% short), as a log sd common to every cell, plus a drift of the national total per year of horizon (the two
-#: periods' national truth/vital deviations were +0.2% over 10 years and +1.4% over 12).
-NATIONAL_SD = 0.02
-NATIONAL_DRIFT = 0.0012
 SIZE_CUTS = (5_000, 20_000, 100_000, 500_000)
 LEVELS = (0.8, 0.95)
 #: The deviation of the truth from the vital account is a random walk of drift ``h · ŷ``: its spread at horizon ``h`` is
@@ -583,7 +593,7 @@ def lag_features(c0: np.ndarray, c1: np.ndarray, length: float, m: np.ndarray, s
     """``c0``, ``c1``: (areas, 2, 17) counts ``length`` years apart; ``state``, ``micro``: the area's codes."""
     own: dict[str, np.ndarray] = {}
     out_state = out_micro = None
-    for name, hs in LAG_GROUPS.items():
+    for name, hs in parameters()["lag_groups"].items():
         n, d = cohort_rates(c0, c1, length, m, hs)
         r, mu, rs = _shrunk(n, d)
         own[name] = (rs - mu) / length
@@ -798,7 +808,8 @@ def interval(P: Period, cal: Calibration, centre: np.ndarray, h: float, level: f
     census: sd² = national² + spread² · h (a random walk), the spread by size class (and, for the total, a region
     multiplier). Inside an anchored period ``timing`` is the share ``κ = k/T`` already travelled and the horizon term
     is the bridge's, ``TIMING_VARIANCE · spread² · T · κ(1−κ)``."""
-    nat = np.sqrt(NATIONAL_SD**2 + (NATIONAL_DRIFT * h) ** 2)
+    sd_census, drift = national()
+    nat = np.sqrt(sd_census**2 + (drift * h) ** 2)
     if total:
         s, q = cal.s_total[P.sizec] * cal.gm[P.region], cal.q_total[level]
     else:
@@ -1016,7 +1027,7 @@ def birth_registration(inp: Inputs) -> list[dict[str, Any]]:
 def build_registration_completeness(settings: Any, *, version: str, validation: str, log=print) -> dict[str, Any]:
     """Write the ``registration_completeness`` modelled product from ``birth_registration``.
 
-    The 80% interval is the account's 2% census term (``NATIONAL_SD``) joined with the spread between the 0-4 and the 5-9
+    The 80% interval is the account's 2% census term (``parameters: national: sd``) joined with the spread between the 0-4 and the 5-9
     cohort of the same census and state (sd of their difference over sqrt 2), which measures what a single cohort's ratio
     carries beyond registration: coverage by age and migration. It is wider than needed where the two cohorts truly
     differ in registration."""
@@ -1031,7 +1042,8 @@ def build_registration_completeness(settings: Any, *, version: str, validation: 
     by = {(r["uf"], r["cohort"]): r["completeness"] for r in rows}
     diffs = [v - by[(u, c.replace("0-4", "5-9"))] for (u, c), v in by.items() if c.startswith("0-4")]
     pair_sd = float(np.std(diffs) / np.sqrt(2)) if diffs else 0.0
-    sd = float(np.hypot(NATIONAL_SD, pair_sd))
+    sd_census = national("registration_completeness")[0]
+    sd = float(np.hypot(sd_census, pair_sd))
     for r in rows:
         r["completeness_lo"], r["completeness_hi"] = r["completeness"] - 1.2816 * sd, r["completeness"] + 1.2816 * sd
     manifest = ModelledManifest(
@@ -1047,7 +1059,7 @@ def build_registration_completeness(settings: Any, *, version: str, validation: 
                "A value above 1 is not registration: the census counted fewer children than the registered births imply.",
                "`period` is the years the cohort was born in (the census date is 1 August; a 0-4 cohort at the 2010 census was born "
                "2005-08 to 2010-07). Births of 2010-2011 and of 2022 are in no cohort. The state's net child migration is not separated.",
-               f"Interval: 80%, sd {sd:.4f} = hypot({NATIONAL_SD}, {pair_sd:.4f}), the second the cohort-pair spread (see birth_registration).",
+               f"Interval: 80%, sd {sd:.4f} = hypot({sd_census}, {pair_sd:.4f}), the second the cohort-pair spread (see birth_registration).",
                "SIM (deaths) completeness is not estimated here (see system_completeness)."])
     table = pa.Table.from_pylist(rows)
     out = write_modelled(table, manifest, settings=settings)

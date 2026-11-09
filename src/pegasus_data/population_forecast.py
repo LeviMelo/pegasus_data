@@ -21,12 +21,17 @@ from pathlib import Path
 
 import numpy as np
 
-from .population_account import BANDS, W_FIRST, W_SECOND, A, advance, to_bands
+from .population_account import BANDS, W_FIRST, W_SECOND, A, advance, parameters, to_bands
 
-COVID = (2020, 2021, 2022)
-WINDOW = 10
 DEATH_PRIOR, BIRTH_PRIOR = 30.0, 100.0
 FERTILE = slice(15, 45)
+
+
+def trend_window() -> tuple[int, tuple[int, ...]]:
+    """``(window, excluded years)``: the number of last observed years the national trends are fitted on and the years left out of
+    the fit and of the reference years (``parameters: trend`` of ``population_account``, with the reason)."""
+    declared = parameters()["trend"]
+    return int(declared["window"]), tuple(int(y) for y in declared["excluded_years"])
 
 
 def national_events(events_dir: str | Path, years: list[int]) -> tuple[np.ndarray, np.ndarray]:
@@ -53,8 +58,9 @@ def national_events(events_dir: str | Path, years: list[int]) -> tuple[np.ndarra
 
 
 def _fit(years: np.ndarray, log_rate: np.ndarray, base: int):
-    """OLS of log rate on year over the last ``WINDOW`` observed non-COVID years: (slope, rate at year ``base``). ``log_rate`` (Y, …)."""
-    use = (years > base - WINDOW) & (years <= base) & ~np.isin(years, COVID)
+    """OLS of log rate on year over the last ``trend: window`` observed years without the excluded (COVID) ones: (slope, rate at year ``base``). ``log_rate`` (Y, …)."""
+    window, excluded = trend_window()
+    use = (years > base - window) & (years <= base) & ~np.isin(years, excluded)
     x = years[use] - base
     y = log_rate[use]
     if len(x) < 3:
@@ -81,7 +87,7 @@ class Trends:
         women = N[:, 1, FERTILE].sum(-1)
         self.gfr_slope, self.gfr_level = _fit(years, np.log(B.sum(1) / women), last_obs)
         self.sex_ratio = B[-3:].sum(0) / B[-3:].sum()
-        ref = [y for y in years if y <= last_obs and y not in COVID][-3:]
+        ref = [y for y in years if y <= last_obs and y not in trend_window()[1]][-3:]
         self.ref = ref
         sel = np.isin(years, ref)
         self.nat_rate_ref = D[sel].sum(0) / np.maximum(N[sel].sum(0), 1)               # (2, A) single-age
