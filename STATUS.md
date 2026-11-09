@@ -102,7 +102,7 @@ before it was fixed and is marked there with its evidence (evaluation 2026-11-09
   kept on purpose), H3 (7 import cycles closed by function-level imports; `proximity`/`ibge_grade` broken), H5 (oversized
   functions; `column_roles._column` is a validator whose branches are its rules).
 
-**R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**
+**R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for five of six, the sixth builds its inputs but not yet a valid fit.**
 `pegasus-data model-build <product> --version V --validation TEXT` calls the function each modelled entry of `products.yml`
 declares (`build:`): `population_tensor.build_population_account` (the events of 1991-2023 into the work area, SIM-DOR to
 1995; account, calibration, forecast, split, race, shapes, migration schedule, backcast; 25 minutes), `sus_dependent`,
@@ -111,9 +111,14 @@ with the stored one (evaluation entry 2026-11-09-principles-audit-defects, row R
 `population-account-6` reproduces to the last float32 bit (37 of 219 M cells, 1e-7) once the placing rule of October is
 restored, and differs by at most 9e-5 in 2001-2021 (0.16 on cells of a few people in 1991-1999) under today's rule, which
 places 5 deaths and 8 births of 2000-2010 differently; `system_completeness` is equal; `sus_dependent` differs only where
-ANS republished its December files; `registration_completeness` by 2.5e-5 in 2 of 108 cells. **Open:** `race_confusion_infant`
-and `_women` have no `build` (their inputs, the link tables with the negative-control share, come from scratch scripts in
-`pegasus_project/data/agent_race*`). The band inputs are rebuilt (ADR-0220): the build writes `population_account_bands`
+ANS republished its December files; `registration_completeness` by 2.5e-5 in 2 of 108 cells. `race_confusion_infant`
+(`modelled_race.build_infant_product`) assembles its inputs from the stored `sim_infant_deaths_to_sinasc` runs and role tables
+(63,769 deaths, 52,063 linked, the cross-tab equal to the scratch table in all 80 cells) and refits to the stored scales and
+held-out log loss (0.8091), its estimates within MCMC noise (mean |dp| 0.002). **Open:** `race_confusion_women`
+(`build_women_product`) assembles 106,565 deaths of 2015-2022 (19,332 linked) with the false-link share per municipality class,
+but its fit under the default scale selection (2015 against 2022) diverged (800 of 800 draws), so `build` now refuses a diverged
+sampler and the stored `race-confusion-women-1` (scales chosen inside 2015-2018) is not reproducible yet: declare that selection
+split in `inputs:`, and cache the 40 minutes of inputs. The band inputs are rebuilt (ADR-0220): the build writes `population_account_bands`
 beside the account; `population-account-7` and `-bands-7` were built from the repository, `sus-dependent-3` on them, and
 `field_rate` reads the current account. The deaths whose residence is the state's "ignored" municipality (0.34% of 2012's) are in no municipal cell by
 construction; since 2026-11-09 the cube counts them in their state and the country, and an aggregate's manifest says them by
