@@ -133,7 +133,7 @@ def test_valid_observed_cnpj_is_preserved_confirmed_or_conflicted(monkeypatch) -
             "CNPJ": ["12345678000195", "12345678000195", "12345678000195"],
         }
     )
-    enriched, report = crosswalk.enrich_cnpj(source)
+    enriched, report = crosswalk.enrich_cnpj(source, raw_field="CNPJ")   # the record's own CNPJ, as its roles name it
     assert enriched["CNPJ"].to_pylist() == ["12345678000195"] * 3
     assert enriched["CNPJ_resolved"].to_pylist() == [
         "12345678000195",

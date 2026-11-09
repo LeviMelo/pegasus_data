@@ -60,7 +60,7 @@ def rendered(settings, catalog: CatalogStore):
             ("SIHSUS", "COD_IDADE", "internal", "UNIDIDADE", 0, None, None, None,
              "Age unit", "manual", "t"),
             ("SIHSUS", "IDADE", "none", None, 0, None, '["COD_IDADE"]',
-             '[{"name": "IDADE_anos", "from": ["IDADE", "COD_IDADE"], "encoding": "sih", "rule": "years"}]',
+             '[{"name": "IDADE_anos", "from": ["IDADE", "COD_IDADE"], "age": {"form": "unit_column", "units": {"2": "day", "3": "month", "4": "year", "5": "hundred_plus"}}, "rule": "years"}]',
              "Age", "manual", "t"),
             ("SIHSUS", "VAL_TOT", "none", None, 0, None, None, None, "Total value", "manual", "t"),
         ],
