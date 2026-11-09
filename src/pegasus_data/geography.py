@@ -195,9 +195,9 @@ def _curation_root(root: Path | None = None) -> Path:
 
 def municipality_fields(system: str, root: Path | None = None) -> frozenset[str]:
     """Columns of ``system`` whose values are municipality codes (``geography.yml``)."""
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
-    data = _read_yaml(_curation_root(root) / "geography.yml") or {}
+    data = read_yaml(_curation_root(root) / "geography.yml", missing_ok=True) or {}
     declared = data.get("municipality_fields") or {}
     return frozenset(str(f).upper() for f in declared.get(str(system).upper(), ()) or ())
 
@@ -222,9 +222,9 @@ def classifications(root: Path | None = None, *, authority: str | None = None
     Without an argument, both, because a caller asking "what can I group by"
     wants the whole vocabulary.
     """
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
-    data = _read_yaml(_curation_root(root) / "geography.yml") or {}
+    data = read_yaml(_curation_root(root) / "geography.yml", missing_ok=True) or {}
     datasus = {k: {**v, "authority": "datasus"}
                for k, v in (data.get("classifications") or {}).items()}
     ibge = {k: {**v, "authority": "ibge"}
@@ -246,9 +246,9 @@ def classifications(root: Path | None = None, *, authority: str | None = None
 
 def excluded(root: Path | None = None) -> dict[str, dict[str, Any]]:
     """Classifications deliberately not compiled, with the measured reason."""
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
-    data = _read_yaml(_curation_root(root) / "geography.yml") or {}
+    data = read_yaml(_curation_root(root) / "geography.yml", missing_ok=True) or {}
     return dict(data.get("excluded") or {})
 
 

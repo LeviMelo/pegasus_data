@@ -141,11 +141,11 @@ def sole_competence(parts: Iterable[LakePartition], publications: Iterable[dict[
 def compile_capability_payload() -> dict[str, Any]:
     """Compile source-publication metadata from maintainer curation."""
     from ..config import curation_root
-    from ..ontology import _read_yaml
+    from ..semantics.curation import read_yaml
 
     datasets: dict[str, dict[str, Any]] = {}
     for path in sorted((curation_root() / "datasets").glob("*.yml")):
-        for body in (_read_yaml(path).get("datasets") or {}).values():
+        for body in (read_yaml(path, missing_ok=True).get("datasets") or {}).values():
             publication = body.get("source_publication") or {}
             code = str(publication.get("dataset") or "")
             if not code:

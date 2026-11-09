@@ -27,6 +27,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..ontology import dataset_key
 from . import store
 from .engine import (
     LinkNotViable,
@@ -128,7 +129,7 @@ def cohort_link(dataset: str, name: str | None = None) -> str:
         if name not in cohorts:
             raise KeyError(f"{name!r} is not a cohort link; declared: {sorted(cohorts)}")
         return name
-    left = dataset.upper().replace(".", "-")
+    left = dataset_key(dataset)
     found = [n for n, s in cohorts.items() if s.left.dataset == left]
     if len(found) != 1:
         raise KeyError(f"{len(found)} cohort links follow {dataset!r} ({sorted(cohorts)}); name one with link=")

@@ -44,6 +44,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .measures import AXES, AggregationRefused, Measure, check_rollup, measure_of_role
+from .ontology import dataset_key
 from .semantics.epoch import curated
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -459,7 +460,7 @@ def care_flows(dataset: str, *, period: object, geography: object = "BR", by: st
     from .geography import municipalities
     from .semantics.event_types import UNKEYED, event_type, load_event_types, read_events
 
-    key = dataset.upper().replace(".", "-")
+    key = dataset_key(dataset)
     declared = flows()
     if key not in declared:
         raise KeyError(f"no flow declared for {dataset!r}: a flow needs event types and a residence and a place of the "

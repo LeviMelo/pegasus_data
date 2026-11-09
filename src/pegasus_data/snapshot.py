@@ -116,9 +116,9 @@ class SnapshotReport:
 
 def declared_series(only: Sequence[str] | None = None) -> dict[str, dict[str, Any]]:
     """``curation/snapshots.yml``, optionally narrowed to the named series."""
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
-    series = dict((_read_yaml(curation_root() / "snapshots.yml") or {}).get("snapshots") or {})
+    series = dict((read_yaml(curation_root() / "snapshots.yml", missing_ok=True) or {}).get("snapshots") or {})
     if only:
         unknown = [name for name in only if name not in series]
         if unknown:
@@ -170,20 +170,18 @@ def _declared_files(
 
 def _mirror_names(directory: str, host: str, prefix: str) -> set[str]:
     """Filenames the S3 mirror holds under a directory (names only: its dates are its own)."""
-    import httpx
+    from .transport import get_text
 
     names: set[str] = set()
     key = directory[len(prefix):].strip("/") + "/"
     marker = ""
-    with httpx.Client(timeout=60) as http:
-        while True:
-            r = http.get(f"https://{host}/", params={"prefix": key, "marker": marker, "delimiter": "/"})
-            r.raise_for_status()
-            keys = re.findall(r"<Key>([^<]+)</Key>", r.text)
-            names |= {k[len(key):] for k in keys if "/" not in k[len(key):]}
-            if "<IsTruncated>true</IsTruncated>" not in r.text or not keys:
-                return names
-            marker = keys[-1]
+    while True:
+        text = get_text(f"https://{host}/", params={"prefix": key, "marker": marker, "delimiter": "/"}, timeout=60)
+        keys = re.findall(r"<Key>([^<]+)</Key>", text)
+        names |= {k[len(key):] for k in keys if "/" not in k[len(key):]}
+        if "<IsTruncated>true</IsTruncated>" not in text or not keys:
+            return names
+        marker = keys[-1]
 
 
 def _extension(name: str) -> str | None:

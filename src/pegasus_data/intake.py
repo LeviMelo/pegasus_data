@@ -72,9 +72,9 @@ REWRITTEN = ("int_code",)
 
 def declared_sources(root: Path | None = None) -> dict[str, dict[str, Any]]:
     from .config import curation_root
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
-    doc = _read_yaml((root or curation_root()) / "intake.yml") or {}
+    doc = read_yaml((root or curation_root()) / "intake.yml", missing_ok=True) or {}
     dictionaries = doc.get("dictionaries") or {}
     out = {}
     for name, spec in (doc.get("sources") or {}).items():

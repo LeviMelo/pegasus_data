@@ -48,17 +48,17 @@ _COLUMNS = {
 def groups() -> dict[str, Any]:
     """The ``cnes:`` block of ``curation/fields.yml``: which codes make each group."""
     from ..config import curation_root
-    from ..ontology import _read_yaml
+    from ..semantics.curation import read_yaml
 
-    return dict((_read_yaml(curation_root() / "fields.yml") or {}).get("cnes") or {})
+    return dict((read_yaml(curation_root() / "fields.yml", missing_ok=True) or {}).get("cnes") or {})
 
 
 def _remap(year: int) -> dict[str, str]:
     """The Federal District's region codes -> 530010, from the ``CODUFMUN_municipio`` derived column."""
     from ..config import curation_root
-    from ..ontology import _read_yaml
+    from ..semantics.curation import read_yaml
 
-    shared = _read_yaml(curation_root() / "variables" / "cnes" / "_shared.yml")
+    shared = read_yaml(curation_root() / "variables" / "cnes" / "_shared.yml", missing_ok=True)
     derived = next(d for d in shared["variables"]["CODUFMUN"]["derived"] if d["name"] == "CODUFMUN_municipio")
     window = derived["valid"]
     return dict(derived["remap"]) if window["from"] <= year * 100 + 12 <= window["to"] else {}

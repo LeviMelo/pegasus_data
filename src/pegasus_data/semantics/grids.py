@@ -27,6 +27,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..ontology import dataset_key
 from .epoch import curated
 
 
@@ -103,7 +104,7 @@ def _grid(dataset: str, name: str, spec: dict[str, Any], columns: set[str], wher
 def _key(dataset: str) -> str:
     from .column_roles import roles
 
-    return str(roles(dataset)[0]["dataset"]) if roles(dataset) else dataset.upper().replace(".", "-")
+    return str(roles(dataset)[0]["dataset"]) if roles(dataset) else dataset_key(dataset)
 
 
 def grid(dataset: str, name: str) -> ColumnGrid:

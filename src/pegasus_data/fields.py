@@ -54,10 +54,10 @@ def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
     """The declared fields (``fields.yml`` and the intake sources'), once per curation epoch. Shared: not to be edited."""
     from .config import curation_root
     from .intake import intake_fields
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
     base = root or curation_root()
-    return {**dict((_read_yaml(base / "fields.yml") or {}).get("fields") or {}), **intake_fields(base)}
+    return {**dict((read_yaml(base / "fields.yml", missing_ok=True) or {}).get("fields") or {}), **intake_fields(base)}
 
 
 def unlabelled_fields() -> list[str]:

@@ -62,6 +62,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ..ontology import dataset_key
 from .epoch import curated
 
 KINDS = frozenset({"category", "code_tree", "number", "date", "place", "institution", "identifier", "text"})
@@ -337,7 +338,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
             raise bad("a column reached through a key is a field a study reads, not a link key or a set-aside column")
         if spec.get("derived"):
             raise bad("a derived column is made from this dataset's own columns; it is not reached through a key")
-        through = Through(raw["key"].strip().upper(), raw["dataset"].strip().upper().replace(".", "-"))
+        through = Through(raw["key"].strip().upper(), dataset_key(raw["dataset"].strip()))
     also = tuple(str(a) for a in spec.get("also") or ())
     for extra in also:
         if not _ROLE.match(extra):
@@ -518,7 +519,7 @@ def undeclared_fact_domains(dataset: str | None = None) -> list[tuple[str, str]]
     """The columns no ``fact_domain`` places (``(dataset, column)``), for one dataset or all: every categorical column
     and every other column a study reads as a field (``FIELD_MODELS``). The list a reviewer closes, never a default."""
     declared = load_column_roles()
-    keys = [dataset.upper().replace(".", "-")] if dataset else sorted(declared)
+    keys = [dataset_key(dataset)] if dataset else sorted(declared)
     return [(d, c.column) for d in keys for c in declared.get(d, ())
             if (c.kind == "category" or c.model in FIELD_MODELS) and c.fact_domain is None]
 
@@ -528,7 +529,7 @@ def undeclared_units(dataset: str | None = None) -> list[tuple[str, str]]:
     every number that is a quantity (``measure``) and that a study reads (``FIELD_MODELS``). The list a reviewer closes,
     never a default."""
     declared = load_column_roles()
-    keys = [dataset.upper().replace(".", "-")] if dataset else sorted(declared)
+    keys = [dataset_key(dataset)] if dataset else sorted(declared)
     return [(d, c.column) for d in keys for c in declared.get(d, ())
             if c.kind == "number" and c.measure and c.model in FIELD_MODELS and c.unit is None and c.unit_unknown is None]
 
@@ -563,7 +564,7 @@ def _declared_key_in(declared: dict[str, tuple[ColumnRole, ...]], dataset: str) 
     """`declared_key` over the role files already read (the loader checks them before it returns them)."""
     from .._request import parse_dataset
 
-    key = dataset.upper().replace(".", "-")
+    key = dataset_key(dataset)
     if key not in declared:
         system, series = parse_dataset(dataset)
         for candidate in (f"{system}-{series}", f"{system}", f"{series}"):

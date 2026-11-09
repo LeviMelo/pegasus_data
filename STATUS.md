@@ -57,8 +57,9 @@ general rule.
 6. **Column names guessed in code:** `registry.py` CNES key guesses, `profile/detectors`, `crosswalk.OWN_CNPJ_FIELDS`,
    enrichment's hard-coded `CNES`.
 7. **Hand-fixed lists and thresholds:** CNES code groups, `CODEBOOK_MAX_CODES`, linkage VIABLE/CAUTION, four UF lists.
-8. **Repeated plumbing:** dataset ids normalised ad hoc in 13 places; the private `ontology._read_yaml` imported by 12
-   modules; `snapshot.py`'s own httpx client; `sigtap`'s own ftplib.
+8. ~~Repeated plumbing~~ **closed (33a0d62):** one dataset spelling (`ontology.dataset_key`, 10 sites), one YAML reader
+   (`curation.read_yaml`, 12 modules), snapshot and SIGTAP on the project transport. `semantics_for` on 12 spellings
+   hashes the same before and after; SIGTAP listed 227 exports and fetched one at its listed size.
 9. **Declaration sprawl:** 55 near-copies of SINAN recipes; about 20 YAML kinds overlapping on "what a row is".
 10. **Overloaded terms** ("field" five ways, "role" four, "source" six) and code serving the deprecated `pegasus_view`
     (`capabilities`, `presentation`, `serve/`).

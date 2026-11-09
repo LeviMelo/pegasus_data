@@ -82,12 +82,12 @@ def codelist_roles() -> dict[str, list[str]]:
     establishment registry. The difference is what the code REFERS to.
     """
     from .config import curation_root
-    from .ontology import _read_yaml
+    from .semantics.curation import read_yaml
 
     path = curation_root() / "codelists.yml"
     if not path.exists():  # pragma: no cover - shipped with the package
         return {}
-    data = _read_yaml(path) or {}
+    data = read_yaml(path, missing_ok=True) or {}
     out: dict[str, list[str]] = {}
     for role, body in (data.get("roles") or {}).items():
         out[str(role)] = [str(p).upper() for p in ((body or {}).get("patterns") or ())]
