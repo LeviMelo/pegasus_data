@@ -49,6 +49,7 @@ __all__ = [
     "date_layout",
     "date_column",
     "competencia_column",
+    "year_column",
     "competencia_from_parts",
     "parse_date_array",
     "build_calendar",
@@ -435,7 +436,33 @@ def competencia_from_parts(year: Any, month: Any) -> Any:
     return _valid_competencia(pc.binary_join_element_wise(y, m, ""))
 
 
-def competencia_column(table: Any, time_fields: Sequence[str], encoding: str = "") -> Any | None:
+def year_column(table: Any, time_fields: Sequence[str], encoding: str = "", century: str = "") -> Any | None:
+    """The year (``AAAA`` text) each record's period holds even where its month does not: a year held apart, a year
+    binding, or a date whose day and month are unknown or absent (``00001994``, ``2000``, ``022000``, the two-digit
+    ``95``); null where no year 1900-2199 is readable. The year of a full date is :func:`competencia_column`'s; this is
+    for the records it cannot place in a month."""
+    present = [f for f in time_fields if f in table.schema.names]
+    if not present:
+        return None
+    column = table.column(present[0])
+    if pa.types.is_date(column.type) or pa.types.is_timestamp(column.type):
+        return pc.strftime(column, format="%Y")
+    text = pc.replace_substring(pc.utf8_trim_whitespace(pc.cast(column, pa.string())), "-", "")
+    if century:
+        year = pc.binary_join_element_wise(pa.scalar(century), pc.utf8_slice_codeunits(text, 0, 2), "")
+    elif len(present) >= 2 or encoding in ("year", "year_month"):
+        year = pc.utf8_slice_codeunits(text, 0, 4)
+    else:
+        layout = date_layout(text.slice(0, min(_LAYOUT_SAMPLE, len(text))).to_pylist())
+        length = pc.utf8_length(text)
+        # day-first: the year is the last four digits of DDMMAAAA, MMAAAA or AAAA; year-first, the first four
+        year = (pc.utf8_slice_codeunits(text, -4, None) if layout == "dmy" else pc.utf8_slice_codeunits(text, 0, 4))
+        year = pc.if_else(pc.fill_null(pc.equal(length, 4), False), text, year)
+    valid = pc.fill_null(pc.match_substring_regex(year, r"^(19|20|21)\d\d$"), False)
+    return pc.if_else(valid, year, pa.nulls(len(year), pa.string()))
+
+
+def competencia_column(table: Any, time_fields: Sequence[str], encoding: str = "", century: str = "") -> Any | None:
     """AAAAMM text from the declared time fields, as a column; None when no field is present or a date column's layout
     cannot be measured.
 
@@ -455,6 +482,10 @@ def competencia_column(table: Any, time_fields: Sequence[str], encoding: str = "
         return pc.strftime(column, format="%Y%m")
     if encoding != "date":
         return _valid_competencia(pc.utf8_trim_whitespace(pc.cast(column, pa.string())))
+    if century:
+        # a date of a two-digit year (AAMMDD; SIM's ICD-9-era layout writes 950914), its century declared by the binding
+        text = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
+        return _valid_competencia(pc.binary_join_element_wise(pa.scalar(century), pc.utf8_slice_codeunits(text, 0, 4), ""))
     joined, layout = _digits_year_first(column)
     if layout is None:
         return None

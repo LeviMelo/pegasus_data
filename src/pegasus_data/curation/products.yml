@@ -565,11 +565,12 @@ products:
     call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
     build: pegasus_data.sus_dependent.build_sus_dependent
-    # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's version with a 10-90% interval per
-    # five-year band (ADR-0145; version 3 and later are single-age, ADR-0151), and the field of plan links, whose declared
-    # `where` is the plan coverage that insures hospital care and whose declared years are the years it can be built for
+    # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's own band estimate, with a 10-90%
+    # interval per five-year band (ADR-0145; the account's build writes it beside the single-age product), and the field of
+    # plan links, whose declared `where` is the plan coverage that insures hospital care and whose declared years are the
+    # years it can be built for
     inputs:
-      population_account: {version: population-account-2}
+      population_account_bands: {version: population-account-bands-7}
       links: {field: ans_beneficiaries}
 
   race_confusion_infant:

@@ -1000,6 +1000,14 @@ datasets:
       - Occupational notification tracks formal employment, so informal workers are largely absent.
   SINAN_NTRA:
     # a survey batch with counts, not a notified person: SINAN's shared notification event does not hold
+    # no residence (a batch is not a person) and no onset or diagnosis date: placed where and when it was notified
+    semantic_axes:
+      default_geography: notification
+      geography:
+        notification: {fields: [ID_MUNICIP], code_system: ibge_municipality}
+      default_time: notification
+      time:
+        notification: {fields: [DT_NOTIFIC], encoding: date}
     event_types: []
     system: SINAN
     series: NTRA

@@ -1645,6 +1645,17 @@ datasets:
       - The numerator of the maternal mortality ratio; the denominator is live births from SINASC.
       - Investigation reclassifies deaths months after certification, so a recent year is not comparable with a settled one.
   SIM.DOR:
+    # the ICD-9-era layout (MORT98.HLP) names its own columns: SIM's axes (CODMUNRES, DTOBITO) are not in these files
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIRES], code_system: ibge_municipality}
+        occurrence: {fields: [MUNIOCOR], code_system: ibge_municipality}
+      default_time: occurrence
+      time:
+        # AAMMDD with a two-digit year of the 1900s (1995: 950914; 429 deaths of 1995 filed as the year alone, 95)
+        occurrence: {fields: [DATAOBITO], encoding: date, century: '19'}
+        registration: {fields: [DATAREG], encoding: date, century: '19'}
     event_types:
       - name: death
         kind: death
@@ -1700,6 +1711,17 @@ datasets:
       - Not a subset of SIM.DO. DO's files are by state of residence and hold no residents abroad; deaths in Brazil are DO plus DOREXT.
       - Every cause, not only external ones. DOEXT is the external-cause subset of DO.
   SIM.DORIG:
+    # the ICD-9-era layout (MORT98.HLP) names its own columns: SIM's axes (CODMUNRES, DTOBITO) are not in these files
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIRES], code_system: ibge_municipality}
+        occurrence: {fields: [MUNIOCOR], code_system: ibge_municipality}
+      default_time: occurrence
+      time:
+        # AAMMDD with a two-digit year of the 1900s (1995: 950914; 429 deaths of 1995 filed as the year alone, 95)
+        occurrence: {fields: [DATAOBITO], encoding: date, century: '19'}
+        registration: {fields: [DATAREG], encoding: date, century: '19'}
     system: SIM
     series: DORIG
     use: not_an_event_source
@@ -1732,6 +1754,16 @@ datasets:
       - Not a subset of SINASC.DN, whose files are by state of residence; births in Brazil are DN plus DNEX.
       - Published as national files. There is no per-state file, so a state filter matches nothing.
   SINASC.DNR:
+    # SINASC's first layout (NASC98.HLP) names its own columns: SINASC's axes (CODMUNRES, DTNASC) are not in these files
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNI_MAE], code_system: ibge_municipality}
+        occurrence: {fields: [MUNI_OCOR], code_system: ibge_municipality}
+      default_time: birth
+      time:
+        birth: {fields: [DATA_NASC], encoding: date}
+        registration: {fields: [DATA_CART], encoding: date}
     system: SINASC
     series: DNR
     use: not_an_event_source
@@ -1748,6 +1780,16 @@ datasets:
       - The predecessor of SINASC.DN, not a republication of it; the two cover different years.
       - The 1994-1995 layout has its own codes (TIPO_PARTO holds 3 and 4, which PARTO does not define).
   SINASC.DNRIG:
+    # SINASC's first layout (NASC98.HLP) names its own columns: SINASC's axes (CODMUNRES, DTNASC) are not in these files
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNI_MAE], code_system: ibge_municipality}
+        occurrence: {fields: [MUNI_OCOR], code_system: ibge_municipality}
+      default_time: birth
+      time:
+        birth: {fields: [DATA_NASC], encoding: date}
+        registration: {fields: [DATA_CART], encoding: date}
     system: SINASC
     series: DNRIG
     use: not_an_event_source

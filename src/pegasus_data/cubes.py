@@ -31,7 +31,7 @@ from typing import Any
 import pyarrow as pa
 
 from .measures import AggregationRefused
-from .normalize.time import competencia_column, parse_month, year_of, years_of
+from .normalize.time import competencia_column, parse_month, year_column, year_of, years_of
 
 __all__ = ["STATUSES", "cube", "cube_sources"]
 
@@ -321,6 +321,21 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         raise ValueError(f"{dataset}: its place {at!r} is a state; read it at place='uf'")
     time_fields = [str(f) for f in times[time]["fields"]]
     encoding = str(times[time].get("encoding") or "")
+    # a binding inherited from the system names the system's columns; a dataset of another layout (SIM-DOR's MUNIRES and
+    # DATAOBITO under SIM's CODMUNRES and DTOBITO) would place and date nothing. The dataset's roles say which columns it
+    # has: a bound column they do not declare is refused (the intake's landed binding names columns it makes itself).
+    from .semantics.column_roles import declared_columns
+
+    try:
+        held = {c.column.upper() for c in declared_columns(dataset)}
+    except KeyError:
+        held = set()
+    if held:
+        unheld = [f for binding, fields in ((at, [place_column]), (time, time_fields)) if binding != "landed"
+                  for f in fields if f.upper() not in held]
+        if unheld:
+            raise LookupError(f"{dataset}: its bindings {at!r}/{time!r} name {unheld}, columns its roles do not declare; "
+                              "declare the dataset's own semantic_axes")
     grain = grain or "month"
     if grain not in ("month", "year"):
         raise ValueError("a records cube's grain is month or year")
@@ -488,7 +503,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
     parts = [count(span) for span in spans]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
-    competencia = competencia_column(counts, time_fields, encoding)
+    century = str(times[time].get("century") or "")
+    competencia = competencia_column(counts, time_fields, encoding, century)
     # a period of no month (ANS's file year) leaves the column all null, of no type: it is text that holds nothing
     competencia = pa.nulls(counts.num_rows, pa.string()) if competencia is None else pc.cast(competencia, pa.string())
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
@@ -498,9 +514,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     # SISAGUA's register by NU_ANO, or a date filed as its year alone: SIM-DO 2000's 496 deaths dated "2000") is kept at
     # the finest period known, its year: it counts in every year's total and is never placed in a month (FA's 13
     # month-less events).
-    if time_fields and time_fields[0] in counts.column_names:
-        filed_year = pc.utf8_trim_whitespace(pc.cast(counts.column(time_fields[0]), pa.string()))
-        known = pc.fill_null(pc.match_substring_regex(filed_year, r"^(19|20|21)\d\d$"), False)
+    filed_year = year_column(counts, time_fields, encoding, century)
+    if filed_year is not None:
+        known = pc.is_valid(filed_year)
         missing = pc.is_null(competencia)
         year = pc.if_else(pc.and_(missing, known), filed_year, year)
         period = pc.if_else(pc.and_(missing, known), filed_year, period)

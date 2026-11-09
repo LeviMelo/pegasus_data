@@ -137,8 +137,9 @@ def build_sus_dependent(settings, *, version: str, validation: str, draws: int =
 
     # the years the links field declares; those the account holds are built (it does not extrapolate, ADR-0145)
     years = _years(str(_links_field()[1]["years"]))
-    account = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account"]["version"]
-    estimates, pm = read_modelled("population_account", str(account), settings=settings)
+    # the account's own five-year-band estimate with its band intervals (`population_account_bands`, the version declared)
+    account = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account_bands"]["version"]
+    estimates, pm = read_modelled("population_account_bands", str(account), settings=settings)
     import pyarrow.compute as pc
 
     keep = pc.and_(pc.is_in(estimates.column("year"), pa.array(years, estimates.column("year").type)),
@@ -181,7 +182,7 @@ def build_sus_dependent(settings, *, version: str, validation: str, draws: int =
                    "population_without_private_coverage": ["population_without_private_coverage_lo",
                                                            "population_without_private_coverage_hi"]},
         place="place", period="year", strata=["sex", "age_band"], additive=["population_without_private_coverage"],
-        inputs={"population_account": pm["version"], "ans_beneficiaries": f"ANS PDA-024, December {years}"},
+        inputs={"population_account_bands": pm["version"], "ans_beneficiaries": f"ANS PDA-024, December {years}"},
         validation=validation,
         notes=["Not SUS users: plan holders use the SUS for part of their care; non-holders may use private care.",
                "B counts links (vínculos): duplicates make the product a lower bound on the uninsured.",

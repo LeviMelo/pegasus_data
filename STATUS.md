@@ -82,25 +82,25 @@ general rule.
     `workbook`, `_compendium`, `serve`; timeline routes: `s_timeline`), so none was removed; its start script and
     wording left RUNBOOK, workbook and the docs. Nothing in `../pegasus_project` imports them.
 
-## The second principles audit (2026-11-09): open
+## The second principles audit (2026-11-09): closed but for code-shape items
 
-The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) is the work plan; each item is verified
-before it is fixed and marked done there with its evidence.
-- **Done (2026-11-09):** every semantic item, S1-S9 (codes placed by the one rule, sex and race read by their labels
-  and widths, unknown kept unknown, missing kept missing, code meanings and thresholds of the study modules declared),
-  and T1-T4, T6, T7, T9, T10, T12, T15, T16, T18, T21, T23 (one number reader, one period module, one
-  banding, one municipality reader, the CNES recipes and the bridges declared, ~20 thresholds in curation).
-- **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), T16's month table (one only).
-- **Done since:** T8 (the register kits' columns, owners and open end declared; the kit code tables in `codelists.yml`), T11 (enrichment targets declared in
-  `joins.yml`, dispatched by route).
-- **Study modules (2026-11-09):** T5 and T17 done there; T13 done but the age axes (the study constants are `parameters:` in
-  `products.yml`, recorded in each manifest); T14 done (below).
-- **Done since:** T5 and T24 (every folder of the home through `Settings`: `registry_dir`, `modelled_dir`, `load_settings(root=)`).
-- **T14 done (2026-11-09):** the account, backcast, forecast and completeness read the records cube (`population_account.vital_events`); no
-  event-file store (`collect_events` gone); 2012 and 2022 equal the old files, 2000 deaths differ by 497 dated outside the year
-  (evaluation 2026-11-09-principles-audit-defects).
-- **Open:** H1 (the rest of the
-  unreferenced functions), H3 (import cycles), H5 (oversized functions).
+The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) was the work plan; each item was verified
+before it was fixed and is marked there with its evidence (evaluation 2026-11-09-principles-audit-defects).
+- **Done:** every semantic item, S1-S9 (codes placed by the one rule, sex and race read by their labels and widths,
+  unknown kept unknown, missing kept missing, code meanings and thresholds of the study modules declared), and T1-T18,
+  T21, T23, T24: one number reader, one period module, one banding, one municipality reader; the CNES recipes, the
+  bridges, the enrichment targets (`joins.yml`), the register kits' columns, owners, open end and code tables
+  (`codelists.yml`), the published tables of the source adapters (`published_tables.yml`), the study constants
+  (`products.yml` `parameters:`) and ~20 thresholds declared; every folder of the home through `Settings`; every store
+  listed by its owner; the study modules read their events through the records cube (no event-file store).
+- **Found on the way and fixed:** the records cube counts an event coded "Município ignorado - <UF>" in its state and the
+  country and says it by state at municipality level (`unplaced_by_state`); a record date filed without its day, or as
+  its year alone, keeps its month or year (SIM-DO 2000: 497 deaths). With both, the cube equals the old event files in
+  2000, 2012 and 2022.
+- **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), H6, T19, T20, T22.
+- **Open (code shape, not principle):** H1's last test-only helpers (`measures.merge_all`, `ensure_adjudication_item`,
+  kept on purpose), H3 (7 import cycles closed by function-level imports; `proximity`/`ibge_grade` broken), H5 (oversized
+  functions; `column_roles._column` is a validator whose branches are its rules).
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**
 `pegasus-data model-build <product> --version V --validation TEXT` calls the function each modelled entry of `products.yml`

@@ -56,11 +56,11 @@ from .lookups import (
     contiguous,
     dictionary_of,
     expand,
-    joined,
 )
 from .normalize.time import year_bounds
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
+from .semantics.label_bindings import _bindings, _family_series, _key_columns, compose_key
 
 RenderMode = Literal["code", "label", "both"]
 
@@ -256,108 +256,6 @@ def codelist_levels(
     return {c: lbl for c, lbl in zip(rendered.column(field).to_pylist(), labels, strict=True) if lbl}
 
 
-def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[str, list[str]]:
-    """``field -> codelists``, best authority first.
-
-    **One table per field unless a curated entry names more.** A ``.DEF`` binds a
-    column to every tabulation axis that mentions it — 34 tables for
-    ``MUNIC_RES``, 114 for ``DIAG_PRINC`` — and most of those are roll-ups, not
-    alternative encodings. Merging them and taking first-wins labels a
-    municipality with the name of its health macro-region, which is wrong in a
-    way that looks perfectly plausible on the page.
-
-    Several tables are correct only when they are the *same* classification split
-    by width: ``SP_ATOPROF`` is 8 characters in one era and 10 in another, so its
-    values live in ``TPROC`` and ``TPROC10`` and binding either alone leaves half
-    the history unlabelled. That case is a judgement about what the column is,
-    which is exactly what ``curation/`` is for — so it is declared there as
-    ``codelists: [TPROC, TPROC10]`` and never inferred from how many tables
-    happen to mention the field.
-
-    ``family_id=''`` rows are system-wide; a family-specific binding sorts first.
-    """
-    from .semantics.curation import inherited
-
-    rows = store.query(
-        """
-        SELECT field_name, codelist, family_id, source, confidence, decodes_observed
-          FROM field_codelists
-         WHERE system = ? AND (family_id = '' OR family_id = ?)
-           -- A binding inferred from value overlap alone is a guess, not a
-           -- source: it bound SIA's OPC_PRIPAL (a procedure) to municipalities
-           -- and SIH's CEP to procedures (ADR-0091).
-           AND source <> 'semantic_match'
-        """,
-        (system.upper(), family_id or ""),
-    )
-    # A system that republishes its parent's fields (ADR-0095) takes the
-    # parent's system-wide bindings for the fields it binds nothing to itself:
-    # the Dados Abertos APAC exports carry SIA's AN_*, ATD_*, AQ_* columns,
-    # whose tables are bound under SIASUS (2026-10-04).
-    own = {str(r["field_name"]).upper() for r in rows}
-    for parent in inherited(system):
-        rows = [*rows, *(
-            r for r in store.query(
-                "SELECT field_name, codelist, family_id, source, confidence, decodes_observed "
-                "FROM field_codelists WHERE system = ? AND family_id = '' AND source <> 'semantic_match'",
-                (parent,),
-            )
-            if str(r["field_name"]).upper() not in own
-        )]
-
-    def _rank(row: object) -> tuple[int, int, float, int, str]:
-        """Order candidates deterministically, best first.
-
-        Confidence alone is not enough and the gap it leaves is not academic:
-        CNES's NAT_JUR is bound by .DEF to six tables — NATJUR, NATJURC,
-        ESFERAJUR, ESFERAJURC, ATJURC, RETENCAO — all at 0.9. With nothing to
-        break the tie, SQLite returned them in whatever order it liked and the
-        renderer picked ATJURC on one run and something else on the next. A
-        column whose label depends on row order is not reproducible.
-
-        So a name that matches the field breaks the tie, which is a real signal
-        rather than an arbitrary one: NAT_JUR's own table is NATJUR, and the
-        others are roll-ups and neighbours. Alphabetical order is the last
-        resort, purely so the answer is stable.
-        """
-        codelist = str(row["codelist"]).upper()  # type: ignore[index]
-        field = str(row["field_name"]).upper()  # type: ignore[index]
-        squashed = field.replace("_", "")
-        if codelist in (field, squashed):
-            affinity = 0
-        elif squashed.startswith(codelist) or codelist.startswith(squashed):
-            affinity = 1
-        else:
-            affinity = 2
-        family_specific = 0 if str(row["family_id"]) else 1  # type: ignore[index]
-        # A binding measured to decode none of the column's observed values goes
-        # last. `.DEF` declares tabulation axes beside code systems and cannot
-        # distinguish them, so a date column arrives bound to ANOMES and an age
-        # to a table of age bands — 35.2% of measurable bindings decode nothing.
-        # Deprioritised rather than excluded: the measurement is taken against
-        # the values the profiler saw, and a partition of other years could hold
-        # values it did not. Sorting it last costs nothing when a working table
-        # exists and changes nothing when none does.
-        measured = row["decodes_observed"]  # type: ignore[index]
-        decodes_nothing = 1 if measured is not None and float(measured) == 0 else 0
-        return (
-            family_specific,
-            decodes_nothing,
-            -float(row["confidence"] or 0),  # type: ignore[index]
-            affinity,
-            codelist,
-        )
-
-    # Every candidate is kept, best first. They must never be MERGED — that is
-    # what labels a municipality with the name of its health macro-region — but
-    # the caller can now test them against the column in hand and pick the one
-    # that actually decodes it, which ranking alone cannot do.
-    out: dict[str, list[str]] = {}
-    for r in sorted(rows, key=_rank):
-        out.setdefault(str(r["field_name"]).upper(), []).append(str(r["codelist"]))
-    return out
-
-
 def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
     """Split a packed multi-valued cell into its codes, in order.
 
@@ -469,49 +367,6 @@ class _Selection:
     codelists: list[str] = field(default_factory=list)
     share: float | None = None
     unlabelled: bool = False
-
-
-def key_parts(key: Sequence[str]) -> list[tuple[str, int | None]]:
-    """``[COD_IDADE, IDADE:2]`` -> ``[(COD_IDADE, None), (IDADE, 2)]``.
-
-    A width is the part's fixed width in the source record. TabWin reads a
-    composite key from the DBF's own bytes, where the numeric ``IDADE`` (N 2) is
-    ``05``; decoded, it is ``5``, and ``45`` matches nothing in IDADEDET.CNV
-    while ``405`` is "5 anos". Rebuilding the record's form of a quantity is not
-    padding a code (§6.2): the part is a number, and the width is the layout's.
-    """
-    out: list[tuple[str, int | None]] = []
-    for part in key:
-        name, _, width = str(part).partition(":")
-        out.append((name.strip().upper(), int(width) if width.strip().isdigit() else None))
-    return out
-
-
-def _key_columns(table: pa.Table, key: Sequence[str]) -> tuple[list[tuple[str, int | None]], list[str]]:
-    """A composite key's parts as the table's columns, and the names of those it lacks. ``@UF`` is the file's state:
-    the fetch path carries it as ``_source_uf``, the lake as its ``uf`` partition column."""
-    state = "_source_uf" if "_source_uf" in table.schema.names or "uf" not in table.schema.names else "uf"
-    parts = [(state if name == "@UF" else name, width) for name, width in key_parts(key)]
-    return parts, [name for name, _ in parts if name not in table.schema.names]
-
-
-def compose_key(table: pa.Table, key: Sequence[str]) -> pa.ChunkedArray | None:
-    """The concatenated key the codelist is indexed by, or None if a part is missing.
-
-    The one place a composite key is built: rendering and the bindings compiler
-    both call it, so a column is measured exactly as it is looked up (ADR-0088).
-    A ChunkedArray, joined in pieces (`lookups.joined`): the key of a large table is longer than any part of it.
-    """
-    parts, missing = _key_columns(table, key)
-    if not parts or missing:
-        return None
-    arrays = []
-    for name, width in parts:
-        values = pc.cast(table.column(name), pa.string())
-        if width:
-            values = pc.utf8_lpad(pc.utf8_trim_whitespace(values), width, "0")
-        arrays.append(values)
-    return joined(arrays, "")
 
 
 def _lookup_key(
@@ -666,22 +521,6 @@ def _coded(doc: object) -> bool:
     from .semantics.curation import is_coded
 
     return doc is not None and is_coded(getattr(doc, "code_system", None))
-
-
-def _family_series(store: CatalogStore | None, family_id: str) -> str:
-    """The series a family is filed under, read once per catalog state and family (it was one query per column and
-    chunk, then a process-wide dict that never saw the catalog change)."""
-    if store is None or not family_id:
-        return ""
-
-    def read() -> str:
-        row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
-        return str(row[0]["series"] or "").upper() if row else ""
-
-    try:
-        return store.memo(("family_series", family_id), read)
-    except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
-        return ""
 
 
 def _select_codelists(
