@@ -391,6 +391,9 @@ class AggregateReport:
     missing_chunks: list[str] = field(default_factory=list)
     #: Rows read that no cell holds: no municipality, or a period that is not a month of a plausible year.
     unkeyed_rows: int = 0
+    #: Of those, the events whose code names their state and no municipality ("Município ignorado - <UF>"), by state
+    #: (IBGE code): what the sum of a state's municipalities lacks against the state (the cube's ``unplaced_by_state``).
+    unplaced_by_state: dict[str, float] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     fingerprint: str = ""
 
@@ -404,6 +407,7 @@ class AggregateReport:
             "partial_periods": list(self.partial_periods),
             "missing_chunks": list(self.missing_chunks),
             "unkeyed_rows": self.unkeyed_rows,
+            "unplaced_by_state": dict(self.unplaced_by_state),
             "warnings": self.warnings, "fingerprint": self.fingerprint,
         }
 
@@ -556,6 +560,8 @@ def build_aggregate(
         cells.append(table)
         report.rows_read += int(read.get("events") or 0)
         report.unkeyed_rows += int(read.get("unplaced_events") or 0)
+        for uf, n in (read.get("unplaced_by_state") or {}).items():
+            report.unplaced_by_state[uf] = report.unplaced_by_state.get(uf, 0.0) + float(n)
         for year in sorted({int(str(c)[:4]) for c in table.column(TIME_KEY).to_pylist()}):
             if year not in report.years:
                 report.years = (*report.years, year)
@@ -610,6 +616,7 @@ def build_aggregate(
         "partial_periods": list(report.partial_periods),
         "missing_chunks": list(report.missing_chunks),
         "unkeyed_rows": report.unkeyed_rows,
+        "unplaced_by_state": dict(sorted(report.unplaced_by_state.items())),
         "key_columns": list(key_names),
         "warnings": report.warnings,
     }, indent=2, ensure_ascii=False) + "\n"

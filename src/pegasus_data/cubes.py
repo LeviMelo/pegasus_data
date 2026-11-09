@@ -513,6 +513,14 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
               if months else pc.is_in(pc.cast(year, pa.int64()), pa.array(years, pa.int64())))
     keep = pc.fill_null(pc.and_(pc.and_(pc.is_valid(places), pc.is_valid(period)), wanted), False)
     unplaced = float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
+    # the unplaced of a wanted, dated period whose code still names a state ("Município ignorado - <UF>"), per state: what a
+    # sum of the municipalities of a state lacks against the state
+    in_state = pc.fill_null(pc.and_(pc.and_(pc.invert(keep), pc.is_valid(counts.column("__uf"))),
+                                    pc.and_(pc.is_valid(period), wanted)), False)
+    by_state = (pa.table({"uf": pc.filter(counts.column("__uf"), in_state), "n": pc.filter(events, in_state)})
+                .group_by("uf").aggregate([("n", "sum")]))
+    unplaced_by_state = {str(u): float(n) for u, n in zip(by_state["uf"].to_pylist(), by_state["n_sum"].to_pylist(),
+                                                          strict=True) if n}
     facts = pa.table({"place": pc.filter(places, keep), "period": pc.filter(period, keep),
                       **{k: pc.filter(counts.column(k), keep) for k in by}, "value": pc.filter(events, keep)})
     if place == "country":
@@ -544,7 +552,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         "source": f"records:{ident}", "dataset": dataset, "event": event, "at": at, "time": time,
         "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
         "measure": measure, "support": support, "publications": publications,
-        "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
+        "unplaced_events": unplaced, "unplaced_by_state": unplaced_by_state,
+        "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
         "unkeyed": unkeyed.decode() if unkeyed else None,
     })
 
