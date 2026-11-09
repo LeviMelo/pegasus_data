@@ -4,6 +4,7 @@ columns:
   ANOMES_DIA:
     role: case.diagnosis_month
     kind: date
+    precision: month
     model: mark
     fact_domain: clinical
     fact_domain_evidence: "\"Ano e mês do diagnóstico\" (case.diagnosis_month): onset, exposure, diagnosis, outcome or vaccination date of the case: the health event"
@@ -14,6 +15,7 @@ columns:
   ANOMES_TRA:
     role: case.treatment_month
     kind: date
+    precision: month
     model: mark
     fact_domain: process
     fact_domain_evidence: "\"Ano e mês do tratamento\" (case.treatment_month): date of care, sample, test, treatment, hospitalisation or transfer: how care and diagnosis happened"

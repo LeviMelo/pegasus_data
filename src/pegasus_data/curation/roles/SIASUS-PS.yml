@@ -158,6 +158,7 @@ columns:
     compare: {care.competence: {type: month, format: YYYYMM}}
     role: care.competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Ano e mes do Atendimento\" (care.competence): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"
@@ -199,6 +200,7 @@ columns:
   DT_PROCESS:
     role: care.processing_month
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Ano e mes de Processamento\" (care.processing_month): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"

@@ -23,6 +23,9 @@
   declared `precision: month`, after which all curated ones resolve as before; 52 implied months corrected, 10 false
   implied bindings replaced by 5 year-month pairs, 2 SRAG places gained. Cubes equal: SIM-DO 2022 1,544,266, SIM-DOR
   1995 893,868 (+9 unplaced), SINASC-DN 1994 2,571,571, CNES-ST AC 2022-12 1,266.
-- **Left.** About 90 roles of month-valued dates that no binding names (CNES `CMPT_INI`, SIA `*_DATREF`...) do not
-  declare `precision`: their periods are read by measured layout and correct; only an aggregate's partial-period note
-  and `capabilities`' time kind would call them a day date if a recipe bound one.
+- **Precision measured where held.** The 100 date roles that name a month but declare no `precision` were read on the
+  lake's Parquet (every distinct value, up to 20 files): 6 held are all AAAAMM and now declare it (SIA-PS and SIA-SAD
+  `DT_ATEND`, `DT_PROCESS`; PAINEL_ONCOLOGIA `ANOMES_DIA`, `ANOMES_TRA`); 8 are month numbers (SISAGUA, SNGPC, SIES
+  `NU_MES`/`MES`: halves the intake lands); 86 are not in the lake and stay undeclared rather than guessed. An
+  undeclared month is still read correctly (its layout is measured); a `month` wrongly declared on a day date would cut
+  DDMMAAAA into a false month, so none is declared without its values.
