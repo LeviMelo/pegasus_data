@@ -86,6 +86,35 @@ bridges:
     CBO94: {classification: CBO2002, width: 6}
   unique: 0.95
 
+# Lookup tables of the TabWin kits worth promoting to first-class reference sets: the table-name prefix (longest wins),
+# the column that holds the code and the one that holds the label, and the reference set it becomes. Discovered by
+# reading the kits, each verified against a real member's DBF header; a table not listed is inferred and reported as
+# guessed (`tabkit.parse_kit`).
+# CADMUN has 28 columns; MUNCOD/MUNNOME are the pair, but MUNSIAFI is shorter and looked more key-like among its
+# non-null values, and OBSERV is a 50-character field blank for 5,517 of 5,652 rows: inference chose MUNSIAFI -> OBSERV
+# and produced a municipality table that decoded no municipalities.
+# SINAN's lookups are keyed by what the data holds (2026-10-03): inference took CNAENET's row sequence CO_SEQ over
+# CLASS_CNAE (CNAE 1.0 classes: data 85111, 75116), so 85111 decoded nothing and 10 read "CULTIVO DE CACAU".
+# UNIDINVEST's key is the CNES ID_UNIDADE (ACGR 2023 UNI_ATENDE: 365,011 of 400,352 rows; none match its ID_ESTAB, whose
+# apparent matches came from a CSV export that strips leading zeros), with the label the .DEFs name.
+kit_tables:
+  CID10: {code: CID10, label: DESCR, reference: icd10}
+  CID9: {code: CID9, label: DESCR, reference: icd9}
+  TPROC: {code: IP_COD, label: IP_DSCR, reference: procedures}
+  TPROC10: {code: IP_COD, label: IP_DSCR, reference: procedures}
+  EMUSO: {code: IP_COD, label: IP_DSCR, reference: procedures}
+  EMUSO10: {code: IP_COD, label: IP_DSCR, reference: procedures}
+  TCNES: {code: CNES, label: RAZAO, reference: cnes}
+  TCH: {code: CGC_HOSP, label: RAZAO, reference: cnpj}
+  CADMUN: {code: MUNCOD, label: MUNNOME, reference: municipality}
+  TABMUN: {code: MUNCOD, label: MUNNOME, reference: municipality}
+  CIDCAP: {code: CAUSAS, label: DESCRICAO, reference: icd_chapter}
+  TABUF: {code: CODIGO, label: DESCRICAO, reference: uf}
+  TABOCUP: {code: CODIGO, label: DESCRICAO, reference: occupation}
+  TABPAIS: {code: CODIGO, label: DESCRICAO, reference: country}
+  CNAENET: {code: CLASS_CNAE, label: DS_CNAE, reference: cnae}
+  UNIDINVEST: {code: ID_UNIDADE, label: NM_UNIDADE, reference: sinan_unit}
+
 roles:
   registry:
     what: >

@@ -227,6 +227,8 @@ systems:
     translated_name: Open Data
     kind: reference
     republishes: true
+    # its APAC exports carry SIA's own AB_*, AP_*, ACF_* columns (ADR-0095): SIA's variable docs fill what it does not curate
+    inherits: [SIASUS]
     what_it_is: >
       Not a system in its own right — a republication tree. It carries the same
       datasets as the legacy trees under clearer names, and its record layouts

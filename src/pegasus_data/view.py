@@ -276,7 +276,7 @@ def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[s
 
     ``family_id=''`` rows are system-wide; a family-specific binding sorts first.
     """
-    from .semantics.curation import INHERITS
+    from .semantics.curation import inherited
 
     rows = store.query(
         """
@@ -295,7 +295,7 @@ def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[s
     # the Dados Abertos APAC exports carry SIA's AN_*, ATD_*, AQ_* columns,
     # whose tables are bound under SIASUS (2026-10-04).
     own = {str(r["field_name"]).upper() for r in rows}
-    for parent in INHERITS.get(system.upper(), ()):
+    for parent in inherited(system):
         rows = [*rows, *(
             r for r in store.query(
                 "SELECT field_name, codelist, family_id, source, confidence, decodes_observed "

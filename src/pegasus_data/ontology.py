@@ -119,6 +119,8 @@ class SystemNode:
     crawled_as: tuple[str, ...] = ()
     #: A republication tree (Dados_Abertos): its files belong to the systems their names say, not to its directory.
     republishes: bool = False
+    #: Systems whose variable documentation this one republishes (Dados_Abertos' APAC exports carry SIA's own columns).
+    inherits: tuple[str, ...] = ()
 
     @property
     def is_data(self) -> bool:
@@ -533,6 +535,7 @@ class Ontology:
                 authority=body.get("authority"),
                 crawled_as=tuple(str(x).upper() for x in (body.get("crawled_as") or ())),
                 republishes=bool(body.get("republishes", False)),
+                inherits=tuple(str(x).upper() for x in (body.get("inherits") or ())),
             )
 
         datasets: dict[str, DatasetNode] = {}

@@ -479,18 +479,18 @@ def read_reference_table(
 ) -> pa.Table:
     """``_read_reference_table``, falling back to the systems this one inherits.
 
-    A system that republishes another's fields (``curation.INHERITS``:
+    A system that republishes another's fields (`curation.inherited`:
     DADOS_ABERTOS carries SIASUS's APAC columns) decodes them against the
     parent's own copy when it ships none (ADR-0095). Declared inheritance is
     not borrowing: it names the one system the field belongs to.
     """
-    from ..semantics.curation import INHERITS
+    from ..semantics.curation import inherited
 
     kwargs = {
         "valid_from": valid_from, "year": year, "competencia": competencia, "code_width": code_width,
         "registries": registries,
     }
-    parents = INHERITS.get(str(system).upper(), ()) if system else ()
+    parents = inherited(system)
     try:
         return _read_reference_table(lake_root, table_id, system=system, **kwargs)  # type: ignore[arg-type]
     except FileNotFoundError:
@@ -630,7 +630,7 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
     * a curated table written in the curation (``CURATED.<SYSTEM>...``): its codes, labels and windows;
     * the lake's warehouse table, when one is materialised: its files' names, sizes and times;
     * else the shipped label pack: the rows of this system and the shared ones (`labelpack.packed_fingerprint`), and
-      those of the system it inherits from (`curation.INHERITS`).
+      those of the system it inherits from (`curation.inherited`).
 
     A registry (CADGER*: establishment names) is also read from the data home's ``registries`` directory, and its
     content is NOT in the digest: it is a cache built from the server's kit, not a shipped table, and it was not in the
@@ -641,7 +641,7 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
 
     from ..labelpack import packed_fingerprint
     from ..registry import is_registry
-    from ..semantics.curation import INHERITS, inline_codelist, inline_windows
+    from ..semantics.curation import inherited, inline_codelist, inline_windows
 
     name = table_id.upper()
     if name in ("UF_BR", "MUNIC_BR7"):
@@ -665,7 +665,7 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
         listing = sorted((p.relative_to(base).as_posix(), p.stat().st_size, p.stat().st_mtime_ns)
                          for p in base.rglob("*") if p.is_file())
         return "|".join([*held, "lake:" + hashlib.sha256(json.dumps(listing).encode()).hexdigest()[:16]])
-    owners = [system, *INHERITS.get(system.upper(), ())] if system else [None]
+    owners = [system, *inherited(system)] if system else [None]
     return "|".join([*held, "pack:" + ",".join(packed_fingerprint(name, owner) for owner in owners)])
 
 

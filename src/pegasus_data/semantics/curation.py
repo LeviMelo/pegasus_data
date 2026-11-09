@@ -1027,11 +1027,16 @@ def system_spellings(system: str) -> list[str]:
     return sorted({asked, str(node.code).upper(), *(str(a).upper() for a in node.crawled_as)})
 
 
-#: A system whose files republish another system's fields inherits that
-#: system's curation; its own entries win. DATASUS's open-data DuckDB exports
-#: of the APACs (Dados_Abertos/APAC_SIA) carry SIA's own AB_*, AP_*, ACF_*
-#: columns (ADR-0095).
-INHERITS: dict[str, tuple[str, ...]] = {"DADOS_ABERTOS": ("SIASUS",)}
+def inherited(system: str | None) -> tuple[str, ...]:
+    """The systems whose curation ``system`` inherits (``inherits:`` in ``ontology.yml``); its own entries win. A system
+    whose files republish another's fields: DATASUS's open-data DuckDB exports of the APACs (Dados_Abertos/APAC_SIA)
+    carry SIA's own AB_*, AP_*, ACF_* columns (ADR-0095)."""
+    if not system:
+        return ()
+    from ..ontology import Ontology
+
+    node = Ontology.load().systems.get(str(system).upper())
+    return node.inherits if node else ()
 
 
 def _docs_epoch(catalog: CatalogStore) -> tuple[object, ...] | None:
@@ -1059,7 +1064,7 @@ def forget_variable_docs(catalog: CatalogStore) -> None:
 def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:
     """Curated docs keyed by field name, for the renderer and the doc generator.
 
-    Inherited systems (``INHERITS``) fill in fields the system does not curate.
+    Inherited systems (`inherited`) fill in fields the system does not curate.
 
     Held per catalog connection and keyed on what the docs depend on (`_docs_epoch`): a render asks once per file
     group (1,776 groups, 21 s of an SIH state-year) and the docs of a system cannot change between them. The dict is
@@ -1070,9 +1075,9 @@ def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict
     key = None if epoch is None else (*epoch, str(system).upper() if system else None)
     if key is not None and key in cache:
         return dict(cache[key])
-    if system and str(system).upper() in INHERITS:
+    if inherited(system):
         docs: dict[str, VariableDoc] = {}
-        for parent in INHERITS[str(system).upper()]:
+        for parent in inherited(system):
             docs.update(_load_variable_docs(catalog, parent))
         docs.update(_load_variable_docs(catalog, system))
     else:

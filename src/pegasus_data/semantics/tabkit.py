@@ -35,42 +35,6 @@ from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode, decode_score
 from .cnv_parser import CnvFile, parse_cnv_bytes
 from .def_parser import DefFile, parse_def_bytes
 
-#: Lookup tables worth promoting to first-class reference sets, with the column
-#: that holds the code and the column that holds the label. Discovered by reading
-#: the kits rather than assumed: each entry below was verified against a real
-#: member's DBF header.
-KNOWN_CODE_TABLES: dict[str, tuple[str, str, str]] = {
-    # table_id_prefix: (code column, label column, reference-set name)
-    "CID10": ("CID10", "DESCR", "icd10"),
-    "CID9": ("CID9", "DESCR", "icd9"),
-    "TPROC": ("IP_COD", "IP_DSCR", "procedures"),
-    "TPROC10": ("IP_COD", "IP_DSCR", "procedures"),
-    "EMUSO": ("IP_COD", "IP_DSCR", "procedures"),
-    "EMUSO10": ("IP_COD", "IP_DSCR", "procedures"),
-    "TCNES": ("CNES", "RAZAO", "cnes"),
-    "TCH": ("CGC_HOSP", "RAZAO", "cnpj"),
-    # The IBGE municipality register, and the case that showed inference is not
-    # enough on its own. CADMUN has 28 columns; MUNCOD/MUNNOME are the pair, but
-    # MUNSIAFI is shorter and looked more key-like among its non-null values,
-    # and OBSERV is a 50-character field that is blank for 5,517 of 5,652 rows.
-    # Inference chose MUNSIAFI -> OBSERV and produced a municipality table that
-    # decoded no municipalities.
-    "CADMUN": ("MUNCOD", "MUNNOME", "municipality"),
-    "TABMUN": ("MUNCOD", "MUNNOME", "municipality"),
-    "CIDCAP": ("CAUSAS", "DESCRICAO", "icd_chapter"),
-    "TABUF": ("CODIGO", "DESCRICAO", "uf"),
-    "TABOCUP": ("CODIGO", "DESCRICAO", "occupation"),
-    "TABPAIS": ("CODIGO", "DESCRICAO", "country"),
-    # SINAN's lookups, keyed by what the data holds (2026-10-03). Inference took
-    # CNAENET's row sequence CO_SEQ over CLASS_CNAE (CNAE 1.0 classes: data
-    # 85111, 75116), so 85111 decoded nothing and 10 read "CULTIVO DE CACAU".
-    # UNIDINVEST's key is the CNES ID_UNIDADE (ACGR 2023 UNI_ATENDE: 365,011 of
-    # 400,352 rows; none match its ID_ESTAB, whose apparent matches came from a
-    # CSV export that strips leading zeros), with the label the .DEFs name.
-    "CNAENET": ("CLASS_CNAE", "DS_CNAE", "cnae"),
-    "UNIDINVEST": ("ID_UNIDADE", "NM_UNIDADE", "sinan_unit"),
-}
-
 #: CNV files whose codes are ICD-10 and therefore need the CID universe to expand
 #: their alphanumeric ranges (``A00-B99`` and friends).
 _ICD_CNV = re.compile(r"^CID(10|X|9)", re.I)
@@ -267,10 +231,15 @@ def _table_id(member_name: str) -> str:
 
 
 def _reference_name(table_id: str) -> tuple[str, str, str] | None:
-    """Match a lookup table to its known code/label columns, longest prefix first."""
-    for prefix in sorted(KNOWN_CODE_TABLES, key=len, reverse=True):
-        if table_id.startswith(prefix):
-            return KNOWN_CODE_TABLES[prefix]
+    """Match a lookup table to its declared code/label columns (``codelists.yml``'s ``kit_tables``), longest prefix first."""
+    from ..config import curation_root
+    from .curation import read_yaml
+
+    declared = (read_yaml(curation_root() / "codelists.yml", shared=True) or {}).get("kit_tables") or {}
+    for prefix in sorted(declared, key=len, reverse=True):
+        if table_id.startswith(str(prefix)):
+            body = declared[prefix]
+            return str(body["code"]), str(body["label"]), str(body.get("reference") or "")
     return None
 
 

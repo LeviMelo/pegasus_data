@@ -53,7 +53,7 @@ import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 from .normalize.time import month_of, year_of
-from .persist.lake import SLICE
+from .persist.lake import SLICE, unit_parts
 from .textenc import fold
 from .transport import SourceAbsent, download, get_json
 
@@ -812,8 +812,7 @@ def register_held(settings: Any, source: str | None = None) -> dict[str, Any]:
             if not side.is_file():
                 continue
             family = (json.loads(side.read_text(encoding="utf8")).get("stats") or {}).get("family")
-            parts = sorted(lake_root.glob(f"*/{family}/schema_signature=*/uf=*/year=*/part-{_safe(unit['key'])}-*.parquet")) \
-                if family else []
+            parts = sorted(unit_parts(lake_root, family, _safe(unit["key"]))) if family else []
             if not parts:
                 missing.append(unit["key"])
                 continue
@@ -858,7 +857,7 @@ def _register_held_pieces(settings: Any, name: str, spec: dict[str, Any], lake_r
         else:
             missing.append(path)
             continue
-        found = list(lake_root.glob(f"*/{_safe(system)}_{_safe(series)}_*/schema_signature=*/uf=*/year=*/part-{_safe(key)}-*.parquet"))
+        found = unit_parts(lake_root, f"{_safe(system)}_{_safe(series)}_*", _safe(key))
         if not found:
             missing.append(key)
             continue
@@ -1097,8 +1096,7 @@ def _held_records(settings: Any, spec: dict[str, Any], unit: dict[str, Any]) -> 
     import duckdb
 
     system, series = str(spec["system"]), str(spec["series"])
-    found_parts = list(Path(settings.lake_dir).glob(
-        f"*/{_safe(system.upper())}_{_safe(series.upper())}_*/schema_signature=*/uf=*/year=*/part-{_safe(unit['key'])}-*.parquet"))
+    found_parts = unit_parts(settings.lake_dir, f"{_safe(system.upper())}_{_safe(series.upper())}_*", _safe(unit["key"]))
     if not found_parts:
         return None
     # A landing keeps a unit in one family (`_land` removes its parts from the others), so parts in two families are a

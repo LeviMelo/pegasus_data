@@ -70,7 +70,9 @@ def _reference_version(lake_root: Path, codelist: str, registries: Path | None =
         pass
     if registries is not None and _is_registry(codelist):
         try:
-            stamps.extend(p.stat().st_mtime_ns for p in sorted(Path(registries).glob(f"*/{codelist.upper()}.parquet")))
+            from .registry import cache_files
+
+            stamps.extend(p.stat().st_mtime_ns for p in cache_files(registries, codelist))
         except OSError:  # pragma: no cover - an unreadable home is not a cache key
             pass
     return tuple(stamps)
