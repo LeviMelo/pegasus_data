@@ -18,10 +18,9 @@ import pyarrow.compute as pc
 from .._vintage import months_in, source_vintages
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
-from ..normalize.time import month_label, month_of
+from ..normalize.time import competencia_to_year_month, month_label
 from ..semantics.column_roles import facility_code_field
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
-from .planner import CNES_ATTRIBUTE_FIELDS
 
 #: Between the text of two columns in a distinct key, and standing for a null in one.
 _SEP, _NULL = "\x1f", "\x00"
@@ -295,8 +294,15 @@ def _geography_dimension(table: pa.Table, request: object, system: str, report: 
 
 
 def _enrichment_output_name(request: EnrichmentRequest) -> str:
+    """The column an enrichment writes: the request's ``as_field``, else its route's declared ``output``, else
+    ``<NAMESPACE>_<attribute>``."""
+    from ..crosswalk import enrichment_route
+
     if request.as_field:
         return request.as_field
+    declared_output = enrichment_route(request.target).get("output")
+    if declared_output:
+        return str(declared_output)
     namespace, _, attribute = request.target.partition(".")
     return f"{namespace}_{attribute.lower()}" if attribute else f"{namespace}_resolved"
 
@@ -315,10 +321,9 @@ def _with_registry_competence(table: pa.Table, field: str | None) -> pa.Table:
     inverse, _counts, distinct = _distinct(table, (field,))
     values: list[int | None] = []
     for raw in distinct[field].to_pylist():
-        text = str(raw or "").strip()
-        digits = "".join(character for character in text if character.isdigit())
-        value = int(digits[:6]) if len(digits) >= 6 else 0
-        values.append(value if 190001 <= value <= 219912 and month_of(value) else None)
+        digits = "".join(character for character in str(raw or "") if character.isdigit())
+        year_month = competencia_to_year_month(digits[:6])
+        values.append(year_month[0] * 100 + year_month[1] if year_month else None)
     return _append_or_replace(table, "_competencia", _spread(values, inverse, pa.int64()))
 
 
@@ -460,7 +465,9 @@ def _enrich_cnes_attribute(
     source_field = (request.from_field or "").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
-    registry_field = CNES_ATTRIBUTE_FIELDS[request.target]
+    from ..crosswalk import enrichment_route
+
+    registry_field = str(enrichment_route(request.target)["column"])
     key_field = cast("str", facility_code_field("CNES-ST"))   # the registry's own establishment column (its roles)
     inverse, counts, distinct = _distinct(table, (source_field, "_competencia"))
     source_codes = {

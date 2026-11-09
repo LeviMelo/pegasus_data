@@ -125,7 +125,9 @@ There are two halves.
   - ICD chapters and the official concept lists through label-pack
     codelists (ADR-0134);
   - any municipality column through the geography pack (ADR-0130).
-- **Enrichment** (`query(enrich=...)`) reads CNES.ST at each record's month
+- **Enrichment** (`query(enrich=...)`) attaches a declared target
+  (`curation/joins.yml` `enrichments:`: its route, the record column it reads,
+  its output); the establishment attributes read CNES.ST at each record's month
   (ADR-0125).
 - **Fields** (`fields.py`, `load_field`) are municipal context outside the
   records: IBGE statistics, BR-DWGD climate by municipality-month (INMET stations validate it), S2iD disasters.

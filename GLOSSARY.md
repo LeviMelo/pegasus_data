@@ -230,8 +230,8 @@ such as `DIAGSEC4` before 2014, read as clinical missingness (ADR-0034).
 
 **Relation (semantic).** A typed statement about a field: `label_of` (its
 identity label), `rollup_to` (a coarser level, such as municipality → health
-region), `attribute_of` (a property, such as "is a capital"), `crosswalk_to`
-(another identifier). Only `label_of` becomes an automatic label. *Prevents:* a
+region), `attribute_of` (a property, such as "is a capital"). Another
+identifier (CNES → CNPJ) is an enrichment route (`joins.yml` `enrichments:`). Only `label_of` becomes an automatic label. *Prevents:* a
 roll-up replacing a municipality's name (ADR-0044).
 
 **Adjudication.** The queue in which unresolved semantic uncertainty becomes a

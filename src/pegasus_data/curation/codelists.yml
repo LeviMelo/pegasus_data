@@ -114,6 +114,19 @@ roles:
       HUF_*: {code: CNES, label: NOMEFANT}
     # which system's kit carries a register (SIH's .DEF names CADGERAL, but TAB_SIH.zip does not contain it: measured
     # 2026-09-29, SIH's kit holds one registry table, CIH's none)
+    # the establishment register (CADGER*) as the kit lays it out; the CNES code and CPF/CNPJ columns are CNES-ST's
+    # roles (establishment.cnes, establishment.cpf_cnpj). `label` is the first non-empty of its columns (trade name,
+    # else legal name). `excluded.open_end`: an exclusion date starting with it means the establishment was never
+    # excluded; CADGERBR 2026-11-09, 692,005 rows: the 636,189 DATAEXCL 9999xxxx are exactly the rows with EXCLUIDO 0
+    establishments:
+      label: [FANTASIA, RAZ_SOCI]
+      legal: RAZ_SOCI
+      maintainer: RSOC_MAN
+      municipality: CODUFMUN
+      health_region: REGSAUDE
+      excluded_flag: EXCLUIDO
+      included: DATAINCL
+      excluded: {column: DATAEXCL, open_end: "9999"}
     owners:
       CADGER: CNES
       UNIDTOTAL: CNES

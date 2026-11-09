@@ -56,6 +56,9 @@ class Info:
     #: file the same name for different things (SEXO is 1/3 in one, 1/2 in another), so no one of them is "the"
     #: definition and none is dropped.
     definitions: list[dict[str, Any]] = field(default_factory=list)
+    #: The enrichment targets a dataset's records can take (``query(enrich=[...])``): each declared target of
+    #: ``joins.yml`` ``enrichments:`` whose key column the dataset's roles name ({target, route, reads}).
+    enrichments: list[dict[str, Any]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -70,6 +73,7 @@ class Info:
             "notes": self.notes,
             "joins": self.joins,
             "definitions": self.definitions,
+            "enrichments": self.enrichments,
         }
 
     # Rendering is split by section rather than written as one pass. The
@@ -238,6 +242,12 @@ class Info:
                 names = ", ".join(f"{w['dataset']}.{w['column']}" for w in fans[:4])
                 more = f" +{len(fans) - 4}" if len(fans) > 4 else ""
                 out.append(f"        fans out to: {names}{more}")
+        if self.enrichments:
+            by_column: dict[str, list[str]] = {}
+            for item in self.enrichments:
+                by_column.setdefault(item["reads"], []).append(item["target"])
+            out += ["", "  enrich with (query(enrich=[...])):"]
+            out += [f"    from {column}: {', '.join(targets)}" for column, targets in by_column.items()]
         return out
 
     def _schema_lines(self) -> list[str]:
@@ -493,6 +503,19 @@ def _system(store: _Store, onto: Ontology, node: SystemNode, settings: Settings)
     )
 
 
+def _enrichments(dataset: str) -> list[dict[str, Any]]:
+    """The declared enrichment targets whose key column the dataset's roles name (``crosswalk.record_column``)."""
+    from .crosswalk import record_column
+    from .semantics.curation import declared
+
+    out = []
+    for target, body in declared("joins.yml", "enrichments").items():
+        column = record_column(dataset, str(body["reads"]))
+        if column:
+            out.append({"target": str(target), "route": str(body["route"]), "reads": column})
+    return out
+
+
 def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Settings) -> Info:
     rows = store.query(
         "SELECT system, series, SUM(file_count) AS files, MIN(year) AS y0, MAX(year) AS y1 "
@@ -607,6 +630,7 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode, settings: Setting
             "axes": axes.names if axes else [],
             "axes_detail": axes.as_dict() if axes else None,
         },
+        enrichments=_enrichments(node.code),
         joins=[
             {
                 "key": key.name,

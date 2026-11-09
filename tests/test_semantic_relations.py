@@ -18,7 +18,6 @@ from pegasus_data.semantics.relations import (
 def test_relations_compile_into_catalog(catalog) -> None:
     assert seed_relations(catalog) >= 4
     assert catalog.count("semantic_relations", "relation_type = 'label_of'") >= 1
-    assert catalog.count("semantic_relations", "relation_type = 'crosswalk_to'") >= 1
 
 
 def test_runtime_ambiguity_is_deduplicated_into_work_item(catalog) -> None:

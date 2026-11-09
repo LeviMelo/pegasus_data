@@ -7,34 +7,11 @@ from pathlib import Path
 from typing import Literal
 
 from ..config import Settings, load_settings
-from ..crosswalk import EnrichmentRequest, source_field
+from ..crosswalk import EnrichmentRequest, enrichment_route, source_field
 from ..providers import provider
 from .coverage import _coverage, download_estimate, shared_catalog
 from .model import Adaptation, QueryPlan, RetrievalPlan, SemanticPlan, _spec
 
-#: What an establishment WAS at a record's competence, read from CNES.ST for
-#: that month (joins.yml warns that today's registry answers the wrong
-#: question for a 2015 admission). Every column is published in CNES.ST 2022;
-#: one a given year leaves empty resolves as ``not_recorded``, never as a value.
-CNES_ATTRIBUTE_FIELDS = {
-    "CNES.NATURE": "NATUREZA",
-    "CNES.LEGAL_NATURE": "NAT_JUR",
-    "CNES.TYPE": "TP_UNID",
-    "CNES.OWNERSHIP": "ESFERA_A",
-    "CNES.MANAGEMENT": "TPGESTAO",
-    "CNES.SUS_LINK": "VINC_SUS",
-    "CNES.PROVIDER_TYPE": "TP_PREST",
-    "CNES.CARE_LEVEL": "NIV_HIER",
-    "CNES.CLIENTELE": "CLIENTEL",
-    "CNES.HAS_HOSPITAL_BEDS": "LEITHOSP",
-    "CNES.SURGICAL_BEDS": "QTLEITP1",
-    "CNES.CLINICAL_BEDS": "QTLEITP2",
-    "CNES.COMPLEMENTARY_BEDS": "QTLEITP3",
-    "CNES.HAS_EMERGENCY": "URGEMERG",
-    "CNES.HAS_OBSTETRIC_CENTRE": "CENTROBS",
-    "CNES.HAS_NEONATAL_UNIT": "CENTRNEO",
-    "CNES.HAS_SURGICAL_CENTRE": "CENTRCIR",
-}
 
 def plan(
     dataset: str,
@@ -140,25 +117,16 @@ def plan(
         )
     hidden = {"_source_path", "year", "_competencia", "_source_resolution"}
     hidden.update(item.field for item in spec.dimensions)
+    # Each target is a declared route (curation/joins.yml `enrichments:`); an undeclared one raises. Only the column the
+    # route reads is required: the record's own identifier, when the layout has one, is compared if present, and
+    # requiring a column named CNPJ made enrich=["CNPJ"] fail on every SIH query (ADR-0100). The resources a route
+    # needs are its declared `requires` (the attributes read CNES.ST itself and need none: requiring the names resource
+    # refused every attribute enrichment on an install without it, 2026-10-03).
+    required_set: set[str] = set()
     for item in spec.enrichments:
-        # Only the column the route reads is required. The record's own
-        # identifier, when the layout has one, is compared if present
-        # (column_roles.facility_cnpj_field); requiring a column named CNPJ made
-        # enrich=["CNPJ"] fail on every SIH query (ADR-0100).
-        if (item.target in ("CNPJ", "CNES", "CNES.ESTABLISHMENT_NAME")
-                or item.target in CNES_ATTRIBUTE_FIELDS):
-            hidden.add(source_field(spec.dataset, item))
-        else:
-            raise KeyError(f"no declared enrichment route to {item.target}")
-    required_set = {
-        "cnes_cnpj" for item in spec.enrichments if item.target in {"CNPJ", "CNES"}
-    }
-    # CNES attributes are read from CNES.ST at each record's competence; they
-    # never needed the names resource (cnes_registry), and requiring it refused
-    # every attribute enrichment on an install without it (2026-10-03).
-    # CNES.ESTABLISHMENT_NAME needs no built resource: without the monthly
-    # history (cnes_names) it answers from the current registry and says so
-    # (ADR-0100).
+        route = enrichment_route(item.target)
+        hidden.add(source_field(spec.dataset, item))
+        required_set.update(str(name) for name in route.get("requires") or ())
     required = tuple(sorted(required_set))
     resource_period = (
         (spec.period.start, spec.period.end) if spec.period is not None else None

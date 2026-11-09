@@ -14,8 +14,14 @@ import pyarrow as pa
 
 from ..conditions import CONDITION
 from ..config import Settings, load_settings
-from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj, source_field
-from ..semantics.column_roles import facility_cnpj_field, facility_code_field
+from ..crosswalk import (
+    EnrichmentRequest,
+    enrich_cnes,
+    enrich_cnpj,
+    enrichment_route,
+    record_column,
+    source_field,
+)
 from ..semantics.through import attach as attach_through
 from ..semantics.through import describe as describe_through
 from ..semantics.through import split as split_through
@@ -80,6 +86,10 @@ def _final_projection(table: pa.Table, spec: QuerySpec, *, keep_condition: bool 
     if keep_condition and CONDITION in table.column_names:
         keep.append(CONDITION)         # the engine's: the record's answer to a condition, for the caller to count by group
     return table.select(keep)
+
+
+#: The crosswalk routes an enrichment declaration may name, by the direction they resolve.
+_CROSSWALKS = {"cnes_to_cnpj": enrich_cnpj, "cnpj_to_cnes": enrich_cnes}
 
 
 def query(
@@ -396,24 +406,23 @@ def query(
     for request in query_plan.spec.enrichments:
         dataset = query_plan.spec.dataset
         request = replace(request, from_field=source_field(dataset, request))
-        if request.target == "CNPJ":
-            table, enrichment_report = enrich_cnpj(
-                table, from_field=request.from_field, raw_field=facility_cnpj_field(dataset),
-                as_field=request.as_field or "CNPJ_resolved", explode=request.explode,
+        # the target's declared route (curation/joins.yml `enrichments:`) names the method; the target names nothing
+        route = enrichment_route(request.target)
+        method = str(route["route"])
+        if method in _CROSSWALKS:
+            compares = route.get("compares")
+            table, enrichment_report = _CROSSWALKS[method](
+                table, from_field=request.from_field,
+                raw_field=record_column(dataset, str(compares)) if compares else None,
+                as_field=_enrichment_output_name(request), explode=request.explode,
                 resource_path=crosswalk_path, settings=resolved,
             )
-        elif request.target == "CNES":
-            table, enrichment_report = enrich_cnes(
-                table, from_field=request.from_field, raw_field=facility_code_field(dataset),
-                as_field=request.as_field or "CNES_resolved", explode=request.explode,
-                resource_path=crosswalk_path, settings=resolved,
-            )
-        elif request.target == "CNES.ESTABLISHMENT_NAME":
+        elif method == "establishment_name":
             table, enrichment_report = _enrich_cnes_name(table, request, resolved)
+        elif method == "establishment_attribute":
+            table, enrichment_report = _enrich_cnes_attribute(table, request, query_plan, resolved)
         else:
-            table, enrichment_report = _enrich_cnes_attribute(
-                table, request, query_plan, resolved
-            )
+            raise ValueError(f"{request.target}: curation/joins.yml declares route {method!r}, which is no method")
         report.enrichments.append(enrichment_report)
         if enrichment_report.ambiguous or enrichment_report.conflicts:
             message = (

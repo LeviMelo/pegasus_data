@@ -191,8 +191,8 @@ def _clean_name(value: object) -> str | None:
 def _establishment_columns(raw: pa.Table) -> tuple[str, str] | None:
     """The (CNES code, CPF/CNPJ) columns of an establishment register file, as the roles of the register's dataset
     (CNES-ST: ``establishment.cnes``, ``establishment.cpf_cnpj``) name them; None when the file lacks them (it is then
-    some other code table). The file's name columns (FANTASIA, RAZ_SOCI, RSOC_MAN, EXCLUIDO, DATAINCL, DATAEXCL) are
-    the register kit's own layout, declared in no roles file."""
+    some other code table). Its other columns are the register kit's own layout, declared in ``codelists.yml``'s
+    registry role (``establishments``)."""
     from .semantics.column_roles import declared_columns, facility_code_field
 
     code = facility_code_field("CNES-ST")
@@ -228,23 +228,49 @@ def _establishments(raw: pa.Table) -> pa.Table:
             kinds.append("person_or_invalid")
             cnpjs.append(None)
 
+    layout = _establishment_layout()
+    names = [str(c) for c in layout["label"]]
+
     def _label(r: dict) -> str | None:
-        return _clean_name(r.get("FANTASIA")) or _clean_name(r.get("RAZ_SOCI"))
+        return next((name for name in (_clean_name(r.get(c)) for c in names) if name), None)
+
+    def _column(key: str) -> str:
+        value = layout[key]
+        return str(value["column"] if isinstance(value, dict) else value)
+
+    def _raw(key: str) -> list[object]:
+        return [r.get(_column(key)) for r in rows]
 
     return pa.table({
         "code": [str(r[code_column]).strip() for r in rows],
         "label": [_label(r) for r in rows],
         # The legal name is a legal entity's only when the identifier is a CNPJ.
-        "legal": [_clean_name(r.get("RAZ_SOCI")) if k == "cnpj" else None for r, k in zip(rows, kinds, strict=True)],
-        "maintainer": [_clean_name(r.get("RSOC_MAN")) for r in rows],
+        "legal": [_clean_name(r.get(_column("legal"))) if k == "cnpj" else None
+                  for r, k in zip(rows, kinds, strict=True)],
+        "maintainer": [_clean_name(r.get(_column("maintainer"))) for r in rows],
         "cnpj": pa.array(cnpjs, pa.string()),
         "id_kind": kinds,
-        "municipality": [r.get("CODUFMUN") for r in rows],
-        "health_region": [r.get("REGSAUDE") for r in rows],
-        "excluded_flag": [r.get("EXCLUIDO") for r in rows],
-        "included": [r.get("DATAINCL") for r in rows],
-        "excluded": [r.get("DATAEXCL") for r in rows],
+        "municipality": _raw("municipality"),
+        "health_region": _raw("health_region"),
+        "excluded_flag": _raw("excluded_flag"),
+        "included": _raw("included"),
+        "excluded": _raw("excluded"),
     })
+
+
+def _establishment_layout() -> dict[str, object]:
+    """The establishment register's columns, as ``codelists.yml``'s registry role declares them (``establishments``)."""
+    return dict(_registry_declarations()["establishments"])  # type: ignore[call-overload]
+
+
+def establishment_window(included: object, excluded: object) -> tuple[str, str]:
+    """The competences (``AAAAMM``) an establishment was in the register, from its ``included`` and ``excluded`` dates
+    (``AAAAMMDD``); an exclusion date that starts with the register's declared open end (``9999``: never excluded) is
+    an open end, ``""``."""
+    open_end = str(dict(_establishment_layout()["excluded"])["open_end"])  # type: ignore[call-overload]
+    lo = str(included or "")[:6]
+    hi = str(excluded or "")[:6]
+    return lo, "" if hi.startswith(open_end) else hi
 
 
 def _registry_declarations() -> dict[str, object]:

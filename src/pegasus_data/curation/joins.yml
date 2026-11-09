@@ -237,6 +237,38 @@ not_established:
       not been measured here, and CNS-based linkage would require handling direct
       personal identifiers.
 
+# What a query attaches to its records through the establishment (`query(enrich=[...])`), by name. Each target
+# names the method that resolves it (`route`: cnes_to_cnpj, cnpj_to_cnes, establishment_name, establishment_attribute), the record's
+# column it reads (`reads`: `establishment`, the record's own CNES code, or `establishment_cnpj`, its CNPJ, both as the
+# dataset's column roles name them; a request's `from_field` overrides), the column it writes when the request names
+# none (`output`; otherwise <NAMESPACE>_<attribute>), and the built resources it needs (`requires`). A target not
+# listed here is refused. `establishment_attribute` reads `column` of CNES.ST at each record's competence (an
+# establishment as it WAS that month: the CNES key's `as_of`); every column is published in CNES.ST 2022, and one a
+# given year leaves empty resolves as `not_recorded`, never as a value. The two crosswalk routes resolve CNES <-> CNPJ through the
+# label pack's crosswalk and the establishment register (ADR-0100). The name needs no built resource: without the
+# monthly history (cnes_names) it answers from the current register and says so (ADR-0100).
+enrichments:
+  CNPJ: {route: cnes_to_cnpj, reads: establishment, compares: establishment_cnpj, output: CNPJ_resolved, requires: [cnes_cnpj]}
+  CNES: {route: cnpj_to_cnes, reads: establishment_cnpj, compares: establishment, output: CNES_resolved, requires: [cnes_cnpj]}
+  CNES.ESTABLISHMENT_NAME: {route: establishment_name, reads: establishment}
+  CNES.NATURE: {route: establishment_attribute, reads: establishment, column: NATUREZA}
+  CNES.LEGAL_NATURE: {route: establishment_attribute, reads: establishment, column: NAT_JUR}
+  CNES.TYPE: {route: establishment_attribute, reads: establishment, column: TP_UNID}
+  CNES.OWNERSHIP: {route: establishment_attribute, reads: establishment, column: ESFERA_A}
+  CNES.MANAGEMENT: {route: establishment_attribute, reads: establishment, column: TPGESTAO}
+  CNES.SUS_LINK: {route: establishment_attribute, reads: establishment, column: VINC_SUS}
+  CNES.PROVIDER_TYPE: {route: establishment_attribute, reads: establishment, column: TP_PREST}
+  CNES.CARE_LEVEL: {route: establishment_attribute, reads: establishment, column: NIV_HIER}
+  CNES.CLIENTELE: {route: establishment_attribute, reads: establishment, column: CLIENTEL}
+  CNES.HAS_HOSPITAL_BEDS: {route: establishment_attribute, reads: establishment, column: LEITHOSP}
+  CNES.SURGICAL_BEDS: {route: establishment_attribute, reads: establishment, column: QTLEITP1}
+  CNES.CLINICAL_BEDS: {route: establishment_attribute, reads: establishment, column: QTLEITP2}
+  CNES.COMPLEMENTARY_BEDS: {route: establishment_attribute, reads: establishment, column: QTLEITP3}
+  CNES.HAS_EMERGENCY: {route: establishment_attribute, reads: establishment, column: URGEMERG}
+  CNES.HAS_OBSTETRIC_CENTRE: {route: establishment_attribute, reads: establishment, column: CENTROBS}
+  CNES.HAS_NEONATAL_UNIT: {route: establishment_attribute, reads: establishment, column: CENTRNEO}
+  CNES.HAS_SURGICAL_CENTRE: {route: establishment_attribute, reads: establishment, column: CENTRCIR}
+
 # Typed semantic relations. These extend the join-key ontology: labels preserve
 # identity, dimensions intentionally change granularity, and crosswalks change
 # identifier namespace with explicit cardinality semantics.
@@ -268,16 +300,6 @@ relations:
     target_name: chapter
     artifact: CID10CAP
     evidence: DATASUS TabNet dimension, explicitly a roll-up
-  - system: "*"
-    dataset: "*"
-    field: CNES
-    relation: crosswalk_to
-    target_type: legal_entity_identifier
-    target_name: CNPJ
-    artifact: labels_crosswalk.parquet
-    source_namespace: CNES
-    target_namespace: CNPJ
-    evidence: compiled CADGER registry relation
   # Official concept lists as dimensions (2026-10-03). Each artifact is the
   # list as DATASUS ships it in its own TabWin kit, parsed with its ranges
   # expanded against the canonical ICD-10 (OQ-28). The narrowest matching line

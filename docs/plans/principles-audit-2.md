@@ -177,7 +177,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Which classification a bridge lands in, and the widths 10 and 6, are data facts.
 - Fix: `bridges:` in `codelists.yml`. Size XS.
 
-**T11. Enrichment targets as strings in the executor and planner**
+**T11. Enrichment targets as strings in the executor and planner** — done: every target is declared in `joins.yml` `enrichments:` (route, the record column it reads by role, output, required resources); the planner and executor dispatch by the declared route, an undeclared target raises; the register's open end (`DATAEXCL` 9999: 636,189 rows, exactly those with EXCLUIDO 0) and the CADGER establishment columns are declared in `codelists.yml` (`establishments`), closing T8's CADGER part; the competence parse goes through `normalize.time`. SIH-RD AC 2022-03 with CNPJ, three attributes and the name (4,185 rows, 12 columns), and CNPJ→CNES, equal to the old code; the registry rebuilt identical
 - `_query_engine/executor.py:395-410`, `_query_engine/planner.py:148-154` (`"CNPJ"`, `"CNES"`, `"CNES.ESTABLISHMENT_NAME"` branches), `crosswalk.py:41`, `:202` `CADGERBR`, `:213-215` (`hi.startswith("9999")` sentinel in `DATAEXCL`, `[:6]` of a date), `_query_engine/semantics.py:319` (`190001 <= value <= 219912`), `:427`.
 - Three targets are hand-coded branches; `9999` as "no end date" is a sentinel rule written in code, not the field's ledger.
 - Fix: enrichments as declared relations (`links.yml`) dispatched by name; the "open end" sentinel in the registry table's schema. Size M.

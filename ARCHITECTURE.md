@@ -126,7 +126,8 @@ A `.DEF` binds a column to every tabulation axis that mentions it, so bindings
 (`semantics/bindings.py`, catalog `field_codelists`) are many per field: 114 for
 SIH `DIAG_PRINC`, 36 for `MUNIC_RES`. `semantics/ledger.py` holds per-field
 aggregation rules; `semantics/relations.py` typed relations (`label_of`,
-`rollup_to`, `attribute_of`, `crosswalk_to`) and the adjudication queue;
+`rollup_to`, `attribute_of`) and the adjudication queue (the CNES↔CNPJ crosswalk is
+an enrichment route of `joins.yml` `enrichments:`, 2026-11-09);
 `semantics/gaps.py` what is not known. `labelpack.py` distils the result into
 `resources/` (§3).
 

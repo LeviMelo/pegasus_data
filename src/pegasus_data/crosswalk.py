@@ -19,7 +19,8 @@ from .identifiers import valid_cnpj
 if TYPE_CHECKING:
     from .config import Settings
 
-__all__ = ["EnrichmentReport", "EnrichmentRequest", "enrich_cnes", "enrich_cnpj", "enrichment", "valid_cnpj"]
+__all__ = ["EnrichmentReport", "EnrichmentRequest", "enrich_cnes", "enrich_cnpj", "enrichment", "enrichment_route",
+           "record_column", "valid_cnpj"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,20 +31,45 @@ class EnrichmentRequest:
     explode: bool = False
 
 
-def source_field(dataset: str, request: EnrichmentRequest) -> str:
-    """The column an enrichment reads its key from: the request's own, else the one the dataset's roles declare (the
-    establishment's CNES code; for the CNPJ→CNES route its CNPJ). Never a guessed name: a dataset whose roles name
-    none (or several) asks for ``from_field``."""
-    from .semantics.column_roles import facility_cnpj_field, facility_code_field
+def enrichment_route(target: str) -> dict[str, Any]:
+    """The declaration of an enrichment target (``curation/joins.yml`` ``enrichments:``): its ``route`` (the method that
+    resolves it), the record column it ``reads``, its ``output`` and the resources it ``requires``. A target that is
+    not declared raises ``KeyError``: there is no route to it."""
+    from .semantics.curation import declared
 
+    routes = {str(name).upper(): dict(body) for name, body in declared("joins.yml", "enrichments").items()}
+    found = routes.get(target.upper())
+    if found is None:
+        raise KeyError(f"no declared enrichment route to {target}")
+    return found
+
+
+#: What a route's ``reads``/``compares`` names, as the dataset's column roles resolve it.
+_RECORD_COLUMNS = {"establishment": ("facility_code_field", "CNES code"),
+                   "establishment_cnpj": ("facility_cnpj_field", "CNPJ")}
+
+
+def record_column(dataset: str, reads: str) -> str | None:
+    """The dataset's column for a route's ``reads``/``compares`` (``establishment``: the record's own CNES code;
+    ``establishment_cnpj``: its CNPJ), as its column roles name it; None when they name none or several."""
+    from .semantics import column_roles
+
+    found = getattr(column_roles, _RECORD_COLUMNS[reads][0])(dataset)
+    return found.upper() if found else None
+
+
+def source_field(dataset: str, request: EnrichmentRequest) -> str:
+    """The column an enrichment reads its key from: the request's own, else the one its declared route ``reads``, as
+    the dataset's roles name it. Never a guessed name: a dataset whose roles name none (or several) asks for
+    ``from_field``."""
     if request.from_field:
         return request.from_field.upper()
-    reverse = request.target == "CNES"
-    found = (facility_cnpj_field if reverse else facility_code_field)(dataset)
+    reads = str(enrichment_route(request.target)["reads"])
+    found = record_column(dataset, reads)
     if found is None:
-        raise KeyError(f"{dataset}: its column roles name no single {'CNPJ' if reverse else 'CNES code'} column "
+        raise KeyError(f"{dataset}: its column roles name no single {_RECORD_COLUMNS[reads][1]} column "
                        f"of the establishment; say which with from_field")
-    return found.upper()
+    return found
 
 
 @dataclass(slots=True)
@@ -206,13 +232,13 @@ def _registry_slice(
     table = table.filter(pc.is_in(table[key], value_set=pa.array(sorted(codes), pa.string())))
     table = table.filter(pc.is_valid(table["cnpj"]))
     out: dict[str, list[tuple[str, str, str, str]]] = {}
+    from .registry import establishment_window
+
     for code, cnpj, included, excluded in zip(
         table["code"].to_pylist(), table["cnpj"].to_pylist(),
         table["included"].to_pylist(), table["excluded"].to_pylist(), strict=True,
     ):
-        lo = str(included or "")[:6]
-        hi = str(excluded or "")[:6]
-        hi = "" if hi.startswith("9999") else hi
+        lo, hi = establishment_window(included, excluded)
         k, v = (cnpj, code) if reverse else (code, cnpj)
         out.setdefault(str(k), []).append((str(v), lo, hi, REGISTRY_SOURCE))
     return out, False
