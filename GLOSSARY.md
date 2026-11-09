@@ -6,6 +6,20 @@ grouped by where they first matter: the tree, meaning, retrieval, aggregates.
 
 ---
 
+## Vocabulary: one word, one meaning
+
+Three words had drifted to several meanings (2026-11-09, defect 10 of the principles audit). Here
+each keeps one; the other senses use the words in the right-hand column.
+
+| word | means only | the other senses are called |
+|---|---|---|
+| **field** | a context field: a named place x year quantity read by `load_field` | a record's variable: **column**; a file's ordered list: **column list** (schema signature); a cube's quantity: **measure** |
+| **role** | a column's role: the `<entity>.<property>` it states (`compare:` in a roles file) | what a codelist is: **codelist kind** (`role:` in the codelists file); a measure's additivity: **kind**; a dataset's part in a link: **side**; a catalog file's class (`role = 'data'`): **file class** |
+| **source** | a data source: a system or publisher (DATASUS, IBGE, SIDRA; `sources/`) | the file a record came from: **blob** or **file**; where a claim was read: **origin** (provenance string); one side of a link: **side**; the upstream of a cube: **dataset** |
+
+Public names are not renamed (`load_field`, `roles()`); code that still says "field" of a record means
+its column.
+
 ## The tree and its inventory
 
 **DATASUS.** The Ministry of Health's IT department, which publishes the
@@ -190,7 +204,7 @@ enough to ship: 3,654,320 versioned label runs across 2,238 codelists, about
 returning data with no meaning attached, as `fetch("SIM-DO")` once did
 (ADR-0037).
 
-**Codelist role.** What kind of thing a codelist is, declared in
+**Codelist kind.** (Declared as `role:` in the codelists file.) What kind of thing a codelist is, declared in
 `curation/codelists.yml`: `enumeration`, `classification`, `geography`,
 `registry` (held back), `crosswalk`. *Prevents:* a size cap that keeps 450
 municipal roll-ups and drops CID10.
@@ -361,8 +375,8 @@ source does not allow.
 folded into cubes, of which the SIDRA and series fields are already views. Not to be
 confused with a record's column (`field_name` in the catalog).
 
-**`serve/`.** The HTTP transport over the library, written for the deprecated `../pegasus_view`
-(`/health`, `/datasets`, `/datasets/{a}/capabilities`, `/population`,
+**`serve/`.** The HTTP transport over the library, first written for the now-deprecated `../pegasus_view`,
+which no longer shapes it (`/health`, `/datasets`, `/datasets/{a}/capabilities`, `/population`,
 `/geo/membership`, `/records`). It shapes the wire (7-digit municipality codes,
 codes and labels sent apart) and holds no logic; `/records` is off unless the
 server starts with `--allow-records`. *Prevents:* the frontend growing a branch

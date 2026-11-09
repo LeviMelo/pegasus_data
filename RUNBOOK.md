@@ -128,13 +128,12 @@ $PD extract SIASUS-PA --years 2010-2025 --filter PA_PROC_ID=0202030768,020203087
 | an aggregate | `aggregate-build <recipe>` | base cuboid under the data home |
 | everything | `all` | empty directory to lake |
 
-## 6. The frontend
+## 6. The HTTP transport
 
-`../pegasus_view` reads `serve/`:
+`serve/` is a transport over the library; no frontend shapes it:
 
 ```bash
 $PY -m pegasus_data.serve --help
-powershell ../pegasus_view/start-pegasus.ps1 [-Records]   # both services, waits until ready
 ```
 
 `-Records` exposes `/api/v1/records`, which serves unmodified microdata

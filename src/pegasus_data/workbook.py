@@ -264,7 +264,7 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
     kv(
         "Gerado por",
         "PegaSUS — pegasus_data (agregação; pegasus-data workbook). "
-        "Os valores aqui são os mesmos servidos ao pegasus_view.",
+        "Os valores aqui são os mesmos servidos por pegasus_data.serve.",
     )
 
     # ------------------------------------------------- Resumo (Brasil/ano)
