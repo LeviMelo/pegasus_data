@@ -1016,6 +1016,3 @@ _ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "populatio
              "modelled": _modelled}
 
 
-def cube_manifest(table: pa.Table) -> dict[str, Any]:
-    """The manifest a cube carries in its schema."""
-    return json.loads((table.schema.metadata or {}).get(b"pegasus.cube", b"{}"))

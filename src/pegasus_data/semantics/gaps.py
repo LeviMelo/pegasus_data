@@ -16,7 +16,6 @@ verified them (§13: "obvious" is how a wrong mapping gets in without provenance
 
 from __future__ import annotations
 
-import json
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -276,13 +275,3 @@ def persist_gaps(catalog: CatalogStore, gaps: Sequence[Gap]) -> int:
     return min(len(distinct_field_gaps(gaps)), 200)
 
 
-def gap_report_json(gaps: Sequence[Gap], *, limit: int = 50) -> str:
-    return json.dumps(
-        {
-            "summary": summarise_gaps(gaps),
-            "by_field": distinct_field_gaps(gaps)[:limit],
-        },
-        ensure_ascii=False,
-        indent=1,
-        default=str,
-    )

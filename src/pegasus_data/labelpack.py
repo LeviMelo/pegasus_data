@@ -724,59 +724,6 @@ def _crosswalk_tuple(row: Any, group: str, code: str, cnpj: str) -> tuple[str, s
     )
 
 
-def build_crosswalk_pack(catalog: CatalogStore, out: str | Path) -> int:
-    """Compile the temporal CNES→CNPJ relation without rebuilding labels."""
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-
-    roles = codelist_roles()
-    rows: set[tuple[str, str, str, str, str, str, str, float]] = set()
-    for row in catalog.query(
-        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to,"
-        " source_ref, confidence FROM dictionary "
-        "WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
-    ):
-        group = str(row["value_group"]).upper()
-        label = str(row["value_label"]).strip()
-        _name, cnpj = _split_packed(label)
-        if not cnpj:
-            continue
-        # Crosswalk material is currently discovered in registry codelists;
-        # keeping the check explicit prevents unrelated labels containing a
-        # CNPJ-shaped string from becoming identifier relations.
-        if _role_of(group, roles) != "registry":
-            continue
-        rows.add(_crosswalk_tuple(row, group, str(row["value_raw"]).strip(), cnpj))
-    ordered = sorted(rows)
-    if not ordered:
-        raise ValueError(
-            "no CNES registry-name evidence exists for the requested years; "
-            "run the semantic inventory or choose a covered period first"
-        )
-    table = pa.table(
-        {
-            "source_namespace": ["CNES"] * len(ordered),
-            "source_code": [r[1] for r in ordered],
-            "target_namespace": ["CNPJ"] * len(ordered),
-            "target_code": [r[2] for r in ordered],
-            "valid_from": [r[4] for r in ordered],
-            "valid_to": [r[5] for r in ordered],
-            "source_system": [r[3] or None for r in ordered],
-            "source_ref": [r[6] for r in ordered],
-            "source_codelist": [r[0] for r in ordered],
-            "confidence": pa.array([r[7] for r in ordered], pa.float64()),
-            "status": ["active"] * len(ordered),
-            "codelist": [r[0] for r in ordered],
-            "code": [r[1] for r in ordered],
-            "cnpj": [r[2] for r in ordered],
-        }
-    ).sort_by([("source_code", "ascending"), ("valid_from", "ascending")])
-    target = Path(out)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, target, compression="zstd", compression_level=19, row_group_size=50_000)
-    return table.num_rows
-
-
 # --------------------------------------------------------------- reading it
 
 

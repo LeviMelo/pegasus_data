@@ -238,7 +238,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 ## HYGIENE (H)
 
-**H1. Unreferenced functions (no caller in `src`, `scripts`, `tests`, docs or CLI)**: AST scan, one occurrence = the definition.
+**H1. Unreferenced functions (no caller in `src`, `scripts`, `tests`, docs or CLI)** — part done: `cube_manifest`, `build_crosswalk_pack`, `schema_signature_for`, `gap_report_json`, `field_report` deleted (no reference anywhere); the modelled builders are R1's (a command each): AST scan, one occurrence = the definition.
 - `completeness.py`: `census_uf:40`, `events_uf:54`, `interval_events:83`, `growth_balance:100`, `build_completeness:207`
   (the whole module is reachable only through nothing; `ill_defined_shares` is called only by `build_completeness`).
 - `population_account.py`: `build_registration_completeness:1009` (reads `collect_events:225`, which has one test reference).

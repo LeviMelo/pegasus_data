@@ -1152,5 +1152,3 @@ def _system_of(path: str, base_path: str) -> str | None:
     return system_from_path(path, base_path)
 
 
-def schema_signature_for(field_names: Sequence[str]) -> str:
-    return schema_signature(field_names)

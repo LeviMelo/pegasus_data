@@ -433,20 +433,3 @@ def coverage_report(catalog: CatalogStore) -> list[dict[str, object]]:
     return [dict(r) for r in rows]
 
 
-def field_report(catalog: CatalogStore, system: str, family_id: str | None = None) -> list[dict[str, object]]:
-    clause = "system = ?"
-    params: list[object] = [system]
-    if family_id:
-        clause += " AND family_id = ?"
-        params.append(family_id)
-    rows = catalog.query(
-        f"""
-        SELECT family_id, field_name, official_name, semantic_type, semantic_confidence,
-               aggregation, dictionary_coverage, distinct_observed, distinct_decoded, open_questions
-          FROM ledger
-         WHERE {clause}
-         ORDER BY dictionary_coverage ASC, field_name
-        """,
-        params,
-    )
-    return [dict(r) for r in rows]

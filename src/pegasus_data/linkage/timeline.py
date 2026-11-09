@@ -102,7 +102,12 @@ def _iso(value: object) -> str | None:
 def timeline(birth_id: str, *, period: object, geography: object, method: str = "probabilistic") -> dict[str, Any]:
     """The events linked to one birth record, in time order."""
     period, geography = _scope(period), _scope(geography)
-    births = _records("SINASC-DN", period, geography)
+    from .engine import load_links
+
+    links = load_links()
+    # the records are the declared links' sides: births and admissions are the delivery link's, deaths the infant-death
+    # link's left side
+    births = _records(links[DELIVERY].left.dataset, period, geography)
     birth = births.get(birth_id)
     if birth is None:
         raise KeyError(f"no SINASC record {birth_id!r} in {period} {geography}")
@@ -111,8 +116,8 @@ def timeline(birth_id: str, *, period: object, geography: object, method: str = 
         if r["mother.birth_date"] == birth["mother.birth_date"] and r["birth.facility"] == birth["birth.facility"]
         and r["birth.date"] == birth["birth.date"] and r["mother.birth_date"] is not None
     ) or [birth_id]
-    admissions = _records("SIH-RD", period, geography)
-    deaths = _records("SIM-DO", period, geography)
+    admissions = _records(links[DELIVERY].right.dataset, period, geography)
+    deaths = _records(links[INFANT_DEATH].left.dataset, period, geography)
     events: list[dict[str, Any]] = []
     not_viable: dict[str, str] = {}
     for rid in group:
@@ -201,7 +206,9 @@ def notable_births(*, period: object, geography: object, method: str = "probabil
             counts.setdefault(key, {}).setdefault(spec, 0)
             counts[key][spec] += 1
     ranked = sorted(counts.items(), key=lambda kv: (-(INFANT_DEATH in kv[1]), -sum(kv[1].values())))
-    births = _records("SINASC-DN", period, geography)
+    from .engine import load_links
+
+    births = _records(load_links()[INFANT_DEATH].right.dataset, period, geography)   # the births the links ranked
     out = []
     for rid, links in ranked[:limit]:
         r = births.get(rid) or {}
