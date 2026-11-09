@@ -663,6 +663,42 @@ def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict
         log(f"state {st}: {len(idx)} municipalities")
 
 
+def band_tables(inp, acc: dict) -> list:
+    """The account's own estimate by five-year band, before the municipal split and the single ages (product
+    ``population_account_bands``): comparable areas 2000-2010, municipalities (or the area of a post-2010 creation, its
+    members joined by ``+``) 2010-2022 and the forecast 2023-2030, each cell with the 80% and 95% intervals the account
+    calibrates on bands (`account_arrays`' offsets). The single-age product's band totals are these."""
+    import pyarrow as pa
+
+    from .population_account import BAND_LABELS, LEVELS
+
+    places = inp.places
+    entities = ["+".join(str(m) for m in members) for members in places.entity_members]
+    blocks = (("A", acc["Xa"], places.unit_labels, "comparable_area", range(2000, 2011), "2000-2010", "intercensal"),
+              ("B", acc["Xb"], entities, "municipality", range(2010, 2023), "2010-2022", "intercensal"),
+              ("P", acc["Xf"], entities, "municipality", range(2023, 2023 + len(acc["Xf"])), "2022-2030", "forecast"))
+    out = []
+    for name, X, labels, kind, years, period, basis in blocks:
+        centre = np.stack([to_bands(x) for x in X])                              # (T, places, 2, 17)
+        bounds = {}
+        for lv, suffix in zip(LEVELS, ("", "95"), strict=True):
+            low, high = acc["off"][name, lv]
+            bounds["population_lo" + suffix] = centre * np.exp(-np.asarray(low))
+            bounds["population_hi" + suffix] = centre * np.exp(np.asarray(high))
+        T, E = centre.shape[:2]
+        idx = np.indices((T, E, 2, 17)).reshape(4, -1)
+        after = (idx[0] + 1).astype(np.float64) if basis == "forecast" else np.full(idx.shape[1], np.nan)
+        n = idx.shape[1]
+        out.append(pa.table({
+            "place": pa.array(labels).take(pa.array(idx[1])), "place_kind": pa.array([kind] * n),
+            "year": pa.array(np.asarray(list(years), dtype=np.int64)[idx[0]]), "sex": pa.array((idx[2] + 1).astype(np.int64)),
+            "age_band": pa.array(BAND_LABELS).take(pa.array(idx[3])), "population": pa.array(centre.ravel()),
+            **{k: pa.array(v.ravel()) for k, v in bounds.items()},
+            "period": pa.array([period] * n), "basis": pa.array([basis] * n),
+            "years_after_census": pa.array(after, from_pandas=True)}))
+    return out
+
+
 def build_population_account(settings, *, version: str, validation: str, only: tuple[int, ...] | None = None, log=print) -> dict:
     """Build and write the ``population_account`` modelled product from the data home alone: municipality × year 1991-2030 ×
     sex × single age 0..100 × race (total and five, total only before 2000), with 80% and 95% intervals and the basis of
@@ -784,4 +820,20 @@ def build_population_account(settings, *, version: str, validation: str, only: t
 
     log("writing")
     out = write_modelled(chain(), manifest, settings=settings)
-    return {"path": str(out), "split_cal": split_cal["params"].tolist(), "race_cal": race_cal, "shape_cal": shape_cal}
+    # the account's own five-year-band estimate, written beside it under the same version number
+    bands_version = version.replace("population-account", "population-account-bands", 1)
+    bands_out = write_modelled(band_tables(inp, acc), ModelledManifest(
+        product="population_account_bands", version=bands_version,
+        model="the band estimate of population_account " + version + " (vital cohort-component account, migration "
+              "schedule, calibrated band intervals; population_forecast after 2022), before its municipal split and single ages",
+        estimates={"population": ["population_lo", "population_hi", "population_lo95", "population_hi95"]},
+        place="place", period="year", strata=["sex", "age_band"], additive=["population"],
+        inputs={"population_account": version}, validation=validation,
+        notes=["Reference date 1 August of `year`. `population_lo`/`hi` are an 80% interval, `lo95`/`hi95` 95%, calibrated on "
+               "the bands of the two intercensal periods.",
+               "Rows are comparable areas (`amc:`) for 2000-2010, then municipalities, except a `+`-joined group inside a "
+               "comparable area touched by a post-2010 creation; `basis` is `intercensal` or `forecast` (2023-2030, "
+               "`years_after_census` years after 2022). The single-age product of the same version adds to these bands."]),
+        settings=settings)
+    return {"path": str(out), "bands": str(bands_out), "split_cal": split_cal["params"].tolist(), "race_cal": race_cal,
+            "shape_cal": shape_cal}

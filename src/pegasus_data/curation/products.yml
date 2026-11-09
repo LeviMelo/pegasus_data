@@ -537,6 +537,21 @@ products:
       # 80% coverage 0.785, sex-band cells 0.74); this factor on the band spread gives 0.83/0.79 (80%) and 0.94/0.94 (95%)
       backcast: {pre_scale: 1.2}
 
+  population_account_bands:
+    label: "Population account by place, five-year band and sex"
+    kind: modelled
+    source: "The population account's own band estimate, written by its build (pegasus-data model-build population_account)"
+    what: >
+      The account before its municipal split and single ages: comparable areas 2000-2010, municipalities (or the area of a
+      post-2010 creation) 2010-2022 and the forecast 2023-2030, by sex and five-year band, with the 80% and 95% intervals the
+      account calibrates on bands. The single-age product of the same version number adds to these. Version -2 of
+      population_account had this shape (to 2023, by a migration regression after 2022).
+    grain: "place × year × sex × five-year age band"
+    period: "2000-2030"
+    call: 'pegasus_data.modelled.read_modelled("population_account_bands")'
+    stores: [lake/modelled/population_account_bands]
+    # no build of its own: population_account's build writes it beside the account (`population_tensor.band_tables`)
+
   population_without_private_coverage:
     label: "Population without a private health plan"
     kind: modelled
