@@ -273,6 +273,11 @@ class TestCoverageIsRecordedNotInferred:
         manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
         manifest["uf"] = ["AC"]
         (target / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        from conftest import seed_cuboid
+
+        from pegasus_data._aggregate import _CUBOIDS
+
+        seed_cuboid(aggregate_lake, "sih_rd_municipality_month", next(iter(_CUBOIDS.values()))[0])
 
         coverage = capabilities(
             "sih_rd_municipality_month", settings=aggregate_lake
@@ -312,6 +317,11 @@ class TestCoverageIsRecordedNotInferred:
         manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
         manifest["uf"] = ["AC"]
         (target / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        from conftest import seed_cuboid
+
+        from pegasus_data._aggregate import _CUBOIDS
+
+        seed_cuboid(aggregate_lake, "sih_rd_municipality_month", next(iter(_CUBOIDS.values()))[0])
 
         _, report = aggregate(
             "sih_rd_municipality_month", by=["uf"], settings=aggregate_lake,
@@ -355,19 +365,19 @@ class TestLevelLabelsFollowTheLadder:
         """
 
         import pyarrow as pa
-        import pyarrow.parquet as pq
 
-        from pegasus_data._aggregate import artifact_dir
+        from pegasus_data._aggregate import _load_artifact
 
-        target = artifact_dir("sih_rd_municipality_month", aggregate_lake)
-        table = pq.read_table(str(target / "cells.parquet"))
+        table, _ = _load_artifact("sih_rd_municipality_month", aggregate_lake)
         # Blank one SEXO cell, as a structurally-absent generation would.
         sexo = table.column("SEXO").to_pylist()
         sexo[0] = ""
         table = table.set_column(
             table.schema.get_field_index("SEXO"), "SEXO", pa.array(sexo, pa.string())
         )
-        pq.write_table(table, str(target / "cells.parquet"))
+        from conftest import seed_cuboid
+
+        seed_cuboid(aggregate_lake, "sih_rd_municipality_month", table)
 
         capability = capabilities("sih_rd_municipality_month", settings=aggregate_lake)
         sexo_levels = next(d for d in capability.dimensions if d.id == "SEXO")

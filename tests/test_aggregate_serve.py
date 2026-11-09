@@ -18,11 +18,10 @@ from __future__ import annotations
 import json
 
 import pyarrow as pa
-import pyarrow.parquet as pq
 import pytest
 from conftest import AGGREGATE_KEYS as KEYS
 from conftest import AGGREGATE_STATES as STATES
-from conftest import write_aggregate
+from conftest import seed_cuboid, write_aggregate
 
 from pegasus_data._aggregate import aggregate, artifact_dir, spec_named
 from pegasus_data.measures import AggregationRefused
@@ -247,11 +246,11 @@ class TestItAnswersFastEnoughToServe:
             **{n: pa.array([r[len(KEYS) + i] for r in rows], pa.float64())
                for i, n in enumerate(STATES)},
         })
-        pq.write_table(table, target / "cells.parquet")
         (target / "manifest.json").write_text(json.dumps({
             "name": "sih_rd_municipality_month", "fingerprint": "scale",
             "cells": len(rows), "years": [2022], "support": {},
             "key_columns": list(KEYS), "multi_valued_dimensions": []}), encoding="utf-8")
+        seed_cuboid(settings, "sih_rd_municipality_month", table)
         return settings, len(rows)
 
     def test_a_national_rollup_answers_in_seconds(self, tmp_path) -> None:

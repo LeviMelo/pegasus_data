@@ -500,8 +500,6 @@ def build_aggregate(
     that is arithmetic: lift each row into accumulator state, group by the key
     tuple, merge.
     """
-    import pyarrow.parquet as pq
-
     from ._availability import field_available
     from .config import load_settings
     from .persist.staging import staged_file
@@ -550,11 +548,9 @@ def build_aggregate(
     # One grouped Arrow table per chunk; merged once at the end (_merge_cells).
     # The cells are records cubes (`cells_from_cubes`, ADR-0217): one per state asked for, or the whole publication.
     cells: list[Any] = []
-    for chunk_uf in (list(report.uf) or [None]):
-        try:
-            table, read = cells_from_cubes(spec, sorted(wanted_years), chunk_uf, resolved)
-        except LookupError as exc:
-            report.warnings.append(f"{chunk_uf or 'BR'}: {exc}")
+    for chunk_uf, table, read, error in _chunks(spec, sorted(wanted_years), report.uf, resolved):
+        if error is not None:
+            report.warnings.append(f"{chunk_uf or 'BR'}: {error}")
             report.missing_chunks.append(f"{min(wanted_years)} {chunk_uf or 'BR'}")
             continue
         cells.append(table)
@@ -597,10 +593,10 @@ def build_aggregate(
     _flag_partial_periods(spec, semantics, report, wanted_years, arrow.column(TIME_KEY).to_pylist())
     report.fingerprint = _fingerprint(spec, blob_digests, resolved)
 
+    # The cells are not stored: they are the recipe's records cubes, kept by the cube store (`cubes._cached`) and read
+    # back through `_load_artifact`. The artifact is its manifest: what was asked for and what the build found.
     target = artifact_dir(name, resolved)
     target.mkdir(parents=True, exist_ok=True)
-    with staged_file(target / "cells.parquet") as staged:
-        pq.write_table(arrow, staged, compression="zstd", compression_level=9)
     manifest_payload = json.dumps({
         "name": name,
         "spec": spec.fingerprint_payload(),
@@ -609,6 +605,7 @@ def build_aggregate(
         "cells": report.cells,
         "rows_read": report.rows_read,
         "years": list(report.years),
+        "requested_years": sorted(wanted_years),
         "uf": list(report.uf),
         "uf_basis_note": report.uf_basis_note,
         "multi_valued_dimensions": multi_valued,
@@ -633,6 +630,18 @@ def _reductions(spec: AggregateSpec) -> dict[str, str]:
     """Each state column's merge: min/max for the extremes, a sum for every other kind."""
     return {column: (measure.kind.name if measure.kind.name in ("min", "max") else "sum")
             for measure in spec.measures for column in measure.state_columns()}
+
+
+def _chunks(spec: AggregateSpec, years: Sequence[int], ufs: Sequence[str], settings: Any):
+    """``(uf, cells, read, error)`` for each state asked for (the whole publication when none): a chunk whose publication
+    is not there is its error, never an absence."""
+    for chunk_uf in (list(ufs) or [None]):
+        try:
+            table, read = cells_from_cubes(spec, list(years), chunk_uf, settings)
+        except LookupError as exc:
+            yield chunk_uf, None, {}, exc
+            continue
+        yield chunk_uf, table, read, None
 
 
 def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, settings: Any) -> tuple[Any, dict]:
@@ -670,8 +679,14 @@ def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, 
             parts = {f"{measure.name}_n": None}
         elif kind == "sum":
             parts = {f"{measure.name}_sum": "+".join(fields)}
-        elif kind == "mean" and len(fields) == 1:
+        elif kind in ("mean", "moments") and len(fields) == 1:
+            # (n, sum) and, for the variance, the sum of squares: sufficient statistics, never a finished mean
             parts = {f"{measure.name}_n": f"count:{fields[0]}", f"{measure.name}_sum": fields[0]}
+            if kind == "moments":
+                parts[f"{measure.name}_sumsq"] = f"sumsq:{fields[0]}"
+        elif kind == "logmoments" and len(fields) == 1:
+            parts = {f"{measure.name}_n": f"countpos:{fields[0]}", f"{measure.name}_sumlog": f"sumlog:{fields[0]}",
+                     f"{measure.name}_sumsqlog": f"sumsqlog:{fields[0]}"}
         else:
             raise AggregationRefused(f"{spec.name}: a {kind} measure over {fields} is not built from cubes yet")
         for state, measured in parts.items():
@@ -776,34 +791,31 @@ def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings
 # --------------------------------------------------------------------- read
 
 
-@lru_cache(maxsize=8)
-def _read_artifact(cells_path: str, cells_mtime_ns: int,
-                   manifest_path: str, manifest_mtime_ns: int):
-    """The parquet and manifest, read once per on-disk version.
-
-    Keyed on mtime rather than content: a rebuild writes new files, the key
-    changes, the stale entry ages out of the LRU. Without this every request
-    re-read a multi-megabyte parquet to answer a question about it.
-    """
-    import pyarrow.parquet as pq
-
-    del cells_mtime_ns, manifest_mtime_ns  # cache key only
-    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    return pq.read_table(cells_path), manifest
+_CUBOIDS: dict[tuple[str, str, int], tuple[Any, dict[str, Any]]] = {}
 
 
 def _load_artifact(name: str, settings: Settings):
-    path = artifact_dir(name, settings) / "cells.parquet"
-    if not path.exists():
+    """The artifact's base cuboid and manifest. The cuboid is the recipe's records cubes (`_chunks`) for the years and
+    states the manifest says it was built for, merged; the cube store keeps them, so a read after a build is a file read,
+    and after a change of the data or the code the cubes are made again: the cuboid is never older than either."""
+    manifest_path = _manifest_path(name, settings)
+    if not manifest_path.exists():
         raise ArtifactMissing(
             f"{name!r} has not been built; run "
             f"`pegasus-data aggregate-build {name} --years ...` first"
         )
-    manifest_path = _manifest_path(name, settings)
-    return _read_artifact(
-        str(path), path.stat().st_mtime_ns,
-        str(manifest_path), manifest_path.stat().st_mtime_ns,
-    )
+    key = (name, str(manifest_path), manifest_path.stat().st_mtime_ns)
+    if key not in _CUBOIDS:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        spec = spec_named(name)
+        years = [int(y) for y in (manifest.get("requested_years") or manifest.get("years") or ())]
+        cells = [t for _, t, _, error in _chunks(spec, years, manifest.get("uf") or (), settings) if error is None]
+        if not cells:
+            raise ArtifactMissing(f"{name!r}: its records cubes cannot be made for years {years}")
+        while len(_CUBOIDS) >= 8:
+            _CUBOIDS.pop(next(iter(_CUBOIDS)))
+        _CUBOIDS[key] = (_merge_cells(cells, manifest["key_columns"], spec), manifest)
+    return _CUBOIDS[key]
 
 
 def _geography_pushforward(level: str, codes: Sequence[str], system: str | None,
