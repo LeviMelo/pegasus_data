@@ -462,7 +462,7 @@ fields:
       source: ADR-0178): monthly precipitation (sum, readings) and air temperature (sum, readings, maximum, minimum) of
       INMET's automatic (hourly, 2000 on) and conventional (daily) stations, one row per station and month, from the
       CC-BY-4.0 Zenodo mirror of INMET's releases (record 14925215, checked identical to INMET's own archive), positioned
-      from INMET's station API first. A mean is sum / readings, at use.
+      from INMET's station API first. A mean is sum / readings, at use. It is the base of the cube `climate:inmet/<measure>`.
     years: 1961-2025
 
   # --- CNES supply fields -------------------------------------------------------------------------------------

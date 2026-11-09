@@ -180,6 +180,8 @@ cube("records:SIM-DO/death", by=["SEXO", "FAIXA_ETARIA"], periods=[2022], geogra
      derived={"FAIXA_ETARIA": {"age": "IDADE_anos"}})          # age banded as SIM declares its age
 cube("records:SIH-RD/rows", measure="VAL_TOT", periods=[2022])  # a column's sum; "A+B", "count:COL", "distinct:COL"
 cube("climate:precipitation_mm", periods=[2023])               # BR-DWGD, municipality x year, with its months held
+cube("climate:inmet/precipitation_mm", by=["station"], periods=[2023])   # INMET stations; a station is never summed
+cube("climate:cptec/tmax@area", periods=["2023-03"], grain="epi_week")  # CPTEC daily grid: sums and days held
 cube("modelled:population_account/population", by=["sex"], periods=[2022], where={"race": ["total"]})
 cube("population:POPSVS", by=["sex"], periods=[2022])
 ```

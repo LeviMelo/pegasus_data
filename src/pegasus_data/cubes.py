@@ -55,7 +55,7 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     ``source`` is ``<adapter>:<id>``: ``sidra:<table>/<variable>``, ``series:<name>/<measure>`` or
     ``records:<dataset>/<event type>`` (`cube_sources`). A records cube also takes ``at`` (whose place: one of the
     dataset's geography bindings, its default when left out), ``time`` (which date: one of its time bindings) and ``grain``
-    (``month`` or ``year``); its ``where`` is the record's own codes ({column: [codes]}) and ``condition`` clauses on roles
+    (``month`` or ``year``; a climate cube also ``day`` or ``epi_week``, `cptec`'s); its ``where`` is the record's own codes ({column: [codes]}) and ``condition`` clauses on roles
     (`pegasus_data.conditions`). ``records:<dataset>/rows`` counts the records of a dataset that is no event source (a
     water sample, a sale, a dose row), sums its numeric column ``measure`` or, with ``measure="distinct:<column>"``, counts
     the column's distinct values per cell (establishments, teams, persons). ``where`` also takes ``{column: {"not":
@@ -78,7 +78,7 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition),
                                  ("measure", measure), ("support", support), ("geography", geography),
                                  ("derived", {k: dict(v) for k, v in derived.items()} if derived else None)) if v is not None}
-    if options and kind != "records":
+    if set(options) - ({"grain"} if kind == "climate" else set()) and kind != "records":
         raise ValueError(f"{sorted(options)} apply to records cubes only")
     settings = settings or load_settings()
     if kind == "records":
@@ -90,7 +90,7 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
                                        labels=labels, settings=settings, **options),
                        stamp=lambda digest: _records_stamp(settings, ident.partition("/")[0], digest))
     return adapter(ident, place=place, by=list(by), where=dict(where or {}), periods=periods, labels=labels,
-                   settings=settings, **options)
+                   settings=settings, **options)   # a climate cube takes ``grain`` only
 
 
 def cube_sources() -> dict[str, str]:
@@ -99,7 +99,9 @@ def cube_sources() -> dict[str, str]:
             "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)",
             "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns",
             "population": "<series>: a population series (curation/populations.yml: POPSVS, POPTCU, CENSO...)",
-            "climate": "<measure>: BR-DWGD's municipal climate by year (sums and their months held, sources.brdwgd)",
+            "climate": "<measure> (BR-DWGD by year), inmet/<measure> (INMET's stations by month or year, the station a stratum) "
+                       "or cptec/<variable>[@area] (CPTEC's daily grids by day, epi week, month or year): sums and the days, "
+                       "months or readings they rest on",
             "modelled": "<product>[@<version>]/<estimate>: a modelled product on its declared axes, with its bounds"}
 
 
@@ -575,8 +577,26 @@ def _population(ident: str, *, place: str, by: list[str], where: dict[str, Seque
 
 
 def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
-             periods: Sequence[str | int] | None, labels: bool, settings: Any) -> pa.Table:
-    """A measure of BR-DWGD's municipal climate (``climate:<measure>``, one of `sources.brdwgd.MEASURES`) by municipality
+             periods: Sequence[str | int] | None, labels: bool, settings: Any, grain: str | None = None) -> pa.Table:
+    """The climate family, one adapter whose id names the source: ``climate:<measure>`` (or ``climate:brdwgd/<measure>``)
+    BR-DWGD's municipal climate by year, ``climate:inmet/<measure>`` INMET's stations by month or year, and
+    ``climate:cptec/<variable>[@area]`` CPTEC's daily grids by day, epi week, month or year. Each is sums and the days,
+    months or readings they rest on, never a finished mean; a place is never summed (a temperature is no part of its
+    state's), so the cube is municipal."""
+    source, _, rest = ident.partition("/")
+    if source == "inmet":
+        return _climate_inmet(rest, place=place, by=by, where=where, periods=periods, settings=settings, grain=grain)
+    if source == "cptec":
+        return _climate_cptec(rest, place=place, by=by, where=where, periods=periods, settings=settings, grain=grain)
+    if grain not in (None, "year"):
+        raise ValueError("BR-DWGD's climate cube is by year")
+    return _climate_brdwgd(rest if source == "brdwgd" else ident, place=place, by=by, where=where, periods=periods,
+                           settings=settings)
+
+
+def _climate_brdwgd(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+                    periods: Sequence[str | int] | None, settings: Any) -> pa.Table:
+    """A measure of BR-DWGD's municipal climate (one of `sources.brdwgd.MEASURES`) by municipality
     and year, from the municipality-month base the build keeps (``climate_monthly``): the sums a mean is made of, and
     their denominators (``temperature_months``, ``precipitation_months``: months held, fractional), by
     `brdwgd.municipality_years`. A year whose variable holds fewer than twelve months is ``incomplete``, its value kept.
@@ -614,6 +634,161 @@ def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     return _with_manifest(facts, {"source": f"climate:{ident}", "place_level": "municipality", "period_grain": "year",
                                   "strata": [], "additive_over": ["months"],
                                   "denominator": f"climate:{brdwgd.MEASURES[ident]}_months"})
+
+
+#: INMET's stored station-month columns: a measure's sum or extreme, the readings it rests on, and how months combine.
+INMET_MEASURES = {
+    "precipitation_mm": ("precipitation_mm_sum", "precipitation_readings", "sum", "mm"),
+    "temperature_c": ("temperature_c_sum", "temperature_readings", "sum", "°C summed over readings"),
+    "temperature_c_max": ("temperature_c_max", "temperature_readings", "max", "°C"),
+    "temperature_c_min": ("temperature_c_min", "temperature_readings", "min", "°C"),
+}
+
+
+def _climate_inmet(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+                   periods: Sequence[str | int] | None, settings: Any, grain: str | None) -> pa.Table:
+    """A measure of INMET's stations (``climate:inmet/<measure>``, one of `INMET_MEASURES`) by month or year, from the
+    station-month base the build keeps (the field ``climate``: sums, readings and extremes). A station is no
+    municipality: the cube's place is the municipality the station stands in (`inmet`'s placement) and the station
+    (``station``) is a stratum that is never summed, because two stations of one municipality are two observations of
+    two sites, not parts of one total. So ``station`` is named in ``by`` or fixed in ``where``. ``readings`` is what a
+    value rests on (hours, or days for a conventional station), ``network`` the station's; a year adds the months'
+    sums, takes the extreme of their extremes, and is ``incomplete`` below twelve months with a value. The value is the
+    source's, with no completeness rule applied: whether a month is complete enough is the reader's (``readings``;
+    `inmet.station_months` is the 90% rule the climate validation uses)."""
+    import pyarrow.compute as pc
+    import pyarrow.dataset as ds
+
+    if ident not in INMET_MEASURES:
+        raise KeyError(f"climate:inmet/<measure> is one of {sorted(INMET_MEASURES)}, got {ident!r}")
+    if place != "municipality":
+        raise ValueError("a station climate cube is municipal: its station is a stratum, never summed")
+    if set(by) - {"station"} or set(where) - {"station"}:
+        raise KeyError(f"climate:inmet has one stratum, station; got {sorted({*by, *where} - {'station'})}")
+    if "station" not in by and "station" not in where:
+        raise ValueError("climate:inmet is not additive over stations: name station in by, or fix it in where")
+    grain = grain or "month"
+    if grain not in ("month", "year"):
+        raise ValueError("climate:inmet is by month or year")
+    column, readings, law, unit = INMET_MEASURES[ident]
+    directory = Path(settings.lake_dir) / "fields" / "climate"
+    if not directory.is_dir():
+        raise LookupError("INMET's station base is not built: run `pegasus-data fields --name climate`")
+    dataset = ds.dataset(directory, format="parquet", partitioning="hive")
+    expression = None
+    if periods:
+        years = sorted({int(str(p)[:4]) for p in periods})
+        expression = ds.field("year").isin(years)
+    if "station" in where:
+        clause = ds.field("station_id").isin([str(c) for c in where["station"]])
+        expression = clause if expression is None else expression & clause
+    table = dataset.to_table(columns=["station_id", "network", "municipality7", "year", "month", column, readings],
+                             filter=expression)
+    table = table.filter(pc.is_valid(table.column(column)))
+    if periods:
+        wanted = {str(p) for p in periods}
+        keys = pc.binary_join_element_wise(pc.cast(table.column("year"), pa.string()),
+                                           pc.utf8_lpad(pc.cast(table.column("month"), pa.string()), 2, "0"), "-")
+        table = table.filter(pc.or_(pc.is_in(keys, pa.array(sorted(wanted))),
+                                    pc.is_in(pc.cast(table.column("year"), pa.string()), pa.array(sorted(wanted)))))
+    table = table.append_column("months", pa.array([1] * table.num_rows, pa.int64()))
+    if grain == "year":
+        grouped = table.group_by(["municipality7", "station_id", "network", "year"]).aggregate(
+            [(column, law), (readings, "sum"), ("months", "sum")])
+        table = pa.table({"municipality7": grouped.column("municipality7"), "station_id": grouped.column("station_id"),
+                          "network": grouped.column("network"), "year": grouped.column("year"), "month": pa.nulls(
+                              grouped.num_rows, pa.int64()), column: grouped.column(f"{column}_{law}"),
+                          readings: grouped.column(f"{readings}_sum"), "months": grouped.column("months_sum")})
+    period = (pc.cast(table.column("year"), pa.string()) if grain == "year" else pc.binary_join_element_wise(
+        pc.cast(table.column("year"), pa.string()), pc.utf8_lpad(pc.cast(table.column("month"), pa.string()), 2, "0"), "-"))
+    n = table.num_rows
+    status = (pc.if_else(pc.greater_equal(table.column("months"), 12), "value", "incomplete") if grain == "year"
+              else pa.array(["value"] * n, pa.string()))
+    facts = pa.table({"place": pc.cast(table.column("municipality7"), pa.int64()), "period": period,
+                      "station": table.column("station_id"), "value": pc.cast(table.column(column), pa.float64()),
+                      "status": status, "unit": pa.array([unit] * n, pa.string()),
+                      "source": pa.array(["INMET stations (Zenodo 14925215)"] * n, pa.string()),
+                      "readings": table.column(readings), "network": table.column("network"),
+                      **({"months": table.column("months")} if grain == "year" else {})})
+    facts = facts.sort_by([("place", "ascending"), ("station", "ascending"), ("period", "ascending")])
+    return _with_manifest(facts, {"source": f"climate:inmet/{ident}", "place_level": "municipality", "period_grain": grain,
+                                  "strata": ["station"], "additive_over": ["months"] if law == "sum" else [],
+                                  "extreme_over": ["months"] if law != "sum" else [], "denominator": "readings"})
+
+
+def _climate_cptec(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+                   periods: Sequence[str | int] | None, settings: Any, grain: str | None) -> pa.Table:
+    """A variable of CPTEC's daily grids (``climate:cptec/<variable>``, or ``<variable>@area`` for the area-weighted
+    municipal mean; the default weighs by the people of the grade) summed over the days of each period, at ``grain`` (``day``,
+    ``epi_week`` by the Ministry's rule, ``month`` (default) or ``year``). The value is the sum of the daily values (the
+    period's rain; a temperature's mean is ``value / days``), ``days`` the days held, ``coverage`` their mean share of
+    weight read at its own grid cell, and a period with fewer days than it has is ``incomplete`` (value kept). The latest
+    vintage of each day is read. A scan of the daily files is aggregated inside the read (`cptec.period_sums`), so the
+    periods are named: a national day table is never held."""
+    import calendar
+    import datetime as dt
+    import functools
+
+    import pyarrow.compute as pc
+
+    from .sources import cptec
+
+    variable, _, weight = ident.partition("@")
+    weight = weight or "population"
+    if variable not in cptec.PRODUCTS:
+        raise KeyError(f"climate:cptec/<variable> is one of {sorted(cptec.PRODUCTS)}, got {variable!r}")
+    if by or where:
+        raise ValueError("a climate cube has no strata")
+    if place != "municipality":
+        raise ValueError("a climate cube is municipal: a temperature is not summed over places")
+    if not periods:
+        raise ValueError("climate:cptec reads daily files: name the periods (years, months or days)")
+    grain = grain or "month"
+    spans = []
+    for p in (str(p) for p in periods):
+        if len(p) == 4 and p.isdigit():
+            spans.append((dt.date(int(p), 1, 1), dt.date(int(p), 12, 31)))
+        elif len(p) == 7:
+            y, m = int(p[:4]), int(p[5:])
+            spans.append((dt.date(y, m, 1), dt.date(y, m, calendar.monthrange(y, m)[1])))
+        elif len(p) == 10:
+            spans.append((dt.date.fromisoformat(p),) * 2)
+        else:
+            raise ValueError(f"periods are years, months or days, got {p!r}")
+    table = cptec.period_sums(variable, grain, start=min(s[0] for s in spans), end=max(s[1] for s in spans), weight=weight,
+                              settings=settings)
+    first, last = table.column("first_day"), table.column("last_day")
+    inside = [pc.and_(pc.greater_equal(last, pa.scalar(a, pa.date32())), pc.less_equal(first, pa.scalar(b, pa.date32())))
+              for a, b in spans]
+    table = table.filter(functools.reduce(pc.or_, inside))
+    periods_out = table.column("period").to_pylist()
+    expected = pa.array([_period_days(p) for p in periods_out], pa.int64())
+    n = table.num_rows
+    product = cptec.PRODUCTS[variable]
+    stamp = pc.strftime(table.column("published"), format="%Y-%m-%d")
+    source = pc.binary_join_element_wise(pa.array([f"CPTEC {product.product} ({weight}), vintage "] * n, pa.string()), stamp, "")
+    facts = pa.table({"place": pc.cast(table.column("municipality7"), pa.int64()), "period": table.column("period"),
+                      "value": pc.cast(table.column("value"), pa.float64()),
+                      "status": pc.if_else(pc.equal(table.column("days"), expected), "value", "incomplete"),
+                      "unit": pa.array(["mm" if variable == "precipitation" else "°C summed over days"] * n, pa.string()),
+                      "source": source, "days": table.column("days"),
+                      "coverage": pc.cast(table.column("coverage"), pa.float64())})
+    return _with_manifest(facts, {"source": f"climate:cptec/{ident}", "place_level": "municipality", "period_grain": grain,
+                                  "strata": [], "additive_over": ["days"], "denominator": "days", "weight": weight,
+                                  "product": product.product, "reference": product.reference})
+
+
+def _period_days(period: str) -> int:
+    """The days a period of the climate cubes holds (``YYYY``, ``YYYY-MM``, ``YYYY-MM-DD``, ``YYYY-Www``)."""
+    import calendar
+
+    if "-W" in period:
+        return 7
+    if len(period) == 4:
+        return 366 if calendar.isleap(int(period)) else 365
+    if len(period) == 7:
+        return calendar.monthrange(int(period[:4]), int(period[5:]))[1]
+    return 1
 
 
 def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
