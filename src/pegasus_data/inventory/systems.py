@@ -28,12 +28,14 @@ from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
 
-#: Below this level of agreement a prefix is not treated as identifying a system:
-#: it is genuinely ambiguous and the path stays authoritative for it.
-MIN_AGREEMENT = 0.9
 
-#: A prefix seen fewer times than this is too thin to learn from.
-MIN_OBSERVATIONS = 5
+def _declared(name: str) -> float:
+    """``min_agreement`` (below this level of agreement a prefix is genuinely ambiguous and the path stays
+    authoritative for it) or ``min_observations`` (a prefix seen fewer times is too thin to learn from), declared in
+    ``quality.yml`` (``thresholds.prefix_systems``)."""
+    from ..semantics.curation import declared
+
+    return declared("quality.yml", "thresholds", "prefix_systems", name)
 
 
 @dataclass(slots=True)
@@ -45,7 +47,7 @@ class PrefixSystem:
 
     @property
     def trustworthy(self) -> bool:
-        return self.agreement >= MIN_AGREEMENT and self.file_count >= MIN_OBSERVATIONS
+        return self.agreement >= _declared("min_agreement") and self.file_count >= _declared("min_observations")
 
 
 def learn_prefix_systems(
@@ -227,8 +229,8 @@ def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Prefixes the name-first rule will not use, ranked by how much they carry.
 
     A prefix is low-trust when it is genuinely ambiguous (agreement below
-    ``MIN_AGREEMENT``) or too thinly observed to learn from (fewer than
-    ``MIN_OBSERVATIONS`` files). For those, the path stays authoritative — which
+    ``min_agreement``) or too thinly observed to learn from (fewer than
+    ``min_observations`` files). For those, the path stays authoritative — which
     is the old, fragile behaviour, kept deliberately because a weak signal must
     not override a working one.
 
@@ -263,7 +265,7 @@ def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, Any]]:
                 "files": int(r["files_now"] or 0),
                 "agreement": round(entry.agreement, 3),
                 "reason": (
-                    "ambiguous" if entry.agreement < MIN_AGREEMENT else "too few observations"
+                    "ambiguous" if entry.agreement < _declared("min_agreement") else "too few observations"
                 ),
             }
         )

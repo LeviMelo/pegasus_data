@@ -34,10 +34,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from ..catalog.store import CatalogStore
-from .curation import load_variable_docs
-
-#: A share at or above this is "decoded": rounding in the stored share only.
-DECODED = 0.9999
+from .curation import declared, load_variable_docs
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,7 +123,7 @@ def measure(store: CatalogStore, systems: list[str] | None = None) -> list[Field
             elif codelists:
                 if share is None:
                     coding = "unmeasured"
-                elif share >= DECODED:
+                elif share >= declared("quality.yml", "thresholds", "coverage", "decoded_share"):
                     opaque = gaps.get((str(fam["family_id"]), field), {}).get("opaque", 0)
                     coding = "opaque" if opaque else "decoded"
                 else:

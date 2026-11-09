@@ -212,7 +212,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - `modelled_race.py:624` strings `"SIM.DO"` and `"SINASC-DN"` in a manifest (two different spellings of a dataset in one dict); `linkage/timeline.py:108-118` calls `_records("SINASC-DN"/"SIH-RD"/"SIM-DO")`, `DELIVERY` etc. - study modules naming datasets in code (defect 3 style).
 - Fix: `ontology.dataset_key`, and the timeline's datasets from the link declarations. Size XS.
 
-**T18. Linkage and engine thresholds**
+**T18. Linkage and engine thresholds** — done (this commit): 20 cuts declared in `links.yml` (`thresholds:`), `codelists.yml` (`label_bindings:`), `quality.yml` (`thresholds:`), each with its code comment as evidence; 198 stored `judge()` verdicts, a placebo/weigh sweep and the RR 2022 SINASC-DN × SIH-RD discover top 10 identical to master
 - `linkage/engine.py:58-60` (`CHANCE_DROP = 20.0`, `MIN_COMPARED = 30`), `linkage/discover.py:61-62,146-147` (`SHIFT_DAYS = 7`, `MAX_INTERVAL_DAYS = 60`, top-5, top-3), `linkage/placebo.py:36-45` (`PLACEBO_DAYS = 182`, `KEY_REACH = 0.5`, `BLOCK_MIN_EXPECTED = 30`), `semantics/label_bindings.py:45-55,505` (`TOO_WEAK 0.5`, `SHARE_TIE`, `MIN_EVIDENCE = 5`, `0.95`), `semantics/icd.py:393` (`0.10`), `inventory/systems.py:33-36`, `semantics/coverage.py:40` (`0.9999`), `persist/reference.py:938` (`BLANK_LABEL_THRESHOLD = 0.9`).
   About 25 analytic thresholds not in curation (the linkage verdict bands already live in `links.yml`).
 - Violates: hand-fixed thresholds (principle 4/"always ask whether it can be made better"). Not semantic: they gate diagnostics and verdicts.

@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from ..catalog.store import CatalogStore
+from .curation import declared
 
 #: A dotless ICD-10 code: a letter, two digits, then an optional fourth
 #: character. ``J189``, ``A419``, ``I10X`` — the trailing X is DATASUS padding a
@@ -388,10 +389,6 @@ def persist_token_rules(catalog: CatalogStore, measured: Sequence[ColumnQuality]
     return written
 
 
-#: Below this share of structurally valid codes, a binding is not weak evidence
-#: — it is the wrong table. A real ICD column is overwhelmingly ICD-shaped.
-SUSPECT_BINDING_THRESHOLD = 0.10
-
 
 def flag_suspect_bindings(catalog: CatalogStore, measured: Sequence[ColumnQuality]) -> int:
     """Record columns whose bound codelist does not fit what they contain.
@@ -411,7 +408,7 @@ def flag_suspect_bindings(catalog: CatalogStore, measured: Sequence[ColumnQualit
         if not q.values_examined:
             continue
         valid = (q.single_valid + q.several_codes) / q.values_examined
-        if valid >= SUSPECT_BINDING_THRESHOLD:
+        if valid >= declared("quality.yml", "thresholds", "icd", "suspect_binding_share"):
             continue
         flagged += 1
         catalog.note_question(

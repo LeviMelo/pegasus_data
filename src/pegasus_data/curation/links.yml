@@ -42,6 +42,43 @@ verdict:
   viable: [5.0, 90.0]
   caution: [20.0, 75.0]
 
+# thresholds: the other analytic cuts of the linkage code, read where they are used (semantics.curation.declared).
+# Deliberate choices, not learned; each carries the reason the code gave. Where none was recorded: "not measured".
+thresholds:
+  engine:
+    # A pass whose control finds this % or more of its pairs is dropped with its pairs (engine docstring, step 4;
+    # the same 20 as the "caution" chance band above). Not measured on its own.
+    chance_drop_pct: 20.0
+    # Pairs a held-out validation must compare to count as evidence: a proportion of fewer says nothing. Not measured.
+    min_compared: 30
+  discover:
+    # The control displacement of a key search, in days (a week: the weekday does not change). Same 7 as a spec's
+    # `control.shift_days`. Not measured.
+    shift_days: 7
+    # An interval entity (an admission) offers its days up to this many from its start, so a key can test "this date
+    # falls inside the stay". Not measured.
+    max_interval_days: 60
+    # Staged search: how many date sets get sex and place added, and how many of the resulting keys get one
+    # attribute. Not measured.
+    top_date_sets: 5
+    top_keys_for_attributes: 3
+  placebo:
+    # The probabilistic placebo's displacement: half a year (26 weeks), so the day and month change (a year would hand
+    # back the same day-month and earn typo credit) and the weekday does not. A deterministic pass moves its control
+    # key by the spec's `shift_days` (a week): it joins on equality, so no typo level can be earned, and measured on
+    # five links a week counts as many chance pairs as half a year in the passes that count many and more in the
+    # strong ones (ADR-0186).
+    days: 182
+    # The least share of the real key's reach the moved key must keep (`placebo.key_reach`). Not measured.
+    key_reach: 0.5
+    # A block's placebo must produce at least this share of its real candidates' coincidences. The coincidences are
+    # at least `candidates - left records` (a left record has at most one true partner), whatever the true-link rate
+    # is; a faithful placebo has about that many, half is the slack for the season and weekday mix a rotation changes.
+    block_reach: 0.5
+    # ... and is judged only when the coincidences expected are at least this many (below it a Poisson count falls
+    # short of half by chance).
+    block_min_expected: 30
+
 links:
   sih_deaths_to_sim:
     description: >

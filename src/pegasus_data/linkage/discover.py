@@ -30,7 +30,7 @@ instead of asserting it:
 
 Intervals. Where the right side has ``<entity>.start`` and ``<entity>.end``
 dates (an admission), it also offers ``<entity>.day``: one row per day of the
-interval (capped at ``MAX_INTERVAL_DAYS``), so a key can test "this date falls
+interval (capped at ``thresholds.discover.max_interval_days``), so a key can test "this date falls
 inside that stay", not only equality with one end (a mother is often admitted
 the day before she gives birth).
 
@@ -58,8 +58,15 @@ COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
 #: the mother's age, delivery type): numerous pairings, most meaningless,
 #: which the placebo sorts out.
 ATTRIBUTE = ("integer", "label")
-SHIFT_DAYS = 7
-MAX_INTERVAL_DAYS = 60
+
+
+def _declared(key: str) -> int:
+    """A discovery cut from ``links.yml`` (``thresholds.discover``: `shift_days`, `max_interval_days`, `top_date_sets`,
+    `top_keys_for_attributes`), each declared there with its evidence."""
+    from ..semantics.curation import declared
+
+    return int(declared("links.yml", "thresholds", "discover", key))
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -141,10 +148,8 @@ def _keys(left: dict[str, str], right: dict[str, str]) -> list[tuple[tuple[str, 
     return [d + s + p + x for d in date_sets for s in sexes for p in places for x in attrs]
 
 
-#: Staged search (default): how many date sets get sex and place added, and how
-#: many of the resulting keys get one attribute.
-TOP_DATE_SETS = 5
-TOP_KEYS_FOR_ATTRIBUTES = 3
+# Staged search (default): how many date sets get sex and place added, and how many of the resulting keys get one
+# attribute are ``thresholds.discover.top_date_sets`` and ``top_keys_for_attributes``.
 
 
 def _z(r: KeyResult) -> float:
@@ -195,7 +200,8 @@ def _count(con: duckdb.DuckDBPyConnection, key: tuple[tuple[str, str], ...], lty
                  for a, b in key]
         return f"SELECT {shift} AS s, " + ", ".join(f"{e} AS k{i}" for i, e in enumerate(exprs)) +             f" FROM L WHERE {lnn}"
 
-    shifts = (0, SHIFT_DAYS, -SHIFT_DAYS)
+    shift = _declared("shift_days")
+    shifts = (0, shift, -shift)
     union = " UNION ALL ".join(lsel(sh) for sh in shifts)
     sql = f"""
         WITH b AS (SELECT {ks}, count(*) n FROM (SELECT {rsel} FROM {source} WHERE {rnn}) GROUP BY ALL),
@@ -219,8 +225,8 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
 
     The default search is staged: every single date pairing with sex and place;
     pairs of the dates that shared people in any of those forms, the
-    TOP_DATE_SETS best of them with sex and place; one attribute added to the
-    TOP_KEYS_FOR_ATTRIBUTES best keys by sharing and by isolation. ``exhaustive=True``
+    `top_date_sets` best of them with sex and place; one attribute added to the
+    `top_keys_for_attributes` best keys by sharing and by isolation. ``exhaustive=True``
     measures every combination (SIH ~ CIHA: over 4.5 h unfinished, 2026-10-02).
 
     ``tables`` may carry already-loaded role tables (dataset -> table) so a
@@ -239,7 +245,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
         day, view = f"{entity}.day", f"RX{i}"
         con.execute(f"""CREATE TEMP TABLE {view} AS SELECT R.*, d::DATE AS "{day}" FROM R,
             unnest(generate_series("{entity}.start"::TIMESTAMP,
-                   least("{entity}.end", ("{entity}.start" + INTERVAL {MAX_INTERVAL_DAYS} DAY)::DATE)::TIMESTAMP,
+                   least("{entity}.end", ("{entity}.start" + INTERVAL {_declared("max_interval_days")} DAY)::DATE)::TIMESTAMP,
                    INTERVAL 1 DAY)) t(d)
             WHERE "{entity}.start" IS NOT NULL AND "{entity}.end" >= "{entity}.start"
             """)
@@ -259,7 +265,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
                     ranges[b] = placebo.partner_range(con, [b], days.get(b, "R"))
             c = _count(con, key, lt, days, ranges)
             nl, nr, real_any, real_mutual, real_rm = c[0]
-            p_plus, p_minus = c[SHIFT_DAYS], c[-SHIFT_DAYS]
+            p_plus, p_minus = c[_declared("shift_days")], c[-_declared("shift_days")]
             res = KeyResult(left, right, key, nl, nr, real_any, real_mutual,
                             (p_plus[2] + p_minus[2]) / 2, (p_plus[3] + p_minus[3]) / 2,
                             real_rm, (p_plus[4] + p_minus[4]) / 2)
@@ -279,9 +285,9 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
         first = measure([(d,) + s_ + p_ for d in pairs["date"] for s_ in sexes for p_ in places])
         live = sorted({r.key[0] for r in first if _shares(r)})
         doubles = [(d1, d2) for d1, d2 in itertools.combinations(live, 2) if d1[0] != d2[0] and d1[1] != d2[1]]
-        double_sets = _top([r for r in measure(doubles) if _shares(r)], TOP_DATE_SETS)
+        double_sets = _top([r for r in measure(doubles) if _shares(r)], _declared("top_date_sets"))
         measure([r.key + s_ + p_ for r in double_sets for s_ in sexes for p_ in places])
-        best = _top([r for r in measured.values() if _shares(r)], TOP_KEYS_FOR_ATTRIBUTES)
+        best = _top([r for r in measured.values() if _shares(r)], _declared("top_keys_for_attributes"))
         attrs = [(x,) for t in ATTRIBUTE for x in pairs[t]]
         measure([r.key + a_ for r in best for a_ in attrs])
     results = sorted(measured.values(), key=lambda r: r.excess_mutual, reverse=True)

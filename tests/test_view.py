@@ -637,11 +637,12 @@ class TestTheDataDecidesWhichTableIsRight:
 
     def test_the_best_of_a_bad_set_is_reported_not_hidden(self) -> None:
         """PROC_REA: the best table decodes a quarter. That is a finding."""
-        from pegasus_data.semantics.label_bindings import TOO_WEAK, weigh
+        from pegasus_data.semantics.curation import declared
+        from pegasus_data.semantics.label_bindings import weigh
 
         decision = weigh("PROC_REA", ["A"], {"1", "2", "3", "4"}, lambda _cl: {"1": "one"})
         assert not decision.labels
-        assert decision.share == 0.25 < TOO_WEAK
+        assert decision.share == 0.25 < declared("codelists.yml", "label_bindings", "too_weak")
         assert "'A'" in decision.reason
 
 
