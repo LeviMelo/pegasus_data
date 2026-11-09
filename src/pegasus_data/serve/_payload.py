@@ -31,6 +31,7 @@ from typing import Any
 import pyarrow as pa
 
 from .._aggregate import _BASE_LEVEL, _NATIONAL_LEVEL, _UF_LEVEL
+from ..normalize.time import month_label
 
 #: The wire names for the two structural axes. Fixed so a view is written once.
 GEO = "geo"
@@ -103,7 +104,7 @@ def shape(
     if time_level and time_level in names:
         raw_time = [str(v) if v is not None else "" for v in table.column(time_level).to_pylist()]
         if time_level == "month":
-            raw_time = [f"{v[:4]}-{v[4:6]}" if len(v) == 6 else v for v in raw_time]
+            raw_time = [month_label(v) for v in raw_time]
         columns[TIME] = raw_time
         types[TIME] = {"type": "period", "grain": time_level}
 

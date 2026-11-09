@@ -18,6 +18,7 @@ import pyarrow.compute as pc
 from .._vintage import months_in, source_vintages
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
+from ..normalize.time import month_label, month_of
 from ..semantics.column_roles import facility_code_field
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
@@ -317,7 +318,7 @@ def _with_registry_competence(table: pa.Table, field: str | None) -> pa.Table:
         text = str(raw or "").strip()
         digits = "".join(character for character in text if character.isdigit())
         value = int(digits[:6]) if len(digits) >= 6 else 0
-        values.append(value if 190001 <= value <= 219912 and value % 100 else None)
+        values.append(value if 190001 <= value <= 219912 and month_of(value) else None)
     return _append_or_replace(table, "_competencia", _spread(values, inverse, pa.int64()))
 
 
@@ -447,7 +448,7 @@ def _enrich_cnes_name_current(
 
 
 def _period_text(value: int) -> str:
-    return f"{value // 100:04d}-{value % 100:02d}"
+    return month_label(value)
 
 
 def _enrich_cnes_attribute(

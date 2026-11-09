@@ -58,6 +58,7 @@ from .lookups import (
     expand,
     joined,
 )
+from .normalize.time import year_bounds
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
 
@@ -1359,7 +1360,7 @@ def _remapped(codes: object, recipe: Mapping[str, Any], *, year: int | None, com
     if competencia is not None:
         applies = lo <= int(competencia) <= hi
     elif year is not None:
-        first, last = int(year) * 100 + 1, int(year) * 100 + 12
+        first, last = year_bounds(year)
         applies = True if lo <= first and last <= hi else False if last < lo or first > hi else None
     if applies is None:
         report.warnings.append(

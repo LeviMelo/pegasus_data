@@ -11,10 +11,10 @@ ones.
 
 from __future__ import annotations
 
-import re
 from functools import lru_cache
 from typing import Any
 
+from ..normalize.time import parse_month
 from ._errors import Refused
 
 #: How many valid values a refusal lists.
@@ -67,9 +67,10 @@ def check(where: dict[str, list[str]], capability: Any, system: str | None) -> d
             valid = set(UF_NUMERIC.values())
         elif key in ("month", "period"):
             # The wire carries months as YYYY-MM; the cells hold YYYYMM.
-            values = [f"{v[:4]}{v[5:]}" if re.fullmatch(r"\d{4}-\d{2}", v) else v for v in values]
-            if bad := [v for v in values if not re.fullmatch(r"\d{6}", v)]:
+            parsed = [parse_month(v) for v in values]
+            if bad := [v for v, p in zip(values, parsed, strict=True) if p is None]:
                 raise Refused(422, f"{key} takes YYYYMM or YYYY-MM, got {bad}", {"filter": key})
+            values = [str(p) for p in parsed]
             if outside := [v for v in values if lo and hi and not lo <= v <= hi]:
                 raise Refused(422, f"{key} {outside} lies outside this artifact's period {lo}..{hi}",
                               {"filter": key, "from": lo, "to": hi})

@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
+from ..normalize.time import month_label, month_of, parse_month, year_bounds, year_of
 from ..persist.lake import LakePartition
 from ..providers import ResourceRequirement
 
@@ -43,18 +44,18 @@ class Period:
 
     @property
     def years(self) -> tuple[int, ...]:
-        return tuple(range(self.start // 100, self.end // 100 + 1))
+        return tuple(range(year_of(self.start), year_of(self.end) + 1))
 
     def months_in(self, year: int) -> tuple[int, ...]:
         """The months of ``year`` the period covers: the stretch of a month-precision period that falls in it, every
         month for a whole year of it (and for a period given in years)."""
-        lo = self.start % 100 if year == self.start // 100 else 1
-        hi = self.end % 100 if year == self.end // 100 else 12
+        lo = month_of(self.start) if year == year_of(self.start) else 1
+        hi = month_of(self.end) if year == year_of(self.end) else 12
         return tuple(range(lo, hi + 1))
 
     def __str__(self) -> str:
         def show(value: int) -> str:
-            return f"{value // 100:04d}-{value % 100:02d}" if self.precision == "month" else str(value // 100)
+            return month_label(value) if self.precision == "month" else str(year_of(value))
 
         return show(self.start) if self.start == self.end else f"{show(self.start)}..{show(self.end)}"
 
@@ -246,12 +247,11 @@ def _period(value: object) -> Period | None:
     def parse(item: object, *, end: bool) -> tuple[int, str]:
         text = str(item).strip()
         if len(text) == 4 and text.isdigit():
-            return int(text) * 100 + (12 if end else 1), "year"
+            return year_bounds(text)[1 if end else 0], "year"
         if len(text) == 7 and text[4] == "-" and text[:4].isdigit() and text[5:].isdigit():
-            month = int(text[5:])
-            if not 1 <= month <= 12:
-                raise ValueError(f"period month {month} is not in 1..12")
-            return int(text[:4]) * 100 + month, "month"
+            if (month := parse_month(text)) is None:
+                raise ValueError(f"period month {int(text[5:])} is not in 1..12")
+            return month, "month"
         raise ValueError(f"period value {item!r} must be YYYY or YYYY-MM")
 
     start, start_precision = parse(values[0], end=False)

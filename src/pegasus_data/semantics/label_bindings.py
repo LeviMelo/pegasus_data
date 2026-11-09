@@ -40,6 +40,7 @@ from typing import Any, cast
 
 from ..catalog.store import CatalogStore, utcnow
 from ..inventory.naming import UF_CODES
+from ..normalize.time import month_of
 
 #: Below this share of observed codes, no candidate is the column's codelist.
 TOO_WEAK = 0.5
@@ -324,7 +325,7 @@ def compile_bindings(
         observed: dict[str, Counter[str]] = {}
         used: list[str] = []
         for sample in samples:
-            month = int(sample["normalized_date"] or 0) % 100
+            month = month_of(sample["normalized_date"]) or 0
             if on_progress:
                 on_progress(f"{family_id}: {sample['path']}")
             try:

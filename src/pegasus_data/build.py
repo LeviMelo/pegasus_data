@@ -40,6 +40,7 @@ from .normalize.engine import (
     plan_fingerprint,
 )
 from .normalize.geo import MunicipalityIndex
+from .normalize.time import month_of
 from .persist.lake import Lake
 from .persist.staging import staged_tree
 from .pipeline import Pipeline, StageResult
@@ -319,7 +320,7 @@ class Builder:
                 competencia = (
                     int(normalized_date)
                     if normalized_date is not None
-                    and int(normalized_date) % 100
+                    and month_of(normalized_date)
                     else None
                 )
                 source_resolution = (

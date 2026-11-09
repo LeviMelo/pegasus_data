@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import Settings
+from .normalize.time import month_label
 
 #: Cardinality decides the control. This lives here rather than in the client so
 #: there is no threshold table to keep in sync across a network boundary, and so
@@ -607,8 +608,8 @@ def _capabilities_uncached(
         vintage=_vintage(manifest_path),
         fingerprint=str(manifest.get("fingerprint") or ""),
         period={
-            "from": _as_period(periods[0]) if periods else None,
-            "to": _as_period(periods[-1]) if periods else None,
+            "from": month_label(periods[0]) if periods else None,
+            "to": month_label(periods[-1]) if periods else None,
             "grain": spec.time_grain,
             "years": [int(y) for y in (manifest.get("years") or ())],
         },
@@ -651,12 +652,6 @@ def _binding(
         encoding=str(body.get("encoding")) if body.get("encoding") else None,
         note=str(body.get("note") or ""),
     )
-
-
-def _as_period(raw: str) -> str:
-    """`202203` -> `2022-03`; `2022` stays `2022`."""
-    text = str(raw)
-    return f"{text[:4]}-{text[4:6]}" if len(text) == 6 else text
 
 
 def _vintage(manifest_path: Path) -> str:

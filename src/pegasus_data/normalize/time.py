@@ -1,5 +1,14 @@
 """Time canonicalisation: competência, epidemiological week, epidemiological year.
 
+This is the one place a period is read or computed. A **competência** is ``AAAAMM`` (an ``int`` or its text); a
+month label is ``AAAA-MM`` (the wire and cube spelling); a year-only file is ``AAAA00`` in the catalog. The scalar
+helpers (:func:`compose`, :func:`year_of`, :func:`month_of`, :func:`add_months`, :func:`months_between`,
+:func:`month_range`, :func:`month_label`, :func:`parse_month`) and the column readers (:func:`date_layout`,
+:func:`date_column`, :func:`competencia_column`, :func:`competencia_from_parts`) all judge a month the same way: a
+month outside 1..12 is **null**, never wrapped into the next year and never kept as a period of its own. The
+one twin is ``intake._records_sql``, which states the same rules in DuckDB SQL at landing (it cannot share code with
+Python, and changing it would change landed units' fingerprints).
+
 The epidemiological week is the trap. It runs **Sunday to Saturday**, and week 1
 is the one containing 4 January — so an epi year has **52 or 53** weeks. Computing
 ``year(date), week(date)`` instead produces a spurious gap or spike every few
@@ -14,8 +23,10 @@ figure (§7.1, §13).
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -24,6 +35,22 @@ __all__ = [
     "epi_week",
     "epi_year_weeks",
     "competencia_to_year_month",
+    "COMPETENCIA_RE",
+    "compose",
+    "year_of",
+    "month_of",
+    "years_of",
+    "add_months",
+    "months_between",
+    "month_range",
+    "year_bounds",
+    "month_label",
+    "parse_month",
+    "date_layout",
+    "date_column",
+    "competencia_column",
+    "competencia_from_parts",
+    "parse_date_array",
     "build_calendar",
     "epi_week_array",
     "SOURCE_EPI_WEEK_FIELDS",
@@ -95,6 +122,100 @@ def competencia_to_year_month(value: str | int | None) -> tuple[int, int] | None
     if not (1900 <= year <= 2200) or not (1 <= month <= 12):
         return None
     return year, month
+
+
+#: AAAAMM: a year 1900-2200 and a month 01-12 (:func:`competencia_to_year_month`'s own bounds), as a regex for columns.
+COMPETENCIA_RE = r"^(19\d\d|20\d\d|21\d\d|2200)(0[1-9]|1[0-2])$"
+
+
+def compose(year: int | str | None, month: int | str | None) -> int | None:
+    """``AAAAMM`` as an int from a year and a month; None when either is missing or the month is not 1..12."""
+    try:
+        y, m = int(year), int(month)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return y * 100 + m if 1 <= m <= 12 else None
+
+
+def year_of(value: int | str | None) -> int | None:
+    """The year of a period: the first four digits of a competência, month label, date or year (``202203``,
+    ``2022-03``, ``2022``, ``202200``). None when it does not start with four digits."""
+    text = str(value).strip() if value is not None else ""
+    return int(text[:4]) if len(text) >= 4 and text[:4].isdigit() else None
+
+
+def month_of(value: int | str | None) -> int | None:
+    """The month (1..12) of an ``AAAAMM`` int or text or an ``AAAA-MM`` label; None for a year-only value (month 00)
+    and for any month outside 1..12 (it is not January, and it is not a month of its own)."""
+    text = str(value).strip() if value is not None else ""
+    if len(text) == 7 and text[4] == "-":
+        text = text[:4] + text[5:]
+    if len(text) < 6 or not text[:6].isdigit():
+        return None
+    month = int(text[4:6])
+    return month if 1 <= month <= 12 else None
+
+
+def years_of(periods: Iterable[int | str]) -> list[int]:
+    """The year of each of ``periods`` in order; a period that does not start with a year raises ``ValueError``."""
+    out = []
+    for period in periods:
+        year = year_of(period)
+        if year is None:
+            raise ValueError(f"period {period!r} does not start with a year")
+        out.append(year)
+    return out
+
+
+def _index(competencia: int | str) -> int:
+    year, month = year_of(competencia), month_of(competencia)
+    if year is None or month is None:
+        raise ValueError(f"{competencia!r} is not a month (AAAAMM)")
+    return year * 12 + month - 1
+
+
+def add_months(competencia: int | str, months: int) -> int:
+    """The competência ``months`` after (negative: before) ``competencia``: ``add_months(202401, -1) == 202312``."""
+    year, month = divmod(_index(competencia) + int(months), 12)
+    return year * 100 + month + 1
+
+
+def months_between(first: int | str, last: int | str) -> int:
+    """Whole months from ``first`` to ``last`` (negative when ``last`` is earlier)."""
+    return _index(last) - _index(first)
+
+
+def month_range(first: int | str, last: int | str) -> list[int]:
+    """Every competência from ``first`` to ``last`` inclusive; empty when ``last`` is before ``first``."""
+    return [add_months(first, i) for i in range(months_between(first, last) + 1)]
+
+
+def year_bounds(year: int | str) -> tuple[int, int]:
+    """``(AAAA01, AAAA12)``: the competências a year spans."""
+    return int(year) * 100 + 1, int(year) * 100 + 12
+
+
+def month_label(competencia: int | str) -> str:
+    """``202203`` -> ``2022-03``; a text that is not six digits is returned as it is (``2022`` stays ``2022``)."""
+    text = str(competencia)
+    return f"{text[:4]}-{text[4:6]}" if len(text) == 6 and text.isdigit() else text
+
+
+def parse_month(text: int | str) -> int | None:
+    """``AAAAMM`` int from ``AAAAMM`` or ``AAAA-MM`` text; None for anything else, a month outside 1..12 included."""
+    value = str(text).strip()
+    if len(value) == 7 and value[4] == "-":
+        value = value[:4] + value[5:]
+    if len(value) != 6 or not value.isdigit():
+        return None
+    return compose(value[:4], value[4:])
+
+
+#: How many values to look at when deciding a date column's layout. The two
+#: hypotheses separate on the first handful of real rows; this is generous.
+_LAYOUT_SAMPLE = 4_000
+#: The winner must explain at least this share of the values it was shown.
+_LAYOUT_CONFIDENCE = 0.9
 
 
 def build_calendar(start_year: int, end_year: int) -> pa.Table:
@@ -219,3 +340,126 @@ def epi_week_array(dates: pa.Array) -> tuple[pa.Array, pa.Array]:
     # a null or out-of-range day is not in `distinct`: its index is null, so its year and week are
     index = pc.index_in(days, value_set=distinct)
     return pc.take(years, index), pc.take(weeks, index)
+
+
+def date_layout(values: Sequence[Any]) -> str | None:
+    """``"ymd"``, ``"dmy"``, ``"ym"`` (a year-first month with no day) or None, decided by measurement.
+
+    DATASUS does not use one date format. Measured on live 2022 files:
+
+    ==========  ==========  ==========  ==================
+    dataset     column      example     layout
+    ==========  ==========  ==========  ==================
+    SIH-RD      DT_INTER    20211227    AAAAMMDD (ymd)
+    SIM-DO      DTOBITO     07052022    DDMMAAAA (dmy)
+    SINASC-DN   DTNASC      16041976    DDMMAAAA (dmy)
+    ==========  ==========  ==========  ==================
+
+    Nineteen (system, field) pairs declare a `date` encoding, so a table of
+    declared formats is nineteen things to maintain and to get wrong. The two
+    layouts are separable by inspection instead: `20211227` cannot be day-first
+    because `12` is a plausible month but `1227` is not a year, and `07052022`
+    cannot be year-first because `0705` is not a year.
+
+    The two readings are in fact DISJOINT for any real date: if `text[4:8]` is a
+    plausible year (19xx/20xx) then `text[4:6]` is 19 or 20, which is not a
+    month, so year-first cannot also hold. There is no genuinely ambiguous
+    eight-digit date after 1900 -- which is why a sample of a few rows settles
+    it and why the confidence threshold is a guard against junk rather than a
+    tie-break.
+
+    Returns None when neither hypothesis dominates. That is deliberate -- a
+    column this cannot read is refused upstream rather than bucketed under a
+    period that means nothing, which is how `0101` through `3112` became months.
+    """
+    ymd = dmy = ym = seen = 0
+    for value in values:
+        text = str(value or "").strip()
+        if len(text) == 6 and text.isdigit():
+            # a month written year-first with no day (ANS's ID_CMPT_MOVEL, 2024-12 once its dash is read away)
+            seen += 1
+            ym += 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12
+            continue
+        if len(text) != 8 or not text.isdigit():
+            continue
+        seen += 1
+        # year-first: YYYYMMDD
+        if 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12:
+            ymd += 1
+        # day-first: DDMMYYYY
+        if 1900 <= int(text[4:8]) <= 2100 and 1 <= int(text[2:4]) <= 12:
+            dmy += 1
+    if not seen:
+        return None
+    if ym >= _LAYOUT_CONFIDENCE * seen:
+        return "ym"
+    if ymd >= _LAYOUT_CONFIDENCE * seen and ymd > dmy:
+        return "ymd"
+    if dmy >= _LAYOUT_CONFIDENCE * seen and dmy > ymd:
+        return "dmy"
+    return None
+
+
+def _digits_year_first(array: Any) -> tuple[Any, str | None]:
+    """A column as trimmed text with an ISO dash read away (2024-12-31 is its digits year-first), and its measured layout."""
+    joined = pc.utf8_trim_whitespace(pc.cast(array, pa.string()))
+    joined = pc.replace_substring(joined, "-", "")
+    return joined, date_layout(joined.slice(0, min(_LAYOUT_SAMPLE, len(joined))).to_pylist())
+
+
+def date_column(array: Any) -> Any | None:
+    """A column of record dates in any measured layout (``AAAAMMDD``, ``DDMMAAAA``, ISO ``AAAA-MM-DD``) as ``date32``;
+    an already typed date passes through. None when the layout is not a day layout (unreadable, or a month with no day).
+    An impossible calendar date is null (:func:`parse_date_array`)."""
+    if pa.types.is_date(array.type) or pa.types.is_timestamp(array.type):
+        return array.cast(pa.date32())
+    text, layout = _digits_year_first(array)
+    if layout not in ("ymd", "dmy"):
+        return None
+    return parse_date_array(text, order="DDMMYYYY" if layout == "dmy" else "YYYYMMDD")
+
+
+def _valid_competencia(text: Any) -> Any:
+    """The first six characters of ``text`` where they are a month of a plausible year, else null: the length alone
+    let `00000000` and `20229999` become periods 000000 and 202299 (month 99), each a cell of its own."""
+    sliced = pc.utf8_slice_codeunits(text, 0, 6)
+    valid = pc.fill_null(pc.match_substring_regex(sliced, COMPETENCIA_RE), False)
+    return pc.if_else(valid, sliced, pa.nulls(len(sliced), pa.string()))
+
+
+def competencia_from_parts(year: Any, month: Any) -> Any:
+    """``AAAAMM`` text from a year column and a month column held apart (``ANO_CMPT``, ``MES_CMPT``); a month outside
+    1..12 or a year outside 1900..2200 is null."""
+    y = pc.utf8_trim_whitespace(pc.cast(year, pa.string()))
+    m = pc.utf8_lpad(pc.utf8_trim_whitespace(pc.cast(month, pa.string())), 2, padding="0")
+    return _valid_competencia(pc.binary_join_element_wise(y, m, ""))
+
+
+def competencia_column(table: Any, time_fields: Sequence[str], encoding: str = "") -> Any | None:
+    """AAAAMM text from the declared time fields, as a column; None when no field is present or a date column's layout
+    cannot be measured.
+
+    Two fields means year and month held apart (`ANO_CMPT`, `MES_CMPT`). One
+    field is either a competence already packed year-first -- of which the first
+    six characters ARE the period -- or a record date, whose layout is measured
+    rather than assumed (:func:`date_layout`).
+    """
+    present = [f for f in time_fields if f in table.schema.names]
+    if not present:
+        return None
+    if len(present) >= 2:
+        return competencia_from_parts(table.column(present[0]), table.column(present[1]))
+    column = table.column(present[0])
+    if encoding == "date" and (pa.types.is_date(column.type) or pa.types.is_timestamp(column.type)):
+        # a column already typed as a date (SINAN's, from its DBF header) has no layout to guess
+        return pc.strftime(column, format="%Y%m")
+    if encoding != "date":
+        return _valid_competencia(pc.utf8_trim_whitespace(pc.cast(column, pa.string())))
+    joined, layout = _digits_year_first(column)
+    if layout is None:
+        return None
+    if layout == "dmy":
+        # DDMMAAAA -> AAAAMM. Built by concatenation rather than by a regex so it stays inside Arrow at national volume.
+        joined = pc.binary_join_element_wise(
+            pc.utf8_slice_codeunits(joined, 4, 8), pc.utf8_slice_codeunits(joined, 2, 4), "")
+    return _valid_competencia(joined)

@@ -474,7 +474,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `normalize/engine.py`: vectorised normalisation driven by the ledger.
   A column no profile describes still takes its container's declaration: a DBF `D` field is typed as a date (SINAN, 96 of 98 families).
 - `normalize/geo.py`: 6- vs 7-digit municipality codes.
-- `normalize/time.py`: competência and epidemiological weeks.
+- `normalize/time.py`: the one period module: competência arithmetic and labels (`compose`, `year_of`, `month_of`, `add_months`, `month_range`, `parse_month`), date-column readers (`date_layout`, `date_column`, `competencia_column`) and epidemiological weeks. Its SQL twin is `intake._records_sql`.
 - `normalize/types.py`: type coercion.
 
 ### `persist/`

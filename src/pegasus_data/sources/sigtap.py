@@ -37,6 +37,7 @@ from typing import Any
 
 from ..catalog.store import CatalogStore
 from ..discovery.ftp_client import FtpClient, ListingUnavailable
+from ..normalize.time import add_months
 from ..semantics.dictionary import DictionaryEntry, persist_entries
 
 HOST = "ftp2.datasus.gov.br"
@@ -195,8 +196,7 @@ def entries_from_export(
 
 def _month_before(competencia: str) -> str:
     """``202406`` -> ``202405``; ``202401`` -> ``202312``."""
-    year, month = int(competencia[:4]), int(competencia[4:6])
-    return f"{year - 1}12" if month == 1 else f"{year}{month - 1:02d}"
+    return str(add_months(competencia[:6], -1))
 
 
 def ingest(
