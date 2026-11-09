@@ -943,3 +943,27 @@ def snapshot(
     _emit(report.as_dict(), as_json, "snapshot")
     if report.errors or report.listing_failures:
         raise typer.Exit(code=1)
+
+
+@app.command(name="model-build", rich_help_panel="MAINTENANCE")
+def model_build(
+    product: Annotated[str, typer.Argument(help="Modelled product: population_account, population_without_private_coverage, "
+                                                "system_completeness or registration_completeness")],
+    version: Annotated[str, typer.Option("--version", help="The new version's name (a stored version is never overwritten)")],
+    validation: Annotated[str, typer.Option("--validation", help="Where the evidence for the product is written, e.g. an evaluation entry")],
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Build a modelled product from the data home by the function `curation/products.yml` declares for it (`build:`).
+
+    A long run for population_account (the events of 1991-2023 are collected into the work area first; detach it). The
+    inputs are the home's own: censuses, SIDRA tables, SIM, SINASC, ANS and the stored versions of earlier products.
+    """
+    import sys
+
+    from ..modelled import build
+
+    settings = _writer(root)
+    result = build(product, version=version, validation=validation, settings=settings,
+                   log=lambda m: print(m, file=sys.stderr, flush=True))
+    _emit(result, as_json, f"model-build {product}")

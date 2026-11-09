@@ -183,15 +183,21 @@ def load_census(root: str | Path, year: int, places: Places, by: str = "unit") -
 
 def vital_inputs() -> dict[str, dict[str, Any]]:
     """What the account counts (``inputs`` of its product, `curation/products.yml`): per input, its event type
-    (``records:<dataset>/<event>``) and its strata, a name for each role it is stratified by."""
+    (``records:<dataset>/<event>``), its strata (a name for each role it is stratified by), the first year its system
+    publishes (``first``, 0 when it always has) and the dataset that holds the years before it (``earlier``, or None)."""
     from .config import curation_root
     from .semantics.curation import read_yaml
+
+    def split(events: str) -> tuple[str, str]:
+        dataset, _, event = str(events).removeprefix("records:").partition("/")
+        return dataset, event
 
     product = (read_yaml(curation_root() / "products.yml").get("products") or {})["population_account"]
     out = {}
     for name, body in (product.get("inputs") or {}).items():
-        dataset, _, event = str(body["events"]).removeprefix("records:").partition("/")
-        out[str(name)] = {"dataset": dataset, "event": event, "strata": {str(k): str(v) for k, v in body["strata"].items()}}
+        dataset, event = split(body["events"])
+        out[str(name)] = {"dataset": dataset, "event": event, "strata": {str(k): str(v) for k, v in body["strata"].items()},
+                          "first": int(body.get("from", 0)), "earlier": split(body["earlier"])[0] if body.get("earlier") else None}
     return out
 
 
@@ -216,7 +222,8 @@ SEX_INDEX = {"M": 0, "F": 1}
 def collect_events(root: str | Path, years: range | list[int], events_dir: str | Path, log=print) -> None:
     """Each input of `vital_inputs` (deaths by residence × sex × age in years, births by residence × sex) per year,
     through the public API into ``events_dir``, its strata under their declared names (sex as M, F or null); a year
-    already collected is not fetched again."""
+    already collected is not fetched again. A year before the input's system publishes is read from its ``earlier``
+    dataset when it has one (SIM-DOR for the deaths to 1995) and skipped when it has none (no births before 1994)."""
     import warnings
 
     import pyarrow as pa
@@ -232,20 +239,29 @@ def collect_events(root: str | Path, years: range | list[int], events_dir: str |
     for y in years:
         for name, spec in vital_inputs().items():
             f = out / f"{name}_{y}.parquet"
-            if f.exists():
+            dataset = spec["dataset"] if y >= spec["first"] else spec["earlier"]
+            if f.exists() or dataset is None:
                 continue
             t0 = time.time()
-            columns = {stratum: column_of(spec["dataset"], role) for stratum, role in spec["strata"].items()}
+            columns = {stratum: column_of(dataset, role) for stratum, role in spec["strata"].items()}
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                tab = pg.count_events(spec["dataset"], spec["event"], period=y, geography="BR", by=list(columns.values()),
+                tab = pg.count_events(dataset, spec["event"], period=y, geography="BR", by=list(columns.values()),
                                       root=root, allow_partial=False, max_download=8 * 1024**3)
-            tab = vital_table(spec["dataset"], y, {s: pc.cast(tab[c], pa.string()) for s, c in columns.items()},
+            tab = vital_table(dataset, y, {s: pc.cast(tab[c], pa.string()) for s, c in columns.items()},
                               columns, tab["events"], root)
             tmp = f.with_name(f"{f.name}.{os.getpid()}.tmp")     # whole or absent: a truncated file passed `f.exists()` for good
             pq.write_table(tab, tmp)
             tmp.replace(f)
-            log(f"{name} {y}: {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
+            log(f"{name} {y} ({dataset}): {tab.num_rows} rows, {pc.sum(tab['events']).as_py()} events, {time.time() - t0:.0f}s")
+
+
+def ensure_events(settings: Any, years: range | list[int], log=print) -> Path:
+    """The events the account counts for ``years``, collected into the data home's work area (a cache: a year already there
+    is not fetched again), and the folder that holds them."""
+    events = Path(settings.work_dir) / "population_account" / "events"
+    collect_events(settings.root, years, events, log)
+    return events
 
 
 def vital_table(dataset: str, year: int, strata: dict[str, Any], columns: dict[str, str], events: Any,
@@ -399,14 +415,14 @@ def to_bands(x: np.ndarray) -> np.ndarray:
     return np.stack([x[..., g == BANDS].sum(-1) for g in range(17)], axis=-1)
 
 
-def reconciled_coverage(population_root: str | Path, year: int, census: np.ndarray, state_of: np.ndarray) -> np.ndarray:
+def reconciled_coverage(root: str | Path, year: int, census: np.ndarray, state_of: np.ndarray) -> np.ndarray:
     """Coverage factors of a census as IBGE's reconciliation implies them: POPSVS / raw count, by state × sex × band,
     expanded to single ages (n, 2, A) for units whose state is ``state_of``. The reconciliation was made with the 2022
     PES, so an account that uses these for 2000 and 2010 is a *sensitivity*, not a hold-out; and POPSVS is modelled,
     not observed."""
     import pegasus_data as pg
 
-    t = pg.load_population(series="POPSVS", years=[year], by=("municipality", "year", "sex", "age"), root=population_root)
+    t = pg.load_population(series="POPSVS", years=[year], by=("municipality", "year", "sex", "age"), root=root)
     states = sorted(set(int(u) for u in state_of))
     index = {u: i for i, u in enumerate(states)}
     svs = np.zeros((len(states), 2, 17))
@@ -814,7 +830,7 @@ class Inputs:
     vit22: np.ndarray            # the vital account one step from the PES-corrected 2022 census, (entities, 2, A) single ages
 
 
-def assemble(root: str | Path, population_root: str | Path, events_dir: str | Path, log=print) -> Inputs:
+def assemble(root: str | Path, events_dir: str | Path, log=print) -> Inputs:
     """Load the censuses, bring them to coverage, run the vital account and build the three periods' rows.
 
     Coverage: 2022 by IBGE's PES (published margins, raked onto cells), 2000 and 2010 by IBGE's reconciliation
@@ -830,9 +846,9 @@ def assemble(root: str | Path, population_root: str | Path, events_dir: str | Pa
     log("censuses and coverage")
     c00u, c10u = load_census(root, 2000, places), load_census(root, 2010, places)
     c10e, c22e = load_census(root, 2010, places, "entity"), load_census(root, 2022, places, "entity")
-    c00r = c00u * reconciled_coverage(population_root, 2000, c00u, places.unit_uf)
-    c10ur = c10u * reconciled_coverage(population_root, 2010, c10u, places.unit_uf)
-    c10er = c10e * reconciled_coverage(population_root, 2010, c10e, ent_state)
+    c00r = c00u * reconciled_coverage(root, 2000, c00u, places.unit_uf)
+    c10ur = c10u * reconciled_coverage(root, 2010, c10u, places.unit_uf)
+    c10er = c10e * reconciled_coverage(root, 2010, c10e, ent_state)
     c22t = c22e * pes_coverage(c22e, ent_state)
     log("events")
     ev0 = load_events(events_dir, list(range(2000, 2011)), places, "unit")
@@ -997,22 +1013,20 @@ def birth_registration(inp: Inputs) -> list[dict[str, Any]]:
     return rows
 
 
-def build_registration_completeness(root: str | Path, population_root: str | Path, events_dir: str | Path, *, version: str,
-                                    validation: str, log=print) -> dict[str, Any]:
+def build_registration_completeness(settings: Any, *, version: str, validation: str, log=print) -> dict[str, Any]:
     """Write the ``registration_completeness`` modelled product from ``birth_registration``.
 
     The 80% interval is the account's 2% census term (``NATIONAL_SD``) joined with the spread between the 0-4 and the 5-9
     cohort of the same census and state (sd of their difference over sqrt 2), which measures what a single cohort's ratio
     carries beyond registration: coverage by age and migration. It is wider than needed where the two cohorts truly
     differ in registration."""
-    from types import SimpleNamespace
 
     import pyarrow as pa
 
     from . import __version__
     from .modelled import ModelledManifest, write_modelled
 
-    inp = assemble(root, population_root, events_dir, log)
+    inp = assemble(settings.root, ensure_events(settings, range(2000, 2024), log), log)
     rows = birth_registration(inp)
     by = {(r["uf"], r["cohort"]): r["completeness"] for r in rows}
     diffs = [v - by[(u, c.replace("0-4", "5-9"))] for (u, c), v in by.items() if c.startswith("0-4")]
@@ -1036,5 +1050,5 @@ def build_registration_completeness(root: str | Path, population_root: str | Pat
                f"Interval: 80%, sd {sd:.4f} = hypot({NATIONAL_SD}, {pair_sd:.4f}), the second the cohort-pair spread (see birth_registration).",
                "SIM (deaths) completeness is not estimated here (see system_completeness)."])
     table = pa.Table.from_pylist(rows)
-    out = write_modelled(table, manifest, settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
+    out = write_modelled(table, manifest, settings=settings)
     return {"path": str(out), "rows": len(rows), "sd": sd, "pair_sd": pair_sd}
