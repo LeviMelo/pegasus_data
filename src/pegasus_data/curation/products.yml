@@ -616,6 +616,9 @@ products:
       class_edges: [250, 500, 1000, 2000, 4000, 8000, 16000, 32000]
       max_class: 3
       control_shifts: [7, 14, 28, 42, 56]
+      # the prior scales are chosen inside the training years of the validation (train 2015-2016, score 2017-2018), as the
+      # stored version did; the fit then takes every year
+      scale_selection: {train: "2015-2016", score: "2017-2018"}
       composition_years: "2020-2021"
       reference_year: 2022
     parameters: *race_model

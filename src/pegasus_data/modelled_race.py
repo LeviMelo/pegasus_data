@@ -592,7 +592,7 @@ def prepare(deaths: pa.Table, comp: Composition, population: Population = INFANT
 
 def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, settings: Any,
           validation: str, population: Population = INFANT, seed: int = 0, notes: tuple[str, ...] = (),
-          scales: dict[str, float] | None = None) -> Path:
+          scales: dict[str, float] | None = None, selection: tuple[list[int], list[int]] | None = None) -> Path:
     """Fit a race confusion model on the stored links and write it to the modelled tier.
 
     ``deaths``: every SIM death of the population in the fitted years, columns ``year``, ``uf`` (code),
@@ -602,7 +602,8 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     drives linkability, entered in the linkage weights) and ``phi`` (the share of false links in the
     death's stratum, measured by the link's negative control; see ``Pairs.phi``). ``births``: SINASC births by
     (``mun``, ``race``, ``n``) that define the municipal composition. ``reference_births`` the same for
-    the year the table is expressed on. Needs the ``modelled`` extra.
+    the year the table is expressed on. ``selection`` = (train years, score years) of the scale selection, declared
+    by the product; without it the first year is trained against the last and back. Needs the ``modelled`` extra.
     """
     from .modelled import ModelledManifest, write_modelled  # noqa: PLC0415
 
@@ -611,10 +612,15 @@ def build(deaths: pa.Table, births: pa.Table, reference_births: pa.Table, *, set
     years = sorted(np.unique(year))
     mean_table: list[dict] = []
     if scales is None:
-        # train on one year, score the other, both ways (the first and last years of a longer span)
+        # the declared selection, or one year against the other, both ways (the first and last years of a longer span)
         tables = []
-        for a, b in ([(years[0], years[-1]), (years[-1], years[0])] if len(years) > 1 else [(years[0], years[0])]):
-            _, t = select_scales(pairs(linked & (year == a)), pairs(linked & (year == b)))
+        if selection is not None:
+            folds = [(np.isin(year, selection[0]), np.isin(year, selection[1]))]
+        else:
+            folds = [(year == a, year == b) for a, b in
+                     ([(years[0], years[-1]), (years[-1], years[0])] if len(years) > 1 else [(years[0], years[0])])]
+        for tr, te in folds:
+            _, t = select_scales(pairs(linked & tr), pairs(linked & te))
             tables.append(t)
         mean_table = [{**{n: r[n] for n in SCALE_NAMES}, "held_out_log_loss": float(np.mean([t[i]["held_out_log_loss"] for t in tables]))}
                       for i, r in enumerate(tables[0])]
@@ -864,9 +870,11 @@ def _build_product(population: Population, settings: Any, version: str, validati
                   "population: women dying aged 15-49 who were mothers of a SINASC birth in the years read and kept their municipality; "
                   "transport to women who never gave birth, to men and to older ages is not validated"]
     log(f"{population.product}: {deaths.num_rows} deaths, {sum(deaths['linked'].to_pylist())} linked, years {years}")
+    sel = decl.get("scale_selection")
+    selection = None if sel is None else (_years(sel["train"]), _years(sel["score"]))
     target = build(deaths, births_by_race(settings, _years(decl["composition_years"])),
                    births_by_race(settings, [int(decl["reference_year"])]), settings=settings, validation=validation,
-                   population=replace(population, version=version), notes=tuple(notes))
+                   population=replace(population, version=version), notes=tuple(notes), selection=selection)
     return {"product": population.product, "version": version, "path": str(target), "deaths": deaths.num_rows}
 
 
