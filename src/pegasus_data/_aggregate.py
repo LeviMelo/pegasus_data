@@ -247,6 +247,43 @@ def _spec_root(root: Path | None = None) -> Path:
     return curation_root() / "aggregates"
 
 
+def family_specs(curation: Path) -> list[dict[str, Any]]:
+    """Aggregates declared once for a family of datasets: a ``datasets/*.yml`` file's ``shared.aggregate`` is a recipe
+    for each of its datasets that has the shared event type, a label, and axes holding the recipe's place and time
+    bindings (SINAN's agravos). ``{dataset}``, ``{label}`` and ``{what_one_row_is}`` are filled from the
+    dataset's entry (its ``label``, else its ``official_name``), and of the template's dimensions each keeps those its
+    roles file declares. A recipe file of the same name replaces the expansion (dengue's, with its own notes)."""
+    from .semantics.curation import read_yaml
+
+    out: list[dict[str, Any]] = []
+    for path in sorted((curation / "datasets").glob("*.yml")):
+        doc = read_yaml(path, missing_ok=True) or {}
+        template = (doc.get("shared") or {}).get("aggregate")
+        if not template:
+            continue
+        for key, entry in (doc.get("datasets") or {}).items():
+            dataset = str(key).replace("_", "-", 1)
+            label = entry.get("label") or entry.get("official_name")
+            roles_path = curation / "roles" / f"{dataset}.yml"
+            # the shared event type is every entry's unless it says it has none; its axes (its own, else the shared ones)
+            # must hold the recipe's place and time bindings
+            axes = entry.get("semantic_axes") or (doc.get("shared") or {}).get("semantic_axes") or {}
+            bound = (template.get("geography_binding") in (axes.get("geography") or {})
+                     and template.get("time_binding") in (axes.get("time") or {}))
+            if entry.get("why_no_event_type") or not bound or not label or not roles_path.is_file():
+                continue
+            columns = set((read_yaml(roles_path) or {}).get("columns") or {})
+            fill = {"dataset": dataset, "dataset_id": dataset.lower().replace("-", "_"), "label": str(label),
+                    "what_one_row_is": str(entry.get("what_one_row_is") or "").strip()}
+            data = {k: (v.format(**fill) if isinstance(v, str) else v) for k, v in template.items()}
+            data["dataset"] = dataset
+            data["dimensions"] = [d for d in template.get("dimensions") or () if d in columns]
+            data["dimension_labels"] = {d: v for d, v in (template.get("dimension_labels") or {}).items()
+                                        if d in data["dimensions"]}
+            out.append(data)
+    return out
+
+
 def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
     """Every declared aggregate, keyed by name."""
     from .semantics.curation import read_yaml
@@ -255,9 +292,11 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
     out: dict[str, AggregateSpec] = {}
     if not folder.exists():
         return out
-    for path in sorted(folder.glob("*.yml")):
-        data = read_yaml(path, missing_ok=True) or {}
-        name = str(data.get("name") or path.stem)
+    declared = [(path.stem, read_yaml(path, missing_ok=True) or {}) for path in sorted(folder.glob("*.yml"))]
+    named = {str(data.get("name") or stem) for stem, data in declared}
+    declared += [(str(data["name"]), data) for data in family_specs(folder.parent) if data["name"] not in named]
+    for stem, data in declared:
+        name = str(data.get("name") or stem)
         measures = tuple(
             measure_from_declaration(key, body or {})
             for key, body in (data.get("measures") or {}).items()

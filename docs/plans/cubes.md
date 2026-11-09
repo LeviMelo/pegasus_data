@@ -86,7 +86,7 @@ Each adapter turns one kind of source into facts. Nothing downstream knows which
 | CNES fields (43, private DBC pipeline) | records cubes over the CNES datasets (ST/LT/EQ/EP/PF) through the one reader; the code groups (bed and equipment codes, CBO groups) become strata codelists, not field names |
 | BR-DWGD and INMET fields | gridded cubes; `climate_monthly` is their base |
 | intake `fields:` (46) | records cubes over the intake datasets; the intake's place and period declarations generate the dataset's roles, so there is one declaration of place and time |
-| aggregate recipes (60) | records cubes; a recipe shrinks to a materialisation request (dataset, event type, axes), and the 55 SINAN copies to one rule |
+| aggregate recipes (60) | records cubes; a recipe shrinks to a materialisation request (dataset, event type, axes), and the 55 SINAN copies to one rule (done: `family_specs`) |
 | `count_events` | the records adapter's counting core (status, consolidation, weights): one counting path, not two |
 | population series, account, modelled products | published cubes, with estimate states (`lo`, `hi`) |
 | CPTEC daily | a gridded cube at day grain; `climate_weekly` is its epi-week roll-up |

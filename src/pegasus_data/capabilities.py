@@ -293,6 +293,8 @@ def artifact_identity(name: str, settings: Settings) -> tuple[int, ...]:
         _mtime_ns(target / "cells.parquet"),
         _mtime_ns(target / "manifest.json"),
         _mtime_ns(curation / "aggregates" / f"{name}.yml"),
+        # a recipe expanded from a family template (`_aggregate.family_specs`) has no file of its own
+        max((_mtime_ns(p) for p in (curation / "datasets").glob("*.yml")), default=0),
         _pack_mtime(str(pack)) if pack is not None else 0,
         _mtime_ns(curation / "geography.yml"),
         *(tree_mtime_ns(settings.population_dir / series) for series in KNOWN_SERIES),

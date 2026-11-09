@@ -73,7 +73,9 @@ general rule.
 8. ~~Repeated plumbing~~ **closed (33a0d62):** one dataset spelling (`ontology.dataset_key`, 10 sites), one YAML reader
    (`curation.read_yaml`, 12 modules), snapshot and SIGTAP on the project transport. `semantics_for` on 12 spellings
    hashes the same before and after; SIGTAP listed 227 exports and fetched one at its listed size.
-9. **Declaration sprawl:** 55 near-copies of SINAN recipes; about 20 YAML kinds overlapping on "what a row is".
+9. **Declaration sprawl:** the 54 generated SINAN recipes are one template on `sinan_agravos.yml`
+   (`_aggregate.family_specs`; dengue keeps its own file): all 60 specs equal field for field, 19 descriptions now
+   name the agravo where they gave its code. **Left:** about 20 YAML kinds overlapping on "what a row is".
 10. ~~Overloaded terms and code serving `pegasus_view`~~ **closed:** GLOSSARY "Vocabulary" gives field, role and source one
     meaning each. No module had pegasus_view as its only consumer (`presentation`: api, CLI, executor; `capabilities`:
     `workbook`, `_compendium`, `serve`; timeline routes: `s_timeline`), so none was removed; its start script and
