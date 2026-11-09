@@ -21,4 +21,4 @@
 - The five post-2010 creations are anchored on 2022 alone with a constant share (births did not help); their 2000-2010 backcast is 12-22 years from the anchor, beyond the pairs' reach in the other direction, and a fast grower (Mojuí dos Campos) is probably under-covered.
 - Single-age intervals inside a band are calibrated on the end of a period and bridged; ages above 80 are the state's shape, not the municipality's.
 - The 1990s' level (coverage of the 1991 census), 1991 race, and anything before 1991; the forecast's 100-500k municipalities (80% coverage 0.64 at twelve years from 2010) and its single-age and race spreads (ten- and twelve-year hold-outs scaled by horizon).
-- `fields.py` and `sus_dependent.py` are pinned to `population-account-2` (band-level intervals).
+- `fields.py` and `sus_dependent.py` are pinned to `population-account-2` (band-level intervals). Decided by ADR-0220 (2026-11-09): the build writes `population_account_bands`.

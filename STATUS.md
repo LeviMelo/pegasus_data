@@ -113,8 +113,9 @@ restored, and differs by at most 9e-5 in 2001-2021 (0.16 on cells of a few peopl
 places 5 deaths and 8 births of 2000-2010 differently; `system_completeness` is equal; `sus_dependent` differs only where
 ANS republished its December files; `registration_completeness` by 2.5e-5 in 2 of 108 cells. **Open:** `race_confusion_infant`
 and `_women` have no `build` (their inputs, the link tables with the negative-control share, come from scratch scripts in
-`pegasus_project/data/agent_race*`); `population-account-2` and `-3`, inputs of two products, have no builder either (the
-v2 function was removed with the move to the tensor). The deaths whose residence is the state's "ignored" municipality (0.34% of 2012's) are in no municipal cell by
+`pegasus_project/data/agent_race*`). The band inputs are rebuilt (ADR-0220): the build writes `population_account_bands`
+beside the account; `population-account-7` and `-bands-7` were built from the repository, `sus-dependent-3` on them, and
+`field_rate` reads the current account. The deaths whose residence is the state's "ignored" municipality (0.34% of 2012's) are in no municipal cell by
 construction; since 2026-11-09 the cube counts them in their state and the country, and an aggregate's manifest says them by
 state (`unplaced_by_state`).
 
