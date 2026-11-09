@@ -765,7 +765,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
 
 
 def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,
-               settings: Any, run_geography: object = None, **query_kwargs: Any) -> pa.Table:
+               settings: Any, run_geography: object = None, optional: frozenset[str] = frozenset(),
+               **query_kwargs: Any) -> pa.Table:
     """Attach roles taken from each record's partner in stored links (``Inherit``).
 
     The stored link of the side's scope is used, else the run's own (a side read nationally, the neonatal link's
@@ -799,6 +800,10 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
                 found.append(run[0].select(["l", "r"]))
                 years.append(str(year))
         if not found:
+            if item.as_ in optional:
+                # a role only a validation reads: without its stored link the validation says it is unavailable
+                # (`engine.validate`); the run is not refused for want of a test
+                continue
             raise FileNotFoundError(f"inherit: no stored {item.via} link for {geography} {period}; link it first")
         stored = (pa.concat_tables(found),)
         # The partner is read only for the years a link exists: reading it over
@@ -847,13 +852,16 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     from .engine import _side_table
 
     left = _side_table(spec.left, left_roles, period=period, geography=geography, **query_kwargs)
+    # an inherited role the model compares is required; one only a validation reads is optional
+    compared = {r for c in prob.compare for r in (*c.side_roles("left"), *c.side_roles("right"))}
+    optional = frozenset(i.as_ for i in prob.inherit if i.as_ not in compared)
     left = _inherited(left, spec.left.dataset, [i for i in prob.inherit if i.side == "left"],
-                      period=period, geography=geography, settings=settings, **rest)
+                      period=period, geography=geography, settings=settings, optional=optional, **rest)
     right_geo = right_geography or geography
     right = _side_table(spec.right, right_roles, period=right_period or period, geography=right_geo, **query_kwargs)
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
                        period=right_period or period, geography=right_geo, settings=settings, run_geography=geography,
-                       **rest)
+                       optional=optional, **rest)
     national, reference = None, ""
     if not (str(geography).upper() == "BR" and right_geography is None) and spec.bound is None:
         # a slice decides with the national run of ITS period (`store.save_params`: one reference per period)
