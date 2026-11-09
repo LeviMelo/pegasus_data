@@ -640,7 +640,17 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec,
     con.execute("CREATE OR REPLACE TEMP TABLE _vl AS SELECT DISTINCT ON (_id) * FROM L")
     con.execute("CREATE OR REPLACE TEMP TABLE _vr AS SELECT DISTINCT ON (_id) * FROM R")
     validations: dict[str, dict[str, Any]] = {}
+    held_left = {str(r[0]) for r in con.execute("DESCRIBE _vl").fetchall()}
+    held_right = {str(r[0]) for r in con.execute("DESCRIBE _vr").fetchall()}
     for v in spec.validations:
+        reads_left, reads_right = validation_roles(v)
+        if not (reads_left <= held_left and reads_right <= held_right):
+            # a role the sides do not carry here (one a stored link gives the probabilistic engine, `inherit`): the
+            # validation is not run, and says so; it never decides by its absence
+            missing = sorted((reads_left - held_left) | (reads_right - held_right))
+            validations[v.name] = {"pairs_compared": 0, "agreement_percent": None, "circular": False,
+                                   "unavailable": f"the sides do not carry {missing}"}
+            continue
         if v.sql:
             cond = v.sql
             usable = "TRUE"
@@ -656,7 +666,6 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec,
             SELECT count(*), avg(CASE WHEN {cond} THEN 1.0 ELSE 0 END)
             FROM linked k JOIN _vl l ON l._id = k.l JOIN _vr r ON r._id = k.r
             WHERE {usable}""").fetchone()
-        reads_left, reads_right = validation_roles(v)
         validations[v.name] = {"pairs_compared": int(row[0]),  # type: ignore[index]
                                "agreement_percent": round(100.0 * row[1], 2) if row[1] is not None else None,  # type: ignore[index]
                                "circular": bool(reads_left & used_left or reads_right & used_right)}

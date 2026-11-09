@@ -284,7 +284,12 @@ links:
                [patient.residence, mother.residence]]
     control: {role: patient.birth_date, shift_days: 7}
     validate:
-      - {name: perinatal diagnosis (ICD-10 chapter XVI), sql: "r.\"birth.place\" = 'hospital' AND l.\"admission.diagnosis\" LIKE 'P%'"}
+      # the admission's own diagnosis does not test the pair: RR 2022, 73.2% of all 3,484 newborn admissions are chapter
+      # XVI against 71.4% of the 1,200 linked (national 79.9%); it was dropped (OQ 99, 2026-11-09). The held-out test is
+      # another link's: an admission that ended in death is the birth's infant death on the day it left (the infant
+      # death link, inherited below; a birth with no linked death disagrees). Read by the probabilistic engine only.
+      - {name: died the day its birth's linked infant death, among: "l.\"admission.death\" = '1'",
+         sql: "r.\"baby.infant_death_date\" IS NOT NULL AND r.\"baby.infant_death_date\" = l.\"admission.end\""}
       - {name: born in the admitting hospital, left: admission.facility, right: birth.facility}
     probabilistic:
       compare:
@@ -303,6 +308,7 @@ links:
       inherit:
         right:
           - {via: sinasc_births_to_delivery_admission, role: admission.aih, as: mother.delivery_aih}
+          - {via: sim_infant_deaths_to_sinasc, role: death.date, as: baby.infant_death_date}
       # Every block keeps the baby's birth date. A block of hospital, residence
       # and sex alone paired every newborn admission with every birth at the
       # same maternity hospital (tens of millions of candidates in RR) and adds
