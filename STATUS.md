@@ -64,9 +64,9 @@ general rule.
 6. ~~Column names guessed in code~~ **closed:** the enrichment's key and a record's own CNPJ are read from the roles
    (`column_roles.facility_code_field`, `facility_cnpj_field`; `OWN_CNPJ_FIELDS` and the `"CNES"` defaults gone), the
    register's key from CNES-ST's roles, the profiler defers to declared roles (`declared_verdict`). SIH-RD and SIA-PA
-   2022-01 AC enrichments equal before and after; SIA-PA `enrich=["CNPJ"]` and SIH-RD `["CNES"]` now work. Remains:
-   the CADGER kit's name columns (FANTASIA, RAZ_SOCI, ...) are in no roles file, and the profiler's name hints still
-   serve undeclared columns.
+   2022-01 AC enrichments equal before and after; SIA-PA `enrich=["CNPJ"]` and SIH-RD `["CNES"]` now work. The CADGER
+   kit's name columns are declared since 2026-11-09 (`codelists.yml` registry `establishments`); the profiler's name
+   hints still serve undeclared columns.
 7. ~~Hand-fixed lists and thresholds~~ **closed:** the CNES groups already live in `fields.yml` (`cnes:`, read by
    `groups()`); the codebook cut moved to `codelists.yml` (`codebook:`), the linkage verdict bands to `links.yml`
    (`verdict:`, ADR-0107), values unchanged; the UF lists derive from `config.UF_NUMERIC` (`UF_ABBREVIATIONS`).

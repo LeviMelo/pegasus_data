@@ -259,11 +259,11 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 **H5. Oversized functions with 100+ cyclomatic complexity**: `semantics/column_roles._column` (141, 152 lines), `view._render_table` (117, 435), `cubes._records` (115, 256), `_query_engine/executor.query` (106, 375), `_aggregate.aggregate` (95). `retrieve.fetch` has 32 parameters, `api.load` 25, `api.export` 22. Not a principle breach; a place where special cases hide. M.
 
-**H6. Naming/doc drift**: `intake.py:1405` comment-level "same rule" claims (see S2); `geography.py:648`. XS.
+**H6. Naming/doc drift** — checked 2026-11-09: the intake's comments name the one placing rule's facts (`geography.placing_rule`), which it applies; the state-only codes are the cube's and are said there. Closed. `intake.py:1405` comment-level "same rule" claims (see S2); `geography.py:648`. XS.
 
-**H7. `docs` contradiction**: STATUS says the CADGER kit's name columns are in no roles file (open), and the register lists item 6 closed. Not a code finding; the T8 entry carries it.
+**H7. `docs` contradiction** — done: STATUS item 6 now says the CADGER columns are declared (T8/T11). STATUS says the CADGER kit's name columns are in no roles file (open), and the register lists item 6 closed. Not a code finding; the T8 entry carries it.
 
-**H8. Worktree residue**: `.claude/worktrees/agent-ad7a19c743a81dcef/` holds a full second copy of the repo (including `src/`); it is untracked (`?? .claude/`). Greps over the repository root hit it; remove when the agent is done. XS.
+**H8. Worktree residue** — done: finished agents' worktrees are removed at merge; the stray empty `nees-gaps-dc2b18` folder deleted. `.claude/worktrees/agent-ad7a19c743a81dcef/` holds a full second copy of the repo (including `src/`); it is untracked (`?? .claude/`). Greps over the repository root hit it; remove when the agent is done. XS.
 
 ---------------------------------------------------------------------------------------------------------------------
 
