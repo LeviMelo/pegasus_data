@@ -33,8 +33,8 @@ roll-ups only along the source's additivity, named by where it comes from.
 |---|---|
 | 1. core and SIDRA | **done.** Any SIDRA table is a cube without a declaration. The 26 SIDRA and series fields are views of their cubes (26/26 equal) and their copies are removed |
 | 2. records on roles | **done in code.** `records:<dataset>/<event or rows>` serves events, rows, sums of one or several columns, and distinct counts. It takes `where` as codes, prefixes, exclusions, bounds or two-column codes; months as periods; a support mask; one geography's publications. Bindings are curated or read from the roles. Cubes are cached by their data's fingerprint. Every intake count, sum and outcome share is a view: SISAGUA's 33 equal, yellow fever equal, SRAG lower by its 29 duplicate notifications. **Left:** the full rerun on 21b0831 before the stored copies go; INEP's unpivot, S2iD's register, and the supply, tanker and SNGPC sums whose roles have no code-placed place |
-| 3. CNES through the one reader | **done in code.** The mirror's 1,728 DBCs are adopted (5/5 sampled byte-identical to the FTP). All 43 CNES fields are cubes over December's register: the 25 supply fields equal for all 16 years (the neonatal ICU field adds 2008-2009, which its copy lacked), and the 18 professionals' fields equal for Acre 2015. **Left:** the national PF verification (running), then removing `sources/cnes.py`'s mirror pipeline |
-| 4. gridded, population, modelled | population cubes done (`population:<series>`); BR-DWGD, INMET, CPTEC and the modelled products not started |
+| 3. CNES through the one reader | **done in code.** The mirror's 1,728 DBCs are adopted (5/5 sampled byte-identical to the FTP). All 43 CNES fields are cubes over December's register: the 25 supply fields equal for all 16 years (the neonatal ICU field adds 2008-2009, which its copy lacked), and the 18 professionals' fields equal for Acre 2015. **Done.** All 43 equal their stored copies nationally, every year (2026-11-09, after the Brasília fix), and `sources/cnes.py`'s mirror pipeline is removed |
+| 4. gridded, population, modelled | population cubes done (`population:<series>`); BR-DWGD's six annual fields are views of `climate:<measure>` over the stored municipality-month base (356,032 rows each, equal). INMET's stations, CPTEC and the modelled products not started |
 | 5. one door | not started: `aggregate`, `capabilities` and `serve` on cubes; recipes as materialisation requests; the old builders removed |
 
 **Found on the way, repaired (2026-11-09).** `pegasus-data families` deleted every family it does not derive from the
@@ -46,7 +46,8 @@ disk.
 
 Ranked. Evidence is in the session audit, summarised here; each is closed by replacing the special case with the
 general rule.
-1. **CNES has its own pipeline:** a third-party mirror, hard-coded column names. Stage 3.
+1. ~~CNES has its own pipeline~~ **closed:** all 43 CNES fields are records cubes through the one reader (equal to their
+   stored copies nationally); `sources/cnes.py` and `_build_cnes` are removed.
 2. ~~One column, three declarations~~ **closed (ADR-0219):** linkage reads `compare:` from the roles files
    (`roles.yml` deleted, 108 roles equal); the intake's `role:` is `description:`.
 3. **Study modules name datasets and columns in code:** nearly closed (2026-11-09). The population account's inputs
@@ -68,8 +69,7 @@ general rule.
 7. ~~Hand-fixed lists and thresholds~~ **closed:** the CNES groups already live in `fields.yml` (`cnes:`, read by
    `groups()`); the codebook cut moved to `codelists.yml` (`codebook:`), the linkage verdict bands to `links.yml`
    (`verdict:`, ADR-0107), values unchanged; the UF lists derive from `config.UF_NUMERIC` (`UF_ABBREVIATIONS`).
-   UF sets and 20 `judge()` verdicts identical before and after. Remains: `sources/cnes.py` `UFS` (its mirror
-   pipeline is being removed).
+   UF sets and 20 `judge()` verdicts identical before and after; the last list went with `sources/cnes.py`.
 8. ~~Repeated plumbing~~ **closed (33a0d62):** one dataset spelling (`ontology.dataset_key`, 10 sites), one YAML reader
    (`curation.read_yaml`, 12 modules), snapshot and SIGTAP on the project transport. `semantics_for` on 12 spellings
    hashes the same before and after; SIGTAP listed 227 exports and fetched one at its listed size.

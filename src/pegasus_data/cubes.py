@@ -92,7 +92,8 @@ def cube_sources() -> dict[str, str]:
     return {"sidra": "<table>/<variable>: any table of IBGE's SIDRA registry",
             "series": "<name>/<measure>: a series stitched across census tables (curation/sidra/series.yml)",
             "records": "<dataset>/<event type>: the events of any record dataset by place, period and its columns",
-            "population": "<series>: a population series (curation/populations.yml: POPSVS, POPTCU, CENSO...)"}
+            "population": "<series>: a population series (curation/populations.yml: POPSVS, POPTCU, CENSO...)",
+            "climate": "<measure>: BR-DWGD's municipal climate by year (sums and their months held, sources.brdwgd)"}
 
 
 # ---------------------------------------------------------------------------------------------------------- SIDRA
@@ -523,6 +524,48 @@ def _population(ident: str, *, place: str, by: list[str], where: dict[str, Seque
                                   "stock": True, "unplaced_persons": unplaced})
 
 
+def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]],
+             periods: Sequence[str | int] | None, labels: bool, settings: Any) -> pa.Table:
+    """A measure of BR-DWGD's municipal climate (``climate:<measure>``, one of `sources.brdwgd.MEASURES`) by municipality
+    and year, from the municipality-month base the build keeps (``climate_monthly``): the sums a mean is made of, and
+    their denominators (``temperature_months``, ``precipitation_months``: months held, fractional), by
+    `brdwgd.municipality_years`. A year whose variable holds fewer than twelve months is ``incomplete``, its value kept.
+    Sums add over months, never over places (a municipality's temperature is no part of its state's); the cube is
+    municipal."""
+    import pyarrow.compute as pc
+    import pyarrow.dataset as ds
+
+    from .sources import brdwgd
+
+    if ident not in brdwgd.MEASURES:
+        raise KeyError(f"climate:<measure> is one of {sorted(brdwgd.MEASURES)}, got {ident!r}")
+    if by or where:
+        raise ValueError("a climate cube has no strata")
+    if place != "municipality":
+        raise ValueError("a climate cube is municipal: a temperature is not summed over places")
+    base_dir = Path(settings.lake_dir) / "fields" / "climate_monthly"
+    if not base_dir.is_dir():
+        raise LookupError("BR-DWGD's municipal base is not built: run `pegasus-data fields --name climate_monthly`")
+    years = sorted({int(str(p)[:4]) for p in periods}) if periods else None
+    base = ds.dataset(base_dir, format="parquet", partitioning="hive")
+    months = base.to_table(filter=ds.field("year").isin(years) if years else None)
+    months = months.set_column(months.schema.get_field_index("year"), "year", pc.cast(months.column("year"), pa.int32()))
+    annual = brdwgd.municipality_years(months)
+    annual = annual.filter(pc.is_valid(annual.column(ident)))
+    held = annual.column(f"{brdwgd.MEASURES[ident]}_months")
+    n = annual.num_rows
+    facts = pa.table({"place": pc.cast(annual.column("municipality7"), pa.int64()),
+                      "period": pc.cast(annual.column("year"), pa.string()),
+                      "value": pc.cast(annual.column(ident), pa.float64()),
+                      "status": pc.if_else(pc.greater_equal(held, 12 - 1e-9), "value", "incomplete"),
+                      "unit": pa.array([ident] * n, pa.string()),
+                      "source": annual.column("product"),
+                      "months": pc.cast(held, pa.float64())})
+    return _with_manifest(facts, {"source": f"climate:{ident}", "place_level": "municipality", "period_grain": "year",
+                                  "strata": [], "additive_over": ["months"],
+                                  "denominator": f"climate:{brdwgd.MEASURES[ident]}_months"})
+
+
 def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:
     """What a records cube was read from: the dataset's lake partitions and its published files, as the catalog lists
     them (path, size, time). A unit landed again, a file republished or a partition rebuilt changes it."""
@@ -611,7 +654,7 @@ def _json_list(text: Any) -> list[Any]:
         return []
 
 
-_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "population": _population}
+_ADAPTERS = {"sidra": _sidra, "series": _series, "records": _records, "population": _population, "climate": _climate}
 
 
 def cube_manifest(table: pa.Table) -> dict[str, Any]:

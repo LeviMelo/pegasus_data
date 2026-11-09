@@ -99,15 +99,12 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     report: dict[str, Any] = {}
     sidra = None
     declared = declared_fields()
-    chosen_cnes = {n: sp for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)}
-    # A CNES field that is a records cube is built as one (cached by its register's fingerprint, ADR-0217); only the
-    # professionals' fields still need `sources.cnes`'s own pass over the PF files.
-    for name in [n for n, sp in chosen_cnes.items() if cnes_cube(n, sp) is not None]:
+    # every CNES field is a records cube over the register the one reader serves (ADR-0217), cached by its fingerprint
+    for name in [n for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)]:
+        if cnes_cube(name, declared[name]) is None:
+            raise ValueError(f"{name}: a CNES field of no family the cube knows ({declared[name].get('family')!r})")
         table = load_field(name, years=years, settings=settings)
         report[name] = {"rows": table.num_rows, "cube": True}
-        chosen_cnes.pop(name)
-    if chosen_cnes:
-        report.update(_build_cnes(settings, chosen_cnes, years))
     if "climate" in declared and (not names or "climate" in names):
         report.update(_build_climate(settings, years))
     chosen_brdwgd = {n: sp for n, sp in declared.items() if sp.get("source") == "brdwgd" and (not names or n in names)}
@@ -307,6 +304,31 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     return pa.table(out)
 
 
+def _field_from_climate(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
+    """A BR-DWGD annual field from its cube (``climate:<measure>``), in the field's columns: ``ok`` when the year holds
+    all twelve months, ``partial_year`` otherwise (the value kept), ``months`` what it rests on, ``source`` the release."""
+    import pyarrow.compute as pc
+
+    from .cubes import cube
+
+    table = cube(f"climate:{spec['measure']}", periods=years, settings=settings)
+    code7 = pc.cast(table.column("place"), pa.string())
+    n = table.num_rows
+    return pa.table({"municipality": pc.utf8_slice_codeunits(code7, 0, 6), "municipality7": code7,
+                     "value": table.column("value"),
+                     "status": pc.if_else(pc.equal(table.column("status"), "value"), "ok", "partial_year"),
+                     "unit": pa.array([str(spec["unit"])] * n, pa.string()), "source": table.column("source"),
+                     "months": table.column("months"), "year": pc.cast(table.column("period"), pa.int32())})
+
+
+def cnes_groups() -> dict[str, Any]:
+    """The ``cnes:`` block of ``curation/fields.yml``: which codes make each group a CNES field counts."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    return dict((read_yaml(curation_root() / "fields.yml", missing_ok=True) or {}).get("cnes") or {})
+
+
 def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     """The records cube a CNES supply field is: a December's register read by the one reader (its files adopted from
     the mirror, `adopt.adopt_copies`), the field's groups as code lists on the register's own columns, its stock counted
@@ -314,11 +336,9 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     municipality with no establishment in it has no value (``no_cnes_record``), one with establishments and none of the
     field's is a true 0. A field of professionals counts PF's rows (jobs), its distinct CNS_PROF (persons) or sums its three
     weekly hours columns, for the occupations whose CBO has one of the group's prefixes."""
-    from .sources.cnes import NOT_DEACTIVATED, groups
-
     if spec.get("source") != "cnes":
         return None
-    g = groups()
+    g = cnes_groups()
     family = spec["family"]
     where: dict[str, Any] = {}
     if family == "facilities":
@@ -346,7 +366,7 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
         measure = {"jobs": None, "professionals": "distinct:CNS_PROF", "hours": hours, "hours_sus": hours}[spec["measure"]]
     elif family == "teams":
         where["TIPO_EQP"] = list(g["team_groups"][spec["group"]])
-        where["DT_DESAT"] = list(NOT_DEACTIVATED)
+        where["DT_DESAT"] = list(g["team_not_deactivated"])
         dataset, measure = "CNES-EP", "distinct:IDEQUIPE"
     else:
         return None
@@ -357,7 +377,7 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
 def _field_from_cnes(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,
                      settings: Any) -> pa.Table:
     """A CNES field from its cube, in the field's columns, one row per IBGE municipality and year: the value inside the
-    register's support (``ok``), else a null (``no_cnes_record``), as `_build_cnes` wrote them."""
+    register's support (``ok``), else a null (``no_cnes_record``), the statuses its stored copies carried."""
     from .cubes import cube
     from .geography import municipalities
 
@@ -401,51 +421,6 @@ def _cube_report(name: str, spec: dict[str, Any], years: list[int] | None, setti
     for state in table.column("status").to_pylist():
         statuses[state] = statuses.get(state, 0) + 1
     return {"years": len(set(table.column("year").to_pylist())), "rows": table.num_rows, "statuses": statuses}
-
-
-def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
-    """The CNES supply fields (``sources.cnes``): every selected field of a December from one pass over its files.
-
-    Rows exist for every IBGE municipality (the current 5,570). One in the year's ST register carries its value, a
-    true 0 included (``ok``); one that has no establishment in the register is a null with ``no_cnes_record``.
-    Codes the register holds that are not an IBGE municipality are *unallocated*: summed and reported per field.
-    """
-
-    from .geography import municipalities
-    from .sources import cnes
-
-    cache = Path(settings.root) / "registries" / "CNES"
-    universe = municipalities()
-    code7 = {c6: row["code7"] for c6, row in universe.items()}
-    wanted = sorted({y for sp in specs.values() for y in _years(sp["years"]) if not years or y in years})
-    report: dict[str, Any] = {name: {"years": {}} for name in specs}
-    for year in wanted:
-        tables = cnes.year_tables(year, cache)
-        in_register = cnes.register(tables)
-        for name, spec in specs.items():
-            if year not in _years(spec["years"]):
-                continue
-            found = cnes.values(spec, tables)
-            keys = sorted(code7)
-            n = len(keys)
-            value = [found.get(k, 0.0) if k in in_register else None for k in keys]
-            table = pa.table({
-                "municipality": pa.array(keys, pa.string()),
-                "municipality7": pa.array([code7[k] for k in keys], pa.string()),
-                "value": pa.array(value, pa.float64()),
-                "status": pa.array(["ok" if k in in_register else "no_cnes_record" for k in keys], pa.string()),
-                "unit": pa.array([str(spec["unit"])] * n, pa.string()),
-                "source": pa.array([f"CNES-{'ST' if spec['family'] == 'facilities' else {'beds': 'LT', 'equipment': 'EQ', 'teams': 'EP', 'professionals': 'PF'}[spec['family']]} {year}-12"] * n, pa.string()),
-            })
-            target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-            target.mkdir(parents=True, exist_ok=True)
-            write_parquet_atomic(table, target / "part.parquet", compression="zstd")
-            unallocated = {k: v for k, v in found.items() if k not in code7}
-            report[name]["years"][str(year)] = {
-                "total": sum(v for k, v in found.items() if k in code7), "unallocated": sum(unallocated.values()),
-                "unallocated_codes": dict(sorted(unallocated.items(), key=lambda kv: -kv[1])[:5]),
-                "no_cnes_record": n - sum(1 for k in keys if k in in_register)}
-    return report
 
 
 def field_rate(name: str, *, per: float = 1000.0, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
@@ -515,13 +490,10 @@ def _build_climate(settings: Any, years: list[int] | None) -> dict[str, Any]:
 
 
 def _build_climate_brdwgd(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
-    """BR-DWGD's municipal zonal statistics (``sources.brdwgd``, ADR-0178): the base ``climate_monthly`` and the fields read
-    from it, one value per municipality and year.
-
-    A field with a ``measure`` is one column of `brdwgd.municipality_years`: a sum with its denominator declared in
-    ``over`` (the mean is the ratio, formed at use). Its ``status`` is ``ok`` when all twelve months are held and
-    ``partial_year`` otherwise (the value is kept), its ``source`` names the release of that row and ``months`` what it
-    rests on. A municipality the release does not hold has no row, and is named in the report.
+    """BR-DWGD's municipal zonal statistics (``sources.brdwgd``, ADR-0178): the base ``climate_monthly`` is written, and
+    each field with a ``measure`` is a view of its cube over it (``climate:<measure>``, `_field_from_climate`): a sum with
+    its denominator declared in ``over`` (the mean is the ratio, formed at use), ``ok`` when all twelve months are held
+    and ``partial_year`` otherwise. A municipality the release does not hold has no row, and is named in the report.
     """
     import pyarrow.compute as pc
 
@@ -541,23 +513,12 @@ def _build_climate_brdwgd(settings: Any, specs: dict[str, dict[str, Any]], years
         base = months.append_column("municipality", pc.utf8_slice_codeunits(months.column("municipality7"), 0, 6))
         report["climate_monthly"] = {"rows": _write_by_year(base, "climate_monthly", settings, prune=not years),
                                      "years": f"{pc.min(months.column('year')).as_py()}-{pc.max(months.column('year')).as_py()}"}
-    derived = {name: spec for name, spec in specs.items() if spec.get("measure")}
-    if derived:
-        annual = brdwgd.municipality_years(months)
-        for name, spec in derived.items():
-            variable = brdwgd.MEASURES[spec["measure"]]
-            kept = annual.filter(pc.is_valid(annual.column(spec["measure"])))
-            n = kept.num_rows
-            held_months = kept.column(f"{variable}_months")
-            status = pc.if_else(pc.greater_equal(held_months, 12 - 1e-9), "ok", "partial_year")
-            out = pa.table({
-                "municipality": kept.column("municipality"), "municipality7": kept.column("municipality7"),
-                "value": kept.column(spec["measure"]), "status": status,
-                "unit": pa.array([str(spec["unit"])] * n, pa.string()), "source": kept.column("product"),
-                "months": held_months, "year": kept.column("year")})
-            _write_by_year(out, name, settings, prune=not years)
-            report[name] = {"rows": n, "ok": int(pc.sum(pc.equal(status, "ok")).as_py() or 0),
-                            "partial_year": int(pc.sum(pc.equal(status, "partial_year")).as_py() or 0)}
+    # the annual sums are views of their climate cube over that base (ADR-0217), not copies
+    for name in (n for n, spec in specs.items() if spec.get("measure")):
+        table = load_field(name, years=years, settings=settings)
+        report[name] = {"rows": table.num_rows, "cube": True,
+                        "ok": int(pc.sum(pc.equal(table.column("status"), "ok")).as_py() or 0),
+                        "partial_year": int(pc.sum(pc.equal(table.column("status"), "partial_year")).as_py() or 0)}
     return report
 
 
@@ -604,6 +565,8 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     plan = cnes_cube(name, spec)
     if plan is not None:                          # a CNES supply field is its records cube over December's register
         return _field_from_cnes(name, spec, plan, wanted, settings)
+    if spec.get("source") == "brdwgd" and spec.get("measure"):   # an annual climate sum is its climate cube
+        return _field_from_climate(name, spec, wanted, settings)
     directory = Path(settings.lake_dir) / "fields" / name
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")

@@ -30,6 +30,8 @@
 # belong together, and the `cnes_` fields say which one they use. Codes outside every group are never guessed into
 # one: facilities fall in `other`; beds and equipment are tallied only for the codes named here.
 cnes:
+  # DT_DESAT of a team that is not deactivated: blank, or the far-future sentinel 900001 CNES writes (EP files)
+  team_not_deactivated: ['', '900001']
   facility_groups:                     # TP_UNID
     hospital: ['05', '07', '15']                    # general hospital, specialised hospital, mixed unit (a small hospital)
     primary_care_unit: ['01', '02', '45']           # health post, health centre / basic unit (UBS), family-health unit
