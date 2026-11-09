@@ -216,7 +216,9 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
         digits = pc.utf8_is_digit(raw)
         return pc.if_else(digits, pc.cast(pc.if_else(digits, raw, "0"), pa.int64()), pa.scalar(None, pa.int64()))
     if role.type == "number":
-        return pc.cast(table.column(role.column), pa.float64(), safe=False)
+        from ..normalize.types import to_number
+
+        return to_number(table.column(role.column))
     if role.type == "label":
         text = pc.utf8_lower(_strings(labels) if labels is not None else raw)
         if not role.categories:

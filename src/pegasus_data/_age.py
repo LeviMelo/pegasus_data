@@ -31,6 +31,7 @@ code sorts after every band.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -119,12 +120,9 @@ def parse_age(body: Any, fields: Any = None, *, name: str = "FAIXA_ETARIA") -> A
 
 def _digits_to_years(text: Any) -> Any:
     """A string column of digit runs -> float64 years, null where not digits."""
-    import pyarrow as pa
-    import pyarrow.compute as pc
+    from .normalize.types import to_number
 
-    ok = pc.match_substring_regex(text, r"^\d+$")
-    safe = pc.if_else(pc.fill_null(ok, False), text, None)
-    return pc.cast(safe, pa.float64())
+    return to_number(text, signed=False, fraction=False)
 
 
 def _scaled(value: Any, unit: Any, units: tuple[tuple[str, str], ...]) -> Any:
@@ -212,21 +210,35 @@ def years_column(age: AgeDimension, table: Any) -> Any:
     return scaled
 
 
-def band_column(age: AgeDimension, years: Any) -> Any:
-    """Years -> band code, ``ZIG`` where years is null. Vectorised."""
+def bands(values: Any, edges: Sequence[float]) -> Any:
+    """THE closed-open banding: the index of the band ``[edges[i], edges[i+1])`` holding each value (the last band is
+    open above), as an int64 numpy array; -1 where the value is null, NaN or below ``edges[0]``. ``values`` is a numpy
+    array or an Arrow array; ``edges`` ascend."""
+    import numpy as np
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    out = pa.nulls(len(years), pa.string())
-    # Painted from the lowest band up: each band overwrites where years >= lo,
-    # so the last band that applies wins — exactly the half-open interval.
-    for lo in age.bands:
-        out = pc.if_else(
-            pc.fill_null(pc.greater_equal(years, float(lo)), False),
-            f"{lo:03d}",
-            out,
-        )
-    return pc.fill_null(out, UNKNOWN_CODE)
+    if isinstance(values, (pa.Array, pa.ChunkedArray)):
+        values = pc.fill_null(pc.cast(values, pa.float64()), float("nan")).to_numpy(zero_copy_only=False)
+    values = np.asarray(values, dtype=np.float64)
+    found = np.searchsorted(np.asarray(edges, dtype=np.float64), values, side="right").astype(np.int64) - 1
+    found[np.isnan(values)] = -1
+    return found
+
+
+def _codes_of(index: Any, codes: Sequence[str]) -> Any:
+    """Band indexes (-1: none) -> their codes, ``ZIG`` where none."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    mask = index < 0
+    taken = pc.take(pa.array(list(codes), pa.string()), pa.array(index, mask=mask))
+    return pc.fill_null(taken, UNKNOWN_CODE)
+
+
+def band_column(age: AgeDimension, years: Any) -> Any:
+    """Years -> band code, ``ZIG`` where years is null. Vectorised."""
+    return _codes_of(bands(years, age.bands), [f"{lo:03d}" for lo in age.bands])
 
 
 @dataclass(frozen=True, slots=True)
@@ -279,14 +291,7 @@ class NumericBandDimension:
             text = pc.utf8_trim_whitespace(
                 pc.cast(table.column(self.field_name), pa.string()))
             numeric = _digits_to_years(text)
-        out = pa.nulls(len(numeric), pa.string())
-        for lo in self.bands:
-            out = pc.if_else(
-                pc.fill_null(pc.greater_equal(numeric, float(lo)), False),
-                f"{lo:0{self._width()}d}",
-                out,
-            )
-        return pc.fill_null(out, UNKNOWN_CODE)
+        return _codes_of(bands(numeric, self.bands), [f"{lo:0{self._width()}d}" for lo in self.bands])
 
 
 def parse_band_dimensions(body: Any) -> tuple[NumericBandDimension, ...]:

@@ -590,12 +590,13 @@ def event_weights(table: pa.Table, event: EventType) -> pa.Array:
         return pa.repeat(pa.scalar(1, pa.int64()), table.num_rows)
     if event.weight not in table.column_names:
         raise KeyError(f"{event.name}: weight column {event.weight} is not in the table")
-    text = pc.utf8_trim_whitespace(pc.cast(table.column(event.weight), pa.string()))
-    numeric = pc.match_substring_regex(text, r"^\d+$")
-    bad = table.num_rows - pc.sum(pc.fill_null(numeric, False)).as_py() if table.num_rows else 0
+    from ..normalize.types import to_number
+
+    value = to_number(table.column(event.weight), signed=False, fraction=False)
+    bad = value.null_count
     if bad:
         raise ValueError(f"{event.name}: {bad} of {table.num_rows} rows carry no quantity in {event.weight}")
-    return pc.cast(text, pa.int64())
+    return pc.cast(value, pa.int64())
 
 
 def _integers(table: pa.Table, column: str, event: EventType) -> pa.Array:
@@ -610,11 +611,13 @@ def _integers(table: pa.Table, column: str, event: EventType) -> pa.Array:
     blank = pc.fill_null(pc.equal(text, ""), True)
     if role is not None and role.missing:
         blank = pc.or_(blank, pc.fill_null(pc.is_in(text, value_set=pa.array(list(role.missing), pa.string())), False))
-    whole = pc.fill_null(pc.match_substring_regex(text, r"^\d+$"), False)
-    bad = pc.sum(pc.and_(pc.invert(blank), pc.invert(whole))).as_py()
+    from ..normalize.types import to_number
+
+    value = to_number(text, signed=False, fraction=False)
+    bad = pc.sum(pc.and_(pc.invert(blank), pc.is_null(value))).as_py()
     if bad:
         raise ValueError(f"{event.name}: {bad} rows carry a count in {column} that is not a whole number")
-    return pc.cast(pc.if_else(blank, pa.scalar(None, pa.string()), text), pa.int64())
+    return pc.cast(pc.if_else(blank, pa.scalar(None, pa.float64()), value), pa.int64())
 
 
 def grid_events(table: pa.Table, event: EventType, keep: list[str] | None = None) -> pa.Table:
