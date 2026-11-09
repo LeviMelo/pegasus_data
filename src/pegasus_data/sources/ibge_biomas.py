@@ -12,14 +12,14 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+from ..semantics.curation import declared
 from ..transport import download
 
 URL = ("https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/documentos/"
        "Bioma_Predominante_por_Municipio_2024.csv")
 
-#: IBGE's lagoon areas carry territorial codes but are not municipalities (Lagoa Mirim, Lagoa dos Patos); at six
-#: digits both would read as 430000
-NOT_MUNICIPALITIES = {"4300001", "4300002"}
+#: IBGE's lagoon areas carry territorial codes but are not municipalities (``curation/published_tables.yml``, ``ibge_biomas:``)
+NOT_MUNICIPALITIES = frozenset(declared("published_tables.yml", "ibge_biomas", "not_municipalities"))
 
 __all__ = ["NOT_MUNICIPALITIES", "URL", "fetch", "memberships"]
 

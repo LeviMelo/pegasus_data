@@ -182,7 +182,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Three targets are hand-coded branches; `9999` as "no end date" is a sentinel rule written in code, not the field's ledger.
 - Fix: enrichments as declared relations (`links.yml`) dispatched by name; the "open end" sentinel in the registry table's schema. Size M.
 
-**T12. Per-source readers carrying code tables and layout facts**
+**T12. Per-source readers carrying code tables and layout facts** - done (2026-11-09): the published numbers and code meanings are in `curation/published_tables.yml` with `source:`/`as_of:`; layout constants stay in code (evaluation entry 2026-11-09-principles-audit-defects)
 - `sources/pes.py:23-48` (hand-typed IBGE tables 9, 10, 12, 1: ~90 numbers), `sources/ibge_tracts.py:32-39` (file name with a date `20260520`, `SEX_BANDS` V01009-V01030 by position),
   `sources/census_commuting.py:44-54` (fixed-width layout, SIDRA ids), `sources/ibge_cnefe.py:79-101,480-484`, `sources/bnafar.py:78` (`SOLID_ORAL = {"U0042": "COMPRIMIDO", "U0041": "CAPSULA"}`, with its measurement in the comment), `geography.py:915` (`_SEAT_CATEGORIES` IBGE category names), `sources/ibge_biomas.py:22` (`NOT_MUNICIPALITIES`).
 - These are source adapters, and the comments carry evidence, so tolerated individually; but tables of published numbers and code meanings belong in `resources/` or `curation/` with their source and date.
@@ -200,11 +200,11 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Closed in part by defect 3, but the intermediate file convention is still a second store.
 - Fix: read the events through `cube("records:SIM-DO/...")`; drop `collect_events`. Size M.
 
-**T15. Non-obvious UF abbreviation/code tables replicated** — part done: the cubes read state codes from `geography.uf_codes_by_sigla` (SIES 2023 11,518 rows as before); the profile detector and registry lists remain
+**T15. Non-obvious UF abbreviation/code tables replicated** — done: the cubes read state codes from `geography.uf_codes_by_sigla` (SIES 2023 11,518 rows as before); the profile detector, registry and reference lists read `config.UF_NUMERIC`/`UF_ABBREVIATIONS` directly
 - `cubes.py:421,671` build `{abbr: int(code)}` from `UF_NUMERIC`; `geography.py:1148-1162` reads sigla from the pack; `profile/detectors.py:291`; `registry.py:186` `_UFS`; `persist/reference.py:405` `_UF_CODES`. Four spellings of "the UFs".
 - Fix: `config.UF_NUMERIC` plus two derived constants in one place. Size XS.
 
-**T16. Unit/format dictionaries in code**
+**T16. Unit/format dictionaries in code** - done: the profiler's age-unit legend reads the curated `NU_IDADE_N` -> `IDADE_anos` table; the two month tables are Portuguese file names vs the FTP LIST's English, not copies; `_PAD`, `_FORMATS` left (algorithms)
 - `linkage/roles.py:60` (`_FORMATS` date patterns), `profile/detectors.py:206` (`unit_legend {"1": "hora", ...}`: age-unit meaning in the profiler, which ADR-0218 moved into `IDADE_anos` curation for decoding), `intake.py:881` (`MONTHS_PT`; another month table exists in `discovery/listing.py`), `linkage/model.py:64` (`_PAD` digit table: algorithm constant).
 - Fix: profiler reads the age-unit table from `curation`; one month-name table. Size XS.
 

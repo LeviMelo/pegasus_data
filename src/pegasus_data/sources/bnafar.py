@@ -29,6 +29,7 @@ import pyarrow as pa
 
 from .. import intake
 from ..normalize.time import compose
+from ..semantics.curation import declared
 from ..textenc import fold
 from ..transport import get_json
 
@@ -72,11 +73,8 @@ def catmat_items(pdm: int, root: str | Path | None = None) -> dict[str, list[dic
     return {"items": items, "units": units}
 
 
-#: Supply-unit suffixes of solid oral forms, read from BNAFAR's own rows (SP and RS, 2025-06, 3,107 rows): U0042 is on 106
-#: distinct product descriptions, 97 naming COMPRIMIDO and the rest "COMP"; U0041 on 16, 14 naming CÁPSULA and 2 "CAP INAL". The
-#: suffix is a national unit-of-supply code that also encodes volume (U0062 is a 100 mL bottle, U0086 20 mL), not the PDM's own
-#: unit number (levotiroxina's comprimido is the PDM's unit 2, BNAFAR's U0042), so other presentations pass their suffix.
-SOLID_ORAL = {"U0042": "COMPRIMIDO", "U0041": "CÁPSULA"}
+#: Supply-unit suffixes of solid oral forms, declared with their measurement in ``curation/published_tables.yml`` (``bnafar:``).
+SOLID_ORAL = declared("published_tables.yml", "bnafar", "solid_oral")
 
 
 def products(term: str, root: str | Path | None = None, units: dict[str, str] | None = None,

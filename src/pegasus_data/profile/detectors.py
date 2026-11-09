@@ -142,6 +142,16 @@ def _numeric_tail_shape(stats: FieldStats, prefix_len: int = 1) -> tuple[float |
     return (inside / span if span else None), lo, hi
 
 
+def _digit_age_units() -> dict[str, str]:
+    """The unit of each leading digit 1-4 of a digit-prefixed age, as the curated age table declares it (SINAN's
+    ``NU_IDADE_N`` -> ``IDADE_anos``, ADR-0218): the one place the meaning of those digits is written."""
+    from ..semantics.curation import declared
+
+    derived = declared("variables/sinan/_shared.yml", "variables", "NU_IDADE_N", "derived")
+    units = next(d["age"]["units"] for d in derived if d.get("name") == "IDADE_anos")
+    return {digit: units[digit] for digit in "1234"}
+
+
 def detect_datasus_age(stats: FieldStats, refs: ReferenceSets, name: str) -> SemanticVerdict | None:
     """Unit-prefixed age, in both encodings DATASUS actually uses.
 
@@ -203,7 +213,7 @@ def detect_datasus_age(stats: FieldStats, refs: ReferenceSets, name: str) -> Sem
         "rule": "datasus_age_digit_prefixed",
         "pattern_match_rate": round(digit_rate, 4),
         "unit_digits": unit_digits,
-        "unit_legend": {"1": "hora", "2": "dia", "3": "mes", "4": "ano"},
+        "unit_legend": _digit_age_units(),
         "tail_density": round(density, 4),
         "tail_range": [lo, hi],
         "distinct_count": stats.distinct_count,

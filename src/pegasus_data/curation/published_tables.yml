@@ -1,0 +1,102 @@
+# Published numbers and code meanings that the source adapters (sources/*.py, geography.py) read, each with its source
+# and the date it was read. A source adapter keeps the LAYOUT of a file (column positions, widths, header spellings);
+# what a published table says, or what a code of the publisher means, is declared here and read with
+# semantics.curation.declared("published_tables.yml", <section>, ...). Not a curation file of variables (the loader skips it).
+
+# IBGE, Pesquisa de Pos-Enumeracao do Censo Demografico 2022 (sources/pes.py): the net error rate of the 2022 Census.
+pes:
+  source: "IBGE, Pesquisa de Pos-Enumeracao do Censo Demografico 2022, https://biblioteca.ibge.gov.br/visualizacao/livros/liv102110.pdf, Tables 1 and 8-12"
+  as_of: "2023 (the report's publication; the numbers are the report's, as typed from its tables)"
+  enumerated: 195101203
+  imputed: 7979553
+  # Table 9: net error (%) by sex and 5-year group 0-4 ... 75-79, 80+.
+  net_error_age_sex:
+    men: [10.2, 9.0, 8.1, 8.2, 10.6, 10.4, 9.8, 8.7, 8.0, 7.3, 6.6, 5.6, 5.1, 4.5, 4.3, 3.5, 4.1]
+    women: [10.0, 8.8, 8.3, 9.4, 11.2, 10.2, 9.1, 8.1, 7.6, 7.0, 6.3, 5.2, 5.0, 4.2, 3.7, 3.3, 4.5]
+  # Table 10: net error (%) by state (IBGE code).
+  net_error_uf: {12: 8.0, 27: 4.8, 16: 10.8, 13: 10.1, 29: 7.4, 23: 7.4, 53: 9.9, 32: 10.0, 52: 7.3, 21: 6.5, 51: 7.3,
+                 50: 7.2, 31: 6.1, 41: 5.4, 25: 3.8, 15: 9.9, 26: 8.0, 22: 4.1, 24: 6.2, 43: 5.5, 33: 15.5, 11: 11.2,
+                 14: 10.9, 42: 7.4, 28: 5.8, 35: 10.8, 17: 6.8}
+  # Table 12: net error (%) by municipality size (people): the classes' upper bounds, and nine rates.
+  size_bounds: [14000, 25000, 45000, 84000, 150000, 274000, 480000, 1000000]
+  net_error_size: [3.9, 4.2, 6.0, 6.2, 7.7, 9.1, 9.5, 10.2, 13.2]
+  net_error_brazil: 8.3
+  # Table 1: people the Census imputed (households occupied, no interview), by state.
+  imputed_by_uf: {11: 53023, 12: 15259, 13: 94815, 14: 9277, 15: 235688, 16: 18356, 17: 41258, 21: 186000, 22: 61932,
+                  23: 263147, 24: 76137, 25: 58687, 26: 270169, 27: 61014, 28: 53928, 29: 293272, 31: 516817, 32: 104361,
+                  33: 679330, 35: 3439121, 41: 399027, 42: 228849, 43: 241831, 50: 107541, 51: 147696, 52: 223436,
+                  53: 99582}
+
+# BNAFAR (sources/bnafar.py): the supply-unit suffixes of solid oral forms.
+bnafar:
+  source: "BNAFAR's own rows (SP and RS, 3,107 rows)"
+  as_of: "2025-06"
+  # U0042 is on 106 distinct product descriptions, 97 naming COMPRIMIDO and the rest "COMP"; U0041 on 16, 14 naming
+  # CAPSULA and 2 "CAP INAL". The suffix is a national unit-of-supply code that also encodes volume (U0062 is a 100 mL
+  # bottle, U0086 20 mL), not the PDM's own unit number (levotiroxina's comprimido is the PDM's unit 2, BNAFAR's U0042),
+  # so other presentations pass their suffix.
+  solid_oral: {U0042: COMPRIMIDO, U0041: "CÁPSULA"}
+
+# IBGE, Censo 2022, Agregados por Setores Censitarios (sources/ibge_tracts.py).
+ibge_tracts:
+  source: "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/ (dictionary of the demography file)"
+  as_of: "2026-05-20 (the date IBGE put in the basic file's name)"
+  basic_file: "Agregados_por_Setor_csv/Agregados_por_setores_basico_BR_20260520.zip"
+  # The variables of each sex's eleven age bands of the demography file, in the bands' order (0-4 ... 70+): V01009-V01019 men, V01020-V01030 women.
+  sex_band_variables: {"1": [V01009, V01010, V01011, V01012, V01013, V01014, V01015, V01016, V01017, V01018, V01019],
+                       "2": [V01020, V01021, V01022, V01023, V01024, V01025, V01026, V01027, V01028, V01029, V01030]}
+
+# IBGE, Localidades do Brasil 2022 (geography.py): the SCT_LOCALIDADE categories that are a municipality's seat.
+ibge_localities:
+  source: "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/localidades/Localidades_do_Brasil/2022/Localidades_Brasil_gpkg.zip"
+  as_of: "2022"
+  seat_categories: ["Sede Municipal", "Capital Estadual", "Capital Federal"]
+
+# IBGE, Bioma predominante por municipio (sources/ibge_biomas.py).
+ibge_biomas:
+  source: "https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/documentos/Bioma_Predominante_por_Municipio_2024.csv"
+  as_of: "2024"
+  # IBGE's lagoon areas carry territorial codes but are not municipalities (Lagoa Mirim, Lagoa dos Patos); at six digits both would read as 430000.
+  not_municipalities: ["4300001", "4300002"]
+
+# IBGE, CNEFE Censo 2022 (sources/ibge_cnefe.py): the dictionary's codes. The file's column order and types stay in the adapter.
+ibge_cnefe:
+  source: "Dicionario_CNEFE_Censo_2022.xls (IBGE), and the aggregate by CEP's own column names"
+  as_of: "2022 Census"
+  # NV_GEO_COORD
+  levels:
+    "1": "address, original Census coordinate"
+    "2": "address, modified coordinate (apartments at one number)"
+    "3": "address, estimated coordinate (none or invalid originally)"
+    "4": "block face"
+    "5": "locality"
+    "6": "census tract"
+  # COD_ESPECIE: the species of address a record stands for, and the derived column that counts its records.
+  species:
+    "1": {label: "private household", column: n_private_households}
+    "2": {label: "collective household", column: n_collective_households}
+    "3": {label: "agricultural establishment", column: n_agricultural}
+    "4": {label: "educational establishment", column: n_education}
+    "5": {label: "health establishment", column: n_health}
+    "6": {label: "establishment of other purposes", column: n_other_purpose}
+    "7": {label: "building under construction or renovation", column: n_construction}
+    "8": {label: "religious establishment", column: n_religious}
+  # IBGE's aggregate columns that count the records of a species of COD_ESPECIE (TOT_END counts distinct addresses).
+  aggregate_species: {TOT_DP: "1", TOT_DC: "2", TOT_EAGRO: "3", TOT_EENSINO: "4", TOT_ESAUDE: "5", TOT_EOF: "6", TOT_ECR: "7", TOT_ERELIG: "8"}
+  # IBGE's dwelling-type columns count the dwellings (private households and collective ones) of each COD_TIPO_ESPECIE:
+  # the type is filed on species 1 and 2 only, and every collective household is type 104 (Alagoas: 1,042 of the 4,024 "other").
+  aggregate_types: {TOT_TIPO_101: "101", TOT_TIPO_102: "102", TOT_TIPO_103: "103", TOT_TIPO_104: "104"}
+
+# IBGE, Censo 2010 sample microdata (sources/census_commuting.py): the questionnaire's answer codes and the SIDRA tables they are checked against.
+census_commuting:
+  source: "Layout_microdados_Amostra.xls (IBGE Censo 2010), SIDRA tables 1615 and 1611"
+  as_of: "Census 2010"
+  # layer -> the event kind, the question variable, the place-code variable, and the question's answer codes for
+  # "another municipality", "foreign country", "several places" (null when the question has no such answer).
+  layers:
+    work: {kind: commute_work_2010, question: V0660, code_variable: V6604, other_municipality: 51, foreign_country: 52, several_places: 53}
+    study: {kind: commute_study_2010, question: V0636, code_variable: V6364, other_municipality: 50, foreign_country: 51, several_places: null}
+  # Persons by place of work / school: the SIDRA table, variable, classification and the category "Outro municipio".
+  sidra:
+    work: {table: 1615, variable: 918, classification: 469, category: 12188}
+    study: {table: 1611, variable: 690, classification: 468, category: 12164}
