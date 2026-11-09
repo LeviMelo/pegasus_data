@@ -1448,13 +1448,15 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
         report["unparsed"] = unparsed
     # A field that is a records cube is built as one (kept under lake/cubes by its data's fingerprint), not copied
     # into lake/fields (ADR-0217); the others are still derived here.
-    from .fields import declared_fields, intake_cube, load_field
+    from .fields import declared_fields, intake_cube, load_field, rows_view
 
     declared = declared_fields()
-    served = [f for f in fields if f in declared and intake_cube(f, declared[f]) is not None]
+    served = [f for f in fields if f in declared
+              and (intake_cube(f, declared[f]) is not None or rows_view(f, declared[f]) is not None)]
     for name in served:
         table = load_field(name, years=years, settings=settings)
-        report[name] = {"rows": table.num_rows, "total": float(pc.sum(table.column("value")).as_py() or 0), "cube": True}
+        total = float(pc.sum(table.column("value")).as_py() or 0) if "value" in table.column_names else None
+        report[name] = {"rows": table.num_rows, "total": total, "cube": True}
     report.update(_derive(settings, spec, [f for f in fields if f not in served], years))
     return report
 

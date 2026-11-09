@@ -305,6 +305,36 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     return pa.table(out)
 
 
+def rows_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """A field that is a register of records (``rows:`` in its intake declaration: the field's column -> the record's), as
+    a view of the landed records, or None while the source has none landed."""
+    from .intake import declared_sources
+
+    if spec.get("source") != "intake":
+        return None
+    source = declared_sources().get(str(spec.get("intake")))
+    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not fs or not fs.get("rows") or not _landed(source):
+        return None
+    return {"dataset": f"{source['system']}-{source['series']}", "rows": dict(fs["rows"]), "where": dict(fs.get("where") or {})}
+
+
+def _field_from_rows(register: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
+    """A register field read from its records (`query`), each record column under the field's name, with its year."""
+    import pyarrow.compute as pc
+
+    from ._query_engine import query
+
+    columns = list(dict.fromkeys([*register["rows"].values(), "year"]))
+    period = [str(y) for y in years] if years else None
+    table = query(register["dataset"], period=period, geography="BR", select=columns, present="codes",
+                  rows={k.upper(): [str(v) for v in vs] for k, vs in register["where"].items()} or None, settings=settings)
+    named = {c.upper(): c for c in table.column_names}
+    out = {alias: table.column(named[str(col).upper()]) for alias, col in register["rows"].items()}
+    out["year"] = pc.cast(table.column(named["YEAR"]), pa.int32())
+    return pa.table(out)
+
+
 def _field_from_climate(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
     """A BR-DWGD annual field from its cube (``climate:<measure>``), in the field's columns: ``ok`` when the year holds
     all twelve months, ``partial_year`` otherwise (the value kept), ``months`` what it rests on, ``source`` the release."""
@@ -568,6 +598,9 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         return _field_from_cnes(name, spec, plan, wanted, settings)
     if spec.get("source") == "brdwgd" and spec.get("measure"):   # an annual climate sum is its climate cube
         return _field_from_climate(name, spec, wanted, settings)
+    register = rows_view(name, spec)
+    if register is not None:                      # a register (S2iD's events) is its landed records, renamed
+        return _field_from_rows(register, wanted, settings)
     directory = Path(settings.lake_dir) / "fields" / name
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")
