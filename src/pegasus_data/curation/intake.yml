@@ -2310,7 +2310,7 @@ sources:
       (2023's files were last modified in August 2026; September 2026's on 2026-11-08), so a month landed is a version of it.
       The person code is a pseudonymous hash: doses of one person link within the files, never to another system.
     gotchas:
-      - "Too large to land whole on most machines (128 GiB of Parquet projected): it is declared on request, so `pegasus-data fields` with no names leaves it out, and a build names the years (pegasus-data fields vaccine_doses_residence --years 2023)."
+      - "Too large to land whole on most machines (128 GiB of Parquet projected): it is declared on request, so `pegasus-data fields` with no names leaves it out, and a build names the years (pegasus-data fields --name vaccine_doses_residence --years 2023)."
       - "Months not yet published answer HTTP 403 on the bucket (October and November 2026, read 2026-11-08), a recorded gap and not an absence."
       - "nu_idade_paciente holds -1, 120 and 220 (DATA_SOURCES, PNI); co_vacina_fabricante is mostly empty and does not pair with ds_nome."
       - "The code lists are the files' own descriptor columns beside each code (sg_imunobiologico for co_vacina, ds_tipo_dose for co_dose_vacina): read with label_from, never from a separate table."
