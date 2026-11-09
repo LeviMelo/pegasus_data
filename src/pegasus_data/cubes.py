@@ -381,13 +381,21 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
     cell = list(dict.fromkeys([place_column, *time_fields, *by]))
 
+    def placed(table: pa.Table) -> pa.Table:
+        """The place column as the municipality it places (`geography.place_municipalities`), before any grouping: a
+        distinct count is of its municipality, never summed over the codes that place there (the Federal District's PF
+        files code its administrative regions to 2016, and a physician of two regions is one physician of Brasília)."""
+        codes = pc.dictionary_encode(pc.cast(table.column(place_column), pa.string())).combine_chunks()
+        mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
+        return table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
+
     def count(span: Any) -> pa.Table:
         if event != "rows":
             if measure:
                 raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
             # events are counted by the filters' columns too, then filtered and summed over them (events add up)
-            counted = kept(count_events(dataset, event, period=span, geography=publications, by=group, condition=condition,
-                                        **extra))
+            counted = placed(kept(count_events(dataset, event, period=span, geography=publications, by=group,
+                                               condition=condition, **extra)))
             return counted.group_by(cell).aggregate([("events", "sum")]).rename_columns([*cell, "events"])
         if condition is not None:
             raise ValueError("a condition on roles applies to an event type's records")
@@ -396,8 +404,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
         parts_summed = summed.split("+") if summed else []
         extra_columns = [*parts_summed, *([distinct] if distinct else [])]
-        table = kept(query(dataset, period=span, geography=publications,
-                           select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))
+        table = placed(kept(query(dataset, period=span, geography=publications,
+                                  select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra)))
         if summed:
             total = None
             for part in parts_summed:
@@ -421,15 +429,16 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
-    # An event whose year is recorded and month is not (a year and a month held apart) is kept at the finest period
-    # known, its year: it counts in every year's total and is never placed in a month (FA's 13 month-less events).
-    if len(time_fields) >= 2 and time_fields[0] in counts.column_names:
+    # An event whose year is recorded and month is not (a year and a month held apart, or a binding that is a year
+    # alone: SISAGUA's register by NU_ANO) is kept at the finest period known, its year: it counts in every year's total
+    # and is never placed in a month (FA's 13 month-less events).
+    if (len(time_fields) >= 2 or encoding == "year") and time_fields[0] in counts.column_names:
         filed_year = pc.utf8_trim_whitespace(pc.cast(counts.column(time_fields[0]), pa.string()))
         known = pc.fill_null(pc.match_substring_regex(filed_year, r"^(19|20|21)\d\d$"), False)
         missing = pc.is_null(competencia)
         year = pc.if_else(pc.and_(missing, known), filed_year, year)
         period = pc.if_else(pc.and_(missing, known), filed_year, period)
-    places = pa.array(place_municipalities(counts.column(place_column).to_pylist()), pa.int64())
+    places = pc.cast(counts.column(place_column), pa.int64())          # placed before grouping (`placed`)
     events = pc.cast(counts.column("events"), pa.float64())
     # a span's years (or months) not asked for are left out
     wanted = (pc.is_in(pc.binary_join_element_wise(year, pc.utf8_slice_codeunits(competencia, 4, 6), "-"), pa.array(months))

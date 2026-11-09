@@ -79,3 +79,18 @@ by (municipality, period, strata), and each cube is the field's own declaration 
 
 Not yet cubes: the 7 SISAGUA outcome shares (zero-filled over their `_assessed` population), INEP's unpivoted margins,
 S2iD's register of events, and the 5 SISAGUA supply, tanker and SNGPC sums whose datasets have no code-placed roles.
+
+**The rest, on ca91def and after (2026-11-09, `scratchpad/cmp_views_db.py`, year by year).**
+- **The binding `landed`.** An intake record carries the place and period it was landed by (`_MUNICIPALITY`, `year`,
+  `_MONTH`), so a source placed by a name or with no roles file is a cube. SNGPC's three sums are equal in every cell:
+  compounded 1,861,805 rows (2,176,754,969 units), sales 56,212,387 and by CID 57,048,191 rows (2,597,529,837 units).
+  - The tanker trucks are equal (666 rows, 2,174), and so are the five supply-population sums (2,119,897,396 persons).
+    The register's new roles bind it by `NU_ANO` alone: the first run gave 0 rows, a year-only binding having no
+    month; the cube keeps such a record at its year, as it does a month-less event.
+- **Memory.** A records cube read a run of consecutive years in one query; SNGPC's sales of 2014-2021 national ran out
+  of memory. A dataset's rows are now read a year at a time. Events keep their runs, since an event type removes a
+  notification filed in two years' files only within one read.
+  - The sales field is 10.4 GB in memory when read whole (its strata are plain strings), as its stored copy was.
+- **A comparison artefact, not a difference.** A first pyarrow comparison found 378,090 cells differing out of equal
+  totals: a join never matches a null key (`co_cid10` is mostly null). Sampled cells were identical; with nulls keyed,
+  0 differ.
