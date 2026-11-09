@@ -441,7 +441,7 @@ def s_linkage() -> dict[str, Any]:
 
 
 def s_timeline() -> dict[str, Any]:
-    """The pregnancy timeline behind pegasus_view's Linha do tempo: a birth with a linked infant death."""
+    """The pregnancy timeline (linkage.timeline, served at /links/timeline): a birth with a linked infant death."""
     from pegasus_data.linkage.engine import link
     from pegasus_data.linkage.timeline import notable_births, timeline
 

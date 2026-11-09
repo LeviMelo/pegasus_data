@@ -21,7 +21,7 @@ reviewed like code: `curation/` (180 YAML files) and `resources/` (the shipped
 snapshot, 41 MB).
 
 ```text
- entry      cli/ (pegasus-data …)        serve/ (HTTP /api/v1, for ../pegasus_view)
+ entry      cli/ (pegasus-data …)        serve/ (HTTP /api/v1 transport)
               │                                │
  public API __init__.py: 66 lazily exported names
               │

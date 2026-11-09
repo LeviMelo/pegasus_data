@@ -116,8 +116,8 @@ There are two halves.
   source's own additivity. Fields and aggregates are being folded into it
   (`docs/plans/cubes.md`); the SIDRA and series fields already are views of it.
 - **`serve/`.** Exposes built aggregates, their capabilities, population
-  denominators and geography over HTTP (its frontend, `../pegasus_view`, is
-  deprecated).
+  denominators and geography over HTTP (written for `../pegasus_view`, now
+  deprecated, which no longer shapes it).
 
 ## 4b. Context and linkage
 
