@@ -192,52 +192,61 @@ def rolling_origin(system: str, scales=(0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5)) ->
     return {"k": k, "coverage_by_scale": cover, "mae_probability_by_horizon": mae, "n": len(e)}
 
 
-def ill_defined_shares(cells_path: str | Path) -> tuple[str, dict[tuple[int, int], float]]:
-    """``(dataset, shares)``: the share of deaths whose underlying cause is ill-defined, by UF and year, from the stored
-    municipality × year × cause aggregate (its manifest names the dataset). Which causes are ill-defined is declared
-    (``curation/quality.yml``, ``ill_defined_causes``: an ICD-10 chapter without the exceptions) on the dataset's cause
-    role, whatever its column is called. A quality covariate, not a completeness."""
-    import json
+def ill_defined_shares(settings, log=print) -> tuple[str, dict[tuple[int, int], float]]:
+    """``(dataset, shares)``: the share of deaths whose underlying cause is ill-defined, by UF of residence and year, counted
+    through the API from the event type that ``inputs: ill_defined`` of the product declares (`curation/products.yml`: the
+    events and the years). Which causes are ill-defined is declared too (``curation/quality.yml``, ``ill_defined_causes``: an
+    ICD-10 chapter without the exceptions) on the dataset's cause role, whatever its column is called. A quality covariate,
+    not a completeness. The UF is the first two digits of the residence code, so a death whose municipality is the state's
+    "ignored" one still counts in its state."""
+    import warnings
 
     import pyarrow as pa
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
     from .config import curation_root
+    from .fields import _years
     from .semantics.column_roles import column_of
     from .semantics.curation import read_yaml
+    from .semantics.event_types import count_events
 
-    dataset = str(json.loads((Path(cells_path).parent / "manifest.json").read_text(encoding="utf-8"))["spec"]["dataset"])
+    spec = read_yaml(curation_root() / "products.yml", shared=True)["products"]["system_completeness"]["inputs"]["ill_defined"]
+    dataset, _, event = str(spec["events"]).removeprefix("records:").partition("/")
     rule = read_yaml(curation_root() / "quality.yml", shared=True)["ill_defined_causes"][dataset]
-    cause = column_of(dataset, str(rule["cause"]))
-    t = pq.read_table(cells_path, columns=["municipality", "competencia", cause, "deaths_n"])
-    c3 = pc.utf8_slice_codeunits(pc.utf8_upper(t[cause]), 0, 3)
-    ill = pc.and_(pc.starts_with(c3, str(rule["chapter"])), pc.invert(pc.is_in(c3, pa.array([str(c) for c in rule["except"]]))))
-    g = pa.table({"uf": pc.cast(pc.utf8_slice_codeunits(t["municipality"], 0, 2), pa.int32()),
-                  "year": pc.cast(pc.utf8_slice_codeunits(t["competencia"], 0, 4), pa.int32()),
-                  "n": t["deaths_n"], "ill": pc.if_else(ill, t["deaths_n"], 0.0)})
-    g = g.group_by(["uf", "year"]).aggregate([("n", "sum"), ("ill", "sum")]).to_pydict()
-    return dataset, {(u, y): i / n for u, y, n, i in zip(g["uf"], g["year"], g["n_sum"], g["ill_sum"], strict=True) if n > 0}
+    cause, residence = column_of(dataset, str(rule["cause"])), column_of(dataset, "deceased.residence")
+    out: dict[tuple[int, int], float] = {}
+    for year in _years(str(spec["years"])):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            t = count_events(dataset, event, period=year, geography="BR", by=[residence, cause], root=settings.root, allow_partial=False)
+        c3 = pc.utf8_slice_codeunits(pc.utf8_upper(pc.cast(t[cause], pa.string())), 0, 3)
+        ill = pc.and_(pc.starts_with(c3, str(rule["chapter"])), pc.invert(pc.is_in(c3, pa.array([str(c) for c in rule["except"]]))))
+        g = pa.table({"uf": pc.cast(pc.utf8_slice_codeunits(pc.cast(t[residence], pa.string()), 0, 2), pa.int32()),
+                      "n": t["events"], "ill": pc.if_else(ill, t["events"], 0)})
+        g = g.group_by("uf").aggregate([("n", "sum"), ("ill", "sum")]).to_pydict()
+        out |= {(u, year): i / n for u, n, i in zip(g["uf"], g["n_sum"], g["ill_sum"], strict=True) if n > 0}
+        log(f"ill-defined share {year}")
+    return dataset, out
 
 
-def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version: str, validation: str,
-                       last_year: int = 2023, log=print) -> dict:
-    """Write the ``system_completeness`` modelled product: SIM deaths and SINASC births, by UF and year."""
+def build_completeness(settings, *, version: str, validation: str, last_year: int = 2023, log=print) -> dict:
+    """Write the ``system_completeness`` modelled product: SIM deaths and SINASC births, by UF and year. The ill-defined
+    share is read from the aggregate its entry in `curation/products.yml` declares (``inputs: ill_defined``)."""
     import json
-    from types import SimpleNamespace
 
     import pyarrow as pa
 
     from .modelled import ModelledManifest, write_modelled
 
+
     pub = published()
-    ill_dataset, ill = ill_defined_shares(ill_cells_path)
+    ill_dataset, ill = ill_defined_shares(settings, log)
     ill_system = ill_dataset.split("-")[0]                    # the system the share is a covariate of (SIM-DO: SIM)
 
     from .modelled import read_modelled
 
     # the latest version as `read_modelled` orders them (by number: a text sort put -10 before -6)
-    table, acct_manifest = read_modelled("registration_completeness", settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
+    table, acct_manifest = read_modelled("registration_completeness", settings=settings)
     acct = table.to_pylist()
     independent = {(r["system"], r["uf"], y): r["completeness"] for r in acct
                    for y in range(*(int(v) + i for i, v in enumerate(re.fullmatch(r"(\d{4})-(\d{4})", r["period"]).groups())))}
@@ -286,7 +295,7 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
         place="uf", period="year", strata=["system"],
         inputs={"published ratio": "tabnet.datasus.gov.br/cgi/idb2012/a17b.htm, a1801b.htm (IBGE and MS/SVS)",
-                "ill-defined share": "SIM municipality × year × cause aggregate", "census-based SINASC": "registration_completeness/" + acct_manifest["version"]},
+                "ill-defined share": "SIM-DO deaths by residence × year × underlying cause (count_events)", "census-based SINASC": "registration_completeness/" + acct_manifest["version"]},
         validation=validation,
         notes=["Completeness is registered / (registered + unregistered) of events in the UF of residence; 'published' rows are the "
                "Ministry's ratio of registered to estimated events, where the estimate rests on the 2008 Busca Ativa factors "
@@ -298,7 +307,6 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
                "the upper bound is raised to it if it is higher; census-based minus the completeness above (published to 2011), mean over state-years: " + gap_note + ".",
                "No municipal completeness: the Ministry's municipal factors were not found, and a state-level association does not carry to municipalities.",
                f"Calibration: {json.dumps(calibration)}"])
-    settings = SimpleNamespace(lake_dir=Path(root) / "lake")
     path = write_modelled(table, manifest, settings=settings)
     log(f"written {path} rows={table.num_rows}")
     return {"path": path, "calibration": calibration}

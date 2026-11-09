@@ -178,3 +178,21 @@ def reencode(product: str, version: str, *, settings: Any) -> dict[str, Any]:
     del new, src
     tmp.replace(path)
     return {"version": version, "bytes_before": before, "bytes_after": path.stat().st_size}
+
+
+def build(product: str, *, version: str, validation: str, settings: Any, log=print) -> dict[str, Any]:
+    """Build and write a new ``version`` of ``product`` from the data home, by the function its entry in
+    `curation/products.yml` names (``build:``, called as ``build(settings, version=, validation=, log=)``). A product with no
+    ``build`` is not rebuildable from the package: the error says so rather than guessing."""
+    from importlib import import_module
+
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    entry = ((read_yaml(curation_root() / "products.yml").get("products") or {}).get(product) or {})
+    if entry.get("kind") != "modelled":
+        raise ValueError(f"{product!r} is not a modelled product")
+    if not entry.get("build"):
+        raise ValueError(f"{product!r} declares no `build` in products.yml: no function of the package rebuilds it")
+    module, _, name = str(entry["build"]).rpartition(".")
+    return getattr(import_module(module), name)(settings, version=version, validation=validation, log=log)

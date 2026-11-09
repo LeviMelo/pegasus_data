@@ -1645,13 +1645,20 @@ datasets:
       - The numerator of the maternal mortality ratio; the denominator is live births from SINASC.
       - Investigation reclassifies deaths months after certification, so a recent year is not comparable with a settled one.
   SIM.DOR:
+    event_types:
+      - name: death
+        kind: death
+        # no classifier: the causes are CID-9 (CID9WHO), and an ICD-9 classifier needs the ICD-9 to ICD-10 bridge (STATUS
+        # lists it as not done); the event is declared to count deaths by residence, sex and age (the population account's
+        # 1991-1995 deaths), not to classify them
+        status:
+          column: TIPOBITO
+          exclude: ["1"]
+          evidence: >-
+            TIPOBITO 1 is a foetal death (SIM layout); DOR is the non-foetal base, and the 1991-1995 collection of the
+            population account excluded code 1 all the same.
     system: SIM
     series: DOR
-    use: not_an_event_source
-    why_no_event_type: >-
-      Not declared yet: the deaths of 1979-1995 in the ICD-9 era, whose causes are CID-9 (CID9WHO); the death
-      event is declared for the ICD-10 files (SIM-DO from 1996) and an ICD-9 event needs its own classifier and
-      the ICD-9 to ICD-10 bridge (STATUS lists ICD-9 as not done).
     asserted_by: pegasus_data
     source: layout_doc
     source_ref: MORT98.HLP (SIM/CID9/DOCS), directory DORES

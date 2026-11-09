@@ -140,7 +140,7 @@ def settle(path: np.ndarray, opening: np.ndarray, rates: np.ndarray | None = Non
 class Pre:
     """Everything the pre-2000 account reads, assembled once."""
 
-    def __init__(self, root: str | Path, population_root: str | Path, events_dir: str | Path, places: Places, log=print) -> None:
+    def __init__(self, root: str | Path, events_dir: str | Path, places: Places, log=print) -> None:
         S, self.area_of, self.n_areas = lag_series(root, places)
         self.places = places
         ns = area_places(places, self.area_of, self.n_areas)
@@ -149,7 +149,7 @@ class Pre:
         for m in places.municipalities:
             self.state[self.area_of[m]] = int(str(m)[:2])
         self.c00 = load_census(root, 2000, ns, "unit")
-        cov = reconciled_coverage(population_root, 2000, self.c00, self.state)
+        cov = reconciled_coverage(root, 2000, self.c00, self.state)
         self.c00r = self.c00 * cov
         self.cov_band = cov[:, :, [int(np.flatnonzero(g == BANDS)[0]) for g in range(17)]]
         self.c91_raw = S[1991]
@@ -346,42 +346,31 @@ def backcast_tables(pre: Pre, cal, S: dict[int, dict], shape_cal: dict, ctx: dic
         log(f"municipalities {c0}-{c0 + n}")
 
 
-def write_product(root: str | Path, *, source: str, version: str, validation: str, tables, notes: list[str],
-                  tail=None, model_note: str = "") -> dict:
-    """Write ``version`` of ``population_account``: the backcast ``tables`` (1991-1999), then every row group of the version
-    ``source`` (2000-2030) unchanged, or ``tail`` (tables of the same schema: the rebuilt 2000-2030) when given, with
-    ``source``'s manifest as the base and ``model_note`` appended to its model. A version is never overwritten."""
-    import json
-
-    import pyarrow.parquet as pq
-
-    from .modelled import ModelledManifest, write_modelled
-
-    base = Path(root) / "lake" / "modelled" / "population_account" / source
-    src = pq.ParquetFile(base / "estimates.parquet")
-    old = json.loads((base / "manifest.json").read_text(encoding="utf-8"))
-    first = next(tables)
-    if first.schema.remove_metadata() != src.schema_arrow.remove_metadata():
-        raise ValueError(f"the backcast rows do not have the schema of {source}:\n{first.schema}\n{src.schema_arrow}")
-
-    def chain():
-        yield first
-        yield from tables
-        if tail is not None:
-            yield from tail
-            return
-        for g in range(src.num_row_groups):
-            yield src.read_row_group(g)
-
-    manifest = ModelledManifest(
-        product="population_account", version=version,
-        model=old["model"] + "; extended back to 1991 by population_backcast.py: the vital account run backward from the "
-                             "coverage-corrected Census 2000 with SIM deaths of 1991-1999 and settled on the Census 1991 "
-                             "(comparable areas 1991-2010), the municipal split anchored on the 2000 estimate and the Contagem 1996" + model_note,
-        estimates=old["estimates"], place="municipality", period="year", strata=["sex", "age", "race"],
-        additive=["population"], inputs={**old["inputs"], "Census 1991 by five-year group": "SIDRA table 200",
-                                            "Contagem 1996 by five-year group (split anchor, hold-out of the area estimate)": "SIDRA table 475",
-                                            "SIM 1991-1995 (corrected base)": "SIM.DOR", "SIM 1996-1999": "SIM.DO"},
-        validation=validation, notes=old["notes"] + notes)
-    path = write_modelled(chain(), manifest, settings=type("S", (), {"lake_dir": Path(root) / "lake"})())
-    return {"path": str(path)}
+#: What the pre-2000 rows add to the product's manifest (`population_tensor.build_population_account` appends them).
+MODEL = ("; extended back to 1991 by population_backcast.py: the vital account run backward from the coverage-corrected Census 2000 "
+         "with SIM deaths of 1991-1999 and settled on the Census 1991 (comparable areas 1991-2010), the municipal split anchored on "
+         "the 2000 estimate and the Contagem 1996")
+INPUTS = {"Census 1991 by five-year group": "SIDRA table 200",
+          "Contagem 1996 by five-year group (split anchor, hold-out of the area estimate)": "SIDRA table 475",
+          "SIM 1991-1995 (corrected base)": "SIM.DOR", "SIM 1996-1999": "SIM.DO"}
+NOTES = [
+    "1991-1999 are added to the rows of 2000-2030 (ADR-0152). Before 2000 only `race = total` exists: the 1991 Census has race by "
+    "municipality only as a total (SIDRA 136, 5,565 municipalities, no age or sex) and by age group and sex only for Brazil, regions "
+    "and states (SIDRA 140), so no municipal race-by-age cell can be anchored in 1991 and none is estimated.",
+    "1991-1999: the account of comparable areas 1991-2010 (IPEA AMC): the vital account run backward from the coverage-corrected "
+    "Census 2000 with SIM deaths (1991-1995 SIM.DOR, 1996-1999 SIM.DO; the city of Rio de Janeiro is coded 3345xxx before 1999 and "
+    "mapped to 330455; no birth is used, SINASC starting in 1994) and settled on the 1991 Census (SIDRA 200, five-year groups, "
+    "146.83M counted) with the 2000 census's coverage by state x sex x band carried back (an assumption: POPSVS starts in 2000). "
+    "Reference date 1 August; the 1991 census is of 1 September (8.92 years to 2000, taken as 9).",
+    "`basis` before 2000 is `backcast` (the years precede the account's 2000 base), except 1991 in a municipality that is its own "
+    "area, which is `census`. Intervals: the account's cross-period spread times 1.2 (the 1996 hold-out found it slightly narrow), a "
+    "Brownian bridge between the two censuses, in quadrature with the split's (quantiles 2.16 and 4.58 of its standardized errors) "
+    "and the single age's.",
+    "Municipal split of an area (693 areas, 1,969 municipalities, those with a municipality created after 1991): anchored on the 2000 "
+    "estimate and on the 1996 Contagem (SIDRA 475) when every member was counted then (265 areas); otherwise 2000 alone, moved back "
+    "by half of the member's 2000-2010 growth differential. Single-age shape inside bands follows the account's own path; 80+ the "
+    "state's census shape (held at 2000 before it).",
+    "Hold-out (evaluation entry, Backcast): the area estimate at 1996 never saw the Contagem; its national total is 4.8% above the "
+    "Contagem's raw count (the Contagem 1996 is a raw count against a corrected 1991 and 2000), so the level at 1996 is not validated "
+    "and the shape (median area error 0.028 after the national rescale) is.",
+]

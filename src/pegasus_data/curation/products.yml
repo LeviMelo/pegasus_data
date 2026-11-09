@@ -512,9 +512,13 @@ products:
     stores: [lake/modelled/population_account]
     # what the account counts, as event types stratified by roles (`population_account.collect_events`): the files it
     # writes carry the strata under these names, sex read from its label (M, F or unknown), never from a code
+    # `from` is the first year a system publishes; `earlier` the system that holds the years before it (SIM-DO starts in 1996,
+    # its ICD-9 predecessor SIM-DOR, non-foetal deaths by residence, holds 1979-1995; SINASC starts in 1994, so 1991-1993 have no births)
+    build: pegasus_data.population_tensor.build_population_account
     inputs:
-      deaths: {events: "records:SIM-DO/death", strata: {residence: deceased.residence, sex: deceased.sex, age: deceased.age_years}}
-      births: {events: "records:SINASC-DN/birth", strata: {residence: mother.residence, sex: baby.sex}}
+      deaths: {events: "records:SIM-DO/death", from: 1996, earlier: "records:SIM-DOR/death",
+               strata: {residence: deceased.residence, sex: deceased.sex, age: deceased.age_years}}
+      births: {events: "records:SINASC-DN/birth", from: 1994, strata: {residence: mother.residence, sex: baby.sex}}
 
   population_without_private_coverage:
     label: "Population without a private health plan"
@@ -528,6 +532,7 @@ products:
     period: "2021-2023"
     call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
+    build: pegasus_data.sus_dependent.build_sus_dependent
     # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's version with a 10-90% interval per
     # five-year band (ADR-0145; version 3 and later are single-age, ADR-0151), and the field of plan links, whose declared
     # `where` is the plan coverage that insures hospital care and whose declared years are the years it can be built for
@@ -584,6 +589,10 @@ products:
     period: "2000-2023"
     call: 'pegasus_data.modelled.read_modelled("system_completeness")'
     stores: [lake/modelled/system_completeness, resources/published_coverage_idb2012.csv]
+    build: pegasus_data.completeness.build_completeness
+    # the deaths whose ill-defined share (by UF of residence and year) is a covariate of the SIM series
+    inputs:
+      ill_defined: {events: "records:SIM-DO/death", years: "2010-2023"}
     # the model past 2011, per system (`completeness.systems`). anchor_sd: standard deviation (probability scale) of the
     # published ratio itself. extension: `drift` (the logit follows the mean published step) or `persist` (it stays).
     systems:
@@ -605,6 +614,7 @@ products:
     period: "2000-2004 to 2017-2021"
     call: 'pegasus_data.modelled.read_modelled("registration_completeness")'
     stores: [lake/modelled/registration_completeness]
+    build: pegasus_data.population_account.build_registration_completeness
 
 # Folders of the data home not attributed to a dataset, field, link, intake source or product:
 #   registries/tse            perfil_eleitorado_2022.zip (TSE electorate profile 2022, one CSV per UF): the zip is held, but no

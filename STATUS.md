@@ -95,13 +95,20 @@ before it is fixed and marked done there with its evidence.
   targets as code branches), T12 (published tables in source adapters), T13 (study constants and axes), T14 and
   T17, T19, T20, T22, T24 (small), H1 (unreferenced functions), H3 (import cycles), H5 (oversized functions).
 
-**R1. The modelled products cannot be rebuilt from the repository (found 2026-11-09, the worst open item).**
-`population-account-6` (PegaSUS's denominator) was built by probe scripts (`data/probes/population_account/v5-v6`,
-gitignored) from pickled intermediates in a temp cache that no longer exists, an events folder in `pegasus_project`
-and the old `pegasus_data_home`, removed under ADR-0208. The other products' builders (`build_sus_dependent`,
-`build_completeness`, `build_registration_completeness`) are library functions no command reaches. The fix: the
-pipeline in the package behind one command per product (`products.yml` naming each product's build), proved by
-rebuilding each under a check version and comparing it with the stored one value for value.
+**R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**
+`pegasus-data model-build <product> --version V --validation TEXT` calls the function each modelled entry of `products.yml`
+declares (`build:`): `population_tensor.build_population_account` (the events of 1991-2023 into the work area, SIM-DOR to
+1995; account, calibration, forecast, split, race, shapes, migration schedule, backcast; 25 minutes), `sus_dependent`,
+`completeness`, `population_account.build_registration_completeness`. Each was rebuilt under a check version and compared
+with the stored one (evaluation entry 2026-11-09-principles-audit-defects, row R1); the check versions are deleted.
+`population-account-6` reproduces to the last float32 bit (37 of 219 M cells, 1e-7) once the placing rule of October is
+restored, and differs by at most 9e-5 in 2001-2021 (0.16 on cells of a few people in 1991-1999) under today's rule, which
+places 5 deaths and 8 births of 2000-2010 differently; `system_completeness` is equal; `sus_dependent` differs only where
+ANS republished its December files; `registration_completeness` by 2.5e-5 in 2 of 108 cells. **Open:** `race_confusion_infant`
+and `_women` have no `build` (their inputs, the link tables with the negative-control share, come from scratch scripts in
+`pegasus_project/data/agent_race*`); `population-account-2` and `-3`, inputs of two products, have no builder either (the
+v2 function was removed with the move to the tensor). The aggregate engine drops the deaths whose residence is the state's
+"ignored" municipality (0.34% of 2012's); `system_completeness` counts the ill-defined share through the API instead.
 
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 

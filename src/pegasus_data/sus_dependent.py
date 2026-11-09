@@ -123,13 +123,13 @@ def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict
     return cells, report
 
 
-def build_sus_dependent(root: str | Path, *, version: str, validation: str, draws: int = 200, seed: int = 0,
+def build_sus_dependent(settings, *, version: str, validation: str, draws: int = 200, seed: int = 0,
                         log=print) -> dict[str, Any]:
-    from types import SimpleNamespace
-
+    """Write the ``population_without_private_coverage`` modelled product: the population account's version declared in
+    `curation/products.yml` minus the ANS medical-hospital links of the years both hold."""
     from .modelled import ModelledManifest, write_modelled
 
-    settings = SimpleNamespace(lake_dir=Path(root) / "lake")
+    root = settings.root
     from .config import curation_root
     from .fields import _years
     from .modelled import read_modelled
@@ -137,8 +137,8 @@ def build_sus_dependent(root: str | Path, *, version: str, validation: str, draw
 
     # the years the links field declares; those the account holds are built (it does not extrapolate, ADR-0145)
     years = _years(str(_links_field()[1]["years"]))
-    version = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account"]["version"]
-    estimates, pm = read_modelled("population_account", str(version), settings=settings)
+    account = read_yaml(curation_root() / "products.yml")["products"]["population_without_private_coverage"]["inputs"]["population_account"]["version"]
+    estimates, pm = read_modelled("population_account", str(account), settings=settings)
     import pyarrow.compute as pc
 
     keep = pc.and_(pc.is_in(estimates.column("year"), pa.array(years, estimates.column("year").type)),
