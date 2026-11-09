@@ -24,7 +24,7 @@ the weather of the territory (what BR-DWGD's zonal means are). Weight on a grid 
 cells, where a coastal town's people can live) is read at the nearest cell with a value within 10 km, and ``coverage``
 says what share of the weight was read at its own cell. ``stations`` is the
 product's count of stations or gauges in the grid cells the municipality touches: where it is 0 the value is the
-satellite's or the reanalysis' alone.
+satellite's or the reanalysis' alone; null where the file gives no count in any cell it touches.
 
 **Vintages.** Every file read is kept in a manifest with the server's ``Last-Modified`` (``published``) and the time it
 was read; a file that changes on the server (SAMeT's provisional days, a rebuilt MERGE year) is read again and its rows
@@ -158,13 +158,13 @@ def read_file(product: Product, body: bytes) -> tuple[Any, Any, Any, Any]:
             fields.append(np.where(values == missing, np.nan, values))
         lon = (lon0 - 360 if lon0 > 180 else lon0) + step * np.arange(ni)
         lat = lat0 + step * np.arange(nj)
-        return fields[0], np.nan_to_num(fields[1], nan=0.0), np.round(lon, 4), np.round(lat, 4)
+        return fields[0], fields[1], np.round(lon, 4), np.round(lat, 4)
     import netCDF4
 
     with _DECODE, netCDF4.Dataset("in-memory.nc", memory=body) as data:
         data.set_auto_mask(True)
         value = np.ma.filled(data.variables[product.field][0].astype("float64"), np.nan)
-        stations = np.ma.filled(data.variables["nobs"][0].astype("float64"), 0.0)
+        stations = np.ma.filled(data.variables["nobs"][0].astype("float64"), np.nan)
         lon, lat = np.asarray(data.variables["lon"][:], dtype=float), np.asarray(data.variables["lat"][:], dtype=float)
     value[value <= MISSING / 10] = np.nan
     if lat[0] > lat[-1]:
@@ -261,7 +261,11 @@ class _Weights:
             with np.errstate(invalid="ignore", divide="ignore"):
                 out[f"value_{name}"] = np.where(weight > 0, (read @ filled) / weight, np.nan)
                 out[f"coverage_{name}"] = np.where(total > 0, at_own / total, np.nan)
-        out["stations"] = np.rint(self.touched @ stations.ravel()).astype(np.int32)
+        # stations of the cells the municipality touches; a cell with no count (the file masks it) adds nothing, and a
+        # municipality none of whose cells has a count has no figure (NaN, stored null), not "0 stations"
+        counted = np.isfinite(stations.ravel())
+        total = self.touched @ np.where(counted, stations.ravel(), 0.0)
+        out["stations"] = np.where(self.touched @ counted.astype(float) > 0, np.rint(total), np.nan)
         return out
 
 
@@ -388,7 +392,8 @@ def _update_locked(settings: Any, product: Product, start: dt.date, end: dt.date
             "date": pa.array(np.concatenate(columns["date"]), pa.date32()),
             **{k: pa.array(np.concatenate(columns[k]).astype("float32")) for k in
                ("value_population", "value_area", "coverage_population", "coverage_area")},
-            "stations": pa.array(np.concatenate(columns["stations"]), pa.int32()),
+            "stations": (lambda a: pa.array(np.where(np.isnan(a), 0, a).astype(np.int32), mask=np.isnan(a)))(
+                np.concatenate(columns["stations"])),
             "published": pa.array(np.concatenate(columns["published"]), pa.timestamp("s", tz="UTC")),
             "file": pa.array(np.concatenate(columns["file"]).astype(str))})
         folder = _store(settings) / variable / f"year={year}" / f"month={month}"
@@ -418,9 +423,13 @@ def _clause(start: Any, end: Any, municipality: Any, uf: Any, as_of: Any) -> str
         where.append(f"date <= DATE '{dt.date.fromisoformat(str(end)[:10])}'")
     if municipality is not None:
         values = [str(v).strip() for v in ([municipality] if isinstance(municipality, (str, int)) else municipality)]
-        if any(len(v) not in (6, 7) for v in values):
-            raise ValueError(f"municipality codes have 6 or 7 digits: {values}")
-        where.append("substr(municipality7, 1, 6) IN (" + ",".join(repr(v[:6]) for v in values) + ")")
+        from ..geography import place_municipalities
+
+        placed = place_municipalities(values)
+        if None in placed:
+            raise ValueError(f"not municipality codes (6 or 7 digits naming a municipality): "
+                             f"{[v for v, p in zip(values, placed, strict=True) if p is None]}")
+        where.append("municipality7 IN (" + ",".join(repr(str(p)) for p in sorted(set(placed))) + ")")
     if uf is not None:
         states = [str(s).strip() for s in ([uf] if isinstance(uf, (str, int)) else uf)]
         where.append("substr(municipality7, 1, 2) IN (" + ",".join(repr(s) for s in states) + ")")

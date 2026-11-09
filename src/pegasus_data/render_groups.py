@@ -144,6 +144,10 @@ def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[lis
     take copied it all (SIH's 11.5 million admissions of a year: a third of a warm query, 2026-10-11)."""
     import numpy as np
 
+    wanted = {int(v) for v in values}
+    if 0 in wanted:
+        raise ValueError(f"{column}: 0 is no value to ask for (a null rides in the rest, never as a group of its own)")
+    # a null is held as 0 only to find the runs: 0 is never wanted, so those rows land in the rest and are not a group
     col = pc.fill_null(table.column(column), 0).to_numpy()
     if len(col) == 0:
         return [], table
@@ -152,7 +156,6 @@ def _partition(table: pa.Table, column: str, values: Sequence[int]) -> tuple[lis
     heads = col[np.r_[0, cut]].tolist()
     runs: dict[int, list[pa.Table]] = {}
     rest: list[pa.Table] = []
-    wanted = {int(v) for v in values}
     for v, a, b in zip(heads, starts, ends, strict=True):
         piece = table.slice(a, b - a)
         if int(v) in wanted:

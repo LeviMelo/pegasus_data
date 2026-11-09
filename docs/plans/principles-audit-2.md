@@ -75,7 +75,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: `ill_defined` as a declared cause group (event_types/conditions `where`) on SIM's roles; per-system model choices into
   the product's manifest/curation. Size M. (Module is also dead, see H1.)
 
-**S7. `geography.memberships` pads codes to 6 with `zfill` to make a lookup succeed**
+**S7. `geography.memberships` pads codes to 6 with `zfill` to make a lookup succeed** — done (this commit): `memberships` refuses widths other than 6/7, census commuting raises on a non-7-digit code; `detectors.py:291` (a UF check) and the CNV parser's documented TabNet rule left
 - `geography.py:766-767` (`six.zfill(6) if six.isdigit()`); similarly `sources/census_commuting.py:215,221` (`zfill(7)`
   on origin/destination codes), `profile/detectors.py:291` (`v.zfill(2) in UF_NUMERIC`), `semantics/cnv_parser.py:558` (documented).
 - A 5-digit or shorter code ("11000") becomes "011000", and a municipality code stripped of leading zeros by a CSV
@@ -84,7 +84,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Fix: refuse (return empty, counted) on a width other than 6/7; the census-commuting case needs the source's declared width
   (declare it in the source's spec, not `zfill`). Size XS.
 
-**S8. `[:6]` truncation of a 7-digit code in many readers instead of the placing rule**
+**S8. `[:6]` truncation of a 7-digit code in many readers instead of the placing rule** — done (this commit): `geography.place_six` in `rates` (with an unplaced row), `field_rate`, the CPTEC and tract filters; left as not municipality columns of records: `crosswalk` (dates), `population_account` and `sus_dependent` (keys the rule itself produced), `geography:660,1070` (declared and mesh codes), `detectors:266` (match against a supplied set)
 - `rates.py:101,125`, `fields.py:536`, `population_account.py:293-294`, `sus_dependent.py:106`, `crosswalk.py:213-214`
   (dates), `geography.py:660,1070`, `sources/cptec.py:441`, `sources/ibge_tracts.py:182`, `profile/detectors.py:266`.
   15 sites.
@@ -94,7 +94,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Violates: one placing rule; "silent drop of unplaceable rows without counting".
 - Fix: a `geography.six(code)` helper over `place_municipalities` returning (code6, placed) and counting unplaced; use it. Size S.
 
-**S9. Missing treated as zero in a few readers**
+**S9. Missing treated as zero in a few readers** — done (this commit): CPTEC stations null, census `validate` counts absent, `_partition` makes the null-as-rest explicit; `intake.py` (counted) and `_vintage.py` left
 - `render_groups.py:147` (`fill_null(competencia, 0)`: records with no date form a group "0" with the grouping), `intake.py:532`
   (`COALESCE(year, 0)`: a record with no year lands in a partition `year=0`; counted at `:588` `count_if(year = 0)`, so
   visible, acceptable) , `sources/cptec.py:161` (`np.nan_to_num(fields[1], nan=0.0)`: the NEST/station-count grid missing
@@ -134,7 +134,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - Each re-derives (year, month) from an int/str; validity (`1..12`) is checked in some (`intake.py:900`, `model.py:253`) not others.
 - Fix: one `periods.py` (`Period` already exists in `_query_engine/model.py`): `parse`, `year_of`, `month_of`, `span`, `format`. Size M.
 
-**T4. Same-job duplicates: municipality code conversion and the municipality universe (6 readers of `resources/municipalities.parquet`)**
+**T4. Same-job duplicates: municipality code conversion and the municipality universe (6 readers of `resources/municipalities.parquet`)** — done (this commit) except `intake.py:407-420` and `normalize/geo.py` (others' files): `geography.municipalities()` is the one reader
 - `geography.py:366` (code6 list for ranges), `geography.py:1153` (UF code from sigla), `presentation.py:250-257` (code6->code7 dict),
   `persist/reference.py:564`, `proximity.py:197`, `normalize/geo.py:93-107` (from catalog rows), `serve/_population.py:44`, `intake.py:407-420`
   (builds `universe`, `sole`, `names` again).

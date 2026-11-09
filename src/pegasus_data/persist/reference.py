@@ -360,14 +360,9 @@ def _states() -> pa.Table:
     SINAN's SG_UF_NOT 32 read "ES", SINASC's CODUFNATU 12 read "AC": an
     abbreviation is a code. Derived from the shipped municipalities resource.
     """
-    from importlib.resources import files as _files
+    from ..geography import municipalities
 
-    import pyarrow.parquet as _pq
-
-    rows = _pq.read_table(
-        str(_files("pegasus_data.resources") / "municipalities.parquet"),
-        columns=["uf_code", "uf_sigla", "uf_name"],
-    ).to_pylist()
+    rows = list(municipalities().values())
     names: dict[str, str] = {}
     for r in rows:
         names[str(r["uf_code"])] = str(r["uf_name"])
@@ -388,14 +383,9 @@ def _municipalities7() -> pa.Table:
     codes), which exact-width matching rightly left undecoded against them.
     The current division: a renamed municipality reads its current name.
     """
-    from importlib.resources import files as _files
+    from ..geography import municipalities
 
-    import pyarrow.parquet as _pq
-
-    rows = _pq.read_table(
-        str(_files("pegasus_data.resources") / "municipalities.parquet"),
-        columns=["code7", "name", "uf_sigla"],
-    ).to_pylist()
+    rows = list(municipalities().values())
     return pa.table({"code": [str(r["code7"]) for r in rows],
                      "label": [f"{r['name']}, {r['uf_sigla']}" for r in rows]})
 

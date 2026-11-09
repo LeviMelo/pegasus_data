@@ -248,12 +248,9 @@ def documented_names(store: Any, system: str) -> ColumnNames:
 @lru_cache(maxsize=1)
 def _ibge7() -> dict[str, str]:
     """6-digit DATASUS municipality code -> 7-digit IBGE code (with check digit)."""
-    from importlib.resources import files as _files
+    from .geography import municipalities
 
-    import pyarrow.parquet as pq
-
-    t = pq.read_table(str(_files("pegasus_data.resources") / "municipalities.parquet"), columns=["code6", "code7"])
-    return dict(zip(t.column("code6").to_pylist(), t.column("code7").to_pylist(), strict=True))
+    return {code6: row["code7"] for code6, row in municipalities().items()}
 
 
 __all__ = ["LABEL_SUFFIX", "PRESETS", "ColumnNames", "Presentation", "documented_names", "present", "resolve"]

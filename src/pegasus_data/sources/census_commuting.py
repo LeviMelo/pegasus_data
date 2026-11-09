@@ -171,6 +171,16 @@ def _add(zip_path: Path, tally: dict[str, Any]) -> None:
                                   .groupby(["from", "to"])["weight"].agg(["sum", "size"]))
 
 
+def _codes(values: Any) -> Any:
+    """Municipality codes as the text the graph stores. The source declares them 7 digits (``V0001`` + ``V0002``, the
+    code list's ``V6604``/``V6364``): any other width is a defect in the read, so it raises, never padded to match."""
+    text = values.astype(str)
+    wrong = text[text.str.len() != 7]
+    if len(wrong):
+        raise ValueError(f"municipality codes of the census microdata are 7 digits; found {sorted(set(wrong))[:5]}")
+    return text
+
+
 def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     """Download the 27 state zips and the documentation (once), and write the two commuting graphs.
 
@@ -212,13 +222,13 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
         state["apart"]["unlisted"] = [int(edges.loc[unlisted, "persons_sampled"].sum()), float(edges.loc[unlisted, "weight"].sum())]
         state["unlisted_codes"] = sorted(edges.loc[unlisted, "to"].unique().tolist())
         edges = edges[~unlisted]
-        edges["from"], edges["to"] = edges["from"].astype(str).str.zfill(7), edges["to"].astype(str).str.zfill(7)
+        edges["from"], edges["to"] = _codes(edges["from"]), _codes(edges["to"])
         edges["kind"], edges["vintage"] = kind, VINTAGE
         edges = edges.sort_values(["from", "to"]).reset_index(drop=True)[schema.names]
         pq.write_table(pa.Table.from_pandas(edges, schema=schema, preserve_index=False), out / f"{kind}.parquet")
         other = pd.concat(state["answered_other"]).groupby(level=0).sum()
         other.columns = ["weight", "persons_sampled"]
-        other.index = other.index.astype(str).str.zfill(7)
+        other.index = _codes(other.index.to_series()).values
         other.rename_axis("from").reset_index().to_parquet(_directory(root, "census2010_microdata") / f"{kind}_answered_other.parquet", index=False)
         report[layer] = {"rows": len(edges), "weighted_total": float(edges["weight"].sum()),
                          "persons_sampled_in_edges": int(edges["persons_sampled"].sum()),
@@ -259,18 +269,20 @@ def validate(root: str | Path | None = None, layer: str = "work", tolerance: flo
     graph = pd.read_parquet(_directory(root, "mobility") / f"{kind}.parquet").groupby("from")["weight"].sum()
     frame = published.set_index("from")["published"].to_frame()
     frame["answered"], frame["graph"] = answered, graph
-    frame[["answered", "graph"]] = frame[["answered", "graph"]].fillna(0.0)
     known = frame[frame["published"].notna()]
     report: dict[str, Any] = {"table": table, "municipalities_published": len(known),
                               "published_without_value": int(frame["published"].isna().sum()),
                               "published_total": float(known["published"].sum())}
     for column in ("answered", "graph"):
+        # a municipality our tables do not hold has no figure (null), not 0 people: it is counted apart
+        # (``<column>_absent``) and is never within tolerance of what IBGE published
+        report[f"{column}_absent"] = int(known[column].isna().sum())
         difference = known[column] - known["published"]
         worst = difference.abs().sort_values(ascending=False).head(5).index
         report[column] = {"total": float(known[column].sum()),
                           "within_tolerance": int((difference.abs() <= tolerance * known["published"].clip(lower=1)).sum()),
                           "within_1_person": int((difference.abs() <= 1).sum()),
                           "largest": [{"from": i, "published": float(known.at[i, "published"]), "ours": float(known.at[i, column])}
-                                      for i in worst],
+                                      for i in worst if pd.notna(known.at[i, column])],
                           "ours_not_published": sorted(set(frame.index[frame[column] > 0]) - set(published["from"]))[:10]}
     return report
