@@ -173,7 +173,20 @@ is IBGE's GDP by state, any SIDRA table without a declaration;
 counts a record dataset's events by municipality, month and a column, with the event
 type's own rules (duplicates, consolidation). Roll-ups follow the source's additivity and
 are refused otherwise; a part without a value makes a total `incomplete`, never a
-short sum.
+short sum. The other sources:
+
+```python
+cube("records:SIM-DO/death", by=["SEXO", "FAIXA_ETARIA"], periods=[2022], geography="AC",
+     derived={"FAIXA_ETARIA": {"age": "IDADE_anos"}})          # age banded as SIM declares its age
+cube("records:SIH-RD/rows", measure="VAL_TOT", periods=[2022])  # a column's sum; "A+B", "count:COL", "distinct:COL"
+cube("climate:precipitation_mm", periods=[2023])               # BR-DWGD, municipality x year, with its months held
+cube("modelled:population_account/population", by=["sex"], periods=[2022], where={"race": ["total"]})
+cube("population:POPSVS", by=["sex"], periods=[2022])
+```
+
+A record no municipality places is counted in the cube's manifest (`unplaced_events`), never
+a cell; a modelled estimate carries its bounds and is summed only when its product declares
+it additive. Aggregate recipes (`build_aggregate`) are built from these cubes.
 
 ### Context: dimensions, enrichment, geography, fields
 
