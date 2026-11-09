@@ -37,8 +37,22 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-#: Official series an estimate may sit beside but never be named as.
-OFFICIAL_SERIES = frozenset({"POPSVS", "POP", "CENSO", "SIM", "SINASC", "SIH", "SINAN"})
+
+def official_names() -> frozenset[str]:
+    """The names of official series an estimate may sit beside but never be named as: every system the ontology declares
+    (SIM, SINASC, SIH, SINAN...) and its aliases, and every population series ``populations.yml`` declares (POPSVS, POP,
+    CENSO...)."""
+    from .config import curation_root
+    from .ontology import Ontology
+    from .semantics.curation import read_yaml
+
+    names = {str(n).upper() for n in (read_yaml(curation_root() / "populations.yml", missing_ok=True).get("series") or {})}
+    for node in Ontology.load().systems.values():
+        names.add(node.code.upper())
+        names.update(str(a).upper() for a in getattr(node, "aliases", ()) or ())
+    return frozenset(names)
+
+
 _NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
@@ -93,7 +107,8 @@ def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManif
         rest = None
     if not _NAME.match(manifest.product):
         raise ValueError(f"a product name is lower snake_case: {manifest.product!r}")
-    if manifest.product.upper() in OFFICIAL_SERIES or manifest.product.upper().split("_")[0] in OFFICIAL_SERIES:
+    official = official_names()
+    if manifest.product.upper() in official or manifest.product.upper().split("_")[0] in official:
         raise ValueError(f"{manifest.product!r} takes the name of an official series; name the estimate for what it is")
     if not manifest.parameters:
         manifest = replace(manifest, parameters=json.loads(json.dumps(product_parameters(manifest.product))))
