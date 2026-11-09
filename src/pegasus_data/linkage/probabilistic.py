@@ -841,12 +841,16 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
                          - inherited)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     rest = {k: v for k, v in query_kwargs.items() if k != "settings"}     # `settings` is passed once, resolved
-    left = role_table(spec.left.dataset, period=period, geography=geography, roles=left_roles, **query_kwargs)
+    # each side's own filter is applied where each year is read (`engine._side_table`), as the deterministic engine
+    # reads it: a state's maternal deaths read every admission of the country, both sexes, before keeping the women's
+    # (12.5 GB for RR 2022, 2026-11-09); `_prepare` applies it again, a no-op on rows it already kept
+    from .engine import _side_table
+
+    left = _side_table(spec.left, left_roles, period=period, geography=geography, **query_kwargs)
     left = _inherited(left, spec.left.dataset, [i for i in prob.inherit if i.side == "left"],
                       period=period, geography=geography, settings=settings, **rest)
     right_geo = right_geography or geography
-    right = role_table(spec.right.dataset, period=right_period or period,
-                       geography=right_geo, roles=right_roles, **query_kwargs)
+    right = _side_table(spec.right, right_roles, period=right_period or period, geography=right_geo, **query_kwargs)
     right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
                        period=right_period or period, geography=right_geo, settings=settings, run_geography=geography,
                        **rest)

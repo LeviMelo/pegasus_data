@@ -1585,12 +1585,17 @@ def _decode_one(
                 owner = False
     if owner:
         try:
+            # A record key is the hash of every field the source published (`normalize.engine.record_keys`): a caller
+            # who asks for it has the whole record decoded and the projection applied after the hash. Decoded projected,
+            # a record had no key and its identity fell back to its file and row, which another publication of the same
+            # record does not share: a state's link could not be joined to the nation's read of its records (the
+            # newborn link inherited no delivery AIH from Roraima's stored delivery link, 2026-11-09).
             outcome, size = _open_decoded_source(
                 pipeline,
                 registry,
                 path=path,
                 digest=digest,
-                keep_columns=keep_columns,
+                keep_columns=None if record_key else keep_columns,
                 decode_members=decode_members,
             )
         except BaseException as exc:

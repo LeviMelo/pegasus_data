@@ -179,13 +179,16 @@ def stored_key(name: str, method: str, period: object, geography: object, *,
     a file). Every reader of
     stored runs (entities, inheritance) must use it: computing the key from the
     left scope alone missed every padded spec, and entities lost the infant
-    deaths and newborns without a word (2026-10-03)."""
+    deaths and newborns without a word (2026-10-03). The partner's geography is derived here as `link` derives it
+    (`right_geography_for`: a state's run reads a side filed by another place nationally): the readers computed the key
+    without it and found no stored run of any such link (the newborn link's inherited delivery link, the timeline;
+    2026-11-09)."""
     from . import store
 
-    if right_period is None:
-        spec = load_links()[name]
-        if spec.right.pad_years != (0, 0):
-            right_period = padded_period(period, spec.right)
+    spec = load_links()[name]
+    if right_period is None and spec.right.pad_years != (0, 0):
+        right_period = padded_period(period, spec.right)
+    right_geography = right_geography_for(spec, geography, right_geography)
     return store.run_key(name, method, period if right_period is None else (period, right_period),
                          geography if right_geography is None else (geography, right_geography),
                          params.digest if params else "")

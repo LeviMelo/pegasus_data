@@ -26,6 +26,9 @@ from .engine import raw_links
 #: control and the anchors' control move round the partner's range, as the probabilistic one does). 4: round the range
 #: both sides hold (`placebo.shared_range`), not the partner's whole range (OQ 97).
 LINKAGE_VERSION = 4
+#: The identity rule of a run read from a state's files: the content key of the whole record, decoded whole even when
+#: projected (`retrieve._decode_one`, 2026-11-09); before, the file and row. Only runs of a scope but the nation's carry it.
+STATE_IDENTITY = "content-key-1"
 
 #: Spec keys that do not change which pairs a run produces: editing them must
 #: not orphan stored runs. `person` names who the records are about, for
@@ -107,8 +110,16 @@ def fingerprint(settings: Any, key: RunKey) -> str:
     normalised fields, so a normalisation fix, a republished preliminary file or a changed role makes every stored id
     match nothing, and the runs built on them (linked shares, entities, inherited roles) read zero without an error
     (2026-10-10, again 2026-10-14). The label pack as a whole was in it until 2026-10-24, and the re-windowing of one
-    system's labels (CIH, which no link reads) made every stored 2022 run stale."""
-    return _fingerprint_of(settings, key.spec, key.period)
+    system's labels (CIH, which no link reads) made every stored 2022 run stale.
+
+    A run over a state (or any scope but the nation's) read its sides from the state's files, where until 2026-11-09 a
+    projected read carried no content key: its ids were file and row, which the national read of the same records does
+    not share. Such runs carry ``STATE_IDENTITY`` in their fingerprint, so those written before are stale once; the
+    national runs, read from tables that always carried the key, are not."""
+    base = _fingerprint_of(settings, key.spec, key.period)
+    if str(key.geography).upper() == "BR":
+        return base
+    return hashlib.sha256(f"{base}|{STATE_IDENTITY}".encode()).hexdigest()
 
 
 def _write_atomic(path: Path, write: Any) -> None:
