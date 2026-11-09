@@ -129,7 +129,7 @@ def build(system: str, *, refresh: bool = False, settings: Settings | None = Non
                 if _establishment_columns(raw) is not None:
                     tables[name] = _establishments(raw)
                 else:
-                    table = _code_label(raw)
+                    table = _code_label(raw, name)
                     if table is not None:
                         tables[name] = table
     # A national table: the kit's own when it ships one (INE_EQUIPE_BR), the
@@ -247,28 +247,34 @@ def _establishments(raw: pa.Table) -> pa.Table:
     })
 
 
-def _code_label(raw: pa.Table) -> pa.Table | None:
-    """A registry that is a plain code -> name table: INE_EQUIPE (CHAVE, DS_REGRA),
-    the federal university hospitals HUF_* (CNES, NOMEFANT)."""
+def _registry_declarations() -> dict[str, object]:
+    """The ``registry`` role of ``codelists.yml``: the patterns, each plain table's key and name columns, the owners."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    return dict(((read_yaml(curation_root() / "codelists.yml") or {}).get("roles") or {}).get("registry") or {})
+
+
+def _code_label(raw: pa.Table, name: str) -> pa.Table | None:
+    """A registry that is a plain code -> name table, read by the columns ``codelists.yml`` declares for its name
+    (INE_EQUIPE: CHAVE, DS_REGRA; the federal university hospitals HUF_*: CNES, NOMEFANT); a table with no declaration,
+    or whose declared columns are absent, is not read."""
+    declared = next((cols for pattern, cols in (_registry_declarations().get("columns") or {}).items()
+                     if fnmatch.fnmatch(name.upper(), str(pattern).upper())), None)
     names = raw.column_names
-    code = next((c for c in ("CHAVE", "CNES", "CODIGO", "CO_EQUIPE", "INE") if c in names), None)
-    label = next((c for c in ("DS_REGRA", "NOMEFANT", "NOME", "NO_EQUIPE", "DESCRICAO") if c in names), None)
-    if code is None or label is None:
+    if declared is None or declared["code"] not in names or declared["label"] not in names:
         return None
+    code, label = declared["code"], declared["label"]
     codes = [str(v).strip() if v is not None else None for v in raw.column(code).to_pylist()]
     labels = [_clean_name(v) for v in raw.column(label).to_pylist()]
     return pa.table({"code": codes, "label": labels})
 
 
-#: Which system's kit carries a registry. The establishment registry is
-#: CNES's: SIH's .DEF names CADGERAL, but TAB_SIH.zip does not contain it
-#: (measured 2026-09-29: SIH's kit holds one registry table, CIH's none).
-OWNER = {"CADGER": "CNES", "UNIDTOTAL": "CNES", CNPJ_TABLE: "CNES", "INE_EQUIPE": "SIASUS"}
-
-
 def owner_of(codelist: str, system: str | None) -> str | None:
+    """Which system's kit carries a registry (``codelists.yml``'s registry ``owners``), else the asking system."""
     name = codelist.upper()
-    return next((sys for prefix, sys in OWNER.items() if name.startswith(prefix)), system)
+    owners = _registry_declarations().get("owners") or {}
+    return next((str(sys) for prefix, sys in owners.items() if name.startswith(str(prefix).upper())), system)
 
 
 #: The (registries directory, system) whose unbuilt registry has been said once in this process (a render asks for one

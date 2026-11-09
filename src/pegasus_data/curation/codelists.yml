@@ -107,6 +107,18 @@ roles:
       - TCNES*         # CNES establishment tables, national and per state
       - HUF_*          # federal university hospitals
       - HOSFED*        # federal hospitals
+    # a register that is a plain code -> name table: its key and name columns, as its DBF names them (read off the SIA
+    # kit's members, 2026-11-09: 27 INE_EQUIPE tables, 2 HUF tables); a table not listed here is not read by guess
+    columns:
+      INE_EQUIPE*: {code: CHAVE, label: DS_REGRA}
+      HUF_*: {code: CNES, label: NOMEFANT}
+    # which system's kit carries a register (SIH's .DEF names CADGERAL, but TAB_SIH.zip does not contain it: measured
+    # 2026-09-29, SIH's kit holds one registry table, CIH's none)
+    owners:
+      CADGER: CNES
+      UNIDTOTAL: CNES
+      CNPJ_BR: CNES
+      INE_EQUIPE: SIASUS
 
   # Declared for the record. These all ship; the entries exist so that a reader
   # can see the judgement was made rather than defaulted into.

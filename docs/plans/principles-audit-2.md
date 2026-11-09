@@ -161,7 +161,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 - `registry.py:266` `OWNER = {"CADGER": "CNES", "UNIDTOTAL": "CNES", CNPJ_TABLE: "CNES", "INE_EQUIPE": "SIASUS"}`; `semantics/curation.py:1014` `INHERITS`; `modelled.py:41` `OFFICIAL_SERIES` (system names).
 - Fix: aliases in `curation/datasets` (`aliases:`), `owner:` on registry tables in curation; roles files declare `applies_to: SINAN-*`. Size S.
 
-**T8. Registry/CNES key and label column guesses**
+**T8. Registry/CNES key and label column guesses** — part done: the plain register tables' key and name columns (INE_EQUIPE*, HUF_*) and the registers' owners are declared in `codelists.yml`'s registry role; an undeclared table is not read by guess. All 90 registry tables of the SIA and CNES kits rebuilt identical. Left: `tabkit.KNOWN_CODE_TABLES`, the CADGER establishment columns, DATAEXCL's open end
 - `registry.py:254-255` (`CHAVE, CNES, CODIGO, CO_EQUIPE, INE` / `DS_REGRA, NOMEFANT, NOME, NO_EQUIPE, DESCRICAO` tried in order), `registry.py:198-199`
   names `CNES-ST`; `semantics/tabkit.py:42-70` (`KNOWN_CODE_TABLES`: 17 table prefixes to code/label columns, verified per its comment but still code),
   `profile/detectors.py:50-55,523` (name hints; acknowledged open in STATUS item 6 as "the profiler's name hints still serve undeclared columns").
