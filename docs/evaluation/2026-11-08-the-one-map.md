@@ -96,3 +96,24 @@ per-dose files: 56 columns from `dbbni/Dicionario_tb_ria_rotina.pdf` and the fil
   - `{month_pt}` broke the year-filed patterns (SISAGUA). Fixed before any landing ran on it;
   - the map now counts a Portal source's declared publications, which the catalog knew only once landed.
 - **`lake/records` stays undescribed.** It holds the October probe's 2023 records in an older layout, which nothing reads.
+
+**Storage of what is landed.** An intake source lands as zstd Parquet, and its download is deleted. FTP files are kept as
+blobs until a verified partition holds them (`prune`).
+- **June 2020 of SI-PNI.** The zip was 800 MB, the CSV inside about 3.1 GB, and the first landing 489 MB.
+- **Where the size goes.** 60% is two random identifiers: the person hash `CO_PACIENTE` (38%) and `CO_DOCUMENTO` (22%).
+  Compression cannot shrink random text.
+- **Measured on that month:**
+
+  | variant | size |
+  |---|---|
+  | as landed | 489 MB |
+  | zstd level 9 | 502 MB |
+  | sorted by place and date | 344 MB |
+  | sorted by place, person and date | 341 MB |
+  | sorted, with the hash stored as 32 bytes | 326 MB |
+
+  Sorting by place and date takes nearly all the gain, and the identifier is kept as filed.
+- **The intake now writes rows in `_MUNICIPALITY` and `_MONTH` order** (3c97879). Landed again, the month is 364 MB, with
+  the same 5,464,711 rows and the same field (5,410,911 doses). SI-PNI whole is then about 95 GiB, not 128.
+- **The home's 18 GB of blobs** are 9,380 files no verified partition was built from: what queries and extracts read
+  directly. `prune --dry-run` releases 1 MB of them.
