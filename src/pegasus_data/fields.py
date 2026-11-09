@@ -312,10 +312,11 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
     the mirror, `adopt.adopt_copies`), the field's groups as code lists on the register's own columns, its stock counted
     (establishments and teams as distinct codes) or summed (beds, equipment). The support is December's ST register: a
     municipality with no establishment in it has no value (``no_cnes_record``), one with establishments and none of the
-    field's is a true 0. A field of professionals (PF) is not yet a cube: its files are not held."""
+    field's is a true 0. A field of professionals counts PF's rows (jobs), its distinct CNS_PROF (persons) or sums its three
+    weekly hours columns, for the occupations whose CBO has one of the group's prefixes."""
     from .sources.cnes import NOT_DEACTIVATED, groups
 
-    if spec.get("source") != "cnes" or spec.get("family") == "professionals":
+    if spec.get("source") != "cnes":
         return None
     g = groups()
     family = spec["family"]
@@ -335,6 +336,14 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
         if spec["sector"] == "sus":
             where["IND_SUS"] = ["1"]
         dataset, measure = "CNES-EQ", "QT_EXIST"
+    elif family == "professionals":
+        # an occupation counts in every group whose prefixes it has (ophthalmologists are physicians); a person once
+        where["CBO"] = {"prefix": list(g["professional_groups"][spec["group"]])}
+        hours = "HORA_AMB+HORAHOSP+HORAOUTR"
+        if spec["measure"] == "hours_sus":
+            where["PROF_SUS"] = ["1"]
+        dataset = "CNES-PF"
+        measure = {"jobs": None, "professionals": "distinct:CNS_PROF", "hours": hours, "hours_sus": hours}[spec["measure"]]
     elif family == "teams":
         where["TIPO_EQP"] = list(g["team_groups"][spec["group"]])
         where["DT_DESAT"] = list(NOT_DEACTIVATED)

@@ -46,7 +46,7 @@ LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), where: Mapping[str, Sequence[Any]] | None = None,
          periods: Sequence[str | int] | None = None, labels: bool = True, settings: Any = None,
          at: str | None = None, time: str | None = None, grain: str | None = None, condition: object = None,
-         measure: str | None = None, support: Any = None) -> pa.Table:
+         measure: str | None = None, support: Any = None, geography: str | None = None) -> pa.Table:
     """The cube ``source`` at ``place`` level (``municipality``, ``uf``, ``country``), keeping the strata named in ``by``
     and the categories named in ``where``; every other stratum is the source's Total. ``periods`` restricts the periods.
 
@@ -71,7 +71,7 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     if adapter is None or not ident:
         raise ValueError(f"a cube is <adapter>:<id> with adapter one of {sorted(_ADAPTERS)}, got {source!r}")
     options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition),
-                                 ("measure", measure), ("support", support)) if v is not None}
+                                 ("measure", measure), ("support", support), ("geography", geography)) if v is not None}
     if options and kind != "records":
         raise ValueError(f"{sorted(options)} apply to records cubes only")
     settings = settings or load_settings()
@@ -271,7 +271,8 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
 
 def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
              labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
-             condition: object = None, measure: str | None = None, support: Any = None) -> pa.Table:
+             condition: object = None, measure: str | None = None, support: Any = None,
+             geography: str | None = None) -> pa.Table:
     """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
     weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
     declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
@@ -292,13 +293,13 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     semantics = semantics_for(dataset)
     if semantics is None:
         raise LookupError(f"{dataset}: no curated place and time bindings (semantic_axes) to place and date its events")
-    geography = semantics.geography_bindings()
+    places_bound = semantics.geography_bindings()
     times = semantics.time_bindings()
     at = at or semantics.default_geography() or "residence"
     time = time or semantics.default_time()
-    if at not in geography or time not in times:
-        raise KeyError(f"{dataset}: place binding {at!r} of {sorted(geography)}, time binding {time!r} of {sorted(times)}")
-    place_column = str(geography[at]["fields"][0])
+    if at not in places_bound or time not in times:
+        raise KeyError(f"{dataset}: place binding {at!r} of {sorted(places_bound)}, time binding {time!r} of {sorted(times)}")
+    place_column = str(places_bound[at]["fields"][0])
     time_fields = [str(f) for f in times[time]["fields"]]
     encoding = str(times[time].get("encoding") or "")
     grain = grain or "month"
@@ -322,6 +323,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     group = list(dict.fromkeys([place_column, *time_fields, *by, *filter_columns]))
     extra = {"rows": exact} if exact else {}
     months = sorted({str(p) for p in periods if len(str(p)) == 7 and str(p)[4] == "-"})
+    # `geography` selects the publications read (a state's files), never the records: a test reads the least it needs
+    publications = geography or "BR"
     years = sorted({int(str(p)[:4]) for p in periods})
     # Only the years the source publishes are read, in runs of consecutive years; a year asked for that has no
     # publication is said in the manifest, never fetched and failed (FA-HUM's file has no case in 2012).
@@ -339,60 +342,76 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         raise LookupError(f"{dataset} publishes none of the years {years}")
     spans: list[Any] = ([m for m in months if int(m[:4]) in published] if months
                         else [run[0] if len(run) == 1 else (run[0], run[-1]) for run in runs])
+    def kept(table: pa.Table) -> pa.Table:
+        """`where`'s prefixes, exclusions, bounds and two-column codes, applied to a table that holds their columns."""
+        for key, rule in after.items():
+            columns = key.split("+")
+            text = pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(columns[0]), pa.string())), "")
+            for column in columns[1:]:
+                text = pc.binary_join_element_wise(
+                    text, pc.fill_null(pc.utf8_trim_whitespace(pc.cast(table.column(column), pa.string())), ""), "")
+            if isinstance(rule, Mapping) and set(rule) & set(BOUNDS):
+                # the typed value against a bound (a potability limit: turbidity above 5 uT); a value not a number fails
+                number = pc.cast(table.column(columns[0]), pa.float64(), safe=False)
+                hit = None
+                for bound, op in BOUNDS.items():
+                    if bound in rule:
+                        test = getattr(pc, op)(number, float(rule[bound]))
+                        hit = test if hit is None else pc.and_kleene(hit, test)
+            elif isinstance(rule, Mapping) and "prefix" in rule:
+                starts = [str(x) for x in rule["prefix"]]
+                hit = pc.starts_with(text, starts[0])
+                for start in starts[1:]:
+                    hit = pc.or_kleene(hit, pc.starts_with(text, start))
+            elif isinstance(rule, Mapping):
+                # an exclusion of a value not recorded is unknown, never kept: a facility with no SUS link recorded is
+                # neither SUS nor non-SUS (as the CNES fields counted it)
+                recorded = pc.is_valid(table.column(columns[0]))
+                hit = pc.and_(recorded, pc.invert(pc.is_in(text, pa.array([str(x) for x in rule["not"]]))))
+            else:
+                hit = pc.is_in(text, pa.array([str(x) for x in rule]))
+            table = table.filter(pc.fill_null(hit, False))
+        return table
+
+    # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
+    cell = list(dict.fromkeys([place_column, *time_fields, *by]))
+
     def count(span: Any) -> pa.Table:
         if event != "rows":
             if measure:
                 raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
-            return count_events(dataset, event, period=span, geography="BR", by=group, condition=condition, **extra)
+            # events are counted by the filters' columns too, then filtered and summed over them (events add up)
+            counted = kept(count_events(dataset, event, period=span, geography=publications, by=group, condition=condition,
+                                        **extra))
+            return counted.group_by(cell).aggregate([("events", "sum")]).rename_columns([*cell, "events"])
         if condition is not None:
             raise ValueError("a condition on roles applies to an event type's records")
         from ._query_engine import query
 
-        extra_columns = [c for c in (summed, distinct) if c]
-        table = query(dataset, period=span, geography="BR", select=list(dict.fromkeys([*group, *extra_columns])),
-                      present="codes", **extra)
+        # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
+        parts_summed = summed.split("+") if summed else []
+        extra_columns = [*parts_summed, *([distinct] if distinct else [])]
+        table = kept(query(dataset, period=span, geography=publications,
+                           select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))
         if summed:
-            table = table.set_column(table.schema.get_field_index(summed), summed,
-                                     pc.cast(table.column(summed), pa.float64(), safe=False))
-            return table.group_by(group).aggregate([(summed, "sum")]).rename_columns([*group, "events"])
+            total = None
+            for part in parts_summed:
+                value = pc.cast(table.column(part), pa.float64(), safe=False)
+                value = pc.fill_null(value, 0.0) if len(parts_summed) > 1 else value
+                total = value if total is None else pc.add(total, value)
+            table = table.append_column("__sum", total)
+            return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
         if distinct:
             # one row per distinct value in its cell (an establishment listed twice in a month is one), then counted
             values = pc.utf8_trim_whitespace(pc.cast(table.column(distinct), pa.string()))
             table = table.set_column(table.schema.get_field_index(distinct), distinct, values).filter(
                 pc.fill_null(pc.not_equal(values, ""), False))
-            table = table.group_by([*group, distinct]).aggregate([])
-            return table.group_by(group).aggregate([(distinct, "count")]).rename_columns([*group, "events"])
-        return table.group_by(group).aggregate([(place_column, "count")]).rename_columns([*group, "events"])
+            table = table.group_by([*cell, distinct]).aggregate([])
+            return table.group_by(cell).aggregate([(distinct, "count")]).rename_columns([*cell, "events"])
+        return table.group_by(cell).aggregate([(place_column, "count")]).rename_columns([*cell, "events"])
 
     parts = [count(span) for span in spans]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
-    for key, rule in after.items():
-        columns = key.split("+")
-        text = pc.fill_null(pc.utf8_trim_whitespace(pc.cast(counts.column(columns[0]), pa.string())), "")
-        for column in columns[1:]:
-            text = pc.binary_join_element_wise(
-                text, pc.fill_null(pc.utf8_trim_whitespace(pc.cast(counts.column(column), pa.string())), ""), "")
-        if isinstance(rule, Mapping) and set(rule) & set(BOUNDS):
-            # the typed value against a bound (a potability limit: turbidity above 5 uT), a value not read as a number fails
-            number = pc.cast(counts.column(columns[0]), pa.float64(), safe=False)
-            hit = None
-            for bound, op in BOUNDS.items():
-                if bound in rule:
-                    test = getattr(pc, op)(number, float(rule[bound]))
-                    hit = test if hit is None else pc.and_kleene(hit, test)
-        elif isinstance(rule, Mapping) and "prefix" in rule:
-            starts = [str(x) for x in rule["prefix"]]
-            hit = pc.starts_with(text, starts[0])
-            for start in starts[1:]:
-                hit = pc.or_kleene(hit, pc.starts_with(text, start))
-        elif isinstance(rule, Mapping):
-            # an exclusion of a value not recorded is unknown, never kept: a facility with no SUS link recorded is
-            # neither SUS nor non-SUS (as the CNES fields counted it)
-            recorded = pc.is_valid(counts.column(columns[0]))
-            hit = pc.and_(recorded, pc.invert(pc.is_in(text, pa.array([str(x) for x in rule["not"]]))))
-        else:
-            hit = pc.is_in(text, pa.array([str(x) for x in rule]))
-        counts = counts.filter(pc.fill_null(hit, False))
     competencia = _competencia_column(counts, time_fields, encoding)
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
@@ -426,8 +445,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         if by:
             raise ValueError("a support fills (place, period) cells; name no strata with it")
         frame = (cube(support["source"], where=support.get("where"), place=place, periods=periods, grain=grain,
-                      settings=settings) if isinstance(support, Mapping)
-                 else cube(support, place=place, periods=periods, grain=grain, settings=settings))
+                      geography=geography, settings=settings) if isinstance(support, Mapping)
+                 else cube(support, place=place, periods=periods, grain=grain, geography=geography, settings=settings))
         held = {(r["place"], r["period"]) for r in facts.select(["place", "period"]).to_pylist()}
         missing = sorted({(r["place"], r["period"]) for r in frame.select(["place", "period"]).to_pylist()} - held)
         if missing:
@@ -444,7 +463,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     return _with_manifest(facts, {
         "source": f"records:{ident}", "dataset": dataset, "event": event, "at": at, "time": time,
         "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
-        "measure": measure, "support": support,
+        "measure": measure, "support": support, "publications": publications,
         "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
         "unkeyed": unkeyed.decode() if unkeyed else None,
     })
