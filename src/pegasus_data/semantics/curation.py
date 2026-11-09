@@ -47,6 +47,13 @@ DOC_SOURCES: tuple[str, ...] = ("manual", "layout_doc", "def", "web", "inferred"
 _NEEDS_AUTHOR = {"manual", "inferred"}
 
 _CODE_SYSTEMS = {"external", "internal", "none"}
+#: the code systems whose values are codes a codelist decodes (``none``: the value is itself)
+CODED_SYSTEMS = ("internal", "external")
+
+
+def is_coded(code_system: object) -> bool:
+    """Whether a column of this code system holds codes a codelist decodes (``internal`` or ``external``)."""
+    return code_system in CODED_SYSTEMS
 
 
 class CurationError(ValueError):

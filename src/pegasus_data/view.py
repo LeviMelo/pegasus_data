@@ -663,7 +663,9 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
 
 def _coded(doc: object) -> bool:
     """The curation says this column holds codes (not numbers, dates or text)."""
-    return doc is not None and getattr(doc, "code_system", None) in ("internal", "external")
+    from .semantics.curation import is_coded
+
+    return doc is not None and is_coded(getattr(doc, "code_system", None))
 
 
 def _family_series(store: CatalogStore | None, family_id: str) -> str:

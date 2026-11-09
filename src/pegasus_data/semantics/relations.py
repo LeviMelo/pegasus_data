@@ -12,6 +12,7 @@ from typing import Any
 
 from ..catalog.store import CatalogStore, _semantic_relation_id, utcnow
 from ..config import curation_root
+from .curation import CODED_SYSTEMS
 from .epoch import curated
 
 
@@ -112,7 +113,7 @@ def relations_for(
             for row in catalog.query(
                 "SELECT system, field_name, codelist FROM variable_docs "
                 "WHERE codelist IS NOT NULL AND codelist<>'' "
-                "AND code_system IN ('internal','external') "
+                f"AND code_system IN ({', '.join(repr(c) for c in CODED_SYSTEMS)}) "
                 # Per-form alternatives are never one binding (ADR-0080); joined
                 # into one artifact they left AIDA CRITERIO undecoded (2026-10-03).
                 "AND COALESCE(per_form, 0) = 0 AND field_name = ? COLLATE NOCASE",

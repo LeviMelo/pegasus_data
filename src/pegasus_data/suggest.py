@@ -26,6 +26,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .semantics.curation import is_coded
+
 #: The kinds and models a dataset's declared column roles (``curation/roles``) give to the columns that are never
 #: dimensions: an identifier or a date identifies or times the record, the event's own place and date are the axes the
 #: aggregate is keyed by, a link key is read only to link and an excluded column is not a fact about the event.
@@ -186,7 +188,7 @@ def suggest(
     # Coded-and-documented first, then by how little each costs.
     out.candidates.sort(
         key=lambda c: (
-            0 if c.code_system in ("internal", "external") else 1,
+            0 if is_coded(c.code_system) else 1,
             c.distinct,
         )
     )
