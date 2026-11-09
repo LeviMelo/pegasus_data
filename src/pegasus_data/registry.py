@@ -314,3 +314,18 @@ def _read(path: str, mtime_ns: int) -> pa.Table:
     and the 692,004-row CADGERBR was re-read for every month of a query
     (ADR-0097)."""
     return pq.read_table(path)
+
+
+def facility_names(registries: str | Path, codes: object = None) -> dict[str, str]:
+    """An establishment's current name by its CNES code, from the CNES register (``CADGERBR``): every establishment, or
+    those of ``codes``. The register names an establishment as it is now (renamed since a record: its current name)."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    table = lookup("CADGERBR", "CNES", registries)
+    if table is None:
+        return {}
+    if codes is not None:
+        table = table.filter(pc.is_in(table["code"], value_set=pa.array(sorted({str(c) for c in codes}), pa.string())))
+    return {str(c): str(n) for c, n in zip(table["code"].to_pylist(), table["label"].to_pylist(), strict=True) if n}
+

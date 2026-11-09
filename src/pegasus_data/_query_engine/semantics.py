@@ -422,13 +422,9 @@ def _enrich_cnes_name_current(
     says ``current_registry``: an establishment renamed since the record is
     named as it is now.
     """
-    from ..registry import lookup
+    from ..registry import facility_names
 
-    registry = lookup("CADGERBR", "CNES", settings.registries_dir)
-    names: dict[str, str] = {}
-    if registry is not None:
-        hit = registry.filter(pc.is_in(registry["code"], value_set=pa.array(sorted(source_codes), pa.string())))
-        names = {str(c): str(n) for c, n in zip(hit["code"].to_pylist(), hit["label"].to_pylist(), strict=True) if n}
+    names = facility_names(settings.registries_dir, source_codes)
     report = EnrichmentReport(
         request.target, source_field, f"{source_field}→CNES registry name (current)",
         rows_before=table.num_rows, rows_after=table.num_rows,

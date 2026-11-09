@@ -226,7 +226,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 **T20. Two label-lookups paths** (view vs lookups): `view.py:1103-1108` interprets `code_system` (`internal`/`external`/`none`) in the renderer while `lookups.py` and `persist/reference.py` resolve codelists; `suggest.py:189` also tests `code_system in ("internal","external")`. Three modules branch on the same pair of strings. Fix: one `CodeSystem` enum/predicate in `semantics/curation`. Size XS.
 
-**T21. Registry reader duplicated for the CNES lookup**: `crosswalk.py:202`, `linkage/timeline.py:89`, `_query_engine/semantics.py:427` each call `lookup("CADGERBR", "CNES", ...)` and rebuild a code-to-name dict. Fix: one `facility_names(settings)` using `column_roles.facility_code_field`. Size XS.
+**T21. Registry reader duplicated for the CNES lookup** — done: `registry.facility_names` (692,004 establishments), read by the timeline and the name enrichment (FUNDHACRE for 2001586 as before); the crosswalk's CNPJ lookup is another question and stays: `crosswalk.py:202`, `linkage/timeline.py:89`, `_query_engine/semantics.py:427` each call `lookup("CADGERBR", "CNES", ...)` and rebuild a code-to-name dict. Fix: one `facility_names(settings)` using `column_roles.facility_code_field`. Size XS.
 
 **T22. Dated sentinels "9999"**: `linkage/timeline.py:191` sorts missing dates as `"9999"`; `crosswalk.py:215` treats `9999*` as open end; `profile/detectors.py:46` has `DATE_SENTINELS` as a global set (the file itself says it is per-field). Fix: per-field sentinels from the ledger only. Size XS.
 

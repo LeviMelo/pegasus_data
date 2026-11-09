@@ -83,13 +83,10 @@ def _pairs_at(spec: str, method: str, period: object, geography: object, stamp: 
 @lru_cache(maxsize=1)
 def _names() -> dict[str, str]:
     from ..config import load_settings
-    from ..registry import lookup
+    from ..registry import facility_names
 
     # the timeline is served from the default home only (`serve` refuses another --root), so its registry is that one's
-    table = lookup("CADGERBR", "CNES", load_settings().registries_dir)
-    if table is None:
-        return {}
-    return dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
+    return facility_names(load_settings().registries_dir)
 
 
 def _facility(code: object) -> dict[str, Any] | None:
