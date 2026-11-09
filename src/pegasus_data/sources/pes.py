@@ -19,31 +19,27 @@ from __future__ import annotations
 import numpy as np
 
 URL = "https://biblioteca.ibge.gov.br/visualizacao/livros/liv102110.pdf"
-ENUMERATED = 195_101_203
-IMPUTED = 7_979_553
 
-#: Table 9: net error (%) by sex (men, women) and 5-year group 0-4 … 75-79, 80+.
-NET_ERROR_AGE_SEX = {
-    "men": [10.2, 9.0, 8.1, 8.2, 10.6, 10.4, 9.8, 8.7, 8.0, 7.3, 6.6, 5.6, 5.1, 4.5, 4.3, 3.5, 4.1],
-    "women": [10.0, 8.8, 8.3, 9.4, 11.2, 10.2, 9.1, 8.1, 7.6, 7.0, 6.3, 5.2, 5.0, 4.2, 3.7, 3.3, 4.5],
-}
+
+def _table(*path: str):
+    from ..semantics.curation import declared
+
+    return declared("published_tables.yml", "pes", *path)
+
+
+# The published tables are declared in ``curation/published_tables.yml`` (``pes:``, with the report's tables and date).
+ENUMERATED = _table("enumerated")
+IMPUTED = _table("imputed")
+#: Table 9: net error (%) by sex (men, women) and 5-year group 0-4 ... 75-79, 80+.
+NET_ERROR_AGE_SEX = _table("net_error_age_sex")
 #: Table 10: net error (%) by state (IBGE code).
-NET_ERROR_UF = {
-    12: 8.0, 27: 4.8, 16: 10.8, 13: 10.1, 29: 7.4, 23: 7.4, 53: 9.9, 32: 10.0, 52: 7.3, 21: 6.5, 51: 7.3, 50: 7.2,
-    31: 6.1, 41: 5.4, 25: 3.8, 15: 9.9, 26: 8.0, 22: 4.1, 24: 6.2, 43: 5.5, 33: 15.5, 11: 11.2, 14: 10.9, 42: 7.4,
-    28: 5.8, 35: 10.8, 17: 6.8,
-}
+NET_ERROR_UF = _table("net_error_uf")
 #: Table 12: net error (%) by municipality size (people): class upper bounds and rates.
-SIZE_BOUNDS = [14_000, 25_000, 45_000, 84_000, 150_000, 274_000, 480_000, 1_000_000]
-NET_ERROR_SIZE = [3.9, 4.2, 6.0, 6.2, 7.7, 9.1, 9.5, 10.2, 13.2]
-NET_ERROR_BRAZIL = 8.3
+SIZE_BOUNDS = _table("size_bounds")
+NET_ERROR_SIZE = _table("net_error_size")
+NET_ERROR_BRAZIL = _table("net_error_brazil")
 #: Table 1: people the Census imputed (households occupied, no interview), by state.
-IMPUTED_BY_UF = {
-    11: 53_023, 12: 15_259, 13: 94_815, 14: 9_277, 15: 235_688, 16: 18_356, 17: 41_258, 21: 186_000, 22: 61_932,
-    23: 263_147, 24: 76_137, 25: 58_687, 26: 270_169, 27: 61_014, 28: 53_928, 29: 293_272, 31: 516_817, 32: 104_361,
-    33: 679_330, 35: 3_439_121, 41: 399_027, 42: 228_849, 43: 241_831, 50: 107_541, 51: 147_696, 52: 223_436,
-    53: 99_582,
-}
+IMPUTED_BY_UF = _table("imputed_by_uf")
 
 
 def corrected_census(raw: np.ndarray, uf: np.ndarray, iters: int = 200) -> np.ndarray:

@@ -606,7 +606,8 @@ def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
 #: what one of its rows means. They are keyed differently on purpose
 #: (``SIH.RD`` against ``SIHSUS_RD``) and :func:`pegasus_data._info.info` joins
 #: them on either.
-_NOT_CURATION = frozenset({"ontology.yml", "joins.yml", "codelists.yml", "intake.yml", "categories.yml", "quality.yml"})
+_NOT_CURATION = frozenset({"ontology.yml", "joins.yml", "codelists.yml", "intake.yml", "categories.yml", "quality.yml",
+                              "published_tables.yml"})
 
 
 def iter_curation_files(root: Path) -> Iterator[Path]:

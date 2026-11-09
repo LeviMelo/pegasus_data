@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import UF_ABBREVIATIONS
+from ..semantics.curation import declared
 
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/"
 #: SP is published as two files (the metropolitan region apart).
@@ -45,13 +46,13 @@ COLUMNS = {"V0001": (1, 2), "V0002": (3, 7), "V0010": (29, 44), "V0636": (168, 1
            "V0660": (328, 328), "V6604": (336, 342)}
 #: The IBGE "ignorado" municipality code of the code list
 IGNORED = 8888888
-#: layer -> (kind, question variable, code variable, answer "another municipality", "foreign country", "several places")
-LAYERS = {
-    "work": ("commute_work_2010", "V0660", "V6604", 51, 52, 53),
-    "study": ("commute_study_2010", "V0636", "V6364", 50, 51, None),
-}
+#: layer -> (kind, question variable, code variable, answer "another municipality", "foreign country", "several places"):
+#: the questionnaire's codes, declared in ``curation/published_tables.yml`` (``census_commuting:``)
+LAYERS = {layer: (b["kind"], b["question"], b["code_variable"], b["other_municipality"], b["foreign_country"], b["several_places"])
+          for layer, b in declared("published_tables.yml", "census_commuting", "layers").items()}
 #: Census 2010 sample tables in SIDRA: persons by place of work / school: (table, variable, classification, "Outro município")
-SIDRA = {"work": (1615, 918, 469, 12188), "study": (1611, 690, 468, 12164)}
+SIDRA = {layer: (b["table"], b["variable"], b["classification"], b["category"])
+         for layer, b in declared("published_tables.yml", "census_commuting", "sidra").items()}
 BLOCK = 100_000
 KEYS = ("other_country", "multiple_places", "no_code", "ignored", "unlisted", "same_as_residence")
 

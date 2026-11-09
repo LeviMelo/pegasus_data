@@ -136,7 +136,7 @@ def build(system: str, *, refresh: bool = False, settings: Settings | None = Non
     # union of the states otherwise (CADGER has no BR member).
     families: dict[str, list[pa.Table]] = {}
     for name, table in tables.items():
-        if name[-2:] in _UFS and not name.endswith("BR"):
+        if name[-2:] in UF_ABBREVIATIONS and not name.endswith("BR"):
             families.setdefault(name[:-2], []).append(table)
     for prefix, states in families.items():
         # A family of states, not a name that happens to end in a UF code
@@ -183,7 +183,6 @@ def _current(out_dir: Path) -> bool:
         return False
 
 
-_UFS = frozenset(UF_ABBREVIATIONS)
 def _clean_name(value: object) -> str | None:
     return strip_identifier(value)
 

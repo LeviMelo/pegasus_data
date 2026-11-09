@@ -56,6 +56,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ..config import UF_NUMERIC, Settings, load_settings
+from ..semantics.curation import declared
 from ..transport import download, request
 
 if TYPE_CHECKING:
@@ -75,18 +76,12 @@ AGGREGATE = ("Agregados_por_CEP_CNEFE_Censo_2022.zip", BASE + "Agregados_por_CEP
 #: The 27 UF files: IBGE's numeric code and the abbreviation the lake partitions by.
 UF_FILES: dict[str, str] = {abbreviation: code for code, abbreviation in UF_NUMERIC.items()}
 
-#: ``NV_GEO_COORD`` as the dictionary gives it (Dicionario_CNEFE_Censo_2022.xls).
-LEVELS: dict[str, str] = {
-    "1": "address, original Census coordinate", "2": "address, modified coordinate (apartments at one number)",
-    "3": "address, estimated coordinate (none or invalid originally)", "4": "block face", "5": "locality", "6": "census tract"}
-#: ``COD_ESPECIE`` as the dictionary gives it: the species of address a record stands for.
-SPECIES: dict[str, str] = {
-    "1": "private household", "2": "collective household", "3": "agricultural establishment", "4": "educational establishment",
-    "5": "health establishment", "6": "establishment of other purposes", "7": "building under construction or renovation",
-    "8": "religious establishment"}
-#: The derived column that counts the records of each species (IBGE's ``TOT_DP``, ``TOT_DC``, ``TOT_EAGRO`` ...).
-SPECIES_COLUMNS = {"1": "n_private_households", "2": "n_collective_households", "3": "n_agricultural", "4": "n_education",
-                   "5": "n_health", "6": "n_other_purpose", "7": "n_construction", "8": "n_religious"}
+#: The dictionary's codes (``curation/published_tables.yml``, ``ibge_cnefe:``, with the dictionary and the date): ``NV_GEO_COORD``
+#: levels, the ``COD_ESPECIE`` species and, for each species, the derived column that counts its records (IBGE's ``TOT_DP`` ...).
+LEVELS: dict[str, str] = declared("published_tables.yml", "ibge_cnefe", "levels")
+_SPECIES_TABLE: dict[str, dict[str, str]] = declared("published_tables.yml", "ibge_cnefe", "species")
+SPECIES: dict[str, str] = {k: v["label"] for k, v in _SPECIES_TABLE.items()}
+SPECIES_COLUMNS: dict[str, str] = {k: v["column"] for k, v in _SPECIES_TABLE.items()}
 
 #: The 34 columns of the file, in order, with the type each lands as ("s" string of the width filed, "i" integer, "d" double).
 COLUMNS: list[tuple[str, str]] = [
@@ -476,12 +471,10 @@ def _aggregate_table(settings: Settings) -> pa.Table:
             return pacsv.read_csv(raw, parse_options=pacsv.ParseOptions(delimiter=";"), convert_options=pacsv.ConvertOptions(column_types=types))
 
 
-#: IBGE's aggregate columns that count the records of a species of ``COD_ESPECIE`` (``TOT_END`` counts distinct addresses).
-_AGGREGATE_SPECIES = {"TOT_DP": "1", "TOT_DC": "2", "TOT_EAGRO": "3", "TOT_EENSINO": "4", "TOT_ESAUDE": "5", "TOT_EOF": "6",
-                      "TOT_ECR": "7", "TOT_ERELIG": "8"}
-#: IBGE's dwelling-type columns count the dwellings (private households and collective ones) of each ``COD_TIPO_ESPECIE``: the type is
-#: filed on species 1 and 2 only, and every collective household is type 104 (Alagoas: 1,042 of the 4,024 "other").
-_AGGREGATE_TYPES = {"TOT_TIPO_101": "101", "TOT_TIPO_102": "102", "TOT_TIPO_103": "103", "TOT_TIPO_104": "104"}
+#: IBGE's aggregate columns that count the records of a species of ``COD_ESPECIE`` (``TOT_END`` counts distinct addresses), and its
+#: dwelling-type columns by ``COD_TIPO_ESPECIE`` (declared in ``curation/published_tables.yml``).
+_AGGREGATE_SPECIES = declared("published_tables.yml", "ibge_cnefe", "aggregate_species")
+_AGGREGATE_TYPES = declared("published_tables.yml", "ibge_cnefe", "aggregate_types")
 
 
 def check_against_aggregate(settings: Settings | None = None, ufs: Iterable[str | int] | None = None) -> dict[str, Any]:

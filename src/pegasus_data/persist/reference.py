@@ -394,7 +394,6 @@ def _municipalities7() -> pa.Table:
 
 #: SIA's pre-2008 establishments, keyed by state + code (ADR-0103).
 SIA_UPS_TABLE = "SIA_UPS_BR"
-_UF_CODES = UF_ABBREVIATIONS
 
 
 def _legacy_sia_establishments(
@@ -412,7 +411,7 @@ def _legacy_sia_establishments(
     """
     codes: list[str] = []
     labels: list[str | None] = []
-    for uf in _UF_CODES:
+    for uf in UF_ABBREVIATIONS:
         for table_id in sia_establishment_tables(uf):
             try:
                 part = read_reference_table(
@@ -651,7 +650,7 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
         return "resource:" + resource_digest("geography.parquet")
     if name == SIA_UPS_TABLE:
         parts = [reference_fingerprint(lake_root, table_id, "SIASUS")
-                 for uf in _UF_CODES for table_id in sia_establishment_tables(uf)]
+                 for uf in UF_ABBREVIATIONS for table_id in sia_establishment_tables(uf)]
         return "sia-ups:" + hashlib.sha256("|".join(parts).encode()).hexdigest()[:16]
     canonical = CLASSIFICATIONS.get(name)
     if canonical is not None:

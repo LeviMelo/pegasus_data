@@ -63,7 +63,7 @@ class TestDetectors:
         values = [f"4{i:03d}" for i in range(1, 90)] * 5
         verdict = classify(_stats("NU_IDADE_N", values))
         assert verdict.semantic_type == "datasus_age"
-        assert verdict.evidence["unit_legend"]["4"] == "ano"
+        assert verdict.evidence["unit_legend"]["4"] == "year"
 
     def test_diagnosis_is_icd(self):
         values = [f"{c}{i:02d}" for c in "ABCDEFGHIJKLMNOPQRST" for i in range(0, 40, 3)]

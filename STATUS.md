@@ -88,12 +88,12 @@ The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) is t
 before it is fixed and marked done there with its evidence.
 - **Done (2026-11-09):** every semantic item, S1-S9 (codes placed by the one rule, sex and race read by their labels
   and widths, unknown kept unknown, missing kept missing, code meanings and thresholds of the study modules declared),
-  and T1-T4, T6 (part), T7 (part), T9, T10, T15 (part), T18, T21, T23 (one number reader, one period module, one
+  and T1-T4, T6 (part), T7 (part), T9, T10, T12, T15, T16, T18, T21, T23 (one number reader, one period module, one
   banding, one municipality reader, the CNES recipes and the bridges declared, ~20 thresholds in curation).
 - **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), T16's month table (one only).
 - **Done since:** T8 (the register kits' columns, owners and open end declared), T11 (enrichment targets declared in
   `joins.yml`, dispatched by route).
-- **Open:** T5 (paths assembled outside their owners), T12 (published tables in source adapters), T13 (study constants and axes), T14 and
+- **Open:** T5 (paths assembled outside their owners), T13 (study constants and axes), T14 and
   T17, T19, T20, T22, T24 (small), H1 (unreferenced functions), H3 (import cycles), H5 (oversized functions).
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**

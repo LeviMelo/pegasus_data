@@ -28,15 +28,17 @@ import os
 from pathlib import Path
 from typing import Any
 
+from ..semantics.curation import declared
+
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/"
-FILES = {"basico": "Agregados_por_Setor_csv/Agregados_por_setores_basico_BR_20260520.zip",
+FILES = {"basico": declared("published_tables.yml", "ibge_tracts", "basic_file"),
          "demografia": "Agregados_por_Setor_csv/Agregados_por_setores_demografia_BR.zip",
          "municipios_demografia": "Agregados_por_Municipio_csv/Agregados_por_municipios_demografia_BR.zip"}
 MESH = "malha_com_atributos/setores/gpkg/BR/BR_setores_CD2022.gpkg"
 #: The eleven bands of the demography file, as (from, to) in years; None is open
 BANDS = ((0, 4), (5, 9), (10, 14), (15, 19), (20, 24), (25, 29), (30, 39), (40, 49), (50, 59), (60, 69), (70, None))
-#: The variables of each sex's bands, in BANDS order
-SEX_BANDS = {"1": [f"V{n:05d}" for n in range(1009, 1020)], "2": [f"V{n:05d}" for n in range(1020, 1031)]}
+#: The variables of each sex's bands, in BANDS order (declared with the dictionary's source in ``curation/published_tables.yml``)
+SEX_BANDS = declared("published_tables.yml", "ibge_tracts", "sex_band_variables")
 COUNTS = ("v0001", "v0002", "v0003", "v0004", "v0007", "v0008", "v0009")
 IDENTITY = ("CD_SETOR", "SITUACAO", "CD_SIT", "CD_TIPO", "AREA_KM2", "CD_MUN", "NM_MUN", "CD_DIST", "NM_DIST", "CD_SUBDIST",
             "NM_SUBDIST", "CD_BAIRRO", "NM_BAIRRO", "CD_NU", "NM_NU", "CD_AGLOM", "NM_AGLOM", "CD_RGINT", "NM_RGINT",

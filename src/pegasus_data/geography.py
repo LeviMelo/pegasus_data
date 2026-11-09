@@ -942,7 +942,6 @@ def iter_pack(pack_path: str | Path | None = None) -> Iterable[Mapping[str, str]
 # - the polygon centroid, kept only to measure against.
 
 POINTS_PACK_NAME = "municipality_points.parquet"
-_SEAT_CATEGORIES = ("Sede Municipal", "Capital Estadual", "Capital Federal")
 POINT_SOURCES = {
     "localities.gpkg": ("https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/localidades/"
                         "Localidades_do_Brasil/2022/Localidades_Brasil_gpkg.zip"),
@@ -1069,11 +1068,12 @@ def build_municipality_points(out_path: str | Path, *, localities: str | Path, m
     import geopandas as gpd
     import pandas as pd
 
+    from .semantics.curation import declared
     from .sources.ibge_grade import ALBERS, population_points
 
     projected = "EPSG:5880"   # SIRGAS 2000 / Brazil Polyconic: metres
     loc = gpd.read_file(localities)
-    seats = loc[loc["SCT_LOCALIDADE"].isin(_SEAT_CATEGORIES)][["CD_MUN", "geometry"]].drop_duplicates("CD_MUN")
+    seats = loc[loc["SCT_LOCALIDADE"].isin(declared("published_tables.yml", "ibge_localities", "seat_categories"))][["CD_MUN", "geometry"]].drop_duplicates("CD_MUN")
     seats = seats.set_index(seats["CD_MUN"].astype(str))["geometry"]
     # The people: the grade's 200 m / 1 km cells, placed by CNEFE 2022's household coordinates (ADR-0203). The
     # population-weighted MEDIAN of the cells' centres, coordinate by coordinate in the grade's equal-area projection.
