@@ -205,6 +205,16 @@ class Settings:
         the root in use, whatever the lake and catalog placement (OQ 81)."""
         return self.root / "registries"
 
+    def registry_dir(self, *parts: str) -> Path:
+        """One source's folder under `registries_dir` (``registry_dir("inmet")``, ``registry_dir("sidra", "http")``):
+        the subfolder names belong here, not to the readers."""
+        return self.registries_dir.joinpath(*parts)
+
+    @property
+    def modelled_dir(self) -> Path:
+        """Where the modelled products are kept (`modelled.write_modelled` writes ``<product>/<version>`` under it)."""
+        return self.lake_dir / "modelled"
+
     def places(self) -> dict[str, Path]:
         """Every directory this installation writes to, by name."""
         return {

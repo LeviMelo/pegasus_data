@@ -186,7 +186,7 @@ def curation_docs(root: Path | None = None) -> tuple[list[dict[str, Any]], list[
 def _cache(source: str, root: str | Path | None, *parts: str) -> Path:
     from .config import load_settings
 
-    path = Path(root or load_settings().root) / "registries" / source
+    path = load_settings(root=root).registry_dir(source)
     for part in parts:
         path = path / part
     return path

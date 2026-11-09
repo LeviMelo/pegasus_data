@@ -91,7 +91,7 @@ before it is fixed and marked done there with its evidence.
   and T1-T4, T6 (part), T7 (part), T9, T10, T15 (part), T18, T21, T23 (one number reader, one period module, one
   banding, one municipality reader, the CNES recipes and the bridges declared, ~20 thresholds in curation).
 - **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), T16's month table (one only).
-- **Open:** T5 (paths assembled outside their owners), T8 (the CADGER kit's key and label columns), T11 (enrichment
+- **Open:** T5 (study modules only: paths assembled outside their owners; the rest asks `Settings.registry_dir`/`modelled_dir`), T8 (the CADGER kit's key and label columns), T11 (enrichment
   targets as code branches), T12 (published tables in source adapters), T13 (study constants and axes), T14 and
   T17, T19, T20, T22, T24 (small), H1 (unreferenced functions), H3 (import cycles), H5 (oversized functions).
 

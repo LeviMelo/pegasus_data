@@ -592,7 +592,7 @@ def fingerprint(settings: Settings, options: dict[str, Any] | None = None) -> st
         digest.update(f"{path.as_posix()}:{st.st_size}:{st.st_mtime_ns}".encode())
 
     for path in (settings.catalog_path, Path(f"{settings.catalog_path}-wal"),
-                 settings.root / "registries" / "sidra" / "registry.sqlite", Path(__file__)):
+                 settings.registry_dir("sidra", "registry.sqlite"), Path(__file__)):
         stamp(path)
     digest.update(curation_epoch()[1].encode())
     lake = settings.lake_dir
@@ -1322,8 +1322,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     claimed |= {f"registries/{src}" for (src,) in db.execute("SELECT DISTINCT source FROM fields WHERE source IS NOT NULL")}
     claimed = {c.lower() for c in claimed}  # a folder's case varies (registries/CNES, lake/sngpc)
     unclaimed = []
-    for top in ("registries", "lake"):
-        folder = cfg.root / top
+    for top, folder in (("registries", cfg.registries_dir), ("lake", cfg.lake_dir)):
         for path in sorted(folder.iterdir()) if folder.is_dir() else ():
             rel = f"{top}/{path.name}"
             if path.name.startswith("."):
@@ -1423,7 +1422,7 @@ def _write_aggregates(db: sqlite3.Connection, cfg: Settings, report: CompendiumR
 
 
 def _write_sidra(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
-    path = cfg.root / "registries" / "sidra" / "registry.sqlite"
+    path = cfg.registry_dir("sidra", "registry.sqlite")
     if not path.is_file():
         report.rows["sidra_tables"] = 0
         return

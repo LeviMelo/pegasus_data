@@ -48,14 +48,14 @@ def geography(
     target = Path(out) if out else Path(str(files("pegasus_data.resources") / GEOGRAPHY_PACK_NAME))
     with console.status("compiling geography…"):
         result = build_geography_pack(
-            target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
-            ipea_cache=settings.root / "registries" / "ipea_amc", arranjos_cache=settings.root / "registries" / "ibge_arranjos",
-            biomas_cache=settings.root / "registries" / "ibge_biomas",
+            target, ibge=fetch_municipalities(), tabnet_cache=settings.registry_dir("tabnet"),
+            ipea_cache=settings.registry_dir("ipea_amc"), arranjos_cache=settings.registry_dir("ibge_arranjos"),
+            biomas_cache=settings.registry_dir("ibge_biomas"),
         )
         from ..geography import POINTS_PACK_NAME, build_municipality_points, mesh_file, point_sources
         from ..proximity import build_proximity_graphs
 
-        sources = point_sources(settings.root / "registries" / "ibge_points")
+        sources = point_sources(settings.registry_dir("ibge_points"))
         maxima = mesh_file("municipality", "maxima", settings.root)
         result["points"] = build_municipality_points(
             target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"], mesh=maxima, grade_root=settings.root)
@@ -404,7 +404,7 @@ def reencode_modelled(
     from ..modelled import reencode
 
     settings = _writer(root)
-    base = Path(settings.lake_dir) / "modelled" / product
+    base = settings.modelled_dir / product
     names = versions or sorted(p.name for p in base.iterdir() if (p / "estimates.parquet").is_file())
     for name in names:
         _emit(reencode(product, name, settings=settings), as_json, f"reencode {name}")
