@@ -149,7 +149,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
   `population_backcast.py:360` reads `lake/modelled/population_account/<source>` directly instead of `read_modelled`.
 - Fix: `Settings.registry_dir(name)`, `Settings.lake_dir`, and build products with `load_settings(root=...)` (as `sus_dependent.load_ans` already does). Size S.
 
-**T6. Direct readers of another store's layout**
+**T6. Direct readers of another store's layout** — part done: the SIDRA fact parts (`sidra.store.fact_parts`) and a dataset-year's lake files (`persist.lake.published_files`) are listed by their owners; the cube cache and linkage's role tables call them (the listings identical: 5,733 parts; SIH, SIM, SINASC, CIHA years). Left: `intake.py:810,856`, `extract.py:335`, `serve/_membership.py:51`, `lookups.py:73`
 - `linkage/roles.py:319` (`lake.glob(f"{system}_{series}_*/**/year={year}/*.parquet")`, a second reader of the lake's family/partition layout; `persist.lake.Lake` owns it),
   `intake.py:810,856` (globs the lake for its own parts; owner of writes, but should use `Lake.family_dir`/the catalog's partition rows),
   `cubes.py:260` (`table=*/req-*.parquet` = the SIDRA store's layout, duplicated from `sidra/store.py:149,193`),

@@ -62,6 +62,13 @@ def facts_dir(lake: Path, table: int | None = None) -> Path:
     return base if table is None else base / f"table={table}"
 
 
+def fact_parts(lake: Path, table: int | None = None) -> list[Path]:
+    """The stored fact parts (one per request) of ``table``, or of every table: the store's layout, known here only."""
+    base = facts_dir(lake, table)
+    pattern = "req-*.parquet" if table is not None else "table=*/req-*.parquet"
+    return sorted(base.glob(pattern)) if base.exists() else []
+
+
 def request_id(url: str) -> str:
     return hashlib.sha256(url.encode()).hexdigest()[:16]
 

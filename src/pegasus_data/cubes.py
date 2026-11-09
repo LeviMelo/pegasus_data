@@ -247,7 +247,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     import pyarrow.parquet as pq
 
     from .semantics.epoch import curation_epoch
-    from .sidra.store import facts_dir
+    from .sidra.store import fact_parts
 
     folder = Path(settings.lake_dir) / "cubes"
     # The request (the series, its measure, its filter) names the file; the facts' fingerprint is its version.
@@ -258,8 +258,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     if stamp is not None:
         stamp(digest)
     else:
-        base = facts_dir(Path(settings.lake_dir))
-        for part in sorted(base.glob("table=*/req-*.parquet")) if base.exists() else ():
+        for part in fact_parts(Path(settings.lake_dir)):
             stat = part.stat()
             digest.update(f"{part.parent.name}/{part.name}:{stat.st_size}:{stat.st_mtime_ns}".encode())
     target = folder / f"{key}-{digest.hexdigest()}.parquet"

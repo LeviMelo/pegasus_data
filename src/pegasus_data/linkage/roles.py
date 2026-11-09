@@ -314,12 +314,11 @@ def label_inputs(dataset: str, files: Sequence[Path], lake: Path, settings: Any)
 def partition_files(dataset: str, year: int, settings: Any) -> tuple[Path, list[Path]]:
     """The lake's published partition files of a dataset's year: (the system's directory, the files). A write in
     progress stages under a hidden directory the pattern does not match."""
+    from ..persist.lake import published_files
     from ..retrieve import parse_dataset
 
     system, series = parse_dataset(dataset)
-    lake = Path(settings.lake_dir) / system
-    files = sorted(lake.glob(f"{system}_{series or system}_*/**/year={year}/*.parquet")) if lake.exists() else []
-    return lake, files
+    return published_files(settings.lake_dir, system, series, year)
 
 
 def table_key(dataset: str, year: int, settings: Any) -> str | None:

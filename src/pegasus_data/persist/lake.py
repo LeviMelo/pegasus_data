@@ -75,6 +75,15 @@ class LakePartition:
     sources: frozenset[str] = frozenset()
 
 
+def published_files(lake_dir: str | Path, system: str, series: str, year: int) -> tuple[Path, list[Path]]:
+    """A dataset-year's published partition files in the lake, every family and schema of it: (the system's directory,
+    the files). A write in progress stages under a hidden directory the pattern does not match. The lake's layout is
+    known here only."""
+    lake = Path(lake_dir) / system
+    files = sorted(lake.glob(f"{system}_{series or system}_*/**/year={year}/*.parquet")) if lake.exists() else []
+    return lake, files
+
+
 def listed_partitions(catalog: CatalogStore, family_ids: Sequence[str]) -> dict[str, tuple[LakePartition, ...]]:
     """The partitions the catalog lists for ``family_ids`` (all states and years), by family.
 
