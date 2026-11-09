@@ -565,14 +565,18 @@ def _declared_key_in(declared: dict[str, tuple[ColumnRole, ...]], dataset: str) 
 
     key = dataset_key(dataset)
     if key not in declared:
+        from fnmatch import fnmatchcase
+
+        from .curation import system_spellings
+
         system, series = parse_dataset(dataset)
-        for candidate in (f"{system}-{series}", f"{system}", f"{series}"):
-            alias = {"SIHSUS-RD": "SIH-RD", "CIHA-CIHA": "CIHA"}.get(candidate, candidate)
-            if alias in declared:
-                key = alias
-                break
-        if key not in declared and system.upper() == "SINAN" and "SINAN-*" in declared:
-            key = "SINAN-*"     # the notification block every agravo's form carries (roles/SINAN-_notification.yml)
+        # the system under each of its declared spellings (SIHSUS is SIH), with its series or alone (CIHA-CIHA is CIHA)
+        spellings = system_spellings(system) or [system]
+        candidates = [*(f"{sp}-{series}" for sp in spellings), *spellings, series]
+        key = next((c for c in candidates if c in declared), key)
+        if key not in declared:
+            # a roles file declared for a pattern of datasets (SINAN-*: the notification block every agravo carries)
+            key = next((k for k in sorted(declared) if "*" in k and any(fnmatchcase(c, k) for c in candidates)), key)
     if key not in declared:
         raise KeyError(f"no column roles declared for {dataset!r}; declared: {sorted(declared)}")
     return key

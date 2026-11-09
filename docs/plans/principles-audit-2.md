@@ -156,7 +156,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
   `extract.py:335` (`year=*/*.parquet` of its own extract), `serve/_membership.py:51` (the pack file read directly), `lookups.py:73` (registries glob).
 - Fix: each store exposes `parts(...)` / `fingerprint(...)`; consumers call it. Size S per site.
 
-**T7. Dataset spelling and system aliases still hand-mapped**
+**T7. Dataset spelling and system aliases still hand-mapped** — part done: `column_roles.declared_key` reads the system's declared spellings (`system_spellings`) and matches pattern-keyed roles files (`SINAN-*`) instead of a hand alias map; all 185 catalog datasets resolve to the same roles file. Left: `registry.OWNER`, `curation.INHERITS`, `modelled.OFFICIAL_SERIES`
 - `semantics/column_roles.py:569-575`: `{"SIHSUS-RD": "SIH-RD", "CIHA-CIHA": "CIHA"}` and `system.upper() == "SINAN" and "SINAN-*"` (RESIDUE of defect 8: "one dataset spelling").
 - `registry.py:266` `OWNER = {"CADGER": "CNES", "UNIDTOTAL": "CNES", CNPJ_TABLE: "CNES", "INE_EQUIPE": "SIASUS"}`; `semantics/curation.py:1014` `INHERITS`; `modelled.py:41` `OFFICIAL_SERIES` (system names).
 - Fix: aliases in `curation/datasets` (`aliases:`), `owner:` on registry tables in curation; roles files declare `applies_to: SINAN-*`. Size S.
