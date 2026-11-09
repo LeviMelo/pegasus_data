@@ -6,8 +6,8 @@ history is in git; measurements are in `EVALUATION.md` and decisions in
 
 ## Where the project is
 
-One branch, **`master`** (2026-11-08): every branch and worktree was merged and removed; master is 603+ commits ahead of
-`origin/master` (nothing pushed). The work now converges on release: one map of what the package holds and can do
+One branch, **`master`** (2026-11-08): every branch and worktree was merged and removed, and `master` is pushed to
+GitHub (`origin/master` bd867e4, 2026-11-08). The remote's old `linkage` and `redesign` branches are merged into it. The work now converges on release: one map of what the package holds and can do
 (ADR-0216), the catalog's open questions reduced to what a person must answer (none open on 2026-11-08), and every
 queryable column documented.
 
@@ -449,9 +449,8 @@ OQ-64), 1990s SIH V-codes.
 
 ## Waiting on the user
 
-- **Publishing.** `master` (fast-forwarded to `redesign`) and `linkage` are
-  not pushed (CLAUDE.md §4). Platform wheels for the compiled DBC engine
-  (ADR-0074).
+- **Publishing.** `master` is on GitHub (2026-11-08); PyPI and platform wheels for the compiled DBC engine are not
+  (ADR-0074, CLAUDE.md §4).
 - **GBD's licence** (OQ-69): IHME's non-commercial agreement against an
   open-source package.
 
