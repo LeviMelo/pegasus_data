@@ -397,6 +397,14 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
+    # An event whose year is recorded and month is not (a year and a month held apart) is kept at the finest period
+    # known, its year: it counts in every year's total and is never placed in a month (FA's 13 month-less events).
+    if len(time_fields) >= 2 and time_fields[0] in counts.column_names:
+        filed_year = pc.utf8_trim_whitespace(pc.cast(counts.column(time_fields[0]), pa.string()))
+        known = pc.fill_null(pc.match_substring_regex(filed_year, r"^(19|20|21)\d\d$"), False)
+        missing = pc.is_null(competencia)
+        year = pc.if_else(pc.and_(missing, known), filed_year, year)
+        period = pc.if_else(pc.and_(missing, known), filed_year, period)
     places = pa.array(place_municipalities(counts.column(place_column).to_pylist()), pa.int64())
     events = pc.cast(counts.column("events"), pa.float64())
     # a span's years (or months) not asked for are left out

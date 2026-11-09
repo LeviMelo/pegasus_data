@@ -100,6 +100,12 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     sidra = None
     declared = declared_fields()
     chosen_cnes = {n: sp for n, sp in declared.items() if sp.get("source") == "cnes" and (not names or n in names)}
+    # A CNES field that is a records cube is built as one (cached by its register's fingerprint, ADR-0217); only the
+    # professionals' fields still need `sources.cnes`'s own pass over the PF files.
+    for name in [n for n, sp in chosen_cnes.items() if cnes_cube(n, sp) is not None]:
+        table = load_field(name, years=years, settings=settings)
+        report[name] = {"rows": table.num_rows, "cube": True}
+        chosen_cnes.pop(name)
     if chosen_cnes:
         report.update(_build_cnes(settings, chosen_cnes, years))
     if "climate" in declared and (not names or "climate" in names):
@@ -266,9 +272,12 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     An event source's events follow its event type (SRAG's notifications filed in two yearly files count once)."""
     import pyarrow.compute as pc
 
+    from ._explore import explore
     from .cubes import cube
 
-    declared = _years(spec["years"])
+    # a field that names no years is read on the years its dataset publishes (SRAG's notifications)
+    declared = (_years(spec["years"]) if str(spec.get("years") or "").strip()
+                else sorted({int(r["year"]) for r in explore(plan["dataset"]).as_dict()["rows"] if r.get("year")}))
     periods = [y for y in (years or declared) if y in declared]
     columns = [c for c, _ in plan["strata"]]
     if periods:
@@ -282,7 +291,9 @@ def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], y
     n = table.num_rows
     out: dict[str, Any] = {"municipality": pc.utf8_slice_codeunits(code7, 0, 6)}
     if plan["grain"] == "month":
-        out["month"] = pc.cast(pc.utf8_slice_codeunits(period, 5, 7), pa.int32())
+        # a period kept at its year (its month not recorded) has no month, as the field had it
+        month = pc.utf8_slice_codeunits(period, 5, 7)
+        out["month"] = pc.cast(pc.if_else(pc.equal(month, ""), pa.scalar(None, pa.string()), month), pa.int32())
     for column, alias in plan["strata"]:
         out[alias] = pc.cast(table.column(column), pa.string())
     out.update({
