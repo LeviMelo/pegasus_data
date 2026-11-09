@@ -82,6 +82,22 @@ general rule.
     `workbook`, `_compendium`, `serve`; timeline routes: `s_timeline`), so none was removed; its start script and
     wording left RUNBOOK, workbook and the docs. Nothing in `../pegasus_project` imports them.
 
+## The second principles audit (2026-11-09): open
+
+The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) is the work plan; each item is verified
+before it is fixed and marked done there with its evidence. Done: S1 (municipality companions placed by the one rule),
+S2 (one placing rule for Python and the intake's SQL). In progress: S3-S6 (study modules' code meanings), S7-S9 and T4
+(padding, truncation, missing as zero, one municipality reader), T2 and T23 (one number reader, one banding). H4 checked:
+the normalize path is live (`build.py` normalises every partition), not dead.
+
+**R1. The modelled products cannot be rebuilt from the repository (found 2026-11-09, the worst open item).**
+`population-account-6` (PegaSUS's denominator) was built by probe scripts (`data/probes/population_account/v5-v6`,
+gitignored) from pickled intermediates in a temp cache that no longer exists, an events folder in `pegasus_project`
+and the old `pegasus_data_home`, removed under ADR-0208. The other products' builders (`build_sus_dependent`,
+`build_completeness`, `build_registration_completeness`) are library functions no command reaches. The fix: the
+pipeline in the package behind one command per product (`products.yml` naming each product's build), proved by
+rebuilding each under a check version and comparing it with the stored one value for value.
+
 ## One data home (2026-10-24, ADR-0200, ADR-0208)
 
 Every process of this user, PegaSUS included, resolves `C:\Users\Galaxy\pegasus_core_data`
