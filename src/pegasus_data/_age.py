@@ -31,7 +31,7 @@ code sorts after every band.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from typing import Any
 
 #: The code an undecodable age lands in. "Z" so it sorts after "000".."120".
@@ -55,8 +55,8 @@ _FIELDS = {"unit_column": 2, "dates": 2, "packed": 1, "years": 1, "band": 1}
 class AgeDimension:
     """An age: its form, its source columns and its unit table, and (as a dimension) its bands.
 
-    ``of`` names the derived variable whose declaration gives the form (an aggregate's ``age_dimension: {of:
-    IDADE_anos}``); `resolve_age` replaces it with that declaration before anything is decoded."""
+    ``of`` names the derived variable whose years an aggregate bands (``age_dimension: {of: IDADE_anos}``): `query`
+    derives it by the system's declared age, and a cube bands it (`cubes._derived_dimensions`)."""
 
     name: str
     form: str
@@ -117,22 +117,6 @@ def parse_age(body: Any, fields: Any = None, *, name: str = "FAIXA_ETARIA") -> A
                         plain_below=int(body.get("plain_below") or 0), bands=bands, label=label, lookup=lookup)
 
 
-def resolve_age(age: AgeDimension, docs: Any) -> AgeDimension:
-    """An aggregate's age that names a derived variable (``of``), as that variable declares it: its form, columns and
-    units, the aggregate's bands and label kept. One declaration per system, read by every aggregate of it."""
-    if not age.of:
-        return age
-    found = []
-    for doc in docs.values():
-        for recipe in getattr(doc, "derived", None) or []:
-            if str(recipe.get("name") or "").upper() == age.of.upper() and recipe.get("age"):
-                found.append(parse_age(recipe["age"], recipe.get("from") or ()))
-    forms = {(a.form, a.fields, a.units, a.unknown, a.plain_below, a.lookup) for a in found if a is not None}
-    if len(forms) != 1:
-        raise ValueError(f"{age.of}: {len(forms)} age declarations among the dataset's variables (one is needed)")
-    return replace(found[0], name=age.name, bands=age.bands, label=age.label)
-
-
 def _digits_to_years(text: Any) -> Any:
     """A string column of digit runs -> float64 years, null where not digits."""
     import pyarrow as pa
@@ -183,7 +167,7 @@ def years_column(age: AgeDimension, table: Any) -> Any:
     import pyarrow.compute as pc
 
     if age.of:
-        raise ValueError(f"{age.name}: resolve the age of {age.of!r} (`resolve_age`) before decoding it")
+        raise ValueError(f"{age.name}: an age named by its variable ({age.of!r}) is read as that column, not decoded here")
     names = set(table.schema.names)
 
     def text_of(name: str) -> Any:

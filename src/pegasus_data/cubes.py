@@ -61,7 +61,7 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     the column's distinct values per cell (establishments, teams, persons). ``where`` also takes ``{column: {"not":
     [...]}}`` and a two-column code ``{"A+B": [...]}``. ``periods`` are years, or months (``"2023-12"``) to read those
     months only. ``derived`` names strata made from the record (a records cube): ``{"FAIXA_ETARIA": {"age": "IDADE_anos",
-    "bands": [0, 1, 5, ...]}}`` bands the age the dataset's variables declare (`_age.resolve_age`), ``{"PESO_FAIXA":
+    "bands": [0, 1, 5, ...]}}`` bands the years `query` derives by the system's declared age, ``{"PESO_FAIXA":
     {"field": "PESO", "bands": [...]}}`` bands a number; a value not decodable is its own level (``ZIG``). Each named in
     ``by``. ``support`` names a records cube (``records:CNES-ST/rows``) whose places are the ones the source could
     have recorded: inside it a cell with no record is 0 (``zero``), outside it there is no row. The facts must be held or
@@ -241,7 +241,6 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     fact parts (names, sizes, times); ``stamp`` adds another source's (a records cube's lake partitions and files). The
     curation and this module's own code are always in it, so an edited declaration or a changed adapter makes the cube
     stale and it is built again. A stitched series is seconds to build, a records cube minutes; both are read often."""
-    import hashlib
 
     import pyarrow.parquet as pq
 
@@ -696,10 +695,10 @@ def place_municipalities_of(raw: Any, sole: Any) -> list[int | None]:
 
 
 def _derived_dimensions(dataset: str, derived: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
-    """Each derived stratum's dimension: an age band (``age``: the derived variable whose declaration gives the age's
-    form, resolved from the system's variables, `_age.resolve_age`; or a ``form`` given in place) or a numeric band
-    (``field``)."""
-    from ._age import parse_age, parse_band_dimensions, resolve_age
+    """Each derived stratum's dimension: the bands of an age (``age``: a column of years, usually the derived variable
+    ``IDADE_anos`` that `query` decodes by the system's declared age, `_age`), of a number (``field``), or of an age
+    whose form is given in place (``form``)."""
+    from ._age import parse_age, parse_band_dimensions
 
     out: dict[str, Any] = {}
     for name, body in derived.items():
@@ -707,25 +706,10 @@ def _derived_dimensions(dataset: str, derived: Mapping[str, Mapping[str, Any]]) 
         if "field" in body:
             out[name] = parse_band_dimensions({name: body})[0]
         elif "age" in body:
-            age = parse_age({"of": body["age"], **({"bands": body["bands"]} if body.get("bands") else {})}, name=name)
-            out[name] = resolve_age(age, _variable_docs(dataset))
+            out[name] = parse_age({"form": "years", "fields": [body["age"]],
+                                   **({"bands": body["bands"]} if body.get("bands") else {})}, name=name)
         else:
             out[name] = parse_age(body, name=name)
-    return out
-
-
-def _variable_docs(dataset: str) -> dict[str, Any]:
-    """The curated variables of ``dataset``'s system, read from `curation/variables/<system>/` (not the catalog: a
-    declaration is read where it is written)."""
-    from ._request import parse_dataset
-    from .config import curation_root
-    from .semantics.curation import parse_variable_file, read_yaml
-
-    system, _series = parse_dataset(dataset)
-    out: dict[str, Any] = {}
-    for path in sorted((curation_root() / "variables" / system.lower()).glob("*.yml")):
-        for doc in parse_variable_file(path, read_yaml(path) or {}):
-            out[f"{path.stem}:{doc.field_name}"] = doc
     return out
 
 

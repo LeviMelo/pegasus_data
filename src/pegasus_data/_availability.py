@@ -528,5 +528,30 @@ def field_available(
         return "unknown"
     window = found.fields.get(field.upper())
     if window is None:
-        return "absent"
+        # a derived column (IDADE_anos, PROC_REA_grupo) exists where one of its recipes can be made: a recipe as its
+        # weakest input, the column as its best recipe (SIA's age has one recipe per layout)
+        recipes = _derived_recipes(dataset, field, settings or load_settings(root=Path(root) if root else None))
+        if not recipes:
+            return "absent"
+        rank = {"absent": 0, "unknown": 1, "present": 2}
+        states = [min((field_available(dataset, c, year, root=root, settings=settings) for c in inputs), key=rank.get)
+                  for inputs in recipes]
+        return max(states, key=rank.get)
     return window.state(year)
+
+
+def _derived_recipes(dataset: str, field: str, settings: Settings) -> list[tuple[str, ...]]:
+    """The input columns of each curated recipe of the derived column ``field`` of ``dataset``'s system."""
+    from ._request import parse_dataset
+    from .catalog.store import CatalogStore
+    from .semantics.curation import load_variable_docs
+
+    system, _series = parse_dataset(dataset)
+    catalog = CatalogStore(settings.catalog_path, read_only=True)
+    try:
+        docs = load_variable_docs(catalog, system)
+    finally:
+        catalog.close()
+    return [tuple(str(c).upper() for c in recipe.get("from") or ())
+            for doc in docs.values() for recipe in (getattr(doc, "derived", None) or [])
+            if str(recipe.get("name") or "").upper() == field.upper() and recipe.get("from")]

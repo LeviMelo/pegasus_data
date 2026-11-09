@@ -17,8 +17,10 @@ and each aggregate.
   `plain_below` says a shorter value has no unit digit (SINAN's 1–3 character ages are years).
 - **Declared once per system**, on the derived variable: `IDADE_anos`'s `age:` block in `curation/variables/<system>`
   (and SRAG's in `intake.yml`). The measured unit tables of ADR-0070 moved there unchanged.
-- **An aggregate names the variable** (`age_dimension: {of: IDADE_anos}`), resolved through the dataset's variable
-  docs (`_age.resolve_age`). It keeps only its own bands and label. Two declarations of one name refuse.
+- **An aggregate names the variable** (`age_dimension: {of: IDADE_anos}`) and keeps only its own bands and label. The
+  years are the derived column `query` makes from the declaration, and a cube bands them (`cubes._derived_dimensions`):
+  one decoder for queries, cubes and aggregates. `field_available` reports a derived column available where one of its
+  recipes' inputs all are.
 - A negative value is no age in every form (it was SIVEP's rule alone).
 
 ## Evidence

@@ -306,19 +306,6 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
     return out
 
 
-def _resolved_age(spec: AggregateSpec, settings: Any) -> Any:
-    """The age an aggregate names by its derived variable (``age_dimension: {of: IDADE_anos}``), as the dataset's
-    variables declare it (`_age.resolve_age`, read from the curation as the records cube reads it): one declaration of a
-    system's age convention, read by all its aggregates."""
-    from ._age import resolve_age
-    from .cubes import _variable_docs
-
-    try:
-        return resolve_age(spec.age, _variable_docs(spec.dataset))
-    except ValueError as exc:
-        raise AggregationRefused(f"{spec.name}: {exc}") from exc
-
-
 def _parse_age(body: Any):
     from ._age import parse_age
 
@@ -517,8 +504,6 @@ def build_aggregate(
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     spec = spec_named(name)
-    if spec.age is not None and spec.age.of:
-        spec = replace(spec, age=_resolved_age(spec, resolved))
     semantics = _resolve_semantics(spec)
     from .semantics.event_types import event_type as _event_type
 
@@ -580,8 +565,9 @@ def build_aggregate(
                 if dimension == band.name:
                     return str(field_available(spec.dataset, band.field_name, year, settings=resolved))
             if spec.age is not None and dimension == spec.age.name:
-                # derived: available exactly when its sources are, the weakest deciding
-                return min(str(field_available(spec.dataset, f, year, settings=resolved)) for f in spec.age.fields)
+                # derived: available where its variable can be made (`field_available` reads the recipe's inputs)
+                return min(str(field_available(spec.dataset, f, year, settings=resolved))
+                           for f in ([spec.age.of] if spec.age.of else spec.age.fields))
             return str(field_available(spec.dataset, dimension, year, settings=resolved))
 
         report.support[str(year)] = {dimension: _support_of(dimension) for dimension in spec.dimensions}
@@ -677,9 +663,11 @@ def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, 
     derived: dict[str, dict[str, Any]] = {}
     if spec.age is not None:
         age = spec.age
-        derived[age.name] = {"form": age.form, "fields": list(age.fields), "units": dict(age.units),
-                             "unknown": list(age.unknown), "plain_below": age.plain_below, "bands": list(age.bands),
-                             "lookup": dict(age.lookup)}
+        # an age named by its derived variable is banded from the years `query` decodes; one given in place by its form
+        derived[age.name] = ({"age": age.of, "bands": list(age.bands)} if age.of else
+                             {"form": age.form, "fields": list(age.fields), "units": dict(age.units),
+                              "unknown": list(age.unknown), "plain_below": age.plain_below, "bands": list(age.bands),
+                              "lookup": dict(age.lookup)})
     for band in spec.band_dims:
         derived[band.name] = {"field": band.field_name, "bands": list(band.bands), "label": band.label, "unit": band.unit}
     source = f"records:{spec.dataset}/{spec.event_type or 'rows'}"
