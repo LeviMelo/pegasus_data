@@ -637,6 +637,32 @@ def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
     return row["code7"] if row else None
 
 
+def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> list[int | None]:
+    """Each raw municipality code as an IBGE 7-digit code (int), or None: the one placing rule.
+
+    A code is read as filed, less a float's ``.0``; 6 or 7 digits; a 7-digit code by its first 6 (the check digit is
+    IBGE's, never trusted from the record). A code of a state that has one municipality is that municipality: the Federal
+    District files its administrative regions as 53xxxx codes, and SRAG's notifications of residents of Brasília are
+    5,3xx,xxx-coded (105,788 events, 2026-11-09). A code that is neither is no municipality, never a guess. The intake's
+    landing applies the same rule in SQL to the records it streams (`intake._records_sql`, ``_MUNICIPALITY``)."""
+    table = municipalities(pack_path)
+    by_six = {k: int(v["code7"]) for k, v in table.items()}
+    per_uf: dict[str, list[int]] = {}
+    for six, code7 in by_six.items():
+        per_uf.setdefault(six[:2], []).append(code7)
+    sole = {uf: c[0] for uf, c in per_uf.items() if len(c) == 1}
+    out: list[int | None] = []
+    for raw in codes:
+        text = "" if raw is None else str(raw).strip()
+        if text.endswith(".0"):
+            text = text[:-2]
+        if not text.isdigit() or len(text) not in (6, 7):
+            out.append(None)
+            continue
+        out.append(by_six.get(text[:6]) or sole.get(text[:2]))
+    return out
+
+
 def _pack(path: str) -> Any:
     import pyarrow.parquet as pq
 

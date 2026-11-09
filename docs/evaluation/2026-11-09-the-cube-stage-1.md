@@ -33,3 +33,24 @@ lake. The catalog held no lake partitions for any intake source except PNI's mon
   - After `curate`, SRAG 2022 (566,133 rows), SISAGUA-VIGB 2023, SNGPC-IND 2021 and BNAFAR 2025 query from the lake,
     labelled.
   - `families` run again keeps all 391 partitions.
+
+**Stage 2, the records adapter, against the intake fields** (`records:<dataset>/<event>`; the session's `cmp_records.py`).
+The comparison is by (municipality, month).
+- **The adapter.** It counts the event type's events by the dataset's place and time bindings. It reads only the
+  published years, in runs, and lists the others as `not_published`. Places follow `geography.place_municipalities`:
+  - a code as filed, less `.0`;
+  - 6 or 7 digits, a 7-digit code read by its first six;
+  - in a state with one municipality, that municipality.
+- **Results:**
+
+  | field | field total | cube total | cells differing | events unplaced |
+  |---|---|---|---|---|
+  | yellow_fever_human_cases | 2,893 | 2,893 | 0 | 18 |
+  | yellow_fever_human_deaths | 1,065 | 1,065 | 0 | 4 |
+  | srag_cases | 4,666,020 | 4,665,991 | 27 | 890 |
+  | srag_covid | 2,291,288 | 2,291,284 | 4 | 334 |
+  | srag_deaths | 935,795 | 935,792 | 3 | 213 |
+- **The SRAG difference is a correction, not a loss.** It comes to 29 notifications, all in 2025: the notifications SRAG
+  files in both INFLUD24 and INFLUD25 (its gotcha). The field counted rows; the event type merges by `NU_NOTIFIC`.
+- **Brasília.** Before the single-municipality rule, 105,788 SRAG events filed under the Federal District's
+  administrative-region codes (53xxxx) were unplaced, for example 1,373 against 5 in December 2022.

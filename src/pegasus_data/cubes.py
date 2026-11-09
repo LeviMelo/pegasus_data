@@ -256,7 +256,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     import pyarrow.compute as pc
 
     from ._aggregate import _competencia_column
-    from .geography import municipalities
+    from .geography import place_municipalities
     from .semantics.curation import semantics_for
     from .semantics.event_types import count_events
 
@@ -283,16 +283,28 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     group = list(dict.fromkeys([place_column, *time_fields, *by]))
     extra = {"rows": {k: [str(x) for x in v] for k, v in where.items()}} if where else {}
     years = sorted({int(str(p)[:4]) for p in periods})
-    span: Any = years[0] if len(years) == 1 else (years[0], years[-1])
-    counts = count_events(dataset, event, period=span, geography="BR", by=group, condition=condition, **extra)
+    # Only the years the source publishes are read, in runs of consecutive years; a year asked for that has no
+    # publication is said in the manifest, never fetched and failed (FA-HUM's file has no case in 2012).
+    from ._explore import explore
+
+    published = {int(r["year"]) for r in explore(dataset).as_dict()["rows"] if r.get("year")}
+    unpublished = [y for y in years if y not in published]
+    runs: list[list[int]] = []
+    for y in (y for y in years if y in published):
+        if runs and y == runs[-1][-1] + 1:
+            runs[-1].append(y)
+        else:
+            runs.append([y])
+    if not runs:
+        raise LookupError(f"{dataset} publishes none of the years {years}")
+    parts = [count_events(dataset, event, period=run[0] if len(run) == 1 else (run[0], run[-1]), geography="BR",
+                          by=group, condition=condition, **extra) for run in runs]
+    counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
     competencia = _competencia_column(counts, time_fields, encoding)
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
-    code7 = {k: int(v["code7"]) for k, v in municipalities().items()}
-    code7.update({str(v): v for v in list(code7.values())})
-    raw = [None if c is None else str(c).strip() for c in counts.column(place_column).to_pylist()]
-    places = pa.array([code7.get(c) if c else None for c in raw], pa.int64())
+    places = pa.array(place_municipalities(counts.column(place_column).to_pylist()), pa.int64())
     events = pc.cast(counts.column("events"), pa.float64())
     wanted = pc.is_in(pc.cast(year, pa.int64()), pa.array(years, pa.int64()))   # a span's years not asked for are left out
     keep = pc.fill_null(pc.and_(pc.and_(pc.is_valid(places), pc.is_valid(period)), wanted), False)
@@ -313,7 +325,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     return _with_manifest(facts, {
         "source": f"records:{ident}", "dataset": dataset, "event": event, "at": at, "time": time,
         "place_level": place, "period_grain": grain, "strata": by, "where": where, "periods": [str(p) for p in periods],
-        "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0),
+        "unplaced_events": unplaced, "events": float(pc.sum(events).as_py() or 0), "not_published": unpublished,
         "unkeyed": unkeyed.decode() if unkeyed else None,
     })
 
