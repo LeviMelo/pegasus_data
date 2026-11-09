@@ -562,7 +562,7 @@ def _build_climate(settings: Any, years: list[int] | None) -> dict[str, Any]:
     from .geography import mesh_file
     from .sources import inmet
 
-    cache = Path(settings.root) / "registries" / "inmet"
+    cache = settings.registry_dir("inmet")
     mesh = mesh_file("municipality", "maxima", settings.root)
     placed = {s["station_id"]: s for s in inmet.stations(cache, mesh) if s["municipality7"]}
     table = inmet.monthly(cache, years)
@@ -598,7 +598,7 @@ def _build_climate_brdwgd(settings: Any, specs: dict[str, dict[str, Any]], years
     from .geography import municipalities
     from .sources import brdwgd
 
-    months, release = brdwgd.municipality_months(Path(settings.root) / "registries" / "brdwgd")
+    months, release = brdwgd.municipality_months(settings.registry_dir("brdwgd"))
     expected = {row["code7"] for row in municipalities().values()}
     held = set(months.column("municipality7").unique().to_pylist())
     months = months.filter(pc.is_in(months.column("municipality7"), value_set=pa.array(sorted(expected), pa.string())))

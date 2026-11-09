@@ -62,7 +62,7 @@ __all__ = ["build", "validate"]
 def _directory(root: str | Path | None, name: str) -> Path:
     from ..config import load_settings
 
-    return Path(root or load_settings().root) / "registries" / name
+    return load_settings(root=root).registry_dir(name)
 
 
 def _sheet(documentation: Path, pattern: str, **options: Any) -> Any:

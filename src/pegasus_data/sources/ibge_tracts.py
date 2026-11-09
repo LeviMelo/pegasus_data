@@ -50,7 +50,7 @@ __all__ = ["BANDS", "build", "tract_mesh", "tract_population", "tracts"]
 def _directory(root: str | Path | None) -> Path:
     from ..config import load_settings
 
-    return Path(root or load_settings().root) / "registries" / "ibge_tracts"
+    return load_settings(root=root).registry_dir("ibge_tracts")
 
 
 def _csv(zip_path: Path, encoding: str) -> Any:
@@ -221,7 +221,7 @@ def tract_mesh(*, municipality: Any = None, uf: Any = None, root: str | Path | N
     from ..config import load_settings
     from ..transport import download
 
-    path = download(SOURCE + MESH, Path(root or load_settings().root) / "registries" / "ibge_points" / "tracts.gpkg",
+    path = download(SOURCE + MESH, load_settings(root=root).registry_dir("ibge_points", "tracts.gpkg"),
                     timeout=7200)
     where = _where(municipality, uf).replace("WHERE ", "").replace("municipality7", "CD_MUN") or None
     frame = gpd.read_file(path, where=where, columns=["CD_SETOR", "CD_MUN", "SITUACAO"])

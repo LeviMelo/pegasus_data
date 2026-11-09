@@ -813,7 +813,7 @@ def _modelled(ident: str, *, place: str, by: list[str], where: dict[str, Sequenc
     name, _, estimate = ident.partition("/")
     product, _, version = name.partition("@")
     _, manifest = read_modelled(product, version or None, settings=settings)
-    folder = Path(settings.lake_dir) / "modelled" / product / manifest["version"]
+    folder = settings.modelled_dir / product / manifest["version"]
     if not manifest.get("place"):
         raise LookupError(f"modelled:{product} {manifest['version']}: its manifest declares no axes")
     if estimate not in manifest["estimates"]:

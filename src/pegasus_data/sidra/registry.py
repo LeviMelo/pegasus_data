@@ -365,4 +365,6 @@ def compendium_disagreements(registry: Registry) -> list[dict[str, Any]]:
 
 
 def open_registry(root: Path) -> Registry:
-    return Registry(Path(root) / "registries" / "sidra" / "registry.sqlite")
+    from ..config import load_settings
+
+    return Registry(load_settings(root=root).registry_dir("sidra", "registry.sqlite"))

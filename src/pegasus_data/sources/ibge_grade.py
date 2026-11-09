@@ -49,7 +49,7 @@ __all__ = ["ALBERS", "RESOLUTIONS", "build", "cell_lonlat", "cells", "geometry",
 def _directory(root: str | Path | None) -> Path:
     from ..config import load_settings
 
-    return Path(root or load_settings().root) / "registries" / "ibge_grade"
+    return load_settings(root=root).registry_dir("ibge_grade")
 
 
 def _quadrants() -> list[str]:

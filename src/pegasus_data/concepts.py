@@ -42,7 +42,7 @@ from .textenc import fold
 def _cache(root: str | Path | None) -> Path:
     from .config import load_settings
 
-    path = Path(root or load_settings().root) / "registries" / "concepts"
+    path = load_settings(root=root).registry_dir("concepts")
     path.mkdir(parents=True, exist_ok=True)
     return path
 

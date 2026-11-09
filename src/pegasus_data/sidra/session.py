@@ -46,7 +46,7 @@ class Sidra:
         settings = settings or load_settings(root=Path(root) if root else None)
         self.root = Path(settings.root)
         self.lake = Path(settings.lake_dir)
-        self.client = SidraClient(self.root / "registries" / "sidra" / "http", delay=delay)
+        self.client = SidraClient(settings.registry_dir("sidra", "http"), delay=delay)
         self.registry: Registry = open_registry(self.root)
 
     # -- the registry ----------------------------------------------------------------------------

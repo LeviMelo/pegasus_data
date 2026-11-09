@@ -197,9 +197,8 @@ def _pack(name: str) -> pa.Table:
     return pq.read_table(Path(__file__).resolve().parent / "resources" / name)
 
 
-#: Graphs built in a data home rather than shipped (`MOBILITY_LAYERS`): ``<root>/registries/mobility/<kind>.parquet``,
+#: Graphs built in a data home rather than shipped (`MOBILITY_LAYERS`): ``Settings.registry_dir("mobility")/<kind>.parquet``,
 #: written by their source's ``build`` (`pegasus-data mobility`)
-MOBILITY_DIR = Path("registries") / "mobility"
 #: kind -> the module whose ``build`` writes it, and what it measures
 MOBILITY_LAYERS: dict[str, tuple[str, str]] = {
     "commute_work_2010": ("census_commuting", "Census 2010 sample: persons (weighted) living in `from` who work in `to`"),
@@ -213,7 +212,7 @@ MOBILITY_LAYERS: dict[str, tuple[str, str]] = {
 def _mobility_path(kind: str, root: str | Path | None = None) -> Path:
     from .config import load_settings
 
-    return Path(root or load_settings().root) / MOBILITY_DIR / f"{kind}.parquet"
+    return load_settings(root=root).registry_dir("mobility", f"{kind}.parquet")
 
 
 def graph_kinds(root: str | Path | None = None) -> list[str]:

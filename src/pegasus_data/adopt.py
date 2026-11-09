@@ -32,7 +32,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .config import Settings
+from .config import Settings, load_settings
 
 __all__ = ["AdoptPlan", "adopt"]
 
@@ -121,8 +121,10 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
     if other == Path(settings.root).resolve():
         raise ValueError(f"{other} is this home")
     here_blobs, here_reg = Path(settings.blobs_dir), Path(settings.registries_dir)
+    theirs_home = load_settings(root=other)  # the other home's layout is asked of its Settings
+    their_blobs, their_reg = Path(theirs_home.blobs_dir), Path(theirs_home.registries_dir)
     plan = AdoptPlan(str(other))
-    theirs = sqlite3.connect(f"file:{(other / '_catalog' / 'catalog.sqlite').as_posix()}?mode=ro", uri=True)
+    theirs = sqlite3.connect(f"file:{Path(theirs_home.catalog_path).as_posix()}?mode=ro", uri=True)
     theirs.row_factory = sqlite3.Row
     ours = sqlite3.connect(str(settings.catalog_path), timeout=300)
     ours.row_factory = sqlite3.Row
@@ -131,7 +133,7 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
                               "remote_size, remote_modified FROM fetches").fetchall()
         held: set[str] = set()
         for sha in sorted({r["sha256"] for r in rows}):
-            src = other / "blobs" / "sha256" / sha[:2] / sha
+            src = their_blobs / "sha256" / sha[:2] / sha
             if (here_blobs / "sha256" / sha[:2] / sha).is_file():
                 plan.blobs_held += 1
                 held.add(sha)
@@ -147,7 +149,7 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
                            and (r["source_path"], r["sha256"], r["fetched_at"]) not in known]
 
         ours_reg = _files(here_reg)
-        for rel, size in sorted(_files(other / "registries").items()):
+        for rel, size in sorted(_files(their_reg).items()):
             if rel not in ours_reg:
                 plan.registries.append(rel)
                 plan.registry_bytes += size
@@ -156,7 +158,7 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
             else:
                 plan.differ.append(rel)
         derived: Counter[str] = Counter()
-        for rel, size in _files(other / "lake").items():
+        for rel, size in _files(Path(theirs_home.lake_dir)).items():
             derived[rel.split("/", 1)[0]] += size
         plan.derived = dict(derived.most_common())
 
@@ -164,11 +166,11 @@ def adopt(settings: Settings, other: str | Path, *, apply: bool = False, remove:
             for sha in plan.blobs:
                 target = here_blobs / "sha256" / sha[:2] / sha
                 target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(other / "blobs" / "sha256" / sha[:2] / sha), str(target))
+                shutil.move(str(their_blobs / "sha256" / sha[:2] / sha), str(target))
             for rel in plan.registries:
                 target = here_reg / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(other / "registries" / rel), str(target))
+                shutil.move(str(their_reg / rel), str(target))
             per_blob: dict[str, tuple[int, str, int]] = {}  # adopted fetches, the first of them, bytes
             for f in plan.fetch_rows:
                 n, first, size = per_blob.get(f["sha256"], (0, f["fetched_at"], f["byte_size"] or 0))

@@ -19,6 +19,8 @@ import argparse
 import json
 from pathlib import Path
 
+from pegasus_data.config import load_settings
+
 PAIRS = (("midrange", "(g.tmax + g.tmin) / 2", "temperature_midrange"), ("mid vs 24 h mean", "(g.tmax + g.tmin) / 2", "temperature_mean"),
          ("tmax", "g.tmax", "temperature_max"), ("tmin", "g.tmin", "temperature_min"),
          ("precipitation", "g.precipitation_mm", "precipitation_mm"))
@@ -33,8 +35,8 @@ def main() -> None:
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
-    months, release = brdwgd.municipality_months(args.root / "registries" / "brdwgd")
-    stations = inmet.station_months(args.root / "registries" / "inmet")
+    months, release = brdwgd.municipality_months(load_settings(root=args.root).registry_dir("brdwgd"))
+    stations = inmet.station_months(load_settings(root=args.root).registry_dir("inmet"))
     con = duckdb.connect()
     con.register("bm", months)
     con.register("sm", stations)

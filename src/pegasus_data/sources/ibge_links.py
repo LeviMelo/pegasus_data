@@ -71,7 +71,7 @@ __all__ = ["KINDS", "build"]
 def _registries(root: str | Path | None) -> Path:
     from ..config import load_settings
 
-    return Path(root or load_settings().root) / "registries"
+    return load_settings(root=root).registries_dir
 
 
 def _fetch(folder: Path, log: Callable[[str], None]) -> dict[str, Path]:

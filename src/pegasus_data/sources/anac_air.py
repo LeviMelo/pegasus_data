@@ -171,7 +171,7 @@ def build(root: str | Path | None = None, log: Callable[[str], None] | None = No
     ``<root>/registries/mobility/air_passengers.parquet`` (``from``, ``to``, ``weight``, ``kind``, ``vintage``, ``flights``,
     ``passengers_paid``, ``passengers_free``); returns the report."""
     say = log or (lambda _: None)
-    base = (Path(root) if root else Path(load_settings().root)) / "registries"
+    base = load_settings(root=root).registries_dir
     raw, out = base / "anac", base / "mobility"
     raw.mkdir(parents=True, exist_ok=True)
     out.mkdir(parents=True, exist_ok=True)

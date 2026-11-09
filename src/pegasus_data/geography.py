@@ -966,7 +966,7 @@ def mesh_file(level: str = "municipality", quality: str = "minima", root: str | 
 
     if level not in MESH_LEVELS or quality not in ("minima", "intermediaria", "maxima"):
         raise ValueError(f"level in {sorted(MESH_LEVELS)}, quality minima, intermediaria or maxima")
-    target = Path(root or load_settings().root) / "registries" / "ibge_mesh" / f"{level}_{quality}.json"
+    target = load_settings(root=root).registry_dir("ibge_mesh") / f"{level}_{quality}.json"
     if target.is_file():
         return target
     got = download(MESH_URL.format(quality=quality, level=MESH_LEVELS[level]), target.with_name(target.name + ".dl"),

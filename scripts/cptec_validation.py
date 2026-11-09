@@ -27,6 +27,8 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from pegasus_data.config import load_settings
+
 VARIABLES = ("precipitation", "tmax", "tmin", "tmed")
 
 
@@ -46,7 +48,7 @@ def against_brdwgd(root: Path, settings, names=("tmax", "tmin", "precipitation")
 
     from pegasus_data.sources import brdwgd, cptec
 
-    months, release = brdwgd.municipality_months(root / "registries" / "brdwgd")
+    months, release = brdwgd.municipality_months(load_settings(root=root).registry_dir("brdwgd"))
     daily = cptec.daily(list(names), start="2000-01-01", end="2024-02-29", weight="area", settings=settings)
     con = duckdb.connect()
     con.register("bm", months)
@@ -78,7 +80,7 @@ def _station_days(root: Path, year: int):  # type: ignore[no-untyped-def]
     import duckdb
 
     con = duckdb.connect()
-    path = (root / "registries" / "inmet" / "inmet_autoh_db.parquet").as_posix()
+    path = (load_settings(root=root).registry_dir("inmet") / "inmet_autoh_db.parquet").as_posix()
     con.execute(f"""CREATE TABLE h AS SELECT CAST(station_id AS VARCHAR) AS station_id, datetime, temp_db, p FROM read_parquet('{path}')
         WHERE datetime >= TIMESTAMP '{year - 1}-12-31' AND datetime < TIMESTAMP '{year + 1}-01-02'""")
     windows = {"utc_day": "datetime", "local_day": "datetime - INTERVAL 3 HOUR", "ends_12utc": "datetime + INTERVAL 12 HOUR"}
@@ -97,7 +99,7 @@ def against_stations_and_store(root: Path, settings, year: int, variables=VARIAB
     from pegasus_data.sources import cptec
     from pegasus_data.transport import request
 
-    catalog = pd.read_csv(root / "registries" / "inmet" / "inmet_autoh_catalog.csv", sep=";")
+    catalog = pd.read_csv(load_settings(root=root).registry_dir("inmet") / "inmet_autoh_catalog.csv", sep=";")
     lon_s, lat_s = catalog["station_x"].to_numpy(float), catalog["station_y"].to_numpy(float)
     samples, consistency = [], {}
     stored = cptec.daily(variables, start=f"{year}-01-01", end=f"{year}-12-31", weight="area", settings=settings).to_pandas()
@@ -156,8 +158,6 @@ def against_stations_and_store(root: Path, settings, year: int, variables=VARIAB
 
 
 def main() -> None:
-    from pegasus_data.config import load_settings
-
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--year", type=int, default=2023)
