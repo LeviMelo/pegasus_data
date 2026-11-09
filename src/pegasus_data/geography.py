@@ -643,7 +643,9 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
     A code is read as filed, less a float's ``.0``; 6 or 7 digits; a 7-digit code by its first 6 (the check digit is
     IBGE's, never trusted from the record). A code of a state that has one municipality is that municipality: the Federal
     District files its administrative regions as 53xxxx codes, and SRAG's notifications of residents of Brasília are
-    5,3xx,xxx-coded (105,788 events, 2026-11-09). A code that is neither is no municipality, never a guess. The intake's
+    5,3xx,xxx-coded (105,788 events, 2026-11-09). A code a system wrote for a municipality no IBGE code names is placed by
+    ``geography.yml``'s ``legacy_places`` (Rio de Janeiro's 3345xxx of 1991-1998). Any other is no municipality, never a
+    guess. The intake's
     landing applies the same rule in SQL to the records it streams (`intake._records_sql`, ``_MUNICIPALITY``)."""
     table = municipalities(pack_path)
     by_six = {k: int(v["code7"]) for k, v in table.items()}
@@ -651,6 +653,11 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
     for six, code7 in by_six.items():
         per_uf.setdefault(six[:2], []).append(code7)
     sole = {uf: c[0] for uf, c in per_uf.items() if len(c) == 1}
+    from .semantics.curation import read_yaml
+
+    declared = read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}
+    legacy = [(str(r["prefix"]), int(r["municipality"])) for r in declared.get("legacy_places") or []]
+    legacy7 = [(prefix, by_six.get(str(code)[:6])) for prefix, code in legacy]
     out: list[int | None] = []
     for raw in codes:
         text = "" if raw is None else str(raw).strip()
@@ -659,7 +666,10 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
         if not text.isdigit() or len(text) not in (6, 7):
             out.append(None)
             continue
-        out.append(by_six.get(text[:6]) or sole.get(text[:2]))
+        placed = by_six.get(text[:6]) or sole.get(text[:2])
+        if placed is None:
+            placed = next((code for prefix, code in legacy7 if text.startswith(prefix)), None)
+        out.append(placed)
     return out
 
 

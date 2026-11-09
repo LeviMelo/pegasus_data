@@ -336,3 +336,14 @@ municipality_fields:
   CNES: [CODUFMUN]
   SINAN: [ID_MUNICIP, ID_MN_RESI, COMUNINF]
   RESP: [CODMUNRES, CODMUNNOT]
+
+# Codes no IBGE municipality has that a system wrote for one (`geography.place_municipalities`, the one placing rule;
+# intake's `_MUNICIPALITY` and the population account read it). A prefix is matched on the code as filed, after the
+# state's own sole-municipality rule (the Federal District's administrative regions, 53xxxx, are Brasília).
+legacy_places:
+  - prefix: '3345'
+    municipality: 330455
+    evidence: >-
+      SIM and SINASC of 1991-1998 write the city of Rio de Janeiro as 3345xxx, its administrative regions (about 50,000
+      deaths a year, and 330455 itself only 700-1,500), and from 1999 as 330455 (49,979 deaths); no IBGE municipality
+      code begins 3345 (population_account, measured 2026-10).

@@ -268,14 +268,14 @@ def vital_table(dataset: str, year: int, strata: dict[str, Any], columns: dict[s
     return pa.table(out | {"events": events})
 
 
-#: SIM and SINASC of 1991-1998 write the city of Rio de Janeiro as 3345xxx (its administrative regions; about 50,000 deaths a
-#: year, and 330455 itself only 700-1,500), and from 1999 as 330455 (49,979 deaths).
-LEGACY_CODES = {"3345": 330455}
-
-
 def _place(codes: list[str | None], keys: np.ndarray, targets: np.ndarray) -> np.ndarray:
-    """Index of each residence code's first six digits among the sorted municipality ``keys`` (-1: not a current municipality)."""
-    c6 = np.array([LEGACY_CODES.get(c[:4], int(c[:6])) if c and c[:6].isdigit() else -1 for c in codes])
+    """Index of each residence code's municipality among the sorted municipality ``keys`` (-1: none), placed by the one
+    rule (`geography.place_municipalities`: Rio de Janeiro's 3345xxx of 1991-1998 and Brasília's region codes too)."""
+    from .geography import place_municipalities
+
+    distinct = sorted({c for c in codes if c is not None})
+    placed = dict(zip(distinct, place_municipalities(distinct), strict=True))
+    c6 = np.array([(placed.get(c) or -10) // 10 if c is not None else -1 for c in codes])
     pos = np.clip(np.searchsorted(keys, c6), 0, len(keys) - 1)
     return np.where(keys[pos] == c6, targets[pos], -1)
 
