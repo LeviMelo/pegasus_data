@@ -145,6 +145,7 @@ columns:
   PA_CMP:
     role: procedure.competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Data da Realizacao do Procedimento / Competencia\" (procedure.competence): approved, presented or billed quantity or value, unit price, competence or exit date of the outpatient record: billing"

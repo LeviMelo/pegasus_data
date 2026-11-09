@@ -56,7 +56,6 @@ _ENCODINGS: dict[str, tuple[str, ...]] = {
     "count": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
     "sum": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
     "mean": ("choropleth", "line", "ranked_bar", "scatter"),
-    "ratio": ("choropleth", "line", "ranked_bar", "scatter"),
     "min": ("choropleth", "line", "ranked_bar"),
     "max": ("choropleth", "line", "ranked_bar"),
 }
@@ -67,7 +66,6 @@ _FORBIDDEN: dict[str, tuple[str, ...]] = {
     "count": (),
     "sum": (),
     "mean": ("sum", "stack"),
-    "ratio": ("sum", "stack"),
     "min": ("sum", "stack"),
     "max": ("sum", "stack"),
 }
@@ -138,7 +136,7 @@ class Binding:
     #: Only a residence-like geography carries a compatible population
     #: denominator. Geography bindings only.
     denominator_compatible: bool | None = None
-    #: `date` | `year_month` | `year` | `yyyymm`. Time bindings only. A record
+    #: `date` | `year_month` | `year`. Time bindings only. A record
     #: date does not align with the publication coordinate, which is what makes
     #: `partial_periods` non-empty.
     encoding: str | None = None
@@ -587,7 +585,7 @@ def _capabilities_uncached(
         # fetched year is whole. A record date is not, and the artifact says
         # which periods it therefore cannot have filled -- measured during the
         # build, never assumed from a file name.
-        "kind": "competence" if encoding in ("year_month", "year", "yyyymm") else "record_date",
+        "kind": "competence" if encoding in ("year_month", "year") else "record_date",
         "partial_periods": partial,
         "support": support,
         "warnings": list(manifest.get("warnings") or ()),

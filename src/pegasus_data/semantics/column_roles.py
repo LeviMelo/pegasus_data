@@ -116,7 +116,7 @@ KEYS = frozenset({"role", "kind", "model", "years", "name", "missing", "missing_
                   "also", "derived", "measure", "unfilled", "review", "instruments", "instruments_evidence",
                   "fact_domain", "fact_domain_evidence", "width", "width_evidence", "unit", "unit_of", "unit_evidence",
                   "unit_unknown", "unit_from", "competence", "place_of", "fatal", "fatal_other", "through",
-                  "place_label", "compare", "century"})
+                  "place_label", "compare", "century", "precision"})
 #: What a column is a fact about (`fact_domain`; ``domain`` is taken: a measurement's numeric range). A study
 #: reads person, clinical and process columns as the groups a population or its care can differ by; an administrative
 #: one (billing, financing, management, record type) says nothing about people or disease.
@@ -213,6 +213,10 @@ class ColumnRole:
     #: For a date written with a two-digit year (AAMMDD: SIM's ICD-9-era DATAOBITO, 950914): the century its years are of
     #: ('19'), the layout's fact a reader cannot measure (a six-digit date reads as MMAAAA as readily).
     century: str | None = None
+    #: For a date that is not a day: ``month`` (a month in one column, AAAAMM: a competence) or ``year``. A day date's
+    #: layout is measured (`normalize.time.date_layout`); what the column dates is not, and a reader treats a month apart
+    #: (its year does not spill over a billing tail).
+    precision: str | None = None
 
     @property
     def entity(self) -> str:
@@ -331,6 +335,9 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     century = spec.get("century")
     if century is not None and (kind != "date" or not (isinstance(century, str) and century.isdigit() and len(century) == 2)):
         raise bad("`century` ('19', '20') is declared on a date written with a two-digit year")
+    precision = spec.get("precision")
+    if precision is not None and (kind != "date" or precision not in ("month", "year")):
+        raise bad("`precision` (month, year) is declared on a date that is not a day")
     place_label = spec.get("place_label")
     if place_label is not None and not (kind == "place" and model == "stratum"):
         raise bad("`place_label` names the place a stratum stands for; it is declared on a place stratum only")
@@ -449,7 +456,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
                       int(unit_from) if unit_from is not None else None, competence,
                       str(place_of) if place_of is not None else None, fatal, fatal_other, through,
                       place_label=" ".join(str(place_label).split()) if place_label else None,
-                      century=century)
+                      century=century, precision=precision)
 
 
 def _competence_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:

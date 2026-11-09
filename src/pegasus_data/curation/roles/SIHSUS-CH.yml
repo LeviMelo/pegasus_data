@@ -17,6 +17,7 @@ columns:
   CMPT:
     role: facility.snapshot_competence
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Reference period of the hospital-registry snapshot\" (facility.snapshot_competence): facility register (CNES): establishment, bed, equipment, team, habilitation or professional"

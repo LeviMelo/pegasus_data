@@ -51,7 +51,6 @@ __all__ = [
     "MEAN",
     "MIN",
     "Measure",
-    "RATIO",
     "SUM",
     "State",
     "check_measure",
@@ -256,31 +255,6 @@ class _LogMoments(Kind):
 
 
 @dataclass(frozen=True, slots=True)
-class _Ratio(Kind):
-    """Numerator and denominator kept apart, so rates recombine correctly.
-
-    The rate of two municipalities together is the summed numerator over the
-    summed denominator — never the mean of the two rates.
-    """
-
-    def identity(self) -> State:
-        return (0.0, 0.0)
-
-    def lift(self, value: Any) -> State:
-        number = _number(value)
-        return (0.0, 0.0) if number is None else (number, 1.0)
-
-    def merge(self, left: State, right: State) -> State:
-        return (left[0] + right[0], left[1] + right[1])
-
-    def finalize(self, state: State) -> float | None:
-        return None if state[1] == 0 else state[0] / state[1]
-
-    def formula(self, measure: str) -> str:
-        return f"{measure}_num / {measure}_den"
-
-
-@dataclass(frozen=True, slots=True)
 class _Extreme(Kind):
     """`min` or `max`, discriminated by `name`."""
 
@@ -303,11 +277,10 @@ SUM = _Sum(name="sum", state_fields=("sum",))
 MEAN = _Mean(name="mean", state_fields=("n", "sum"))
 MOMENTS = _Moments(name="moments", state_fields=("n", "sum", "sumsq"))
 LOGMOMENTS = _LogMoments(name="logmoments", state_fields=("n", "sumlog", "sumsqlog"))
-RATIO = _Ratio(name="ratio", state_fields=("num", "den"))
 MIN = _Extreme(name="min", state_fields=("min",))
 MAX = _Extreme(name="max", state_fields=("max",))
 
-_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, MOMENTS, LOGMOMENTS, RATIO, MIN, MAX)}
+_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, MOMENTS, LOGMOMENTS, MIN, MAX)}
 
 #: Asked for often and impossible to merge exactly. There is no bounded state
 #: and associative operation that yields an exact median of a union from

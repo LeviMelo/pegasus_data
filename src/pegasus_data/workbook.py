@@ -217,7 +217,6 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
             "count": "contagem",
             "sum": "soma",
             "mean": "média",
-            "ratio": "razão",
         }.get(m["kind"], m["kind"])
         extra = ""
         if m["kind"] == "mean":

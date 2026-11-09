@@ -946,6 +946,7 @@ columns:
   DT_ID_COMP:
     role: exam.competence_year_month
     kind: date
+    precision: month
     model: when
     fact_domain: administrative
     fact_domain_evidence: "\"Mês/Ano de Competência\" (exam.competence_year_month): billing competence or reference period of the exam record"

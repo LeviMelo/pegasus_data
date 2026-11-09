@@ -654,7 +654,7 @@ def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, 
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from .cubes import cube
+    from .cubes import cube, manifest
 
     derived: dict[str, dict[str, Any]] = {}
     if spec.age is not None:
@@ -687,13 +687,16 @@ def cells_from_cubes(spec: AggregateSpec, years: Sequence[int], uf: str | None, 
         elif kind == "logmoments" and len(fields) == 1:
             parts = {f"{measure.name}_n": f"countpos:{fields[0]}", f"{measure.name}_sumlog": f"sumlog:{fields[0]}",
                      f"{measure.name}_sumsqlog": f"sumsqlog:{fields[0]}"}
+        elif kind in ("min", "max") and len(fields) == 1:
+            parts = {f"{measure.name}_{kind}": f"{kind}:{fields[0]}"}
         else:
             raise AggregationRefused(f"{spec.name}: a {kind} measure over {fields} is not built from cubes yet")
         for state, measured in parts.items():
             table = cube(source, measure=measured, **common) if measured else cube(source, **common)
-            if not read:
-                # what the records were: the first cube's manifest (every cube reads the same records)
-                read = json.loads((table.schema.metadata or {}).get(b"pegasus.cube", b"{}"))
+            if not read and kind not in ("min", "max"):
+                # what the records were: the first additive cube's manifest (every cube reads the same records; an
+                # extreme's has no unplaced count)
+                read = manifest(table)
             part = table.select([*keys, "value"]).rename_columns([*keys, state])
             merged = part if merged is None else merged.join(part, keys=keys, join_type="full outer")
     assert merged is not None
@@ -1247,7 +1250,7 @@ def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequenc
 #: How each monoid's merge is spelled as a column aggregate. The mapping is
 #: total because every kind here is a commutative monoid over numbers, which is
 #: exactly why the serve path needs no per-row arithmetic.
-_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "moments": "sum", "logmoments": "sum", "ratio": "sum",
+_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "moments": "sum", "logmoments": "sum",
                 "min": "min", "max": "max"}
 
 
@@ -1274,10 +1277,6 @@ def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
         n, total = state[0], state[1]
         return pc.if_else(pc.equal(n, 0.0), None, pc.divide(total, pc.if_else(
             pc.equal(n, 0.0), 1.0, n)))
-    if kind == "ratio":
-        num, den = state
-        return pc.if_else(pc.equal(den, 0.0), None, pc.divide(num, pc.if_else(
-            pc.equal(den, 0.0), 1.0, den)))
     raise AggregationRefused(f"no columnar finalize for kind {kind!r}")
 
 

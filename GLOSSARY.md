@@ -304,8 +304,8 @@ establishment-month. *Prevents:* `COUNT(*)` meaning establishments where it
 counts establishment-months.
 
 **Measure.** A declared quantity in an aggregate recipe (`admissions`,
-`deaths`, `los`, `beds`), with its kind (`count`, `sum`, `mean`, `ratio`,
-`min`, `max`), source columns and per-axis additivity. *Prevents:* a measure
+`deaths`, `los`, `beds`), with its kind (`count`, `sum`, `mean`, `moments`,
+`logmoments`, `min`, `max`; a rate is two sums), source columns and per-axis additivity. *Prevents:* a measure
 merged along an axis where it does not add up.
 
 **Accumulator state (monoid).** What an aggregate stores instead of a finished

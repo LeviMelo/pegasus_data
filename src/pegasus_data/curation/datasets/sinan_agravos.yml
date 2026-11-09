@@ -59,19 +59,17 @@ shared:
     geography:
       residence:
         roles: [patient.residence]
-        code_system: ibge_municipality
       notification:
         roles: [notification.municipality]
-        code_system: ibge_municipality
     # Notification is the default because it is the one date SINAN guarantees:
     # a notification exists by definition, and DT_SIN_PRI is filled from the
     # patient's account of when symptoms began, so it is later-arriving and
     # more often absent.
     default_time: notification
     time:
-      notification: {roles: [notification.date], encoding: date}
-      onset: {roles: [case.onset], encoding: date}
-      diagnosis: {roles: [case.diagnosis_date], encoding: date}
+      notification: {roles: [notification.date]}
+      onset: {roles: [case.onset]}
+      diagnosis: {roles: [case.diagnosis_date]}
 
 datasets:
   SINAN_ACBI:
@@ -881,11 +879,11 @@ datasets:
     semantic_axes:
       default_geography: notification
       geography:
-        notification: {roles: [epizootic.municipality], code_system: ibge_municipality}
+        notification: {roles: [epizootic.municipality]}
       default_time: onset
       time:
-        onset: {roles: [epizootic.start], encoding: date}
-        notification: {roles: [notification.date], encoding: date}
+        onset: {roles: [epizootic.start]}
+        notification: {roles: [notification.date]}
     system: SINAN
     series: ESPO
     asserted_by: pegasus_data
@@ -1004,10 +1002,10 @@ datasets:
     semantic_axes:
       default_geography: notification
       geography:
-        notification: {roles: [notification.municipality], code_system: ibge_municipality}
+        notification: {roles: [notification.municipality]}
       default_time: notification
       time:
-        notification: {roles: [notification.date], encoding: date}
+        notification: {roles: [notification.date]}
     event_types: []
     system: SINAN
     series: NTRA
@@ -1104,14 +1102,12 @@ datasets:
       geography:
         occurrence:
           roles: [outbreak.municipality]
-          code_system: ibge_municipality
         notification:
           roles: [notification.municipality]
-          code_system: ibge_municipality
       default_time: onset
       time:
-        notification: {roles: [notification.date], encoding: date}
-        onset: {roles: [case.onset], encoding: date}
+        notification: {roles: [notification.date]}
+        onset: {roles: [case.onset]}
     asserted_by: pegasus_data
     source: manual
     source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SDTA
@@ -1183,11 +1179,11 @@ datasets:
     semantic_axes:
       default_geography: residence
       geography:
-        residence: {roles: [patient.residence], code_system: ibge_municipality}
-        notification: {roles: [notification.municipality], code_system: ibge_municipality}
+        residence: {roles: [patient.residence]}
+        notification: {roles: [notification.municipality]}
       default_time: notification
       time:
-        notification: {roles: [notification.date], encoding: date}
+        notification: {roles: [notification.date]}
   SINAN_VARC:
     label: Varicela    # the agravo's name where DATASUS gives none
     system: SINAN
