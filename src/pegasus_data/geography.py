@@ -695,6 +695,28 @@ def place_municipalities(codes: Any, pack_path: str | Path | None = None) -> lis
     return out
 
 
+def place_states(codes: Any, pack_path: str | Path | None = None) -> list[int | None]:
+    """Each raw municipality code's state (IBGE two-digit code, int), or None: the state of the municipality it places
+    (`place_municipalities`), else the state a declared state-only code names (``geography.yml`` ``state_only_codes``:
+    a state's two digits followed by zeros, DATASUS's "Município ignorado - <UF>"). Any other code is in no state."""
+    from .config import UF_NUMERIC
+    from .semantics.curation import read_yaml
+
+    rule = (read_yaml(_curation_root(None) / "geography.yml", missing_ok=True) or {}).get("state_only_codes") or {}
+    fill = str(rule.get("suffix_digit") or "")
+    codes = list(codes)
+    out: list[int | None] = []
+    for raw, placed in zip(codes, place_municipalities(codes, pack_path), strict=True):
+        if placed is not None:
+            out.append(placed // 100000)
+            continue
+        text = "" if raw is None else str(raw).strip().removesuffix(".0")
+        state_only = (fill and text.isdigit() and len(text) in (6, 7) and text[:2] in UF_NUMERIC
+                      and set(text[2:]) == {fill})
+        out.append(int(text[:2]) if state_only else None)
+    return out
+
+
 def place_six(codes: Any, pack_path: str | Path | None = None) -> list[str | None]:
     """Each raw municipality code as the 6-digit DATASUS code of the municipality it places (`place_municipalities`), or
     None where it places none. The one way to a 6-digit key from a record's code: never a cut of its first six digits."""

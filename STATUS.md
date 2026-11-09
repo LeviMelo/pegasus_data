@@ -97,7 +97,8 @@ before it is fixed and marked done there with its evidence.
   `products.yml`, recorded in each manifest); T14 not closed: the cube drops the events no municipality places (0.16-0.75% of
   deaths), which the completeness needs.
 - **Done since:** T5 and T24 (every folder of the home through `Settings`: `registry_dir`, `modelled_dir`, `load_settings(root=)`).
-- **Open:** T14 (the cube drops unplaced events), H1 (the rest of the
+- **Open:** T14 (the cube now counts state-only events at state and country, equal to the event files; the study
+  modules still read their own files), H1 (the rest of the
   unreferenced functions), H3 (import cycles), H5 (oversized functions).
 
 **R1. The modelled products could not be rebuilt from the repository (found 2026-11-09): closed for four of six.**

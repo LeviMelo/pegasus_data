@@ -289,7 +289,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
     weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
     declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
-    no date, is counted in the manifest (``unplaced_events``), never dropped silently. A (place, period) with no event has
+    no date, is counted in the manifest (``unplaced_events``), never dropped silently. An event whose code names its state
+    and no municipality (DATASUS's "Município ignorado - <UF>": `geography.place_states`) is in no municipality's cell
+    and counts in its state's and the country's. A (place, period) with no event has
     no row: not observed, never zero."""
     import pyarrow.compute as pc
 
@@ -406,7 +408,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         return table
 
     # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
-    cell = list(dict.fromkeys([place_column, *time_fields, *by]))
+    cell = list(dict.fromkeys([place_column, "__uf", *time_fields, *by]))
 
     def banded(table: pa.Table) -> pa.Table:
         """The derived strata of ``table``'s input columns (`_age.band_column`, `NumericBandDimension.column`)."""
@@ -428,9 +430,15 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             by_abbreviation = {abbr: int(code) for abbr, code in uf_codes_by_sigla().items()}
             mapped = pa.array([by_abbreviation.get(str(v).strip().removeprefix(state_prefix)) if v else None
                                for v in codes.dictionary.to_pylist()], pa.int64())
+            state = mapped
         else:
+            from .geography import place_states
+
             mapped = pa.array(place_municipalities(codes.dictionary.to_pylist()), pa.int64())
-        return table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
+            # the state of each code: its municipality's, or the one a state-only code names
+            state = pa.array(place_states(codes.dictionary.to_pylist()), pa.int64())
+        table = table.set_column(table.schema.get_field_index(place_column), place_column, pc.take(mapped, codes.indices))
+        return table.append_column("__uf", pc.take(state, codes.indices))
 
     def count(span: Any) -> pa.Table:
         if event != "rows":
@@ -496,6 +504,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         year = pc.if_else(pc.and_(missing, known), filed_year, year)
         period = pc.if_else(pc.and_(missing, known), filed_year, period)
     places = pc.cast(counts.column(place_column), pa.int64())          # placed before grouping (`placed`)
+    if place in ("uf", "country"):
+        # at a state or the country an event is placed by its state, which a state-only code names too
+        places = pc.cast(counts.column("__uf"), pa.int64())
     events = pc.cast(counts.column("events"), pa.float64())
     # a span's years (or months) not asked for are left out
     wanted = (pc.is_in(pc.binary_join_element_wise(year, pc.utf8_slice_codeunits(competencia, 4, 6), "-"), pa.array(months))
@@ -504,9 +515,7 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     unplaced = float(pc.sum(pc.filter(events, pc.invert(keep))).as_py() or 0)
     facts = pa.table({"place": pc.filter(places, keep), "period": pc.filter(period, keep),
                       **{k: pc.filter(counts.column(k), keep) for k in by}, "value": pc.filter(events, keep)})
-    if place == "uf" and not states:
-        facts = facts.set_column(0, "place", pc.cast(pc.divide(facts.column("place"), 100000), pa.int64()))
-    elif place == "country":
+    if place == "country":
         facts = facts.set_column(0, "place", pc.multiply(facts.column("place"), 0))
     keys = ["place", "period", *by]
     facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])

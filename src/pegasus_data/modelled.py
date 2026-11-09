@@ -77,7 +77,7 @@ def product_parameters(product: str) -> dict[str, Any]:
 
 
 def _root(settings: Any) -> Path:
-    return Path(settings.lake_dir) / "modelled"
+    return Path(settings.modelled_dir)
 
 
 def write_modelled(table: pa.Table | Iterable[pa.Table], manifest: ModelledManifest, *, settings: Any) -> Path:

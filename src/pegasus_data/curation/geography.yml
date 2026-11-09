@@ -347,3 +347,13 @@ legacy_places:
       SIM and SINASC of 1991-1998 write the city of Rio de Janeiro as 3345xxx, its administrative regions (about 50,000
       deaths a year, and 330455 itself only 700-1,500), and from 1999 as 330455 (49,979 deaths); no IBGE municipality
       code begins 3345 (population_account, measured 2026-10).
+
+# A code that names a state and no municipality: the state's two digits followed by zeros to the code's width (6 or 7
+# digits), "Município ignorado - <UF>" in DATASUS's municipality table (MUNICBR of the SIHSUS kit: 330000 "Município
+# ignorado - RJ", one per state). Such an event is in its state and the country and in no municipality
+# (`geography.place_states`; the records cube counts it at place uf and country). Measured 2026-11-09: every SIM-DO death
+# that places no municipality carries one (2022: 2,525, RJ 734 and SP 509 the most; 2000: 6,625 as 7-digit 3500000 etc.;
+# SINASC-DN 2000: 1,824 births).
+state_only_codes:
+  suffix_digit: '0'
+  evidence: MUNICBR (SIHSUS kit) labels each <UF>0000 'Município ignorado - <UF>'
