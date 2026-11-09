@@ -528,6 +528,12 @@ products:
     period: "2021-2023"
     call: 'pegasus_data.modelled.read_modelled("population_without_private_coverage")'
     stores: [lake/modelled/population_without_private_coverage]
+    # what it subtracts (`sus_dependent.build_sus_dependent`): the population account's version with a 10-90% interval per
+    # five-year band (ADR-0145; version 3 and later are single-age, ADR-0151), and the field of plan links, whose declared
+    # `where` is the plan coverage that insures hospital care and whose declared years are the years it can be built for
+    inputs:
+      population_account: {version: population-account-2}
+      links: {field: ans_beneficiaries}
 
   race_confusion_infant:
     label: "Race recording confusion, infant deaths"
@@ -558,9 +564,10 @@ products:
     kind: modelled
     source: "Rule applied to SIH-RD by hospital and month (quality.py)"
     what: >
-      Adds `<race>_reliability` to an SIH table, judged per hospital-month: unreliable when code 04 is over half of admissions or
-      brown is under 1% while 04 is over 10%, suspect when 04 is 10-50%, too_few under the minimum, unplaced when no hospital or
-      month. Rows are kept, flagged.
+      Adds `<race>_reliability` to an SIH table, judged per hospital-month: unreliable when the "amarela" code is over half of admissions
+      or "parda" is under 1% while "amarela" is over 10%, suspect when "amarela" is 10-50%, too_few under the minimum, unplaced
+      when no hospital or month. The codes are those the year's codelist labels so, the thresholds are declared
+      (`curation/quality.yml`). Rows are kept, flagged.
     grain: "hospital × month"
     period: "as the SIH table's"
     call: "race_reliability(table)"
@@ -577,6 +584,15 @@ products:
     period: "2000-2023"
     call: 'pegasus_data.modelled.read_modelled("system_completeness")'
     stores: [lake/modelled/system_completeness, resources/published_coverage_idb2012.csv]
+    # the model past 2011, per system (`completeness.systems`). anchor_sd: standard deviation (probability scale) of the
+    # published ratio itself. extension: `drift` (the logit follows the mean published step) or `persist` (it stays).
+    systems:
+      SIM:
+        anchor_sd: 0.02      # the 94.2% of IDB 2012 against the 96.1% the Ministry's own 2011 consolidation gave for the same year
+        extension: drift     # the published ratios rose in every uncensored state
+      SINASC:
+        anchor_sd: 0.03      # the spread across states of the census-based completeness about the published one (0.025-0.036 by period, population account)
+        extension: persist   # its drift was not better
 
   registration_completeness:
     label: "Birth registration against the census"

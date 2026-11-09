@@ -196,25 +196,16 @@ def vital_inputs() -> dict[str, dict[str, Any]]:
 
 
 def sex_of(dataset: str, column: str, year: int, codes: list[str | None], root: str | Path | None = None) -> list[str | None]:
-    """Each sex code as M, F or None, read from its label in ``dataset``'s ``year`` (the one rule linkage's ``sex``
-    type applies): every system codes sex its own way (SIH 1/3, SIM and SINASC 1/2, SINASC 2014 M/F), so a code is
+    """Each sex code as M, F or None, read from its label in ``dataset``'s ``year`` (`semantics.categories.canonical_sex`,
+    which linkage's ``sex`` type applies too): every system codes sex its own way (SIH 1/3, SIM and SINASC 1/2, SINASC 2014 M/F), so a code is
     never read as a sex by itself. A code whose label is neither (ignorado) is None."""
-    from ._request import parse_dataset
-    from .catalog.store import CatalogStore
-    from .config import load_settings
-    from .view import codelist_levels
+    import pyarrow as pa
 
-    settings = load_settings(root=Path(root) if root else None)
-    system, series = parse_dataset(dataset)
+    from .semantics.categories import canonical_sex, code_labels
+
     present = sorted({str(c).strip() for c in codes if c is not None and str(c).strip()})
-    store = CatalogStore(settings.catalog_path, read_only=True)
-    try:
-        labels = codelist_levels(column, store=store, lake_root=settings.lake_dir, system=system,
-                                 family_id=f"{system}.{series}", year=year, codes=present)
-    finally:
-        store.close()
-    sex = {c: ("M" if str(labels.get(c, "")).strip().lower().startswith("m") else
-               "F" if str(labels.get(c, "")).strip().lower().startswith("f") else None) for c in present}
+    labels = code_labels(dataset, column, year, present, root)
+    sex = dict(zip(present, canonical_sex(pa.array([labels.get(c) for c in present], pa.string())).to_pylist(), strict=True))
     return [sex.get(str(c).strip()) if c is not None else None for c in codes]
 
 

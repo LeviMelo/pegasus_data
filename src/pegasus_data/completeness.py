@@ -20,6 +20,7 @@ SINASC births are compared with the census instead (``registration_completeness`
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 import numpy as np
@@ -129,12 +130,16 @@ def growth_balance(n1: np.ndarray, n2: np.ndarray, deaths: np.ndarray, years: fl
 BREAK = 2010
 #: A series the Ministry did not measure (it set the ratio to 100% in every year to 2009) says nothing about change.
 ASSUMED = 0.995
-#: Standard deviation (probability scale) of the published ratio itself: SIM, the 94.2% of IDB 2012 against the 96.1%
-#: the Ministry's own 2011 consolidation gave for the same year; SINASC, the spread across states of the census-based
-#: completeness about the published one (0.025-0.036 by period, population account).
-ANCHOR_SD = {"SIM": 0.02, "SINASC": 0.03}
-#: SIM follows a drift (the published ratios rose in every uncensored state); SINASC persists (its drift was not better).
-MODEL = {"SIM": "drift", "SINASC": "persist"}
+
+
+def systems() -> dict[str, dict]:
+    """Each system the product extends past 2011 and its declared model (``curation/products.yml``, ``system_completeness``:
+    ``systems``): ``anchor_sd``, the standard deviation (probability scale) of the published ratio itself, and ``extension``,
+    ``drift`` or ``persist``, each with the evidence it rests on."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    return read_yaml(curation_root() / "products.yml", shared=True)["products"]["system_completeness"]["systems"]
 
 
 def _logit(p):
@@ -168,7 +173,7 @@ def rolling_origin(system: str, scales=(0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5)) ->
     Returns errors on the probability scale, and the smallest scale ``k`` of the interval
     ``logit ± 1.2816·k·sd·sqrt(h)`` whose pooled coverage reaches 80%."""
     S = series(system)
-    model = MODEL[system]
+    model = systems()[system]["extension"]
     rows = []
     for t0 in (2005, 2006, 2007, 2008):
         k0 = t0 - 2000
@@ -187,21 +192,32 @@ def rolling_origin(system: str, scales=(0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5)) ->
     return {"k": k, "coverage_by_scale": cover, "mae_probability_by_horizon": mae, "n": len(e)}
 
 
-def ill_defined_shares(cells_path: str | Path) -> dict[tuple[int, int], float]:
-    """Share of deaths whose underlying cause is a symptom or sign (ICD-10 R00-R99 without R95, sudden infant death),
-    by UF and year, from the stored municipality × year × cause aggregate of SIM. A quality covariate, not a completeness."""
+def ill_defined_shares(cells_path: str | Path) -> tuple[str, dict[tuple[int, int], float]]:
+    """``(dataset, shares)``: the share of deaths whose underlying cause is ill-defined, by UF and year, from the stored
+    municipality × year × cause aggregate (its manifest names the dataset). Which causes are ill-defined is declared
+    (``curation/quality.yml``, ``ill_defined_causes``: an ICD-10 chapter without the exceptions) on the dataset's cause
+    role, whatever its column is called. A quality covariate, not a completeness."""
+    import json
+
     import pyarrow as pa
     import pyarrow.compute as pc
     import pyarrow.parquet as pq
 
-    t = pq.read_table(cells_path, columns=["municipality", "competencia", "CAUSABAS", "deaths_n"])
-    c3 = pc.utf8_slice_codeunits(pc.utf8_upper(t["CAUSABAS"]), 0, 3)
-    ill = pc.and_(pc.starts_with(c3, "R"), pc.not_equal(c3, "R95"))
+    from .config import curation_root
+    from .semantics.column_roles import column_of
+    from .semantics.curation import read_yaml
+
+    dataset = str(json.loads((Path(cells_path).parent / "manifest.json").read_text(encoding="utf-8"))["spec"]["dataset"])
+    rule = read_yaml(curation_root() / "quality.yml", shared=True)["ill_defined_causes"][dataset]
+    cause = column_of(dataset, str(rule["cause"]))
+    t = pq.read_table(cells_path, columns=["municipality", "competencia", cause, "deaths_n"])
+    c3 = pc.utf8_slice_codeunits(pc.utf8_upper(t[cause]), 0, 3)
+    ill = pc.and_(pc.starts_with(c3, str(rule["chapter"])), pc.invert(pc.is_in(c3, pa.array([str(c) for c in rule["except"]]))))
     g = pa.table({"uf": pc.cast(pc.utf8_slice_codeunits(t["municipality"], 0, 2), pa.int32()),
                   "year": pc.cast(pc.utf8_slice_codeunits(t["competencia"], 0, 4), pa.int32()),
                   "n": t["deaths_n"], "ill": pc.if_else(ill, t["deaths_n"], 0.0)})
     g = g.group_by(["uf", "year"]).aggregate([("n", "sum"), ("ill", "sum")]).to_pydict()
-    return {(u, y): i / n for u, y, n, i in zip(g["uf"], g["year"], g["n_sum"], g["ill_sum"], strict=True) if n > 0}
+    return dataset, {(u, y): i / n for u, y, n, i in zip(g["uf"], g["year"], g["n_sum"], g["ill_sum"], strict=True) if n > 0}
 
 
 def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version: str, validation: str,
@@ -215,49 +231,51 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
     from .modelled import ModelledManifest, write_modelled
 
     pub = published()
-    ill = ill_defined_shares(ill_cells_path)
+    ill_dataset, ill = ill_defined_shares(ill_cells_path)
+    ill_system = ill_dataset.split("-")[0]                    # the system the share is a covariate of (SIM-DO: SIM)
 
     from .modelled import read_modelled
 
     # the latest version as `read_modelled` orders them (by number: a text sort put -10 before -6)
     table, acct_manifest = read_modelled("registration_completeness", settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
     acct = table.to_pylist()
-    independent = {(r["uf"], y): r["completeness"] for r in acct if r["system"] == "SINASC"
-                   for y in range(int(r["period"][:4]), int(r["period"][5:]) + 1)}        # the years the cohort was born in
+    independent = {(r["system"], r["uf"], y): r["completeness"] for r in acct
+                   for y in range(*(int(v) + i for i, v in enumerate(re.fullmatch(r"(\d{4})-(\d{4})", r["period"]).groups())))}
+    #  ^ the years the cohort was born in: the period "2000-2004" is 2000 to 2004 inclusive
     rows, calibration = [], {}
-    for system in ("SIM", "SINASC"):
+    for system in systems():
         S = series(system)
         st = steps(S)
-        delta = float(st.mean()) if MODEL[system] == "drift" else 0.0
+        delta = float(st.mean()) if systems()[system]["extension"] == "drift" else 0.0
         sd = float(st.std())
         ro = rolling_origin(system)
         k = ro["k"]
         calibration[system] = {"drift_logit_per_year": delta, "step_sd_logit": sd, "interval_scale_k": k,
-                               "rolling_origin": ro, "model": MODEL[system]}
+                               "rolling_origin": ro, "model": systems()[system]["extension"]}
         for u in UFS:
             measured = u in S
             anchor = pub[(system, u, 2011)]
             for y in range(2000, last_year + 1):
                 if y <= 2011:
-                    p, sdp, h = pub[(system, u, y)], ANCHOR_SD[system], 0
+                    p, sdp, h = pub[(system, u, y)], systems()[system]["anchor_sd"], 0
                     basis = "published" if (measured or y >= BREAK) else "published_assumed_complete"
                     published_ratio = p
                 else:
                     h = y - 2011
                     p = float(_expit(_logit(anchor) + h * delta))
-                    sdp = float(np.hypot(ANCHOR_SD[system], p * (1 - p) * k * sd * np.sqrt(h)))
+                    sdp = float(np.hypot(systems()[system]["anchor_sd"], p * (1 - p) * k * sd * np.sqrt(h)))
                     basis, published_ratio = "extended", None
                 p = min(p, 1.0)
                 hi = min(p + 1.2816 * sdp, 1.0)
-                if system == "SINASC" and independent.get((u, y)) is not None:
-                    hi = min(max(hi, independent[(u, y)]), 1.0)        # the census-based estimate where it is higher
+                if independent.get((system, u, y)) is not None:
+                    hi = min(max(hi, independent[(system, u, y)]), 1.0)        # the census-based estimate where it is higher
                 rows.append({"system": system, "uf": u, "year": y, "completeness": p,
                              "completeness_lo": max(p - 1.2816 * sdp, 0.0), "completeness_hi": hi,
                              "basis": basis, "horizon": h, "published_ratio": published_ratio,
-                             "ill_defined_share": ill.get((u, y)) if system == "SIM" else None,
-                             "census_based_estimate": independent.get((u, y)) if system == "SINASC" else None})
-    gap = {name: [r["census_based_estimate"] - r["completeness"] for r in rows if r["system"] == "SINASC"
-                  and r["census_based_estimate"] is not None and sel(r["year"])]
+                             "ill_defined_share": ill.get((u, y)) if system == ill_system else None,
+                             "census_based_estimate": independent.get((system, u, y))})
+    gap = {name: [r["census_based_estimate"] - r["completeness"] for r in rows
+                  if r["census_based_estimate"] is not None and sel(r["year"])]
            for name, sel in (("2000-2011", lambda y: y <= 2011), ("2012-2021", lambda y: y > 2011))}
     gap_note = "; ".join(f"{k}: {np.mean(v) * 100:+.1f} points (SD {np.std(v) * 100:.1f}, n={len(v)})" for k, v in gap.items() if v)
     table = pa.Table.from_pylist(rows)
