@@ -1,5 +1,7 @@
 dataset: SIM-DO
 record: death
+persons:
+  deceased: {at_most_one: true}   # one death certificate per person
 columns:
   ACIDTRAB:
     missing: ['0', '3', '4', '5', '6', '7', '8', '9']

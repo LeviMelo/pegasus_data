@@ -1,5 +1,10 @@
 dataset: SINASC-DN
 record: birth
+persons:
+  baby: {at_most_one: true}    # one birth record per person born (linkage/entities.py merges persons under it)
+  mother: {}
+exclusive_persons:
+  - [baby, mother]               # a birth record's baby is not its mother
 columns:
   APGAR1:
     missing: ['99']

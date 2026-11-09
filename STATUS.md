@@ -31,11 +31,11 @@ roll-ups only along the source's additivity, named by where it comes from.
 
 | stage | state |
 |---|---|
-| 1. core and SIDRA | **done.** Any SIDRA table is a cube without a declaration. The 26 SIDRA and series fields are views of their cubes (26/26 equal) and their copies are removed. Stitched series are cached by their facts' fingerprint |
-| 2. records on roles | **adapter done.** `records:<dataset>/<event>` counts events by the dataset's bindings. It reproduces the intake fields: yellow fever equal; SRAG 29 lower, the notifications filed twice. **Left:** the intake fields served as views (with their `where`, `by`, `outcome` and `sum`); bindings derived from roles where a dataset declares none (SISAGUA, PNI-DOSES); the aggregate recipes as materialised cubes |
-| 3. CNES through the one reader | not started: 43 fields from a private mirror pipeline (`sources/cnes.py`) |
-| 4. gridded, population, modelled | not started |
-| 5. one door | not started: `load_field` as a resolver; `aggregate`, `capabilities` and `serve` on cubes; the old builders removed |
+| 1. core and SIDRA | **done.** Any SIDRA table is a cube without a declaration. The 26 SIDRA and series fields are views of their cubes (26/26 equal) and their copies are removed |
+| 2. records on roles | **done in code.** `records:<dataset>/<event or rows>` serves events, rows, sums of one or several columns, and distinct counts. It takes `where` as codes, prefixes, exclusions, bounds or two-column codes; months as periods; a support mask; one geography's publications. Bindings are curated or read from the roles. Cubes are cached by their data's fingerprint. Every intake count, sum and outcome share is a view: SISAGUA's 33 equal, yellow fever equal, SRAG lower by its 29 duplicate notifications. **Left:** the full rerun on 21b0831 before the stored copies go; INEP's unpivot, S2iD's register, and the supply, tanker and SNGPC sums whose roles have no code-placed place |
+| 3. CNES through the one reader | **done in code.** The mirror's 1,728 DBCs are adopted (5/5 sampled byte-identical to the FTP). All 43 CNES fields are cubes over December's register: the 25 supply fields equal for all 16 years (the neonatal ICU field adds 2008-2009, which its copy lacked), and the 18 professionals' fields equal for Acre 2015. **Left:** the national PF verification (running), then removing `sources/cnes.py`'s mirror pipeline |
+| 4. gridded, population, modelled | population cubes done (`population:<series>`); BR-DWGD, INMET, CPTEC and the modelled products not started |
+| 5. one door | not started: `aggregate`, `capabilities` and `serve` on cubes; recipes as materialisation requests; the old builders removed |
 
 **Found on the way, repaired (2026-11-09).** `pegasus-data families` deleted every family it does not derive from the
 crawl, the intake's among them. SRAG, SISAGUA, SNGPC, FA, BNAFAR, SIES and REGIAO were unreachable by `query`. The

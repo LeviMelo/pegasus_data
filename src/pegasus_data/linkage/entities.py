@@ -34,10 +34,26 @@ from .engine import link_method, links_file, load_links, stored_key
 from .identity import connect
 from .store import load
 
-#: How many records of one kind a person can have. A kind is (dataset, role).
-AT_MOST_ONE = {("SINASC-DN", "baby"), ("SIM-DO", "deceased")}
-#: Roles one person cannot hold together in the same dataset.
-EXCLUSIVE = (("SINASC-DN", "baby"), ("SINASC-DN", "mother"))
+
+def person_constraints() -> tuple[set[tuple[str, str]], list[tuple[tuple[str, str], ...]]]:
+    """What a person can hold, as each dataset's role file declares it (``persons:``): the kinds (dataset, person role)
+    one person has at most one record of (``at_most_one: true``: one birth record as the baby, one death certificate),
+    and the sets of person roles of one dataset no person holds together (``exclusive``: a birth record's baby is not
+    its mother). Facts about a dataset's records, so a new dataset declares its own and the merge needs no edit."""
+    from ..config import curation_root
+
+    at_most_one: set[tuple[str, str]] = set()
+    exclusive: list[tuple[tuple[str, str], ...]] = []
+    for path in sorted((curation_root() / "roles").glob("*.yml")):
+        doc = read_yaml(path, shared=True) or {}
+        persons = doc.get("persons") or {}
+        if not persons:
+            continue
+        dataset = str(doc.get("dataset") or path.stem)
+        at_most_one |= {(dataset, str(role)) for role, body in persons.items()
+                        if isinstance(body, dict) and body.get("at_most_one")}
+        exclusive += [tuple((dataset, str(r)) for r in group) for group in (doc.get("exclusive_persons") or [])]
+    return at_most_one, exclusive
 
 
 @dataclass
@@ -200,7 +216,7 @@ def _graph(edges: pa.Table) -> tuple[Any, np.ndarray, np.ndarray, np.ndarray, in
 
 def _merge(edges: pa.Table) -> Entities:
     """Persons from an edge table (strongest first). Edges are merged in their order under the constraints of a person
-    (`AT_MOST_ONE`, `EXCLUSIVE`), but only where a constraint can bind: the link graph's connected components never
+    (`person_constraints`: at most one record of a kind, exclusive roles), but only where a constraint can bind: the link graph's connected components never
     interact, and a component with no two nodes of an at-most-one kind and no exclusive pair can refuse nothing, so its
     edges all merge, and which of them are kept (the others re-state a merge already made) is its minimum spanning
     forest under the edge order. Those are found in C (scipy); the order-dependent union-find runs over the few
@@ -228,17 +244,19 @@ def _merge(edges: pa.Table) -> Entities:
     kind_id = {name: i for i, name in enumerate(kind_names)}
 
     # components that hold two nodes of an at-most-one kind, or every kind of the exclusive set
+    at_most_one, exclusive_sets = person_constraints()
     constrained = np.zeros(ncomp, bool)
-    for ds, role in AT_MOST_ONE:
+    for ds, role in at_most_one:
         k = kind_id.get(f"{ds}|{role}")
         if k is not None:
             constrained |= np.bincount(label[kind_of == k], minlength=ncomp) >= 2
-    exclusive = [kind_id.get(f"{ds}|{role}") for ds, role in EXCLUSIVE]
-    if all(k is not None for k in exclusive):
-        both = np.ones(ncomp, bool)
-        for k in exclusive:
-            both &= np.bincount(label[kind_of == k], minlength=ncomp) > 0
-        constrained |= both
+    for group in exclusive_sets:
+        exclusive = [kind_id.get(f"{ds}|{role}") for ds, role in group]
+        if all(k is not None for k in exclusive):
+            both = np.ones(ncomp, bool)
+            for k in exclusive:
+                both &= np.bincount(label[kind_of == k], minlength=ncomp) > 0
+            constrained |= both
     tied = constrained[label[li]]                     # per edge: lies in a component that can refuse
 
     spec_enc = pc.dictionary_encode(edges.column("spec").combine_chunks())
@@ -274,7 +292,7 @@ def _merge(edges: pa.Table) -> Entities:
             held[root] = Counter({kind_names[kind_of[root]]: 1})
         return held[root]
 
-    wanted = {f"{ds}|{role}": (ds, role) for ds, role in AT_MOST_ONE}
+    wanted = {f"{ds}|{role}": (ds, role) for ds, role in at_most_one}
     bits = edges.column("bits").to_numpy()
     refused: list[dict[str, Any]] = []
     refused_edge = np.zeros(m, bool)
@@ -284,8 +302,7 @@ def _merge(edges: pa.Table) -> Entities:
             continue
         merged = kinds_of(a) + kinds_of(b)
         broken: list[tuple[Any, ...]] = [wanted[k] for k in wanted if merged[k] > 1]
-        if all(merged[f"{ds}|{role}"] for ds, role in EXCLUSIVE):
-            broken.append(EXCLUSIVE)
+        broken += [group for group in exclusive_sets if all(merged[f"{ds}|{role}"] for ds, role in group)]
         if broken:
             refused_edge[i] = True
             refused.append({"spec": spec_name[spec_code[i]], "left": enc.dictionary[int(li[i])].as_py(),
