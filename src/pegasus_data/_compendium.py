@@ -1317,7 +1317,7 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
     claimed |= {f"registries/{name}" for name in sources}
     # A family of intake sources (sisagua_*) keeps its shared documents under the family's name.
     claimed |= {f"registries/{name.split('_', 1)[0]}" for name in sources if "_" in name}
-    claimed |= {"lake/fields", "lake/links", "lake/sidra", "registries/sidra"}
+    claimed |= {"lake/fields", "lake/links", "lake/sidra", "lake/cubes", "registries/sidra"}
     # A context field built from a source's raw files describes them (BR-DWGD, INMET, CNES under registries/<source>).
     claimed |= {f"registries/{src}" for (src,) in db.execute("SELECT DISTINCT source FROM fields WHERE source IS NOT NULL")}
     claimed = {c.lower() for c in claimed}  # a folder's case varies (registries/CNES, lake/sngpc)
@@ -1342,15 +1342,22 @@ def _write_products(db: sqlite3.Connection, cfg: Settings, report: CompendiumRep
 
 
 def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumReport) -> None:
-    from .fields import declared_fields
+    from .fields import cube_of, declared_fields, load_field
 
     built = cfg.lake_dir / "fields"
     rows = []
     for name, spec in sorted(declared_fields().items()):
         held_dir = built / name
-        years = sorted(
-            int(p.name.split("=", 1)[1]) for p in held_dir.glob("year=*") if p.name.split("=", 1)[1].isdigit()
-        ) if held_dir.is_dir() else []
+        if cube_of(spec) is not None:
+            # A SIDRA or series field is its cube: what is held is what the fact store answers (ADR-0217).
+            try:
+                years = sorted(set(load_field(name, settings=cfg).column("year").to_pylist()))
+            except (LookupError, FileNotFoundError, KeyError, ValueError):
+                years = []
+        else:
+            years = sorted(
+                int(p.name.split("=", 1)[1]) for p in held_dir.glob("year=*") if p.name.split("=", 1)[1].isdigit()
+            ) if held_dir.is_dir() else []
         source = str(spec.get("source") or ("series" if spec.get("series") else "sidra" if spec.get("table") else ""))
         origin = spec.get("intake") or spec.get("table") or spec.get("measure") or spec.get("series")
         rows.append((

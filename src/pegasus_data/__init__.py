@@ -38,6 +38,7 @@ _EXPORTS: dict[str, str] = {
     "levels": ".api",
     "load_population": ".api",
     "load_field": ".fields",
+    "cube": ".cubes",
     "climate_daily": ".sources.cptec",
     "climate_weekly": ".sources.cptec",
     "grade_cells": ".sources.ibge_grade",
@@ -198,6 +199,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .careflow import care_flow_catchments, care_flow_communities, care_flow_profile, compare_flow_regions
     from .conditions import condition_report
     from .crosswalk import EnrichmentRequest, enrichment
+    from .cubes import cube
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology
     from .proximity import care_flows, municipality_areas, proximity_graph, regic_cities

@@ -87,6 +87,7 @@ garbage_codes()          # the ICD-10 codes of little use as an underlying cause
 price_index(reference="2025-12")   # IBGE's IPCA by month (or grain="year"): `factor` x a nominal amount = reais of December 2025
 search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …, each hit with the call that gets it
 search("link deaths")     # anything: datasets, columns, fields, roles, events, links, aggregates, operations, SIDRA tables
+cube("sidra:5938/37", place="uf")   # any IBGE SIDRA table as place x period (x strata): GDP by state, IBGE's statuses kept
 search("Parda", kind="code")            # which codes mean "Parda", in which tables
 ```
 

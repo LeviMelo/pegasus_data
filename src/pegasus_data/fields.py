@@ -141,86 +141,81 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
 
 
 def _build_series_field(settings: Any, sidra: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
-    """One measure of a stitched series as a place × year field.
+    """Fetch what a series field reads into SIDRA's fact store; the field is the cube ``series:<name>/<measure>`` and is
+    served from the store by `load_field` (ADR-0217), never copied."""
+    from .sidra.series import fetch_series
 
-    ``measure`` is the series' ``numerator``/``denominator``/``value``; ``where`` names the categories of an axis the
-    field takes and sums (``{income_band: [le_half, none]}``). The claim the series ``selected`` is the one kept; a
-    figure that is missing for a municipality stays a null with IBGE's reason.
-    """
-    import pyarrow.compute as pc
-
-    from .sidra.series import series_values
-
-    wanted = [y for y in _years(spec["years"]) if not years or y in years]
-    values = series_values(sidra, spec["series"], spec.get("measure", "value"), spec.get("where"))
-    written = 0
-    statuses: dict[str, int] = {}
-    for year in wanted:
-        part = values.filter(pc.equal(values.column("period"), str(year)))
-        if part.num_rows == 0:
-            continue
-        code7 = part.column("locality").to_pylist()
-        n = len(code7)
-        source = [f"IBGE agregados {t} v{v} (series {spec['series']})" for t, v in zip(part.column("table").to_pylist(), part.column("variable").to_pylist(), strict=True)]
-        table = pa.table({
-            "municipality": pa.array([c[:6] for c in code7], pa.string()),
-            "municipality7": pa.array(code7, pa.string()),
-            "value": part.column("value"),
-            "status": part.column("status"),
-            "unit": pa.array([str(spec["unit"])] * n, pa.string()),
-            "source": pa.array(source, pa.string()),
-        })
-        for state in part.column("status").to_pylist():
-            statuses[state] = statuses.get(state, 0) + 1
-        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
-        written += n
-    return {"years": len(wanted), "rows": written, "statuses": statuses}
+    fetch_series(sidra, spec["series"], log=lambda _m: None)
+    return _cube_report(name, spec, years, settings)
 
 
 def _build_sidra(settings: Any, sidra: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
-    """An IBGE aggregate (table, variable, one category of some classifications) as a place × year field.
-
-    The request is planned, fetched and cached by `pegasus_data.sidra`; this keeps the municipality, the
-    value and IBGE's marker as a status (``-`` a true zero; ``..``, ``...`` and ``X`` null with their reason).
-    """
-    import pyarrow.compute as pc
-
+    """Fetch an IBGE aggregate (table, variable, the categories named) into SIDRA's fact store; the field is the cube
+    ``sidra:<table>/<variable>`` and is served from the store by `load_field` (ADR-0217), never copied."""
     wanted = [y for y in _years(spec["years"]) if not years or y in years]
-    chosen = _classification(spec)
     selection = sidra.selection(
         int(spec["table"]), variables=[int(spec["variable"])], periods=[str(y) for y in wanted],
         classifications={int(k): [int(v)] for k, v in (spec.get("classification") or {}).items()})
     report = sidra.fetch(selection, log=lambda _m: None)
     if report["shortfalls"]:                      # a request that returned fewer cells than it asked for: never a quiet gap
         raise RuntimeError(f"field {name!r}: SIDRA returned fewer values than planned: {report['shortfalls'][:2]}")
-    facts = sidra.slice(int(spec["table"]), variables=[int(spec["variable"])], periods=selection.periods,
-                        picks={int(k): [int(v)] for k, v in (spec.get("classification") or {}).items()})
-    source = f"IBGE agregados {spec['table']} v{spec['variable']}" + (f" c{chosen}" if chosen else "")
-    written = 0
+    return _cube_report(name, spec, years, settings)
+
+
+def cube_of(spec: dict[str, Any]) -> tuple[str, dict[str, list[Any]]] | None:
+    """The cube a SIDRA or series field is (source, where), or None for a field that is still built apart."""
+    if spec.get("table"):
+        return (f"sidra:{spec['table']}/{spec['variable']}",
+                {f"c{k}": [v] for k, v in (spec.get("classification") or {}).items()})
+    if spec.get("series"):
+        return f"series:{spec['series']}/{spec.get('measure', 'value')}", dict(spec.get("where") or {})
+    return None
+
+
+def _field_from_cube(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
+    """A SIDRA or series field read from its cube, in the field's columns (municipality, municipality7, value, status,
+    unit, source, year): what `load_field` returned when the field was a stored copy, value for value (evaluation
+    2026-11-08-the-one-map: 26 fields, 0 differences)."""
+    import pyarrow.compute as pc
+
+    from .cubes import cube
+
+    source, where = cube_of(spec) or ("", {})
+    declared = [str(y) for y in _years(spec["years"])]
+    # Only the declared years are asked of the cube; a year the field does not have is no row, as the stored copy gave.
+    periods = [str(y) for y in years if str(y) in declared] if years else declared
+    if not periods:
+        return pa.table({"municipality": pa.array([], pa.string()), "municipality7": pa.array([], pa.string()),
+                         "value": pa.array([], pa.float64()), "status": pa.array([], pa.string()),
+                         "unit": pa.array([], pa.string()), "source": pa.array([], pa.string()),
+                         "year": pa.array([], pa.int32())})
+    table = cube(source, where=where, periods=periods, labels=False, settings=settings)
+    table = table.filter(pc.is_in(table.column("period"), pa.array(declared)))
+    code7 = pc.cast(table.column("place"), pa.string())
+    unit = str(spec["unit"])
+    return pa.table({
+        "municipality": pc.utf8_slice_codeunits(code7, 0, 6),
+        "municipality7": code7,
+        "value": table.column("value"),
+        "status": table.column("status"),
+        "unit": pa.array([unit] * table.num_rows, pa.string()),
+        "source": table.column("source") if spec.get("series") else pa.array(
+            [_sidra_source(spec)] * table.num_rows, pa.string()),
+        "year": pc.cast(table.column("period"), pa.int32()),
+    })
+
+
+def _sidra_source(spec: dict[str, Any]) -> str:
+    chosen = _classification(spec)
+    return f"IBGE agregados {spec['table']} v{spec['variable']}" + (f" c{chosen}" if chosen else "")
+
+
+def _cube_report(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> dict[str, Any]:
+    table = _field_from_cube(name, spec, years, settings)
     statuses: dict[str, int] = {}
-    for year in wanted:
-        part = facts.filter(pc.equal(facts.column("period"), str(year)))
-        if part.num_rows == 0:
-            continue
-        code7 = part.column("locality").to_pylist()
-        n = len(code7)
-        table = pa.table({
-            "municipality": pa.array([c[:6] for c in code7], pa.string()),
-            "municipality7": pa.array(code7, pa.string()),
-            "value": part.column("value"),
-            "status": part.column("status"),
-            "unit": pa.array([str(spec["unit"])] * n, pa.string()),
-            "source": pa.array([source] * n, pa.string()),
-        })
-        for state in part.column("status").to_pylist():
-            statuses[state] = statuses.get(state, 0) + 1
-        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
-        target.mkdir(parents=True, exist_ok=True)
-        write_parquet_atomic(table, target / "part.parquet", compression="zstd")
-        written += n
-    return {"years": len(wanted), "rows": written, "statuses": statuses}
+    for state in table.column("status").to_pylist():
+        statuses[state] = statuses.get(state, 0) + 1
+    return {"years": len(set(table.column("year").to_pylist())), "rows": table.num_rows, "statuses": statuses}
 
 
 def _build_cnes(settings: Any, specs: dict[str, dict[str, Any]], years: list[int] | None) -> dict[str, Any]:
@@ -414,6 +409,9 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     if name not in declared_fields():
         raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
     settings = settings or load_settings()
+    spec = declared_fields()[name]
+    if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
+        return _field_from_cube(name, spec, [years] if isinstance(years, int) else years, settings)
     directory = Path(settings.lake_dir) / "fields" / name
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")
