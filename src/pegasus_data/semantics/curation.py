@@ -1378,12 +1378,16 @@ def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSeman
                 default_geography = str(body.get("role") or column)
     time: dict[str, Any] = {}
     parts: dict[str, dict[str, str]] = {}
+    declared_years = _lake_year_columns(wanted)
     for column, body in columns.items():
         if body.get("kind") != "date" or body.get("model") != "when":
             continue
         role = str(body.get("role") or column)
         entity, _, prop = role.rpartition(".")
-        if prop in ("year", "month") and entity:
+        if declared_years and column.upper() in declared_years:
+            # the intake declares this column a year (INEP's NU_ANO_CENSO, the role school.census_year): a year, not a date
+            time[role] = {"fields": [column], "encoding": "year"}
+        elif prop in ("year", "month") and entity:
             parts.setdefault(entity, {})[prop] = column
         else:
             time[role] = {"fields": [column], "encoding": "date"}
@@ -1459,6 +1463,18 @@ def _landed_axes(dataset: str) -> dict[str, Any] | None:
                 return None
             return {"geography": {"fields": ["_MUNICIPALITY"], "code_system": "ibge_municipality"}, "time": time}
     return None
+
+
+def _lake_year_columns(dataset: str) -> set[str]:
+    """The column an intake source declares its period by when that period is a year (``period: {type: year}``)."""
+    from ..intake import declared_sources
+
+    system, _, series = dataset.partition("-")
+    for spec in declared_sources().values():
+        if str(spec.get("system") or "").upper() == system and str(spec.get("series") or "").upper() == series:
+            period = spec.get("period") or {}
+            return {str(period["column"]).upper()} if period.get("type") == "year" and period.get("column") else set()
+    return set()
 
 
 def _lake_period_columns(dataset: str) -> set[str]:

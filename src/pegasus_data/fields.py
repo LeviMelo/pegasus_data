@@ -347,6 +347,52 @@ def _field_from_rows(register: dict[str, Any], years: list[int] | None, settings
     return pa.table(out)
 
 
+def margins_view(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """A field whose margins the source publishes as columns (``unpivot:`` in its intake declaration: a column -> its
+    margin and category; INEP's enrolments by sex, race and age band, each summing to the total), as one records cube
+    per column over the landed records, or None while the source has none landed."""
+    from .intake import declared_sources
+
+    if spec.get("source") != "intake":
+        return None
+    source = declared_sources().get(str(spec.get("intake")))
+    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not fs or not fs.get("unpivot") or not _landed(source):
+        return None
+    unpivot = fs["unpivot"]
+    return {"dataset": f"{source['system']}-{source['series']}", "as": list(unpivot["as"]),
+            "columns": {str(c).upper(): list(v) for c, v in unpivot["columns"].items()},
+            "citation": str(source.get("citation") or source.get("what") or "")}
+
+
+def _field_from_margins(name: str, spec: dict[str, Any], margins: dict[str, Any], years: list[int] | None,
+                        settings: Any) -> pa.Table:
+    """The margins field from its cubes: per column, the municipality sums of that column, keyed by the column's margin
+    and category, in the field's columns."""
+    import pyarrow.compute as pc
+
+    from .cubes import cube
+
+    declared = _years(spec["years"])
+    periods = [y for y in (years or declared) if y in declared]
+    first, second = margins["as"]
+    parts = []
+    for column, (margin, category) in margins["columns"].items():
+        table = cube(f"records:{margins['dataset']}/rows", measure=column, periods=periods, grain="year",
+                     settings=settings)
+        code7 = pc.cast(table.column("place"), pa.string())
+        n = table.num_rows
+        year = pc.cast(table.column("period"), pa.int32())
+        parts.append(pa.table({
+            "municipality7": code7, first: pa.array([str(margin)] * n, pa.string()),
+            second: pa.array([str(category)] * n, pa.string()), "value": pc.cast(table.column("value"), pa.float64()),
+            "municipality": pc.utf8_slice_codeunits(code7, 0, 6),
+            "unit": pa.array([str(spec.get("unit") or "")] * n, pa.string()),
+            "source": pa.array([margins["citation"]] * n, pa.string()),
+            "year": year}))
+    return pa.concat_tables(parts)
+
+
 def _field_from_climate(name: str, spec: dict[str, Any], years: list[int] | None, settings: Any) -> pa.Table:
     """A BR-DWGD annual field from its cube (``climate:<measure>``), in the field's columns: ``ok`` when the year holds
     all twelve months, ``partial_year`` otherwise (the value kept), ``months`` what it rests on, ``source`` the release."""
@@ -613,6 +659,9 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
     register = rows_view(name, spec)
     if register is not None:                      # a register (S2iD's events) is its landed records, renamed
         return _field_from_rows(register, wanted, settings)
+    margins = margins_view(name, spec)
+    if margins is not None:                       # margins published as columns (INEP's) are one cube per column
+        return _field_from_margins(name, spec, margins, wanted, settings)
     directory = Path(settings.lake_dir) / "fields" / name
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")
