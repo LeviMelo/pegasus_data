@@ -1327,4 +1327,75 @@ def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | 
         system = str(value.system or "").upper()
         if system == head or system.startswith(head) or head.startswith(system):
             return value
-    return None
+    return semantics_from_roles(dataset, root)
+
+
+def semantics_from_roles(dataset: str, root: Path | None = None) -> DatasetSemantics | None:
+    """A dataset's place and time bindings read from its roles (``curation/roles/<dataset>.yml``), for a dataset whose
+    curation declares no ``semantic_axes``: the roles already say which column is whose place and which date is when, so
+    a second declaration of the same fact is not asked for (ADR-0217).
+
+    * geography: every ``place`` role a model places events by, ``stratum`` (the subject's own place: residence) and
+      ``where`` (the event's place), each a binding named by its role; the default is the residence, else the first.
+    * time: every ``date`` role whose model is ``when``; an entity's ``<x>.year`` and ``<x>.month`` together are one
+      binding (``year_month``), a date one of its own (``date``). The default is the binding of the column the dataset's
+      lake is dated by (the intake's ``period``), else the first.
+    """
+    from ..config import curation_root
+
+    base = Path(root or curation_root())
+    wanted = str(dataset).upper().replace(".", "-", 1)
+    path = base / "roles" / f"{wanted}.yml"
+    if not path.is_file():
+        return None
+    doc = read_yaml(path) or {}
+    columns = {str(c): b for c, b in (doc.get("columns") or {}).items() if isinstance(b, dict)}
+    geography: dict[str, Any] = {}
+    default_geography = None
+    for column, body in columns.items():
+        role_name = str(body.get("role") or "")
+        if role_name.endswith("_name") or role_name.endswith(".name"):
+            continue                    # a place written as a name is no code: placed by the intake's name match, not here
+        if body.get("kind") == "place" and body.get("model") in ("stratum", "where"):
+            geography[str(body.get("role") or column)] = {"fields": [column], "code_system": "ibge_municipality"}
+            if body.get("model") == "stratum" and default_geography is None:
+                default_geography = str(body.get("role") or column)
+    time: dict[str, Any] = {}
+    parts: dict[str, dict[str, str]] = {}
+    for column, body in columns.items():
+        if body.get("kind") != "date" or body.get("model") != "when":
+            continue
+        role = str(body.get("role") or column)
+        entity, _, prop = role.rpartition(".")
+        if prop in ("year", "month") and entity:
+            parts.setdefault(entity, {})[prop] = column
+        else:
+            time[role] = {"fields": [column], "encoding": "date"}
+    for entity, pair in parts.items():
+        if "year" in pair and "month" in pair:
+            time[f"{entity}.year_month"] = {"fields": [pair["year"], pair["month"]], "encoding": "year_month"}
+        elif "year" in pair:
+            time[f"{entity}.year"] = {"fields": [pair["year"]], "encoding": "year"}
+    if not geography or not time:
+        return None
+    dated = _lake_period_columns(wanted)
+    default_time = next((name for name, b in time.items() if dated and set(b["fields"]) & dated), next(iter(time)))
+    system, _, series = wanted.partition("-")
+    return DatasetSemantics(
+        dataset_id=wanted.replace("-", "_"), system=system, series=series,
+        grain=parse_grain(doc.get("record")),
+        axes={"geography": geography, "default_geography": default_geography or next(iter(geography)),
+              "time": time, "default_time": default_time},
+    )
+
+
+def _lake_period_columns(dataset: str) -> set[str]:
+    """The columns an intake source's lake is dated by (its declared ``period``), upper-cased as they land."""
+    from ..intake import declared_sources
+
+    system, _, series = dataset.partition("-")
+    for spec in declared_sources().values():
+        if str(spec.get("system") or "").upper() == system and str(spec.get("series") or "").upper() == series:
+            period = spec.get("period") or {}
+            return {str(period[k]).upper() for k in ("column", "year", "month") if period.get(k)}
+    return set()

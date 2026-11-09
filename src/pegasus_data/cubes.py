@@ -43,7 +43,8 @@ LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 
 def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), where: Mapping[str, Sequence[Any]] | None = None,
          periods: Sequence[str | int] | None = None, labels: bool = True, settings: Any = None,
-         at: str | None = None, time: str | None = None, grain: str | None = None, condition: object = None) -> pa.Table:
+         at: str | None = None, time: str | None = None, grain: str | None = None, condition: object = None,
+         measure: str | None = None) -> pa.Table:
     """The cube ``source`` at ``place`` level (``municipality``, ``uf``, ``country``), keeping the strata named in ``by``
     and the categories named in ``where``; every other stratum is the source's Total. ``periods`` restricts the periods.
 
@@ -51,8 +52,9 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     ``records:<dataset>/<event type>`` (`cube_sources`). A records cube also takes ``at`` (whose place: one of the
     dataset's geography bindings, its default when left out), ``time`` (which date: one of its time bindings) and ``grain``
     (``month`` or ``year``); its ``where`` is the record's own codes ({column: [codes]}) and ``condition`` clauses on roles
-    (`pegasus_data.conditions`). The facts must be held or fetchable; a cube of nothing raises, never returns an empty
-    table that could pass for an empty result.
+    (`pegasus_data.conditions`). ``records:<dataset>/rows`` counts the records of a dataset that is no event source (a
+    water sample, a sale, a dose row), or sums its numeric column ``measure``. The facts must be held or fetchable; a cube
+    of nothing raises, never returns an empty table that could pass for an empty result.
     """
     from .config import load_settings
 
@@ -62,7 +64,8 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     adapter = _ADAPTERS.get(kind)
     if adapter is None or not ident:
         raise ValueError(f"a cube is <adapter>:<id> with adapter one of {sorted(_ADAPTERS)}, got {source!r}")
-    options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition)) if v is not None}
+    options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition),
+                                 ("measure", measure)) if v is not None}
     if options and kind != "records":
         raise ValueError(f"{sorted(options)} apply to records cubes only")
     return adapter(ident, place=place, by=list(by), where=dict(where or {}), periods=periods, labels=labels,
@@ -247,7 +250,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any) -> pa
 
 def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
              labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
-             condition: object = None) -> pa.Table:
+             condition: object = None, measure: str | None = None) -> pa.Table:
     """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
     weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
     declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
@@ -297,8 +300,24 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             runs.append([y])
     if not runs:
         raise LookupError(f"{dataset} publishes none of the years {years}")
-    parts = [count_events(dataset, event, period=run[0] if len(run) == 1 else (run[0], run[-1]), geography="BR",
-                          by=group, condition=condition, **extra) for run in runs]
+    def count(span: Any) -> pa.Table:
+        if event != "rows":
+            if measure:
+                raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
+            return count_events(dataset, event, period=span, geography="BR", by=group, condition=condition, **extra)
+        if condition is not None:
+            raise ValueError("a condition on roles applies to an event type's records")
+        from ._query_engine import query
+
+        table = query(dataset, period=span, geography="BR", select=list(dict.fromkeys([*group, *([measure] if measure else [])])),
+                      present="codes", **extra)
+        if measure:
+            table = table.set_column(table.schema.get_field_index(measure), measure,
+                                     pc.cast(table.column(measure), pa.float64(), safe=False))
+            return table.group_by(group).aggregate([(measure, "sum")]).rename_columns([*group, "events"])
+        return table.group_by(group).aggregate([(place_column, "count")]).rename_columns([*group, "events"])
+
+    parts = [count(run[0] if len(run) == 1 else (run[0], run[-1])) for run in runs]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
     competencia = _competencia_column(counts, time_fields, encoding)
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
@@ -318,8 +337,9 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     keys = ["place", "period", *by]
     facts = facts.group_by(keys).aggregate([("value", "sum")]).rename_columns([*keys, "value"]).select([*keys, "value"])
     n = facts.num_rows
+    unit_name = measure or ("records" if event == "rows" else "events")
     facts = (facts.append_column("status", pa.array(["value"] * n, pa.string()))
-             .append_column("unit", pa.array(["events"] * n, pa.string()))
+             .append_column("unit", pa.array([unit_name] * n, pa.string()))
              .append_column("source", pa.array([f"{dataset} {event}"] * n, pa.string())))
     unkeyed = (counts.schema.metadata or {}).get(b"UNKEYED")
     return _with_manifest(facts, {
