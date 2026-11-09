@@ -43,6 +43,7 @@ from typing import TYPE_CHECKING, Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ._geometry import polygonal
 from .measures import AXES, AggregationRefused, Measure, check_rollup, measure_of_role
 from .ontology import dataset_key
 from .semantics.epoch import curated
@@ -57,16 +58,6 @@ AREAS_PACK_NAME = "municipality_areas.parquet"
 _PROJECTED = "EPSG:5880"   # SIRGAS 2000 / Brazil Polyconic, metres
 _GRID_M = 5000
 _NEAREST = 30
-
-
-def _polygonal(geometry: Any) -> Any:
-    """The (multi)polygon inside a repaired geometry; collections lose their lines and points."""
-    import shapely
-
-    if geometry is None or geometry.geom_type in ("Polygon", "MultiPolygon"):
-        return geometry
-    parts = [g for g in shapely.get_parts(geometry) if g.geom_type in ("Polygon", "MultiPolygon")]
-    return shapely.union_all(parts) if parts else None
 
 
 def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, grade_root: str | Path | None = None) -> dict[str, Any]:
@@ -85,7 +76,7 @@ def build_proximity_graphs(out_dir: str | Path, *, mesh: str | Path, grade_root:
     # make_valid can return a GeometryCollection (the polygon plus stray lines or points); its
     # boundary is None, which left 32 borders without a length (PegaSUS, 2026-10-04). Keep the
     # polygonal part only.
-    projected["geometry"] = projected.geometry.make_valid().apply(_polygonal)
+    projected["geometry"] = projected.geometry.make_valid().apply(polygonal)
     # One geometry per municipality: a code in several pieces is one polygon,
     # and an empty piece is no geometry at all.
     projected = projected[projected.geometry.notna() & ~projected.geometry.is_empty]

@@ -198,7 +198,14 @@ def scan(pkg: Path = PKG) -> Report:
                     bound[(alias.asname or alias.name).split(".")[0]] = node.lineno
             elif isinstance(node, ast.ImportFrom):
                 if node.level:
-                    imports[module].add(node.module or "")
+                    # resolved against the importing module's package: decode.service's `.registry` is
+                    # decode.registry, not the top-level registry (a false cycle until 2026-11-09)
+                    package = module.split(".")[:-1]
+                    base = package[: len(package) - (node.level - 1)] if node.level > 1 else package
+                    if node.module:
+                        imports[module].add(".".join([*base, node.module]))
+                    else:
+                        imports[module].update(".".join([*base, alias.name]) for alias in node.names)
                 for alias in node.names:
                     bound[alias.asname or alias.name] = node.lineno
                     referenced.add(alias.name)

@@ -166,8 +166,8 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
     import pyarrow.parquet as pq
     import shapely
 
+    from .._geometry import polygonal
     from ..geography import mesh_file
-    from ..proximity import _polygonal
     from ..transport import download
 
     directory = _directory(root)
@@ -177,7 +177,7 @@ def build(root: str | Path | None = None, log: Any = None) -> dict[str, Any]:
         download(SOURCE + "grade_estatistica/" + name, directory / name, timeout=3600)
     mesh = gpd.read_file(mesh_file("municipality", "maxima", root))[["codarea", "geometry"]]
     mesh = mesh.set_crs("EPSG:4674", allow_override=True).to_crs(ALBERS)
-    mesh["geometry"] = mesh.geometry.make_valid().apply(_polygonal)
+    mesh["geometry"] = mesh.geometry.make_valid().apply(polygonal)
     mesh = mesh[mesh.geometry.notna() & ~mesh.geometry.is_empty].dissolve(by="codarea").reset_index()
     polygons = mesh.geometry.to_numpy()
     codes = mesh["codarea"].astype(str).to_numpy(dtype=object)
