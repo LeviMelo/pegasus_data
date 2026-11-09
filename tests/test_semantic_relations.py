@@ -11,13 +11,7 @@ from pegasus_data.semantics.relations import (
     adjudication_evidence,
     ensure_adjudication_item,
     relations_for,
-    seed_relations,
 )
-
-
-def test_relations_compile_into_catalog(catalog) -> None:
-    assert seed_relations(catalog) >= 4
-    assert catalog.count("semantic_relations", "relation_type = 'label_of'") >= 1
 
 
 def test_runtime_ambiguity_is_deduplicated_into_work_item(catalog) -> None:
@@ -126,91 +120,6 @@ def test_adjudicated_temporal_history_survives_catalog_reopen(tmp_path) -> None:
         )[0].artifact == "CID_NEW"
     finally:
         reopened.close()
-
-
-def test_curated_temporal_history_seeds_as_two_assertions(catalog, tmp_path) -> None:
-    (tmp_path / "joins.yml").write_text(
-        """
-relations:
-  - system: SIHSUS
-    dataset: SIH.RD
-    field: DIAG_PRINC
-    relation: rollup_to
-    target_type: chapter
-    target_name: chapter
-    artifact: CID_OLD
-    valid_to: '201012'
-  - system: SIHSUS
-    dataset: SIH.RD
-    field: DIAG_PRINC
-    relation: rollup_to
-    target_type: chapter
-    target_name: chapter
-    artifact: CID_NEW
-    valid_from: '201101'
-""".lstrip(),
-        encoding="utf-8",
-    )
-    assert seed_relations(catalog, tmp_path) == 2
-    rows = catalog.query(
-        "SELECT artifact, valid_from, valid_to FROM semantic_relations "
-        "WHERE field_name='DIAG_PRINC' ORDER BY valid_from"
-    )
-    assert [(row["artifact"], row["valid_from"], row["valid_to"]) for row in rows] == [
-        ("CID_OLD", None, "201012"),
-        ("CID_NEW", "201101", None),
-    ]
-
-
-def test_reseeding_replaces_curated_snapshot_and_preserves_local_assertions(
-    catalog, tmp_path
-) -> None:
-    def write_curated(artifact: str, valid_to: str) -> None:
-        (tmp_path / "joins.yml").write_text(
-            f"""
-relations:
-  - system: SIHSUS
-    dataset: SIH.RD
-    field: FIELD
-    relation: rollup_to
-    target_type: region
-    target_name: region
-    artifact: {artifact}
-    valid_from: '202001'
-    valid_to: '{valid_to}'
-""".lstrip(),
-            encoding="utf-8",
-        )
-
-    write_curated("CURATED_OLD", "202012")
-    seed_relations(catalog, tmp_path)
-    adjudicate(
-        catalog,
-        "local-window",
-        SemanticRelation(
-            "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
-            "region", "region", "LOCAL", valid_from="202006", valid_to="202006",
-        ),
-        by="test",
-    )
-
-    write_curated("CURATED_NEW", "202112")
-    seed_relations(catalog, tmp_path)
-    rows = catalog.query(
-        "SELECT authority, artifact FROM semantic_relations ORDER BY authority, artifact"
-    )
-    assert [(row["authority"], row["artifact"]) for row in rows] == [
-        ("curated", "CURATED_NEW"),
-        ("local", "LOCAL"),
-    ]
-    assert relations_for(
-        "SIHSUS", "SIH.RD", "FIELD",
-        relation_type=RelationType.ROLLUP_TO, catalog=catalog, vintage=202006,
-    )[0].artifact == "LOCAL"
-    assert relations_for(
-        "SIHSUS", "SIH.RD", "FIELD",
-        relation_type=RelationType.ROLLUP_TO, catalog=catalog, vintage=202101,
-    )[0].artifact == "CURATED_NEW"
 
 
 def test_overlapping_local_temporal_assertions_are_rejected(catalog) -> None:

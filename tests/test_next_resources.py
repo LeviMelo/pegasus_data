@@ -20,21 +20,12 @@ def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path
     resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
     assert status.schema_version == RESOURCE_SCHEMA_VERSION
     packaged = {path.name for path in resources.glob("*.parquet")}
-    packaged |= {"publication_coverage.json", "catalog_seed.sqlite.gz"}
+    packaged |= {"catalog_seed.sqlite.gz"}
     assert {Path(item.path).name for item in status.resources} == packaged | {
         "CNES", "cnes_registry.parquet"
     }
     assert all(item.available and item.sha256 for item in status.resources if item.bundled)
     assert next(item for item in status.resources if item.name == "cnes_registry").tier == "D"
-
-
-def test_query_capabilities_are_compiled_from_curation() -> None:
-    from pegasus_data._query_engine.coverage import compile_capability_payload
-
-    resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
-    compiled = json.loads((resources / "publication_coverage.json").read_text(encoding="utf-8"))
-    assert compiled == compile_capability_payload()
-    assert all("time" not in body and "geography" not in body for body in compiled["datasets"].values())
 
 
 def test_resource_budget_covers_current_artifacts() -> None:

@@ -183,7 +183,7 @@ deleted, not in the seed.
 | `icd10`, `cbo2002`, `sigtap`, `banks`, `countries` `.parquet` | canonical classifications, one table for every system (ADR-0087) | `persist/reference.py` |
 | `bridges.parquet` | every classification bridge: pre-2008 SIA/SIH procedures → SIGTAP (official), CBO 1994 → CBO 2002 (CNES's measured 2007 conversion, then MTE's) (ADR-0101, ADR-0104) | `view.bridged`; built by `scripts/build_bridges.py` |
 | `geography.parquet`, `municipalities.parquet` | health-region memberships | `geography.py`, `_aggregate.py` |
-| `publication_coverage.json`, `manifest.json` | compiled publication coverage; the resource manifest with checksums | `_query_engine/coverage.py`, `_resources.py`, `serve/` |
+| `manifest.json` | the resource manifest with checksums (publication coverage is compiled from `curation/datasets` per curation epoch, `coverage.compile_capability_payload`) | `_query_engine/coverage.py`, `_resources.py`, `serve/` |
 
 Built by `scripts/build_resources.py` (the seed and the manifest) and the
 `labelpack` command (labels).

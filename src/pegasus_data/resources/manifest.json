@@ -47,13 +47,6 @@
       "rows": 1774993,
       "sha256": "9a4877d84e79e2362c2059bc5f532b3b38e3eb9482b079483f0990ce0e1ccb5d"
     },
-    "publication_coverage": {
-      "file": "publication_coverage.json",
-      "tier": "A",
-      "bytes": 1128,
-      "rows": 5,
-      "sha256": "3a4ad4bb13d3ee6249d8552dbf96ea3f1e58a437ea5b750905c47b32dedde676"
-    },
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -13,6 +12,7 @@ from ..catalog.store import CatalogStore
 from ..config import Settings
 from ..normalize.time import month_of
 from ..persist.lake import Lake, LakePartition, listed_partitions, record_source
+from ..semantics.epoch import curated
 from .model import Geography, Period
 
 
@@ -139,8 +139,11 @@ def sole_competence(parts: Iterable[LakePartition], publications: Iterable[dict[
     return {key: date for key, date in found.items() if date}
 
 
+@curated
 def compile_capability_payload() -> dict[str, Any]:
-    """Compile source-publication metadata from maintainer curation."""
+    """The source-publication declarations of ``curation/datasets/*.yml``, compiled (once per curation epoch). The
+    query engine reads this; a shipped JSON copy of it (``publication_coverage.json``) went stale with any curation edit
+    and is gone (2026-11-09)."""
     from ..config import curation_root
     from ..semantics.curation import read_yaml
 
@@ -171,38 +174,13 @@ def compile_capability_payload() -> dict[str, Any]:
     return {"schema_version": 2, "datasets": datasets}
 
 
-#: ``file states -> the parsed shipped declaration``: the resource is checked (`ResourceManager.ensure` hashes it) and
-#: parsed once per state of the files it comes from, not once per query.
-_CAPABILITY_PAYLOADS: dict[tuple, dict[str, Any]] = {}
-
-
-def _stat(path: Path) -> tuple[int, int] | None:
-    try:
-        stat = path.stat()
-    except OSError:
-        return None
-    return stat.st_mtime_ns, stat.st_size
-
-
 def _compiled_capability(
     settings: Settings, system: str, series: str | None
 ) -> dict[str, Any] | None:
-    """Return a shipped, reviewed capability declaration; never infer semantics."""
-    from .._resources import ResourceManager
-
-    manager = ResourceManager(settings)
-    key = (
-        str(manager.local_dir),
-        _stat(manager.local_dir / "publication_coverage.json"), _stat(manager.local_dir / "manifest.json"),
-        _stat(manager.bundled_dir / "publication_coverage.json"), _stat(manager.bundled_dir / "manifest.json"),
-    )
-    payload = _CAPABILITY_PAYLOADS.get(key)
-    if payload is None:
-        resource = manager.ensure("publication_coverage")
-        payload = json.loads(Path(resource.path).read_text(encoding="utf-8"))
-        if len(_CAPABILITY_PAYLOADS) > 16:
-            _CAPABILITY_PAYLOADS.clear()
-        _CAPABILITY_PAYLOADS[key] = payload
+    """The reviewed source-publication declaration of a system (and series), compiled from the curation
+    (`compile_capability_payload`, once per curation epoch); never inferred. ``settings`` is the caller's and unused:
+    the declaration is the curation's, not a home's."""
+    payload = compile_capability_payload()
     for body in payload.get("datasets", {}).values():
         systems = {str(value).upper() for value in body.get("observed_systems", ())}
         series_names = {str(value).upper() for value in body.get("observed_series", ())}

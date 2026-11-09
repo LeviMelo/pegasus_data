@@ -238,7 +238,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 ## HYGIENE (H)
 
-**H1. Unreferenced functions (no caller in `src`, `scripts`, `tests`, docs or CLI)** — part done: `cube_manifest`, `build_crosswalk_pack`, `schema_signature_for`, `gap_report_json`, `field_report` deleted (no reference anywhere); the modelled builders are R1's (a command each): AST scan, one occurrence = the definition.
+**H1. Unreferenced functions (no caller in `src`, `scripts`, `tests`, docs or CLI)** — part done: `cube_manifest`, `build_crosswalk_pack`, `schema_signature_for`, `gap_report_json`, `field_report` deleted (no reference anywhere); the modelled builders are R1's (a command each): AST scan, one occurrence = the definition. Then (2026-11-09): `seed_relations` deleted (the shipped relations are read from `joins.yml` itself; nothing seeded them), and the shipped `publication_coverage.json`, a compiled copy of `curation/datasets` that nothing regenerated, removed: `coverage.compile_capability_payload` compiles it per curation epoch (equal to the copy, 5 datasets; SIH-RD AC 2022-03 4,185 rows as before). Kept: `measures.merge_all` (the measure algebra's fold) and `ensure_adjudication_item` (opens the queue `pegasus-data adjudicate` answers).
 - `completeness.py`: `census_uf:40`, `events_uf:54`, `interval_events:83`, `growth_balance:100`, `build_completeness:207`
   (the whole module is reachable only through nothing; `ill_defined_shares` is called only by `build_completeness`).
 - `population_account.py`: `build_registration_completeness:1009` (reads `collect_events:225`, which has one test reference).
