@@ -41,3 +41,6 @@ changed number, so each change is judged by whether every output it touches is e
   coincidences. Several true admissions per birth were measured and ruled out first (RR 2022, exact birth dates: 11,528
   candidates for 10,442 births, no continuation AIH). Rotated inside the range both sides hold (`placebo.shared_range`),
   it holds 53,519, and the link is viable on RR 2022 (probabilistic 8,392 pairs at 0.77%, deterministic 8,865 at 1.9%).
+- **The linkage scenario passes** (`scripts/live.py linkage`, fresh home, 2026-11-09, `data/probes/live/20261109-092800`):
+  all six runs viable but SIH deaths → SIM deterministic, `use with caution` by its no-hospital pass (76 pairs, 13 in
+  the control, 17.11%); the probabilistic run of the same link is viable (1,208 pairs, 0.41%).

@@ -414,8 +414,9 @@ def s_sweep() -> dict[str, Any]:
 def s_linkage() -> dict[str, Any]:
     """Record linkage as a person would run it (ADR-0107): the three spine links on RR 2022, both
     methods, freshly computed; none may be not viable, and the report must carry its error, its verdict's reasons and
-    which validations are circular (a validation on a key never decides, b52e7a8: SIH deaths to SIM reads "use with
-    caution" since, its held-out residence agreeing 85-86%, the place of death being a key)."""
+    which validations are circular. SIH deaths to SIM, deterministic, reads "use with caution" by its worst kept pass
+    (2026-11-09): "birth date, sex, death day" (no hospital) keeps 76 pairs with 13 control pairs, a chance of 17.11%,
+    under the 20% that drops a pass; its other passes are 0.09% and 0%."""
     from pegasus_data import link
 
     out: dict[str, Any] = {}
