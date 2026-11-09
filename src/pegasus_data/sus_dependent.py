@@ -30,7 +30,6 @@ from typing import Any
 
 import numpy as np
 import pyarrow as pa
-import pyarrow.parquet as pq
 
 BANDS = ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59",
          "60-64", "65-69", "70-74", "75-79", "80+"]
@@ -84,17 +83,21 @@ def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict
 
 def build_sus_dependent(root: str | Path, *, version: str, validation: str, draws: int = 200, seed: int = 0,
                         log=print) -> dict[str, Any]:
-    import json
     from types import SimpleNamespace
 
     from .modelled import ModelledManifest, write_modelled
 
     settings = SimpleNamespace(lake_dir=Path(root) / "lake")
-    base = Path(root) / "lake" / "modelled" / "population_account"
-    folder = base / "population-account-2"        # band-level intervals; version 3 is single-age (ADR-0151)
-    pm = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+    from .modelled import read_modelled
+
     years = [2021, 2022, 2023, 2024, 2025]
-    pop = pq.read_table(folder / "estimates.parquet", filters=[("year", "in", years), ("place_kind", "=", "municipality")]).to_pandas()
+    # band-level intervals: version 2 (version 3 and later are single-age, ADR-0151)
+    estimates, pm = read_modelled("population_account", "population-account-2", settings=settings)
+    import pyarrow.compute as pc
+
+    keep = pc.and_(pc.is_in(estimates.column("year"), pa.array(years, estimates.column("year").type)),
+                   pc.equal(estimates.column("place_kind"), "municipality"))
+    pop = estimates.filter(keep).to_pandas()
     years = sorted(int(y) for y in pop["year"].unique())
     cells, report = load_ans(root, years)
     log(f"ANS years {years}; unplaced: {report}")

@@ -211,15 +211,17 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
     from types import SimpleNamespace
 
     import pyarrow as pa
-    import pyarrow.parquet as pq
 
     from .modelled import ModelledManifest, write_modelled
 
     pub = published()
     ill = ill_defined_shares(ill_cells_path)
-    base = Path(root) / "lake" / "modelled" / "registration_completeness"
-    acct_dir = base / sorted(p.name for p in base.iterdir())[-1]
-    acct = pq.read_table(acct_dir / "estimates.parquet").to_pylist()
+
+    from .modelled import read_modelled
+
+    # the latest version as `read_modelled` orders them (by number: a text sort put -10 before -6)
+    table, acct_manifest = read_modelled("registration_completeness", settings=SimpleNamespace(lake_dir=Path(root) / "lake"))
+    acct = table.to_pylist()
     independent = {(r["uf"], y): r["completeness"] for r in acct if r["system"] == "SINASC"
                    for y in range(int(r["period"][:4]), int(r["period"][5:]) + 1)}        # the years the cohort was born in
     rows, calibration = [], {}
@@ -266,7 +268,7 @@ def build_completeness(root: str | Path, ill_cells_path: str | Path, *, version:
         estimates={"completeness": ["completeness_lo", "completeness_hi"]},
         place="uf", period="year", strata=["system"],
         inputs={"published ratio": "tabnet.datasus.gov.br/cgi/idb2012/a17b.htm, a1801b.htm (IBGE and MS/SVS)",
-                "ill-defined share": "SIM municipality × year × cause aggregate", "census-based SINASC": acct_dir.parent.name + "/" + acct_dir.name},
+                "ill-defined share": "SIM municipality × year × cause aggregate", "census-based SINASC": "registration_completeness/" + acct_manifest["version"]},
         validation=validation,
         notes=["Completeness is registered / (registered + unregistered) of events in the UF of residence; 'published' rows are the "
                "Ministry's ratio of registered to estimated events, where the estimate rests on the 2008 Busca Ativa factors "
