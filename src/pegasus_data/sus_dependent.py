@@ -43,23 +43,29 @@ Z80 = 1.2815515655446004
 
 def _unplaced(root: str | Path, year: int) -> int:
     """Medical-hospital links of the year's December files that no IBGE municipality holds (the state file XX, whose
-    municipality is -1, and a state's "ignored" code 270000), read from the ANS records the landing keeps in the lake: the
-    field leaves them out and counts them, they are not a place."""
-    import duckdb
+    municipality is -1, and a state's "ignored" code 270000): the records cube's own count of what it could not place
+    (``unplaced_events``), read from the ANS records in the lake."""
+    import json
 
-    pattern = (Path(root) / "lake" / "ANS" / "ANS_ICB_*" / "schema_signature=*" / "uf=BR" / f"year={year}" / "*.parquet").as_posix()
-    row = duckdb.sql(f"SELECT sum(QT_BENEFICIARIO_ATIVO) FROM read_parquet('{pattern}', union_by_name=true) "
-                     "WHERE COBERTURA_ASSIST_PLAN LIKE 'M%' AND _MUNICIPALITY IS NULL").fetchone()
-    return int(row[0] or 0)
+    from .config import load_settings
+    from .cubes import cube
+
+    table = cube("records:ANS-ICB/rows", measure="QT_BENEFICIARIO_ATIVO", where={"COBERTURA_ASSIST_PLAN": {"prefix": ["M"]}},
+                 periods=[str(year)], grain="year", settings=load_settings(root=Path(root)))
+    return int(json.loads(table.schema.metadata[b"pegasus.cube"])["unplaced_events"])
 
 
 def load_ans(root: str | Path, years: list[int]) -> tuple[dict[tuple, int], dict[int, dict[str, int]]]:
     """Medical-hospital links per (year, 6-digit municipality, sex, band), and what could not be placed."""
+    from .config import load_settings
+    from .fields import load_field
+
+    settings = load_settings(root=Path(root))
     cells: dict[tuple, int] = {}
     report: dict[int, dict[str, int]] = {}
     for y in years:
-        t = pq.read_table(Path(root) / "lake" / "fields" / "ans_beneficiaries" / f"year={y}" / "part.parquet",
-                          columns=["municipality", "sex", "age_band", "coverage", "value"]).to_pylist()
+        t = load_field("ans_beneficiaries", years=[y], settings=settings).select(
+            ["municipality", "sex", "age_band", "coverage", "value"]).to_pylist()
         unknown = _unplaced(root, y)
         rep = {"medical_total": unknown, "municipality_unknown": unknown, "age_incorrect": 0}
         for r in t:

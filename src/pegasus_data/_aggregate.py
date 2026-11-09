@@ -350,21 +350,13 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
 
 def _resolved_age(spec: AggregateSpec, settings: Any) -> Any:
     """The age an aggregate names by its derived variable (``age_dimension: {of: IDADE_anos}``), as the dataset's
-    variables declare it (`_age.resolve_age`): one declaration of a system's age convention, read by all its
-    aggregates."""
+    variables declare it (`_age.resolve_age`, read from the curation as the records cube reads it): one declaration of a
+    system's age convention, read by all its aggregates."""
     from ._age import resolve_age
-    from ._request import parse_dataset
-    from .catalog.store import CatalogStore
-    from .semantics.curation import load_variable_docs
+    from .cubes import _variable_docs
 
-    system, _series = parse_dataset(spec.dataset)
-    catalog = CatalogStore(settings.catalog_path, read_only=True)
     try:
-        docs = load_variable_docs(catalog, system)
-    finally:
-        catalog.close()
-    try:
-        return resolve_age(spec.age, docs)
+        return resolve_age(spec.age, _variable_docs(spec.dataset))
     except ValueError as exc:
         raise AggregationRefused(f"{spec.name}: {exc}") from exc
 
@@ -965,7 +957,7 @@ _LAYOUT_CONFIDENCE = 0.9
 
 
 def _date_layout(values: Sequence[Any]) -> str | None:
-    """``"ymd"``, ``"dmy"`` or None, decided by measurement.
+    """``"ymd"``, ``"dmy"``, ``"ym"`` (a year-first month with no day) or None, decided by measurement.
 
     DATASUS does not use one date format. Measured on live 2022 files:
 
@@ -994,9 +986,14 @@ def _date_layout(values: Sequence[Any]) -> str | None:
     column this cannot read is refused upstream rather than bucketed under a
     period that means nothing, which is how `0101` through `3112` became months.
     """
-    ymd = dmy = seen = 0
+    ymd = dmy = ym = seen = 0
     for value in values:
         text = str(value or "").strip()
+        if len(text) == 6 and text.isdigit():
+            # a month written year-first with no day (ANS's ID_CMPT_MOVEL, 2024-12 once its dash is read away)
+            seen += 1
+            ym += 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12
+            continue
         if len(text) != 8 or not text.isdigit():
             continue
         seen += 1
@@ -1008,6 +1005,8 @@ def _date_layout(values: Sequence[Any]) -> str | None:
             dmy += 1
     if not seen:
         return None
+    if ym >= _LAYOUT_CONFIDENCE * seen:
+        return "ym"
     if ymd >= _LAYOUT_CONFIDENCE * seen and ymd > dmy:
         return "ymd"
     if dmy >= _LAYOUT_CONFIDENCE * seen and dmy > ymd:
@@ -1047,6 +1046,8 @@ def _competencia_column(
             return pc.strftime(column, format="%Y%m")
         joined = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
         if encoding == "date":
+            # an ISO date or month (2024-12-31, 2024-12) is its digits year-first
+            joined = pc.replace_substring(joined, "-", "")
             layout = _date_layout(
                 joined.slice(0, min(_LAYOUT_SAMPLE, len(joined))).to_pylist())
             if layout is None:

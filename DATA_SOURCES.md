@@ -1044,6 +1044,9 @@ TabNet's state forms classify by `territorio/{UF}_macsaud.cnv` and `{UF}_regsaud
   margin sums to 47,304,632 enrolments in 5,570 municipalities.
 - **ANS PDA-024**, December 2022: 28 state files (27 states and `XX`), 14,070,694 rows. `XX` has `SG_UF` "XX" and municipality `-1`; each state
   has an "ignored" municipality code ending in `0000`. 41,879 of 50,530,569 medical-hospital links (0.08 %) are in neither.
+- **ANS rewrites its December files.** The 2022 state files were republished on 2026-11-05 (SP, RJ, MG `Last-Modified`):
+  landed again on 2026-11-09 they give 50,500,350 medical-hospital links (30,219 fewer than the 50,530,569 measured on
+  2026-10-04, which then equalled TabNet) and 42,301 unplaced. A landed December is a version of it, not the year.
 
 ## 13. SISAGUA on the Portal de Dados Abertos (measured 2026-10-14; ADR-0162, ADR-0192)
 

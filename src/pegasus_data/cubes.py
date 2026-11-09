@@ -46,7 +46,8 @@ LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), where: Mapping[str, Sequence[Any]] | None = None,
          periods: Sequence[str | int] | None = None, labels: bool = True, settings: Any = None,
          at: str | None = None, time: str | None = None, grain: str | None = None, condition: object = None,
-         measure: str | None = None, support: Any = None, geography: str | None = None) -> pa.Table:
+         measure: str | None = None, support: Any = None, geography: str | None = None,
+         derived: Mapping[str, Mapping[str, Any]] | None = None) -> pa.Table:
     """The cube ``source`` at ``place`` level (``municipality``, ``uf``, ``country``), keeping the strata named in ``by``
     and the categories named in ``where``; every other stratum is the source's Total. ``periods`` restricts the periods.
 
@@ -58,7 +59,10 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     water sample, a sale, a dose row), sums its numeric column ``measure`` or, with ``measure="distinct:<column>"``, counts
     the column's distinct values per cell (establishments, teams, persons). ``where`` also takes ``{column: {"not":
     [...]}}`` and a two-column code ``{"A+B": [...]}``. ``periods`` are years, or months (``"2023-12"``) to read those
-    months only. ``support`` names a records cube (``records:CNES-ST/rows``) whose places are the ones the source could
+    months only. ``derived`` names strata made from the record (a records cube): ``{"FAIXA_ETARIA": {"age": "IDADE_anos",
+    "bands": [0, 1, 5, ...]}}`` bands the age the dataset's variables declare (`_age.resolve_age`), ``{"PESO_FAIXA":
+    {"field": "PESO", "bands": [...]}}`` bands a number; a value not decodable is its own level (``ZIG``). Each named in
+    ``by``. ``support`` names a records cube (``records:CNES-ST/rows``) whose places are the ones the source could
     have recorded: inside it a cell with no record is 0 (``zero``), outside it there is no row. The facts must be held or
     fetchable; a cube of nothing raises, never returns an empty table that could pass for an empty result.
     """
@@ -71,7 +75,8 @@ def cube(source: str, *, place: str = "municipality", by: Sequence[str] = (), wh
     if adapter is None or not ident:
         raise ValueError(f"a cube is <adapter>:<id> with adapter one of {sorted(_ADAPTERS)}, got {source!r}")
     options = {k: v for k, v in (("at", at), ("time", time), ("grain", grain), ("condition", condition),
-                                 ("measure", measure), ("support", support), ("geography", geography)) if v is not None}
+                                 ("measure", measure), ("support", support), ("geography", geography),
+                                 ("derived", {k: dict(v) for k, v in derived.items()} if derived else None)) if v is not None}
     if options and kind != "records":
         raise ValueError(f"{sorted(options)} apply to records cubes only")
     settings = settings or load_settings()
@@ -246,7 +251,12 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
     key = f"{key}-{hashlib.blake2b(json.dumps(where, sort_keys=True, default=str).encode(), digest_size=6).hexdigest()}"
     digest = hashlib.blake2b(digest_size=12)
     digest.update(curation_epoch()[1].encode())
-    digest.update(Path(__file__).read_bytes())
+    # the code a cube's arithmetic runs through: this module, the period reader (`_aggregate._competencia_column`), the
+    # age decoder, the event counter and the placing rule (an edit to the period reader once served a stale empty cube)
+    here = Path(__file__).parent
+    for module in (Path(__file__), here / "_aggregate.py", here / "_age.py", here / "semantics" / "event_types.py",
+                   here / "geography.py"):
+        digest.update(module.read_bytes())
     if stamp is not None:
         stamp(digest)
     else:
@@ -273,7 +283,7 @@ def _cached(settings: Any, key: str, where: Mapping[str, Any], build: Any, stamp
 def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence[Any]], periods: Sequence[str | int] | None,
              labels: bool, settings: Any, at: str | None = None, time: str | None = None, grain: str | None = None,
              condition: object = None, measure: str | None = None, support: Any = None,
-             geography: str | None = None) -> pa.Table:
+             geography: str | None = None, derived: Mapping[str, Mapping[str, Any]] | None = None) -> pa.Table:
     """Events of one type of a record dataset, counted by the event type's own rules (status, duplicates, consolidation,
     weights: `semantics.event_types`), by place, period and the columns in ``by``. The place and the date are the dataset's
     declared bindings; a municipality is its IBGE 7 digits, and an event whose place no IBGE municipality has, or that has
@@ -321,7 +331,13 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     filter_columns = [c for k in after for c in k.split("+")]
     distinct = measure.split(":", 1)[1] if measure and measure.startswith("distinct:") else None
     summed = None if distinct else measure
-    group = list(dict.fromkeys([place_column, *time_fields, *by, *filter_columns]))
+    # a derived stratum is read from its input columns and made after counting by them (`_derived_dimensions`)
+    bands = _derived_dimensions(dataset, derived or {})
+    missing = [b for b in bands if b not in by]
+    if missing:
+        raise ValueError(f"derived strata {missing} are not named in by")
+    inputs = [c for d in bands.values() for c in (d.fields if hasattr(d, "form") else (d.field_name,))]
+    group = list(dict.fromkeys([place_column, *time_fields, *(b for b in by if b not in bands), *inputs, *filter_columns]))
     extra = {"rows": exact} if exact else {}
     months = sorted({str(p) for p in periods if len(str(p)) == 7 and str(p)[4] == "-"})
     # `geography` selects the publications read (a state's files), never the records: a test reads the least it needs
@@ -382,6 +398,15 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     # the cell's own keys: a column a filter reads is not one of them (a physician under two CBO codes is one person)
     cell = list(dict.fromkeys([place_column, *time_fields, *by]))
 
+    def banded(table: pa.Table) -> pa.Table:
+        """The derived strata of ``table``'s input columns (`_age.band_column`, `NumericBandDimension.column`)."""
+        from ._age import band_column, years_column
+
+        for name, dim in bands.items():
+            column = band_column(dim, years_column(dim, table)) if hasattr(dim, "form") else dim.column(table)
+            table = table.append_column(name, column)
+        return table
+
     def placed(table: pa.Table) -> pa.Table:
         """The place column as the municipality it places (`geography.place_municipalities`), before any grouping: a
         distinct count is of its municipality, never summed over the codes that place there (the Federal District's PF
@@ -395,8 +420,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
             if measure:
                 raise ValueError("an event type counts events; a measure is summed over a dataset's rows (records:<dataset>/rows)")
             # events are counted by the filters' columns too, then filtered and summed over them (events add up)
-            counted = placed(kept(count_events(dataset, event, period=span, geography=publications, by=group,
-                                               condition=condition, **extra)))
+            counted = banded(placed(kept(count_events(dataset, event, period=span, geography=publications, by=group,
+                                                      condition=condition, **extra))))
             return counted.group_by(cell).aggregate([("events", "sum")]).rename_columns([*cell, "events"])
         if condition is not None:
             raise ValueError("a condition on roles applies to an event type's records")
@@ -405,8 +430,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
         # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
         parts_summed = summed.split("+") if summed else []
         extra_columns = [*parts_summed, *([distinct] if distinct else [])]
-        table = placed(kept(query(dataset, period=span, geography=publications,
-                                  select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra)))
+        table = banded(placed(kept(query(dataset, period=span, geography=publications,
+                                         select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
         if summed:
             total = None
             for part in parts_summed:
@@ -422,11 +447,15 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                 pc.fill_null(pc.not_equal(values, ""), False))
             table = table.group_by([*cell, distinct]).aggregate([])
             return table.group_by(cell).aggregate([(distinct, "count")]).rename_columns([*cell, "events"])
-        return table.group_by(cell).aggregate([(place_column, "count")]).rename_columns([*cell, "events"])
+        # every row, its place unplaced included (a count of the place column skips nulls: the unplaced vanished)
+        return table.group_by(cell).aggregate([(place_column, "count", pc.CountOptions(mode="all"))]).rename_columns(
+            [*cell, "events"])
 
     parts = [count(span) for span in spans]
     counts = pa.concat_tables(parts, promote_options="permissive") if len(parts) > 1 else parts[0]
     competencia = _competencia_column(counts, time_fields, encoding)
+    # a period of no month (ANS's file year) leaves the column all null, of no type: it is text that holds nothing
+    competencia = pa.nulls(counts.num_rows, pa.string()) if competencia is None else pc.cast(competencia, pa.string())
     year = pc.utf8_slice_codeunits(competencia, 0, 4)
     period = year if grain == "year" else pc.binary_join_element_wise(
         year, pc.utf8_slice_codeunits(competencia, 4, 6), "-")
@@ -564,6 +593,40 @@ def _climate(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     return _with_manifest(facts, {"source": f"climate:{ident}", "place_level": "municipality", "period_grain": "year",
                                   "strata": [], "additive_over": ["months"],
                                   "denominator": f"climate:{brdwgd.MEASURES[ident]}_months"})
+
+
+def _derived_dimensions(dataset: str, derived: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
+    """Each derived stratum's dimension: an age band (``age``: the derived variable whose declaration gives the age's
+    form, resolved from the system's variables, `_age.resolve_age`; or a ``form`` given in place) or a numeric band
+    (``field``)."""
+    from ._age import parse_age, parse_band_dimensions, resolve_age
+
+    out: dict[str, Any] = {}
+    for name, body in derived.items():
+        body = dict(body)
+        if "field" in body:
+            out[name] = parse_band_dimensions({name: body})[0]
+        elif "age" in body:
+            age = parse_age({"of": body["age"], **({"bands": body["bands"]} if body.get("bands") else {})}, name=name)
+            out[name] = resolve_age(age, _variable_docs(dataset))
+        else:
+            out[name] = parse_age(body, name=name)
+    return out
+
+
+def _variable_docs(dataset: str) -> dict[str, Any]:
+    """The curated variables of ``dataset``'s system, read from `curation/variables/<system>/` (not the catalog: a
+    declaration is read where it is written)."""
+    from ._request import parse_dataset
+    from .config import curation_root
+    from .semantics.curation import parse_variable_file, read_yaml
+
+    system, _series = parse_dataset(dataset)
+    out: dict[str, Any] = {}
+    for path in sorted((curation_root() / "variables" / system.lower()).glob("*.yml")):
+        for doc in parse_variable_file(path, read_yaml(path) or {}):
+            out[f"{path.stem}:{doc.field_name}"] = doc
+    return out
 
 
 def _records_stamp(settings: Any, dataset: str, digest: Any) -> None:

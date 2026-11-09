@@ -50,13 +50,14 @@ general rule.
    stored copies nationally); `sources/cnes.py` and `_build_cnes` are removed.
 2. ~~One column, three declarations~~ **closed (ADR-0219):** linkage reads `compare:` from the roles files
    (`roles.yml` deleted, 108 roles equal); the intake's `role:` is `description:`.
-3. **Study modules name datasets and columns in code:** nearly closed (2026-11-09). The population account's inputs
+3. ~~Study modules name datasets and columns in code~~ **closed (2026-11-09).** The population account's inputs
    are declared on its product (`inputs:` of `products.yml`: event types and strata roles, `column_roles.column_of`);
    sex is read from its label by one function (`sex_of`) where four modules kept a code map; the 48 collected files
    were rewritten in that form, and every reader's output is equal. The account, the tensor, the backcast and
    completeness read SIDRA through `cube()` and censuses through `load_population`, not lake paths; every function
-   returns the same arrays. **Left:** `sus_dependent` reads ANS by path, and ANS's records were never landed (landing
-   now).
+   returns the same arrays. ANS's records are landed (602 MB, 2021-2025), its field is a records-cube view, and `sus_dependent`
+   reads it and its unplaced links through the API (the cube's count equals the old SQL: 42,301 in 2022, 44,800 in
+   2024). Closed.
 4. ~~Age encodings named per system~~ **closed (ADR-0218):** five forms with the unit table as data, declared once on
    each system's `IDADE_anos`; the 59 aggregates name the variable. Decoding equal on six systems' records.
 5. ~~Linkage cardinality hard-coded~~ **closed (9958a80):** read from each dataset's roles file (`persons:`).
