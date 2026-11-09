@@ -205,6 +205,171 @@ def _field_from_cube(name: str, spec: dict[str, Any], years: list[int] | None, s
     })
 
 
+def intake_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """The records cube an intake field is, or None for one still built apart: a count or a sum, with its `where` and
+    `by`, over a landed dataset placed by municipality code with place and time bindings (curated, or read from its
+    roles). Shares (`outcome`), unpivoted margins and row registers are not yet cubes; neither is a field whose dataset
+    holds no landed records, whose stored copy is then the only form of its data (ANS's beneficiaries)."""
+    from .intake import _strata, declared_sources
+    from .semantics.curation import semantics_for
+
+    if spec.get("source") != "intake":
+        return None
+    source = declared_sources().get(str(spec.get("intake")))
+    fs = ((source or {}).get("fields") or {}).get(name) if source else None
+    if not fs or fs.get("unpivot") or fs.get("rows"):
+        return None
+    if (source.get("place") or {}).get("type") != "municipality":
+        return None
+    dataset = f"{source['system']}-{source['series']}"
+    if semantics_for(dataset) is None or not _landed(source):
+        return None
+    from .semantics.event_types import event_types
+
+    try:
+        events = [e["name"] for e in event_types(dataset)]
+    except KeyError:
+        events = []
+    measure = fs["measure"]["sum"] if isinstance(fs.get("measure"), dict) else None
+    cube_source = f"records:{dataset}/{events[0] if events else 'rows'}"
+    where = dict(fs.get("where") or {})
+    support = None
+    if fs.get("outcome"):
+        # a share's numerator: its population's records with the outcome, a row (0 where none) wherever the population has one
+        if fs.get("by"):
+            return None
+        support = {"source": cube_source, "where": dict(where)}
+        where = {**where, **fs["outcome"]}
+    return {"source": cube_source, "dataset": dataset, "support": support,
+            "where": where, "strata": _strata(fs),
+            "measure": str(measure).upper() if measure else None,
+            "grain": (source.get("period") or {}).get("grain") or "year",
+            "citation": str(source.get("citation") or source.get("what") or "")}
+
+
+def _landed(source: dict[str, Any]) -> bool:
+    from .catalog.store import CatalogStore
+    from .config import load_settings
+
+    store = CatalogStore(load_settings().catalog_path, read_only=True)
+    try:
+        return bool(store.query("SELECT 1 FROM families WHERE system = ? AND series = ? AND schema_source = 'intake' LIMIT 1",
+                                (str(source["system"]).upper(), str(source["series"]).upper())))
+    finally:
+        store.close()
+
+
+def _field_from_records(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,
+                        settings: Any) -> pa.Table:
+    """An intake field read from its records cube, in the field's columns: (municipality, [month], its strata, value,
+    municipality7, status, unit, source, year), as `intake._derive` wrote them (evaluation 2026-11-09-the-cube-stage-1).
+    An event source's events follow its event type (SRAG's notifications filed in two yearly files count once)."""
+    import pyarrow.compute as pc
+
+    from .cubes import cube
+
+    declared = _years(spec["years"])
+    periods = [y for y in (years or declared) if y in declared]
+    columns = [c for c, _ in plan["strata"]]
+    if periods:
+        table = cube(plan["source"], periods=periods, grain=plan["grain"], by=columns, where=plan["where"],
+                     measure=plan["measure"], support=plan.get("support"), settings=settings)
+    else:
+        table = pa.table({"place": pa.array([], pa.int64()), "period": pa.array([], pa.string()),
+                          **{c: pa.array([], pa.string()) for c in columns}, "value": pa.array([], pa.float64())})
+    code7 = pc.cast(table.column("place"), pa.string())
+    period = table.column("period")
+    n = table.num_rows
+    out: dict[str, Any] = {"municipality": pc.utf8_slice_codeunits(code7, 0, 6)}
+    if plan["grain"] == "month":
+        out["month"] = pc.cast(pc.utf8_slice_codeunits(period, 5, 7), pa.int32())
+    for column, alias in plan["strata"]:
+        out[alias] = pc.cast(table.column(column), pa.string())
+    out.update({
+        "value": pc.cast(table.column("value"), pa.float64()),
+        "municipality7": code7,
+        "status": pa.array(["ok"] * n, pa.string()),
+        "unit": pa.array([str(spec.get("unit") or "")] * n, pa.string()),
+        "source": pa.array([plan["citation"]] * n, pa.string()),
+        "year": pc.cast(pc.utf8_slice_codeunits(period, 0, 4), pa.int32()),
+    })
+    return pa.table(out)
+
+
+def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """The records cube a CNES supply field is: a December's register read by the one reader (its files adopted from
+    the mirror, `adopt.adopt_copies`), the field's groups as code lists on the register's own columns, its stock counted
+    (establishments and teams as distinct codes) or summed (beds, equipment). The support is December's ST register: a
+    municipality with no establishment in it has no value (``no_cnes_record``), one with establishments and none of the
+    field's is a true 0. A field of professionals (PF) is not yet a cube: its files are not held."""
+    from .sources.cnes import NOT_DEACTIVATED, groups
+
+    if spec.get("source") != "cnes" or spec.get("family") == "professionals":
+        return None
+    g = groups()
+    family = spec["family"]
+    where: dict[str, Any] = {}
+    if family == "facilities":
+        listed = [c for codes in g["facility_groups"].values() for c in codes]
+        group = spec["group"]
+        where["TP_UNID"] = {"not": listed} if group == "other" else list(g["facility_groups"][group])
+        where["VINC_SUS"] = ["1"] if spec["sector"] == "sus" else {"not": ["1"]}
+        dataset, measure = "CNES-ST", "distinct:CNES"
+    elif family == "beds":
+        if spec["kind"] in ("icu", "neonatal_icu"):
+            where["CODLEITO"] = list(g[f"{spec['kind']}_bed_codes"])
+        dataset, measure = "CNES-LT", {"all": "QT_EXIST", "sus": "QT_SUS", "nonsus": "QT_NSUS"}[spec["sector"]]
+    elif family == "equipment":
+        where["TIPEQUIP+CODEQUIP"] = list(g["equipment"][spec["equipment"]])
+        if spec["sector"] == "sus":
+            where["IND_SUS"] = ["1"]
+        dataset, measure = "CNES-EQ", "QT_EXIST"
+    elif family == "teams":
+        where["TIPO_EQP"] = list(g["team_groups"][spec["group"]])
+        where["DT_DESAT"] = list(NOT_DEACTIVATED)
+        dataset, measure = "CNES-EP", "distinct:IDEQUIPE"
+    else:
+        return None
+    return {"source": f"records:{dataset}/rows", "dataset": dataset, "where": where, "measure": measure,
+            "support": "records:CNES-ST/rows"}
+
+
+def _field_from_cnes(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,
+                     settings: Any) -> pa.Table:
+    """A CNES field from its cube, in the field's columns, one row per IBGE municipality and year: the value inside the
+    register's support (``ok``), else a null (``no_cnes_record``), as `_build_cnes` wrote them."""
+    from .cubes import cube
+    from .geography import municipalities
+
+    declared = _years(spec["years"])
+    wanted = [y for y in (years or declared) if y in declared]
+    universe = municipalities()
+    keys = sorted(universe)
+    columns: dict[str, list[Any]] = {k: [] for k in ("municipality", "municipality7", "value", "status", "unit", "source", "year")}
+    for year in wanted:
+        table = cube(plan["source"], periods=[f"{year}-12"], grain="month", where=plan["where"], measure=plan["measure"],
+                     support=plan["support"], settings=settings)
+        found = {str(r["place"]): r["value"] for r in table.select(["place", "value"]).to_pylist()}
+        label = f"{plan['dataset']} {year}-12"
+        for six in keys:
+            code7 = str(universe[six]["code7"])
+            held = code7 in found
+            columns["municipality"].append(six)
+            columns["municipality7"].append(code7)
+            columns["value"].append(float(found[code7]) if held else None)
+            columns["status"].append("ok" if held else "no_cnes_record")
+            columns["unit"].append(str(spec["unit"]))
+            columns["source"].append(label)
+            columns["year"].append(year)
+    return pa.table({"municipality": pa.array(columns["municipality"], pa.string()),
+                     "municipality7": pa.array(columns["municipality7"], pa.string()),
+                     "value": pa.array(columns["value"], pa.float64()),
+                     "status": pa.array(columns["status"], pa.string()),
+                     "unit": pa.array(columns["unit"], pa.string()),
+                     "source": pa.array(columns["source"], pa.string()),
+                     "year": pa.array(columns["year"], pa.int32())})
+
+
 def _sidra_source(spec: dict[str, Any]) -> str:
     chosen = _classification(spec)
     return f"IBGE agregados {spec['table']} v{spec['variable']}" + (f" c{chosen}" if chosen else "")
@@ -410,8 +575,15 @@ def load_field(name: str, *, years: list[int] | int | None = None, settings: Any
         raise KeyError(f"unknown field {name!r}; declared: {sorted(declared_fields())}")
     settings = settings or load_settings()
     spec = declared_fields()[name]
+    wanted = [years] if isinstance(years, int) else years
     if cube_of(spec) is not None:                 # a SIDRA or series field is its cube, read from the fact store
-        return _field_from_cube(name, spec, [years] if isinstance(years, int) else years, settings)
+        return _field_from_cube(name, spec, wanted, settings)
+    plan = intake_cube(name, spec)
+    if plan is not None:                          # an intake count or sum is its records cube (ADR-0217)
+        return _field_from_records(name, spec, plan, wanted, settings)
+    plan = cnes_cube(name, spec)
+    if plan is not None:                          # a CNES supply field is its records cube over December's register
+        return _field_from_cnes(name, spec, plan, wanted, settings)
     directory = Path(settings.lake_dir) / "fields" / name
     if not directory.exists():
         raise FileNotFoundError(f"field {name!r} is not in the lake; run `pegasus-data fields --name {name}`")

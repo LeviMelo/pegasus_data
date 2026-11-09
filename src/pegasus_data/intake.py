@@ -1446,7 +1446,16 @@ def build_source(settings: Any, source: str, names: list[str] | None = None, yea
             unparsed[column] = unparsed.get(column, 0) + n
     if unparsed:
         report["unparsed"] = unparsed
-    report.update(_derive(settings, spec, fields, years))
+    # A field that is a records cube is built as one (kept under lake/cubes by its data's fingerprint), not copied
+    # into lake/fields (ADR-0217); the others are still derived here.
+    from .fields import declared_fields, intake_cube, load_field
+
+    declared = declared_fields()
+    served = [f for f in fields if f in declared and intake_cube(f, declared[f]) is not None]
+    for name in served:
+        table = load_field(name, years=years, settings=settings)
+        report[name] = {"rows": table.num_rows, "total": float(pc.sum(table.column("value")).as_py() or 0), "cube": True}
+    report.update(_derive(settings, spec, [f for f in fields if f not in served], years))
     return report
 
 

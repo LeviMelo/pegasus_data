@@ -63,3 +63,19 @@ The comparison is by (municipality, month).
 - **Adopted.** `adopt-copies` (`adopt.adopt_copies`) stored them in the blob store as fetches of their FTP paths
   (`local-copy`, 367 MB), the folder left as it was. `query("CNES.LT", period="2015-12", geography="AC")` then read
   Acre's 204 rows (1,354 SUS beds) within a 1-byte download budget.
+
+**Every convertible intake field against its cube** (the session's `cmp_intake.py`; 581cddc and after). The comparison is
+by (municipality, period, strata), and each cube is the field's own declaration as a request: its `where`, its `by`, its
+`sum` column, and its event type where the dataset declares one, else its rows.
+
+| fields | result |
+|---|---|
+| 17 SISAGUA surveillance and control counts (analyses 34,195,729; censored, quantified, outbreak, the seven `_assessed` denominators, other, cyanobacteria, control other, outside standard) | all equal, 0 cells differing |
+| `sisagua_surveillance_result_sum` (a sum) | equal: 67,716,248.8 |
+| `sisagua_control_counts` (a sum over `CAMPO` rows by prefix) | equal: 2,174,577,401.8 over 15,792,073 cells (the first run gave 0 because `where`'s prefix form was not yet read; it is) |
+| yellow fever: cases, deaths, epizootics | equal |
+| SRAG: cases, COVID, deaths, ICU | lower by the notifications filed in two yearly files (29, 4, 3, 12), a correction |
+| `ans_beneficiaries` | not comparable: ANS's records were never landed, so its stored copy is its only form |
+
+Not yet cubes: the 7 SISAGUA outcome shares (zero-filled over their `_assessed` population), INEP's unpivoted margins,
+S2iD's register of events, and the 5 SISAGUA supply, tanker and SNGPC sums whose datasets have no code-placed roles.

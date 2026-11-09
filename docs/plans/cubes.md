@@ -102,6 +102,24 @@ question"). Built data is not deleted until its cube reproduces it.
 
 Each stage ends merged, verified on real data, documented, and with nothing it replaced left standing.
 
+**Progress (2026-11-09, evaluation 2026-11-09-the-cube-stage-1).**
+- **Stage 1 is done.**
+- **Stage 2.**
+  - **The records adapter** counts events (or rows, or sums a column) by the dataset's bindings: curated, or read from
+    its roles. It applies codes or prefixes in `where`, reads only the published years, and caches each cube by its data's
+    fingerprint.
+  - **Reproduced:** the 17 SISAGUA count fields equal cell for cell; yellow fever equal; SRAG 29 lower (the
+    notifications filed twice).
+  - **Population cubes** are added.
+- **Stage 3 has measured requirements.**
+  - The mirror's 1,728 CNES DBCs are the FTP's own files and are adopted into the blob store, so no download is needed.
+  - The CNES fields need four things records cubes do not have yet:
+    - a distinct count (establishments by `CNES`, teams by `IDEQUIPE`, persons by `CNS_PROF`);
+    - an exclusion (the "other" facilities: unit types outside the listed groups);
+    - a code made of two columns (equipment `TIPEQUIP` + `CODEQUIP`, the CNES equipment codelist's key);
+    - a support mask (a municipality absent from December's ST register is `no_cnes_record`, not 0).
+  - The professionals' fields also need the PF files, which were fetched and released when ADR-0215 was built.
+
 1. **The cube core.**
    - The fact schema and manifest; canonical place (`geography.to_code7`, levels) and period keys; the store
      (`<lake>/cubes/<id>/`).
