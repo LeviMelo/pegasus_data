@@ -50,7 +50,6 @@ import pyarrow as pa
 
 from ._request import (  # noqa: F401 - raised by fetch; importable from here
     DEFAULT_MAX_EAGER_BYTES,
-    SYSTEM_ALIASES,
     DatasetUnknown,
     DownloadBudgetExceeded,
     FilterHasNoAxis,
@@ -58,7 +57,6 @@ from ._request import (  # noqa: F401 - raised by fetch; importable from here
     PartialFetchError,
     PublishedEmpty,
     RequestTooLarge,
-    _as_list,
     _as_years,
     _check_axes,
     _check_choice,

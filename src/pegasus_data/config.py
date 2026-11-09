@@ -34,11 +34,6 @@ UF_NUMERIC: dict[str, str] = {
 UF_TO_NUMERIC: dict[str, str] = {v: k for k, v in UF_NUMERIC.items()}
 
 
-def _env_path(name: str, default: Path) -> Path:
-    raw = os.environ.get(name)
-    return Path(raw).expanduser() if raw else default
-
-
 def default_root() -> Path:
     """Root of the local data lake and cache.
 

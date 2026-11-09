@@ -485,22 +485,6 @@ def _binding_fields(bindings: Mapping[str, Any], chosen: str, kind: str,
     return fields
 
 
-def _competencia(row: Mapping[str, Any], fields: Sequence[str]) -> str | None:
-    """AAAAMM from the declared time fields, however they are spelled."""
-    if len(fields) >= 2:
-        year, month = row.get(fields[0]), row.get(fields[1])
-        if year is None or month is None:
-            return None
-        return f"{str(year).strip():>04}{str(month).strip().zfill(2)}"
-    value = row.get(fields[0])
-    if value is None:
-        return None
-    text = str(value).strip()
-    if len(text) >= 6 and text[:6].isdigit():
-        return text[:6]
-    return None
-
-
 def build_aggregate(
     name: str,
     *,

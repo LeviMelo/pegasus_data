@@ -420,14 +420,6 @@ def _as_years(years: int | Sequence[int] | range | None) -> list[int]:
     return sorted({int(y) for y in years})
 
 
-def _as_list(value: str | Sequence[str] | None) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, str):
-        return [value.upper()]
-    return [str(v).upper() for v in value]
-
-
 _ONTOLOGY: Ontology | None = None
 
 
