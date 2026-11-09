@@ -135,8 +135,9 @@ an enrichment route of `joins.yml` `enrichments:`, 2026-11-09);
 
 A recipe (`curation/aggregates/*.yml`, 62 of them) is parsed into an
 `AggregateSpec`. `_aggregate.build_aggregate` calls `fetch()` state by state,
-lifts rows into mergeable accumulator states (`measures.py`: COUNT, SUM, MEAN,
-MOMENTS, LOGMOMENTS, RATIO, MIN, MAX as monoids) and writes a base cuboid; `aggregate()` rolls it up
+asks the records cubes (`cubes.cube`, ADR-0217) for the mergeable accumulator states (`measures.py`: COUNT, SUM, MEAN,
+MOMENTS, LOGMOMENTS as monoids; ratio, min and max are not built from cubes yet) and writes the artifact's manifest;
+the base cuboid is those cubes, read back by `_load_artifact`; `aggregate()` rolls it up
 through the geography graph (`geography.py`, compiled from the label pack).
 `capabilities.py` describes a built artifact to a client; `serve/` exposes
 artifacts, capabilities, population, geography memberships and (behind
@@ -158,7 +159,7 @@ it (ADR-0200):
 <home>/lake/<sys>/<family>/schema_signature=/uf=/year=/   the Parquet lake
 <home>/lake/reference/           version-scoped code tables (persist/reference.py); `_stamps.json`: each system's dictionary fingerprint, a stale system rewritten on read
 <home>/lake/population/ …        IBGE series
-<home>/aggregates/ …             built aggregate artifacts
+<home>/lake/aggregates/ …       built aggregate artifacts: a manifest each (the cells are cubes under lake/cubes/)
 <home>/registries/sidra/         the SIDRA registry (registry.sqlite) and every IBGE response kept as received (http/)
 <home>/lake/sidra/facts/table=<id>/   SIDRA observations, long, one Parquet part per request (ADR-0142)
 ```

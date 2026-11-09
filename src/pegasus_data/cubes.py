@@ -41,6 +41,9 @@ STATUSES = ("value", "zero", "not_applicable", "not_available", "suppressed", "e
 NUMBERED = ("value", "zero")
 #: A bound of a `where` on a typed number, and its comparison (the intake's grammar: `intake._derive`'s conditions).
 BOUNDS = {"above": "greater", "below": "less", "at_least": "greater_equal", "at_most": "less_equal"}
+#: A records cube's measure written ``<transform>:<column>``: `count` the rows holding a number, `sumsq` the squares'
+#: sum, `sumlog` / `sumsqlog` the sum of the logs and of their squares (positive numbers), `countpos` how many are positive.
+_TRANSFORMS = ("count", "sumsq", "sumlog", "sumsqlog", "countpos")
 #: Place levels and SIDRA's territorial level for each.
 LEVELS = {"municipality": "N6", "uf": "N3", "country": "N1"}
 
@@ -354,8 +357,15 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
     filter_columns = [c for k in after for c in k.split("+")]
     distinct = measure.split(":", 1)[1] if measure and measure.startswith("distinct:") else None
     # ``count:<column>``: the rows where the column holds a number (a mean's denominator: a blank stay is unknown, not 0)
-    numbered = measure.split(":", 1)[1] if measure and measure.startswith("count:") else None
-    summed = None if distinct or numbered else measure
+    # The other moments of a number are sums of a transform of it: ``sumsq:<column>`` (x squared), and for a positive
+    # number ``sumlog:`` / ``sumsqlog:`` (its log, its log squared) and ``countpos:`` (how many are positive): a
+    # variance and a log-normal's likelihood are these sums, merged by addition (`measures.MOMENTS`, `LOGMOMENTS`).
+    transform, _, argument = (measure or "").partition(":")
+    if transform not in _TRANSFORMS:
+        transform, argument = "", ""
+    numbered = argument if transform == "count" else None
+    summed = None if distinct or transform else measure
+    moment = transform if transform in _TRANSFORMS and transform != "count" else None
     # a derived stratum is read from its input columns and made after counting by them (`_derived_dimensions`)
     bands = _derived_dimensions(dataset, derived or {})
     missing = [b for b in bands if b not in by]
@@ -469,7 +479,8 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
 
         # a sum of several columns ("HORA_AMB+HORAHOSP+HORAOUTR": a professional's weekly hours), a missing part as 0
         parts_summed = summed.split("+") if summed else []
-        extra_columns = [*parts_summed, *([distinct] if distinct else []), *([numbered] if numbered else [])]
+        extra_columns = [*parts_summed, *([distinct] if distinct else []), *([numbered] if numbered else []),
+                         *([argument] if moment else [])]
         table = banded(placed(kept(query(dataset, period=span, geography=publications,
                                          select=list(dict.fromkeys([*group, *extra_columns])), present="codes", **extra))))
         if summed:
@@ -485,6 +496,21 @@ def _records(ident: str, *, place: str, by: list[str], where: dict[str, Sequence
                                    pa.scalar(None, pa.float64()))
             table = table.append_column("__sum", total)
             return table.group_by(cell).aggregate([("__sum", "sum")]).rename_columns([*cell, "events"])
+        if moment:
+            from .normalize.types import to_number
+
+            number = to_number(table.column(argument))
+            if moment == "sumsq":
+                term = pc.multiply(number, number)
+            else:
+                # a number that is not positive has no logarithm: left out of the state, as a blank is, never clipped
+                positive = pc.fill_null(pc.greater(number, 0.0), False)
+                log = pc.ln(pc.if_else(positive, number, pa.scalar(1.0, pa.float64())))
+                term = (pc.cast(positive, pa.float64()) if moment == "countpos" else
+                        pc.if_else(positive, log if moment == "sumlog" else pc.multiply(log, log),
+                                   pa.scalar(None, pa.float64())))
+            return table.append_column("__m", term).group_by(cell).aggregate([("__m", "sum")]).rename_columns(
+                [*cell, "events"])
         if numbered:
             from .normalize.types import to_number
 

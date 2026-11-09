@@ -276,7 +276,7 @@ def artifact_identity(name: str, settings: Settings) -> tuple[int, ...]:
 
     The descriptor and the ``/artifacts`` body are both built from it, so BOTH
     caches key on this one function and cannot disagree about what is fresh:
-    the cells and the manifest (a rebuild), the aggregate spec (level words and
+    the manifest (a rebuild; the cells are its records cubes), the aggregate spec (level words and
     labels), the compiled membership pack and ``geography.yml`` (roll-ups and
     ``spatial.grains``), and the population series (``denominators``). A changed
     label, a swapped pack or a newly ingested denominator reaches the next
@@ -291,7 +291,6 @@ def artifact_identity(name: str, settings: Settings) -> tuple[int, ...]:
     pack = _pack_path(None)
     curation = curation_root()
     return (
-        _mtime_ns(target / "cells.parquet"),
         _mtime_ns(target / "manifest.json"),
         _mtime_ns(curation / "aggregates" / f"{name}.yml"),
         # a recipe expanded from a family template (`_aggregate.family_specs`) has no file of its own
@@ -324,7 +323,7 @@ def capabilities(
     from .config import load_settings as _load
 
     resolved = settings or _load(root=Path(root) if root else None)
-    if not (artifact_dir(name, resolved) / "cells.parquet").exists():
+    if not (artifact_dir(name, resolved) / "manifest.json").exists():
         return _capabilities_uncached(name, settings=resolved)
     key = (name, str(resolved.lake_dir), artifact_identity(name, resolved))
     with _CAPABILITY_LOCK:
@@ -371,8 +370,7 @@ def _capabilities_uncached(
 
     directory = artifact_dir(name, resolved)
     manifest_path = directory / "manifest.json"
-    cells_path = directory / "cells.parquet"
-    if not manifest_path.exists() or not cells_path.exists():
+    if not manifest_path.exists():
         raise ArtifactMissing(
             f"{name!r} has no built artifact under {directory}; "
             f"run `build_aggregate({name!r}, years=[...])` first"
@@ -679,7 +677,7 @@ def catalogue(
     for name, spec in sorted(load_specs().items()):
         directory = artifact_dir(name, resolved)
         manifest_path = directory / "manifest.json"
-        built = manifest_path.exists() and (directory / "cells.parquet").exists()
+        built = manifest_path.exists()
         # The system identity travels with the listing. A picker that says only
         # "Óbitos" hides WHICH mortality system that is — and DATASUS has more
         # than one thing a reader could mistake it for. The label names the

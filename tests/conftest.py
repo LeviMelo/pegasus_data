@@ -375,12 +375,23 @@ AGGREGATE_STATES = (
 AGGREGATE_NAME = "sih_rd_municipality_month"
 
 
+def seed_cuboid(settings, name, table) -> None:
+    """Hand an artifact its base cuboid: in service it is the recipe's records cubes (`_aggregate._load_artifact`), which
+    a test cannot make without the records, so the cuboid is placed where the loader keeps the one it made."""
+    from pegasus_data import _aggregate
+
+    manifest = _aggregate._manifest_path(name, settings)
+    import json as _json
+
+    _aggregate._CUBOIDS[(name, str(manifest), manifest.stat().st_mtime_ns)] = (
+        table, _json.loads(manifest.read_text(encoding="utf-8")))
+
+
 def write_aggregate(root) -> Settings:
     """Materialise AGGREGATE_CELLS as a built artifact under `root`."""
     import json as _json
 
     import pyarrow as _pa
-    import pyarrow.parquet as _pq
 
     from pegasus_data._aggregate import artifact_dir
     from pegasus_data.config import load_settings as _load
@@ -394,7 +405,6 @@ def write_aggregate(root) -> Settings:
         **{name: _pa.array([r[len(AGGREGATE_KEYS) + i] for r in AGGREGATE_CELLS], _pa.float64())
            for i, name in enumerate(AGGREGATE_STATES)},
     })
-    _pq.write_table(table, target / "cells.parquet")
     (target / "manifest.json").write_text(_json.dumps({
         "name": AGGREGATE_NAME, "fingerprint": "test",
         "cells": len(AGGREGATE_CELLS), "years": [2022],
@@ -407,6 +417,7 @@ def write_aggregate(root) -> Settings:
         # what a build records (none of these dimensions holds several values per row)
         "multi_valued_dimensions": [],
     }), encoding="utf-8")
+    seed_cuboid(resolved, AGGREGATE_NAME, table)
     return resolved
 
 
