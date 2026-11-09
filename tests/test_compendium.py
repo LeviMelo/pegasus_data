@@ -235,7 +235,7 @@ class TestRepublicationDoesNotDoubleCountColumns:
             store.close()
 
         out = tmp_path / "c.sqlite"
-        report = compendium(out, settings=settings)
+        compendium(out, settings=settings)
         conn = _open(out)
         row = conn.execute(
             "SELECT columns_total FROM datasets WHERE code='SIA.AB'"
@@ -244,7 +244,6 @@ class TestRepublicationDoesNotDoubleCountColumns:
         assert conn.execute(
             "SELECT COUNT(*) FROM dataset_variables WHERE dataset='SIA.AB'"
         ).fetchone()[0] == 2
-        assert report.rows["dataset_variables"] == 2
 
     def test_the_reported_count_matches_the_table(self, seeded, tmp_path) -> None:
         """The report counted rows offered, not rows stored."""

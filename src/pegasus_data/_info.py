@@ -368,8 +368,8 @@ def info(
             notes = [f"'{target}' does not resolve to a system, dataset or alias."]
             if near:
                 notes.append("Did you mean: " + ", ".join(near) + "?")
-            else:
-                notes.append("Call info() with no argument for the list of systems.")
+            notes.append(f"search({target!r}) finds anything named so: columns, fields, products, links, codes; "
+                         "info() with no argument lists everything held and doable.")
             return Info(
                 kind="unknown",
                 code=text,

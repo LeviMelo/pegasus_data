@@ -569,6 +569,13 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     group = max(2048, 3_000_000 // len(described)) if wide else 262144
     if wide:
         con.execute("SET threads=2")
+    # Rows written in place and month order: like rows sit together, so zstd stores them about 30% smaller (SI-PNI's June
+    # 2020: 489 MB unsorted, 344 MB sorted, nothing removed or changed), and a query for one municipality skips the row
+    # groups whose statistics exclude it. The order is the lake's own derived keys, which every placed or dated source has.
+    names = {n for n, _ in described}
+    order = [k for k in ("_MUNICIPALITY", "_MONTH") if k in names]
+    if order:
+        sql = f"SELECT * FROM ({sql}) ORDER BY {', '.join(order)}"
     try:
         con.execute(f"COPY ({sql}) TO '{staging.as_posix()}' (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (year), "
                     f"FILENAME_PATTERN 'part-{key}-{{i}}', OVERWRITE_OR_IGNORE true, ROW_GROUP_SIZE {group})")
