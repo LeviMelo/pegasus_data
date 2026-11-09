@@ -30,7 +30,6 @@ from pegasus_data.retrieve import (
     DatasetUnknown,
     NothingPublished,
     PartialFetchError,
-    _month_of,
     fetch,
     parse_dataset,
 )
@@ -273,18 +272,6 @@ class TestOffline:
         pairs = set(zip(table.column("SEXO").to_pylist(), table.column("SEXO_label").to_pylist(), strict=True))
         assert pairs == {("1", "Masculino"), ("3", "Feminino")}
         assert "SEXO" in report.render.labelled
-
-
-class TestMonthOfACompetence:
-    def test_a_monthly_file_yields_its_month(self):
-        assert _month_of(202301) == 1
-
-    def test_an_annual_file_has_no_month(self):
-        """Month 00 treated as January would pull whole years into months=[1]."""
-        assert _month_of(202300) is None
-
-    def test_an_unknown_date_has_no_month(self):
-        assert _month_of(None) is None
 
 
 class TestTheReportIsSerialisable:

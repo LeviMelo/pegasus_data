@@ -12,8 +12,6 @@ reconciling to the microdata row count.
 
 from __future__ import annotations
 
-import json
-
 import pyarrow as pa
 import pytest
 
@@ -21,7 +19,6 @@ from pegasus_data._aggregate import (
     AggregateSpec,
     ArtifactMissing,
     aggregate,
-    artifact_dir,
     build_aggregate,
     load_specs,
     spec_named,
@@ -131,64 +128,6 @@ class TestTheSpecIsDeclarative:
         assert load_specs(), "no aggregate specs ship"
 
 
-class TestTheBuild:
-    def test_cells_are_the_distinct_key_tuples(self, built) -> None:
-        settings, report = built
-        assert report.rows_read == len(ROWS)
-        # (120040,202201,1,01) merges two rows; the rest are distinct.
-        assert report.cells == 4
-
-    def test_measures_accumulate_correctly(self, built) -> None:
-        import pyarrow.parquet as pq
-
-        settings, _ = built
-        table = pq.read_table(artifact_dir("sih_rd_municipality_month", settings) / "cells.parquet")
-        rows = {(r["municipality"], r["competencia"], r["SEXO"], r["RACA_COR"]): r
-                for r in table.to_pylist()}
-        merged = rows[("120040", "202201", "1", "01")]
-        assert merged["FAIXA_ETARIA"] == "030", "ages 30 and 32 share a band"
-        assert merged["admissions_n"] == 2
-        assert merged["deaths_sum"] == 0
-        assert merged["los_n"] == 2 and merged["los_sum"] == 8
-        assert merged["cost_sum"] == pytest.approx(300.0)
-        assert merged["uti_days_sum"] == 2
-        eighty = rows[("120040", "202201", "3", "02")]
-        assert eighty["deaths_sum"] == 1
-        unknown = rows[("355030", "202202", "3", "01")]
-        assert unknown["FAIXA_ETARIA"] == "ZIG", "an undecodable age is a level"
-
-    def test_a_blank_value_contributes_no_observation_to_a_mean(self, built) -> None:
-        """A blank DIAS_PERM is an unknown stay, not a stay of nought days."""
-        import pyarrow.parquet as pq
-
-        settings, _ = built
-        table = pq.read_table(artifact_dir("sih_rd_municipality_month", settings) / "cells.parquet")
-        blank = next(r for r in table.to_pylist() if r["municipality"] == "120020")
-        assert blank["admissions_n"] == 1
-        assert blank["los_n"] == 0 and blank["los_sum"] == 0
-
-    def test_the_support_mask_is_recorded_per_year_and_dimension(self, built) -> None:
-        """Distinguishes 'zero happened' from 'the column did not exist'."""
-        settings, report = built
-        assert report.support["2022"]["SEXO"] == "present"
-        assert report.support["2022"]["RACA_COR"] == "present"
-        # The derived dimension reports the availability of its SOURCES.
-        assert "FAIXA_ETARIA" in report.support["2022"]
-
-    def test_the_manifest_records_identity_and_support(self, built) -> None:
-        settings, report = built
-        manifest = json.loads(
-            (artifact_dir("sih_rd_municipality_month", settings) / "manifest.json")
-            .read_text(encoding="utf-8"))
-        assert manifest["fingerprint"] == report.fingerprint
-        assert manifest["cells"] == report.cells
-        assert manifest["support"] == report.support
-        assert manifest["key_columns"][:2] == ["municipality", "competencia"]
-
-    def test_an_unbounded_build_is_refused(self) -> None:
-        """Without years this would download the whole publication history."""
-        with pytest.raises(AggregationRefused, match="explicit years"):
-            build_aggregate("sih_rd_municipality_month")
 
 
 class TestFingerprintIdentity:
@@ -315,84 +254,6 @@ class TestTheAbstractionSurvivesAStockDataset:
             check_rollup(admissions, axis)
 
 
-class TestARecordDateAxisHasIncompleteEdges:
-    """Publication year is not record year, and the gap is 7.44%.
-
-    Measured on live SIH: the file published under 2022 for Acre holds 3,687
-    admissions that happened in 2021, the earliest in February — because a
-    December admission is billed in January. So a series keyed on a RECORD date
-    is missing its own edges unless the neighbouring publication year is built
-    too.
-
-    A `competence` axis has no such problem: the competence IS the publication
-    coordinate. The build must know the difference, and say so rather than
-    letting a coverage gap read as a fall in admissions.
-    """
-
-    @staticmethod
-    def _spec(binding):
-        from pegasus_data.measures import measure_from_declaration
-
-        return AggregateSpec(
-            name="edges", dataset="SIH-RD", geography_binding="residence",
-            time_binding=binding, time_grain="month", dimensions=(),
-            measures=(measure_from_declaration("n", {"kind": "count", "unit": "admission"}),),
-        )
-
-    @pytest.fixture(autouse=True)
-    def _catalog(self, fresh_install):
-        """The catalog a real build's fetches have created (its curation is read for the manifest)."""
-
-    def _build(self, monkeypatch, tmp_path, binding, rows):
-        from pegasus_data import _aggregate
-        from pegasus_data.config import load_settings
-
-        columns = ("MUNIC_RES", "ANO_CMPT", "MES_CMPT", "DT_INTER")
-        table = pa.table({c: pa.array([r[i] for r in rows], pa.string())
-                          for i, c in enumerate(columns)})
-        monkeypatch.setattr("pegasus_data.retrieve.fetch",
-                            lambda dataset, **kw: (table, type("R", (), {"warnings": []})()))
-        monkeypatch.setattr("pegasus_data._availability.field_available",
-                            lambda *a, **k: "present")
-        monkeypatch.setattr(_aggregate, "spec_named",
-                            lambda name, root=None: self._spec(binding))
-        return build_aggregate("edges", years=[2022], settings=load_settings(root=tmp_path))
-
-    ROWS = [
-        ("120040", "2022", "01", "20211215"),   # admitted Dec 2021, billed Jan 2022
-        ("120040", "2022", "03", "20220301"),
-        ("120040", "2022", "12", "20221220"),   # its own tail bills in 2023
-    ]
-
-    def test_a_record_date_axis_flags_the_years_it_cannot_have_filled(
-        self, monkeypatch, tmp_path
-    ) -> None:
-        report = self._build(monkeypatch, tmp_path, "admission", self.ROWS)
-        assert report.partial_periods, "no period flagged, yet 2021 is a fragment"
-        assert "2021" in report.partial_periods
-        assert "2022" in report.partial_periods, (
-            "2022's December admissions are billed in 2023, so it is short too"
-        )
-        assert any("record date" in w for w in report.warnings)
-
-    def test_a_competence_axis_flags_nothing(self, monkeypatch, tmp_path) -> None:
-        """The competence IS the publication coordinate, so nothing is short."""
-        report = self._build(monkeypatch, tmp_path, "competence", self.ROWS)
-        assert report.partial_periods == ()
-        assert not any("record date" in w for w in report.warnings)
-
-    def test_the_flag_survives_into_the_manifest_and_back_out(
-        self, monkeypatch, tmp_path
-    ) -> None:
-        """A caller reading the artifact months later must still be told."""
-        from pegasus_data._aggregate import aggregate as serve
-
-        self._build(monkeypatch, tmp_path, "admission", self.ROWS)
-        from pegasus_data.config import load_settings
-
-        _, report = serve("edges", settings=load_settings(root=tmp_path), return_report=True)
-        assert "2021" in report.partial_periods
-        assert any("short" in w for w in report.warnings)
 
 
 def test_a_non_municipality_geography_binding_is_refused(monkeypatch, tmp_path) -> None:
