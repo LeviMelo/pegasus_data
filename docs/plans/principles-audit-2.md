@@ -15,7 +15,7 @@ Totals: 41 items. S = 9, T = 24, H = 8.
 
 ## SEMANTIC (S)
 
-**S1. A second 6-to-7 digit municipality expander that invents the check digit** (RESIDUE of defect 6/placing rule)
+**S1. A second 6-to-7 digit municipality expander that invents the check digit** (RESIDUE of defect 6/placing rule) — done (S1 commit): every `<base>_ibge7` companion is recomputed by the one placing rule where every read passes (`view.placed_companions`); an unknown code gives null (120000 had given 1200003). Normalisation's algorithm is left writing the lake, since its plan digest keys every partition and changing it would mark the whole lake stale; the stored values are corrected at read
 - `normalize/geo.py:156-188` (`to_seven_digit`), `:120-125` (`MunicipalityIndex.from_catalog` fills the rest "using the
   check digit"), `:128-133` (`to_seven`), `check_digit_array:134`. Used by `normalize/engine.py:351` (every
   `municipality_code_6/7` column gets `<name>_ibge7`) and by `build.py:535`, `retrieve.py:1264`.

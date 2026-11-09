@@ -843,6 +843,7 @@ def render_table(
     """
     from .persist.reference import collecting
 
+    table = placed_companions(table)
     # Every reference decision made inside this block belongs to THIS render.
     with collecting() as collected:
         return _render_table(
@@ -861,6 +862,25 @@ def render_table(
             collected=collected,
             registries=registries,
         )
+
+
+def placed_companions(table: pa.Table) -> pa.Table:
+    """Each ``<base>_ibge7`` companion as the one placing rule reads its base (`geography.place_municipalities`): the
+    municipality's IBGE code, Brasília's for its administrative regions and the declared legacy codes, null for a code
+    that names none. Normalisation wrote it by the check-digit algorithm, which turned an unknown six-digit code into a
+    plausible seven-digit one (the second audit, S1); it is corrected here, where every read passes, so the lake's
+    partitions need no rebuild."""
+    import pyarrow.compute as pc
+
+    from .geography import place_municipalities
+
+    for name in [n for n in table.column_names if n.endswith("_ibge7") and n[: -len("_ibge7")] in table.column_names]:
+        base = pc.cast(table.column(name[: -len("_ibge7")]), pa.string())
+        codes = pc.dictionary_encode(base).combine_chunks()
+        placed = pa.array([None if c is None else str(c) for c in place_municipalities(codes.dictionary.to_pylist())],
+                          pa.string())
+        table = table.set_column(table.schema.get_field_index(name), name, pc.take(placed, codes.indices))
+    return table
 
 
 def _render_table(
