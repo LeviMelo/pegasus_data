@@ -40,20 +40,11 @@ def _pack() -> tuple[str, int]:
     return (str(path), _pack_mtime(str(path))) if path is not None else ("", 0)
 
 
-@lru_cache(maxsize=4)
-def _systems(path: str, mtime_ns: int) -> tuple[str, ...]:
-    """The publishing systems the pack holds (the system-neutral blank excluded)."""
-    import pyarrow.compute as pc
-    import pyarrow.parquet as pq
-
-    if not path:
-        return ()
-    column = pq.read_table(path, columns=["system"]).column("system")
-    return tuple(sorted(str(v) for v in pc.unique(column).drop_null().to_pylist() if v))
-
-
 def systems() -> tuple[str, ...]:
-    return _systems(*_pack())
+    """The publishing systems the membership pack holds (`geography.membership_systems`, the pack's owner)."""
+    from ..geography import membership_systems
+
+    return membership_systems()
 
 
 def canonical_system(system: str | None) -> str | None:

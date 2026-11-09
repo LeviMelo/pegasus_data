@@ -88,7 +88,7 @@ The audit (`docs/plans/principles-audit-2.md`, 45 items, a read-only sweep) is t
 before it is fixed and marked done there with its evidence.
 - **Done (2026-11-09):** every semantic item, S1-S9 (codes placed by the one rule, sex and race read by their labels
   and widths, unknown kept unknown, missing kept missing, code meanings and thresholds of the study modules declared),
-  and T1-T4, T6 (all but the membership pack's systems, which waits for geography), T7 (all but `modelled.OFFICIAL_SERIES`), T9, T10, T12, T15, T16, T18, T21, T23 (one number reader, one period module, one
+  and T1-T4, T6, T7 (all but `modelled.OFFICIAL_SERIES`), T9, T10, T12, T15, T16, T18, T21, T23 (one number reader, one period module, one
   banding, one municipality reader, the CNES recipes and the bridges declared, ~20 thresholds in curation).
 - **Checked, no change:** H2 (deliberate imports), H4 (the normalize path is live), T16's month table (one only).
 - **Done since:** T8 (the register kits' columns, owners and open end declared; the kit code tables in `codelists.yml`), T11 (enrichment targets declared in

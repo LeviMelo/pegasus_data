@@ -752,6 +752,16 @@ def _index(path: str, mtime_ns: int = 0) -> dict[str, tuple[tuple[str, ...], ...
     return {k: tuple(v) for k, v in out.items()}
 
 
+def membership_systems(pack_path: str | Path | None = None) -> tuple[str, ...]:
+    """The publishing systems the membership pack holds, sorted (the system-neutral blank excluded)."""
+    resolved = _pack_path(pack_path)
+    if resolved is None:
+        return ()
+    path, mtime = str(resolved), _pack_mtime(str(resolved))
+    column = _fields(path, mtime)["system"]
+    return tuple(sorted({row[column] for rows in _index(path, mtime).values() for row in rows if row[column]}))
+
+
 @lru_cache(maxsize=4)
 def _fields(path: str, mtime_ns: int = 0) -> dict[str, int]:
     return {name: i for i, name in enumerate(_pack(path).schema.names)}
