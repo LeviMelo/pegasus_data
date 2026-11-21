@@ -70,4 +70,8 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   against 0.028 at 15-49; 0.025 at 50-69): for deaths in hospital it can be carried to men. Next: a product for
   hospital deaths of both sexes from this structure, with its intervals; deaths outside hospital and by external
   causes apart.
+- **R2, what to publish for children** (the same entry): the infant matrix does no better (Preta 3.5 times Parda in
+  small municipalities for a true 1.18). Where the link works the linked deaths by declared race are the estimate
+  themselves, no matrix needed (ages 1-4, municipalities under 400 births a year: Branca 0.79 of Parda, Preta 1.18,
+  Indígena 4.3). Open: the large municipalities (a key that tells children apart there), and Preta's conditioning.
 

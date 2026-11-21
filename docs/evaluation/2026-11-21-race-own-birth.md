@@ -248,3 +248,17 @@ over some declared mix (four free numbers, 24 cells). Total variation between ob
   Branca 0.83, Preta 0.55, Parda 0.76. It is not a proof (a declared mix can absorb some differences), and it says
   nothing of deaths outside hospital, where the examiner's certificates are (previous section).
 - At 70 and over the fit loosens (0.034-0.042): the structure of mothers aged 15-49 describes the old less well.
+
+## The infant bridge on children's rates (`bridge_check.py <infant draws> 2`, `child_rates.py <infant draws> 2`)
+
+The infant product is fitted on municipalities of every size, so it was tried where the children's extrapolates.
+In the small municipalities (ratios to Parda, raw / bridged / truth, ages 1-4): Branca 1.49 / 0.98 / 0.79, Preta
+0.90 / 3.55 / 1.18, erratic by region (Northeast Branca 3.24); mean absolute log error 0.91 against 0.57 raw and 0.37
+for the children's own product. Over every municipality (2021-2024) it puts Branca under Parda (41.4 against 49.9 per
+100,000 at 1-4: the direction of the truth) and Preta at 106.0 (2.1 times Parda, against 1.18).
+
+**Read.** No matrix in hand turns certificates into children's rates for Preta: a quarter of Preta children are
+certified Preta, and a deconvolution multiplies whatever it gets wrong by four. Where the link works the bridge is
+not needed: the linked deaths by declared race *are* the estimate (Branca 0.79 of Parda, 0.76-0.83; Preta 1.18,
+1.05-1.26; Indígena 4.3 at ages 1-4), for the municipalities under 400 births a year. The open problem is the large
+municipalities, not the matrix.
