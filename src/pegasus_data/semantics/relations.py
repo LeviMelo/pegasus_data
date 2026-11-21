@@ -225,10 +225,12 @@ def _window(item: SemanticRelation) -> tuple[int, int]:
     def boundary(value: str | None, default: int) -> int:
         if value is None or value == "":
             return default
-        text = str(value)
-        if len(text) != 6 or not text.isdigit() or not 1 <= int(text[-2:]) <= 12:
+        from ..normalize.time import parse_month
+
+        month = parse_month(value) if len(str(value)) == 6 else None
+        if month is None:
             raise ValueError(f"invalid semantic relation validity boundary {value!r}")
-        return int(text)
+        return month
 
     lo = boundary(item.valid_from, 0)
     hi = boundary(item.valid_to, 999912)

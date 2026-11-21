@@ -286,16 +286,15 @@ def _resource_period(value: object) -> tuple[int, int] | None:
         raise ValueError("resource period must be YYYY, YYYY-MM, or START:END")
 
     def parse(item: object, *, end: bool) -> int:
+        from .normalize.time import parse_month, year_bounds
+
         text = str(item).strip()
         if len(text) == 4 and text.isdigit():
-            return int(text) * 100 + (12 if end else 1)
-        if len(text) == 7 and text[4] == "-" and text[:4].isdigit() and text[5:].isdigit():
-            month = int(text[5:])
-            if 1 <= month <= 12:
-                return int(text[:4]) * 100 + month
-        if len(text) == 6 and text.isdigit() and 1 <= int(text[-2:]) <= 12:
-            return int(text)
-        raise ValueError(f"invalid resource period value {item!r}")
+            return year_bounds(text)[1 if end else 0]
+        month = parse_month(text)
+        if month is None:
+            raise ValueError(f"invalid resource period value {item!r}")
+        return month
 
     start, end = parse(raw[0], end=False), parse(raw[1], end=True)
     if start > end:
