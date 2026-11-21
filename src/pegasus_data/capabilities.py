@@ -36,7 +36,7 @@ from datetime import UTC
 from pathlib import Path
 from typing import Any
 
-from .config import Settings, curation_root, load_settings
+from .config import UF_NUMERIC, Settings, curation_root, load_settings
 from .config import load_settings as _load
 from .normalize.time import month_label
 
@@ -50,26 +50,22 @@ _CONTROL_THRESHOLDS: tuple[tuple[int, str], ...] = (
 )
 _CONTROL_FALLBACK = "combobox"
 
-#: Which visual encodings a measure kind can bear. A count can be stacked; a
-#: mean cannot, because stacking asserts the parts sum to the whole and the mean
-#: of two groups is not the sum of their means.
-_ENCODINGS: dict[str, tuple[str, ...]] = {
-    "count": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
-    "sum": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
-    "mean": ("choropleth", "line", "ranked_bar", "scatter"),
-    "min": ("choropleth", "line", "ranked_bar"),
-    "max": ("choropleth", "line", "ranked_bar"),
-}
+#: The visual encodings any measure bears, and the ones only a kind whose parts sum to the whole bears
+#: (`measures.Kind.parts_sum`): stacking asserts the parts sum to the whole, and a symbol sized by value invites adding
+#: them; the mean of two groups is not the sum of their means. A kind whose parts do not sum also refuses the
+#: operations that would add them, stated so the client can refuse them rather than having to know why.
+_ENCODINGS = ("choropleth", "line", "ranked_bar", "scatter")
+_ADDITIVE_ENCODINGS = ("proportional_symbol", "stack")
+_NON_ADDITIVE_FORBIDDEN = ("sum", "stack")
 
-#: Operations that are wrong for a kind, stated so the client can refuse them
-#: rather than having to know why.
-_FORBIDDEN: dict[str, tuple[str, ...]] = {
-    "count": (),
-    "sum": (),
-    "mean": ("sum", "stack"),
-    "min": ("sum", "stack"),
-    "max": ("sum", "stack"),
-}
+
+def _encodings_for(kind: Any) -> tuple[str, ...]:
+    return (*_ENCODINGS, *_ADDITIVE_ENCODINGS) if kind.parts_sum else _ENCODINGS
+
+
+def _forbidden_for(kind: Any) -> tuple[str, ...]:
+    return () if kind.parts_sum else _NON_ADDITIVE_FORBIDDEN
+
 
 #: Display precision by unit. A count of admissions has no decimals; a mean
 #: length of stay has one; money has two.
@@ -456,8 +452,8 @@ def _measure_capabilities(spec: Any) -> tuple[MeasureCapability, ...]:
             unit=m.unit,
             decimals=_decimals_for(m.kind.name, m.unit),
             additive_over=tuple(sorted(m.additive_over)),
-            forbidden=_FORBIDDEN.get(m.kind.name, ()),
-            encodings=_ENCODINGS.get(m.kind.name, ("line",)),
+            forbidden=_forbidden_for(m.kind),
+            encodings=_encodings_for(m.kind),
             requires_binding=None,
             time_reducer=m.time_reducer,
         )
@@ -497,7 +493,8 @@ def _spatial(spec: Any, semantics: Any, manifest: Mapping[str, Any], municipalit
         ),
     }
     if not declared_uf:
-        coverage["kind"] = "national" if len(observed_ufs) >= 25 else "unknown"
+        # national only when every state is seen: a build that saw 25 of 27 may be a 25-state build
+        coverage["kind"] = "national" if set(observed_ufs) >= set(UF_NUMERIC) else "unknown"
 
     declared = classifications()
     # `uf` is BOTH a base grain and an IBGE classification, so the two lists

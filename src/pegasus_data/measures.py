@@ -93,6 +93,9 @@ class Kind:
     state_fields: tuple[str, ...]
     #: Whether `lift` needs a source field, or counts rows regardless.
     needs_field: bool = True
+    #: Whether the finalised values of disjoint parts add up to the whole's (a count, a sum): what makes a total, a
+    #: stack or a symbol sized by value honest. A mean, a variance or an extreme of two groups is not their sum.
+    parts_sum: bool = False
 
     def identity(self) -> State:
         raise NotImplementedError
@@ -272,8 +275,8 @@ class _Extreme(Kind):
         return None if state[0] in (float("inf"), float("-inf")) else state[0]
 
 
-COUNT = _Count(name="count", state_fields=("n",), needs_field=False)
-SUM = _Sum(name="sum", state_fields=("sum",))
+COUNT = _Count(name="count", state_fields=("n",), needs_field=False, parts_sum=True)
+SUM = _Sum(name="sum", state_fields=("sum",), parts_sum=True)
 MEAN = _Mean(name="mean", state_fields=("n", "sum"))
 MOMENTS = _Moments(name="moments", state_fields=("n", "sum", "sumsq"))
 LOGMOMENTS = _LogMoments(name="logmoments", state_fields=("n", "sumlog", "sumsqlog"))
