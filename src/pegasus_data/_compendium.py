@@ -119,7 +119,8 @@ CREATE TABLE datasets (
   -- query() reads them without the network.
   files_downloaded INTEGER,
   year_min_downloaded INTEGER,
-  year_max_downloaded INTEGER
+  year_max_downloaded INTEGER,
+  months_downloaded TEXT              -- which months of which years, e.g. "12 of 2008-2023; 01-12 of 2025"
 );
 CREATE INDEX ix_datasets_system ON datasets(system);
 
@@ -650,14 +651,14 @@ def overview(*, settings: Settings | None = None, root: str | Path | None = None
 
         datasets = q("SELECT d.code, d.translated_name, d.year_min, d.year_max, d.rows_held, d.year_min_held,"
                      " d.year_max_held, d.columns_total, s.kind, d.files_downloaded, d.year_min_downloaded,"
-                     " d.year_max_downloaded FROM datasets d LEFT JOIN systems s ON s.code = d.system"
+                     " d.year_max_downloaded, d.months_downloaded FROM datasets d LEFT JOIN systems s ON s.code = d.system"
                      " ORDER BY d.system, d.code").fetchall()
         data = [d for d in datasets if d[8] != "tooling"]
         out.append(f"RECORD DATASETS ({len(data)}): query(\"<code>\", period=..., geography=...)")
-        for code, name, y0, y1, held, h0, h1, cols, _, files, f0, f1 in data:
+        for code, name, y0, y1, held, h0, h1, cols, _, files, _f0, _f1, spans in data:
             server = f"{y0}-{y1}" if y0 else "-"
             kept = f"held {held:,} rows {h0}-{h1}" if held else (
-                f"downloaded {files:,} files {f0}-{f1}, not built" if files else "none held")
+                f"downloaded {files:,} files (months {spans}), not built" if files else "none held")
             out.append(f"  {code:<30} {str(name or '')[:46]:<46} {cols or 0:>4} cols  server {server:<9}  {kept}")
 
         fields = q("SELECT name, label, source, years, years_held FROM fields ORDER BY source, name").fetchall()
@@ -1165,7 +1166,7 @@ def _write_datasets(
                 len(cols), n_desc,
                 *_axis_columns(axes_by_code.get(code)),
                 code, held.rows.get(code), *held.span(code),
-                *held.downloads.get(code, (None, None, None)),
+                *held.downloads.get(code, (None, None, None, None)),
             )
         )
     db.executemany(
@@ -1174,7 +1175,7 @@ def _write_datasets(
         " confidence, files, year_min, year_max, ufs, generations, columns_total,"
         " columns_described, split_by, split_by_uf, split_by_year, split_by_month,"
         " query_as, rows_held, year_min_held, year_max_held, files_downloaded, year_min_downloaded,"
-        " year_max_downloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " year_max_downloaded, months_downloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         ds_rows,
     )
     report.rows["datasets"] = len(ds_rows)
@@ -1241,7 +1242,7 @@ class _Held:
     columns: dict[str, dict[str, list[Any]]] = field(default_factory=dict)
     rows: dict[str, int] = field(default_factory=dict)
     #: dataset -> (published files the blob store holds, first year, last year), whether built into the lake or not
-    downloads: dict[str, tuple[int, int | None, int | None]] = field(default_factory=dict)
+    downloads: dict[str, tuple[int, int | None, int | None, str | None]] = field(default_factory=dict)
 
     def span(self, code: str) -> tuple[int | None, int | None]:
         years = [y for (c, y, _), n in self.cover.items() if c == code and y and n]
@@ -1328,18 +1329,19 @@ def _held(store: _Store, onto: Ontology, wanted: set[str], lake_dir: Path, blobs
     return out
 
 
-def _downloaded(store: _Store, onto: Ontology, wanted: set[str], blobs_dir: Path) -> dict[str, tuple[int, int | None, int | None]]:
-    """Per dataset, the published files whose bytes the blob store holds: what a query reads without the network. CNES is
-    held this way and never built into the lake (its fields are cubes over the downloaded registers, ADR-0217), and the
-    map said "none held" of twelve years of every state's registers (2026-11-21)."""
-    per: dict[str, list[int]] = {}
+def _downloaded(store: _Store, onto: Ontology, wanted: set[str], blobs_dir: Path) -> dict[str, tuple[int, int | None, int | None, str | None]]:
+    """Per dataset, the published files whose bytes the blob store holds (what a query reads without the network),
+    their years and which months of them. CNES is held this way and never built into the lake (its fields are cubes over
+    the downloaded registers, ADR-0217), and the map said "none held" of twelve years of every state's registers
+    (2026-11-21). The months are said because a dataset can be held for some months only (CNES: December of each year)."""
     count: dict[str, int] = {}
+    months: dict[str, dict[int, set[int]]] = {}
     seen: set[str] = set()
     for row in store.conn.execute(
-        "SELECT DISTINCT f.sha256, f.source_path, ff.system, ff.series_prefix, ff.year FROM fetches f"
+        "SELECT DISTINCT f.sha256, f.source_path, ff.system, ff.series_prefix, ff.year, ff.normalized_date FROM fetches f"
         " JOIN file_facts ff ON ff.path = f.source_path"
     ).fetchall():
-        sha, path, system, series, year = (row[0], row[1], row[2], row[3], row[4])
+        sha, path, system, series, year, normalized = (row[0], row[1], row[2], row[3], row[4], row[5])
         if path in seen or not sha or not (blobs_dir / "sha256" / str(sha)[:2] / str(sha)).is_file():
             continue
         try:
@@ -1351,8 +1353,34 @@ def _downloaded(store: _Store, onto: Ontology, wanted: set[str], blobs_dir: Path
         seen.add(path)
         count[code] = count.get(code, 0) + 1
         if year:
-            per.setdefault(code, []).append(int(year))
-    return {code: (n, min(per.get(code) or [0]) or None, max(per.get(code) or [0]) or None) for code, n in count.items()}
+            month = int(str(normalized)[4:6]) if normalized and len(str(normalized)) >= 6 and str(normalized)[4:6].isdigit() else 0
+            months.setdefault(code, {}).setdefault(int(year), set()).add(month)
+    return {code: (n, min(months.get(code) or [0]) or None, max(months.get(code) or [0]) or None,
+                   _month_spans(months.get(code) or {})) for code, n in count.items()}
+
+
+def _month_spans(by_year: dict[int, set[int]]) -> str | None:
+    """``{2008: {12}, ..., 2023: {12}, 2025: {1..12}}`` as "12 of 2008-2023; 01-12 of 2025": runs of years holding the same
+    months; a year's file without a month (an annual file) is "year"."""
+    if not by_year:
+        return None
+
+    def label(ms: set[int]) -> str:
+        if ms == {0}:
+            return "year"
+        real = sorted(m for m in ms if m)
+        if real == list(range(real[0], real[-1] + 1)) and len(real) > 2:
+            return f"{real[0]:02d}-{real[-1]:02d}"
+        return ",".join(f"{m:02d}" for m in real)
+
+    runs: list[tuple[str, int, int]] = []
+    for year in sorted(by_year):
+        lab = label(by_year[year])
+        if runs and runs[-1][0] == lab and runs[-1][2] == year - 1:
+            runs[-1] = (lab, runs[-1][1], year)
+        else:
+            runs.append((lab, year, year))
+    return "; ".join(f"{lab} of {lo}" + (f"-{hi}" if hi != lo else "") for lab, lo, hi in runs)
 
 
 def _declared_columns(onto: Ontology, wanted: set[str]) -> dict[str, set[str]]:
@@ -1498,15 +1526,16 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
 
     built = cfg.lake_dir / "fields"
     rows = []
-    december = _cnes_decembers(cfg)
+    held = _held_periods(cfg)
     for name, spec in sorted(declared_fields().items()):
         held_dir = built / name
         cnes = cnes_cube(name, spec)
         if cnes is not None:
-            # A CNES field is a cube over December's downloaded registers (its dataset's and the ST support's): held
-            # for the years both are downloaded, never as a folder under lake/fields (the map said "none held").
+            # A field read from records (a cube over a dataset's files at one month of each year) is held for the years
+            # every file it and its support read is here, whether in the lake or downloaded (`_held_periods`); the map
+            # had looked only at lake/fields and said "none held" of twelve years of CNES registers
             support = str(cnes["support"]).split(":", 1)[1].split("/", 1)[0]
-            years = sorted(december.get(str(cnes["dataset"]), set()) & december.get(support, set()))
+            years = sorted(held(str(cnes["dataset"]), int(cnes["month"])) & held(support, int(cnes["month"])))
         elif cube_of(spec) is not None:
             # A SIDRA or series field is its cube: what is held is what the fact store answers (ADR-0217).
             try:
@@ -1530,25 +1559,32 @@ def _write_fields(db: sqlite3.Connection, cfg: Settings, report: CompendiumRepor
     report.rows["fields"] = len(rows)
 
 
-def _cnes_decembers(cfg: Settings) -> dict[str, set[int]]:
-    """``CNES-<TYPE> -> years`` whose December register the blob store holds for all 27 states."""
-    import re
+def _held_periods(cfg: Settings) -> Any:
+    """``held(dataset, month) -> {years}``: the years whose files for that month are all on this machine, in the lake or
+    downloaded, as `plan()` decides it for `query()` (every byte the read needs is cached, or the lake holds it). One
+    rule for any dataset held whole, by month or by year, built or only downloaded."""
+    from datetime import date
+    from functools import cache
 
-    con = sqlite3.connect(f"file:{cfg.catalog_path.as_posix()}?mode=ro", uri=True)
-    try:
-        rows = con.execute("SELECT DISTINCT sha256, source_path FROM fetches WHERE source_path LIKE '%/CNES/%'").fetchall()
-    finally:
-        con.close()
-    states: dict[tuple[str, int], set[str]] = {}
-    for sha, path in rows:
-        m = re.match(r"([A-Z]{2})([A-Z]{2})(\d{2})12\.DBC$", Path(str(path)).name.upper())
-        if m and sha and (cfg.blobs_dir / "sha256" / str(sha)[:2] / str(sha)).is_file():
-            states.setdefault((f"CNES-{m.group(1)}", 2000 + int(m.group(3))), set()).add(m.group(2))
-    out: dict[str, set[int]] = {}
-    for (dataset, year), ufs in states.items():
-        if len(ufs) >= 27:
-            out.setdefault(dataset, set()).add(year)
-    return out
+    from ._query_engine.planner import plan as _plan
+
+    this_year = date.today().year
+
+    @cache
+    def held(dataset: str, month: int) -> frozenset[int]:
+        code = dataset.replace("-", ".", 1)
+        out = set()
+        for year in range(1994, this_year + 1):
+            try:
+                r = _plan(code, period=f"{year}-{month:02d}", settings=cfg).retrieval
+            except Exception:  # noqa: BLE001 - a period nothing is published for is not held
+                continue
+            in_lake = bool(r.lake_years) and not r.fetch_years
+            if in_lake or (r.download_bytes and r.cached_bytes >= r.download_bytes):
+                out.add(year)
+        return frozenset(out)
+
+    return held
 
 
 def _write_roles(db: sqlite3.Connection, report: CompendiumReport) -> None:

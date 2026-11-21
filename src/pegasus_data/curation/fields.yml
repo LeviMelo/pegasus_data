@@ -73,6 +73,8 @@ cnes:
       measure: distinct:CNES
       group: {column: SERV_ESP, groups: specialised_service_groups, select: group}
   support: CNES-ST
+  # the month whose register a year's CNES field reads: December, a stock at the end of the year
+  register_month: 12
   # DT_DESAT of a team that is not deactivated: blank, or the far-future sentinel 900001 CNES writes (EP files)
   team_not_deactivated: ['', '900001']
   facility_groups:                     # TP_UNID

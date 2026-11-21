@@ -457,7 +457,7 @@ def cnes_cube(name: str, spec: dict[str, Any]) -> dict[str, Any] | None:
         measure = measure[spec[recipe["measure_by"]]]
     dataset = recipe["dataset"]
     return {"source": f"records:{dataset}/rows", "dataset": dataset, "where": where, "measure": measure,
-            "support": f"records:{g.get('support', 'CNES-ST')}/rows"}
+            "support": f"records:{g.get('support', 'CNES-ST')}/rows", "month": int(g["register_month"])}
 
 
 def _field_from_cnes(name: str, spec: dict[str, Any], plan: dict[str, Any], years: list[int] | None,
@@ -473,10 +473,10 @@ def _field_from_cnes(name: str, spec: dict[str, Any], plan: dict[str, Any], year
     keys = sorted(universe)
     columns: dict[str, list[Any]] = {k: [] for k in ("municipality", "municipality7", "value", "status", "unit", "source", "year")}
     for year in wanted:
-        table = cube(plan["source"], periods=[f"{year}-12"], grain="month", where=plan["where"], measure=plan["measure"],
+        table = cube(plan["source"], periods=[f"{year}-{plan['month']:02d}"], grain="month", where=plan["where"], measure=plan["measure"],
                      support=plan["support"], settings=settings)
         found = {str(r["place"]): r["value"] for r in table.select(["place", "value"]).to_pylist()}
-        label = f"{plan['dataset']} {year}-12"
+        label = f"{plan['dataset']} {year}-{plan['month']:02d}"
         for six in keys:
             code7 = str(universe[six]["code7"])
             held = code7 in found

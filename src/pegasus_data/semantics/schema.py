@@ -214,7 +214,7 @@ KINDS: tuple[tuple[str, Any], ...] = (
             "verdict": obj("caution viable")})),
         ("fields.yml", obj("cnes fields", sub={
             "cnes": obj("accreditation_groups equipment facility_groups families icu_bed_codes neonatal_icu_bed_codes neurology_bed_codes neurosurgery_bed_codes professional_groups specialised_service_groups "
-                        "support team_groups team_not_deactivated", sub={
+                        "register_month support team_groups team_not_deactivated", sub={
                 "families": free(obj("dataset fixed group measure measure_by sector"))}),
             "fields": free(obj("classification equipment family gaps group kind label law measure over sector series "
                                "source table unit variable verified what where years", required="label unit what"))})),
