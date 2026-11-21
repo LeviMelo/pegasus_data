@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..config import UF_CODES, UF_NUMERIC
+from ..normalize.time import plausible_year
 from .accumulators import FieldStats, robust_tail_span
 
 ICD10_RE = re.compile(r"^[A-TV-Z][0-9][0-9AB](?:\.?[0-9A-TV-Z]{0,4})?$", re.I)
@@ -318,10 +319,10 @@ def detect_date(stats: FieldStats, refs: ReferenceSets, name: str) -> SemanticVe
     d6 = _rate(stats, lambda v: bool(DATE6_RE.match(v)))
     sentinel = _rate(stats, lambda v: v in DATE_SENTINELS)
     if d8 >= 0.6:
-        plausible = _rate(stats, lambda v: bool(DATE8_RE.match(v)) and 1900 <= int(v[:4]) <= 2100)
+        plausible = _rate(stats, lambda v: bool(DATE8_RE.match(v)) and plausible_year(int(v[:4])))
         if plausible < 0.5:
             # Could be DDMMYYYY rather than YYYYMMDD.
-            plausible = _rate(stats, lambda v: bool(DATE8_RE.match(v)) and 1900 <= int(v[4:]) <= 2100)
+            plausible = _rate(stats, lambda v: bool(DATE8_RE.match(v)) and plausible_year(int(v[4:])))
             order = "DDMMYYYY"
         else:
             order = "YYYYMMDD"
@@ -344,7 +345,7 @@ def detect_date(stats: FieldStats, refs: ReferenceSets, name: str) -> SemanticVe
         )
     if d6 >= 0.8:
         month_ok = _rate(stats, lambda v: bool(DATE6_RE.match(v)) and 1 <= int(v[4:6]) <= 12)
-        year_ok = _rate(stats, lambda v: bool(DATE6_RE.match(v)) and 1900 <= int(v[:4]) <= 2100)
+        year_ok = _rate(stats, lambda v: bool(DATE6_RE.match(v)) and plausible_year(int(v[:4])))
         if month_ok > 0.9 and year_ok > 0.9:
             return SemanticVerdict(
                 "competencia",

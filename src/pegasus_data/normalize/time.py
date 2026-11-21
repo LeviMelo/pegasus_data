@@ -112,6 +112,16 @@ def epi_year_weeks(year: int) -> int:
     return (nxt - first).days // 7
 
 
+#: The years a health record's date or period can hold: 1900-2100. Outside is a parsed value no record carries (the
+#: open-ended sentinel 99991231, 00010101), never a year of its own. The one bound for every date, competência and
+#: layout test (before: 1900-2100 here and in the detectors and roles, 1900-2200 for a competência).
+PLAUSIBLE_YEARS = (1900, 2100)
+
+
+def plausible_year(year: int) -> bool:
+    return PLAUSIBLE_YEARS[0] <= year <= PLAUSIBLE_YEARS[1]
+
+
 def competencia_to_year_month(value: str | int | None) -> tuple[int, int] | None:
     """Parse ``AAAAMM``. Returns None rather than guessing on anything else."""
     if value is None:
@@ -120,13 +130,13 @@ def competencia_to_year_month(value: str | int | None) -> tuple[int, int] | None
     if len(text) != 6 or not text.isdigit():
         return None
     year, month = int(text[:4]), int(text[4:])
-    if not (1900 <= year <= 2200) or not (1 <= month <= 12):
+    if not plausible_year(year) or not (1 <= month <= 12):
         return None
     return year, month
 
 
-#: AAAAMM: a year 1900-2200 and a month 01-12 (:func:`competencia_to_year_month`'s own bounds), as a regex for columns.
-COMPETENCIA_RE = r"^(19\d\d|20\d\d|21\d\d|2200)(0[1-9]|1[0-2])$"
+#: AAAAMM: a year in PLAUSIBLE_YEARS and a month 01-12 (:func:`competencia_to_year_month`'s own bounds), as a regex.
+COMPETENCIA_RE = r"^(19\d\d|20\d\d|2100)(0[1-9]|1[0-2])$"
 
 
 def compose(year: int | str | None, month: int | str | None) -> int | None:
@@ -300,19 +310,19 @@ def parse_date_array(array: pa.Array, *, order: str = "YYYYMMDD", sentinels: tup
 
 
 _EPOCH = date(1970, 1, 1)
-#: The days an epidemiological week is computed for: 1900-01-01 .. 2100-12-31 as day numbers. A date outside is a
+#: The days an epidemiological week is computed for: PLAUSIBLE_YEARS (1900-01-01 .. 2100-12-31) as day numbers. A date outside is a
 #: parsed value no health record carries (the open-ended sentinel 99991231, 00010101), not a week of any calendar year
 #: a surveillance system counts: its week is null and the raw text stays in `_raw`. Before, such a value raised
 #: (`year 10000 is out of range`) and one value killed the whole fetch or partition build.
-_EPI_MIN_DAY = (date(1900, 1, 1) - _EPOCH).days
-_EPI_MAX_DAY = (date(2100, 12, 31) - _EPOCH).days
+_EPI_MIN_DAY = (date(PLAUSIBLE_YEARS[0], 1, 1) - _EPOCH).days
+_EPI_MAX_DAY = (date(PLAUSIBLE_YEARS[1], 12, 31) - _EPOCH).days
 
 #: day number -> (epi_year, epi_week), filled on demand; at most the 73,000 days of 1900..2100, so it stays small.
 _EPI_DAYS: dict[int, tuple[int, int]] = {}
 
 
 def epi_week_array(dates: pa.Array) -> tuple[pa.Array, pa.Array]:
-    """``(epi_year, epi_week)`` for a date32 column; null for a null or out-of-range (1900..2100) date.
+    """``(epi_year, epi_week)`` for a date32 column; null for a null or out-of-range (PLAUSIBLE_YEARS) date.
 
     Only use this where the source publishes no official week. Where it does —
     ``SEM_PRI``, ``SEM_NOT`` — carry the source's value through untouched.
@@ -379,16 +389,16 @@ def date_layout(values: Sequence[Any]) -> str | None:
         if len(text) == 6 and text.isdigit():
             # a month written year-first with no day (ANS's ID_CMPT_MOVEL, 2024-12 once its dash is read away)
             seen += 1
-            ym += 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12
+            ym += plausible_year(int(text[0:4])) and 1 <= int(text[4:6]) <= 12
             continue
         if len(text) != 8 or not text.isdigit():
             continue
         seen += 1
         # year-first: YYYYMMDD
-        if 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12:
+        if plausible_year(int(text[0:4])) and 1 <= int(text[4:6]) <= 12:
             ymd += 1
         # day-first: DDMMYYYY
-        if 1900 <= int(text[4:8]) <= 2100 and 1 <= int(text[2:4]) <= 12:
+        if plausible_year(int(text[4:8])) and 1 <= int(text[2:4]) <= 12:
             dmy += 1
     if not seen:
         return None
@@ -430,7 +440,7 @@ def _valid_competencia(text: Any) -> Any:
 
 def competencia_from_parts(year: Any, month: Any) -> Any:
     """``AAAAMM`` text from a year column and a month column held apart (``ANO_CMPT``, ``MES_CMPT``); a month outside
-    1..12 or a year outside 1900..2200 is null."""
+    1..12 or a year outside PLAUSIBLE_YEARS is null."""
     y = pc.utf8_trim_whitespace(pc.cast(year, pa.string()))
     m = pc.utf8_lpad(pc.utf8_trim_whitespace(pc.cast(month, pa.string())), 2, padding="0")
     return _valid_competencia(pc.binary_join_element_wise(y, m, ""))
@@ -439,7 +449,7 @@ def competencia_from_parts(year: Any, month: Any) -> Any:
 def year_column(table: Any, time_fields: Sequence[str], encoding: str = "", century: str = "") -> Any | None:
     """The year (``AAAA`` text) each record's period holds even where its month does not: a year held apart, a year
     binding, or a date whose day and month are unknown or absent (``00001994``, ``2000``, ``022000``, the two-digit
-    ``95``); null where no year 1900-2199 is readable. The year of a full date is :func:`competencia_column`'s; this is
+    ``95``); null where no year of PLAUSIBLE_YEARS is readable. The year of a full date is :func:`competencia_column`'s; this is
     for the records it cannot place in a month."""
     present = [f for f in time_fields if f in table.schema.names]
     if not present:
@@ -458,7 +468,7 @@ def year_column(table: Any, time_fields: Sequence[str], encoding: str = "", cent
         # day-first: the year is the last four digits of DDMMAAAA, MMAAAA or AAAA; year-first, the first four
         year = (pc.utf8_slice_codeunits(text, -4, None) if layout == "dmy" else pc.utf8_slice_codeunits(text, 0, 4))
         year = pc.if_else(pc.fill_null(pc.equal(length, 4), False), text, year)
-    valid = pc.fill_null(pc.match_substring_regex(year, r"^(19|20|21)\d\d$"), False)
+    valid = pc.fill_null(pc.match_substring_regex(year, r"^(19\d\d|20\d\d|2100)$"), False)
     return pc.if_else(valid, year, pa.nulls(len(year), pa.string()))
 
 

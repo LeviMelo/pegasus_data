@@ -63,7 +63,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from ..config import curation_root
-from ..normalize.time import month_of, year_of
+from ..normalize.time import month_of, plausible_year, year_of
 from ..ontology import Ontology, dataset_key
 from .epoch import curated
 
@@ -434,7 +434,7 @@ def _column(dataset: str, column: str, spec: dict[str, Any], where: str) -> Colu
     if len(competence) > 2:
         raise bad(f"competence is a year and a month column or one AAAAMM column, not {list(competence)}")
     if unit_from is not None and (unit not in CURRENCIES or not isinstance(unit_from, int) or month_of(unit_from) is None
-                                  or not 1900 <= cast(int, year_of(unit_from)) <= 2100):
+                                  or not plausible_year(cast(int, year_of(unit_from)))):
         raise bad(f"unit_from {unit_from!r} is the first AAAAMM an amount is in the unit, for a currency")
     lo, hi = (years + (None, None))[:2] if len(years) == 2 else (None, None)
     if unfilled and ((lo is not None and unfilled[0] < lo) or (hi is not None and unfilled[-1] > hi)):
