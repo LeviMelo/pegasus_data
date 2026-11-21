@@ -22,3 +22,12 @@ learned from the distribution of pathology date minus admission among unambiguou
 
 **Checked.** Labels by year unchanged (0403070171 only from 2024; 0403070023 only 2009); the links load and bind
 under the new parameters; `count_events("SIH-RD", "stay", period=("2019","2020"), geography="PE")` 970,343.
+
+**A family assigned by date, not by schema (same day).** 1,946 SIA-AQ files had never had their header read and were
+placed in a family by their period: 162 files of the 2008-2015 schema sat in the 2016-2020 family, and the build
+refused them ("no representation has the columns"), so the lake lacked them without being wrong. Reading their headers
+(4.1 MB) and running the families stage put each file in its own schema's family; AQ 2014-2020 rebuilt with no refusal.
+The catalog held 176,000 such files across systems (CNES 74k, SIA 49k, SIH 35k, ...), none mismatched among those read:
+the whole census and the families stage were launched so that a family is always its files' own schema.
+A lake partition of SIH-SP is 65% `_record_key` (an MD5 per row, 32 hex characters; 40% of the DATASUS-built lake in a
+400-file sample): a decision on storing it compactly or deriving it on read is pending (OPEN_QUESTIONS #99).
