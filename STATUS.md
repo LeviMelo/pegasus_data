@@ -38,6 +38,14 @@ holds and can do, one space × time object, and the principles audits' defects c
   +3% in the smallest against `-7`), so `field_rate` and the `modelled:population_account` cube changed with it (name
   `population-account-7` to keep the old one); `load_population` (POPSVS, the census) is untouched. The latest
   `race_confusion_women` is `-2`. Link role tables rebuild once (7-digit municipality codes placed).
+  **SIM and SINASC** (ADR-0228): SIM-DO 2009, 2011 and 2013-2017 and SINASC-DN 2006-2012 are now read from the 27 state
+  files, where the national file cut the cause lines (`LINHAA`..`LINHAII`) or the anomaly codes (`CODANOMAL`); the
+  records and every other column are the same, row counts unchanged, and the lake holds one reading per year (the
+  national partitions of those years were pruned, as were 40 unlisted leftovers). A run that read those partitions
+  while they were replaced (21 Nov, 14:30-15:00) should be run again; role tables of those years rebuild once.
+  **SIGTAP procedures** are labelled only inside their window (0403070171 from 202312); `link(..., match="procedure")`
+  and `sih_readmissions` are new; CNES neurosurgery fields (`cnes_neurosurgeons_*`, `cnes_accreditation_*`,
+  `cnes_beds_neurosurgery`, ...) are declared.
 - **Race.** A third reference: a death linked to the dead person's own birth (`sim_deaths_to_own_birth`), giving
   `race_confusion_child` (ages 1-14, children born from 2012). The birth record's colour is the mother's only from the
   2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product
