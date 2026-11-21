@@ -623,6 +623,38 @@ products:
       reference_year: 2022
     parameters: *race_model
 
+  race_confusion_child:
+    label: "Race recording confusion, deaths at ages 1 to 14"
+    kind: modelled
+    source: "The same model on SIM deaths linked to the dead child's own SINASC birth record (link sim_deaths_to_own_birth), fitted here"
+    what: >
+      P(race recorded in SIM | race declared on the birth record) for deaths at ages 1 to 14 of both sexes, by state and age
+      band, with posterior bounds. The reference is the infant product's: the colour on the birth record, which from the
+      2011 form on is the mother's own declaration. Children born from 2012, so the oldest age grows with the years read.
+    grain: "state × age band × declared race × recorded race"
+    period: "2013-2024"
+    call: 'pegasus_data.modelled.read_modelled("race_confusion_child")'
+    stores: [lake/modelled/race_confusion_child]
+    build: pegasus_data.studies.modelled_race.build_child_product
+    # the pass of the link run by the build one birth cohort at a time. `births_from` is 2012: the form of 2011 made the
+    # birth record's colour the mother's (RACACORMAE filled on 2.5% of births in 2010, 55% in 2011, 93% in 2012, and equal
+    # to RACACOR wherever both are), before it the newborn's, another quantity (Preta 1.6% of births in 2010, 5.5% in 2012).
+    # A municipality's class is its births in the child's birth year against `class_edges`: the chance of another child of
+    # the same sex born the same day grows with it, so only classes up to `max_class` (under 400 births a year) are used, and
+    # each pair carries the false-link share its class and age band measured with the control moved by `control_shifts` days
+    inputs:
+      link: sim_deaths_to_own_birth
+      years: "2013-2024"
+      births_from: 2012
+      max_age: 14
+      class_edges: [100, 200, 400, 800, 1600]
+      max_class: 2
+      control_shifts: [7, 14, 28, 42, 56]
+      scale_selection: {train: "2013-2020", score: "2021-2024"}
+      composition_years: "2020-2021"
+      reference_year: 2022
+    parameters: *race_model
+
   race_reliability:
     label: "Reliability flag of hospital race recording"
     kind: modelled
