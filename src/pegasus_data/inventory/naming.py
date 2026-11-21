@@ -75,6 +75,9 @@ _DESCRIPTIVE_UF = re.compile(r"^(?P<prefix>[a-z0-9_]+?)_(?P<geo>[a-z]{2})$")
 _TEMPLATE = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9_]{0,10}?)UF(?:AAAAMM|AAMM|AAAA|AA)$")
 
 _CURRENT_YEAR = datetime.now(UTC).year
+#: The earliest year any DATASUS file holds: SIM's ICD-9 deaths from 1979 (`file_facts`, 2026-11-21: data years
+#: 1979-2070, the last IBGE's projections). A two-digit year that would fall before it is this century's.
+FIRST_DATA_YEAR = 1979
 
 
 @dataclass(slots=True)
@@ -248,8 +251,8 @@ def _year_from_two_digits(value: int, epoch: str = "pivot") -> int:
         return 2000 + value
     if epoch == "century_1900":
         return 1900 + value
-    # Default pivot: DATASUS series start in 1979, so ≤ 40 is this century.
-    return 2000 + value if value <= 40 else 1900 + value
+    # Default: the twentieth century only where it does not predate every DATASUS series (FIRST_DATA_YEAR).
+    return 1900 + value if 1900 + value >= FIRST_DATA_YEAR else 2000 + value
 
 
 def infer_two_digit_epoch(codes: list[str]) -> str:
@@ -274,7 +277,7 @@ def infer_two_digit_epoch(codes: list[str]) -> str:
     for name, years in candidates.items():
         span = max(years) - min(years)
         # A reading that puts data implausibly far out is not a candidate at all.
-        if max(years) > _CURRENT_YEAR + 60 or min(years) < 1900:
+        if max(years) > _CURRENT_YEAR + 60 or min(years) < FIRST_DATA_YEAR:
             continue
         if best_span is None or span < best_span:
             best, best_span = name, span
@@ -322,7 +325,7 @@ def apply_convention(parsed: ParsedName, convention: str, *, epoch: str = "pivot
             return parsed
         if convention == "annual":
             year = int(code)
-            if 1900 <= year <= _CURRENT_YEAR + 3:
+            if FIRST_DATA_YEAR <= year <= _CURRENT_YEAR + 3:
                 parsed.date_format = "YYYY"
                 parsed.year = year
                 parsed.normalized_date = year * 100

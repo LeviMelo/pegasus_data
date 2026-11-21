@@ -136,6 +136,10 @@ def _iso(year: int, month: int, day: int, hour: int, minute: int) -> str | None:
         return None
 
 
+def _this_year() -> int:
+    return datetime.now(UTC).year
+
+
 def parse_msdos_line(line: str, directory: str) -> ListingEntry | None:
     """Parse one IIS MS-DOS listing row. Returns None if the dialect does not match."""
     m = _MSDOS_RE.match(line)
@@ -145,9 +149,9 @@ def parse_msdos_line(line: str, directory: str) -> ListingEntry | None:
     if name in {".", ".."} or not name:
         return None
     raw_year = int(m.group("year"))
-    # IIS emits two-digit years. The tree starts in the 1990s and DATASUS
-    # backdates nothing before 1980, so the pivot is safe and explicit.
-    year = raw_year if raw_year > 99 else (2000 + raw_year if raw_year < 80 else 1900 + raw_year)
+    # IIS emits two-digit years. This is a file's modification time, which is never in the future: the century is the
+    # latest that does not put it after the current year (no fixed pivot; a data year's two digits are naming's).
+    year = raw_year if raw_year > 99 else (2000 + raw_year if 2000 + raw_year <= _this_year() else 1900 + raw_year)
     hour = int(m.group("hour"))
     ampm = (m.group("ampm") or "").upper()
     if ampm == "PM" and hour != 12:

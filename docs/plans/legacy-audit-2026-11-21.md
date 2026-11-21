@@ -77,3 +77,4 @@ Line numbers are from the tree as read (2026-11-21).
 | 15 | part: the month-like line is a majority, measured; directory tokens kept (ordering hint only) |
 | 12, 21, 26, 27, 31, 32 | kept, reasons in the evaluation entry |
 | 11 | fixed: the two remaining parsers call `parse_month`/`year_bounds` |
+| 9 | fixed: a modification time is never in the future; a data year never before 1979 (measured) |
