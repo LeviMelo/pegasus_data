@@ -1118,13 +1118,20 @@ def _derived_dimensions(dataset: str, derived: Mapping[str, Mapping[str, Any]]) 
 _CODE: dict[str, Any] = {}
 
 
+#: The layers above a cube (`scripts/layers.py`: describe, studies, entry). No module a cube computes through imports
+#: them, at module level or inside a function: the layer check fails if one does. Their source is not in a cube's
+#: version, so an edit to a command, a route, the compendium or a study's builder rebuilds no cube.
+ABOVE_CUBES = ("cli", "serve", "studies", "_compendium", "_info", "_search", "_unknowns", "_translate", "verify", "adopt")
+
+
 def _code_fingerprint() -> bytes:
-    """The package's source, as a cube's version: a cube computes through the period reader, the age decoder, the event
-    counter, the placing rule, the query engine and more, and a list of them goes stale (an edit to the period reader,
-    outside the list, once served a stale empty cube). Every module counts, so a cached cube is never one computed by
-    code that no longer exists; memoised in the process by the files' sizes and times."""
+    """The source a cube can compute through, as its version: the period reader, the age decoder, the event counter,
+    the placing rule, the query engine and more, and a list of them goes stale (an edit to the period reader, outside
+    the list, once served a stale empty cube). So every module counts but those of the layers above (`ABOVE_CUBES`,
+    which cannot be imported from here); memoised in the process by the files' sizes and times."""
     root = Path(__file__).parent
-    files = sorted(root.rglob("*.py"))
+    files = sorted(f for f in root.rglob("*.py")
+                   if f.relative_to(root).parts[0].removesuffix(".py") not in ABOVE_CUBES)
     stat = tuple((str(f), f.stat().st_size, f.stat().st_mtime_ns) for f in files)
     if _CODE.get("stat") != stat:
         digest = hashlib.blake2b(digest_size=16)

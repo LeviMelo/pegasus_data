@@ -112,7 +112,27 @@ def main() -> int:
     if "--lazy" in sys.argv:
         for (importer, target), n in sorted(lazy.items(), key=lambda kv: (-kv[1], kv[0])):
             print(f"   lazy {n:>2}  {importer} -> {target}")
-    return 1 if top or unplaced else 0
+    # a cube's version leaves out the source of the layers above it (`cubes.ABOVE_CUBES`): that holds only while
+    # nothing at or below the cube's layer imports them, even inside a function
+    above = _above_cubes()
+    derive = next(i for i, (name, _) in enumerate(LAYERS) if name == "derive")
+    misplaced = sorted(m for m in above if (layer_of(m) or 0) <= derive)
+    reached = sorted({(i, t) for i, t, _ in upward
+                      if (layer_of(i.removesuffix(".__init__") or "__init__") or 0) <= derive and t.split(".")[0] in above})
+    for name in misplaced:
+        print(f"   CUBES    {name} is left out of a cube's version but is not above the cube's layer")
+    for importer, target in reached:
+        print(f"   CUBES    {importer} -> {target}: a module a cube may run imports a layer left out of its version")
+    return 1 if top or unplaced or misplaced or reached else 0
+
+
+def _above_cubes() -> tuple[str, ...]:
+    """`cubes.ABOVE_CUBES`, read from the source (the script imports nothing of the package)."""
+    tree = ast.parse((PKG / "cubes.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "ABOVE_CUBES" for t in node.targets):
+            return tuple(ast.literal_eval(node.value))
+    raise SystemExit("cubes.py no longer declares ABOVE_CUBES")
 
 
 if __name__ == "__main__":

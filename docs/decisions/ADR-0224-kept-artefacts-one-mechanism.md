@@ -17,12 +17,14 @@ the same length was not seen; the records cube's version left out the geography 
 3. A stamp or sidecar that cannot be parsed reads as absent (stale, landed again), never as an error.
 4. Two versions gained an input, so their artefacts are rebuilt once: the reference stamp hashes the dictionary
    rows' content; the records cube's stamp includes the checksum of the geography and municipality packs.
+5. A cube's version is the source it can compute through: every module but those of the layers above it
+   (`cubes.ABOVE_CUBES`: the commands, the routes, the compendium, the study builders), which `scripts/layers.py`
+   proves nothing below imports (ADR-0225). An edit there rebuilds no cube; before, any edit rebuilt all of them.
 
 **Evidence** (evaluation 2026-11-21-architecture-review). A records cube (SIH-RD hospitalisations, Acre 2023) equal
 before and after, the second call a hit (0.09 s), one file left and no temp; a build or a write that fails leaves the
 previous version and nothing else.
 
 **Not changed.** Each store still decides what its version is made of (the catalog column of a lake partition, the
-sidecar of a link run, a modelled product's version directory): those are different facts, not copies. The cube's
-version still includes every source file of the package, so any code change rebuilds every cube: safe, and coarse.
-No cross-process lock was added; last writer wins, on whole files.
+sidecar of a link run, a modelled product's version directory): those are different facts, not copies. No
+cross-process lock was added; last writer wins, on whole files.
