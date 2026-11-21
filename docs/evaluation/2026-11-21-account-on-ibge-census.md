@@ -49,3 +49,22 @@ gain in municipalities over 500,000 is gone (0.052 against 0.040). The intervals
 The picture of the first runs holds under the new truth: each signal cuts 2010 to 2022 by about a tenth (0.059 to
 0.052-0.053) and does not help 2000 to 2010. Against IBGE's 2022 the events' own symptoms do better than the previous
 decade's migration (0.0540 against 0.0590).
+
+## `population-account-9`: every state, year, sex and age at IBGE's (ADR-0228)
+
+`model-build population_account --version population-account-9` on 8b6fb06 (about 75 minutes beside other jobs);
+`data/probes/popsvs/decompose.py population-account-9` (log `decompose_9.log`); a check query against `projpop`.
+
+| | `-8` | `-9` |
+|---|---|---|
+| national total 2005, 2015, 2025, 2030 (M) | 185.28, 202.78, 214.14, 218.23 | 185.518, 202.404, 213.421, 216.973 (IBGE's) |
+| state x sex x age against IBGE (4,914 cells a year), largest relative difference | up to several % between censuses | 4e-8 |
+| account / POPSVS by age group (0-4, 5-14, 15-29, 30-59, 60+), any year | 0.970-1.009 | 1.000 |
+| median municipality against POPSVS: 2005, 2015, 2022, 2025 | 1.0%, 1.0%, 0.7%, 1.1% | 1.0%, 0.8%, 0.7%, 1.0% |
+| cells against POPSVS, RMS: 2010, 2015, 2022 | 0.020, 0.039, 0.017 | 0.020, 0.038, 0.017 |
+
+The constraint's factors: 1% of cells 0.846, median 1.001, 99% 1.160 (single ages inside a band, where the census's
+own age heaping meets IBGE's smoothed ages, and ages 0-4 between censuses). 219,402,300 rows as before; the races add to
+the total. What still differs from POPSVS is the spread of a state's people over its municipalities and the municipal
+age structure between censuses: the account keeps the census's distribution and its own cohorts; POPSVS smooths cohort
+growth.

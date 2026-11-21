@@ -114,3 +114,5 @@ settles.
 - **P6, totals of groups of municipalities, concluded** (evaluation 2026-11-21-population-symptoms): errors correlate 0.45-0.50
   inside a micro-region in both periods and the law transfers (`population_benchmark.group_log_sd`); a state's total is
   IBGE's. Left of P6: age groups and race.
+- **Every state, year, sex and age is IBGE's** (ADR-0228): `population-account-9`. The account's own part is the spread
+  inside a state. Against POPSVS only that is left (median municipality 0.7-1.0%).

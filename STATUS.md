@@ -34,7 +34,7 @@ holds and can do, one space × time object, and the principles audits' defects c
 - **`population-account-8`** (ADR-0227): the 2022 census at IBGE's corrected population, as 2000 and 2010; 210.863 M in
   2022, 0.0167 RMS from POPSVS at 2022. `-7` stays stored.
 - **What a reader gets differently since 2026-11-21** (for any study running on this home): the latest
-  `population_account` is `-8` (2022 total 210.863 M, was 211.962 M; by municipality size up to -5% in the largest and
+  `population_account` is `-9` (every state, year, sex and age at IBGE's, ADR-0228; 2022 total 210.863 M, was 211.962 M; by municipality size up to -5% in the largest and
   +3% in the smallest against `-7`), so `field_rate` and the `modelled:population_account` cube changed with it (name
   `population-account-7` to keep the old one); `load_population` (POPSVS, the census) is untouched. The latest
   `race_confusion_women` is `-2`. Link role tables rebuild once (7-digit municipality codes placed).
