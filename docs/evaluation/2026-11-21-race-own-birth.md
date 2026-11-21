@@ -138,3 +138,34 @@ declared race is another. Men and women, and every age from 15 to 70 and over, g
 **What can identify adults.** People with all three readings: a woman's declaration and certificate
 (`sim_women_deaths_to_sinasc_mothers`) joined to her hospital record by the death's id, which gives the certificate
 given the declaration *and* the hospital's record. `women_table.py` assembles it (the women's table now keeps the id).
+
+## Does the children's bridge recover rates? (plan R2; `bridge_check.py`, `linked_truth.py`, `child_rates.py`)
+
+**The test.** In the municipalities where the link works (under 400 births a year; 13,704 deaths at 1-4 and 4,025 at
+5-9, 2013-2024), three rates over the births of the same cohorts by the mother's colour: by the certificate's race
+(raw); by the linked birth's declared race, each linked death counted w(1 - phi) (truth; 6,278 and 1,714 true pairs);
+and `reclassify` with `race-confusion-child-1`. As ratios to Parda:
+
+| ages 1-4 | Branca raw / bridged / truth | Preta raw / bridged / truth |
+|---|---|---|
+| all | 1.49 / 0.86 / **0.79** | 0.90 / 1.78 / **1.18** |
+| North | 2.49 / 1.03 / 0.74 | 1.10 / 1.94 / 1.08 |
+| Northeast | 3.04 / 0.86 / 0.82 | 1.09 / 1.92 / 1.11 |
+| Southeast | 1.43 / 0.91 / 0.80 | 0.78 / 1.59 / 1.32 |
+| South | 1.45 / 0.88 / 0.82 | 0.76 / 1.99 / 1.18 |
+| Centre-West | 2.01 / 1.55 / 0.82 | 0.93 / 2.50 / 1.24 |
+| ages 5-9, all | 1.28 / 0.82 / **0.82** | 1.25 / 3.44 / **1.15** |
+
+- **The certificates invert the picture.** They say a Branca child dies 49% more often than a Parda one at 1-4 (three
+  times more in the Northeast); by declared race it is 21% less, and a Preta child 18% more. Indígena 4.4 times Parda.
+- **The bridge recovers Branca against Parda** (0.86 for 0.79; every region but the Centre-West) and **overcorrects
+  Preta** (1.78 for 1.18; 3.44 for 1.15 at 5-9): with a quarter of Preta children recorded Preta, each Preta
+  certificate stands for four deaths, and the small share of Parda children recorded Preta (0.03-0.05) is multiplied
+  with it. Mean absolute log error of the Branca and Preta ratios over regions and bands: raw 0.57, bridged 0.37.
+  The truth here is the fit's own pairs, so this is the model's best case.
+- **Outside its domain the bridge extrapolates.** Applied to every municipality (deaths 2021-2024, `child_rates.py`), it
+  gives per 100,000 person-years at 1-4 Branca 64.6 raw and 56.9 bridged (36-78), Parda 42.8 and 41.1, Preta 33.7 and
+  65.6 (15-133): Branca still above Parda, against the linked truth. The link sees only small municipalities; the
+  composition and size terms carry the model to the large ones, unchecked.
+- **Use, as it stands:** Branca against Preta and Parda together, inside small municipalities. Not for Preta alone, and
+  not for national rates. `reclassify`'s mean over draws is not usable (a few draws run away); the median is.

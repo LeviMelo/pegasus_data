@@ -55,3 +55,9 @@ the product's folder. *Done when* a reader can reproduce every number from the h
   women's direct measurement (Branca 0.99 against 0.74-0.79, Preta 0.78 against 0.59-0.63). The hospital and the
   certificate agree with each other more than either agrees with the declaration: an observer's reading is one
   quantity, the declaration another. Next: the three readings of the same woman (`data/probes/race_chain/women_table.py`).
+- **R2, children** (the same entry): by declared race a Branca child dies 21% less often than a Parda one at 1-4 and
+  a Preta child 18% more; the certificates say Branca 49% more. The bridge recovers Branca against Parda (0.86 for
+  0.79) and overcorrects Preta (1.78 for 1.18); nationally it extrapolates from small municipalities and fails. Open:
+  a well-conditioned estimate for Preta (the matrix and the rates fitted together), and a link that reaches large
+  municipalities.
+
