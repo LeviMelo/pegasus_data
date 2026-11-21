@@ -699,6 +699,67 @@ def band_tables(inp, acc: dict) -> list:
     return out
 
 
+#: The years IBGE's state series covers (Projeções da População, Revisão 2024: `projpop`), within the product's.
+IBGE_YEARS = (2000, 2030)
+
+
+def constrained_to_ibge(tables, settings, log=print):
+    """The product's tables with every state's people of a year, sex and age made IBGE's (ADR-0228).
+
+    IBGE's *Projeções, Revisão 2024* (`load_population(series="projpop")`: state x year x sex x single age to 89, then
+    90 and over) is the population POPSVS is built on and the truth this account takes at a census year. Here each
+    cell of 2000-2030 is multiplied by its state's factor, IBGE over the account's own total of that state, year, sex
+    and age (ages 90 and over together), so the municipalities of a state add to IBGE's figure in every year and the
+    account decides only what IBGE does not publish: the spread over municipalities and over race. The intervals take
+    the same factor. Years before 2000 have no IBGE series by state and age and stay the account's. Two passes: the
+    tables are kept in the work area, their state totals read, then yielded with the factor."""
+    import duckdb
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    from ..api import load_population
+
+    work = Path(settings.work_dir) / "population_account"
+    work.mkdir(parents=True, exist_ok=True)
+    tmp = work / "unconstrained.parquet"
+    writer = None
+    for t in tables:
+        writer = writer or pq.ParquetWriter(tmp, t.schema)
+        writer.write_table(t)
+    if writer is None:
+        return
+    writer.close()
+    lo, hi = IBGE_YEARS
+    own = np.zeros((100, hi - lo + 1, 2, 91))
+    con = duckdb.connect()
+    for uf, year, sex, age, n in con.execute(f"""SELECT municipality // 100000, year, sex, least(age, 90), sum(population) FROM '{tmp.as_posix()}'
+                                                 WHERE race = 'total' AND year BETWEEN {lo} AND {hi} GROUP BY ALL""").fetchall():
+        own[int(uf), int(year) - lo, int(sex) - 1, int(age)] = n
+    ibge = np.zeros_like(own)
+    for year in range(lo, hi + 1):
+        t = load_population(series="projpop", years=[year], by=["sex", "age"], settings=settings)
+        for uf, sex, age, n in zip(t["ufcod"].to_pylist(), t["sex"].to_pylist(), t["age"].to_pylist(), t["population"].to_pylist(), strict=True):
+            ibge[int(uf), year - lo, 0 if sex == "M" else 1, min(int(age), 90)] += n
+    factor = np.where(own > 0, ibge / np.maximum(own, 1e-9), 1.0)
+    log(f"constrained to IBGE's states: factors {np.quantile(factor[own > 0], [0.01, 0.5, 0.99]).round(3).tolist()} (1%, median, 99%)")
+    source = pq.ParquetFile(tmp)
+    names = ["population", "population_lo", "population_hi", "population_lo95", "population_hi95"]
+    for g in range(source.num_row_groups):
+        t = source.read_row_group(g)
+        year = t["year"].to_numpy(zero_copy_only=False).astype(int)
+        inside = (year >= lo) & (year <= hi)
+        f = np.ones(t.num_rows)
+        f[inside] = factor[t["municipality"].to_numpy(zero_copy_only=False)[inside] // 100000, year[inside] - lo,
+                           t["sex"].to_numpy(zero_copy_only=False)[inside].astype(int) - 1,
+                           np.minimum(t["age"].to_numpy(zero_copy_only=False)[inside].astype(int), 90)]
+        for name in names:
+            i = t.schema.get_field_index(name)
+            t = t.set_column(i, t.schema.field(i), pa.array((t[name].to_numpy(zero_copy_only=False) * f).astype(np.float32)))
+        yield t
+    source.close()
+    tmp.unlink()
+
+
 def build_population_account(settings, *, version: str, validation: str, only: tuple[int, ...] | None = None, log=print) -> dict:
     """Build and write the ``population_account`` modelled product from the data home alone: municipality × year 1991-2030 ×
     sex × single age 0..100 × race (total and five, total only before 2000), with 80% and 95% intervals and the basis of
@@ -802,6 +863,9 @@ def build_population_account(settings, *, version: str, validation: str, only: t
                "A municipality with no people at a census takes its area's composition there. 2000 race is the IBGE sample, spread "
                "flat inside its age bands.",
                *pb.NOTES,
+               "Every state's people of a year, sex and age are IBGE's (Projeções da População, Revisão 2024; `projpop`), 2000-2030: "
+               "each cell is the account's times its state's factor (ages 90 and over together), intervals with it; what is the "
+               "account's own is the spread over municipalities and race. 1991-1999 are not constrained.",
                "Interior timing: the residual of each intercensal period (and of 1991-2000) is carried along the cohorts by an age "
                "schedule of net migration (population_account.fit_schedule: yearly rates by age, per sex and size class, fitted on the "
                "cohort residuals of 2000-2010 and 2010-2022; mostly ages 15-27) instead of evenly through the years; censuses and bands "
@@ -813,7 +877,7 @@ def build_population_account(settings, *, version: str, validation: str, only: t
         yield from tail
 
     log("writing")
-    out = write_modelled(chain(), manifest, settings=settings)
+    out = write_modelled(constrained_to_ibge(chain(), settings, log), manifest, settings=settings)
     # the account's own five-year-band estimate, written beside it under the same version number
     bands_version = version.replace("population-account", "population-account-bands", 1)
     bands_out = write_modelled(band_tables(inp, acc), ModelledManifest(
