@@ -228,10 +228,12 @@ KINDS: tuple[tuple[str, Any], ...] = (
         ("products.yml", obj("products", sub={"products": free(obj(
             "build call grain inputs kind label parameters period source stores systems what",
             required="call grain kind label period source stores what"))})),
-        ("codelists.yml", obj("bridges code_windows codebook kit_tables label_bindings mentions roles semantic_types", sub={
+        ("codelists.yml", obj("bridges code_windows codebook kit_tables label_bindings mentions roles semantic_types structures", sub={
             "bridges": obj("names targets unique", sub={"targets": free(obj("classification width"))}),
             "codebook": obj("max_codes max_width"),
             "kit_tables": free(obj("code label reference")),
+            "structures": free(obj("item kind levels segment width", required="kind",
+                                   sub={"kind": enum("icd", "levels", "path")})),
             "label_bindings": obj("form_dictionary_rows min_evidence rollup share_tie too_weak"),
             "roles": obj("classification geography registry", sub={
                 "classification": obj("patterns what"), "geography": obj("patterns what"),

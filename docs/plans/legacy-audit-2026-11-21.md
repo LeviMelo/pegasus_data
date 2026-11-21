@@ -71,3 +71,5 @@ Line numbers are from the tree as read (2026-11-21).
 | 24 | fixed: research order declared; `infer_kind` kept (SIDRA gives no kind) |
 | 19 | fixed: the register declared once; CNPJ width in `identifiers` |
 | 5 | after the migration: 22,279 of 22,286 catalogued columns (99.97%) have a declared role (SINASC-DN's 7 do not), so the general fix is to type a declared column from its role (kind, codelists) and run the detectors on the undeclared ones only. The verdict picks date parsing, numeric casting and the `_ibge7`/epi-week columns in `normalize/engine`, so it changes lake normalisation: done after the record-identity migration |
+| 18 | fixed: `structures:` declaration, `LevelLabels` |
+| 2 | lookups half fixed (`structures:`); `persist/reference.HIERARCHICAL_TABLES` and the 200-label cutoff after the migration |

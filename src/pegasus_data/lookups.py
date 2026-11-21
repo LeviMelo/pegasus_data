@@ -439,7 +439,7 @@ def _merged_lookup(
     692,004-row registry twelve times was 16 million ``setdefault`` calls in a
     year's query (ADR-0097). Tables with no vintages drop the year from the key.
     """
-    if any(str(c).upper() in HIERARCHICAL_CODELISTS or str(c).upper() in PATH_CODELISTS for c in codelists):
+    if any(str(c).upper() in structures() for c in codelists):
         # These answer codes the column does not literally hold (a category
         # for an unlisted subcategory): never cut to the observed ones.
         only = None
@@ -474,20 +474,24 @@ def _cached_merged_lookup(
         merged = CodeMap()
         for mapping in reversed(maps):
             merged.update(mapping)
-    if any(str(c).upper() == "ICD10" for c in codelists):
+    declared = structures()
+    tables = [str(c).upper() for c in codelists if not str(c).upper().startswith("CURATED.")]
+    kinds = {t: declared[t] for t in tables if t in declared}
+    tree = next((t for kind in ("icd", "levels") for t, body in kinds.items() if body["kind"] == kind), None)
+    if tree is not None and kinds[tree]["kind"] == "icd":
         # ICD-10 is a defined hierarchy: a subcategory the classification does
         # not list still belongs to its category (ADR-0089).
         merged = IcdLabels(merged)
-    elif any(str(c).upper() == "SIGTAP" for c in codelists):
-        merged = SigtapLabels(merged)
-    else:
+    elif tree is not None:
+        body = kinds[tree]
+        merged = LevelLabels(merged, table=tree, width=int(body["width"]), item=str(body["item"]),
+                             levels=tuple((int(w), str(n)) for w, n in body["levels"]))
+    elif len(tables) == 1 and tables[0] in kinds and kinds[tables[0]]["kind"] == "path":
         # A path table keeps its path behaviour behind a column's own inline
         # codes: SIH-SP SERV_CLA curates 000000 ahead of S_CLASSEN, and 126000
         # (service 126, no classification) stopped being named by its service
         # when the chain became two tables (2026-09-30).
-        tables = [str(c).upper() for c in codelists if not str(c).upper().startswith("CURATED.")]
-        if len(tables) == 1 and tables[0] in PATH_CODELISTS:
-            merged = PathLabels(merged, table=tables[0], segment=PATH_CODELISTS[tables[0]])
+        merged = PathLabels(merged, table=tables[0], segment=int(kinds[tables[0]]["segment"]))
     merged.widths = frozenset().union(*(_widths(m) for m in maps))  # type: ignore[union-attr]
     return merged, missing
 
@@ -534,28 +538,32 @@ class IcdLabels(dict):  # type: ignore[type-arg]
         return default
 
 
-class SigtapLabels(dict):  # type: ignore[type-arg]
-    """SIGTAP labels that fall back from a procedure to its form, subgroup, group.
+class LevelLabels(dict):  # type: ignore[type-arg]
+    """Labels of a classification of fixed levels that fall back from a code to its longest listed parent.
 
-    A 10-digit procedure missing from the table (created after the kit, or
+    A 10-digit SIGTAP procedure missing from the table (created after the kit, or
     retired before it) still belongs to its form of organisation (6 digits),
     subgroup (4) and group (2): "Parto — forma 041101 (procedimento 0411019999
     não consta da tabela SIGTAP)". The canonical SIGTAP table carries every
-    level, so the parents are in this mapping (ADR-0092).
+    level, so the parents are in this mapping (ADR-0092). The widths, the level
+    names and the item are the codelist's ``structures:`` (``codelists.yml``).
     """
 
-    _LEVELS = ((6, "forma de organização"), (4, "subgrupo"), (2, "grupo"))
+    def __init__(self, mapping: Mapping[str, str], *, table: str, width: int, item: str,
+                 levels: tuple[tuple[int, str], ...]) -> None:
+        super().__init__(mapping)
+        self._table, self._width, self._item, self._levels = table, width, item, levels
 
     def get(self, key: object, default: object = None) -> object:
         found = super().get(key)
         if found is not None:
             return found
         code = str(key).strip()
-        if len(code) == 10 and code.isdigit():
-            for width, name in self._LEVELS:
+        if len(code) == self._width and code.isdigit():
+            for width, name in self._levels:
                 parent = super().get(code[:width])
                 if parent is not None:
-                    return f"{parent} — {name} {code[:width]} (procedimento {code} não consta da tabela SIGTAP)"
+                    return f"{parent} — {name} {code[:width]} ({self._item} {code} não consta da tabela {self._table})"
         return default
 
 
@@ -606,10 +614,14 @@ class PathLabels(dict):  # type: ignore[type-arg]
         return default
 
 
-#: Codelists whose labels spell out a fixed-width level path (``PathLabels``).
-PATH_CODELISTS: dict[str, int] = {"VINCULO": 2, "S_CLASSEN": 3}
-#: Tables that label codes they do not list (ADR-0089): never cut to a column's codes.
-HIERARCHICAL_CODELISTS = frozenset({"ICD10", "SIGTAP"})
+def structures() -> dict[str, dict[str, Any]]:
+    """``codelist -> structure`` of the tables that label codes they do not list (``codelists.yml`` ``structures:``):
+    never cut to a column's codes, and labelled by `IcdLabels`, `LevelLabels` or `PathLabels`."""
+    from .config import curation_root
+    from .semantics.curation import read_yaml
+
+    declared = (read_yaml(curation_root() / "codelists.yml", shared=True) or {}).get("structures") or {}
+    return {str(name).upper(): dict(body) for name, body in declared.items()}
 
 
 #: Arrow's ``string`` (and ``binary``, and the child of a list of strings) addresses its characters with 32-bit

@@ -122,6 +122,24 @@ kit_tables:
   CNAENET: {code: CLASS_CNAE, label: DS_CNAE, reference: cnae}
   UNIDINVEST: {code: ID_UNIDADE, label: NM_UNIDADE, reference: sinan_unit}
 
+# Codelists whose labels answer codes they do not list, and how (lookups._merged_lookup): such a table is never cut to
+# a column's observed codes.
+#   icd     the ICD-10 tree: an unlisted subcategory takes its category's label (ADR-0089; lookups.IcdLabels)
+#   levels  a code of `width` digits not listed is named by its longest listed parent of the `levels` widths, each with
+#           its name, and says the `item` is not in the table (SIGTAP: form 6, subgroup 4, group 2; ADR-0092)
+#   path    a code of fixed-width `segment`s whose labels spell the path of levels (CNES VINCULO: 080501 = "08
+#           INTERMEDIADO / 05 AUTONOMO / 01 PESSOA JURIDICA"): an unlisted code is named by the deepest level a listed
+#           code shares (lookups.PathLabels)
+structures:
+  ICD10: {kind: icd}
+  SIGTAP:
+    kind: levels
+    width: 10
+    item: procedimento
+    levels: [[6, "forma de organização"], [4, subgrupo], [2, grupo]]
+  VINCULO: {kind: path, segment: 2}
+  S_CLASSEN: {kind: path, segment: 3}
+
 # What a detector's verdict on a column (profile/detectors.py) binds it to: the codelists the verdict binds the column to
 # as a candidate (`bind_by_semantic_type`, source 'semantic_match', the first one the dictionary holds). The reference
 # universe the detector measures membership in is the `reference` of `kit_tables` above.
