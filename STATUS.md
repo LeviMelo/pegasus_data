@@ -33,6 +33,11 @@ holds and can do, one space × time object, and the principles audits' defects c
   not transfer to 2000 to 2010. Next: the benchmark as one function (P1), the closing census's own error (P4).
 - **`population-account-8`** (ADR-0227): the 2022 census at IBGE's corrected population, as 2000 and 2010; 210.863 M in
   2022, 0.0167 RMS from POPSVS at 2022. `-7` stays stored.
+- **What a reader gets differently since 2026-11-21** (for any study running on this home): the latest
+  `population_account` is `-8` (2022 total 210.863 M, was 211.962 M; by municipality size up to -5% in the largest and
+  +3% in the smallest against `-7`), so `field_rate` and the `modelled:population_account` cube changed with it (name
+  `population-account-7` to keep the old one); `load_population` (POPSVS, the census) is untouched. The latest
+  `race_confusion_women` is `-2`. Link role tables rebuild once (7-digit municipality codes placed).
 - **Race.** A third reference: a death linked to the dead person's own birth (`sim_deaths_to_own_birth`), giving
   `race_confusion_child` (ages 1-14, children born from 2012). The birth record's colour is the mother's only from the
   2011 form. False links are priced per pair, inside the municipality; `race-confusion-women-2` is the women's product
