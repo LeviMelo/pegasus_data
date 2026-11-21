@@ -47,6 +47,7 @@ from .measures import (
     check_rollup,
     measure_from_declaration,
 )
+from .measures import finalize as _finalize
 from .semantics.epoch import curated
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -1133,8 +1134,6 @@ def _reduce_cells(working: Any, chosen: Sequence[Measure], lv: _Levels, reduced:
     """The measures reduced over the cells of ``lv``: a stock over time, grouped states, or one total cell."""
     import pyarrow as pa
     import pyarrow.compute as pc
-
-    from .measures import finalize as _finalize
 
     key_names, group_by = lv.keys, lv.group_by
     emit_as = dict(zip(group_by, key_names, strict=True))

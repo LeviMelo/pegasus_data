@@ -34,7 +34,7 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-from ..config import UF_ABBREVIATIONS
+from ..config import UF_ABBREVIATIONS, load_settings
 from ..semantics.curation import declared
 
 SOURCE = "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/"
@@ -60,8 +60,6 @@ __all__ = ["build", "validate"]
 
 
 def _directory(root: str | Path | None, name: str) -> Path:
-    from ..config import load_settings
-
     return load_settings(root=root).registry_dir(name)
 
 

@@ -10,6 +10,7 @@ from typing import Any
 
 from .catalog.store import CatalogStore
 from .inventory.families import DECODE_COST_RANK
+from .inventory.naming import strip_container_suffixes
 
 
 @dataclass(frozen=True, slots=True)
@@ -493,7 +494,5 @@ def _representation_kind(row: Mapping[str, Any]) -> str:
     format refused ``SINAN-TUBE`` 2022 outright (live run 2026-09-28). The full
     suffix separates them; cost ranking still uses the container.
     """
-    from .inventory.naming import strip_container_suffixes
-
     _stem, suffix, _container = strip_container_suffixes(PurePosixPath(str(row.get("path") or "")).name)
     return (suffix or "").lstrip(".").lower() or str(row.get("container_format") or "unknown")

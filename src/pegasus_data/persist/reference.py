@@ -49,10 +49,12 @@ import pyarrow.parquet as pq
 
 from .._lazy import LazyModule
 from ..catalog.store import CatalogStore
-from ..config import UF_ABBREVIATIONS
+from ..config import UF_ABBREVIATIONS, curation_root
 from ..normalize.time import year_bounds
-from ..semantics.curation import declared
+from ..semantics.curation import declared, inherited, inline_codelist, inline_windows
+from ..semantics.epoch import codelist_fingerprint
 from .decisions import (
+    borrowed_labels_allowed,
     borrowed_tables,
     collecting,
     fallback_vintages,
@@ -310,9 +312,6 @@ def dictionary_fingerprint(catalog: CatalogStore, system: str) -> str:
     per process for a catalog file's state (its modification time): a check on every read cost 27 s a call."""
     import hashlib
 
-    from ..config import curation_root
-    from ..semantics.epoch import codelist_fingerprint
-
     path = getattr(catalog, "path", None) or getattr(catalog, "db_path", None)
     state = (str(path), Path(path).stat().st_mtime_ns if path and Path(path).exists() else None, system)
     if state[1] is not None and state in _FINGERPRINTS:
@@ -498,8 +497,6 @@ def read_reference_table(
     parent's own copy when it ships none (ADR-0095). Declared inheritance is
     not borrowing: it names the one system the field belongs to.
     """
-    from ..semantics.curation import inherited
-
     kwargs = {
         "valid_from": valid_from, "year": year, "competencia": competencia, "code_width": code_width,
         "registries": registries,
@@ -554,7 +551,6 @@ def _read_reference_table(
     """
     from ..registry import is_registry
     from ..registry import lookup as registry_lookup
-    from ..semantics.curation import inline_codelist, inline_windows
 
     if table_id.upper() == "UF_BR":
         return _states()
@@ -656,7 +652,6 @@ def reference_fingerprint(lake_root: str | Path, table_id: str, system: str | No
 
     from ..labelpack import packed_fingerprint
     from ..registry import is_registry
-    from ..semantics.curation import inherited, inline_codelist, inline_windows
 
     name = table_id.upper()
     if name in ("UF_BR", "MUNIC_BR7"):
@@ -763,7 +758,6 @@ def _scoped_table(
             # Only narrow when the system actually has this table. Returning an
             # empty result for a field whose codelist came from a neighbour's kit
             # would turn a labelling gap into a silent blank column.
-            from .decisions import borrowed_labels_allowed
 
             if not borrowed_labels_allowed():
                 raise FileNotFoundError(
@@ -802,7 +796,6 @@ def reference_vintage(
     else:
         span, asked = year_bounds(cast("int | str", year)), str(year)
     from ..labelpack import read_packed, select_windows, windows_answering
-    from ..semantics.curation import inline_windows
 
     windowed = inline_windows(table_id)
     if windowed:

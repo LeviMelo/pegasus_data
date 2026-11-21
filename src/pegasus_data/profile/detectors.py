@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..config import UF_CODES, UF_NUMERIC
-from .accumulators import FieldStats
+from .accumulators import FieldStats, robust_tail_span
 
 ICD10_RE = re.compile(r"^[A-TV-Z][0-9][0-9AB](?:\.?[0-9A-TV-Z]{0,4})?$", re.I)
 DATASUS_AGE_RE = re.compile(r"^[AMDH]\d{2,3}$", re.I)
@@ -124,8 +124,6 @@ def _numeric_tail_shape(stats: FieldStats, prefix_len: int = 1) -> tuple[float |
     is a leading digit rather than a leading letter.
     """
     from collections import Counter
-
-    from .accumulators import robust_tail_span
 
     tails: Counter[int] = Counter()
     for value, count in stats.top_values:

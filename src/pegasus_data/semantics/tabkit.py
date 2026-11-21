@@ -30,7 +30,7 @@ import pyarrow as pa
 
 from ..catalog.store import CatalogStore, utcnow
 from ..decode.archives import Archive
-from ..decode.dbf import read_dbf_bytes
+from ..decode.dbf import DbfHeader, _sniff_encoding, read_dbf_bytes
 from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode, decode_score
 from .cnv_parser import CnvFile, parse_cnv_bytes
 from .def_parser import DefFile, parse_def_bytes
@@ -54,7 +54,6 @@ def _redecode_text(table: pa.Table, payload: bytes) -> pa.Table:
     # The file's codepage as the DBF reader sniffs it (from its records), not
     # from the raw bytes after byte 32, whose field descriptors swayed it to
     # cp1252 and turned SIH/CIHA S_CID's "NÃO" into "NÇO" (870 labels, 2026-10-03).
-    from ..decode.dbf import DbfHeader, _sniff_encoding
 
     file_encoding = _sniff_encoding(payload, DbfHeader(memoryview(payload)))
     order = (file_encoding, *(e for e in CANDIDATE_ENCODINGS if e != file_encoding))

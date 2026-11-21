@@ -19,7 +19,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from ..persist.kept import write_json_atomic, write_parquet_atomic
-from .engine import raw_links
+from .engine import load_links, raw_links
+from .roles import load_roles, table_key
 
 #: Bumped when the engine, the levels, the placebo or the verdict rules change what a run holds: every stored run
 #: written under another version is stale (`fingerprint`). 3: one placebo for both engines (`placebo`: the deterministic
@@ -79,9 +80,6 @@ def links_dir(settings: Any) -> Path:
 
 
 def _fingerprint_of(settings: Any, spec: str, period: str, seen: frozenset[str] = frozenset()) -> str:
-    from .engine import load_links, raw_links
-    from .roles import load_roles, table_key
-
     sides = load_links()[spec]
     years = sorted({int(t) for t in re.findall(r"\d{4}", period)})
     h = hashlib.sha256(f"{LINKAGE_VERSION}|{spec}|".encode())

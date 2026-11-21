@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .. import __version__
 from ._cache import ByteCache
 from ._errors import Refused, error_response, refusal_response
 
@@ -36,7 +37,6 @@ class Context:
 
 def register_health(app: Any, ctx: Context) -> None:
     """``/health``: the version, the lake and what is built."""
-    from .. import __version__
     from ..capabilities import catalogue
 
     settings, meshes = ctx.settings, ctx.meshes

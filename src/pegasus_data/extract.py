@@ -28,7 +28,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-from .persist.kept import write_parquet_atomic
+from .persist.kept import write_json_atomic, write_parquet_atomic
 
 __all__ = ["build_extract", "extract_dir", "extract_table"]
 
@@ -186,8 +186,6 @@ EXTRACT_WORKERS = 6
 def _write_manifest(path: Path, manifest: dict[str, Any]) -> None:
     """The manifest written whole or not at all (a temporary file replaced): rewritten in place every few files, a
     reader caught it half written and took the extract for absent (PegaSUS's tests, 2026-10-12)."""
-    from .persist.kept import write_json_atomic
-
     write_json_atomic(manifest, path, indent=1)
 
 

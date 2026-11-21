@@ -33,7 +33,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from .config import UF_ABBREVIATIONS, Settings
+from .config import UF_ABBREVIATIONS, Settings, curation_root, load_settings
 from .identifiers import strip_identifier, valid_cnpj
 
 
@@ -78,7 +78,6 @@ def _current_kit(kits: list[str], sizes: dict[str, int]) -> str | None:
 def build(system: str, *, refresh: bool = False, settings: Settings | None = None) -> dict[str, int]:
     """Fetch the system's kit and cache every registry table in it. THE download of a registry, and only an explicit
     call reaches it (``pegasus-data registries build``); a read goes through :func:`lookup`, which never builds."""
-    from .config import load_settings
     from .pipeline import Pipeline
     from .semantics.tabkit import find_kits
 
@@ -282,7 +281,6 @@ def establishment_window(included: object, excluded: object) -> tuple[str, str]:
 
 def _registry_declarations() -> dict[str, Any]:
     """The ``registry`` role of ``codelists.yml``: the patterns, each plain table's key and name columns, the owners."""
-    from .config import curation_root
     from .semantics.curation import read_yaml
 
     return dict(((read_yaml(curation_root() / "codelists.yml") or {}).get("roles") or {}).get("registry") or {})

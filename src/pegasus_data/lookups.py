@@ -21,7 +21,8 @@ import pyarrow.compute as pc
 
 from .identifiers import LABEL_PREFIX
 from .persist.decisions import unrecorded
-from .persist.reference import read_reference_table, reference_vintage
+from .persist.reference import CLASSIFICATIONS, read_reference_table, reference_vintage
+from .semantics.curation import inline_codelist, inline_windows
 
 # ------------------------------------------------------------------ labelling
 
@@ -102,9 +103,7 @@ def _vintage_free(codelist: str) -> bool:
     before any vintage filter (``read_reference_table``), so asking for them
     per month only multiplied cache misses: 492 rebuilds in a year's query.
     """
-    from .persist.reference import CLASSIFICATIONS
     from .registry import is_registry
-    from .semantics.curation import inline_codelist, inline_windows
 
     name = codelist.upper()
     return (

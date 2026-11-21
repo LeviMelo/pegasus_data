@@ -24,7 +24,23 @@ from typing import Any, cast
 
 import numpy as np
 
-from .population_account import BANDS, Places, load_census, to_bands
+from .population_account import (
+    BAND_LABELS,
+    BANDS,
+    LEVELS,
+    Places,
+    _settings,
+    assemble,
+    census_table,
+    distribute_residual,
+    fit_calibration,
+    interval,
+    load_census,
+    migration_schedule,
+    schedule_rates,
+    to_bands,
+    widen_to_nominal,
+)
 
 YEARS = np.arange(2000, 2031)
 NY = len(YEARS)
@@ -40,7 +56,6 @@ def member_inputs(root: str | Path, places: Places) -> dict[str, np.ndarray]:
     and single age 2010 and 2022 (a zero row where the municipality did not exist yet), the census-2000 total (NaN where
     it did not exist) and the Contagem-2007 total (NaN where absent)."""
     from ..cubes import cube
-    from .population_account import _settings, census_table
 
     ms = places.municipalities
     out = {"c10": load_census(root, 2010, places, "member"), "c22": load_census(root, 2022, places, "member")}
@@ -181,8 +196,6 @@ def fit_spread(e: np.ndarray, u: np.ndarray, bins: int = 12) -> tuple[float, flo
 
 def census_old(root: str | Path, year: int, places: Places) -> np.ndarray:
     """Raw census counts at ages 80..99 and 100+ by municipality × sex, (n, 2, 21)."""
-    from .population_account import census_table
-
     d = census_table(root, year, ["municipality", "sex", "age", "population"]).to_pandas()
     d = d[d.age >= 80].dropna()
     idx = {m: i for i, m in enumerate(places.municipalities)}
@@ -464,15 +477,6 @@ BANDS101 = np.minimum(np.arange(AGES) // 5, 16)
 def account_arrays(inp, cal, fc: dict) -> dict:
     """The account's single-age paths and the log offsets of its band intervals, for the three blocks: comparable areas
     2000-2010, municipalities 2010-2022 and the forecast ``fc`` (``population_forecast.forecast_account``, 2023-2030)."""
-    from .population_account import (
-        LEVELS,
-        distribute_residual,
-        interval,
-        migration_schedule,
-        schedule_rates,
-        to_bands,
-    )
-
     sched = migration_schedule(inp)
     Xa = distribute_residual(inp.path_a, inp.close_a, schedule_rates(sched, inp.close_a.sum((1, 2))))
     Xb = distribute_residual(inp.path_b, inp.close_b, schedule_rates(sched, inp.close_b.sum((1, 2))))
@@ -491,8 +495,6 @@ def account_arrays(inp, cal, fc: dict) -> dict:
 def group_shares(places: Places, mi: dict, split_cal: dict) -> dict[int, dict]:
     """For each unit with several municipalities, every member's band shares at the 24 years, the logit-share sd and the
     first year the shares are anchored at (the year the area is a census count of the member itself)."""
-    from .population_account import to_bands
-
     ms = places.municipalities
     members: dict[int, list[int]] = {}
     for i, m in enumerate(ms):
@@ -590,8 +592,6 @@ def tensor_tables(inp, cal, fc: dict, mi: dict, split_cal: dict, shape_cal: dict
     ``groups`` (`group_shares`) are computed when not given."""
     import pyarrow as pa
 
-    from .population_account import LEVELS
-
     places = inp.places
     ms = np.array(places.municipalities)
     acc = account_arrays(inp, cal, fc) if acc is None else acc
@@ -672,8 +672,6 @@ def band_tables(inp, acc: dict) -> list:
     calibrates on bands (`account_arrays`' offsets). The single-age product's band totals are these."""
     import pyarrow as pa
 
-    from .population_account import BAND_LABELS, LEVELS
-
     places = inp.places
     entities = ["+".join(str(m) for m in members) for members in places.entity_members]
     blocks = (("A", acc["Xa"], places.unit_labels, "comparable_area", range(2000, 2011), "2000-2010", "intercensal"),
@@ -720,12 +718,6 @@ def build_population_account(settings, *, version: str, validation: str, only: t
     from .. import __version__
     from .. import population_backcast as pb
     from ..modelled import ModelledManifest, write_modelled
-    from .population_account import (
-        assemble,
-        fit_calibration,
-        migration_schedule,
-        widen_to_nominal,
-    )
     from .population_forecast import EVENT_SD_PER_YEAR, forecast_account
 
     root = settings.root

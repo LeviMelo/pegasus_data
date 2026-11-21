@@ -27,6 +27,7 @@ from typing import Any, cast
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..config import UF_NUMERIC, load_settings
 from ..ontology import dataset_key
 from . import store
 from .engine import (
@@ -147,8 +148,6 @@ def _period(years: object) -> object:
 
 def _geography(area: object) -> object:
     """An area as the scope the lake files are cut at: a state by its sigla or its IBGE number, or "BR"."""
-    from ..config import UF_NUMERIC
-
     def one(a: object) -> str:
         text = str(a).strip().upper()
         return UF_NUMERIC.get(text, text)
@@ -184,8 +183,6 @@ def linked_deaths(
         fu = linked_deaths("SIH-RD", ["I21", "I22"], years=range(2018, 2023), geography="AL")
         fu.mortality(30)
     """
-    from ..config import load_settings
-
     name = cohort_link(dataset, link_name)
     spec = bind(load_links()[name], codes, match)
     period, area = _period(years), _geography(geography)

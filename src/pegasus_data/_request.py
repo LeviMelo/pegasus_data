@@ -13,6 +13,7 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, cast
 
 from .catalog.store import CatalogStore
+from .config import UF_CODES
 from .ontology import Ontology
 
 if TYPE_CHECKING:
@@ -362,8 +363,6 @@ def _clean_ufs(values: object) -> list[str]:
     than "that is not a state". The axis guard catches a filter the files are
     not split on; this catches a filter the files could not possibly match.
     """
-    from .config import UF_CODES
-
     if values is None:
         return []
     raw = [values] if isinstance(values, str) else list(cast("Iterable[object]", values))

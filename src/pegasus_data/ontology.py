@@ -43,7 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .config import UF_CODES
+from .config import UF_CODES, curation_root
 from .semantics.epoch import curated
 
 #: Brazilian state codes plus BR, used to recognise a filename's UF segment.
@@ -970,6 +970,4 @@ def _clean(value: object) -> str | None:
 
 @curated(rooted=True)
 def _load_ontology(root: Path | None) -> Ontology:
-    from .config import curation_root
-
     return Ontology._load_uncached(Path(root) if root is not None else curation_root())

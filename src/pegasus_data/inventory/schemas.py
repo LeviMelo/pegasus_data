@@ -32,6 +32,7 @@ from typing import Any
 from ..catalog.store import CatalogStore, utcnow
 from ..decode.header import (
     DEFAULT_PREFIX_BYTES,
+    HeaderField,
     HeaderUnreadable,
     TableHeader,
     prefix_bytes_needed,
@@ -39,6 +40,7 @@ from ..decode.header import (
     read_table_header,
 )
 from ..inventory.families import schema_signature
+from .naming import member_kind
 
 #: Extensions whose header this can read directly. Everything else — archives,
 #: CSV, XML, JSON — needs a different route and is reported as such rather than
@@ -444,7 +446,6 @@ def _header_in_duckdb(
     recorded with role ``reference``; the fact table is the data (ADR-0083).
     """
     from ..decode.duckdb_remote import remote_duckdb_tables
-    from ..decode.header import HeaderField
 
     tables, fetched = remote_duckdb_tables(lambda off, n: fetch_range(path, off, n), size)
     if not tables:
@@ -479,8 +480,6 @@ def _parquet_header(tail: bytes, size: int) -> TableHeader:
     import struct
 
     import pyarrow.parquet as pq
-
-    from ..decode.header import HeaderField
 
     if tail[-4:] != b"PAR1":
         raise HeaderUnreadable("not a Parquet file: no PAR1 magic at the end")
@@ -532,7 +531,6 @@ def _header_in_lha(catalog: CatalogStore, path: str, data: bytes, target: dict[s
     the stratum's series, else the first DBF (ADR-0077).
     """
     from ..decode.lha import LhaArchive
-    from .naming import member_kind
 
     archive = LhaArchive(data)
     names = [m.name for m in archive.members]

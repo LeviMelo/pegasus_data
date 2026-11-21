@@ -20,7 +20,8 @@ from typing import Any
 import pyarrow as pa
 
 from .catalog.store import CatalogStore, utcnow
-from .config import Settings
+from .config import Settings, load_settings
+from .decode.admission import decode_workers
 from .decode.base import DecodeError, logical_source_id
 from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
@@ -42,7 +43,7 @@ from .normalize.engine import (
 from .normalize.geo import MunicipalityIndex
 from .normalize.time import month_of
 from .persist.lake import Lake
-from .persist.staging import staged_tree
+from .persist.staging import prune_dead_staging, staged_tree
 from .pipeline import Pipeline, StageResult
 from .progress import ItemTimeout
 from .representations import RepresentationConflictError, choose_representations, select_publications
@@ -178,7 +179,6 @@ class Builder:
         holds the GIL, so it stays one at a time."""
         if not self.settings.decode_isolation:
             return 1
-        from .decode.admission import decode_workers
 
         return self.settings.decode_workers or decode_workers()
 
@@ -506,7 +506,6 @@ class Builder:
         """
         stats = BuildStats()
         # trees a killed build left half-written (their process gone) are removed before this one writes beside them
-        from .persist.staging import prune_dead_staging
 
         prune_dead_staging(self.lake.root)
         run_id = uuid.uuid4().hex[:12]
@@ -934,8 +933,6 @@ def schema_fit(field_names: Sequence[str], plan: NormalizePlan) -> tuple[str, ..
     the files turned a year of SIA-PA into "no rows" (ADR-0078). A file that LOST
     a column is still a different generation and is refused.
     """
-    from .inventory.families import schema_signature
-
     if schema_signature(field_names) == plan.schema_signature:
         return ()
     names = [str(n).upper() for n in field_names]
@@ -962,7 +959,6 @@ def build_lake(dataset: str, years: Sequence[int], *, root: str | None = None, l
     ``release`` is `Builder.build`'s: by default the downloaded files these partitions hold are deleted once verified
     (``released`` in the counts), so a downloaded gigabyte does not cost disk twice; a rebuild fetches them again."""
     from ._request import parse_dataset
-    from .config import load_settings
 
     system, series = parse_dataset(dataset)
     pipeline = Pipeline(load_settings(root=Path(root) if root else None))

@@ -24,17 +24,23 @@ import numpy as np
 
 from ..ontology import dataset_key
 from .population_account import (
+    _AGE_GROUP_IDS,
     BANDS,
+    LEVELS,
     A,
+    Calibration,
     Period,
     Places,
     UnitSystem,
     _settings,
+    advance,
+    interval,
     lag_series,
     load_census,
     load_events,
     parameters,
     reconciled_coverage,
+    schedule_rates,
     step_events,
     step_terms,
     to_bands,
@@ -96,8 +102,6 @@ def backward_path(close: np.ndarray, deaths: np.ndarray) -> np.ndarray:
 def forward_path(open_: np.ndarray, deaths: np.ndarray, steps: int = SPAN) -> np.ndarray:
     """The deaths-only forward account from ``open_`` (n, 2, A): (steps+1, n, 2, A). Ages below ``k`` after ``k`` steps are
     empty (no births are used)."""
-    from .population_account import advance
-
     path = [open_]
     for k in range(steps):
         D, _ = step_events(deaths, np.zeros(deaths.shape[:1] + deaths.shape[1:3]), k)
@@ -166,8 +170,6 @@ class Pre:
 
     def use_schedule(self, schedule: np.ndarray) -> None:
         """Settle the 1991 census with ``population_account.fit_schedule``'s age schedule (by the area's 2000 size class)."""
-        from .population_account import schedule_rates
-
         self.rates = schedule_rates(schedule, self.size)
 
     def period(self) -> Period:
@@ -191,7 +193,6 @@ def member_totals(root: str | Path, municipalities: list[int]) -> dict[str, np.n
     """Per municipality (``municipalities`` order): the 1991 census total (SIDRA 200, sample table whose total is the
     universe) and the 1996 Contagem total, NaN where the municipality had no count."""
     from ..cubes import cube
-    from .population_account import _AGE_GROUP_IDS
 
     t = cube("sidra:200/93", by=["c2", "c58"], where={"c2": [4, 5], "c58": list(_AGE_GROUP_IDS)}, periods=["1991"],
              labels=False, settings=_settings(root))
@@ -262,8 +263,6 @@ PRE_ZQ = {0.8: 2.16, 0.95: 4.58}
 def area_arrays(pre: Pre, cal) -> tuple[np.ndarray, dict]:
     """The settled interior of every area for 1991..1999, (9, n, 2, A), and the log offsets of its band intervals (lower,
     upper), each (9, n, 2, 17), per level. The bridge between the two censuses uses the spread of ``cal`` times ``parameters: backcast: pre_scale``."""
-    from .population_account import LEVELS, Calibration, interval
-
     _, _, interior, _ = pre.run()
     P = pre.period()
     c2 = Calibration(cal.b, cal.s_total, cal.gm, cal.q_total, cal.coef, cal.s_band * float(parameters()["backcast"]["pre_scale"]), cal.q_band, cal.widened, cal.periods)
@@ -282,7 +281,6 @@ def backcast_tables(pre: Pre, cal, S: dict[int, dict], shape_cal: dict, ctx: dic
     ``population_tensor.tensor_tables`` and for the race level ``total`` only (no race is estimated before 2000)."""
     import pyarrow as pa
 
-    from .population_account import LEVELS
     from .population_tensor import AGES, BANDS101, BASIS, RACE_LEVELS, Z, age_cells, shape_at, state_shapes
 
     shapes = state_shapes(old, ctx["state"], ctx["states"])

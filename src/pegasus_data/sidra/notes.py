@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from ..semantics.epoch import curated
+from ..textenc import fold
 
 __all__ = ["BASES", "NOTES_URL", "basis", "declared_notes"]
 
@@ -76,8 +77,6 @@ def basis(table: int, registry: Any = None, period: Any = None) -> dict[str, Any
     known), ``by_period`` (when the note gives each period its own) and ``source`` (where and when it was read).
     ``period`` picks one period of a table whose basis changes with it; ``registry`` (a `Registry`) is read for the
     precision variables."""
-    from ..textenc import fold
-
     entry = declared_notes().get(int(table))
     source = f"{NOTES_URL.format(table=int(table))}, read {entry['read']}" if entry else None
     if entry is not None and (entry["by_period"] or entry.get("basis") in BASES):

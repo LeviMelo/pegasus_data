@@ -16,6 +16,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 import pyarrow as pa
 
+from ..conditions import Condition, prepare, settle
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from ..catalog.store import CatalogStore
     from ..config import Settings
@@ -120,7 +122,6 @@ class ReadRequest:
         the dataset declares for ``years`` (``years=None``: the caller has asked that of its whole period already).
         ``condition`` may be a prepared one. Without a ``store`` the docs are left for the source to read
         (`retrieve.read_source` does, after bringing the catalog's curation up to date)."""
-        from ..conditions import Condition, prepare
         from ..semantics.curation import load_variable_docs
 
         prepared = cast("Condition | None", condition)
@@ -253,8 +254,6 @@ def public_form(table: pa.Table, request: ReadRequest, *, keep: Iterable[str] = 
     """A finished read as a public reader returns it: the condition settled (records it cannot decide left out) and
     the engine's own columns dropped, but for those named in ``keep``."""
     if request.condition is not None:
-        from ..conditions import settle
-
         table, _ = settle(table, request.condition, keep_unknown=False)
     kept = set(keep)
     gone = [c for c in ENGINE_COLUMNS if c in table.column_names and c not in kept]

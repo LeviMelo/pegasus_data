@@ -14,7 +14,8 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from ..config import curation_root
+from ..catalog.store import CatalogStore
+from ..config import curation_root, load_settings
 from .curation import read_yaml
 
 
@@ -36,8 +37,6 @@ def code_labels(dataset: str, column: str, year: int, codes: Sequence[str | None
     """``code -> label`` of the distinct ``codes`` of ``column`` in ``dataset``'s ``year`` (the codelist the renderer
     chooses for that family and year); a code the codelist does not decode is absent."""
     from .._request import parse_dataset
-    from ..catalog.store import CatalogStore
-    from ..config import load_settings
     from ..view import codelist_levels
 
     settings = load_settings(root=Path(root) if root else None)

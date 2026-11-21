@@ -44,6 +44,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from ._geometry import polygonal
+from .config import curation_root, load_settings
 from .measures import AXES, AggregationRefused, Measure, check_rollup, measure_of_role
 from .ontology import dataset_key
 from .semantics.epoch import curated
@@ -201,8 +202,6 @@ MOBILITY_LAYERS: dict[str, tuple[str, str]] = {
 
 
 def _mobility_path(kind: str, root: str | Path | None = None) -> Path:
-    from .config import load_settings
-
     return load_settings(root=root).registry_dir("mobility", f"{kind}.parquet")
 
 
@@ -276,7 +275,6 @@ class FlowGeneration:
 def _municipality_remaps() -> dict[tuple[str, str], str]:
     """``(system, column) -> the derived column that remaps its codes to municipalities``, from the variables' own
     ``derived`` declarations (a ``remap`` derived from that one column)."""
-    from .config import curation_root
     from .semantics.curation import iter_curation_files, parse_variable_file, read_yaml
 
     root = curation_root()

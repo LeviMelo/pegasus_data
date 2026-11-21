@@ -35,7 +35,9 @@ from typing import Any, Literal
 import pyarrow as pa
 
 from ._request import _ontology
+from .catalog.store import CatalogStore
 from .config import Settings, load_settings
+from .ontology import DatasetAxes, Ontology
 
 __all__ = ["explore", "Exploration", "lake_coverage", "publications"]
 
@@ -162,8 +164,6 @@ def _pairs(store: Any, system: str | None, role: str | None) -> list[tuple[str, 
 
 def _known_systems(settings: Settings, role: str | None) -> list[str]:
     """The systems the catalog lists (for a system it does not know: the nearest are suggested)."""
-    from .catalog.store import CatalogStore
-
     store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         sql = "SELECT DISTINCT system FROM file_facts WHERE system IS NOT NULL" + (" AND role = ?" if role else "")
@@ -195,8 +195,6 @@ def _of_dataset(pairs: list[tuple[str, str]], system: str | None, want_series: s
     fallback — if the ontology cannot name the dataset, the plain match still
     answers.
     """
-    from .ontology import Ontology
-
     try:
         onto = Ontology.load()
     except Exception:  # pragma: no cover - a broken declaration must not block the map
@@ -234,7 +232,6 @@ def _axis_warnings(
     """
     if not (system and series) or not pairs or not (uf or year is not None):
         return []
-    from .ontology import DatasetAxes
 
     where, params = _scope(system, role, series=[pair[1] or None for pair in pairs])
     axes = DatasetAxes(dataset=f"{system}.{series}")
@@ -273,8 +270,6 @@ def explore(
     ``role`` defaults to ``"data"``; pass ``None`` to include the dictionary,
     documentation and auxiliary files that sit alongside it.
     """
-    from .catalog.store import CatalogStore
-
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, parsed_series = _resolve(target)
     want_series = (series or parsed_series or "").upper() or None
@@ -476,8 +471,6 @@ def lake_coverage(dataset: str, *, root: str | Path | None = None,
     published volume: a year in the lake is read in seconds, a year outside it is a download and a decode. A partition
     the catalog records and the disk no longer holds is not the lake's: 448 of SIH-RD's 487 had been deleted and still
     counted, so a study priced national SIH years as free and its lanes, forbidden to download, failed (2026-10-15)."""
-    from .catalog.store import CatalogStore
-
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, series = _resolve(dataset)
     if not system:
@@ -630,7 +623,6 @@ def publications(
     SINASC publish a year as a national file and as one file per state, the lake reads the national one alone, and
     ``ufs="AL"`` finds ``DOBR2014`` among the rows and ``DOAL2014`` marked as the same records.
     """
-    from .catalog.store import CatalogStore
     from .retrieve import _families
 
     resolved = settings or load_settings(root=Path(root) if root else None)

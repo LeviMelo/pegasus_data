@@ -21,7 +21,20 @@ from typing import Any, cast
 
 import numpy as np
 
-from .population_account import BANDS, W_FIRST, W_SECOND, A, advance, parameters, to_bands
+from .population_account import (
+    BANDS,
+    LEVELS,
+    W_FIRST,
+    W_SECOND,
+    A,
+    advance,
+    interval,
+    load_events,
+    parameters,
+    predict,
+    to_bands,
+    vital_events,
+)
 
 DEATH_PRIOR, BIRTH_PRIOR = 30.0, 100.0
 FERTILE = slice(15, 45)
@@ -36,8 +49,6 @@ def trend_window() -> tuple[int, tuple[int, ...]]:
 
 def national_events(settings: Any, years: list[int]) -> tuple[np.ndarray, np.ndarray]:
     """National deaths (Y, 2, A) by sex and single age and births (Y, 2) by sex; an unknown sex or age is spread over the known."""
-    from .population_account import vital_events
-
     d = np.zeros((len(years), 2, A))
     b = np.zeros((len(years), 2))
     for k, y in enumerate(years):
@@ -142,8 +153,6 @@ def project_vital(N0: np.ndarray, tr: Trends, mult, obs_deaths: np.ndarray, obs_
 
 def forecast_bands(P, cal, vital_bands: np.ndarray, h: int):
     """``population_account.predict`` at horizon ``h`` with the period's vital account replaced by the projected one."""
-    from .population_account import predict
-
     return predict(replace(P, vital=vital_bands), cal, float(h))
 
 
@@ -160,8 +169,6 @@ def forecast_account(inp, cal, settings: Any, steps: int = 8) -> dict:
     Returns ``X`` (steps, entities, 2, A) single ages, ``bands`` (steps, entities, 2, 17) and, per level, the log offsets
     ``off[level] = (lower, upper)`` of the band intervals (steps, entities, 2, 17): the account's own interval at the horizon
     in quadrature with ``EVENT_SD_PER_YEAR`` · h."""
-    from .population_account import LEVELS, interval, load_events
-
     years = list(range(2000, 2024))
     nd, nb = national_events(settings, years)
     npop = np.concatenate([inp.path_a.sum(1)[:11], inp.path_b.sum(1)[1:13], inp.vit22.sum(0)[None]])

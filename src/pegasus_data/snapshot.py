@@ -28,10 +28,12 @@ from pathlib import Path
 from typing import Any, cast
 
 from .acquire.cache import BlobStore
-from .acquire.fetcher import Fetcher
+from .acquire.fetcher import MIRROR_HOST, MIRROR_PREFIX, Fetcher
 from .catalog.store import CatalogStore, utcnow
 from .config import Settings, curation_root, load_settings
 from .discovery.crawler import Crawler
+from .discovery.ftp_client import FtpClient
+from .discovery.listing import normalize_path
 from .normalize.time import add_months, compose
 
 #: Free RAM a run needs before it opens a connection (the machine is shared).
@@ -201,10 +203,6 @@ def _observe_by_stat(
     itself is asked for each one's time and size; a name it does not know is not
     on DATASUS and is dropped.
     """
-    from .acquire.fetcher import MIRROR_HOST, MIRROR_PREFIX
-    from .discovery.ftp_client import FtpClient
-    from .discovery.listing import normalize_path
-
     client = FtpClient(resolved.host, timeout=resolved.timeout, max_retries=resolved.max_retries,
                        backoff_base=resolved.backoff_base).connect()
     asked = 0
@@ -243,8 +241,6 @@ def _observe_by_stat(
 
 def _data_channel_up(resolved: Settings, directory: str) -> bool:
     """Does one directory listing answer within 20 seconds?"""
-    from .discovery.ftp_client import FtpClient
-
     client = FtpClient(resolved.host, timeout=20, max_retries=1)
     try:
         client.connect()
@@ -268,7 +264,6 @@ def _mirror_matches(
     """
     import httpx
 
-    from .acquire.fetcher import MIRROR_HOST, MIRROR_PREFIX
     from .discovery.https_client import HttpsClient
 
     kept: list[tuple[str, str, int | None, str]] = []

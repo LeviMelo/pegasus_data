@@ -31,6 +31,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..ontology import Ontology
 from .column_roles import ColumnRole, declared_columns
 
 #: Schema-metadata key of a table with columns read through a key: JSON, one entry per (key, source dataset) read, as
@@ -62,8 +63,6 @@ def through_columns(dataset: str) -> dict[str, ColumnRole]:
 def links(dataset: str, asked: Sequence[ColumnRole]) -> list[Link]:
     """The links that read ``asked`` (through columns of ``dataset``), one per (key, source): each side's key column from
     ``curation/joins.yml`` and the source's principal row marker."""
-    from ..ontology import Ontology
-
     keys = Ontology.load().keys
     grouped: dict[tuple[str, str], list[ColumnRole]] = {}
     for column in asked:

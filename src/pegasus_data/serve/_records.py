@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from .. import plan
+from .. import query as _query
 from ._cache import ByteCache
 from ._errors import Refused
 
@@ -59,9 +61,6 @@ def _gaps(source_report: Any) -> dict[str, Any]:
 
 
 def _assemble(settings: Any, dataset: str, period: str, geography: str, columns: tuple[str, ...]):
-    from .. import plan
-    from .. import query as _query
-
     try:
         scope = plan(dataset, period=period, geography=geography, select=list(columns) or None, settings=settings)
     except Exception as exc:  # noqa: BLE001 - a malformed scope is the caller's

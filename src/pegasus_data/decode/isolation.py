@@ -41,7 +41,7 @@ import psutil
 from ..locate import scratch_dir
 from ._worker import read_frame, write_frame
 from .admission import admitted
-from .base import logical_source_id
+from .base import FieldMeta, logical_source_id
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pyarrow as pa
@@ -276,7 +276,6 @@ class DecoderPool:
         timeout: float | None,
     ) -> _RemoteOutcome:
         from ..progress import ItemTimeout
-        from .base import FieldMeta
 
         proc = worker.start()
         assert proc.stdin is not None and proc.stdout is not None

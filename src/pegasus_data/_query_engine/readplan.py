@@ -18,6 +18,7 @@ from typing import Any
 from ..catalog.store import CatalogStore
 from ..normalize.engine import MissingColumnError
 from ..persist.lake import Lake, LakePartition, listed_partitions
+from ..semantics.curation import system_spellings
 from ..view import COMPANION_SUFFIXES
 from .coverage import one_reading
 
@@ -44,8 +45,6 @@ def resolve_family(store: CatalogStore, system: str, series: str | None, field_n
     Every spelling the declaration knows is asked for instead.
     """
     def resolve() -> list[dict[str, Any]]:
-        from ..semantics.curation import system_spellings
-
         spellings = system_spellings(system)
         rows = store.query(
             "SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "

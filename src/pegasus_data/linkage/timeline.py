@@ -22,6 +22,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
+from ..config import load_settings
 from .identity import record_ids
 from .roles import role_table
 
@@ -49,7 +50,6 @@ def _pairs(spec: str, method: str, period: object, geography: object) -> tuple[l
     """The pairs of a STORED run of the scope. A timeline is read inside a request: a run that is absent raises
     ``LookupError`` (link it first) instead of being computed there, which took hours (2026-10-14 review). A stored run
     that is not viable attaches nothing and is named by its verdict."""
-    from ..config import load_settings
     from . import store
     from .engine import stored_key
 
@@ -65,7 +65,6 @@ def _pairs(spec: str, method: str, period: object, geography: object) -> tuple[l
 def _pairs_at(spec: str, method: str, period: object, geography: object, stamp: int
               ) -> tuple[list[tuple[str, str, float | None]], str]:
     """`_pairs` of the run file as it was at ``stamp`` (a re-run is a new entry)."""
-    from ..config import load_settings
     from . import store
     from .engine import stored_key
 
@@ -82,7 +81,6 @@ def _pairs_at(spec: str, method: str, period: object, geography: object, stamp: 
 
 @lru_cache(maxsize=1)
 def _names() -> dict[str, str]:
-    from ..config import load_settings
     from ..registry import facility_names
 
     # the timeline is served from the default home only (`serve` refuses another --root), so its registry is that one's

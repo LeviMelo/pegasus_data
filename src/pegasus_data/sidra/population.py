@@ -15,6 +15,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..persist.kept import write_parquet_atomic
 from .series import build_series, fetch_series, validate_series
 from .session import Sidra
 
@@ -48,8 +49,6 @@ def build_census(sidra: Sidra, population_dir: Path, years: list[int] | None = N
 
     A cell IBGE did not publish is a null in ``population`` (its reason is ``status`` in the fact store), never a zero.
     """
-    from ..persist.kept import write_parquet_atomic
-
     out_dir = Path(population_dir) / "CENSO"
     out_dir.mkdir(parents=True, exist_ok=True)
     report: dict[int, Any] = {}

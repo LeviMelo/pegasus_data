@@ -36,7 +36,8 @@ from datetime import UTC
 from pathlib import Path
 from typing import Any
 
-from .config import Settings
+from .config import Settings, curation_root, load_settings
+from .config import load_settings as _load
 from .normalize.time import month_label
 
 #: Cardinality decides the control. This lives here rather than in the client so
@@ -281,7 +282,6 @@ def artifact_identity(name: str, settings: Settings) -> tuple[int, ...]:
     request; none of them waits for a restart.
     """
     from ._aggregate import artifact_dir
-    from .config import curation_root
     from .geography import _pack_mtime, _pack_path
     from .sources.ibge import KNOWN_SERIES, tree_mtime_ns
 
@@ -318,7 +318,6 @@ def capabilities(
     recently used entry, never the whole cache.
     """
     from ._aggregate import artifact_dir
-    from .config import load_settings as _load
 
     resolved = settings or _load(root=Path(root) if root else None)
     if not (artifact_dir(name, resolved) / "manifest.json").exists():
@@ -587,7 +586,6 @@ def _capabilities_uncached(
 ) -> Capability:
     """The projection itself; `capabilities` is the cached front door."""
     from ._aggregate import ArtifactMissing, _load_artifact, artifact_dir, spec_named
-    from .config import load_settings
     from .semantics.curation import semantics_for
 
     resolved = settings or load_settings(root=Path(root) if root else None)
@@ -687,7 +685,6 @@ def catalogue(
     dataset never appears.
     """
     from ._aggregate import artifact_dir, load_specs
-    from .config import load_settings
     from .semantics.curation import semantics_for
 
     resolved = settings or load_settings(root=Path(root) if root else None)

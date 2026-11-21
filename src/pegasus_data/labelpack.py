@@ -50,9 +50,9 @@ from pathlib import Path
 from typing import Any, cast
 
 from .catalog.store import CatalogStore
-from .identifiers import strip_label_prefix
+from .identifiers import LABEL_PREFIX, strip_label_prefix
 from .normalize.time import add_months, year_bounds, year_of
-from .persist.decisions import historical_labels, note_pack_fallback
+from .persist.decisions import borrowed_labels_allowed, historical_labels, note_borrowed, note_pack_fallback
 
 __all__ = [
     "LabelPackReport",
@@ -639,8 +639,6 @@ def build_label_pack(
         keep_prior = pc.invert(pc.is_in(window_keys(prior), value_set=have_keys))
         carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
 
-        from .identifiers import LABEL_PREFIX
-
         carried = carried.set_column(
             carried.column_names.index("label"), "label",
             pc.replace_substring_regex(carried["label"], pattern=LABEL_PREFIX.pattern, replacement=""),
@@ -894,8 +892,6 @@ def read_packed(
     is bound to 31 `CADGER*` directories that the pack deliberately does not
     ship, and rediscovering their absence cost as much as a hit.
     """
-    from .persist.decisions import borrowed_labels_allowed, note_borrowed
-
     table, note, missing, borrowed = _read_packed(
         codelist.upper(),
         (system or "").upper() or None,

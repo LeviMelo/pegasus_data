@@ -25,7 +25,7 @@ from pathlib import Path, PurePosixPath
 
 from ..locate import scratch_dir
 from .archives import Archive, ArchiveMember, detect_container
-from .base import DamagedPayload, DecodedTable, DecodeError, UnsupportedContainer
+from .base import DamagedPayload, DecodedTable, DecodeError, UnsupportedContainer, batches_from_table
 from .dbc import read_dbc, read_dbc_bytes
 from .dbf import read_dbf_bytes, read_dbf_file
 from .duckdb_ import DuckStorageVersionError, read_duckdb
@@ -382,7 +382,6 @@ class ReaderRegistry:
     def _read_parquet(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         table = read_parquet(data, row_limit=self.row_limit, columns=self._columns)     # from memory: nothing staged to outlive
         materialised = table.to_table()
-        from .base import batches_from_table
 
         table.path = path
         table.batches = batches_from_table(materialised)

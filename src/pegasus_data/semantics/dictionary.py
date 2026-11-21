@@ -38,7 +38,7 @@ from typing import Any
 from ..catalog.store import CatalogStore, utcnow
 from ..textenc import fold
 from .cnv_parser import CnvFile
-from .tabkit import ParsedKit
+from .tabkit import _KIT_ERAS, ParsedKit, kit_folder, kit_validity
 
 #: Authority ranking. A lower number wins a disagreement; the loser is still
 #: written to ``dictionary_conflicts`` so nothing is lost.
@@ -293,8 +293,6 @@ def settle_era_windows(catalog: CatalogStore) -> dict[str, int]:
     Recomputed from the whole dictionary each run, so it holds whichever source
     arrives first and settles both ways when DATASUS adds or drops a codelist.
     """
-    from .tabkit import kit_validity
-
     settled = {"bounded": 0, "released": 0}
     era_kits = [
         (str(r["kit_path"]), kit_validity(str(r["kit_path"])))
@@ -340,8 +338,6 @@ def settle_folder_windows(catalog: CatalogStore) -> dict[str, int]:
     (``file_facts.normalized_date`` of the role-data files). A kit named for its window (``TAB_SIH_199201-199712``) is
     not touched. Recomputed from the whole dictionary each run, like :func:`settle_era_windows`.
     """
-    from .tabkit import kit_folder, kit_validity
-
     widened = {"kits": 0, "rows": 0}
     for row in catalog.query("SELECT kit_path FROM tab_kits"):
         kit = str(row["kit_path"])
@@ -372,8 +368,6 @@ def settle_folder_windows(catalog: CatalogStore) -> dict[str, int]:
 
 
 def _is_era_kit(kit_path: str) -> bool:
-    from .tabkit import _KIT_ERAS
-
     return any(marker in kit_path for marker in _KIT_ERAS)
 
 

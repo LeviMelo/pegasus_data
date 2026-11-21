@@ -12,7 +12,7 @@ from typing import Any
 
 from ..catalog.store import CatalogStore, _semantic_relation_id, utcnow
 from ..config import curation_root
-from .curation import CODED_SYSTEMS
+from .curation import CODED_SYSTEMS, load_yaml_text
 from .epoch import curated
 
 
@@ -50,8 +50,6 @@ def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
 
 def read_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
     """``joins.yml`` as it is now, parsed. What a catalog is seeded from reads the file, not the epoch's copy."""
-    from .curation import load_yaml_text
-
     try:
         text = ((root or curation_root()) / "joins.yml").read_text(encoding="utf-8")
     except OSError:

@@ -47,6 +47,7 @@ from dataclasses import field as _field
 from pathlib import Path
 from typing import Any, Literal, cast
 
+from .catalog.store import CatalogStore
 from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .ontology import Ontology, dataset_key
@@ -543,7 +544,6 @@ def field_available(
 def _derived_recipes(dataset: str, field: str, settings: Settings) -> list[tuple[str, ...]]:
     """The input columns of each curated recipe of the derived column ``field`` of ``dataset``'s system."""
     from ._request import parse_dataset
-    from .catalog.store import CatalogStore
     from .semantics.curation import load_variable_docs
 
     system, _series = parse_dataset(dataset)

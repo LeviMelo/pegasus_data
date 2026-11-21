@@ -52,9 +52,10 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+from .catalog.store import CatalogStore, utcnow
 from .normalize.time import month_of, year_of
 from .persist.kept import write_json_atomic, write_parquet_atomic
-from .persist.lake import SLICE, unit_parts
+from .persist.lake import SLICE, Lake, unit_parts
 from .semantics.intake_declarations import (
     declared_sources,
 )
@@ -429,8 +430,6 @@ def _land(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, Any]
     then swapped in for the unit's parts in every family of the dataset and registered in the catalog. A failure before the
     swap leaves the lake and the catalog as they were. ``relation`` is a DuckDB table function or view of the rows; ``sidecar``
     is the unit's cache note, removed just before the swap. Returns the unit's statistics."""
-    from .persist.lake import Lake
-
     con.execute(f"CREATE OR REPLACE VIEW raw0 AS SELECT * FROM {relation}")
     columns = [r[0] for r in con.execute("DESCRIBE raw0").fetchall()]
     # A header ending in a separator makes the parser name an empty column "columnN": dropped when it holds nothing.
@@ -557,8 +556,6 @@ def register_periods(settings: Any, source: str | None = None, *, dry_run: bool 
     here, from the declaration, and the lake is not touched: one UPDATE of ``file_facts`` per publication whose date differs.
     Idempotent, and it goes both ways (a source declared by months again by years is dated by year again). ``dry_run`` counts.
     Returns, per source, the publications read and the ones dated differently."""
-    from .catalog.store import CatalogStore
-
     out: dict[str, Any] = {}
     store = CatalogStore(settings.catalog_path)
     try:
@@ -590,8 +587,6 @@ def _register(settings: Any, source: str, spec: dict[str, Any], unit: dict[str, 
     unit and record year, dated by the unit's period (`_dated`), and the lake partitions that cover it. Replaces
     the unit: its partitions and publications in every family of (system, series) go first, a family left with no partition
     is dropped, and the dataset's family list is recomputed."""
-    from .catalog.store import CatalogStore, utcnow
-
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
     now = utcnow()
     mine = re.compile(rf"^part-{re.escape(key)}-\d+\.parquet$")
@@ -714,8 +709,6 @@ def _register_held_pieces(settings: Any, name: str, spec: dict[str, Any], lake_r
     from urllib.parse import parse_qs, urlsplit
 
     import pyarrow.parquet as pq
-
-    from .catalog.store import CatalogStore
 
     system, series = str(spec["system"]).upper(), str(spec["series"]).upper()
     store = CatalogStore(settings.catalog_path, read_only=True)

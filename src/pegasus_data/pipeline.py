@@ -38,6 +38,7 @@ from .inventory.families import (
     persist_families,
     schema_signature,
 )
+from .inventory.naming import system_from_path
 from .inventory.strata import sample_plan
 from .profile.drift import (
     analyse_drift,
@@ -58,11 +59,14 @@ from .progress import (
     record_timeout,
     run_with_timeout,
 )
+from .semantics.cnv_parser import parse_cnv_bytes
+from .semantics.def_parser import parse_def_bytes
 from .semantics.dictionary import (
     bind_by_semantic_type,
     bind_codelists_to_fields,
     corroborate_semantic_bindings,
     entries_from_kit,
+    entries_from_loose_cnv,
     persist_bindings,
     persist_entries,
     persist_rules,
@@ -72,7 +76,7 @@ from .semantics.dictionary import (
 )
 from .semantics.ledger import build_ledger, persist_ledger
 from .semantics.reference import load_reference_sets
-from .semantics.tabkit import find_kits, find_loose_dictionaries, parse_kit, persist_kit
+from .semantics.tabkit import find_kits, find_loose_dictionaries, parse_kit, parser_fingerprint, persist_kit
 
 #: The `[V]` list from §14, seeded into ``open_questions`` on first run so that
 #: every one is tracked whether or not this run happens to close it.
@@ -316,8 +320,6 @@ class Pipeline:
         pdfs: bool = True,
         force: bool = False,
     ) -> StageResult:
-        from .semantics.tabkit import parser_fingerprint
-
         kits = find_kits(self.catalog, systems=systems)
         loose = find_loose_dictionaries(self.catalog, systems=systems)
         if limit:
@@ -403,15 +405,10 @@ class Pipeline:
             system = _system_of(path, self.settings.base_path)
             payload = self.blobs.read(digest)
             if path.lower().endswith(".cnv"):
-                from .semantics.cnv_parser import parse_cnv_bytes
-                from .semantics.dictionary import entries_from_loose_cnv
-
                 cnv = parse_cnv_bytes(payload, name=PurePosixPath(path).name, source_ref=path)
                 loose_entries.extend(entries_from_loose_cnv(cnv, system=system))
                 loose_cnvs += 1
             elif path.lower().endswith(".def"):
-                from .semantics.def_parser import parse_def_bytes
-
                 parsed = parse_def_bytes(payload, name=PurePosixPath(path).name, source_ref=path)
                 self.catalog.executemany(
                     """
@@ -1147,8 +1144,6 @@ class Pipeline:
 
 
 def _system_of(path: str, base_path: str) -> str | None:
-    from .inventory.naming import system_from_path
-
     return system_from_path(path, base_path)
 
 

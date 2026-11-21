@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 import pyarrow as pa
 
-from ..conditions import CONDITION
+from ..conditions import CONDITION, settle
 from ..config import Settings, load_settings
 from ..crosswalk import (
     EnrichmentRequest,
@@ -506,7 +506,6 @@ def query(
     )
     if request.condition is not None:
         # after the period: a record outside it is neither satisfied nor unknown
-        from ..conditions import settle
 
         table, report.condition = settle(table, request.condition, keep_unknown=_keep_unknown)
     table = _apply_dimensions(table, query_plan, report, resolved)

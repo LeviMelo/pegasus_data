@@ -44,17 +44,16 @@ import duckdb
 import numpy as np
 import pyarrow as pa
 
+from ..config import curation_root, load_settings
 from ..normalize.time import year_of
 from ..semantics.curation import read_yaml
 from ..semantics.epoch import curated
 from . import placebo
 from .identity import DUP_SQL, RECORD_ID_SQL, connect, quote
-from .roles import dataset_roles, role_table, unusable_roles, why_unusable
+from .roles import dataset_roles, role_gaps, role_table, unusable_roles, why_unusable
 
 
 def links_file() -> Path:
-    from ..config import curation_root
-
     return curation_root() / "links.yml"
 
 
@@ -556,7 +555,6 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     worst_pass = max((r.chance_percent or 0.0) for r in reports if r.kept) if any(r.kept for r in reports) else None
     upper = upper95(kept_control, kept_pairs)
     reach = {f"{key[0]} ~ {key[1]}": placebo.key_reach(con, *key, moved.get(key, quote(key[0]))) for key in control_keys}
-    from .roles import role_gaps
 
     failures = placebo.key_failures(reach)
     result = LinkResult(spec.name, n_left, n_right, pairs, validations, passes=reports, chance_percent=chance,
@@ -787,7 +785,6 @@ def link(
         result.pairs                    # l, r, pass
         link("sih_admissions_to_sim", period=("2018", "2022"), geography="AL", codes=["I21", "I22"])
     """
-    from ..config import load_settings
     from . import store
 
     try:
@@ -855,7 +852,6 @@ def side_counts(name: str, *, period: object, side: str, by: str, method: str | 
     (`entities.build_entities` of the scope) a record also counts as paired when its person holds a record of the
     other side's kind through any route: an infant death the direct link missed but an admission and its death
     certificate reached. The run must be stored (`link`); a run not viable or absent raises."""
-    from ..config import load_settings
     from . import store
 
     spec = load_links()[name]

@@ -46,12 +46,15 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..config import load_settings
 from ..semantics.curation import read_yaml
 from . import placebo
 from .engine import (
     LinkSpec,
     Report,
     _prepare,
+    _roles_needed,
+    _side_table,
     links_file,
     load_links,
     stored_key,
@@ -62,7 +65,7 @@ from .engine import (
 from .identity import connect, quote, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import dataset_roles, role_table, unusable_roles, why_unusable
+from .roles import dataset_roles, role_gaps, role_table, unusable_roles, why_unusable
 
 #: Random pairs for chance agreement (u). 200,000 pairs over 50,000-record
 #: reservoirs left "birth date equal" (u about 5e-5, a dozen occurrences) with
@@ -630,8 +633,6 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                       national: dict[str, Any] | None = None) -> ProbabilisticResult:
     from dataclasses import replace as _replace
 
-    from .roles import role_gaps
-
     prob, skipped = _usable(prob, left, right)
     con = connect()
     setting_role = dataset_roles(spec.left.dataset).setting
@@ -832,8 +833,6 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     spec as bound to a caller's codes (`engine.bind`); a cohort has no national
     reference to decide with.
     """
-    from ..config import load_settings
-    from .engine import _roles_needed
     from .store import load_params
 
     spec = spec or load_links()[name]
@@ -849,7 +848,6 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     # each side's own filter is applied where each year is read (`engine._side_table`), as the deterministic engine
     # reads it: a state's maternal deaths read every admission of the country, both sexes, before keeping the women's
     # (12.5 GB for RR 2022, 2026-11-09); `_prepare` applies it again, a no-op on rows it already kept
-    from .engine import _side_table
 
     left = _side_table(spec.left, left_roles, period=period, geography=geography, **query_kwargs)
     # an inherited role the model compares is required; one only a validation reads is optional

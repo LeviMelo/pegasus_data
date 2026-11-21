@@ -34,7 +34,10 @@ from typing import Any
 
 import pyarrow as pa
 
+from .catalog.store import CatalogStore
 from .config import Settings, load_settings
+from .persist.reference import has_reference_tables, stale_systems, write_reference_tables
+from .semantics.curation import system_spellings
 from .view import RenderMode, RenderReport, render_table
 
 __all__ = ["translate", "TranslationImpossible"]
@@ -157,7 +160,6 @@ def translate(
         raise TranslationImpossible("the table has no rows to label")
 
     resolved = settings or load_settings(root=Path(root) if root else None)
-    from .catalog.store import CatalogStore
 
     store = CatalogStore(resolved.catalog_path, read_only=True)
     try:
@@ -190,12 +192,9 @@ def translate(
 
 def _ensure_reference(store, settings: Settings, system: str) -> None:
     """Materialise the Parquet lookups the join needs, and rewrite a system's when they are stale."""
-    from .persist.reference import has_reference_tables, stale_systems, write_reference_tables
-
     if not has_reference_tables(settings.lake_dir):
         write_reference_tables(store, settings.lake_dir, compression=settings.compression)
         return
-    from .semantics.curation import system_spellings
 
     stale = stale_systems(store, settings.lake_dir, system_spellings(system))     # the system asked about, only
     if stale:           # lookups written from an older dictionary: rewritten, never served stale

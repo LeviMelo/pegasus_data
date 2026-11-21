@@ -74,13 +74,29 @@ from .config import Settings, load_settings
 from .decode.base import DecodeError, logical_source_id
 from .decode.isolation import IsolatedDecodeError
 from .decode.registry import ReaderRegistry
-from .decode.service import ABSENT, FAILED, member_verdict, record_decode_failure, short_body_note
-from .normalize.engine import NormalizePlan, build_plan, normalize_table
+from .decode.service import (
+    ABSENT,
+    FAILED,
+    decode_source,
+    member_verdict,
+    record_decode_failure,
+    short_body_note,
+)
+from .discovery.ftp_client import FtpClient
+from .normalize.engine import (
+    PROVENANCE_COLUMNS,
+    MissingColumnError,
+    NormalizePlan,
+    build_plan,
+    normalize_table,
+)
 from .normalize.geo import MunicipalityIndex
 from .normalize.time import compose, month_of
+from .persist.reference import stale_systems, systems_with_tables, write_reference_tables
 from .pipeline import Pipeline
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .representations import select_publications
+from .semantics.curation import derived_inputs, load_variable_docs, required_columns
 from .semantics.dictionary import DictionaryCache
 from .view import RenderMode, RenderReport
 
@@ -286,9 +302,7 @@ def read_source(
     """
     from ._query_engine.request import finish
     from .api import rows_expression
-    from .normalize.engine import PROVENANCE_COLUMNS, MissingColumnError
     from .render_groups import split_by_source
-    from .semantics.curation import load_variable_docs, required_columns
 
     system, series_name = request.system, request.series
     want_ufs, want_years, want_months = list(uf or ()), list(years or ()), list(months or ())
@@ -563,8 +577,6 @@ def fetch(
     # dictionary; the dictionary is built against the ORIGINAL names. Headers
     # are named by the presentation (ADR-0084), never here.
     if not provenance:
-        from .normalize.engine import PROVENANCE_COLUMNS
-
         keep = [c for c in rendered.column_names if c not in PROVENANCE_COLUMNS]
         if len(keep) != len(rendered.column_names):
             rendered = rendered.select(keep)
@@ -639,8 +651,6 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     ``.DEF`` long before this, and this only writes them down in the shape the
     join wants. It is a one-time cost, and skipped entirely once they exist.
     """
-    from .persist.reference import stale_systems, systems_with_tables, write_reference_tables
-
     # Bindings and curation arrive with the seed catalog (ADR-0067). Curation is
     # re-applied below when the shipped YAML has changed since the catalog was
     # built, so a corrected meaning reaches an existing catalog.
@@ -750,8 +760,6 @@ def _discover(
     unaffordable. The header census settles it from a few hundred bytes per
     stratum instead, and is the reason this path exists at all.
     """
-    from .discovery.ftp_client import FtpClient
-
     base = pipeline.settings.base_path
     if on_progress:
         on_progress(f"locating {system} under {base}", 0, 0)
@@ -904,8 +912,6 @@ def _structurally_absent(
     if wanted_columns and report.families:
         # a derived column (a curated recipe: ID_MN_RESI_municipio) is made after decoding, from columns the schema
         # holds: it is no field of any schema, and counting it absent warned that it was null when it was not;
-        from .normalize.engine import PROVENANCE_COLUMNS
-        from .semantics.curation import derived_inputs, load_variable_docs
 
         # so is a provenance column (``_source_path``): the decoder writes it beside the fields
         wanted_columns = (wanted_columns - set(derived_inputs(load_variable_docs(catalog, report.system)))
@@ -964,8 +970,6 @@ def _apply_missing_column_policy(
                 )
             report.columns_structurally_absent = dict(sorted(absent_by_family.items()))
         else:
-            from .normalize.engine import MissingColumnError
-
             raise MissingColumnError(
                 every[0],
                 ", ".join(sorted(absent_by_family)),
@@ -1440,8 +1444,6 @@ def _read_families(
     #: means "everything", which is the default and the common case.
     keep_columns = None
     if columns:
-        from .semantics.curation import load_variable_docs, required_columns
-
         keep_columns = required_columns(load_variable_docs(catalog, report.system or ""), columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
@@ -1636,7 +1638,6 @@ def _open_decoded_source(
     # a decoder that writes it straight back out makes several large copies.
     blob_path = pipeline.blobs.path_for(digest)
     size = blob_path.stat().st_size
-    from .decode.service import decode_source
 
     outcome = decode_source(
         blob_path,

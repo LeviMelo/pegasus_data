@@ -34,7 +34,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from ..catalog.store import CatalogStore
-from .curation import declared, load_variable_docs
+from .curation import declared, is_coded, load_variable_docs
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,7 +111,6 @@ def measure(store: CatalogStore, systems: list[str] | None = None) -> list[Field
             # files also bind continuous fields to band tables (DTOBITO to
             # epidemiological weeks, PESO to weight bands): groupings for
             # tabulation, not codes, so they never make a field "undecoded".
-            from .curation import is_coded
 
             coded = doc is not None and is_coded(doc.code_system)
             if doc is None:

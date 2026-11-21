@@ -44,6 +44,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .catalog.store import CatalogStore
+from .config import curation_root
 from .lookups import (
     _check_width,
     _contradictions,
@@ -57,10 +58,17 @@ from .lookups import (
     dictionary_of,
     expand,
 )
-from .normalize.time import year_bounds
-from .persist.reference import read_reference_table
-from .semantics.curation import VariableDoc, form_types_a_date, load_variable_docs
-from .semantics.label_bindings import _bindings, _family_series, _key_columns, compose_key
+from .normalize.time import parse_date_array, year_bounds
+from .persist.reference import collecting, read_reference_table
+from .semantics.curation import VariableDoc, form_types_a_date, is_coded, load_variable_docs, read_yaml
+from .semantics.label_bindings import (
+    _bindings,
+    _family_series,
+    _key_columns,
+    candidates_for,
+    compose_key,
+    decide,
+)
 
 if TYPE_CHECKING:
     from ._age import AgeDimension
@@ -404,9 +412,6 @@ def _label_via(
 def _bridge_declarations() -> tuple[dict[str, str], dict[str, tuple[str, int]], float]:
     """A recipe's short names for bridges, the classification and code width each lands in, and the share of the evidence
     a claim must hold to cross, as `codelists.yml` declares them (``bridges:``)."""
-    from .config import curation_root
-    from .semantics.curation import read_yaml
-
     declared = (read_yaml(curation_root() / "codelists.yml") or {})["bridges"]
     targets = {str(k): (str(v["classification"]), int(v["width"])) for k, v in declared["targets"].items()}
     return {str(k): str(v) for k, v in declared["names"].items()}, targets, float(declared["unique"])
@@ -521,8 +526,6 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
 
 def _coded(doc: object) -> bool:
     """The curation says this column holds codes (not numbers, dates or text)."""
-    from .semantics.curation import is_coded
-
     return doc is not None and is_coded(getattr(doc, "code_system", None))
 
 
@@ -553,7 +556,6 @@ def _select_codelists(
     left unlabelled without re-doing the weighing.
     """
     # One ladder of evidence, shared with compile_bindings (ADR-0082).
-    from .semantics.label_bindings import candidates_for, decide
 
     series = _family_series(store, family_id)
     # Counted in Arrow, then trimmed: a year of a file is a million cells and a few dozen distinct codes (ADR-0097), so
@@ -692,8 +694,6 @@ def render_table(
     only the number of chunks of a column grows. The labels are decided once over the value counts of all the rows
     given (`_select_codelists`), then applied to every piece, so they do not depend on how the column was cut.
     """
-    from .persist.reference import collecting
-
     table = placed_companions(table)
     # Every reference decision made inside this block belongs to THIS render.
     with collecting() as collected:
@@ -1327,7 +1327,6 @@ def _apply_derived(
                 # A date the source writes as 8-digit text (DDMMYYYY in SIM and SINASC), as a
                 # date beside the raw column. A value that is not a calendar date is null here
                 # and still there in the raw column.
-                from .normalize.time import parse_date_array
 
                 order = str(recipe["date"])
                 if order not in ("YYYYMMDD", "DDMMYYYY"):

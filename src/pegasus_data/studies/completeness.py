@@ -26,7 +26,7 @@ from typing import cast
 
 import numpy as np
 
-from ..config import UF_NUMERIC
+from ..config import UF_NUMERIC, curation_root
 
 UFS = sorted(int(code) for code in UF_NUMERIC)
 RESOURCES = Path(__file__).parent.parent / "resources"
@@ -116,7 +116,6 @@ def ill_defined_shares(settings, log=print) -> tuple[str, dict[tuple[int, int], 
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from ..config import curation_root
     from ..cubes import cube
     from ..fields import _years
     from ..semantics.column_roles import column_of

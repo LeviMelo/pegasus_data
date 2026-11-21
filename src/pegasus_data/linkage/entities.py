@@ -29,7 +29,9 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.compute  # noqa: F401 - pa.compute
 
+from ..config import curation_root, load_settings
 from ..semantics.curation import read_yaml
+from . import store
 from .engine import link_method, links_file, load_links, stored_key
 from .identity import connect
 from .store import load
@@ -40,8 +42,6 @@ def person_constraints() -> tuple[set[tuple[str, str]], list[tuple[tuple[str, st
     one person has at most one record of (``at_most_one: true``: one birth record as the baby, one death certificate),
     and the sets of person roles of one dataset no person holds together (``exclusive``: a birth record's baby is not
     its mother). Facts about a dataset's records, so a new dataset declares its own and the merge needs no edit."""
-    from ..config import curation_root
-
     at_most_one: set[tuple[str, str]] = set()
     exclusive: list[tuple[tuple[str, str], ...]] = []
     for path in sorted((curation_root() / "roles").glob("*.yml")):
@@ -96,8 +96,6 @@ def _signature(settings: Any, keys: list[Any]) -> str:
     """What the stored runs of a scope are as files and as current inputs: a re-run (refresh) that changes pairs
     changes the files' time and size, a rebuilt lake or role changes the fingerprint."""
     import hashlib
-
-    from . import store
 
     h = hashlib.sha256()
     for key in keys:
@@ -163,8 +161,6 @@ def build_entities(*, period: object, geography: object, method: str | None = No
     out (`triangles`: the persons the other links make). ``seeds`` (dataset, role, record ids) merges only the link
     graph's components that hold those records: components never interact, so their persons are exactly those of the
     whole merge (a cohort of 2,000 notifications needs not the year's 500,000 deaths-to-admissions pairs)."""
-    from ..config import load_settings
-
     settings = settings or load_settings()
     edges = _stored_edges(settings, period, geography, method, exclude)
     keep = None
@@ -381,8 +377,6 @@ def triangles(*, period: object, geography: object, settings: Any = None,
     (disagree). Two independent routes to one pair measure the links against each other, which no link's own controls
     can (2026-10-02: 3,085 newborn triangles agreed, 76 did not, 97.6 %). A link with no other route has none.
     ``exclude`` leaves links out, as `build_entities` does."""
-    from ..config import load_settings
-
     settings = settings or load_settings()
     edges = _stored_edges(settings, period, geography, None, exclude)       # loaded once for every spec
     out: dict[str, dict[str, Any]] = {}

@@ -16,8 +16,9 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .._vintage import months_in, source_vintages
+from ..catalog.store import CatalogStore
 from ..config import Settings
-from ..crosswalk import EnrichmentReport, EnrichmentRequest
+from ..crosswalk import EnrichmentReport, EnrichmentRequest, enrichment_route
 from ..normalize.time import competencia_to_year_month, month_label
 from ..semantics.column_roles import facility_code_field
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
@@ -56,7 +57,6 @@ def _spread(values: Sequence[Any], inverse: np.ndarray, kind: pa.DataType | None
 def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
 ) -> pa.Table:
-    from ..catalog.store import CatalogStore
     from ..labelpack import (
         packed_mapping_covers_interval,
         packed_mapping_is_time_invariant,
@@ -296,8 +296,6 @@ def _geography_dimension(table: pa.Table, request: object, system: str, report: 
 def _enrichment_output_name(request: EnrichmentRequest) -> str:
     """The column an enrichment writes: the request's ``as_field``, else its route's declared ``output``, else
     ``<NAMESPACE>_<attribute>``."""
-    from ..crosswalk import enrichment_route
-
     if request.as_field:
         return request.as_field
     declared_output = enrichment_route(request.target).get("output")
@@ -465,7 +463,6 @@ def _enrich_cnes_attribute(
     source_field = (request.from_field or "").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
-    from ..crosswalk import enrichment_route
 
     registry_field = str(enrichment_route(request.target)["column"])
     key_field = cast("str", facility_code_field("CNES-ST"))   # the registry's own establishment column (its roles)

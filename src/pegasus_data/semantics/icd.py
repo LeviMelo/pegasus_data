@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from ..catalog.store import CatalogStore
-from .curation import declared
+from .curation import declared, forget_variable_docs
 
 #: A dotless ICD-10 code: a letter, two digits, then an optional fourth
 #: character. ``J189``, ``A419``, ``I10X`` — the trailing X is DATASUS padding a
@@ -354,8 +354,6 @@ def persist_token_rules(catalog: CatalogStore, measured: Sequence[ColumnQuality]
     A measured rule fills a gap; it does not win an argument.
     """
     import json
-
-    from .curation import forget_variable_docs
 
     forget_variable_docs(catalog)
     written = 0

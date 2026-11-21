@@ -26,7 +26,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from .semantics.curation import is_coded
+from .catalog.store import CatalogStore
+from .semantics.curation import is_coded, semantics_for
 
 #: The kinds and models a dataset's declared column roles (``curation/roles``) give to the columns that are never
 #: dimensions: an identifier or a date identifies or times the record, the event's own place and date are the axes the
@@ -95,10 +96,8 @@ def suggest(
     import pyarrow.compute as pc
 
     from ._query_engine.readplan import LAKE_COLUMNS
-    from .catalog.store import CatalogStore
     from .config import load_settings
     from .retrieve import fetch
-    from .semantics.curation import semantics_for
 
     resolved = settings or load_settings()
     table, _report = fetch(

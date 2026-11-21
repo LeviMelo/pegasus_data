@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ..catalog.store import CatalogStore
-from ..config import Settings
+from ..config import Settings, curation_root
 from ..normalize.time import month_of
 from ..persist.lake import Lake, LakePartition, listed_partitions, record_source
 from ..semantics.epoch import curated
@@ -144,7 +144,6 @@ def compile_capability_payload() -> dict[str, Any]:
     """The source-publication declarations of ``curation/datasets/*.yml``, compiled (once per curation epoch). The
     query engine reads this; a shipped JSON copy of it (``publication_coverage.json``) went stale with any curation edit
     and is gone (2026-11-09)."""
-    from ..config import curation_root
     from ..semantics.curation import read_yaml
 
     datasets: dict[str, dict[str, Any]] = {}

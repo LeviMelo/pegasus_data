@@ -47,15 +47,15 @@ from typing import Any, cast
 import pyarrow as pa
 import pyarrow.compute as pc
 
+from ..catalog.store import CatalogStore
+from ..config import curation_root, load_settings
 from ..semantics.categories import canonical_sex
 from ..semantics.curation import read_yaml
-from ..semantics.epoch import curated
+from ..semantics.epoch import curated, curation_epoch
 
 
 def roles_files() -> list[Path]:
     """The datasets' roles files (`curation/roles/*.yml`); those with a ``compare:`` column are linkable."""
-    from ..config import curation_root
-
     return sorted((curation_root() / "roles").glob("*.yml"))
 
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
@@ -253,8 +253,6 @@ def label_tables(dataset: str, families: Sequence[str], settings: Any) -> frozen
     the data home has no catalog to say, and a reader then has to take the label pack whole. Memoised by the catalog
     file's size and time and the curation's digest (a long-lived process sees a catalog written since only when SQLite
     checkpoints it), so asking for every year of a run costs one answer."""
-    from ..semantics.epoch import curation_epoch
-
     path = Path(settings.catalog_path)
     try:
         stat = path.stat()
@@ -270,7 +268,6 @@ def _label_tables(dataset: str, families: tuple[str, ...], catalog: str, identit
     import sqlite3
 
     from .._request import parse_dataset
-    from ..catalog.store import CatalogStore
     from ..semantics.label_bindings import label_candidates
 
     del identity, curation                        # the memo's key: which catalog and curation this answer is about
@@ -442,8 +439,6 @@ def role_table(
     (53 s) to keep 1/27 of it. A scope the cache cannot answer exactly (a month, a nation published as one file) is
     computed and not kept.
     """
-    from ..config import load_settings
-
     spec = dataset_roles(dataset)
     names = list(roles or spec.roles)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
@@ -574,8 +569,6 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     files may carry (`_carried`: a padded side reads a year whose generation lacks a column the next one has, SINASC
     2009 without DTNASCMAE, and one query for both failed). Rows carry ``_uf``, the state whose publication they came
     from, or "BR" for a national file. The strategy is "lake" when every query was answered from the lake."""
-    from ..config import load_settings
-
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     years = _whole_years(period)
     parts: list[pa.Table] = []
@@ -657,7 +650,6 @@ def _check_labels_named(dataset: str, labelled: set[str], report: Any, period: o
     change to that codelist then alters: the silent stale state the key exists to prevent. This turns it into an error
     at the first build, naming the column and the codelist, and no table is kept."""
     from .._query_engine.model import _period
-    from ..config import load_settings
 
     used = _codelists_used(report, labelled)
     if not used:

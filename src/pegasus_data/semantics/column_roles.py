@@ -62,8 +62,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+from ..config import curation_root
 from ..normalize.time import month_of, year_of
-from ..ontology import dataset_key
+from ..ontology import Ontology, dataset_key
 from .epoch import curated
 
 KINDS = frozenset({"category", "code_tree", "number", "date", "place", "institution", "identifier", "text"})
@@ -254,8 +255,6 @@ class ColumnRole:
 
 
 def roles_dir() -> Path:
-    from ..config import curation_root
-
     return curation_root() / "roles"
 
 
@@ -474,8 +473,6 @@ def _through_declared(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
     """Every column reached through a key is the same column of a dataset that files it: that dataset declares it with
     the same role and kind (a sex is a sex) and files it itself (no chain of keys), and the key of ``joins.yml`` has
     this dataset and that one as members, so the columns that join are declared once, there."""
-    from ..ontology import Ontology
-
     keys = Ontology.load().keys
     for dataset, columns in declared.items():
         for c in columns:

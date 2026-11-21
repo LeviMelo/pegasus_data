@@ -49,6 +49,7 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
+from ..semantics.curation import declared
 from . import placebo
 from .identity import connect, quote
 from .roles import dataset_roles, role_table
@@ -63,8 +64,6 @@ ATTRIBUTE = ("integer", "label")
 def _declared(key: str) -> int:
     """A discovery cut from ``links.yml`` (``thresholds.discover``: `shift_days`, `max_interval_days`, `top_date_sets`,
     `top_keys_for_attributes`), each declared there with its evidence."""
-    from ..semantics.curation import declared
-
     return int(declared("links.yml", "thresholds", "discover", key))
 
 
