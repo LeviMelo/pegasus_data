@@ -245,28 +245,46 @@ class Lake:
         # warehouse: nothing partial is ever visible at `target`, and a failure
         # leaves the old partition intact and no debris behind.
         rows_written = 0
+        extra_files: list[Path] = []
 
-        def write_parquet(staged: Path) -> None:
-            nonlocal rows_written
+        def open_writer(staged: Path, schema: pa.Schema) -> pq.ParquetWriter:
             # `_row` counts up within each file: delta-encoded it is a few bits a
             # row, against 4.6% of an SIH partition dictionary-encoded (measured
             # 2026-10-04, SP 2022). Delta encoding excludes the dictionary.
-            sequential = [n for n in first.schema.names if n == "_row"]
-            writer = pq.ParquetWriter(
+            sequential = [n for n in schema.names if n == "_row"]
+            return pq.ParquetWriter(
                 staged,
-                first.schema,
+                schema,
                 compression=self.compression,
-                use_dictionary=[n for n in first.schema.names if n not in sequential],
+                use_dictionary=[n for n in schema.names if n not in sequential],
                 column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
                 write_statistics=True,
                 version="2.6",
             )
+
+        def write_parquet(staged: Path, *, split: bool) -> None:
+            """The batches into ``staged``; with ``split`` a batch whose schema differs from the file's opens the next
+            part file beside it. A family's files of one year can differ by a column (SIA-AQ 2013-2015: AP_NATJUR in
+            some months, not others; 2026-11-21), and a Parquet file's schema is fixed by its first batch: the build
+            raised. A column a month lacks stays absent in that file, never written as nulls."""
+            nonlocal rows_written
+            writer = open_writer(staged, first.schema)
+            current = first.schema
             try:
                 writer.write_batch(first, row_group_size=self.row_group_size)
                 rows_written += first.num_rows
                 for batch in stream:
                     if not batch.num_rows:
                         continue
+                    if not batch.schema.equals(current, check_metadata=False):
+                        if not split:
+                            raise ValueError(f"{family_id} {uf} {year}: a batch's schema differs from the partition's "
+                                             "and this write appends to one file")
+                        writer.close()
+                        nxt = staged.with_name(f"part-{part + len(extra_files) + 1:05d}.parquet")
+                        extra_files.append(nxt)
+                        writer = open_writer(nxt, batch.schema)
+                        current = batch.schema
                     writer.write_batch(batch, row_group_size=self.row_group_size)
                     rows_written += batch.num_rows
             finally:
@@ -283,11 +301,12 @@ class Lake:
             # walks hidden directories too, so a staging tree inside the family made every query on it fail while a
             # partition was written (and after a killed build).
             with staged_tree(directory, staging_root=self.root / STAGING_DIR) as staged_directory:
-                write_parquet(staged_directory / target.name)
+                write_parquet(staged_directory / target.name, split=True)
         else:
             directory.mkdir(parents=True, exist_ok=True)
             with staged_file(target) as staged:
-                write_parquet(staged)
+                write_parquet(staged, split=False)
+        files = [directory / target.name, *(directory / f.name for f in extra_files)]
         written = WrittenPartition(
             family_id=family_id,
             schema_signature=schema_signature,
@@ -295,8 +314,12 @@ class Lake:
             year=year,
             relative_path=str(target.relative_to(self.root)).replace("\\", "/"),
             row_count=rows_written,
-            byte_size=target.stat().st_size,
+            byte_size=sum(f.stat().st_size for f in files),
         )
+        # one catalog row per file, with that file's rows: a partition split by a schema change (`write_parquet`) is
+        # verified file by file (`prune`)
+        rows_of = [(str(f.relative_to(self.root)).replace("\\", "/"), pq.ParquetFile(f).metadata.num_rows,
+                    f.stat().st_size) for f in files]
         if self.catalog is not None:
             with self.catalog.write() as conn:
                 if replace:
@@ -316,12 +339,20 @@ class Lake:
                     source_paths=excluded.source_paths, written_at=excluded.written_at,
                     build_fingerprint=excluded.build_fingerprint
                     """,
-                    (
-                        family_id, schema_signature, uf, year, written.relative_path,
-                        written.row_count, written.byte_size, json.dumps(list(source_paths)), utcnow(),
+                    [(
+                        family_id, schema_signature, uf, year, rel, n, size, json.dumps(list(source_paths)), utcnow(),
                         build_fingerprint,
-                    ),
+                    ) for rel, n, size in rows_of][0],
                 )
+                for rel, n, size in rows_of[1:]:
+                    conn.execute(
+                        """INSERT INTO lake_partitions (family_id, schema_signature, uf, year, relative_path, row_count,
+                           byte_size, source_paths, written_at, build_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?)
+                           ON CONFLICT(family_id, schema_signature, uf, year, relative_path) DO UPDATE SET
+                           row_count=excluded.row_count, byte_size=excluded.byte_size, source_paths=excluded.source_paths,
+                           written_at=excluded.written_at, build_fingerprint=excluded.build_fingerprint""",
+                        (family_id, schema_signature, uf, year, rel, n, size, json.dumps(list(source_paths)), utcnow(),
+                         build_fingerprint))
         return written
 
     def partition_is_current(
